@@ -1,0 +1,1565 @@
+Title: A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities
+
+URL Source: https://arxiv.org/pdf/2606.22467v1
+
+Published Time: Tue, 23 Jun 2026 02:10:22 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+## Youness Mezzan 1 , Youssef Ouakrim 2 and Abderrahim Zafrar 3,∗1 Department of Mathematics, Cadi Ayyad University, Faculty of Science and Technology, Marrakech, Morocco. 
+
+2 Laboratoire de Mathématiques et Applications aux Sciences de l’Ingénieur, Ecole Normale Supérieure, Université Sidi Mohamed Ben Abdellah, Fès, Maroc. 
+
+3 Department of Mathematics, Sidi Mohamed Ben Abdellah University, Faculty of Sciences Dhar El Mahraz, Fez, Morocco. 
+
+A R T I C L E I N F O 
+
+Keywords :Inverse parameter identification; Elliptic variational inequalities; Robin coefficient; Augmented Lagrangian method; Alternating direction method of mul-tipliers (ADMM); Fenchel duality; Tikhonov regularization; 
+
+A B S T R A C T 
+
+This paper is concerned with an inverse parameter identification problem governed by a second-kind elliptic variational inequality involving a non-differentiable boundary functional. The objective is to reconstruct an unknown Robin-type coefficient from boundary measurements while preserving the intrinsic nonsmooth structure of the underlying model. The inverse problem is formulated as a constrained optimization problem, where the cost functional measures the discrepancy between the computed and observed data and is stabilized by Tikhonov regular-ization. To overcome the difficulties associated with the nonsmooth variational inequality, we reformulate the state problem as a constrained minimization problem and employ an augmented Lagrangian framework combined with the alternating direction method of multipliers (ADMM). Fenchel duality is used to treat the non-differentiable boundary term without introducing smoothing approximations. We establish identifiability of the unknown coefficient and prove ex-istence and convergence results for the proposed approximation scheme. Numerical experiments performed on a classical benchmark problem confirm the theoretical analysis and demonstrate that accurate parameter reconstruction can be achieved with reduced computational effort. The proposed methodology provides a robust framework for inverse problems arising in applications such as heat transfer, frictional contact, and corrosion detection. 
+
+## 1. Introduction 
+
+Inverse parameter identification problems governed by variational inequalities arise in a broad spectrum of physical and engineering applications, including frictional contact mechanics, corrosion detection from boundary voltage measurements, and Robin-type heat exchange modelling [20, 21, 24, 4]. In each of these settings, the parameter of interest typically a friction or Robin coefficient defined on a portion of the boundary is not directly observable, but rather must be inferred from boundary measurements of the associated state variable. The mathematical structure of such problems is considerably more delicate than its classical PDE counterpart: the state is governed by an elliptic variational inequality of the second kind [13, 19, 22], which involves a convex but non-differentiable functional encoding the friction or contact condition. This non-smooth structure, combined with the presence of inequality type constraints in the state problem [5], renders the application of standard based identification methods largely intractable. The theoretical foundations of elliptic variational inequalities of the second kind were laid in the fundamental works of Duvaut and Lions [5] and Glowinski et al. [13]. While their existence and uniqueness theory is by now well-understood, the numerical identification of unknown parameters within such inequalities has remained comparatively unexplored. The principal difficulties are threefold. First, the map 𝑔 ↦ 𝑢 𝑔 from the parameter to the state is nonlinear, Lipschitz continuous, but generally neither smooth nor convex [15]. Second, the unknown coefficient is defined on the contact zone, which may itself depend on the solution and is not known a priori. Third, the uniqueness of the forward state depends on the coefficient being below a mesh-dependent critical threshold, which further complicates the numerical treatment. Several strategies have been proposed in the literature to address related classes of inverse problems. [15] and [16] study the identification of parameters linked to bilinear and nonlinear non-smooth functionals in second-kind variational inequalities, establishing theoretical optimality conditions under Lipschitz assumptions. [27] address a nonlinear quasi-variational setting in Banach spaces, using fixed-point arguments to characterize the solution set. The 
+
+> ⋆
+
+youness.mezzan@ced.uca.ma (Y. Mezzan 1); youssef.ouakrim@usmba.ac.ma (Y. Ouakrim 2); zafrar.abd@gmail.com (A. Zafrar 3,∗)
+
+> ORCID
+
+(s): 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 1 of 17 
+
+> arXiv:2606.22467v1 [math.OC] 21 Jun 2026 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities
+
+identification of a distributed parameter in an elliptic variational inequality is investigated in [17], while [18] develops an output least-squares formulation solved via an active-set Newton method with feasibility restoration to circumvent the low regularity of the associated Lagrange multipliers. [3] introduces a nonsmooth regularization framework encompassing total variation regularization, thereby enabling the identification of discontinuous coefficients. More recently, [30] addresses parameter identification in nonlinear mixed quasi-variational inequalities within an abstract Banach space framework. A widely used alternative consists in replacing the non-smooth inequality constraint by a regularized variational equation [11, 14], yielding a smoother optimization landscape. Despite its numerical convenience, this smoothing approach introduces an additional regularization bias and may compromise the physical interpretation of the underlying model, particularly in applications where the stick-slip transition or the corrosion threshold has intrinsic physical significance. The present paper proposes a fundamentally different strategy: rather than regularizing the non-smooth structure of the state problem, we preserve it exactly and exploit convex duality to decompose the resulting constrained minimization problem into a sequence of tractable subproblems. The core of our approach rests on three ingredients. 
+
+• Augmented Lagrangian decomposition. We reformulate the non-smooth variational inequality as an equivalent constrained minimization problem by introducing an auxiliary boundary variable 𝜙 subject to the coupling constraint 𝑢 |Γ𝑓 = 𝜙 . The augmented Lagrangian associated with this reformulation is then minimized by the Alternating Direction Method of Multipliers (ADMM) [1], which alternates between a quadratic elliptic subproblem for 𝑢 and a non-smooth boundary subproblem for 𝜙 .
+
+• Fenchel duality for the non-differentiable term. The 𝜙 -subproblem involves the minimization of the friction functional 𝑗 (𝑔, ⋅) = ∫Γ𝑓 𝑔 | ⋅ | 𝑑𝑠 , which is convex but non-differentiable. By applying Fenchel duality [8], the solution is obtained in closed form via a pointwise soft-thresholding (proximal projection) operator, entirely avoiding any smoothing approximation of the absolute value function. 
+
+• Approximate identification sequence. The inverse problem is approximated by a sequence of regularized problems, indexed by the ADMM iteration count 𝑛 . At level 𝑛 , the cost functional 𝐽 𝑛 𝜀 (𝑔 ) is constructed using the approximate state 𝑢 𝑛 𝑔 obtained after exactly 𝑛 ADMM iterations, rather than the exact solution of the forward inequality. We prove that the resulting sequence of minimizers 𝑔 𝑛 𝑘  
+
+> ∗
+
+converges strongly in 𝐿 2(Γ 𝑓 ) to the true parameter 𝑔 ∗, and that the corresponding states converge strongly in 𝑉 . This result eliminates the computational bottleneck of solving the forward variational inequality to full accuracy at every optimization step. The proposed framework has several notable advantages over existing approaches. Unlike smoothing-based methods, it preserves the intrinsic non-smooth structure of the friction model and avoids the introduction of any additional smoothing parameter. Unlike semismooth Newton methods [29], it does not require the computation of generalized derivatives of the state map, which are known to be of low regularity in the bilateral constraint setting. The ADMM splitting reduces the original non-smooth constrained identification problem to a sequence of linear elliptic solves and pointwise threshold evaluations, all of which are computationally inexpensive. Furthermore, the same augmented Lagrangian framework extends naturally to other coefficient identification tasks, including the determination of Lamé parameters in linear elasticity, Young moduli in structural mechanics, or spatially varying Robin coefficients in heat transfer [23, 4, 24]. It also applies directly to bilevel optimization problems with variational inequality state constraints [2, 10]. The remainder of the paper is organized as follows. Section 2 introduces the functional setting, formulates the second-kind elliptic variational inequality and its equivalent energy minimization, and casts the inverse problem as a Tikhonov-regularized output least-squares program over the admissible set. Section 3 establishes the identifiability of the Robin coefficient. Section 4 constitutes the theoretical core of the paper. We derive the augmented Lagrangian reformulation of the state problem, obtain closed-form ADMM subproblem solutions via Fenchel duality, define the approximate inverse problem sequence {( 𝐼𝑃 )𝑛 𝜀 }, and prove existence of minimizers and their strong convergence in 
+
+𝐿 2(Γ 𝑓 ) to the exact regularized solution. Section 5 provides a quantitative numerical validation. Section 6 draws conclusions and outlines extensions to spatially varying coefficients, noisy data, and quasi-variational settings.   
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 2 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities
+
+## 2. Forward and Inverse Problem Formulation 
+
+Let Ω ⊂ ℝ𝑛 , 𝑛 ∈ {2 , 3} , be an open bounded domain with Lipschitz boundary Γ. Let Γ0 ⊂ Γ be a relatively open subset, possibly empty, and set Γ𝑓 ∶= Γ ⧵ Γ0. We introduce the closed subspace 
+
+𝑉 ∶= {𝑣 ∈ 𝐻 1(Ω) ∶ 𝜏𝑣 = 0 a.e. on Γ0
+
+} , (2.1) where 𝐻 1(Ω) denotes the standard Sobolev space and 𝜏 ∶ 𝐻 1(Ω) → 𝐿 2(Γ) is the Sobolev trace operator. For brevity, we write 𝑣 in place of 𝜏𝑣 when the trace is evaluated on Γ.
+
+2.1. The Direct Problem 
+
+We consider the following second-kind elliptic variational inequality. 
+
+Problem (𝑃 𝑉 ). Find 𝑢 ∈ 𝑉 such that 
+
+𝑎 (𝑢, 𝑣 − 𝑢 ) + 𝑗 (𝑔, 𝑣 ) − 𝑗 (𝑔, 𝑢 ) ≥ ⟨𝑓 , 𝑣 − 𝑢 ⟩ ∀ 𝑣 ∈ 𝑉 , (2.2) 
+
+where: 
+
+• 𝑎 (𝑢, 𝑣 ) ∶= ∫Ω
+
+(∇𝑢 ⋅ ∇𝑣 + 𝑢 𝑣 ) d𝑥 is a symmetric, continuous, and coercive bilinear form on 𝑉 × 𝑉 ;
+
+• 𝑗 (𝑔, 𝑣 ) ∶= ∫Γ𝑓 
+
+𝑔 |𝑣 | d𝑠 is a proper, convex, and lower semi-continuous functional, with 𝑔 > 0 a.e. on Γ𝑓 ;
+
+• ⟨𝑓 , 𝑣 ⟩ ∶= ∫Ω
+
+𝑓 𝑣 d𝑥 is a bounded linear functional, with 𝑓 ∈ 𝐿 2(Ω) .The existence and uniqueness of a solution to Problem (𝑃 𝑉 ) follow from standard results in the theory of variational inequalities [22, 13, 19]. The principal analytical difficulty lies in the non-differentiability of the functional 𝑗 (𝑔, ⋅) with respect to its second argument. Two classical strategies are available to address this: the introduction of a Lagrange multiplier to resolve the subdifferential of the absolute value, or the regularization of 𝑗 (𝑔, ⋅) by a smooth approximation. In the present work, we pursue the former approach within a dual augmented Lagrangian framework, as detailed in Section 4. 
+
+2.2. The Inverse Problem 
+
+The objective of this paper is to recover the Robin coefficient 𝑔 , which characterizes the material response on the contact boundary Γ𝑓 , from boundary measurements of the state 𝑢 . To ensure the well-posedness of this identification problem, we impose the following condition on the solution: 
+
+meas 
+
+({𝑥 ∈ Γ 𝑓 ∶ 𝑢 |Γ𝑓 (𝑥 ) = 0 })
+
+= 0 , (2.3) where meas( 𝑊 ) denotes the Lebesgue measure of a set 𝑊 . Assumption (2.3) is standard in the Robin inverse problem literature [24, 4, 23]. It ensures that Newton’s law of convective heat transfer is meaningful on Γ𝑓 , and is equivalent to the injectivity of the parameter-to-state map 𝑔 ↦ 𝑢 𝑔 , a property that is naturally satisfied in electrochemical corrosion detection applications [20]. Let Γ𝑠 ⊆ Γ𝑓 denote the portion of the friction boundary on which measurements are available, and let 𝑢 𝑑 ∈ 𝐿 2(Γ 𝑠 )
+
+be the corresponding observed data. We define the set of admissible coefficients as 
+
+𝐹 ∶= 
+
+{
+
+𝑔 ∈ 𝐻 1(Γ 𝑓 ) ∶ ‖𝑔 ‖𝐿 2(Γ 𝑓 ) ≤ 𝑔 0
+
+}
+
+, (2.4) for a given bound 𝑔 0 > 0. The inverse problem then reads: find 𝑔 ∈ 𝐹 such that the solution 𝑢 of Problem (𝑃 𝑉 )
+
+satisfies 𝑢 |Γ𝑠 = 𝑢 𝑑 .The mathematical formulation of this identification problem is cast as the following output least-squares minimization.   
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 3 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities
+
+Problem (𝐼𝑝 ). Find 𝑔 ∗ ∈ 𝐹 such that 
+
+𝐽 (𝑔 ∗) = inf  
+
+> 𝑔 ∈𝐹
+
+𝐽 (𝑔 ), 𝐽 (𝑔 ) ∶= 12 ∫Γ𝑓 
+
+(𝑢 𝑔 − 𝑢 𝑑 
+
+)2d𝑠, (2.5) where 𝑢 𝑔 ∶= 𝑢 (𝑔 ) ∈ 𝑉 denotes the solution of Problem (𝑃 𝑉 ) associated with the coefficient 𝑔 .Since the parameter-to-state mapping 𝑔 ↦ 𝑢 𝑔 is nonlinear, albeit Lipschitz continuous [16], Problem (𝐼𝑝 ) is generally ill-posed in the sense of Hadamard. To restore stability and guarantee the existence of minimizers, we employ Tikhonov regularization and introduce the penalized cost functional 
+
+𝐽 𝜀 (𝑔 ) ∶= 12 ∫Γ𝑓 
+
+(𝑢 𝑔 − 𝑢 𝑑 
+
+)2d𝑠 + 𝜀 
+
+2 ‖𝑔 ‖2 
+
+> 𝐿 2(Γ 𝑓 )
+
+, 𝜀 > 0, (2.6) where the second term penalizes the 𝐿 2(Γ 𝑓 )-norm of 𝑔 and 𝜀 is the regularization parameter. The regularized inverse problem is formulated as follows. 
+
+Problem (𝐼𝑝 )𝜀 . Find 𝑔 ∗ ∈ 𝐹 such that 
+
+𝐽 𝜀 (𝑔 ∗) = inf  
+
+> 𝑔 ∈𝐹
+
+𝐽 𝜀 (𝑔 ). (2.7) The existence of at least one solution to Problem (𝐼𝑝 )𝜀 follows from the coercivity and weak lower semi-continuity of 
+
+𝐽 𝜀 on the weakly closed set 𝐹 ⊂ 𝐿 2(Γ 𝑓 ), as established in Section 4. 
+
+## 3. Identifiability of the Robin Coefficient 
+
+In this section, we investigate the identifiability of the Robin coefficient 𝑔 from boundary measurements. We recall that the state problem (2.2) admits a unique solution, which is formally equivalent to the following boundary value problem: 
+
+⎧⎪⎨⎪⎩
+
+−Δ 𝑢 + 𝑢 = 𝑓 in Ω,𝑢 = 0 on Γ0,
+
+|||
+
+> 𝜕𝑢 𝜕𝜈
+
+||| ≤ 𝑔, 𝑢 𝜕𝑢 𝜕𝜈 + 𝑔 |𝑢 | = 0 on Γ𝑓 ,
+
+(3.1) where 𝜈 denotes the outward unit normal vector on 𝜕 Ω. The non-smooth boundary conditions on Γ𝑓 can be equivalently decomposed as follows: 
+
+||||
+
+𝜕𝑢 𝜕𝜈 
+
+|||| < 𝑔 ⟹ 𝑢 = 0 ,𝜕𝑢 𝜕𝜈 = 𝑔 ⟹ 𝑢 ≤ 0,𝜕𝑢 𝜕𝜈 = − 𝑔 ⟹ 𝑢 ≥ 0.
+
+(3.2) The following result establishes the identifiability of the Robin coefficient from boundary measurements. 
+
+Proposition 1. Let 𝑔 1, 𝑔 2 ∈ 𝐹 be two parameters, and let 𝑢 1, 𝑢 2 be the corresponding solutions of problem (2.2) 
+
+associated with 𝑔 1 and 𝑔 2, respectively. If 𝑢 1 = 𝑢 2 on Γ𝑓 , then 𝑔 1 = 𝑔 2 a.e. on Γ𝑓 .
+
+PROOF . Let 𝑔 1 and 𝑔 2 be two elements of 𝐹 such that 𝑢 1 |Γ𝑓 
+
+= 𝑢 2 |Γ𝑓 
+
+. Let us define 𝑤 = 𝑢 1 − 𝑢 2. By linearity, 𝑤 solves the following homogeneous boundary value problem: 
+
+⎧⎪⎨⎪⎩
+
+−Δ 𝑤 + 𝑤 = 0 in Ω,𝑤 = 0 on Γ0,𝑤 = 0 on Γ𝑓 .
+
+(3.3)   
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 4 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities
+
+By invoking the unique continuation property for this elliptic system, we immediately obtain that 𝑤 ≡ 0 in Ω. This implies that 𝑢 1 = 𝑢 2 throughout the domain Ω, from which it follows that their normal derivatives also coincide on the boundary. Consequently, evaluating the boundary conditions on Γ𝑓 for both states yields: 
+
+𝑢 1
+
+𝜕𝑢 1
+
+𝜕𝜈 + 𝑔 1|𝑢 1| = 0 on Γ𝑓 ,𝑢 1
+
+𝜕𝑢 1
+
+𝜕𝜈 + 𝑔 2|𝑢 1| = 0 on Γ𝑓 .
+
+Subtracting these two identities leads to: 
+
+|𝑢 1| (𝑔 1 − 𝑔 2
+
+) = 0 on Γ𝑓 . (3.4) Symmetrically, we also have: 
+
+|𝑢 2| (𝑔 1 − 𝑔 2
+
+) = 0 on Γ𝑓 . (3.5) To establish the result, let us assume by contradiction that 𝑔 1 ≢ 𝑔 2. Taking advantage of the continuity of 𝑔 1 and 𝑔 2,there exists an open subset 𝜗 ⊂ Γ𝑓 with strictly positive Lebesgue measure (meas (𝜗 ) > 0) such that: 
+
+(𝑔 1 − 𝑔 2
+
+) (𝑥 ) ≠ 0, ∀𝑥 ∈ 𝜗. 
+
+In view of equations (3.4) and (3.5), this condition implies that 𝑢 𝑖 ≡ 0 on 𝜗 for 𝑖 ∈ {1 , 2} . Therefore, each 𝑢 𝑖 turns out to be a solution of the modified problem: 
+
+⎧⎪⎪⎨⎪⎪⎩
+
+−Δ 𝑢 𝑖 + 𝑢 𝑖 = 𝑓 in Ω,𝑢 𝑖 = 0 on Γ0,𝑢 𝑖 = 0 on 𝜗, 
+
+||||
+
+𝜕𝑢 𝑖 
+
+𝜕𝜈 
+
+|||| ≤ 𝑔 𝑖 , 𝑢 𝑖 
+
+𝜕𝑢 𝑖 
+
+𝜕𝜈 + 𝑔 𝑖 |𝑢 𝑖 | = 0 on Γ𝑓 ⧵ 𝜗. 
+
+Applying the same argument iteratively, we can extend this trivial trace to the whole boundary, showing that 𝑢 𝑖 ≡ 0
+
+on Γ𝑓 for 𝑖 ∈ {1 , 2} . Thus, 𝑢 𝑖 satisfies both problem (3.3) and the standard Dirichlet problem: 
+
+{−Δ 𝑢 𝑖 + 𝑢 𝑖 = 𝑓 in Ω,𝑢 𝑖 = 0 on Γ,
+
+where Γ = Γ 0 ∪ Γ 𝑓 . This directly contradicts the assumption: meas 
+
+(
+
+{𝑥 ∈ Γ 𝑓 ∶ 𝑢 |Γ𝑓 
+
+(𝑥 ) = 0} 
+
+)
+
+= 0 .
+
+As a consequence: (𝑔 1 − 𝑔 2
+
+) (𝑥 ) = 0 , ∀𝑥 ∈ Γ 𝑓 ,
+
+which completes the proof. 
+
+## 4. Augmented Lagrangian Decomposition, Algorithm, and Convergence Analysis 
+
+This section constitutes the theoretical and algorithmic core of the paper. We first reformulate the non-smooth state problem (2.2) as an equivalent constrained minimization problem amenable to operator splitting. We then derive the ADMM subproblems and their closed-form solutions via Fenchel duality, define the approximate inverse problem sequence, and establish existence and strong convergence of the resulting minimizers.   
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 5 of 17
+
+A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+4.1. Augmented Lagrangian Formulation of the State Problem 
+
+Let  ∶ 𝑉 → ℝ denote the energy functional 
+
+ (𝑣 ) ∶= 12 𝑎 (𝑣, 𝑣 ) − ⟨𝑓 , 𝑣 ⟩, (4.1) which is strictly convex and weakly coercive on 𝑉 by the assumptions on 𝑎 (⋅, ⋅). It is classical (see, e.g., [8, 13]) that the variational inequality (2.2) is equivalent to the unconstrained minimization 
+
+min 
+
+> 𝑣 ∈𝑉
+
+[ (𝑣 ) + 𝑗 (𝑔, 𝑣 )]. (4.2) In order to decouple the smooth part  from the non-differentiable functional 𝑗 (𝑔, ⋅), we introduce an auxiliary variable 𝜙 ∈ 𝐿 2(Γ 𝑓 ) representing the boundary trace of the state on Γ𝑓 , subject to the coupling constraint 𝑢 |Γ𝑓 = 𝜙 .Problem (4.2) is then equivalently rewritten as the following constrained minimization problem. Find (𝑢, 𝜙 ) ∈ 𝑉 × 𝐿 2(Γ 𝑓 ) such that  (𝑢 ) + 𝑗 (𝑔, 𝜙 ) ≤  (𝑣 ) + 𝑗 (𝑔, 𝜓 ) ∀ ( 𝑣, 𝜓 ) ∈ 𝑉 × 𝐿 2(Γ 𝑓 ), (4.3) subject to the constraint 𝑢 − 𝜙 = 0 on Γ𝑓 .The augmented Lagrangian associated with problem (4.3) is defined, for a penalty parameter 𝜌 > 0 and a Lagrange multiplier 𝜆 ∈ 𝐿 2(Γ 𝑓 ), by 
+
+𝜌 (𝑢, 𝜙, 𝜆 ) ∶=  (𝑢 ) + 𝑗 (𝑔, 𝜙 ) + ⟨𝜆, 𝑢 − 𝜙 ⟩Γ𝑓 + 𝜌 
+
+2 ‖𝑢 − 𝜙 ‖2Γ𝑓 , (4.4) where ‖ ⋅ ‖Γ𝑓 and ⟨⋅, ⋅⟩Γ𝑓 denote the 𝐿 2(Γ 𝑓 )-norm and inner product, respectively. The augmented Lagrangian (4.4) coincides with the standard Lagrangian at feasible points, while the quadratic penalty term 𝜌  
+
+> 2
+
+‖𝑢 − 𝜙 ‖2Γ𝑓 enforces constraint satisfaction progressively and improves the conditioning of the subproblems. 
+
+4.2. ADMM Subproblems and Their Explicit Solutions 
+
+Starting from an initial pair (𝜙 0, 𝜆 0) ∈ 𝐿 2(Γ 𝑓 ) × 𝐿 2(Γ 𝑓 ), the ADMM produces a sequence {( 𝑢 𝑛 , 𝜙 𝑛 , 𝜆 𝑛 )} 𝑛 ≥1 by alternately minimizing 𝜌 with respect to 𝑢 and 𝜙 , followed by a dual ascent update: 
+
+𝑢 𝑛 +1 ∈ Arg min 𝑣 ∈𝑉 𝜌 (𝑣, 𝜙 𝑛 , 𝜆 𝑛 ), (4.5) 
+
+𝜙 𝑛 +1 ∈ Arg min 𝜓 ∈𝐿 2(Γ 𝑓 ) 𝜌 (𝑢 𝑛 +1 , 𝜓, 𝜆 𝑛 ), (4.6) 
+
+𝜆 𝑛 +1 = 𝜆 𝑛 + 𝜌 (𝑢 𝑛 +1 − 𝜙 𝑛 +1 ). (4.7) Solution of the 𝑢 -subproblem (4.5). Expanding 𝜌 (⋅, 𝜙 𝑛 , 𝜆 𝑛 ) and completing the square, one verifies that (4.5) is a strictly convex quadratic minimization problem over 𝑉 . Its unique minimizer 𝑢 𝑛 +1 ∈ 𝑉 is characterized by the variational equation 
+
+𝑎 (𝑢 𝑛 +1 , 𝑣 ) + 𝜌 ⟨𝑢 𝑛 +1 , 𝑣 ⟩Γ𝑓 = ⟨𝑓 , 𝑣 ⟩ + ⟨𝜌 𝜙 𝑛 − 𝜆 𝑛 , 𝑣 ⟩Γ𝑓 ∀ 𝑣 ∈ 𝑉 . (4.8) This is a well-posed second-order elliptic boundary value problem with a Robin-type boundary term on Γ𝑓 : the bilinear form 𝑣 ↦ 𝑎 (𝑢, 𝑣 ) + 𝜌 ⟨𝑢, 𝑣 ⟩Γ𝑓 is bounded and coercive on 𝑉 , so existence and uniqueness of 𝑢 𝑛 +1 follow directly from the Lax–Milgram theorem. Solution of the 𝜙 -subproblem (4.6). For fixed 𝑢 𝑛 +1 and 𝜆 𝑛 , the 𝜙 -subproblem reads 
+
+min  
+
+> 𝜓 ∈𝐿 2(Γ 𝑓 )
+
+[
+
+𝑗 (𝑔, 𝜓 ) + ⟨𝜆 𝑛 , −𝜓 ⟩Γ𝑓 + 𝜌 
+
+2 ‖𝑢 𝑛 +1 − 𝜓 ‖2Γ𝑓 
+
+]
+
+. (4.9) Setting 𝜅 𝑛 ∶= 𝜆 𝑛 + 𝜌 𝑢 𝑛 +1 ∈ 𝐿 2(Γ 𝑓 ), problem (4.9) is rewritten (up to constants in 𝜓 ) as 
+
+min  
+
+> 𝜓 ∈𝐿 2(Γ 𝑓 )
+
+[
+
+∫Γ𝑓 
+
+𝑔 |𝜓 | d𝑠 + 𝜌 
+
+2
+
+‖‖‖‖𝜓 − 𝜅 𝑛 
+
+𝜌 
+
+‖‖‖‖
+
+> 2Γ𝑓
+
+]
+
+, (4.10) 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 6 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+which is precisely the proximal operator of the convex, non-differentiable functional 𝜓 ↦ ∫Γ𝑓 𝑔 |𝜓 | d𝑠 evaluated at 
+
+𝜅 𝑛 ∕𝜌 . By Fenchel duality [8], the unique minimizer is given pointwise a.e. on Γ𝑓 by 
+
+𝜙 𝑛 +1 (𝑥 ) = 
+
+⎧⎪⎨⎪⎩
+
+𝜅 𝑛 (𝑥 )
+
+𝜌 − 𝑔 (𝑥 )
+
+𝜌 𝜅 𝑛 (𝑥 )
+
+|𝜅 𝑛 (𝑥 )| if |𝜅 𝑛 (𝑥 )| > 𝑔 (𝑥 ),
+
+0 if |𝜅 𝑛 (𝑥 )| ≤ 𝑔 (𝑥 ).
+
+(4.11) This closed-form solution is the key computational advantage of the augmented Lagrangian splitting: a non-smooth global optimization problem is reduced to a pointwise algebraic evaluation on the boundary. The complete inner ADMM iteration for the state problem is summarized as follows. 
+
+Given (𝜙 0, 𝜆 0) ∈ 𝐿 2(Γ 𝑓 )2 and 𝑔 ∈ 𝐹 , iterate for 𝑛 = 0 , 1, 2, …:
+
+1. Solve the linear variational equation (4.8) to obtain 𝑢 𝑛 +1 ∈ 𝑉 .2. Compute 𝜅 𝑛 = 𝜆 𝑛 + 𝜌 𝑢 𝑛 +1 pointwise on Γ𝑓 and set 𝜙 𝑛 +1 by (4.11). 3. Update the multiplier: 𝜆 𝑛 +1 = 𝜆 𝑛 + 𝜌 (𝑢 𝑛 +1 − 𝜙 𝑛 +1 ).
+
+4.3. Approximate Inverse Problem Sequence 
+
+For each 𝑛 ≥ 1, let 𝑢 𝑛 𝑔 ∈ 𝑉 denote the output of exactly 𝑛 inner ADMM iterations applied to the state problem (4.8) with parameter 𝑔 ∈ 𝐹 ; that is, 𝑢 𝑛 𝑔 solves (4.8) at the 𝑛 -th step of the inner loop. We define the approximate cost functional 
+
+𝐽 𝑛 𝜀 (𝑔 ) ∶= 12 ∫Γ𝑓 
+
+(𝑢 𝑛 𝑔 − 𝑢 𝑑 
+
+)2 d𝑠 + 𝜀 
+
+2 ‖𝑔 ‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+, 𝑔 ∈ 𝐹 , (4.12) and the associated approximate inverse problem: 
+
+Problem (𝐼𝑃 )𝑛 𝜀 . Find 𝑔 ∗ 
+
+> 𝑛
+
+∈ 𝐹 such that 
+
+𝐽 𝑛 𝜀 (𝑔 ∗ 
+
+> 𝑛
+
+) = inf  
+
+> 𝑔 ∈𝐹
+
+𝐽 𝑛 𝜀 (𝑔 ). (4.13) The sequence {( 𝐼𝑃 )𝑛 𝜀 }𝑛 ≥1 approximates the regularized inverse problem (𝐼𝑃 )𝜀 by replacing the exact forward solve with an 𝑛 -step ADMM approximation. As 𝑛 → ∞, the approximate state 𝑢 𝑛 𝑔 converges strongly to the exact state 
+
+𝑢 𝑔 in 𝑉 (by the convergence theory of ADMM), and accordingly 𝐽 𝑛 𝜀 → 𝐽 𝜀 pointwise on 𝐹 . The central theoretical contributions of the present work are to establish that each approximate problem (𝐼𝑃 )𝑛 𝜀 admits at least one solution, and that the sequence of approximate minimizers converges strongly to the exact minimizer of (𝐼𝑃 )𝜀 as 𝑛 → ∞.
+
+4.4. Existence of Solutions to the Approximate Problems 
+
+Proposition 2. For every 𝑛 ≥ 1 and every 𝜀 > 0, the minimization problem (𝐼𝑃 )𝑛 𝜀 defined by (4.13) admits at least one solution 𝑔 ∗ 
+
+> 𝑛
+
+∈ 𝐹 .
+
+PROOF . Fix 𝑛 ≥ 1 and 𝜀 > 0. We verify the hypotheses of the direct method in the calculus of variations: coercivity, weak lower semi-continuity, and sequential weak compactness of 𝐹 .Coercivity and weak compactness of 𝐹 . By definition (2.4), the admissible set 𝐹 is a bounded, closed, and convex subset of 𝐿 2(Γ 𝑓 ), hence weakly sequentially compact therein. Any minimizing sequence (𝑔 𝑘 )𝑘 ⊂ 𝐹 therefore admits a subsequence such that 𝑔 𝑘 ⇀ 𝑔 weakly in 𝐿 2(Γ 𝑓 ) for some 𝑔 ∈ 𝐹 .Boundedness of the approximate states. For each 𝑘 , the approximate state 𝑢 𝑛 𝑔 𝑘 is the output of the 𝑛 -th step of the inner ADMM loop applied with parameter 𝑔 𝑘 . In particular, 𝑢 1 
+
+> 𝑔 𝑘
+
+∈ 𝑉 solves (4.8) with right-hand side data 𝑓 ∈ 𝐿 2(Ω) and 
+
+𝜌𝜙 0 − 𝜆 0 ∈ 𝐿 2(Γ 𝑓 ). Testing with 𝑣 = 𝑢 1 
+
+> 𝑔 𝑘
+
+and using coercivity of 𝑎 (⋅, ⋅) gives 
+
+𝛼 ‖‖‖𝑢 1
+
+> 𝑔 𝑘
+
+‖‖‖ 
+
+> 2
+> 𝑉
+
+≤ 𝑎 (𝑢 1 
+
+> 𝑔 𝑘
+
+, 𝑢 1 
+
+> 𝑔 𝑘
+
+) ≤ ‖𝑓 ‖𝐿 2(Ω) 
+
+‖‖‖𝑢 1
+
+> 𝑔 𝑘
+
+‖‖‖𝑉 + ‖𝜌𝜙 0 − 𝜆 0‖𝐿 2(Γ 𝑓 )
+
+‖‖‖𝑢 1
+
+> 𝑔 𝑘
+
+‖‖‖𝑉 , (4.14)   
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 7 of 17
+
+A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+where 𝛼 > 0 is the coercivity constant of 𝑎 . Dividing by ‖‖‖𝑢 1
+
+> 𝑔 𝑘
+
+‖‖‖𝑉 (assumed positive; the case 𝑢 1 
+
+> 𝑔 𝑘
+
+= 0 is trivial) shows that (𝑢 1 
+
+> 𝑔 𝑘
+
+)𝑘 is bounded in 𝑉 uniformly in 𝑘 . An induction argument on the ADMM steps, using the fact that each subsequent state 𝑢 𝑛 +1  
+
+> 𝑔 𝑘
+
+solves (4.8) with right-hand side data updated by the bounded sequence (𝜌𝜙 𝑛 𝑔 𝑘 − 𝜆 𝑛 𝑔 𝑘 )𝑘 ,establishes by the same coercivity estimate that (𝑢 𝑛 𝑔 𝑘 )𝑘 is bounded in 𝑉 for every fixed 𝑛 .Weak convergence of the approximate states. Since (𝑢 𝑛 𝑔 𝑘 )𝑘 is bounded in 𝑉 and 𝑉 is a Hilbert space, we may extract a further subsequence such that 𝑢 𝑛 𝑔 𝑘 ⇀ 𝑢 𝑛 weakly in 𝑉 for some 𝑢 𝑛 ∈ 𝑉 . The compact embedding 𝑉 ↪ 𝐿 2(Γ 𝑓 ) then yields 𝑢 𝑛 𝑔 𝑘 → 𝑢 𝑛 strongly in 𝐿 2(Γ 𝑓 ). Passing to the limit in (4.8) with data 𝑔 𝑘 ⇀ 𝑔 , one identifies 𝑢 𝑛 = 𝑢 𝑛 𝑔 .Weak lower semi-continuity of 𝐽 𝑛 𝜀 . Along the subsequence extracted above, the strong convergence 𝑢 𝑛 𝑔 𝑘 → 𝑢 𝑛 𝑔 in 𝐿 2(Γ 𝑓 )
+
+implies 
+
+∫Γ𝑓 
+
+(𝑢 𝑛 𝑔 𝑘 − 𝑢 𝑑 )2 d𝑠 𝑘 →∞
+
+←←←←←←←←←←←←←←←←←←←←←→ ∫Γ𝑓 
+
+(𝑢 𝑛 𝑔 − 𝑢 𝑑 )2 d𝑠. (4.15) The Tikhonov term 𝜀  
+
+> 2
+
+‖‖𝑔 𝑘 ‖‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+is weakly lower semi-continuous in 𝐿 2(Γ 𝑓 ) by the convexity and continuity of the norm. Combining these two observations gives 
+
+𝐽 𝑛 𝜀 (𝑔 ) ≤ lim inf  
+
+> 𝑘 →∞
+
+𝐽 𝑛 𝜀 (𝑔 𝑘 ), (4.16) which establishes the weak lower semi-continuity of 𝐽 𝑛 𝜀 on 𝐹 . Since 𝐹 is weakly sequentially compact and 𝐽 𝑛 𝜀 is weakly lower semi-continuous, the infimum of 𝐽 𝑛 𝜀 over 𝐹 is attained, and 𝑔 ∶= 𝑔 ∗ 
+
+> 𝑛
+
+∈ 𝐹 is a solution of (𝐼𝑃 )𝑛 𝜀 .
+
+4.5. Strong Convergence of the Approximate Minimizers 
+
+We are now in a position to prove the convergence result, which establishes that the sequence of approximate minimizers 𝑔 ∗ 
+
+> 𝑛
+
+converges strongly to the exact regularized minimizer 𝑔 ∗ of (𝐼𝑃 )𝜀 , and that the corresponding states converge strongly in 𝑉 .
+
+Theorem 1. Let 𝜀 > 0 be fixed. For each 𝑛 ≥ 1, let 𝑔 ∗ 
+
+> 𝑛
+
+∈ 𝐹 be any solution of the approximate problem (𝐼𝑃 )𝑛 𝜀 , and let 𝑢 ∗ 
+
+> 𝑛
+
+∶= 𝑢 𝑛 𝑔 ∗
+
+> 𝑛
+
+∈ 𝑉 denote the corresponding approximate state. Let 𝑔 ∗ ∈ 𝐹 be any solution of the regularized inverse problem (𝐼𝑃 )𝜀 with exact state 𝑢 ∗ ∶= 𝑢 𝑔 ∗ ∈ 𝑉 . Then, as 𝑛 → +∞ ,
+
+𝑔 ∗ 
+
+> 𝑛
+
+→ 𝑔 ∗ strongly in 𝐿 2(Γ 𝑓 ), 𝑢 ∗ 
+
+> 𝑛
+
+→ 𝑢 ∗ strongly in 𝑉 . (4.17) 
+
+Moreover, 
+
+lim  
+
+> 𝑛 →+∞
+
+𝐽 𝑛 𝜀 (𝑔 ∗ 
+
+> 𝑛
+
+) = 𝐽 𝜀 (𝑔 ∗) = inf  
+
+> 𝑔 ∈𝐹
+
+𝐽 𝜀 (𝑔 ). (4.18) PROOF . Since 𝐹 ⊂ 𝐿 2(Γ 𝑓 ) is bounded and the sequence (𝑢 ∗
+
+> 𝑛
+
+)𝑛 is bounded in 𝑉 (by the same coercivity argument as in the proof of Proposition 2), we may extract a subsequence such that 
+
+𝑔 ∗ 
+
+> 𝑛
+
+⇀̃ 𝑔 weakly in 𝐿 2(Γ 𝑓 ), 𝑢 ∗ 
+
+> 𝑛
+
+⇀̃ 𝑢 weakly in 𝑉 , (4.19) as 𝑛 → +∞ , for some ̃𝑔 ∈ 𝐹 and ̃𝑢 ∈ 𝑉 .Since 𝑢 ∗ 
+
+> 𝑛
+
+solves (4.8) at the 𝑛 -th ADMM step with parameter 𝑔 ∗ 
+
+> 𝑛
+
+, and the ADMM iterates converge strongly to the exact solution as 𝑛 → ∞ (cf. [1, 7]), we have 𝑢 ∗ 
+
+> 𝑛
+
+→ 𝑢 ̃𝑔 strongly in 𝑉 along the subsequence, where 𝑢 ̃𝑔 ∈ 𝑉 is the unique solution of the forward variational inequality (2.2) with parameter ̃𝑔 . Hence ̃𝑢 = 𝑢 ̃ 𝑔 and 𝑢 ∗ 
+
+> 𝑛
+
+→̃𝑢 strongly in 𝑉 .The strong convergence 𝑢 ∗ 
+
+> 𝑛
+
+→̃ 𝑢 in 𝑉 implies, via the compact trace embedding 𝑉 ↪ 𝐿 2(Γ 𝑓 ), that 𝑢 ∗
+
+> 𝑛
+
+|Γ𝑓 →̃ 𝑢 | Γ𝑓 
+
+strongly in 𝐿 2(Γ 𝑓 ). Therefore, 
+
+𝐽 𝜀 (̃𝑔 ) = 12 ‖‖̃𝑢 − 𝑢 𝑑 ‖‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
++ 𝜀 
+
+2 ‖̃𝑔 ‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+≤ lim inf  
+
+> 𝑛 →∞
+
+𝐽 𝑛 𝜀 (𝑔 ∗ 
+
+> 𝑛
+
+), (4.20) where the inequality uses the weak lower semi-continuity of the Tikhonov term and the pointwise convergence 𝐽 𝑛 𝜀 → 𝐽 𝜀 
+
+on 𝐹 . On the other hand, since 𝑔 ∗ 
+
+> 𝑛
+
+is optimal for (𝐼𝑃 )𝑛 𝜀 , we have 𝐽 𝑛 𝜀 (𝑔 ∗ 
+
+> 𝑛
+
+) ≤ 𝐽 𝑛 𝜀 (𝑔 ) for every 𝑔 ∈ 𝐹 . Taking 𝑔 = 𝑔 ∗ and passing to the limit gives 
+
+lim inf  
+
+> 𝑛 →∞
+
+𝐽 𝑛 𝜀 (𝑔 ∗ 
+
+> 𝑛
+
+) ≤ lim  
+
+> 𝑛 →∞
+
+𝐽 𝑛 𝜀 (𝑔 ∗) = 𝐽 𝜀 (𝑔 ∗). (4.21) 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 8 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+Combining (4.20) and (4.21) yields 
+
+𝐽 𝜀 (̃𝑔 ) ≤ 𝐽 𝜀 (𝑔 ∗) = inf  
+
+> 𝑔 ∈𝐹
+
+𝐽 𝜀 (𝑔 ), (4.22) which shows that ̃𝑔 is itself a minimizer of (𝐼𝑃 ) 𝜀 . We may therefore identify 𝑔 ∗ ∶= ̃𝑔 and (4.18) follows. It follows from the above that: 
+
+𝜀 
+
+2 lim sup 
+
+> 𝑛 →∞
+
+‖‖𝑔 ∗ 
+
+> 𝑛
+
+‖‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+≤ lim sup 
+
+> 𝑛 →∞
+
+𝐽 𝑛 𝜀 (𝑔 ∗ 
+
+> 𝑛
+
+) − 12
+
+‖‖‖𝑢 ∗
+
+> 𝑛
+
+|Γ𝑓 − 𝑢 𝑑 
+
+‖‖‖  
+
+> 2
+> 𝐿 2(Γ 𝑓 )
+
+. (4.23) Since 𝑢 ∗ 
+
+> 𝑛
+
+→ 𝑢 ∗ strongly in 𝑉 and the trace is compact, ‖𝑢 ∗
+
+> 𝑛
+
+|Γ𝑓 − 𝑢 𝑑 ‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+→ ‖𝑢 ∗|Γ𝑓 − 𝑢 𝑑 ‖2 
+
+> 𝐿 2(Γ 𝑓 )
+
+. Substituting (4.18) into (4.23): 
+
+𝜀 
+
+2 lim sup 
+
+> 𝑛 →∞
+
+‖‖𝑔 ∗ 
+
+> 𝑛
+
+‖‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+≤ 𝐽 𝜀 (𝑔 ∗) − 12
+
+‖‖‖𝑢 ∗|Γ𝑓 − 𝑢 𝑑 
+
+‖‖‖  
+
+> 2
+> 𝐿 2(Γ 𝑓 )
+
+= 𝜀 
+
+2 ‖‖𝑔 ∗‖‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+. (4.24) Since weak convergence 𝑔 ∗ 
+
+> 𝑛
+
+⇀ 𝑔 ∗ implies ‖𝑔 ∗‖𝐿 2(Γ 𝑓 ) ≤ lim inf 𝑛 →∞ ‖‖𝑔 ∗ 
+
+> 𝑛
+
+‖‖𝐿 2(Γ 𝑓 ), we conclude that 
+
+lim 
+
+> 𝑛 →∞
+
+‖‖𝑔 ∗ 
+
+> 𝑛
+
+‖‖𝐿 2(Γ 𝑓 ) = ‖‖𝑔 ∗‖‖𝐿 2(Γ 𝑓 ) . (4.25) Hence 𝑔 ∗ 
+
+> 𝑛
+
+→ 𝑔 ∗ strongly in 𝐿 2(Γ 𝑓 ), which completes the proof. 
+
+## 5. Numerical Validation 
+
+Having established the theoretical framework in Sections 4, we now turn to its computational realization and numerical validation. 
+
+5.1. Outer ADMM Algorithm for Parameter Identification 
+
+At each outer iteration 𝑛 ≥ 0, the inner ADMM loop (Steps (1)–(3) of Section 4.2) has produced the pair 
+
+(𝜙 𝑛 , 𝜆 𝑛 ) ∈ 𝐿 2(Γ 𝑓 )2. The approximate inverse problem (𝐼𝑃 )𝑛 +1  
+
+> 𝜀
+
+then reads: find 𝑔 ∗ ∈ 𝐹 such that 
+
+𝐽 𝑛 +1  
+
+> 𝜀
+
+(𝑔 ∗) = inf  
+
+> 𝑔 ∈𝐹
+
+𝐽 𝑛 +1  
+
+> 𝜀
+
+(𝑔 ) ∶= inf 
+
+> 𝑔 ∈𝐹
+
+[
+
+12 ∫Γ𝑓 
+
+(𝑢 𝑛 +1  
+
+> 𝑔
+
+− 𝑢 𝑑 )2 d𝑠 + 𝜀 
+
+2 ‖𝑔 ‖2 
+
+> 𝐿 2(Γ 𝑓 )
+
+]
+
+, (5.1) subject to the state equation (4.8), which we recall here for convenience: 
+
+𝑎 (𝑢 𝑛 +1 , 𝑣 ) + 𝜌 ⟨𝑢 𝑛 +1 , 𝑣 ⟩Γ𝑓 = ⟨𝑓 , 𝑣 ⟩ + ⟨𝜌𝜙 𝑛 (𝑔 ) − 𝜆 𝑛 , 𝑣 ⟩Γ𝑓 ∀ 𝑣 ∈ 𝑉 . (5.2) Problem (5.1)–(5.2) is an elliptic boundary coefficient control problem: the state 𝑢 𝑛 +1 satisfies a second-order elliptic equation with mixed Dirichlet–Neumann–Robin boundary conditions, and the control 𝑔 enters both the objective and the Robin term on Γ𝑓 . Such problems arise in heat-transfer identification and in corrosion detection by electrostatic boundary measurements [20, 21, 28, 2, 10]. To solve (5.1)–(5.2), we apply a second ADMM loop in the variables (𝑢, 𝑔, 𝜙 ), with the constraint residuals 
+
+⟨∇𝑒 1(𝑢, 𝑔 ), ∇𝑣 ⟩ ∶= 𝑎 (𝑢, 𝑣 ) + 𝜌 ⟨𝑢, 𝑣 ⟩Γ𝑓 − ⟨𝑏, 𝑣 ⟩, (5.3) 
+
+𝑒 2(𝑢, 𝑔, 𝜙 ) ∶= 𝜙 −
+
+( 𝜅 (𝑢 )
+
+𝜌 − 𝑔 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )|)
+
+𝟏 {|𝜅 (𝑢 )|>𝑔 }, (5.4) 
+
+𝑒 3(𝑢, 𝑔, 𝜙, 𝜆 ) ∶= 𝜆 − 𝜆 𝑘 − 𝜌 (𝑢 − 𝜙 ), (5.5) where ⟨𝑏, 𝑣 ⟩ ∶= ⟨𝑓 , 𝑣 ⟩ + ⟨𝜌𝜙 𝑛 − 𝜆 𝑛 , 𝑣 ⟩Γ𝑓 and 𝜅 (𝑢 ) ∶= 𝜆 𝑛 + 𝜌𝑢 . The associated augmented Lagrangian, with multipliers 
+
+(𝜇, 𝛽, 𝜉 ) ∈ 𝑉 × 𝐿 2(Γ 𝑓 ) × 𝐿 2(Γ 𝑓 ) and penalty parameter 𝛾 > 0, is 
+
+𝔏 𝛾 (𝑢, 𝑔, 𝜙 ; 𝜇, 𝛽, 𝜉 ) ∶= 12 ∫Γ𝑓 
+
+(𝑢 −𝑢 𝑑 )2 d𝑠 + 𝜀 
+
+2 ‖𝑔 ‖2 
+
+> 𝐿 2(Γ 𝑓 )
+
++⟨∇𝑒 1, ∇𝜇 ⟩+⟨𝑒 2, 𝛽 ⟩+⟨𝑒 3, 𝜉 ⟩+ 𝛾 
+
+2
+
+(‖∇𝑒 1‖2+‖𝑒 2‖2+‖𝑒 3‖2). (5.6) 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 9 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+Starting from (𝑔 0, 𝜙 0, 𝜇 0, 𝛽 0, 𝜉 0), the outer ADMM alternates the three minimization steps 
+
+𝑢 𝑘 +1 ∈ Arg min 𝑣 𝔏 𝛾 (𝑣, 𝑔 𝑘 , 𝜙 𝑘 ; 𝜇 𝑘 , 𝛽 𝑘 , 𝜉 𝑘 ), (5.7) 
+
+𝑔 𝑘 +1 ∈ Arg min 𝓁 ∈𝐹 𝔏 𝛾 (𝑢 𝑘 +1 , 𝓁 , 𝜙 𝑘 ; 𝜇 𝑘 , 𝛽 𝑘 , 𝜉 𝑘 ), (5.8) 
+
+𝜙 𝑘 +1 ∈ Arg min 𝜓 𝔏 𝛾 (𝑢 𝑘 +1 , 𝑔 𝑘 +1 , 𝜓 ; 𝜇 𝑘 , 𝛽 𝑘 , 𝜉 𝑘 ), (5.9) followed by the dual ascent updates 
+
+𝜇 𝑘 +1 = 𝜇 𝑘 +𝛾 𝑒 1(𝑢 𝑘 +1 , 𝑔 𝑘 +1 ), 𝛽 𝑘 +1 = 𝛽 𝑘 +𝛾 𝑒 2(𝑢 𝑘 +1 , 𝑔 𝑘 +1 , 𝜙 𝑘 +1 ), 𝜉 𝑘 +1 = 𝜉 𝑘 +𝛾 𝑒 3(𝑢 𝑘 +1 , 𝑔 𝑘 +1 , 𝜙 𝑘 +1 , 𝜆 𝑘 +1 ). (5.10) We now derive the explicit solution of each subproblem. 
+
+Subproblem (5.7) : Isolating the terms in 𝔏 𝛾 that depend on 𝑢 and writing 𝜅 (𝑢 ) = 𝜆 𝑛 + 𝜌𝑢 , one decomposes 
+
+𝑈 (𝑢 ) ∶= 𝔏 𝛾 (𝑢, 𝑔, 𝜙 ; 𝜇, 𝛽, 𝜉 ) as 𝑈 (𝑢 ) = 𝑈 1(𝑢 ) + 𝑈 2(𝑢 ), where 
+
+𝑈 1(𝑢 ) ∶= 12 ∫Γ𝑓 
+
+(𝑢 − 𝑢 𝑑 )2 d𝑠 + 𝜌 2𝛾 
+
+2 ‖𝑢 ‖2 − ⟨𝑢, 𝜌𝛾 (𝜆 − 𝜆 𝑘 − 𝜌𝜙 ) + 𝜌𝜉 ⟩ + 𝜅 (𝑢 )2
+
+𝜌 2
+
+is strictly convex and Fréchet differentiable, and 
+
+𝑈 2(𝑢 ) ∶= − 
+
+⟨
+
+𝛽 + 𝛾𝜙, 𝜅 (𝑢 )
+
+𝜌 − 𝑔 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )|⟩
+
+𝟏 {|𝜅 (𝑢 )|>𝑔 } − 𝑔 𝛾 |𝜅 (𝑢 )|
+
+2𝜌 
+
+is locally Lipschitz but non-convex and non-smooth. Since 𝑢 solves (5.7), the necessary optimality condition reads 
+
+0 ∈ 𝜕 𝑐 𝑈 (𝑢 ), where 𝜕 𝑐 denotes the Clarke subdifferential (see Appendix A). By the calculus rules for Clarke subdifferentials and the derivation of 𝜕 𝑐 𝑈 2 given in (A.7), one obtains 
+
+𝜕 𝑐 𝑈 (𝑢 ) = 
+
+⎧⎪⎪⎪⎪⎨⎪⎪⎪⎪⎩{∇𝑈 1(𝑢 ) + ∇ 𝑈 −2 (𝑢 )} if 𝜅 (𝑢 ) > 𝑔, 
+
+{∇𝑈 1(𝑢 ) + ∇ 𝑈 +2 (𝑢 )} if 𝜅 (𝑢 ) < −𝑔, 
+
+{∇𝑈 1(𝑢 ) − 𝛾  
+
+> 2
+
+𝑔 } if 0 < 𝜅 (𝑢 ) ≤ 𝑔, 
+
+{∇𝑈 1(𝑢 ) + 𝛾  
+
+> 2
+
+𝑔 } if − 𝑔 ≤ 𝜅 (𝑢 ) < 0,
+
+co {∇𝑈 1(𝑢 ) − 𝛾  
+
+> 2
+
+𝑔, ∇𝑈 1(𝑢 ) + 𝛾  
+
+> 2
+
+𝑔 } if 𝜅 (𝑢 ) = 0 .
+
+(5.11) The condition 0 ∈ 𝜕 𝑐 𝑈 (𝑢 𝑘 +1 ) is then solved by the Proximal Bundle Algorithm of Appendix B. 
+
+Subproblem (5.8) : With 𝑢 𝑘 +1 fixed, the reduced objective in 𝑔 is 
+
+𝐺 (𝑔 ) ∶= 𝜀 
+
+2 ‖𝑔 ‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
++ ⟨𝑒 2(𝑢, 𝑔, 𝜙 ), 𝛽 ⟩ + 𝛾 
+
+2 ‖𝑒 2(𝑢, 𝑔, 𝜙 )‖2, (5.12) which evaluates to 
+
+𝐺 (𝑔 ) = 
+
+⎧⎪⎪⎨⎪⎪⎩⟨
+
+𝑔 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )| , 𝛽 + 𝛾𝜙 
+
+⟩
+
+− 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 𝑔 +
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔 2 if |𝜅 (𝑢 )| > 𝑔, 
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔 2 − 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 𝑔 otherwise. (5.13) This function is non-convex and non-smooth in 𝑔 ; the Clarke subdifferential 𝜕 𝑐 𝐺 (𝑔 ) is 
+
+𝜕 𝑐 𝐺 (𝑔 ) = 
+
+⎧⎪⎪⎪⎨⎪⎪⎪⎩{⟨ 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )| , 𝛽 + 𝛾𝜙 
+
+⟩
+
+− 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 2 
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔 
+
+}
+
+if 𝑔 < |𝜅 (𝑢 )|,
+
+[ 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 𝜀 |𝜅 (𝑢 )|,
+
+⟨ 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )| , 𝛽 + 𝛾𝜙 
+
+⟩
+
++ 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 𝜀 |𝜅 (𝑢 )|]
+
+if 𝑔 = |𝜅 (𝑢 )|,
+
+{
+
+2
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔 − 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2
+
+}
+
+otherwise. (5.14) 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 10 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+Table 1 
+
+Quantitative evolution of the identified parameter 𝑔 𝑛 𝑘 and the approximate cost functional 𝐽 𝑛 𝑘  
+
+> 𝜀
+
+(𝑔 𝑛 𝑘 ) as the inner ADMM iteration count 𝑛 𝑘 increases. 
+
+𝑛 𝑘 𝑔 𝑛 𝑘 Absolute error |𝑔 𝑛 𝑘 − 𝑔 ∗| Objective 𝐽 𝑛 𝑘  
+
+> 𝜀
+
+(𝑔 𝑛 𝑘 )
+
+1 0.010000 1.4900 × 10 0 1.8638 × 10 −4 
+
+5 1.018758 4.8124 × 10 −1 2.5927 × 10 −5 
+
+10 1.289685 2.1032 × 10 −1 6.6506 × 10 −6 
+
+50 1.494061 5.9382 × 10 −3 2.2071 × 10 −6 
+
+100 1.499727 2.7213 × 10 −4 2.2209 × 10 −6 
+
+500 1.499865 1.3420 × 10 −4 2.2213 × 10 −6 
+
+The optimality condition 0 ∈ 𝜕 𝑐 𝐺 (𝑔 𝑘 +1 ) is again handled by the Proximal Bundle Algorithm of Appendix B. 
+
+Subproblem (5.9) : The reduced objective in 𝜙 is 
+
+𝐹 (𝜙 ) ∶= ⟨𝑒 2(𝑢, 𝑔, 𝜙 ), 𝛽 ⟩ + ⟨𝑒 3(𝑢, 𝑔, 𝜙, 𝜆 ), 𝜉 ⟩ + 𝛾 
+
+2 ‖𝑒 2(𝑢, 𝑔, 𝜙 )‖2 + 𝛾 
+
+2 ‖𝑒 3(𝑢, 𝑔, 𝜙, 𝜆 )‖2. (5.15) Expanding each term, with 𝜅 (𝑢 ) = 𝜆 𝑛 + 𝜌𝑢 :
+
+⟨𝑒 2(𝑢, 𝑔, 𝜙 ), 𝛽 ⟩ = ⟨𝜙, 𝛽 ⟩,𝛾 
+
+2 ‖𝑒 2(𝑢, 𝑔, 𝜙 )‖2 = 𝛾 
+
+2 ‖𝜙 ‖2 − 𝛾 
+
+⟨
+
+𝜙, 
+
+( 𝜅 (𝑢 )
+
+𝜌 + 𝑔 
+
+)
+
+𝟏 {𝜅 (𝑢 )<−𝑔 } +
+
+( 𝜅 (𝑢 )
+
+𝜌 − 𝑔 
+
+)
+
+𝟏 {𝜅 (𝑢 )>𝑔 }
+
+⟩
+
+,
+
+⟨𝑒 3(𝑢, 𝑔, 𝜙, 𝜆 ), 𝜉 ⟩ = 𝜌 ⟨𝜙, 𝜉 ⟩,𝛾 
+
+2 ‖𝑒 3(𝑢, 𝑔, 𝜙, 𝜆 )‖2 = 𝜌 2𝛾 
+
+2 ‖𝜙 ‖2 − 𝛾𝜌 ⟨𝜙, 𝜆 − 𝜆 𝑛 − 𝜌𝑢 ⟩.
+
+The function 𝐹 is strictly convex and differentiable in 𝜙 ; setting ∇𝜙 𝐹 (𝜙 𝑘 +1 ) = 0 yields a closed-form linear system in 
+
+𝜙 𝑘 +1 , which is solved pointwise on Γ𝑓 .
+
+5.2. Benchmark Problem and Numerical Results 
+
+We validate the proposed methodology on the benchmark introduced by Stadler [29], which has become a standard test case for numerical methods applied to variational inequalities of the second kind. The computational domain is the unit square Ω = (0 , 1) 2, with boundary partition 
+
+Γ0 = {0 , 1} × [0 , 1] (homogeneous Dirichlet) , Γ𝑓 = [0 , 1] × {0 , 1} (friction/Robin) .
+
+The source term is piecewise constant with a sharp internal discontinuity: 
+
+𝑓 (𝑥 1, 𝑥 2) = 
+
+{
+
++10 if 𝑥 1 < 0.5,
+
+−10 if 𝑥 1 ≥ 0.5. (5.16) The domain is discretized with a uniform mesh of 𝑁 = 80 nodes per dimension ( 𝑛 dof = 6 400 degrees of freedom). Synthetic measurement data 𝑢 𝑑 are generated by solving the forward problem (4.8) with the exact (target) coefficient 
+
+𝑔 ∗ = 1 .5 (uniform on Γ𝑓 ). The optimization is carried out over the admissible set 𝐹 ∩ [0 .01 , 5.0] , with Tikhonov parameter 𝜀 = 10 −6 and inner ADMM penalty 𝜌 = 100 .The central numerical claim of this paper is that the exact forward problem need not be solved at every outer optimization step. Instead, one minimizes the approximate functional 𝐽 𝑛 𝑘  
+
+> 𝜀
+
+(𝑔 ), evaluating the state 𝑢 𝑛 𝑘  
+
+> 𝑔
+
+after exactly 𝑛 𝑘 
+
+inner ADMM iterations. Table 1 reports the identified coefficient 𝑔 𝑛 𝑘 , the absolute error |𝑔 𝑛 𝑘 − 𝑔 ∗|, and the objective value 𝐽 𝑛 𝑘  
+
+> 𝜀
+
+(𝑔 𝑛 𝑘 ) for increasing values of 𝑛 𝑘 . The results exhibit a monotone, asymptotically stable convergence of 𝑔 𝑛 𝑘 
+
+toward 𝑔 ∗ = 1 .5, in full agreement with Theorem 1. At 𝑛 𝑘 = 1 , the identified coefficient remains near the lower 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 11 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+admissibility bound ( 𝑔 𝑛 𝑘 ≈ 0 .01 ), reflecting the poor approximation quality of a single-step ADMM state. As 𝑛 𝑘 
+
+exceeds 50 , the absolute error falls below 6×10 −3 , and at 𝑛 𝑘 = 500 a final error of 1.34×10 −4 is achieved. This confirms that tracking the identification sequence along the ADMM trajectory, without ever solving the forward problem exactly, is both mathematically sound and computationally efficient. Figure 1 shows the contour field of the reference state 𝑢 𝑑 , computed with 𝑔 ∗ = 1 .5. The solution displays an anti-symmetric profile consistent with the sign alternation of the source term (5.16). Flat boundary layers near 𝑥 2 = 0 and 
+
+𝑥 2 = 1 mark the stick zones where the friction constraint is active, a nonsmooth feature that would be lost under any smoothing regularization of 𝑗 (𝑔, ⋅). Figure 2 illustrates the convergence history of the identification process. The left panel displays the strict monotone decay of |𝑔 𝑛 𝑘 − 𝑔 ∗|, while the right panel shows the trajectory of 𝑔 𝑛 𝑘 progressively locking onto 𝑔 ∗ = 1 .5 as 𝑛 𝑘 grows. The residual gap between the two curves vanishes at a rate consistent with the theoretical predictions of Theorem 1. Figure 3 traces the evolution of the approximate objective 𝐽 𝑛 𝑘  
+
+> 𝜀
+
+(𝑔 𝑛 𝑘 ). The functional undergoes a steep initial descent before stabilizing at 𝐽 𝑛 𝑘  
+
+> 𝜀
+
+≈ 2 .2213 × 10 −6 . This plateau is consistent with the theoretical prediction: once the discrepancy term ‖𝑢 𝑛 𝑘  
+
+> 𝑔
+
+−𝑢 𝑑 ‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+has converged to zero, the objective is dominated by the Tikhonov regularization term, which evaluates to 
+
+𝜀 
+
+2 ‖𝑔 ∗‖2  
+
+> 𝐿 2(Γ 𝑓 )
+
+= 10 −6 
+
+2 ⋅ (1 .5) 2 ⋅ meas(Γ 𝑓 ) = 2 .25 × 10 −6 ,
+
+in close agreement with the observed stabilization value. To analyze the structural robustness and well-posedness of the proposed formulation, Figure 4 presents a full cost parameter scan across 𝑔 ∈ [0 .3, 3.2] . The clean, strictly convex profile exhibits a well-defined global minimum centered exactly at 𝑔 ∗ = 1 .5, verifying the identifiability properties outlined in Proposition 1. 
+
+## 6. Conclusion 
+
+In this work, we investigated an inverse parameter identification problem governed by a second-kind elliptic varia-tional inequality with a non-differentiable boundary functional. The main objective was to recover an unknown Robin-type coefficient from boundary observations while preserving the intrinsic nonsmooth structure of the underlying physical model. To overcome the difficulties associated with the variational inequality, we reformulated the state problem as a constrained optimization problem and employed an augmented Lagrangian framework combined with the alternating direction method of multipliers (ADMM). The use of Fenchel duality allowed us to handle the nonsmooth boundary term directly, avoiding any smoothing procedure and thereby maintaining the physical consistency of the original model. Furthermore, an approximate sequence of inverse problems was introduced, and theoretical results concerning the existence of solutions, the identifiability of the unknown coefficient, and the convergence of the proposed approximation strategy were established. The numerical experiments performed on the classical benchmark problem demonstrate the effectiveness of the proposed methodology. The computed solutions confirm the theoretical convergence analysis and show that accurate parameter reconstruction can be achieved without solving the forward variational inequality exactly at every optimization step. This feature considerably reduces the computational effort while maintaining a high level of accuracy in the identification process. The proposed framework provides a flexible methodology for a broad class of inverse problems involving nonsmooth variational inequalities. In particular, it can be extended to the identification of spatially varying boundary coefficients and distributed parameters arising in contact mechanics, heat transfer, and related applications. Future work will focus on the incorporation of noisy measurements, the development of adaptive discretization strategies, and the extension of the present approach to more general quasi-variational inequalities and time-dependent models. 
+
+## A. Clarke Subdifferential: Definitions and Properties 
+
+We recall here the essential elements of nonsmooth analysis employed throughout this paper. Let 𝑓 ∶ ℝ𝑛 → ℝ be a locally Lipschitz continuous function at a point 𝑥 ∈ ℝ𝑛 . The Clarke subdifferential of 𝑓 at 𝑥 is defined as 
+
+𝜕 𝑐 𝑓 (𝑥 ) = co 
+
+{
+
+lim  
+
+> 𝑘 →∞
+
+∇𝑓 (𝑥 𝑘 ) ∶ 𝑥 𝑘 → 𝑥, 𝑓 differentiable at 𝑥 𝑘 
+
+}
+
+, (A.1)   
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 12 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities
+
+where co{ ⋅} denotes the closed convex hull. The generalized directional derivative of 𝑓 at 𝑥 in the direction 𝑣 ∈ ℝ𝑛 
+
+is given by 
+
+𝑓 ◦(𝑥 ; 𝑣 ) = lim sup 
+
+> 𝑦 →𝑥 𝑡 ↓0
+
+𝑓 (𝑦 + 𝑡𝑣 ) − 𝑓 (𝑦 )
+
+𝑡 , (A.2) and is related to the Clarke subdifferential through the identity 
+
+𝑓 ◦(𝑥 ; 𝑣 ) = max   
+
+> 𝜉 ∈𝜕 𝑐 𝑓 (𝑥 )
+
+⟨𝜉, 𝑣 ⟩. (A.3) We now derive the Clarke subdifferential of the function 𝑈 2, which arises in the analysis of subproblem (5.7) , by distinguishing the two complementary regions defined by |𝜅 (𝑢 )| relative to 𝑔 .
+
+Case 1: |𝜅 (𝑢 )| > 𝑔 . In this region, 
+
+𝑈 2(𝑢 ) = − 
+
+⟨
+
+𝛽 + 𝛾𝜙, 𝜆 + 𝜌𝑢 𝜌 − 𝑔 𝜆 + 𝜌𝑢 𝜌 |𝜆 + 𝜌𝑢 |⟩
+
+− 𝑔 𝛾 |𝜆 + 𝜌𝑢 |
+
+2𝜌 . (A.4) Since |𝜆 + 𝜌𝑢 | > 𝑔 > 0, the sign of 𝜅 (𝑢 ) = 𝜆 + 𝜌𝑢 is well-defined, and we distinguish two subcases. 
+
+• If 𝜅 (𝑢 ) > 𝑔 , differentiating with respect to 𝑢 yields 
+
+∇𝑈 −2 (𝑢 ) = −( 𝛽 + 𝛾𝜙 ) − 𝛾 
+
+2 𝑔, (A.5) so that 𝜕 𝑐 𝑈 2(𝑢 ) = {∇𝑈 −2 (𝑢 )}.
+
+• If 𝜅 (𝑢 ) < −𝑔 , a symmetric calculation gives 
+
+∇𝑈 +2 (𝑢 ) = −( 𝛽 + 𝛾𝜙 ) + 𝛾 
+
+2 𝑔, (A.6) so that 𝜕 𝑐 𝑈 2(𝑢 ) = {∇𝑈 +2 (𝑢 )}.
+
+Case 2: |𝜅 (𝑢 )| ≤ 𝑔 . In this region, 𝑈 2(𝑢 ) = − 𝑔 𝛾 |𝜆 + 𝜌𝑢 |
+
+𝜌 , which is nonsmooth at 𝜅 (𝑢 ) = 0 .
+
+• If 𝜅 (𝑢 ) > 0, then |𝜅 (𝑢 )| = 𝜅 (𝑢 ) and ∇𝑈 2(𝑢 ) = − 𝛾 
+
+2 𝑔 , giving 𝜕 𝑐 𝑈 2(𝑢 ) = {− 𝛾  
+
+> 2
+
+𝑔 }.
+
+• If 𝜅 (𝑢 ) < 0, then |𝜅 (𝑢 )| = − 𝜅 (𝑢 ) and ∇𝑈 2(𝑢 ) = + 𝛾 
+
+2 𝑔 , giving 𝜕 𝑐 𝑈 2(𝑢 ) = {+ 𝛾  
+
+> 2
+
+𝑔 }.Collecting all cases, the Clarke subdifferential of 𝑈 2 is 
+
+𝜕 𝑐 𝑈 2(𝑢 ) = 
+
+⎧⎪⎪⎪⎪⎨⎪⎪⎪⎪⎩{∇𝑈 −2 (𝑢 )} if 𝜅 (𝑢 ) > 𝑔, 
+
+{∇𝑈 +2 (𝑢 )} if 𝜅 (𝑢 ) < −𝑔, 
+
+{− 𝛾  
+
+> 2
+
+𝑔 } if 0 < 𝜅 (𝑢 ) ≤ 𝑔, 
+
+{+ 𝛾  
+
+> 2
+
+𝑔 } if − 𝑔 ≤ 𝜅 (𝑢 ) < 0,
+
+co {− 𝛾  
+
+> 2
+
+𝑔, + 𝛾  
+
+> 2
+
+𝑔 } if 𝜅 (𝑢 ) = 0 .
+
+(A.7) We now derive the Clarke subdifferential of the function 𝐺 (𝑔 ) arising in subproblem (5.8). Recall that 
+
+𝐺 (𝑔 ) = 
+
+⎧⎪⎪⎨⎪⎪⎩⟨
+
+𝑔 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )| , 𝛽 + 𝛾𝜙 
+
+⟩
+
+− 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 𝑔 +
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔 2 if |𝜅 (𝑢 )| > 𝑔, 
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔 2 − 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 𝑔 otherwise. (A.8)   
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 13 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities
+
+Case 1: 𝑔 < |𝜅 (𝑢 )|. Differentiating 𝐺 with respect to 𝑔 gives 
+
+𝐺 ′(𝑔 ) = 
+
+⟨ 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )| , 𝛽 + 𝛾𝜙 
+
+⟩
+
+− 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 2 
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔, (A.9) so that 𝜕 𝑐 𝐺 (𝑔 ) is the singleton {𝐺 ′(𝑔 )} .
+
+Case 2: 𝑔 = |𝜅 (𝑢 )|. The left- and right-hand derivatives at this boundary point are, respectively, 
+
+𝐺 ′(|𝜅 (𝑢 )|𝓁 
+
+) =
+
+⟨ 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )| , 𝛽 + 𝛾𝜙 
+
+⟩
+
++ 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 𝜀 |𝜅 (𝑢 )|, (A.10) 
+
+𝐺 ′(|𝜅 (𝑢 )|𝑟 
+
+) = 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 𝜀 |𝜅 (𝑢 )|, (A.11) yielding the Clarke subdifferential 
+
+𝜕 𝑐 𝐺 (|𝜅 (𝑢 )|) =
+
+[ 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 𝜀 |𝜅 (𝑢 )|,
+
+⟨ 𝜅 (𝑢 )
+
+𝜌 |𝜅 (𝑢 )| , 𝛽 + 𝛾𝜙 
+
+⟩
+
++ 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 + 𝜀 |𝜅 (𝑢 )|]
+
+. (A.12) 
+
+Case 3: 𝑔 > |𝜅 (𝑢 )|. Differentiating gives 
+
+𝐺 ′(𝑔 ) = 2 
+
+( 𝛾 𝜌 2 + 𝜀 
+
+2
+
+)
+
+𝑔 − 𝛾 |𝜅 (𝑢 )|
+
+𝜌 2 , (A.13) so that 𝜕 𝑐 𝐺 (𝑔 ) = { 𝐺 ′(𝑔 )} .
+
+## B. Proximal Bundle Algorithm 
+
+We describe the proximal bundle method [25, 26] employed to compute the descent direction 𝑑 𝑘 for the nonsmooth subproblem (5.7) . Let 𝑓 ∶ ℝ𝑛 → ℝ be locally Lipschitz at the current iterate 𝑥 ∈ ℝ𝑛 . For an arbitrary subgradient 
+
+𝜉 ∈ 𝜕𝑓 (𝑥 ), the 𝜉 -linearization of 𝑓 at 𝑥 is ̄𝑓 𝜉 (𝑦 ) ∶= 𝑓 (𝑥 ) + 𝜉 ⊤(𝑦 − 𝑥 ), 𝑦 ∈ ℝ𝑛 , (B.1) and the linearization model of 𝑓 at 𝑥 is ̂𝑓 𝑥 (𝑦 ) ∶= max {̄𝑓 𝜉 (𝑦 ) ∣ 𝜉 ∈ 𝜕𝑓 (𝑥 )}, 𝑦 ∈ ℝ𝑛 . (B.2) The following result underpins the direction-finding step of the algorithm. 
+
+Lemma 2. Let  ⊂ ℝ𝑛 be a convex compact set. For 𝑝 ∈ ,
+
+𝑝 = arg min {‖𝜉 ‖ ∣ 𝜉 ∈ } ⟺ 𝑝 ⊤𝜉 ≥ ‖𝑝 ‖2 ∀ 𝜉 ∈ . (B.3) 
+
+Theorem 3. Suppose 𝑓 ∶ ℝ𝑛 → ℝ is locally Lipschitz at 𝑥 and let 𝜉 ∗ = arg min {‖𝜉 ‖ ∣ 𝜉 ∈ 𝜕𝑓 (𝑥 )}. Consider the proximal subproblem 
+
+min 
+
+> 𝑑 ∈ℝ𝑛
+
+̂ 𝑓 𝑥 (𝑥 + 𝑑 ) + 12 ‖𝑑 ‖2. (B.4) 
+
+Then this problem has a unique solution 𝑑 ∗ ∈ ℝ𝑛 satisfying: 
+
+1. −𝑑 ∗ = 𝜉 ∗ ∈ 𝜕𝑓 (𝑥 ),
+
+2. 𝑓 ◦(𝑥 ; 𝑑 ∗) = − ‖𝑑 ∗‖2,
+
+3. ̂ 𝑓 𝑥 (𝑥 + 𝜆𝑑 ∗) = ̂ 𝑓 𝑥 (𝑥 ) − 𝜆 ‖𝜉 ∗‖2 for all 𝜆 ∈ [0 , 1] ,
+
+4. 0 ∉ 𝜕𝑓 (𝑥 ) ⟺ 𝑑 ∗ ≠ 0,
+
+5. 0 ∈ 𝜕𝑓 (𝑥 ) ⟺̂ 𝑓 𝑥 attains its global minimum at 𝑥 .  
+
+> Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 14 of 17
+
+A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+Given the current iterate 𝑥 𝑘 and auxiliary points {𝑦 𝑗 }𝑗 ∈𝐽 𝑘 ⊂ ℝ𝑛 with associated subgradients 𝜉 𝑗 ∈ 𝜕𝑓 (𝑦 𝑗 ), the 
+
+linearization error and subgradient locality measure are defined, respectively, as 
+
+𝛼 𝑘 𝑗 ∶= 𝑓 (𝑥 𝑘 ) − 𝑓 (𝑦 𝑗 ) − 𝜉 ⊤𝑗 (𝑥 𝑘 − 𝑦 𝑗 ), 𝛽 𝑘 𝑗 ∶= max {|𝛼 𝑘 𝑗 |, 𝛾 ‖𝑥 𝑘 − 𝑦 𝑗 ‖2}, 𝑗 ∈ 𝐽 𝑘 , (B.5) where 𝛾 ≥ 0 is a distance measure parameter. An approximation 𝐺 𝑘 (𝜀 𝑘 ) of the 𝜀 𝑘 -subdifferential 𝜕 𝜀 𝑘 𝑓 (𝑥 𝑘 ) is then constructed as 
+
+𝐺 𝑘 (𝜀 𝑘 ) = 
+
+{
+
+𝜉 ∈ ℝ𝑛 ||| 𝜉 = ∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑗 𝜉 𝑗 , ∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑗 𝛽 𝑘 𝑗 ≤ 𝜀 𝑘 , 𝜆 𝑗 ≥ 0, ∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑗 = 1 
+
+}
+
+, (B.6) and the descent direction 𝑑 𝑘 = − 𝜉 𝑘 is obtained by solving the quadratic program 
+
+⎧⎪⎪⎨⎪⎪⎩
+
+min 
+
+> 𝜆
+
+12
+
+‖‖‖∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑗 𝜉 𝑗 
+
+‖‖‖
+
+> 2
+
+subject to ∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑗 𝛽 𝑘 𝑗 ≤ 𝜀 𝑘 , ∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑗 = 1 , 𝜆 𝑗 ≥ 0 ∀ 𝑗 ∈ 𝐽 𝑘 . (B.7) The line search is governed by fixed parameters 𝑚 𝐿 ∈ (0 , 12 ), 𝑚 𝑅 ∈ ( 𝑚 𝐿 , 1) , and ̄ 𝑡 ∈ (0 , 1] . At each iteration, we seek the largest 𝑡 𝐿 𝑘 ∈ [0 , 1] with 𝑡 𝐿 𝑘 ≥̄ 𝑡 satisfying the sufficient decrease condition 
+
+𝑓 (𝑥 𝑘 + 𝑡 𝐿 𝑘 𝑑 𝑘 ) ≤ 𝑓 (𝑥 𝑘 ) + 𝑚 𝐿 𝑡 𝐿 𝑘 𝑣 𝑘 , 𝑣 𝑘 =̂ 𝑓 𝑘 (𝑥 𝑘 + 𝑑 𝑘 ) − 𝑓 (𝑥 𝑘 ) < 0. (B.8) Three step types are distinguished: 
+
+• Long serious step (𝑡 𝐿 𝑘 ≥̄ 𝑡 ): 𝑥 𝑘 +1 = 𝑥 𝑘 + 𝑡 𝐿 𝑘 𝑑 𝑘 , 𝑦 𝑘 +1 = 𝑥 𝑘 +1 .
+
+• Short serious step (0 < 𝑡 𝐿 𝑘 <̄ 𝑡 ): 𝑥 𝑘 +1 = 𝑥 𝑘 + 𝑡 𝐿 𝑘 𝑑 𝑘 , 𝑦 𝑘 +1 = 𝑥 𝑘 + 𝑡 𝑅 𝑘 𝑑 𝑘 .
+
+• Null step (𝑡 𝐿 𝑘 = 0 ): 𝑥 𝑘 +1 = 𝑥 𝑘 , 𝑦 𝑘 +1 = 𝑥 𝑘 + 𝑡 𝑅 𝑘 𝑑 𝑘 ,where 𝑡 𝑅 𝑘 > 𝑡 𝐿 𝑘 is chosen to satisfy the locality condition 
+
+−𝛽 𝑘 +1  
+
+> 𝑘 +1
+
++ 𝜉 ⊤𝑘 +1 𝑑 𝑘 ≥ 𝑚 𝑅 𝑣 𝑘 . (B.9) The complete procedure is summarized in Algorithm 1 and Algorithm 2. 
+
+Algorithm 1 Direction Computation  
+
+> 1:
+
+Input: Bundle index set 𝐽 𝑘 , tolerance 𝜀 𝑘 > 0 
+
+> 2:
+
+while ∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑗 𝛽 𝑘 𝑗 ≥ 𝜀 𝑘 do  
+
+> 3:
+
+Solve the quadratic program (B.7) to obtain {𝜆 𝑗 }𝑗 ∈𝐽 𝑘  
+
+> 4:
+
+end while  
+
+> 5:
+
+Set 𝑑 𝑘 = − 𝜉 𝑘 = − ∑
+
+> 𝑗 ∈𝐽 𝑘
+
+𝜆 𝑘 𝑗 𝜉 𝑗  
+
+> 6:
+
+Output: Descent direction 𝑑 𝑘 
+
+## References   
+
+> [1] Boyd S, Parikh N, Chu E, Peleato B, Eckstein J, et al. Distributed optimization and statistical learning via the alternating direction method of multipliers. Foundations and Trends in Machine learning 3 (2011) 1–122. [2] Capatina A. Optimal control of a signorini contact problem. Numerical Functional Analysis and Optimization 21 (2000) 817–828.
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 15 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+Algorithm 2 Proximal Bundle Algorithm 
+
+1: Data: Optimality tolerance 𝜀 𝑠 > 0; line search parameters 𝑚 𝐿 ∈ (0 , 12 ), 𝑚 𝑅 ∈ ( 𝑚 𝐿 , 1) ,̄ 𝑡 ∈ (0 , 1] ; distance measure 
+
+𝛾 ≥ 0; bounds 𝑥 𝑚 ≤ 𝑥 𝑀 .
+
+2: Step 1 (Initialization). Choose 𝑥 1 ∈ ℝ𝑛 ; set 𝑦 1 ∶= 𝑥 1, 1 ∶= {1} ; compute 𝜉 1 ∈ 𝜕𝑓 (𝑦 1); set 𝑘 ∶= 1 .
+
+3: Step 2 (Direction finding). Compute 𝑑 𝑘 via Algorithm 1. 
+
+4: Step 3 (Stopping criterion). If ‖𝑑 𝑘 ‖ + |𝑣 𝑘 | < 𝜀 𝑠 , stop .
+
+5: Step 4 (Line search). Find 𝑡 𝐿 𝑘 ∈ [0 , 1] and 𝑡 𝑅 𝑘 ∈ [ 𝑡 𝐿 𝑘 , 1] satisfying (B.8) or (B.9) to determine the step type (null or serious). 
+
+6: Step 5 (Update). Set 
+
+𝑥 𝑘 +1 = Π [𝑥 𝑚 , 𝑥 𝑀 ]
+
+(𝑥 𝑘 + 𝑡 𝐿 𝑘 𝑑 𝑘 
+
+),𝑦 𝑘 +1 = Π [𝑥 𝑚 , 𝑥 𝑀 ]
+
+(𝑥 𝑘 + 𝑡 𝑅 𝑘 𝑑 𝑘 
+
+).
+
+Compute 𝜉 𝑘 +1 ∈ 𝜕𝑓 (𝑦 𝑘 +1 ); choose 𝑘 +1 ⊆ {1 , … , 𝑘 + 1} ; set 𝑘 ∶= 𝑘 + 1 and go to Step 2. 
+
+[3] Cen J, Khan AA, Motreanu D, Zeng S. Inverse problems for generalized quasi-variational inequalities with application to elliptic mixed boundary value systems. Inverse Problems 38 (2022) 065006. [4] Chantasiriwan S. Inverse determination of steady-state heat transfer coefficient. International communications in heat and mass transfer 27 (2000) 1155–1164. [5] Duvaut G, Lions JL. Les inéquations en mécanique et en physique. Dunod, Paris, 1972. Travaux et Recherches Mathématiques 21 (1976). [6] Eckstein J, Fukushima M. Some reformulations and applications of the alternating direction method of multipliers. Large Scale Optimization: State of the Art (1994) 115–134. [7] Eckstein J, Yao W. Understanding the convergence of the alternating direction method of multipliers: Theoretical and computational perspectives. Pac. J. Optim. 11 (2015) 619–644. [8] Ekeland I, Temam R. Convex analysis and variational problems. SIAM, 1999. [9] Esser E. Applications of lagrangian-based alternating direction methods and connections to split bregman. CAM report 9 (2009) 31. [10] Essoufi EH, Zafrar A. Optimal control of friction coefficient in signorini contact problems. Optimal Control Applications and Methods 42 (2021) 1794–1811. [11] Facchinei F, Pang JS. Finite-dimensional variational inequalities and complementarity problems. Springer, 2003. [12] Fang W, Lin FR. Numerical solutions to the robin inverse problem with nonnegativity constraints. Journal of Applied Mathematics and Physics 10 (2022) 2015–2025. [13] Glowinski R. Lectures on numerical methods for non-linear variational problems. Springer Science & Business Media, 2008. [14] Gwinner J. An optimization approach to parameter identification in nonsmooth boundary value problems. In: Constructive Nonsmooth Analysis and Related Topics. Abstracts of the International Conference. Dedicated to the Memory of Professor VF Demyanov (2017) 113–116. [15] Gwinner J. On two-coefficient identification in elliptic variational inequalities. Optimization 67 (2018) 1017–1030. [16] Gwinner J. An optimization approach to parameter identification in variational inequalities of second kind. Optimization Letters 12 (2018) 1141–1154. [17] Hintermüller M. Inverse coefficient problems for variational inequalities: optimality conditions and numerical realization. ESAIM: Mathemat-ical Modelling and Numerical Analysis 35 (2001) 129–152. [18] Hintermüller M. An active-set equality constrained newton solver with feasibility restoration for inverse coefficient problems in elliptic variational inequalities. Inverse Problems 24 (2008) 034017. [19] Hlavácek I, Haslinger J, Necas J, Lovisek J. Solution of variational inequalities in mechanics, vol. 66. Springer Science & Business Media, 2012. [20] Inglese G. An inverse problem in corrosion detection. Inverse problems 13 (1997) 977. [21] Kaup PG, Santosa F, Vogelius M. Method for imaging corrosion damage in thin plates from electrostatic data. Inverse problems 12 (1996) 279. [22] Kinderlehrer D, Stampacchia G. An introduction to variational inequalities and their applications. SIAM, 2000. [23] Lin F, Fang W. A linear integral equation approach to the robin inverse problem. Inverse Problems 21 (2005) 1757. [24] Martin T, Dulikravich G. Inverse determination of steady heat convection coefficient distributions. (1998). [25] Mäkelä MM, NEITTAANMAKI P. Nonsmooth optimization: analysis and algorithms with applications to optimal control. World Scientific, 1992. [26] Mäkelä MM. Survey of bundle methods for nonsmooth optimization. Optimization methods and software 17.1 (2002) 1–29. [27] Migórski S, Khan AA, Zeng S. Inverse problems for nonlinear quasi-variational inequalities with an application to implicit obstacle problems of p-laplacian type. Inverse Problems 35 (2019) 035004. [28] Slodicka M, Van Keer R. Determination of a robin coefficient in semilinear parabolic problems by means of boundary measurements. Inverse Problems 18 (2002) 139. [29] Stadler G. Semismooth newton and augmented lagrangian methods for a simplified friction problem. SIAM Journal on Optimization 15 (2004) 39–62. 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 16 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+[30] Zeng S, Migórski S, Khan AA, Yao JC. Inverse problems for a class of elliptic obstacle problems involving multivalued convection term and weighted (p,q)-laplacian. Optimization 72 (2023) 321–349. 
+
+Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 17 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+Figure 1: Contour field of the reference state 𝑢 𝑑 .
+
+Figure 2: Convergence of the identification sequence. Left: monotone decay of the absolute error |𝑔 𝑛 𝑘 −𝑔 ∗| versus 𝑛 𝑘 . Right: trajectory of the identified coefficient 𝑔 𝑛 𝑘 converging to the exact value 𝑔 ∗ = 1 .5.
+
+Figure 3: Evolution of the approximate cost functional 𝐽 𝑛 𝑘  
+
+> 𝜀
+
+(𝑔 𝑛 𝑘 ).Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 18 of 17 A Dual ADMM Framework for Inverse Parameter Identification in Elliptic Variational Inequalities 
+
+Figure 4: A parameter sweep of the functional 𝐽 𝜀 (𝑔 ) over the admissible range 𝑔 ∈ [0 .3, 3.2] .Y.Mezzan, Y. Ouakrim, A. Zafrar: Preprint submitted to Elsevier Page 19 of 17

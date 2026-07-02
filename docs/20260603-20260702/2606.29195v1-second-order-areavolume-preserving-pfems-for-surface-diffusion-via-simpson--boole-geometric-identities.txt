@@ -1,0 +1,1853 @@
+Title: Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities
+
+URL Source: https://arxiv.org/pdf/2606.29195v1
+
+Published Time: Tue, 30 Jun 2026 00:58:09 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+Journal of Scientific Computing manuscript No. 
+
+(will be inserted by the editor) 
+
+# Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 
+
+Zhiqing Pan · Jiwei Jia · Lian Zhang 
+
+> Received: date / Accepted: date
+
+Abstract We propose second-order-in-time parametric finite element methods for surface diffusion of closed curves in two dimensions and closed surfaces in three dimensions. The construction is based on exact geometric variation identities along a quadratic temporal interpolation path. The induced area variation in 2D is evaluated exactly by Simpson’s rule, while the induced volume variation in 3D is evaluated exactly by Boole’s rule. The resulting fully discrete schemes preserve the enclosed area or volume exactly, without introducing an auxiliary Lagrange multiplier for the geometric constraint. They can be assembled on BGN-predicted auxiliary geometries and are therefore compatible with existing second-order BGN-type implementations. Numerical experiments demonstrate the expected second-order behavior, area/volume conservation, and good mesh quality for both curve and surface evolutions. 
+
+Keywords Surface diffusion · Parametric finite element method · Area/volume conservation · Second-order time discretization 
+
+Mathematics Subject Classification (2020) 65M60 · 65M12 · 65M15 · 53E10 · 35K55 
+
+1 Introduction 
+
+Surface diffusion is a fourth-order geometric evolution in which the normal velocity is given by the Laplace–Beltrami operator of curvature. It arises in a variety of interfacial relaxation phenomena, includ-ing thermal grooving, crystal surface relaxation, and solid-state dewetting [ 9, 21 , 22 ]. For closed curves in two dimensions and closed surfaces in three dimensions, the flow preserves the enclosed area/volume and dissipates the perimeter/surface area. These geometric properties are fundamental both analytically and numerically, especially in long-time simulations. A variety of numerical approaches have been developed for surface diffusion and related geometric flows, including graph-based finite element methods, level-set formulations, diffuse-interface/phase-field models, and unfitted or trace finite element discretizations; see, for example, [ 10 , 15 , 23 , 25 , 26 ]. These approaches provide useful alternatives for handling implicit interfaces, topology changes, or nonparametric representations. In the present work, however, we focus on parametric finite element methods for closed interfaces, pioneered by Dziuk’s work [ 1, 12 –14 ].  
+
+> Zhiqing Pan Department of Computational Mathematics, School of Mathematics, Jilin University, Changchun, China E-mail: panzq24@mails.jlu.edu.cn Jiwei Jia* (Corresponding author) Department of Computational Mathematics, School of Mathematics, Jilin University, Changchun, China AI for Science and Engineering Center, Shenzhen Loop Area Institute, Shenzhen, China E-mail: jiajiwei@jlu.edu.cn Lian Zhang Shenzhen Research Institute of Big Data, Shenzhen, China AI for Science and Engineering Center, Shenzhen Loop Area Institute, Shenzhen, China E-mail: zhanglian@sribd.cn
+> arXiv:2606.29195v1 [math.NA] 28 Jun 2026 2Zhiqing Pan et al.
+
+For parametric descriptions of evolving curves and surfaces, the parametric finite element method (PFEM) developed by Barrett, Garcke and N¨ urnberg (BGN) has become a particularly influential frame-work [ 6–8]. A key strength of BGN-type methods is that the weak formulation naturally induces tangential motion, which typically leads to good mesh quality and, in the planar case, asymptotic equidistribution of mesh points. For surface diffusion, the classical BGN discretization is first-order in time and has proved robust in practice. Motivated by the geometric structure of the flow, considerable effort has been devoted to designing PFEMs that preserve enclosed area/volume and respect the dissipative nature of the evolution at the discrete level. In particular, Bao and Zhao proposed a first-order structure-preserving PFEM for sur-face diffusion that conserves area/volume through an exact geometric identity associated with a linear interpolation between two consecutive time levels [ 5]. This geometric viewpoint has subsequently been extended to other geometric flows, including anisotropic surface diffusion and two-phase Navier–Stokes flow [ 2–4, 17 ]. Another related line of work imposes geometric constraints by Lagrange multipliers at the fully discrete level; see, for example, [ 16 ]. To improve temporal accuracy, several second-order PFEMs based on the BGN framework have been developed in recent years. These include Crank–Nicolson–leapfrog formulations, stable BDF2 discretiza-tions, and predictor–corrector strategies for surface diffusion and related flows [ 18 –20 ]. More recently, Duan and Yang [ 11 ] proposed a second-order volume-preserving PFEM for surface diffusion. Their method attains second-order accuracy and volume preservation through a Crank–Nicolson time discretization, which also draws on the linear-interpolation idea of Bao and Zhao [ 5]. They also incorporate a harmonic-map tangential redistribution for mesh quality and a Lagrange-multiplier treatment for energy stability. In this work, we extend the geometric conservation idea of Bao and Zhao to the second-order setting in a different way. We derive the conservative term directly from an exact geometric variation identity generated by a quadratic temporal interpolation through three consecutive time levels. Evaluating the induced area/volume variation by Newton–Cotes quadrature yields a Simpson-type formula in 2D and a Boole-type formula in 3D. In this way, the conservative term is built intrinsically from the interpolation path itself. This construction leads to second-order PFEMs for surface diffusion that preserve the enclosed area/volume without auxiliary Lagrange multipliers. In particular, the resulting schemes can be viewed as a linear combination of the BGN/CN-leapfrog, BGN/BDF2 and BGN/PC schemes [ 18 –20 ] with a mild modification of the normal vectors. The main contributions of this paper are summarized as follows: 
+
+– We extend the geometric conservation idea of the first-order Bao–Zhao structure-preserving PFEM to the second-order setting by using quadratic temporal interpolation. 
+
+– We derive exact second-order discrete variation formulas for enclosed area in 2D and enclosed volume in 3D, obtained from Simpson and Boole quadrature, respectively. 
+
+– We show that the resulting conservative construction is compatible with predictor-based BGN-type implementations and retains the good mesh behavior observed in practice. The rest of the paper is organized as follows. In Section 2, we present the second-order area-preserving PFEM for closed planar curves. In Section 3, we extend the construction to a second-order volume-preserving PFEM for closed surfaces in three dimensions. Numerical experiments are reported in Section 4,and concluding remarks are given in the final section. 
+
+2 A second-order area-preserving PFEM for closed curves in 2D 
+
+In this section, we construct a second-order-in-time area-preserving parametric finite element method for surface diffusion of closed curves. The notation is chosen to be close to the first-order structure-preserving PFEM. Let Γ (t) be a family of closed curves in R2, parametrized by 
+
+X(ρ, t ) : I × [0 , T ] → R2, I = R/Z.
+
+Let s be the arclength parameter, n = −(∂sX)⊥ the outward unit normal vector, and κ the curvature. The surface diffusion flow is written as 
+
+n · ∂tX = ∂ss κ, κn = −∂ss X. (2.1) Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 3
+
+It is well known that the enclosed area A(t) and the perimeter L(t) satisfy 
+
+d
+
+dt A(t) = 0 , d
+
+dt L(t) = −
+
+∫ 
+
+> Γ(t)
+
+|∂sκ|2 ds ≤ 0. (2.2) The weak formulation reads: find X(·, t ) ∈ [H1(I)] 2 and κ(·, t ) ∈ H1(I) such that (n · ∂tX, ϕ )Γ (t) + ( ∂sκ, ∂ sϕ)Γ (t) = 0 , ∀ϕ ∈ H1(I), (2.3a) (κ, n · ω)Γ (t) − (∂sX, ∂ sω)Γ (t) = 0 , ∀ω ∈ [H1(I)] 2. (2.3b) 2.1 Spatial discretization Let 0 = ρ0 < ρ 1 < · · · < ρ N = 1 be a uniform partition of I with h = 1 /N . Define 
+
+V h := {u ∈ C(I) : u|[ρj−1 ,ρ j ] ∈ P1, u (0) = u(1) } .
+
+Let Γ m = Xm(I) be a polygonal approximation of Γ (tm) with tm = mτ and Xm ∈ [V h]2. For piecewise continuous functions u, v , define the mass-lumped inner product (u, v )hΓ m := 1
+
+2
+
+> N
+
+∑
+
+> j=1
+
+|hmj | [(u · v)( ρ− 
+
+> j
+
+) + ( u · v)( ρ+ 
+
+> j−1
+
+)] , hmj := Xm(ρj ) − Xm(ρj−1). (2.4) 2.2 Quadratic interpolation and the exact area identity The central idea is to connect Γ m−1, Γ m and Γ m+1 by a quadratic polynomial in a local time variable 
+
+α ∈ [0 , 1]: 
+
+Xh(α) = (2 α2 − 3α + 1) Xm−1 + ( −4α2 + 4 α)Xm + (2 α2 − α)Xm+1 . (2.5) Then 
+
+Xh(0) = Xm−1, Xh(1 /2) = Xm, Xh(1) = Xm+1 .
+
+Since the interval [ tm−1, t m+1 ] has length 2 τ , we have 
+
+t = tm−1 + 2 τ α, ∂t = 1
+
+2τ ∂α.
+
+Evaluating 1 
+
+> 2τ
+
+∂αXh(α) at α = 0 , 1/2, 1 gives 
+
+∂tXm−1 := −Xm+1 + 4 Xm − 3Xm−1
+
+2τ , (2.6) 
+
+∂tXm := Xm+1 − Xm−1
+
+2τ , (2.7) 
+
+∂tXm+1 := 3Xm+1 − 4Xm + Xm−1
+
+2τ . (2.8) These formulas are the quadratic special cases of the finite-difference coefficients induced by polynomial interpolation on equidistant temporal nodes; see Appendix A for a general statement. Here ∂tXm+1 is exactly the BDF2 approximation used in BGN/BDF schemes [ 19 ], ∂tXm is the Crank-Nicolson approx-imation used in BGN/CN-leapfrog schemes, and ∂tXm−1 is the corresponding second-order backward endpoint approximation. Let A(α) be the area enclosed by Γ h(α) = Xh(α)( I). Then 
+
+d
+
+dα A(α) = 
+
+∫  
+
+> Γh(α)
+
+∂αXh(α) · nh(α) ds 
+
+=
+
+∫
+
+> I
+
+∂αXh(α) · [−∂ρXh(α)]⊥ dρ. 
+
+(2.9) 4 Zhiqing Pan et al. 
+
+Since ∂αXh(α) is linear in α and ∂ρXh(α) is quadratic in α, the integrand in ( 2.9 ) is a polynomial of degree at most three in α. Therefore Simpson’s rule is exact and gives 
+
+Am+1 − Am−1 = 1
+
+6
+
+∫
+
+> I
+
+[−Xm+1 + 4 Xm − 3Xm−1] · [−∂ρXm−1]⊥ dρ
+
++ 4
+
+6
+
+∫
+
+> I
+
+[Xm+1 − Xm−1] · [−∂ρXm]⊥ dρ
+
++ 1
+
+6
+
+∫
+
+> I
+
+[3Xm+1 − 4Xm + Xm−1] · [−∂ρXm+1 ]⊥ dρ. 
+
+(2.10) 
+
+Remark 1 The identity ( 2.10 ) is the geometric reason for exact area preservation. It is not a usual BDF2 identity, but an exact area variation formula along the quadratic interpolation path ( 2.5 ). The three velocity approximations naturally correspond to the three time levels m − 1, m and m + 1. 2.3 Prediction and the second-order area-preserving scheme In the practical scheme, the new-time curve used in the differential operators is replaced by a predicted curve ˜Γ m+1 := ˜Xm+1 (I). Following the BGN/BDF strategy, ˜Xm+1 is obtained by one step of the classical first-order BGN scheme from Γ m with time step τ : find ˜Xm+1 ∈ [V h]2 and ˜κm+1 ∈ V h such that 
+
+( ˜Xm+1 − Xm
+
+τ , ϕ hnm
+
+)hΓ m
+
++ (∂s˜κm+1 , ∂ sϕh)  
+
+> Γm
+
+= 0 , ∀ϕh ∈ V h, (2.11a) 
+
+(˜κm+1 , nm · ωh)hΓ m −
+
+(
+
+∂s ˜Xm+1 , ∂ sωh)  
+
+> Γm
+
+= 0 , ∀ωh ∈ [V h]2. (2.11b) The predicted curve is used as an auxiliary new-time geometry for assembling the mass-lumped and stiffness terms and for evaluating the metric factor in the normal vector below. The exact area conservation is not affected, because the normal in the normal velocity term is designed by 
+
+nm+1 := − (∂ρXm+1 )⊥
+
+|∂ρ ˜Xm+1 | . (2.12) Thus |∂ρ ˜Xm+1 |nm+1 = −(∂ρXm+1 )⊥, and the metric factor in the mass-lumped inner product on ˜Γ m+1 
+
+reproduces the exact oriented area density in ( 2.10 ). 
+
+Remark 2 (Relation with BGN-based second-order methods) The use of a BGN1-predicted geometry fol-lows the BGN/BDF strategy and avoids the mesh deterioration that may arise from direct extrapolation. Although the middle term below contains the centered CN-leapfrog approximation, no additional mesh redistribution step is introduced; the good mesh behavior is inherited from the BGN1 predictor. We now present the practical second-order area-preserving PFEM. Given ( Xm−1, κ m−1) and ( Xm, κ m), and the predicted curve ˜Γ m+1 obtained from ( 2.11 ), find ( Xm+1 , κ m+1 ) ∈ [V h]2 × V h such that 1
+
+6
+
+[( 3 
+
+> 2
+
+Xm+1 − 2Xm + 1 
+
+> 2
+
+Xm−1
+
+τ , ϕ hnm+1 
+
+)h 
+
+> ˜Γm+1
+
++ (∂sκm+1 , ∂ sϕh) 
+
+> ˜Γm+1
+
+]
+
++ 4
+
+6
+
+[( Xm+1 − Xm−1
+
+2τ , ϕ hnm
+
+)hΓ m
+
++
+
+( ∂sκm+1 + ∂sκm−1
+
+2 , ∂ sϕh
+
+) 
+
+> Γm
+
+]
+
++ 1
+
+6
+
+[( − 1 
+
+> 2
+
+Xm+1 + 2 Xm − 3 
+
+> 2
+
+Xm−1
+
+τ , ϕ hnm−1
+
+)hΓ m−1
+
++ (∂sκm−1, ∂ sϕh) 
+
+> Γm−1
+
+]
+
+= 0 , ∀ϕh ∈ V h,
+
+(2.13a) 
+
+(κm+1 , ˜nm+1 · ωh)h  
+
+> ˜Γm+1
+
+− (∂sXm+1 , ∂ sωh)  
+
+> ˜Γm+1
+
+= 0 , ∀ωh ∈ [V h]2. (2.13b) We refer to ( 2.13 ) as the BGN/AC scheme, where AC stands for area conserving. Here ∂s is computed on the curve indicated by the subscript, nm and nm−1 are the usual outward unit normals of Γ m and Γ m−1,and ˜nm+1 := −(∂ρ ˜Xm+1 )⊥/|∂ρ ˜Xm+1 | is the predictor normal used only in the curvature equation. Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 5
+
+Theorem 1 (Exact area conservation) Let (Xm+1 , κ m+1 ) be a solution of (2.13 ). Then Am+1 =
+
+Am−1. If the first step is computed by the first-order structure-preserving PFEM so that A1 = A0, then 
+
+Am = A0 for all m ≥ 0.Proof Taking ϕh ≡ 2τ in ( 2.13a ), all curvature-diffusion terms vanish. The remaining three normal velocity terms are exactly the Simpson representation of the area difference in ( 2.10 ); the only point to note is that ( 2.12 ) cancels the metric factor of ˜Γ m+1 . Hence Am+1 − Am−1 = 0. The full conservation follows by induction from A1 = A0.
+
+Remark 3 (Starting step) The scheme ( 2.13 ) is a two-step method and starts from m = 1. To obtain area conservation at all time levels, we compute the first step by the first-order structure-preserving PFEM of Bao and Zhao [ 5], which gives A1 = A0. For all later steps, the predicted curve is generated by the classical BGN1 scheme. 
+
+Remark 4 (Compatibility with Lagrange-multiplier energy stabilization) The proposed BGN/AC scheme can also be combined with a Lagrange-multiplier treatment of the perimeter dissipation law, in the spirit of [ 16 ]. At the continuous level, one may replace the normal velocity equation by 
+
+n · ∂tX = (1 + λ(t)) ∂ss κ, κn = −∂ss X, dL 
+
+dt = −
+
+∫ 
+
+> Γ(t)
+
+|∂sκ|2 ds. 
+
+and hence λ(t) = 0 whenever ∂sκ 6 ≡ 0. At the fully discrete level, the multiplier only modifies the curvature-diffusion terms and therefore does not affect the proof of exact area conservation, since these terms vanish when the constant test function is used. The same observation applies to the surface case by replacing ∂ss κ with ∆S H and the perimeter with the surface area. We do not write this variant explicitly in order to keep the presentation focused on the Simpson–Boole geometric conservation mechanism. 2.4 Iterative solver for the nonlinear system The fully discrete scheme ( 2.13 ) is nonlinear because the structure-preserving normal 
+
+nm+1 = − (∂ρXm+1 )⊥
+
+|∂ρ ˜Xm+1 |
+
+depends on the unknown curve Xm+1 . In this subsection, we describe the Newton-type iterative solver used in the computations. The construction follows the iterative strategy used in the first-order structure-preserving PFEM, with the only difference that the residual now contains the Simpson-weighted three-level terms. Let ( Xm+1 ,l , κ m+1 ,l ) be the approximation at the l-th Newton iteration. We define nm+1 ,l := − (∂ρXm+1 ,l )⊥  
+
+> |∂ρ˜Xm+1 |
+
+.
+
+The increments are denoted by 
+
+δXl := Xm+1 ,l +1 − Xm+1 ,l , δκ l := κm+1 ,l +1 − κm+1 ,l , δnl = − (∂ρδXl)⊥
+
+|∂ρ ˜Xm+1 | .
+
+At each Newton iteration, we solve for ( δXl, δκ l) ∈ [V h]2 × V h such that, for all ϕh ∈ V h and 
+
+ωh ∈ [V h]2,1
+
+6
+
+( 3
+
+2τ δXl, ϕ hnm+1 ,l 
+
+)h 
+
+> ˜Γm+1
+
++
+
+( 3 
+
+> 2
+
+Xm+1 ,l − 2Xm + 1 
+
+> 2
+
+Xm−1
+
+τ , ϕ hδnl
+
+)h 
+
+> ˜Γm+1
+
++ (∂sδκ l, ∂ sϕh) 
+
+> ˜Γm+1
+
+
+
++ 4
+
+6
+
+[( δXl
+
+2τ , ϕ hnm
+
+)hΓ m
+
++
+
+( ∂sδκ l
+
+2 , ∂ sϕh
+
+) 
+
+> Γm
+
+]
+
++ 1
+
+6
+
+[(
+
+− δXl
+
+2τ , ϕ hnm−1
+
+)hΓ m−1
+
+]
+
+= −R l
+
+> 1
+
+(ϕh), (2.14a) 
+
+(δκ l, ˜nm+1 · ωh)h  
+
+> ˜Γm+1
+
+− (∂sδXl, ∂ sωh)  
+
+> ˜Γm+1
+
+= −R l
+
+> 2
+
+(ωh). (2.14b) 6 Zhiqing Pan et al. 
+
+Here Rl 
+
+> 1
+
+and Rl 
+
+> 2
+
+are the residuals of ( 2.13a ) and ( 2.13b ) evaluated at ( Xm+1 ,l , κ m+1 ,l ). More precisely, 
+
+Rl
+
+> 1
+
+(ϕh) := 1
+
+6
+
+( 3 
+
+> 2
+
+Xm+1 ,l − 2Xm + 1 
+
+> 2
+
+Xm−1
+
+τ , ϕ hnm+1 ,l 
+
+)h 
+
+> ˜Γm+1
+
++ (∂sκm+1 ,l , ∂ sϕh) 
+
+> ˜Γm+1
+
+
+
++ 4
+
+6
+
+[( Xm+1 ,l − Xm−1
+
+2τ , ϕ hnm
+
+)hΓ m
+
++
+
+( ∂sκm+1 ,l + ∂sκm−1
+
+2 , ∂ sϕh
+
+) 
+
+> Γm
+
+]
+
++ 1
+
+6
+
+( − 1 
+
+> 2
+
+Xm+1 ,l + 2 Xm − 3 
+
+> 2
+
+Xm−1
+
+τ , ϕ hnm−1
+
+)hΓ m−1
+
++ (∂sκm−1, ∂ sϕh) 
+
+> Γm−1
+
+ , (2.15) and 
+
+Rl
+
+> 2
+
+(ωh) := (κm+1 ,l , ˜nm+1 · ωh)h  
+
+> ˜Γm+1
+
+− (∂sXm+1 ,l , ∂ sωh)  
+
+> ˜Γm+1
+
+. (2.16) After solving ( 2.14 ), we update 
+
+Xm+1 ,l +1 = Xm+1 ,l + δXl, κm+1 ,l +1 = κm+1 ,l + δκ l.
+
+The iteration is stopped once max {‖δXl‖ℓ∞ , ‖δκ l‖ℓ∞
+
+} ≤ tol .
+
+The initial guess is chosen as Xm+1 ,0 = ˜Xm+1 , κ m+1 ,0 = κm, where ˜Xm+1 is obtained by one BGN1 predictor step. This choice is important in practice: it reduces the number of Newton iterations and inherits the good mesh distribution property of the classical BGN1 scheme. 
+
+Remark 5 In ( 2.14b ), we have used the predictor normal 
+
+˜nm+1 = − (∂ρ ˜Xm+1 )⊥
+
+|∂ρ ˜Xm+1 | .
+
+This is consistent with the practical implementation. The exact area conservation proof only uses the structure-preserving normal vector in the normal velocity equation ( 2.13a ). Therefore, using the predictor normal in the curvature equation ( 2.13b ) does not affect the exact area conservation, while it reduces the nonlinearity of the Newton system. 
+
+3 A second-order volume-preserving PFEM for closed surfaces in 3D 
+
+We now extend the construction of Section 2 to the surface diffusion of closed surfaces in R3. The presentation parallels the two-dimensional case, but the exact conservation identity now involves the oriented area vector of a surface patch and therefore requires a higher-order quadrature formula. Let S(t) be a closed evolving surface parametrized by X(·, t ) : S0 → R3, where S0 is a fixed smooth reference surface. The surface diffusion flow reads 
+
+n · ∂tX = ∆S H, Hn = −∆S X, (3.1) where H is the scalar mean curvature, n is the outward unit normal vector, and ∆S is the Laplace– Beltrami operator on S(t). The enclosed volume V (t) and the total surface area A(t) satisfy 
+
+d
+
+dt V (t) = 0 , d
+
+dt A(t) = −
+
+∫
+
+> S(t)
+
+|∇ S H|2 dA ≤ 0.Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 7
+
+3.1 Weak formulation and spatial discretization For notational simplicity, scalar and vector fields on S(t) are identified with their pullbacks to the reference surface S0 through the parametrization X(·, t ). With this convention, the weak formulation reads: find 
+
+X(·, t ) ∈ [H1(S0)] 3 and H(·, t ) ∈ H1(S0) such that (n · ∂tX, ϕ )S(t) + (∇S(t)H, ∇S(t)ϕ) 
+
+> S(t)
+
+= 0 , ∀ϕ ∈ H1(S0), (3.2a) (H, n · ω)S(t) − (∇S(t)X, ∇S(t)ω) 
+
+> S(t)
+
+= 0 , ∀ω ∈ [H1(S0)] 3. (3.2b) Here 
+
+(∇S(t)X, ∇S(t)ω) 
+
+> S(t)
+
+:= 
+
+> 3
+
+∑
+
+> ℓ=1
+
+(∇S(t)Xℓ, ∇S(t)ωℓ
+
+) 
+
+> S(t)
+
+.
+
+We now introduce the discrete notation used below. Let ̂ Sh = ⋃Jj=1 ̂ σj be a fixed triangulated approx-imation of S0 with no hanging vertices, where each ̂ σj is a nondegenerate triangle. The discrete surfaces at different time levels are represented by nodal maps 
+
+Xm ∈ [Vh]3, Sm = Xm(̂Sh) = 
+
+> J
+
+⋃
+
+> j=1
+
+σmj ,
+
+where 
+
+σmj = △{ qmj1, qmj2 , qmj3}, qmjk := Xm(̂qjk ).
+
+The vertices of each triangle are ordered so that the induced normal is outward. The scalar finite element space on the reference triangulation is 
+
+Vh := 
+
+{
+
+u ∈ C(̂Sh) : u|̂ σj ∈ P1, j = 1 , . . . , J 
+
+}
+
+.
+
+For a nodal map Z ∈ [Vh]3, we write 
+
+SZ := Z(̂Sh)for the corresponding discrete surface. Functions in Vh are naturally identified with continuous piecewise linear functions on SZ through the same nodal values and mesh connectivity. This convention is used throughout the 3D scheme when a quantity such as Hm+1 is assembled on a predicted surface ˜Sm+1 .For a triangle 
+
+σj (Z) = △{ zj1, zj2, zj3 }, zjk := Z(̂qjk ),
+
+define its oriented area vector by 
+
+Jj (Z) := ( zj2 − zj1 ) × (zj3 − zj1). (3.3) Then |σj (Z)| = 1 
+
+> 2
+
+|J j (Z)|, nj (Z) = Jj (Z)  
+
+> |J j(Z)|
+
+. By abuse of notation, J (Z) and n(Z) also denote the corre-sponding piecewise constant vector fields on ̂ Sh and SZ, respectively, with J (Z)|̂ σj = Jj (Z), n(Z)|σj (Z) =
+
+nj (Z).
+
+For scalar or vector-valued piecewise continuous functions u, v on SZ, we define ( u, v )SZ := ∫ 
+
+> SZ
+
+u·v dA, 
+
+and the mass-lumped inner product (u, v )hSZ := 1
+
+3
+
+> J
+
+∑
+
+> j=1
+
+|σj (Z)|
+
+> 3
+
+∑
+
+> k=1
+
+(u · v)( zjk ). (3.4) The discrete surface gradient is constant on each triangle. For f ∈ V h, its surface gradient on σj (Z)is defined by (∇SZ f ) |σj (Z) = [fj1(zj3 − zj2 ) + fj2(zj1 − zj3) + fj3(zj2 − zj1)] × nj (Z)
+
+|J j (Z)| , (3.5) where fjk := f (̂qjk ). 8 Zhiqing Pan et al. 
+
+For later use, the discrete surface area and enclosed volume of SZ are defined by 
+
+A(Z) := 
+
+> J
+
+∑
+
+> j=1
+
+|σj (Z)|, V (Z) := 1
+
+18 
+
+> J
+
+∑
+
+> j=1 3
+
+∑
+
+> k=1
+
+zjk · J j (Z). (3.6) In particular, Am := A(Xm) and V m := V (Xm). We assume throughout that all discrete and predicted surfaces used in the scheme are nondegenerate, i.e., min 1≤j≤J |J j (Z)| > 0 for the corresponding nodal maps Z.3.2 Quadratic interpolation and Boole’s formula As in the two-dimensional case, define 
+
+Xh(α) = (2 α2 − 3α + 1) Xm−1 + ( −4α2 + 4 α)Xm + (2 α2 − α)Xm+1 , 0 ≤ α ≤ 1. (3.7) The five quadrature points are 
+
+α = 0 , 1
+
+4 , 1
+
+2 , 3
+
+4 , 1,
+
+corresponding to 
+
+tm−1, tm− 1 
+
+> 2
+
+, tm, tm+ 1 
+
+> 2
+
+, tm+1 .
+
+The corresponding interpolated positions are 
+
+Xm−1 := Xh(0) , Xm := Xh
+
+( 1
+
+2
+
+)
+
+, Xm+1 := Xh(1) , (3.8) 
+
+Xm− 1 
+
+> 2
+
+:= Xh
+
+( 1
+
+4
+
+)
+
+= 3
+
+8 Xm−1 + 3
+
+4 Xm − 1
+
+8 Xm+1 , (3.9) 
+
+Xm+ 1 
+
+> 2
+
+:= Xh
+
+( 3
+
+4
+
+)
+
+= − 1
+
+8 Xm−1 + 3
+
+4 Xm + 3
+
+8 Xm+1 . (3.10) The endpoint and midpoint velocity approximations are the same as those in ( 2.6 )–( 2.8 ). The two addi-tional Boole quadrature points give 
+
+∂tXm− 1 
+
+> 2
+
+:= Xm − Xm−1
+
+τ , (3.11) 
+
+∂tXm+ 1 
+
+> 2
+
+:= Xm+1 − Xm
+
+τ . (3.12) These half-point values give the predictor-corrector half-step velocities used in the practical scheme below. For the interpolated surface, we use the same notation J (Xh(α)) for the oriented area vector defined elementwise as in ( 3.3 ). Let V (α) be the volume enclosed by Sh(α) = Xh(α)( S0). Then 
+
+d
+
+dα V (α) = 
+
+∫
+
+> S0
+
+∂αXh(α) · J (Xh(α)) dA 0 . (3.13) Here ∂αXh is linear in α. Moreover, for each fixed reference triangle, the two edge vectors entering 
+
+J (Xh(α)) are quadratic polynomials in α, and hence their cross product is of degree at most four. Therefore the oriented volume density in ( 3.13 ) is a polynomial of degree at most five in α. Boole’s rule is therefore exact, and we obtain 
+
+V m+1 − V m−1 =
+
+∫ 10
+
+d
+
+dα V (α)d α
+
+=
+
+∫ 10
+
+∫ 
+
+> Sh(α)
+
+∂αXh(α) · nh(α)d A dα
+
+=
+
+∫̂
+
+> Sh
+
+1
+
+90 (7[ −Xm+1 + 4 Xm − 3Xm−1] · J (Xm−1) + 32[2 Xm − 2Xm−1]·J ( 3
+
+8 Xm−1 + 3
+
+4 Xm − 1
+
+8 Xm+1 ) + 12[ Xm+1 − Xm−1] · J (Xm)+ 32[2 Xm+1 − 2Xm] · J (− 1
+
+8 Xm−1 + 3
+
+4 Xm + 3
+
+8 Xm+1 )+ 7[3 Xm+1 − 4Xm + Xm−1] · J (Xm+1 ))d A0.
+
+(3.14) Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 9
+
+Remark 6 The two half-time levels m − 1 
+
+> 2
+
+and m + 1 
+
+> 2
+
+arise from Boole’s formula and have no analogue in the two-dimensional Simpson identity. In the practical scheme below, the corresponding geometries are not treated as additional unknowns; they are supplied by BGN1 predictor steps, in the spirit of predictor– corrector BGN methods [ 20 ]. The volume conservation mechanism is retained because the normal vectors are defined through the oriented area vectors associated with the quadratic interpolation path. 3.3 Prediction and the second-order volume-preserving scheme Compared with the two-dimensional case, the main additional feature is that Boole’s formula involves two half-time geometries. The predictor ˜Sm+1 is obtained by one BGN1 step from Sm with time step 
+
+τ , while the half-time predictor ˜Sm+ 1 
+
+> 2
+
+is obtained by one BGN1 step from Sm with time step τ / 2. For 
+
+m ≥ 2, the predictor ˜Sm− 1 
+
+> 2
+
+has already been generated in the previous step; for the first two-step update, 
+
+˜S 1 
+
+> 2
+
+is generated during the initialization by a BGN1 half step from S0.More precisely, ˜Sm+1 is obtained by finding ˜Xm+1 ∈ [Vh]3 and ˜Hm+1 ∈ V h such that 
+
+( ˜Xm+1 − Xm
+
+τ , ϕ hnm
+
+)hSm
+
++
+
+(
+
+∇Sm ˜Hm+1 , ∇Sm ϕh) 
+
+> Sm
+
+= 0 , ∀ϕh ∈ V h, (3.15a) 
+
+( ˜Hm+1 , nm · ωh)hSm
+
+−
+
+(
+
+∇Sm ˜Xm+1 , ∇Sm ωh)
+
+> Sm
+
+= 0 , ∀ωh ∈ [Vh]3. (3.15b) The half-time predictor ˜Sm+ 1 
+
+> 2
+
+is defined analogously by replacing τ in ( 3.15 ) with τ / 2. Based on the exact identity ( 3.14 ) , the weighted structure-preserving normal vectors are defined by 
+
+nm+1 := J (Xm+1 )
+
+|J ( ˜Xm+1 )| , (3.16) 
+
+nm+ 1 
+
+> 2
+
+:= J (− 1 
+
+> 8
+
+Xm−1 + 3 
+
+> 4
+
+Xm + 3 
+
+> 8
+
+Xm+1 )
+
+|J ( ˜Xm+ 1 
+
+> 2
+
+)| , (3.17) 
+
+nm− 1 
+
+> 2
+
+:= J ( 3 
+
+> 8
+
+Xm−1 + 3 
+
+> 4
+
+Xm − 1 
+
+> 8
+
+Xm+1 )
+
+|J ( ˜Xm− 1 
+
+> 2
+
+)| . (3.18) At the known time levels m and m − 1, we use the usual outward normals nm = J (Xm)/|J (Xm)| and 
+
+nm−1 = J (Xm−1)/|J (Xm−1)|. The definitions above ensure that integration on the predicted surfaces gives the same oriented volume densities as those in the exact identity ( 3.14 ). We are now ready to state the practical second-order volume-preserving PFEM. Given ( Xm−1, H m−1)and ( Xm, H m), find ( Xm+1 , H m+1 ) ∈ [Vh]3 × V h such that, for all ( ϕh, ωh) ∈ V h × [Vh]3,7
+
+90 
+
+[( 3Xm+1 − 4Xm + Xm−1
+
+2τ , ϕ hnm+1 
+
+)h
+
+> ˜Sm+1
+
++ (∇ ˜Sm+1 Hm+1 , ∇ ˜Sm+1 ϕh)
+
+> ˜Sm+1
+
+]
+
++ 32 
+
+90 
+
+[( Xm+1 − Xm
+
+τ , ϕ hnm+ 1
+
+> 2
+
+)h
+
+> ˜Sm+ 1
+> 2
+
++
+
+(
+
+∇ ˜Sm+ 1
+
+> 2
+
+Hm+1 + Hm
+
+2 , ∇ ˜Sm+ 1 
+
+> 2
+
+ϕh
+
+)
+
+> ˜Sm+ 1
+> 2
+
+]
+
++ 12 
+
+90 
+
+[( Xm+1 − Xm−1
+
+2τ , ϕ hnm
+
+)hSm
+
++ (∇Sm Hm, ∇Sm ϕh)
+
+> Sm
+
+]
+
++ 32 
+
+90 
+
+[( Xm − Xm−1
+
+τ , ϕ hnm− 1
+
+> 2
+
+)h 
+
+> ˜Sm−1
+> 2
+
++
+
+(
+
+∇ ˜Sm− 1
+
+> 2
+
+Hm + Hm−1
+
+2 , ∇ ˜Sm− 1 
+
+> 2
+
+ϕh
+
+) 
+
+> ˜Sm−1
+> 2
+
+]
+
++ 7
+
+90 
+
+[( −Xm+1 + 4 Xm − 3Xm−1
+
+2τ , ϕ hnm−1
+
+)hSm−1
+
++ (∇Sm−1 Hm−1, ∇Sm−1 ϕh)
+
+> Sm−1
+
+]
+
+= 0 , ∀ϕh ∈ V h,
+
+(3.19a) 
+
+(Hm+1 , ˜nm+1 · ωh)h 
+
+> ˜Sm+1
+
+− (∇ ˜Sm+1 Xm+1 , ∇ ˜Sm+1 ωh) 
+
+> ˜Sm+1
+
+= 0 , ∀ωh ∈ [Vh]3. (3.19b) We refer to ( 3.19 ) as the BGN/VC scheme, where VC stands for volume conserving. In ( 3.19 ), ˜nm+1 is the usual outward normal of the predicted surface ˜Sm+1 and is used only in the curvature equation. The 10 Zhiqing Pan et al. 
+
+nonlinear system is solved by a Newton-type method analogous to that in Section 2.4 ; the only additional ingredient is the linearization of the oriented area vector J (X). The details are given in Appendix B.
+
+Theorem 2 (Exact volume conservation) Let (Xm+1 , H m+1 ) be a solution of (3.19 ). Then V m+1 =
+
+V m−1. If the first step is computed by the first-order structure-preserving PFEM so that V 1 = V 0, then 
+
+V m = V 0 for all m ≥ 0.Proof Taking ϕh ≡ 2τ in ( 3.19a ), all surface-gradient terms vanish. The remaining five normal velocity terms are exactly the Boole representation of the volume difference in ( 3.14 ); the only point to note is that the definitions ( 3.16 )–( 3.18 ) convert the area factors of the predicted surfaces into the oriented area vectors appearing in ( 3.14 ). Hence V m+1 − V m−1 = 0. The full conservation follows by induction from 
+
+V 1 = V 0.
+
+Remark 7 The five terms in ( 3.19a ) correspond exactly to the five Boole quadrature points. The endpoint velocity approximations are BDF2-type, the center term is of CN-leapfrog type, and the two half-time terms are predictor-corrector-type. Thus the scheme keeps the predictor-based implementation of existing second-order BGN methods while replacing the normal densities by the structure-preserving ones dictated by the exact volume identity. 
+
+4 Numerical results 
+
+In this section, we present numerical experiments to examine the accuracy, conservation properties, geometric behavior, and computational performance of the proposed second-order schemes. Both the curve case in two dimensions and the surface case in three dimensions are considered. The nonlinear systems are solved by Newton’s method with stopping tolerance tol = 5 × 10 −14 .After the initial polygonal curve or polyhedral surface represented by X0 has been generated, the initial curvature variable, namely κ0 in 2D or H0 in 3D, is computed by the least-squares procedure described in [ 18 ]. For the convergence tests of closed curves, we compare numerical solutions obtained on two successive refinements. The discrepancy between two curves is measured by the manifold distance. More precisely, for two closed curves Γ1 and Γ2 enclosing regions Ω1 and Ω2, respectively, we define 
+
+M (Γ1, Γ 2) := |Ω1△Ω2| = |(Ω1 \ Ω2) ∪ (Ω2 \ Ω1)|.
+
+For 2D computations, we monitor the relative area loss and the mesh ratio: 
+
+∆A (t)|t=tm := Am − A0
+
+A0 , Ψ (t)|t=tm := max 1≤j≤N |hmj |
+
+min 1≤j≤N |hmj | .
+
+Here Am is the enclosed area, hmj denotes the j-th edge of the polygonal curve Γ m.For 3D computations, we monitor the relative volume loss and the triangle-area ratio: 
+
+∆V (t)|t=tm := V m − V 0
+
+V 0 , ra(t)|t=tm := max j |σmj |
+
+min j |σmj | .
+
+4.1 Curve experiments We first examine the proposed BGN/AC scheme for the surface diffusion of closed planar curves. Three representative initial curves are considered. 
+
+Ellipse. 
+
+x = 2 cos θ, y = sin θ, 0 ≤ θ < 2π. 
+
+Flower curve. 
+
+x = (2 + cos(6 θ)) cos θ, y = (2 + cos(6 θ)) sin θ, 0 ≤ θ < 2π. Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 11 
+
+Peanut-shaped curve. 
+
+x = (1 + 0 .45 cos(2 θ)) cos θ, y = (1 + 0 .45 cos(2 θ)) sin θ, 0 ≤ θ < 2π. 
+
+The ellipse is used for the convergence study and for comparison with existing second-order BGN-based schemes. The flower and peanut-shaped curves are used to test the behavior of the method for geometries with stronger curvature variation and less uniform mesh distributions. We begin with a convergence test for the 2 ×1 ellipse. Since an exact solution is not available, the error is evaluated by comparing two numerical solutions on successive refinements along the path τ = 0 .1h.Specifically, for two successive time step sizes τ1 and τ2, we define 
+
+EM (T, τ 1, τ 2) := M
+
+(
+
+Γ T /τ 1  
+
+> h1,τ 1
+
+, Γ T /τ 2 
+
+> h2,τ 2
+
+)
+
+,
+
+and compute the observed order by Order := log 
+
+( EM (T, τ 1, τ 2)
+
+EM (T, τ 2, τ 3)
+
+) /
+
+log 
+
+( τ1
+
+τ2
+
+)
+
+.
+
+The results are reported in Table 1. The observed rates are close to two at all listed times, confirming the expected second-order behavior. Table 1: Cauchy-type convergence test for the proposed BGN/AC scheme applied to the surface diffusion of a 2 × 1 ellipse. The refinement path is chosen as τ = 0 .1h.                                                                     
+
+> τEM(0 .05) order EM(0 .5) order EM(2) order
+> 1/160 1.40 ×10 −1–1.39 ×10 −1–1.39 ×10 −1–1/320 3.60 ×10 −21.96 3.57 ×10 −21.96 3.57 ×10 −21.96 1/640 9.05 ×10 −31.99 9.05 ×10 −31.98 9.00 ×10 −31.99 1/1280 2.27 ×10 −32.00 2.29 ×10 −31.98 2.27 ×10 −31.99 1/2560 5.67 ×10 −42.00 5.75 ×10 −42.00 5.68 ×10 −42.00
+
+We next compare the proposed BGN/AC scheme with three existing second-order BGN-based meth-ods: the BGN/CNLF scheme, the BGN/BDF2 scheme, and the BGN/PC scheme. The initial curve is again the 2 × 1 ellipse, with N = 128 , τ = 10 −3, T = 0 .5. The results are shown in Fig. 1. All four schemes decrease the perimeter during the evolution; see Fig. 1(a). The difference lies in the area behavior. As shown in Fig. 1(b), the proposed BGN/AC scheme preserves the enclosed area up to the nonlinear solver tolerance, whereas the other three second-order BGN-based schemes exhibit area drift of order 10 −5.Fig. 1(c) further shows that the mesh ratio of the proposed method remains well controlled and is compa-rable to that of the other BGN-based schemes. This example indicates that the conservative modification enforces exact area preservation without sacrificing the mesh quality typical of BGN-type discretizations. We further test the method on the flower curve and the peanut-shaped curve. These two examples are more demanding than the ellipse because of their stronger curvature variation and nonuniform initial point distribution. For each initial curve, we use two time step sizes, τ = 1 /500 and τ = 1 /1000, to examine the sensitivity of the geometric diagnostics to temporal refinement. As shown in Fig. 2(a, e), both curves relax toward a circular equilibrium shape during the evolution. The relative area loss in Fig. 2(b, f) remains at the level of the nonlinear solver tolerance for both time step sizes, confirming the exact area-conservation property of the proposed scheme in these more challenging tests. The Newton iteration numbers in Fig. 2(c, g) stay moderate and decrease after the initial transient. Fig. 2(d, h) shows that the mesh ratio remains bounded and approaches one as the evolution proceeds; moreover, the smaller time step generally leads to a faster approach to the equidistributed state. These observations indicate that the proposed BGN/AC scheme remains robust for nonconvex or strongly nonuniform planar geometries. 4.2 Surface experiments We now turn to the proposed BGN/VC scheme for closed surfaces in three dimensions. Two initial surfaces are considered. Throughout this subsection, K and J denote the numbers of vertices and triangular faces of the polyhedral surface, respectively. 12 Zhiqing Pan et al.         
+
+> 00.1 0.2 0.3 0.4
+> 11.05 1.1 1.15 1.2 1.25
+> 00.1 0.2 0.3 0.4
+> 0.92 0.94 0.96 0.98 1
+
+Fig. 1: Comparison of four second-order BGN-based schemes for the surface diffusion of a 2 × 1 ellipse with N = 128, τ = 1 /1000, and T = 0 .5: (a) normalized perimeter L(t)/L (0); (b) absolute relative area loss |∆A (t)|; (c) mesh ratio function Ψ (t). The four curves correspond to the proposed BGN/AC scheme, the BGN/CNLF scheme, the BGN/BDF2 scheme, and the BGN/PC scheme, respectively.                             
+
+> six petals flower
+> 00.1 0.2 0.3 0.4 0.5
+> -4 -2 02410 -15
+> 00.1 0.2 0.3 0.4 0.5
+> 46810 12
+> iteration number
+> 0510 15
+> 11.1 1.2 1.3 1.4 1.5 1.6
+> peanut
+> 012345
+> -4 -2 02410 -15
+> 012345
+> 33.5 44.5 55.5 6
+> iteration number
+> 0510 15
+> 11.05 1.1 1.15 1.2
+
+Fig. 2: Geometric diagnostics produced by the proposed BGN/AC scheme for the six-petal flower curve (top row) and the peanut-shaped curve (bottom row) with N = 128. For each initial curve, the diagnostic quantities in the last three columns are plotted for two time step sizes, τ = 1 /500 and τ = 1 /1000. (a, e) Snapshots of the evolution; (b, f) relative area loss ∆A (t); (c, g) Newton iteration number; (d, h) mesh ratio Ψ (t). 
+
+Ellipsoid. 
+
+x2
+
+4 + y2
+
+(1 .5) 2 + z2 = 1 .
+
+This (2 , 1.5, 1) ellipsoid is used for the convergence study and for verifying volume conservation, mesh behavior, and nonlinear solver performance. 
+
+Cigar-like surface. The cigar-like surface consists of a cylindrical part of radius 1 /2 and length 7, capped by two hemispheres of radius 1 /2, so that the total length is 8. This example is used to test the behavior of the method near a pinch-off event. We first study convergence for the (2 , 1.5, 1) ellipsoid. The initial polyhedral surfaces are generated by the distance-function mesh generator DistMesh [24 ] with a uniform size function. The input parameter Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 13 
+
+h controls the spacing of the background Cartesian grid used in the isosurface extraction. Since the resulting meshes are nearly isotropic, the actual element diameters are proportional to h, and we use this parameter to label the refinement path. The four values h = 1 /5, 1/10 , 1/15 , 1/20 yield triangulations with ( K, J ) = (1028 , 2052), (3990 , 7976), (9196 , 18388), and (16230 , 32456), respectively. The time step is chosen as τ = 0 .01 h.To quantify the difference between two polyhedral surfaces S1 and S2, we use a symmetric vertex-to-surface distance, as in [ 5], defined by 
+
+M (S1, S 2) := 1
+
+2
+
+(
+
+max 
+
+> q1∈N 1
+
+min 
+
+> p2∈S2
+
+|q1 − p2| + max 
+
+> q2∈N 2
+
+min 
+
+> p1∈S1
+
+|q2 − p1|
+
+)
+
+,
+
+where Ni denotes the set of vertices of Si. As in the curve case, the convergence error is computed by comparing numerical solutions on two successive refinements along the path τ = 0 .01 h. For two successive numerical solutions, we define 
+
+E3DM (T, τ 1, τ 2) := M
+
+(
+
+ST /τ 1 
+
+> h1,τ 1
+
+, S T /τ 2
+
+> h2,τ 2
+
+)
+
+.
+
+The errors are measured at T = 0 .1, 0.2, 0.3. The results in Table 2 show rates close to two, which supports the expected second-order accuracy of the fully discrete BGN/VC scheme. Table 2: Cauchy-type convergence test for the proposed BGN/VC scheme applied to the surface diffusion of the (2 , 1.5, 1) ellipsoid. Here τ0 = 1 /500 corresponds to the coarsest mesh with h0 = 1 /5.                                              
+
+> τE3DM(0 .1) order E3DM(0 .2) order E3DM(0 .3) order
+> τ04.35 ×10 −3–3.86 ×10 −3–3.54 ×10 −3–
+> τ0/21.26 ×10 −31.78 1.12 ×10 −31.79 1.04 ×10 −31.76
+> τ0/35.94 ×10 −41.86 5.44 ×10 −41.78 4.99 ×10 −41.82
+
+We next examine the geometric behavior of the proposed method for the same ellipsoidal surface. The computational parameters are ( K, J ) = (3990 , 7976) , τ = 0 .001 . The results are shown in Fig. 3. The relative volume loss remains at the level of the nonlinear solver tolerance throughout the computation, in agreement with Theorem 2; see Fig. 3(a). Fig. 3(b) shows that the triangle-area ratio remains well controlled during the evolution, indicating that the mesh quality does not deteriorate. The Newton iteration number remains low and stable in Fig. 3(c), which suggests that the nonlinear systems can be solved efficiently.                
+
+> 00.2 0.4 0.6 0.8 1
+> -2 -1 012
+> 10 -15
+> 00.2 0.4 0.6 0.8 1
+> 1.4 1.6 1.8 22.2 2.4
+> 00.2 0.4 0.6 0.8 1
+> 45678
+> iteration number
+
+Fig. 3: Geometric diagnostics for the proposed BGN/VC scheme applied to the surface diffusion of the (2 , 1.5, 1) ellipsoid with ( K, J ) = (3990 , 7976) and τ = 0 .001: (a) relative volume loss ∆V (t); (b) triangle area ratio ra; (c) Newton iteration number. We finally consider the cigar-like surface. This example is more challenging because the evolution develops a necking instability and approaches pinch-off. We compare the proposed BGN/VC scheme 14 Zhiqing Pan et al. 
+
+with the BGN/BDF2 scheme and the BGN/PC scheme. The BGN/CNLF scheme is not included here, since its mesh deterioration for this three-dimensional near-pinch-off example has already been reported in the predictor–corrector BGN study. The discretization parameters are ( K, J ) = (1322 , 2640) , τ = 0 .001 .
+
+Representative snapshots of the evolving surfaces are shown in Fig. 4. All three methods capture the same qualitative evolution: the initially elongated surface forms a thin neck, the neck radius decreases rapidly, and the computation terminates near pinch-off. The resulting pinch-off times are close, although not identical, for the three methods. 
+
+Fig. 4: Comparison of surface evolution for the cigar-like initial surface with ( K, J ) = (1322 , 2640) and 
+
+τ = 0 .001. The three rows correspond to the proposed BGN/VC scheme, the BGN/BDF2 scheme, and the BGN/PC scheme, respectively. The first three columns show representative snapshots during the evolution, while the last column shows the last computed surface before pinch-off for each method. The corresponding geometric diagnostics are reported in Fig. 5. Fig. 5(a) shows that all three methods produce a monotone decay of the normalized surface area. The zoom-in view near the pinch-off regime further indicates that the proposed BGN/VC scheme follows the BGN/BDF2 scheme very closely, while the BGN/PC scheme shows a slightly different decay profile near the pinch-off regime. The same tendency is more visible in the mesh-quality indicator shown in Fig. 5(c): the triangle-area ratio generated by BGN/VC remains close to that of BGN/BDF2 and is noticeably smaller than that of BGN/PC as the surface approaches pinch-off. The main difference among the three schemes lies in the volume behavior. As shown in Fig. 5(b), the proposed BGN/VC scheme keeps the absolute relative volume loss at the level of the nonlinear solver tolerance, whereas the BGN/BDF2 and BGN/PC schemes exhibit visible volume drift of order 10 −5. These results indicate that the proposed volume-preserving modification retains the near-pinch-off dynamics and mesh behavior of the BGN/BDF2 scheme, while additionally enforcing exact volume conservation. 
+
+5 Conclusions 
+
+We have proposed a geometric-interpolation approach for constructing second-order area- and volume-preserving PFEMs for surface diffusion. The main point of the construction is that the conservative normal velocity is not imposed by an auxiliary constraint equation, but is obtained from the exact variation of Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 15           
+
+> 00.1 0.2 0.3
+> 0.8 0.85 0.9 0.95 1
+> 00.1 0.2 0.3
+> 020 40 60 80 100
+> BGN/VC BGN/BDF2 BGN/PC
+> 0.23 0.235 0.24
+> 0.84 0.845 0.85
+
+Fig. 5: Comparison of geometric quantities for the cigar-like surface with ( K, J ) = (1322 , 2640) and 
+
+τ = 0 .001: (a) normalized surface area A(t)/A (0), together with a zoom-in view near the pinch-off regime; (b) absolute relative volume loss |∆V (t)|; (c) triangle-area ratio ra(t). The three curves correspond to the proposed BGN/VC scheme, the BGN/BDF2 scheme, and the BGN/PC scheme, respectively. the enclosed area or volume along a quadratic temporal interpolation path. This leads to a Simpson-type identity for closed curves and a Boole-type identity for closed surfaces. The resulting BGN/AC and BGN/VC schemes preserve the enclosed area or volume up to the nonlin-ear solver tolerance. At the same time, they can be implemented on BGN-predicted auxiliary geometries and therefore remain close to existing second-order BGN-based discretizations in terms of mesh behavior and practical performance. The numerical experiments confirm the expected second-order convergence, exact conservation, stable Newton iteration, and good mesh quality for both planar curves and three-dimensional surfaces, including near-pinch-off surface diffusion dynamics. The present work focuses on the conservation mechanism. As discussed above, a Lagrange-multiplier energy equation can be incorporated if one also wants to enforce a discrete perimeter or surface-area dis-sipation law. Other natural extensions include higher-order geometric interpolation formulas, anisotropic surface diffusion, and more general geometric flows with multiple constraints. 
+
+A Finite difference coefficients on equidistant nodes 
+
+This appendix records a general formula for the finite-difference coefficients obtained by differentiating the polynomial interpolant on equidistant temporal nodes. The derivative approximations used in ( 2.6 )–( 2.8 ) are precisely the quadratic (k = 2) special cases of this result. We include this statement both to place the three-level formulas used in the main text into a unified interpolation framework and to indicate how similar coefficients arise in possible higher-order extensions. 
+
+Theorem 3 (Finite difference coefficients) Let xj = j/k , j = 0 , . . . , k , and let lj (x) be the associated Lagrange basis. For each n = 0 , . . . , k , the unique coefficients bn,j satisfying 
+
+f ′(xn) = 
+
+> k
+
+∑
+
+> j=0
+
+bn,j f (xj ), ∀f ∈ Pk ,
+
+are bn,j = l′ 
+
+> j
+
+(xn) and are explicitly given by 
+
+bn,j =
+
+
+
+k (Hn − Hk−n) , j = n, k (−1) n−j
+
+n − j
+
+(kj
+
+)
+
+(kn
+
+) , j 6 = n, 
+
+where Hp = ∑pi=1 i−1 and H0 = 0 . If x = ( t − t0 )/(kτ ), then 
+
+∂tf (tn ) = 1
+
+kτ 
+
+> k
+
+∑
+
+> j=0
+
+bn,j f (tj ).
+
+Proof Let lj (x) be the Lagrange basis associated with the nodes xi = i/k . For any polynomial f of degree at most k,
+
+f (x) = 
+
+> k
+
+∑
+
+> j=0
+
+f (xj )lj (x).16 Zhiqing Pan et al. Differentiating and evaluating at x = xn gives 
+
+f ′(xn) = 
+
+> k
+
+∑
+
+> j=0
+
+f (xj )l′ 
+
+> j
+
+(xn),
+
+so bn,j = l′ 
+
+> j
+
+(xn). Let u = kx and define ℓj (u) := lj (u/k ). Then lj (x) = ℓj (kx ) and hence 
+
+l′ 
+
+> j
+
+(x) = kℓ ′ 
+
+> j
+
+(kx ).
+
+Thus 
+
+l′ 
+
+> j
+
+(xn) = kℓ ′ 
+
+> j
+
+(n).
+
+For integer nodes ui = i,
+
+ℓj (u) = 
+
+> k
+
+∏
+
+> m=0
+> m6=j
+
+u − m
+
+j − m .
+
+If j = n, then 
+
+ℓ′
+
+> n
+
+(n) = 
+
+> k
+
+∑
+
+> m=0
+> m6=n
+
+1
+
+n − m = Hn − Hk−n.
+
+If j 6 = n, then 
+
+ℓ′ 
+
+> j
+
+(n) = 1
+
+n − j
+
+> k
+
+∏
+
+> m=0
+> m6=n,j
+
+n − m
+
+j − m = (−1) n−j
+
+n − j
+
+(kj
+
+)
+
+(kn
+
+) .
+
+Multiplying by k gives the stated formula. 
+
+B Iterative solver for the 3D nonlinear system 
+
+In this appendix, we describe the Newton-type solver used for the three-dimensional volume-preserving scheme ( 3.19 ). Compared with the two-dimensional case, the main additional ingredient is the linearization of the oriented area vector. On a reference triangle with vertices mapped to z1, z2, z3, this vector is 
+
+J (X) = ( z2 − z1) × (z3 − z1).
+
+For a perturbation η, its first variation is 
+
+DJ (X)[ η] = ( η2 − η1) × (z3 − z1) + ( z2 − z1) × (η3 − η1). (B.1) Let (Xm+1 ,l , H m+1 ,l )be the approximation at the l-th Newton iteration, and define the increments 
+
+δXl := Xm+1 ,l +1 − Xm+1 ,l , δH l := Hm+1 ,l +1 − Hm+1 ,l .
+
+The two half-time geometries induced by the quadratic interpolation path are 
+
+Xm+ 1  
+
+> 2,l
+
+:= − 1
+
+8 Xm−1 + 3
+
+4 Xm + 3
+
+8 Xm+1 ,l , (B.2) 
+
+Xm− 1  
+
+> 2,l
+
+:= 3
+
+8 Xm−1 + 3
+
+4 Xm − 1
+
+8 Xm+1 ,l . (B.3) Hence their variations satisfy 
+
+δXm+ 1  
+
+> 2,l
+
+= 3
+
+8 δXl, δXm− 1  
+
+> 2,l
+
+= − 1
+
+8 δXl. (B.4) At the Newton iterate, the structure-preserving weighted normals are defined by 
+
+nm+1 ,l := J (Xm+1 ,l )
+
+|J ( ˜Xm+1 )| , (B.5) 
+
+nm+ 1  
+
+> 2,l
+
+:= J (Xm+ 1 
+
+> 2,l
+
+)
+
+|J ( ˜Xm+ 1 
+
+> 2
+
+)|
+
+, (B.6) 
+
+nm− 1  
+
+> 2,l
+
+:= J (Xm− 1 
+
+> 2,l
+
+)
+
+|J ( ˜Xm− 1 
+
+> 2
+
+)|
+
+. (B.7) Second-Order Area/Volume-Preserving PFEMs for Surface Diffusion via Simpson–Boole Geometric Identities 17 Using ( B.1 ) and ( B.4 ), their first variations are 
+
+δnm+1 ,l = DJ (Xm+1 ,l )[ δXl]
+
+|J ( ˜Xm+1 )| , (B.8) 
+
+δnm+ 1  
+
+> 2,l
+
+= DJ (Xm+ 1 
+
+> 2,l
+
+)[ 3 
+
+> 8
+
+δXl]
+
+|J ( ˜Xm+ 1 
+
+> 2
+
+)|
+
+, (B.9) 
+
+δnm− 1  
+
+> 2,l
+
+= DJ (Xm− 1 
+
+> 2,l
+
+)[ − 1 
+
+> 8
+
+δXl]
+
+|J ( ˜Xm− 1 
+
+> 2
+
+)|
+
+. (B.10) For convenience, we introduce the velocity approximations appearing in the five Boole terms: 
+
+Dm+1 ,l := 3Xm+1 ,l − 4Xm + Xm−1
+
+2τ , δDm+1 ,l = 3
+
+2τ δXl, (B.11) 
+
+Dm+ 1  
+
+> 2,l
+
+:= Xm+1 ,l − Xm
+
+τ , δDm+ 1  
+
+> 2,l
+
+= 1
+
+τ δXl, (B.12) 
+
+Dm,l := Xm+1 ,l − Xm−1
+
+2τ , δDm,l = 1
+
+2τ δXl, (B.13) 
+
+Dm− 1 
+
+> 2
+
+:= Xm − Xm−1
+
+τ , (B.14) 
+
+Dm−1,l := −Xm+1 ,l + 4 Xm − 3Xm−1
+
+2τ , δDm−1,l = − 1
+
+2τ δXl. (B.15) At each Newton step, we solve for (δXl, δH l) ∈ [Vh]3 × V h
+
+such that, for all ( ϕh, ωh) ∈ V h × [Vh]3,7
+
+90 
+
+[ (
+
+δDm+1 ,l , ϕ hnm+1 ,l )h 
+
+> ˜Sm+1
+
++
+
+(
+
+Dm+1 ,l , ϕ hδnm+1 ,l )h 
+
+> ˜Sm+1
+
++
+
+(
+
+∇ ˜Sm+1 δH l, ∇ ˜Sm+1 ϕh)
+
+> ˜Sm+1
+
+]
+
++ 32 
+
+90 
+
+[ (
+
+δDm+ 1 
+
+> 2,l
+
+, ϕ hnm+ 1 
+
+> 2,l
+
+)h
+
+> ˜Sm+ 1
+> 2
+
++
+
+(
+
+Dm+ 1 
+
+> 2,l
+
+, ϕ hδnm+ 1 
+
+> 2,l
+
+)h
+
+> ˜Sm+ 1
+> 2
+
++
+
+(
+
+∇ ˜Sm+ 1
+
+> 2
+
+δH l
+
+2 , ∇ ˜Sm+ 1
+
+> 2
+
+ϕh
+
+)
+
+> ˜Sm+ 1
+> 2
+
+]
+
++ 12 
+
+90 
+
+(
+
+δDm,l , ϕ hnm)hSm + 32 
+
+90 
+
+(
+
+Dm− 1 
+
+> 2
+
+, ϕ hδnm− 1 
+
+> 2,l
+
+)h 
+
+> ˜Sm−1
+> 2
+
++ 7
+
+90 
+
+(
+
+δDm−1,l , ϕ hnm−1)hSm−1
+
+= −R l
+
+> 1
+
+(ϕh), (B.16a) 
+
+(
+
+δH l, ˜nm+1 · ωh)h 
+
+> ˜Sm+1
+
+−
+
+(
+
+∇ ˜Sm+1 δXl, ∇ ˜Sm+1 ωh) 
+
+> ˜Sm+1
+
+= −R l
+
+> 2
+
+(ωh), (B.16b) where Rl 
+
+> 1
+
+and Rl 
+
+> 2
+
+denote the residuals of ( 3.19a ) and ( 3.19b ), evaluated at ( Xm+1 ,l , H m+1 ,l ). After solving ( B.16 ), we update 
+
+Xm+1 ,l +1 = Xm+1 ,l + δXl , Hm+1 ,l +1 = Hm+1 ,l + δH l.
+
+The iteration is terminated once max 
+
+{
+
+‖δXl‖ℓ∞ , ‖δH l‖ℓ∞
+
+}
+
+≤ tol .
+
+In the computations, the initial guess is taken as 
+
+Xm+1 ,0 = ˜Xm+1 , Hm+1 ,0 = Hm,
+
+where the predicted surfaces ˜Sm+1 and ˜Sm+ 1 
+
+> 2
+
+are obtained by BGN1 predictor steps with time steps τ and τ / 2, respectively. 
+
+Remark 8 The exact volume conservation of the fully discrete scheme is recovered up to the nonlinear solver tolerance. The principal additional feature in the three-dimensional Newton linearization is the consistent treatment of the weighted normals at the new and half-time geometries through the first variation of the oriented area vector ( B.1 ). 
+
+Acknowledgment 
+
+This work was partially supported by Shenzhen Loop Area Institute (Contract No. SLAI2026020007). 
+
+Data Availability 
+
+The datasets generated during and/or analyzed during the current study are available from the authors on reasonable request. 18 Zhiqing Pan et al. 
+
+Declarations Conflict of interest 
+
+The authors declare that they have no conflict of interest. 
+
+References 
+
+1. B¨ ansch, E., Morin, P., Nochetto, R.H.: Surface diffusion of graphs: variational formulation, error analysis, and simula-tion. SIAM Journal on Numerical Analysis 42 (2), 773–799 (2004). DOI 10.1137/S0036142902419272 2. Bao, W., Jiang, W., Li, Y.: A symmetrized parametric finite element method for anisotropic surface diffusion of closed curves. SIAM Journal on Numerical Analysis 61 (2), 617–641 (2023). DOI 10.1137/22M1500575 3. Bao, W., Li, Y.: A symmetrized parametric finite element method for anisotropic surface diffusion in three dimensions. SIAM Journal on Scientific Computing 45 (4), A1438–A1461 (2023). DOI 10.1137/22M1472851 4. Bao, W., Li, Y.: A unified structure-preserving parametric finite element method for anisotropic surface diffusion. Mathematics of Computation 94 (355), 2113–2149 (2025). DOI 10.1090/mcom/4022 5. Bao, W., Zhao, Q.: A structure-preserving parametric finite element method for surface diffusion. SIAM Journal on Numerical Analysis 59 (5), 2775–2799 (2021). DOI 10.1137/21M1406751 6. Barrett, J.W., Garcke, H., N¨ urnberg, R.: A parametric finite element method for fourth order geometric evolution equations. Journal of Computational Physics 222 (1), 441–467 (2007). DOI 10.1016/j.jcp.2006.07.026 7. Barrett, J.W., Garcke, H., N¨ urnberg, R.: On the parametric finite element approximation of evolving hypersurfaces in 
+
+R3. Journal of Computational Physics 227 (9), 4281–4307 (2008). DOI 10.1016/j.jcp.2007.11.023 8. Barrett, J.W., Garcke, H., N¨ urnberg, R.: Parametric finite element approximations of curvature-driven interface evolu-tions. In: Handbook of Numerical Analysis, vol. 21, pp. 275–423. Elsevier (2020). DOI 10.1016/bs.hna.2019.05.002 9. Cahn, J.W., Taylor, J.E.: Overview no. 113: Surface motion by surface diffusion. Acta Metallurgica et Materialia 42 (4), 1045–1063 (1994). DOI 10.1016/0956-7151(94)90123-6 10. Deckelnick, K., Dziuk, G., Elliott, C.M.: Fully discrete finite element approximation for anisotropic surface diffusion of graphs. SIAM Journal on Numerical Analysis 43 (3), 1112–1138 (2005). DOI 10.1137/S0036142903434874 11. Duan, B., Yang, Z.: A second-order structure-preserving parametric FEM for surface evolution. arXiv preprint arXiv:2606.08293 (2026) 12. Dziuk, G.: An algorithm for evolutionary surfaces. Numerische Mathematik 58 (1), 603–611 (1990). DOI 10.1007/ BF01385643 13. Dziuk, G.: Convergence of a semi-discrete scheme for the curve shortening flow. Mathematical Models and Methods in Applied Sciences 4(04), 589–606 (1994). DOI 10.1142/S0218202594000339 14. Dziuk, G., Kuwert, E., Sch¨ atzle, R.: Evolution of elastic curves in Rn: Existence and computation. SIAM journal on Mathematical Analysis 33 (5), 1228–1245 (2002). DOI 10.1137/S0036141001383709 15. Elliott, C.M., Garcke, H.: On the Cahn–Hilliard equation with degenerate mobility. SIAM Journal on Mathematical Analysis 27 (2), 404–423 (1996). DOI 10.1137/S0036141094267662 16. Garcke, H., Jiang, W., Su, C., Zhang, G.: Structure-preserving parametric finite element method for surface diffusion based on Lagrange multiplier approaches. SIAM Journal on Scientific Computing 47 (3), A1983–A2011 (2025). DOI 10.1137/24M1687546 17. Garcke, H., N¨ urnberg, R., Zhao, Q.: Structure-preserving discretizations of two-phase Navier–Stokes flow using fitted and unfitted approaches. Journal of Computational Physics 489 , 112276 (2023). DOI 10.1016/j.jcp.2023.112276 18. Jiang, W., Su, C., Zhang, G.: A second-order in time, BGN-based parametric finite element method for geometric flows of curves. Journal of Computational Physics 514 , 113220 (2024). DOI 10.1016/j.jcp.2024.113220 19. Jiang, W., Su, C., Zhang, G.: Stable backward differentiation formula time discretization of BGN-based parametric finite element methods for geometric flows. SIAM Journal on Scientific Computing 46 (5), A2874–A2898 (2024). DOI 10.1137/23M1625597 20. Jiang, W., Su, C., Zhang, G., Zhang, L.: Predictor-corrector, BGN-based parametric finite element methods for surface diffusion. Journal of Computational Physics 530 , 113901 (2025). DOI 10.1016/j.jcp.2025.113901 21. Mullins, W.W.: Theory of thermal grooving. Journal of Applied Physics 28 (3), 333–339 (1957). DOI 10.1063/1.1722742 22. Mullins, W.W.: Flattening of a nearly plane solid surface due to capillarity. Journal of Applied Physics 30 (1), 77–83 (1959). DOI 10.1063/1.1734979 23. Olshanskii, M.A., Reusken, A.: Trace finite element methods for PDEs on surfaces. In: Geometrically Unfitted Finite Element Methods and Applications: Proceedings of the UCL Workshop 2016, pp. 211–258. Springer (2018). DOI 10.1007/978-3-319-71431-8 724. Persson, P.O.: Mesh generation for implicit geometries. Ph.D. thesis, Massachusetts Institute of Technology (2005) 25. Smereka, P.: Semi-implicit level set methods for curvature and surface diffusion motion. Journal of Scientific Computing 
+
+19 (1-3), 439–456 (2003). DOI 10.1023/A:1025324613450 26. Xu, Y., Shu, C.W.: Local discontinuous Galerkin method for surface diffusion and Willmore flow of graphs. Journal of Scientific Computing 40 (1-3), 375–390 (2009). DOI 10.1007/s10915-008-9262-0

@@ -1,0 +1,210 @@
+Title: Distributional Loss for Robust Classification
+
+URL Source: https://arxiv.org/pdf/2606.13223v1
+
+Published Time: Fri, 12 Jun 2026 00:50:47 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Distributional Loss for Robust Classification 
+
+Kathleen Anderson 1 and Thomas Martinetz 1
+
+Institute for Neuro- and Bioinformatics, University of Lübeck, Germany 
+
+{k.anderson,martinetz}@uni-luebeck.de 
+
+Abstract. This paper proposes a novel loss concept for supervised clas-sification tasks. Rather than enforcing a direct mapping from each input sample to a single assigned label, we define an optimization objective over all classifier outputs as a bimodal Gaussian distribution. This softer target formulation implicitly captures class ambiguity, mitigates overfit-ting, and encourages the learning of more robust decision boundaries, all without requiring additional label information. Experimental results demonstrate consistent improvements in robustness, with particularly pronounced gains in low-data regimes, while requiring only minimal mod-ifications to standard training pipelines. 
+
+Keywords: Supervised Learning · Density Estimation · Small Datasets. 
+
+# 1 Introduction 
+
+The domain of robust classification strategies is vast and spans a wide range of different approaches, including dataset regularization or augmentation, network architectures, and pretraining. An aspect whose relevance has diminished in recent years is the choice of classification training loss, with cross entropy often serving as the gold standard for any classification task. In this work, we consider a supervised classification setting in which inputs 
+
+x ∼ P (x) are associated with class labels ck ∼ P (ck | x), where k = 1 , . . . , K 
+
+denotes the K possible classes to which an input can be assigned. In the idealized case, if P (ck | x) = 1 , the input x always belongs to class ck with certainty. Conversely, if P (ck | x) = 0 , the input x will never belong to class ck. These probabilities of 0 and 1 represent extreme cases. In practice, due to noise, class overlap, or shared features among different classes, posterior probabilities are rarely exactly 0 or 1. Instead, they typically take values strictly between these extremes. Most loss functions, such as the cross-entropy loss, are nevertheless defined with respect to these extremes. In a training dataset {(x(n), c (n) 
+
+> k
+
+), n = 1 , ..., N },to each input x(n) is assigned a hard class label c(n) 
+
+> k
+
+∈ { c1, . . . , c K }. This corre-sponds to a target distribution for which P (c(n) 
+
+> k
+
+| x(n)) = 1 for the correct class and P (c(n) 
+
+> l
+
+| x(n)) = 0 for all l̸ = k. As a result, the classifier is effectively trained to reproduce these degenerate (one-hot) target distributions. Assigning each sample a single definitive label may fail to capture the in-trinsic complexity of the underlying task. In many practical scenarios, samples  
+
+> arXiv:2606.13223v1 [cs.LG] 11 Jun 2026 2K. Anderson and T. Martinetz
+
+are not perfectly representative of a single class, but instead exhibit characteris-tics shared across multiple classes. Using softer, more informative labels, ideally reflecting the true class probabilities, should improve classification robustness [21], but such high-quality probabilistic annotations are rarely available in prac-tice. Enforcing a rigid, hard label assignment instead may encourage overfitting by compelling the model to learn overly confident and potentially misleading decision boundaries. This work utilizes the assumption that for most natural datasets the distri-bution of the posterior probability values pk(x) = P (ck | x) for inputs x ∼ P (x),is more likely to follow a bimodal distribution as illustrated in fig. 1, with modes concentrated near 0 and 1.We propose a distributional loss that explicitly leverages this bimodal struc-ture. The training labels now indicate only to which mode of the distribution each sample should be assigned. The proposed training objective encourages the classifier to distribute predictions in accordance with this bimodal behav-ior. To achieve this, we employ two complementary differentiable estimators of the Kullback–Leibler divergence. The first is based on a probabilistic encoder , as commonly used in variational autoencoders, while the second relies on a non-parametric density estimator derived from pairwise distances between samples. These two loss components complement each other, with one creating a robust base and the other fitting more closely to the true distribution. Experimental results demonstrate improved robustness, particularly in set-tings with limited training data. The proposed objective is especially advanta-geous in regimes where the risk of overfitting is high. The required modifications to the training procedure are minimal and can be readily integrated into virtually any classifier architecture or training pipeline. 
+
+# 2 Related Work 
+
+Cross entropy in a combination with a softmax continues to serve as the standard loss for neural network classification in contemporary research [28]. Contradict-ing its omniscience, previous research has identified various shortcomings of this loss function, and the idea of augmenting or replacing cross entropy has been approached from many angles. One of the discovered disadvantages is a lacking resilience to noise or outliers. It has been shown that contrary to cross entropy, the absolute distance between network output logits and target label is robust to label noise [8], which moti-vated the proposal of new loss functions that enable smooth transitions between cross entropy and absolute distance [35], based on a scalar hyperparameter. Another caveat of cross entropy training is that it has been found to motivate overconfidence - the output of a trained classifier almost always claims a very high probability (i.e. a high confidence) for one class and a very low probability for all others, even when the selected target class is incorrect. An added confidence penalty can improve the classification accuracy [22, 9]. Distributional Loss for Robust Classification 3
+
+The application of softmax implicitly enforces margins between class logits, but depending on the dataset, the resulting margin was shown to be inconsistent or insufficient. Explicitly increasing the margin between class logits can yield more robust classifiers [19, 25, 27, 4, 5, 18, 29]. On a more theoretical basis, an-other line of research reported findings about a reweighted Taylor-decomposition of standard cross entropy loss [17, 10]. Previous research has also, like this paper, pondered on the idea of replacing cross entropy entirely. Common alternatives include variations of cosine simi-larity [3, 26, 14] and correntropy [24, 23, 34]. Correntropy in its basic form de-notes a simple kernelized distance between classifier output and target vector: 
+
+Lcorr (x, y ) = κ(x − y), with κ usually defined to be a Gaussian. Empirical ex-ploration yielded other entirely new (and in some cases even counter-intuitive) loss functions [2, 7], which also outperform their cross entropy baseline. Naturally, specialized loss functions have also been employed for a multitude of other purposes, such as the search for robust representations [31, 6, 13, 30] or the regularization of intermediate feature layers [20]. 
+
+# 3 Training for a Distribution 
+
+Following the general considerations outlined in the introduction, we now turn to a concrete setting. We consider a classifier implemented as a neural network with K output units, one for each class. When using a softmax layer, the outputs of the classifier are interpreted as posterior probabilities pk(x) = P (ck | x) for a given input x. Let yk(x) denote the corresponding pre-softmax activations (logits). In the typical classification sce-nario, all target probabilities are given as either pk(x) = 1 or pk(x) = 0 (marked red in fig. 1). While the probabilities pk(x) are constrained to the interval (0 , 1) ,the logits yk(x) take values in (−∞ , ∞), with yk(x) → −∞ for pk(x) → 0 and 
+
+yk(x) → ∞ for pk(x) → 1. The scalar values yk(x) will henceforth be abbreviated as y when the indices are clear. Our new distributional target is based on the assumption that for most datasets, a softer curve is closer to the ground truth (drawn in green in fig. 1). Instead of aiming for ∞ and −∞ , the logit values y are aimed at a bimodal Gaussian distribution with means −m and m.Contrary to cross entropy, our new loss does not require its inputs to be probabilities and therefore does not include a softmax layer, but is computed directly on the logits y. The fixed target distribution nonetheless implicitly con-strains the range of output values. A notable effect of omitting softmax is that 
+
+yk(x) for one x do not directly influence each other: a high yk(x) for one class 
+
+ck does not necessarily lower the value of the other yl(x), l ̸ = k.To minimize the divergence between the newly defined target distribution and the output of the classifier, we use the Kullback-Leibler (KL) divergence and two strategies of computing it: a parametric solution that is robust, but very strict, and a non-parametric estimator which is more sensitive to noise, but adapts more flexibly to a distribution. The two losses are combined with a 4 K. Anderson and T. Martinetz                
+
+> −∞ −m0m−∞
+> (a) Logits yk(x)before softmax
+> 00.20.40.60.81
+> (b) Posterior probabilities pk(x)after soft-max
+
+Fig. 1: Target for of a single output unit (i.e. corresponding to a single class), for a standard classification task, defined by softmax cross entropy (red) and our new formula (green). balancing factor λ as 
+
+L(y) = λL param (y) + Lpointwise (y, Y ) (1) where the pointwise loss Lpointwise is computed for the logit value y in relation to the set Y of all y.
+
+3.1 Parametric Probabilistic Encoders 
+
+A probabilistic encoder is usually used as a component of a variational autoen-coder (VAE). Instead of directly computing the logit y(x) for an input x, the output of a probabilistic encoder f consists of the parameters of a Normal dis-tribution, μx and σx. Analogously to a VAE, we define the target to be another Normal distribution N (μtarget , σ target ), and compute the loss via the closed form equation for the KL divergence 
+
+Lparam (μx, σ x) = KL (N (μx, σ x) | N (μtarget , σ target )) . (2) The standard deviation σtarget is shared between all inputs, while μtarget is de-fined as +m or −m depending on the class assigned to input x, resulting in the bimodal Gaussian distribution depicted in fig. 1. 
+
+3.2 Generating Samples from a Probabilistic Encoder 
+
+A probabilistic encoder does not generate logits, but distributions over logits, each defined by their parameters μx and σx. The pointwise divergence estimation introduced in the next section, however, is based on a fixed set of points. To utilize the logits y itself, one can implement the reparameterization trick: draw a random n ∈ N (0 , 1) and compute y(x) = σxn + μx. Gradient descent can be done as if y was directly generated by f .The reparameterization trick comes with another advantage: the logits can be augmented by drawing several y(x) per input x. Since the pointwise divergence estimation in the next section requires many data points to work well, this natural dataset expansion can be especially beneficial. Distributional Loss for Robust Classification 5
+
+3.3 Non-Parametric Pointwise Divergence 
+
+The outcome of the probabilistic encoder, after reparameterization, is a set of logit values y drawn from many Normal distributions, with one individual dis-tribution N (μx, σ x) corresponding to every datapoint x. The KL divergence loss described in the previous section aims to make all of those N (μx, σ x) match one of two targets, N (+ m, σ target ) or N (−m, σ target ). However, the combined set of all y can reflect a target distribution even if individual points originate from distinct N (μx, σ x). In fact, it can be beneficial to allow deviations for some x,e.g. to make the classifier respond with a low confidence to a noisy sample. The second divergence estimator balances the strict goal of the probabilistic encoder with a non-parametric density estimation. Instead of a purely sample-wise evaluation, the estimator approximates the distribution over an entire batch of logits. As before, the scalar logit values y can be split into two categories: 
+
+positive when the class c assigned to x corresponds to the output unit, aiming for N (+ m, σ ). The standard softmax cross entropy formulation would have trained for y → ∞ for all y in this group (see fig. 1). 
+
+negative y are those where the logit dimension does not match the target class, which aim for an overall distribution of N (−m, σ ).This assignment yields a total of 2K groups for K classes: one positive and one negative group for each of the K classifier output units. Let Yl ⊂ Y be a set of y belonging to the same group and aimed at the same target distribution. For each Yl, we sample a matching set Tl of points from the assigned target distribution 1, |Yl| = |Tl|.As a minimization objective proportional to the KL–divergence between the distributions P (Y ) and P (T ), we insert one of the subsequently described diver-gence measures d into 
+
+Lpointwise (y, Y ) = d(y, Y l), (3) with Yl ⊂ Y referring to the set of all scalar logit values that correspond to the same group as y.
+
+Nearest-Neighbor Estimation The nearest neighbor density estimation method is based on a simple intuition: for each y ∈ Yl, estimate the distance between y
+
+and its neighbors. A close proximity to many neighbors indicates a high density area. If the distributions of two sets Yl and Tl align, the average neighbor dis-tances for a point at the location of y will be the same when estimated in either 
+
+Yl or Tl. The strategy was first used in the context of entropy estimation [15] and has only recently been applied to gradient based learning [1]. For a value y, let {y(1) , ..., y (m)} and {t(1) , ..., t (m)} be the m closest neigh-bors to y in Yl and Tl respectively, sorted by their distance ∆(y, y (i)). The KL   
+
+> 1While the explicit estimation of density values is also possible, we found this more indirect estimation of comparing two sets of points to yield better results 6K. Anderson and T. Martinetz
+
+divergence between P (Yl) and P (Tl) can be decreased by minimizing 
+
+dnn (y, Y l) = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+(∆(y, y (i)) − ∆(y, t (i))) 2. (4) Interestingly, dnn is not only proportional to the true KL divergence, but can be reshaped into an accurate approximation of it, with the approximation error decreasing with the smoothness of the true distribution. Refer to [1] for a more in-depth derivation and analysis. The hyperparameter m heavily influences the accuracy of the dnn estimator: considering only very close neighbors can make the estimate sensitive to noise and too uneven, choosing a very large m may oversmooth the estimate and obscure divergence. To ease the influence of m, we chose ∆(y, y (i)) = e−(y−y(i))2
+
+.The Gaussian kernel weights close neighbors higher, but still factors distant neighbors into the difference. 
+
+Kernel Density Estimation When computing the distributional divergence on one-dimensional data, the popular kernel density estimation (KDE) is ex-ceedingly similar to nearest-neighbor estimation, the main difference being that the density is estimated as the kernelized sum over all points first, and compared second: 
+
+dkde (y) = 
+
+
+
+> |Yl|
+
+X
+
+> i=1
+
+∆h(y, y (i)) −
+
+> |Yl|
+
+X
+
+> i=1
+
+∆h(y, t (i))
+
+
+
+> 2
+
+. (5) This rearrangement makes the ordering of {y(1) , ..., y (m)} and {t(1) , ..., t (m)} ir-relevant. It is also less sensitive: even when point distances diverge significantly for singular neighboring points, the sum over all neighbors may still yield two similar density estimates. The traditional implementation considers all points as "neighbors" ( m =
+
+|Yl|), eliminating the hyperparameter m in favor of another hyperparameter: h,the bandwidth of the kernel ∆h(a) = e− ah
+
+> 2
+
+. As the name suggests, h determines the width of the kernel, and effectively decides how distant neighbors factor into the result. The choice of h is critical for the accuracy of KDE. Unlike standard applica-tions, manually tuning h is ineffective for our purpose, as the dataset is subject to constant change over the course of the training. Our simple solution is to com-bine KDE and nearest neighbor strategies and scale h by the average distance between a point and its closest neighbors. 
+
+# 4 Distributional Loss Compared to Cross Entropy 
+
+As demonstrated in numerous prior studies (see section 2), the standard cross-entropy loss exhibits several limitations, particularly in settings with small or low-quality datasets. The proposed distribution-based loss addresses many of Distributional Loss for Robust Classification 7
+
+these shortcomings, thereby increasing the likelihood that the learned model better approximates the underlying true data-generating distribution. One beneficial property it shares with many related papers is the ability to explicitly define and enforce margins between classes. Since the target mean for the negative and the positive group can be chosen freely, the margin between the two is an integral part of the loss formulation. Countering the presumed tendency towards overconfidence [22, 9], our target distributions do not only allow, but even enforce logit vectors with a lower con-fidence. A small percentage of classification results is expected to be uncertain, reflecting the true distribution of most datasets. Noisy samples are not forcibly treated as perfect representatives of their class. A less obvious advantage is the independence between the dimensions of a logit vector. The classification problem assigns exactly one class to each sample, but a single input might resemble multiple classes (e.g. an image of a distant four legged animal within an animal classification dataset) or none at all (e.g. an unclear image lacking any identifiable animal). The independent logit evaluation allows such cases: a sample can be given a high score for more than one class. Nonetheless, the classifier is trained for a globally normalized solution: the output distribution over the full dataset should remain constant. Concluding, it can be said that training with the distributional loss intro-duces a more intricate bias for the labeling of the dataset. Instead of mapping each sample to one class index, the loss defines properties over the entire set of outputs. Our experiments have shown that this target is generally more difficult to train for, demanding more training time and more careful tuning of hyper-parameters to locate a satisfactory loss minimum. However, the assumption of a smoother label distribution is usually much closer to the true classification problem. Therefore, once a good training accuracy is achieved, the result is more likely to generalize well. 
+
+# 5 Experiments 
+
+We compare our new method against several other loss functions. Softmax cross entropy (CE) serves as a baseline, and results are also presented for PolyLoss 
+
+[17], a popular variation of cross entropy that reweights the first term of its Taylor Expansion, and T-vMF Loss [14], which modifies the final network layer to regularize penultimate features using a generalized cosine similarity. Unless stated otherwise, all experiments have been performed using the same standard ResNet18 [12] architecture with initial weights obtained by pretraining on ImageNet. For a clean comparison, we otherwise abstain from using advanced pretraining, augmentation or normalization techniques. To offer a perspective on different types of image data, experiments are per-formed for four datasets: Cifar10 [16] is one of the most commonly used general image classification datasets, featuring 60000 32x32 images split into 10 balanced classes. Caltech256 [11] is a more challenging dataset comprising 30607 images from 256 diverse categories. The dataset is not balanced, each class is represented 8 K. Anderson and T. Martinetz 
+
+Table 1: Average classification test accuracies in % for different dataset sizes.                                                                 
+
+> Samples per Class 220 200 full dataset Cifar10 CE 23.50 47.35 67.13 83.28 Distributional 27.94 55.23 71.20 84.42
+> PolyLoss 25.12 48.17 67.43 83.49 T-vMF 27.90 52.73 68.92 83.40 Caltech256 CE 37.98 75.01 83.38
+> Distributional 39.11 73.27 80.91 PolyLoss 38.32 74.08 83.34 T-vMF 40.89 69.37 75.42 BloodMNIST CE 44.63 73.35 90.06 95.40 Distributional 61.82 83.14 92.32 96.71
+> PolyLoss 51.63 78.65 92.14 95.29 T-vMF 55.45 79.90 92.01 96.05 PathMNIST CE 56.29 83.50 94.72 99.63
+> Distributional 59.76 90.04 96.06 99.61
+> PolyLoss 61.19 75.35 95.04 99.53 T-vMF 56.94 88.28 95.44 99.43
+
+by a minimum of 80 and a maximum of 827 images. Images have been rescaled to 256x256. We also evaluate BloodMNIST: a set of 17091 microscopic images of individual blood cells divided into 8 categories, and PathMNIST: 107180 stained histological images from 9 different types of tissues. BloodMNIST images origi-nate from the MedMNIST dataset [32] and have been scaled to 28x28. PathM-NIST was published in an expanded version with larger images [33] and our experiments are performed on image size 128x128. These two medical datasets deviate more pronounced from the pretraining distribution. For the non-parametric component of the distributional loss (section 3.3), results are shown for the divergence estimate that proved most effective for the respective dataset: KDE for BloodMNIST and Caltech256, and nearest-neighbor densities for Cifar10 and PathMNIST. For the full implementation including all training details and hyperparame-ters, we refer to the public github repository 2.
+
+5.1 Classification Accuracy 
+
+As it is well known, changing the training objective function can notably affect the test accuracies of a model. Visible in table 1, the distributional loss generally increases the test accuracy, achieving the most notable improvements on small datasets. The strongest increase can be observed on BloodMNIST, where the distributional loss outperforms cross entropy by up to 17.2 percentage points. The only dataset not improved by our method is Caltech256, where cross entropy tends to outperform both our newly introduced loss and related work. One can   
+
+> 2https://github.com/ka-anderson/distributional-classification-loss Distributional Loss for Robust Classification 9
+
+Fig. 2: Training accuracy of a linear classifier, and MLP and a resnet on random noise. Blue circles show models trained with cross entropy, red crosses models trained with the distributional loss. hypothesize that the large 256 dimensional logit vectors fall into a different task category than those of a 10- or 8- class problem. Adapting the distributional loss to this slightly different setting remains future work. 
+
+5.2 Overfitting to Random Noise 
+
+Theoretically, a neural network with a fixed architecture will always have the same capacity: it is able to represent a specific collection of functions, indepen-dently of the training method. In practice, however, the loss function defines the topology of the optimization landscape. A subset of solutions might be theoret-ically realizable by a network, but not discovered by the training procedure. As a simple evaluation of the effect of a loss function on the practical complex-ity of a model, we train a classifier on an artificially generated dataset. Input samples have been generated as Gaussian noise, categorical target labels are drawn from a uniform distribution. There is no statistical relationship between inputs and labels, hence the test accuracy is always equivalent to random guess-ing. Any training accuracy exceeding random chance indicates that the model has memorized a direct sample–label mapping. The plots in fig. 2 show the training accuracy of a linear classifier, a six layer MLP, and a small Resnet. MLP and linear classifier have been trained to learn binary labels on 20 dimensional random vectors, the Resnets are given samples with shape 30x30, attempting to arrange them into 10 classes. The distributional loss clearly limits the memorization ability, whereas cross entropy can memorize an almost perfect training score for all dataset sizes. While it does not guarantee an increased test accuracy, a lower likelihood of memorizing random labels makes it more likely that a classifier is forced to learn meaningful structures. 
+
+5.3 Ablation Study 
+
+To evaluate the relevance of all loss components, we repeat our Cifar10 exper-iments using (i) only the parametric closed-form loss term, (ii) only the non-10 K. Anderson and T. Martinetz 
+
+Table 2: Average test accuracies on the Cifar10 dataset when using different variations of the distributional loss.                       
+
+> Samples per Class 220 200 full dataset full distributional 27.94 55.23 71.20 84.41 non-parametric 25.93 52.97 68.67 84.13 parametric 25.91 55.10 68.65 84.24 zero variance 23.65 51.35 68.29 84.15 CE baseline 23.50 47.35 67.13 83.28
+
+parametric pointwise loss term and (iii) the pointwise loss term, with a target standard deviation σ = 0 . This final experiment is limited to the pointwise term, since the parametric KL divergence is not defined for σ = 0 and highly unstable for very small σ.The resulting accuracies in table 2 demonstrate a clear benefit of using the parametric and the non-parametric loss term concurrently. Interestingly, enforc-ing a non-zero variance is especially important for smaller datasets: when trained on the full Cifar10 training set, the pointwise loss achieves the same accuracies, independent of target variance. However, when using 2 samples per class, the model trained for zero variance barely outperforms the cross entropy baseline. One can assume that large datasets implicitly enforce a smoother target distri-bution - if a certain subject A can be classified as either class i or class j, a very large dataset will contain multiple views of A, being labeled as either i or j, so that minimal training error is achieved by predicting both i and j with a lower confidence. As the full distributional loss still outperforms classical cross entropy by 1.1 %pt. on the full dataset, its other properties (such as the explicit margin and the independent logit evaluation) are likely to be beneficial for any dataset size. 
+
+# 6 Conclusion 
+
+This paper explores the idea of a distributional loss function: a classification loss that makes the distribution over all classifier outputs adhere to a specified struc-ture rather than evaluating each sample and its corresponding label separately. The robustness of this distributional loss is most likely linked to a different bias imposed on the logit output of the network: it is assumed that the distribution of classification labels follows a Gaussian distribution, including samples with vary-ing degrees of representativeness for their class, ranging from typical to atypical examples. This assumption is more reflective of natural classification tasks, and can be shown to reduce overfitting more effectively than cross entropy. While the proposed loss function comes at a cost of a moderate increase in training time, it constitutes an effective alternative for its intended purpose. In general, it improves classification accuracy, demonstrating superior performance over other recent loss formulations in the majority of evaluated scenarios. In Distributional Loss for Robust Classification 11 
+
+settings with a high risk of overfitting, the test accuracy improved by up to 17 percentage points. 
+
+Disclosure of Interests. The authors have no competing interests to declare that are relevant to the content of this article. 
+
+# References 
+
+1. Anderson, K., Martinetz, T.: Nearest-neighbor density estimation for dependency suppression. preprint (2026) 2. Barron, J.: A general and adaptive robust loss function. CVPR (2019) 3. Barz, B., Denzler, J.: Deep learning on small datasets without pre-training using cosine loss. WACV (2020) 4. Cao, K., Wei, C., Gaidon, A., Arechiga, N., Ma, T.: Learning imbalanced datasets with label-distribution-aware margin loss. NeurIPS (2019) 5. Elsayed, G.F., Krishnan, D., Mobahi, H., Regan, K., Bengio, S.: Large margin deep networks for classification. NeurIPS (2018) 6. Frosst, N., Papernot, N., Hinton, G.E.: Analyzing and improving representations with the soft nearest neighbor loss. ICML (2019) 7. Gajowniczek, K., Chmielewski, L.J., Orłowski, A., Ząbkowski, T.: Generalized en-tropy cost function in neural networks. In: ICANN (2017) 8. Ghosh: Robust loss functions under label noise for deep neural networks. AAAI (2017) 9. Gonzalez, S., Miikkulainen, R.: Improved training speed, accuracy, and data uti-lization through loss function optimization. CEC (2020) 10. Gonzalez, S., Miikkulainen, R.: Optimizing loss functions through multi-variate taylor polynomial parameterization. Genetic and Evolutionary Computation Con-ference (2021) 11. Griffin, G., Holub, A., Perona, P.: Caltech 256 (2022) 12. He, K., Zhang, X., Ren, S., Sun, J.: Deep residual learning for image recognition. In: CVPR (2016) 13. Khosla, P., Teterwak, P., Wang, C., Sarna, A., Tian, Y., Isola, P., Maschinot, A., Liu, C., Krishnan, D.: Supervised contrastive learning. NeurIPS (2020) 14. Kobayashi, T.: T-vmf similarity for regularizing intra-class feature distribution. CVPR (2021) 15. Kozachenko, L.F., Leonenko, N.N.: Sample estimate of the entropy of a random vector. Problemy Peredachi Informatsii (1987) 16. Krizhevsky, A.: Learning multiple layers of features from tiny images. Tech. rep., University of Toronto (2009) 17. Leng, Z., Tan, M., Liu, C., Cubuk, E.D., Shi, X., Cheng, S., Anguelov, D.: Polyloss a polynomial expansion perspective of classification loss functions. ICLR (2021) 18. Lezama, J., Q. Qiu, P.M., Sapiro, G.: Ole orthogonal low-rank embedding, a plug and play geometric loss for deep learning. CVPR (2018) 19. Liu, W., Wen, Y., Yu, Z., Yang, M.: Large-margin softmax loss for convolutional neural networks. ICML (2016) 20. Ma, Y., Jiao, L., Liu, F., Wen, M., Li, L., Ma, W.: Predicting and enhancing the fairness of dnns with the curvature of perceptual manifolds. TPAMI (2024) 21. Nguyen, Q., Valizadegan, H., Hauskrecht, M.: Learning classification models with soft-label information. Journal of the American Medical Informatics Association (2014) 12 K. Anderson and T. Martinetz 22. Pereyra, G., Tucker, G., Chorowski, J., Kaiser, L., Hinton, G.: Regularizing neural networks by penalizing confident output distributions. ICLR (2017) 23. Shi, W., Gong, Y., Tao, X., Zheng, N.: Training dcnn by combining maxmargin, max-correlation objectives, and correntropy loss for multilabel image classification. IEEE Trans. Neural Netw. Learn. Syst. (2017) 24. Singh, A., Pokharel, R., Principe, J.: The c-loss function for pattern classification. Pattern Recognit. (2014) 25. Sokolić, J., Giryes, R., Sapiro, G., Rodrigues, M.R.: Robust large margin deep neural networks. CoRR (2016) 26. Sun, P., Jin, X., Su, W., He, Y., Xue, H., Lu, Q.: A visual inductive priors frame-work for data-efficient image classification. ECCV Workshop (2020) 27. Sun, S., Chen, W., Wang, L., Liu, X., Liu, T.Y.: On the depth of deep neural networks a theoretical view. AAAI (2016) 28. Terven, J., Cordova-Esparza, D.M., Romero-González, J.A., Ramírez-Pedraza, A., Chávez-Urbiola, E.A.: A comprehensive survey of loss functions and metrics in deep learning. Artif Intell Rev (2025) 29. Wan, W., Zhong, Y., Li, T., Chen, J.: Rethinking feature distribution for loss functions in image classification. CVPR (2018) 30. Wu, M., Mosse, M., Zhuang, C., Yamins, D., Goodman, N.: Conditional negative sampling for contrastive learning of visual representations. ICLR (2021) 31. Wu, Z., Efros, A.A., Yu, S.: Improving generalization via scalable neighborhood component analysis. ECCV (2018) 32. Yang, J., Shi, R., Ni, B.: Medmnist classification decathlon: A lightweight automl benchmark for medical image analysis. In: IEEE 18th International Symposium on Biomedical Imaging (2021) 33. Yang, J., Shi, R., Wei, D., Liu, Z., Zhao, L., Ke, B., Pfister, H., Ni, B.: Medmnist v2-a large-scale lightweight benchmark for 2d and 3d biomedical image classification. Scientific Data (2023) 34. Yuan, C., Zhou, C., Peng, J., Li, H.: Mixture correntropy-based robust distance metric learning for classification. Knowledge-Based Systems (2024) 35. Zhang, Zhilu, Sabuncu, M.: Generalized cross entropy loss for training deep neural networks with noisy labels. NeurIPS (2018)

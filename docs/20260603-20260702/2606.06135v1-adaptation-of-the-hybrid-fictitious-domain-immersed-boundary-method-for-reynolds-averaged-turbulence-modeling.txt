@@ -1,0 +1,1435 @@
+Title: Adaptation of the hybrid fictitious domain-immersed boundary method for Reynolds-averaged turbulence modeling
+
+URL Source: https://arxiv.org/pdf/2606.06135v1
+
+Published Time: Fri, 05 Jun 2026 01:10:14 GMT
+
+Number of Pages: 42
+
+Markdown Content:
+# Adaptation of the hybrid fictitious domain-immersed boundary method for Reynolds-averaged turbulence modeling 
+
+Lucie Kubíčková a,b , Martin Isoz a,b, ∗ 
+
+> a
+
+Institute of Thermomechanics of the Czech Academy of Sciences, Dolejškova 5, Prague 182 00, Czech Republic  
+
+> b
+
+University of Chemistry and Technology, Prague, Department of Mathematics, Informatics and Cybernetics Technická 5, Prague 166 28, Czech Republic 
+
+Abstract 
+
+Engineering practice often calls for shape or topology optimization (TO) of fluid defining components, while the ever-increasing computing power allows the op-timized cost functions to be based on computational fluid dynamics (CFD). However, a common bottleneck in CFD-based TO frameworks is the require-ment for frequent remeshing. In order to alleviate this bottleneck, we pro-pose an adaptation of an immersed boundary (IB) method variant, the hybrid fictitious domain-immersed boundary method, to leverage Reynolds-averaged Navier-Stokes (RANS) equations and wall function. The main contribution of the present work lies in the design and open-source implementation of the IB-aware steady-state solution of the RANS equations via the SIMPLE algorithm in the OpenFOAM library. For the most common two-equation RANS models, Reynolds numbers from 10 1 to 10 6, and several benchmarks, such as flow over a backwards facing step or an Ahmed body, the framework gives results consistent with the standard body-fitted CFD. Furthermore, given the intended applica-tion in TO, special emphasis is placed on the robustness and applicability of the approach to general geometries, which is tested on a NACA profile under various angles of attack. 
+
+> ∗
+
+Corresponding author, tel: +420 26605 2832. 
+
+Email address: isozm@it.cas.cz (Martin Isoz) 
+
+URL: https://www.it.cas.cz/en/d4/l041/ (Martin Isoz) 
+
+> arXiv:2606.06135v1 [cs.CE] 4 Jun 2026
+
+Keywords: computational fluid dynamics, immersed boundary method, Reynolds averaged simulation, wall functions 
+
+1. Introduction 
+
+An immersed boundary method (IBM) [1] is a numerical tool used in com-putational fluid dynamics (CFD) that enables flows to be simulated around complex geometries without the need to create complex geometry-conforming meshes. Instead of a complex mesh, a simple one is used, with the geometry represented by a scalar indicator field and, in a direct forcing IBM, by additional force terms [2]. If the geometry changes, regenerating the scalar field is much cheaper than re-meshing. Thus, utilizing IBMs is very advantageous in applica-tions that require geometry optimization. However, geometry optimization of a real-life component needs the IBM to be connected to feasible turbulence mod-els, e.g., models based on Reynolds-averaged Navier-Stokes (RANS) equations. The connection of IBMs to Reynolds-averaged turbulence models is a chal-lenging task where the most limiting factor is the modeling of the bound-ary layer [3]. While having a non-conforming mesh, IBMs cannot leverage anisotropic mesh refinement near geometry walls, and therefore often rely on wall modeling approaches. In Kalitzin and Iaccarino [4], the velocity at the immersed boundary is reconstructed by linear interpolation and its tangential component is corrected by wall functions. A different two-layer approach was proposed by Capizzano [5], where a thin-boundary layer equation is solved near the IB and RANS equations in the rest of the domain. The inclusion of wall modeling approaches showed promising results, but in flows with high Reynolds numbers, spurious oscillations of pressure and wall shear stress occurred at the immersed boundary [6]. Cai et al. [7] suggested avoiding these by interpolating the friction velocity rather than the raw velocity at the IB. Alternatively, Constant et al. [8] proposed a pre-processing step to optimize the positions of interpolation points based on an estimate of the bound-ary layer thickness. Moreover, Troldborg et al. [9] discussed another reason for 2instability arising from a not tight enough connection between the momentum and turbulence variables. When the local velocity profile is used to calculate the friction velocity, which in turn is used to correct the velocity at the immersed boundary, limited feedback is gained from the turbulence transport equations. Another issue arises when solving the incompressible form of the RANS equations in direct forcing IBMs. As described in a review by Verzicco [3], the forcing terms first impose correct velocity at the immersed boundary, but second, a solenoidal field is enforced by the incompressibility condition, and the velocity is changed indifferently of the IB. Several remedies for the problem were suggested, including additional iteration loops [10], Lagrange multipliers [11], or mass sources and sinks [12]. Overall, there is no standard approach to the connection of IBM and RANS, and of the many there are, a limited number of them is open-source. In this work, we aim to provide our own version of an IBM-RANS solver, but the source code is fully open and built upon the OpenFOAM library, incorporat-ing as much of the standard CFD practices as possible. In particular, the IBM variant used is the hybrid fictitious domain-immersed boundary method (HFDIB), originally developed by Municchi and Radl [13] and further extended to include the discrete element method (DEM) for arbitrarily shaped particles (openHFDIB-DEM) by Isoz et al. [14] and Studeník et al. [15]. Here presented is the connection of HFDIB to RANS models (openHFDIBRANS), which imple-ments the steady-state incompressible RANS equations with four two-equation turbulence models: the k-ω, k-ε, k-ω SST and realizable k-ε model. To address the problems described above, our openHFDIBRANS solver uti-lizes a mixture of the approaches mentioned, IB-adjusted OpenFOAM prac-tices, and custom additions. For wall modeling at the immersed boundary, wall functions are used, and to avoid instability of the solution, the friction veloc-ity is evaluated using turbulence variables rather than local velocity profiles. Moreover, in high Reynolds number flows, the velocity is not reconstructed by interpolation but is corrected solely by the turbulence viscosity, gaining a tight connection between the momentum and turbulence variables. Last but not 3least, the incompressibility condition is only enforced in the fluid region of the computational domain to avoid conflict with the IBM forcing. This may result in a loss or gain of mass in the first iterations, but in steady-state, it leads to convergence. The solver performance is showcased and tested in a series of benchmarks, including the backward-facing step benchmark, flow over a smooth cylinder, or the Ahmed body. 
+
+2. Solver description 
+
+Here, the proposed variant of the immersed boundary (IB) method and its coupling with the Reynolds-averaged turbulence models are presented. The method stems from the hybrid fictitious domain-immersed boundary (HFDIB) method, an IB variant initially introduced by Municchi and Radl [13] and further refined by Isoz et al. [14] for applications in particle-resolved direct numerical simulation of particle-laden flows; see [16, 15]. Following the naming logic from the aforementioned publications, we denote the here-presented method as open-HFDIBRANS. The openHFDIBRANS solver is implemented using the open-source C++ library OpenFOAM [17]. Its complete source codes and examples are available from https://github.com/techMathGroup/openHFDIBRANS. In the following, we first introduce the general governing equations solved. Afterwards, details on the IB treatment are provided. Particular emphasis is placed on distinguishing between resolved and unresolved boundary layer sce-narios and evaluating wall functions at the immersed boundary. 
+
+2.1. Governing equations 
+
+The governing equations utilized in openHFDIBRANS are the steady-state Reynolds-averaged Navier-Stokes (RANS) equations complemented by two-equation turbulence closure models. The implemented form of the RANS equations is 
+
+∇ · (u ⊗ u) = ∇ · (ν + νt) ∇u + ∇uT − ∇ ˜p + fib ,
+
+(1 − λ) ( ∇ · u) = 0 ,
+
+(1) 4where u is the average velocity, ν the kinematic viscosity, νt is the turbulent viscosity, and ˜p the average kinematic pressure. The effect of the immersed boundary is included in the term fib and multiplicative factor (1 − λ). In particular, the immersed boundary-induced source term fib simulates the effect of the solid body onto the flow momentum. Second, in the multiplicative factor, 
+
+λ is a phase indicator field and by multiplying the conservation equation by 
+
+(1 − λ), its solution is limited to the fluid part of the domain. To complement the RANS equations, four turbulence closure models are available in openHFDIBRANS. Namely, the implemented models are the k-ε
+
+model by Launder and Spalding [18] and Tahry [19], the k-ω model by Wilcox [20], the Menter’s k-ω shear stress transport (SST) model [21] and the realizable 
+
+k-ε model by Shih et al. [22]. In openHFDIBRANS, all turbulence models are implemented in a similar way. Therefore, the k-ω model was chosen to illustrate the implementation details. The equations of the k-ω model [20] are included in the following form 
+
+∇ · (u k) = ∇ · 
+
+ 
+
+ν + νt
+
+σk1
+
+
+
+∇k
+
+
+
++ Pk − β∗ k ω + Sib ,
+
+∇ · (u ω) = ∇ · 
+
+ 
+
+ν + νt
+
+σω1
+
+
+
+∇ω
+
+
+
++ Cα1
+
+ωk Pk − Cβ1 ω2 ,
+
+(2) where k is the turbulence kinetic energy, ω the specific dissipation of k, Pk the production of k, and Sib is another immersed boundary-induced source term. The rest of the symbols represent model constants [20]. The steady-state governing equations (1) and (2) are solved on Ω ⊂ R3, an open and connected set representing the spatial computational domain. Note that since immersed boundary approach is of interest here, Ω is assumed to comprise both the solid phase Ωs and the fluid phase Ωf .
+
+2.2. Immersed boundary-induced source terms 
+
+In the governing equations, two immersed boundary-induced source terms are present: fib in the momentum equation (1) 1 and Sib in the conservation 5equation of k (2) 1. These are computed as 
+
+fib = αu [ M(uib ) + ∇˜p ] , Sib = αk N (kib ) , (3) where M and N are operators that stem from the governing equations as 
+
+M(u) = ∇ · (u ⊗ u) − ∇ · (ν + νt) ∇u + ∇uT ,
+
+N (k) = ∇ · (u k) − ∇ · 
+
+ 
+
+ν + νt
+
+σk1
+
+
+
+∇k
+
+
+
+− Pk + β∗ k ω . 
+
+(4) Moreover, the IB-induced source terms are evaluated based on masking fields 
+
+αu and αk that limit the activity of the source terms to relevant parts of Ω,and imposed fields uib and kib . In cells where the IB-induced source terms are active, the values of the imposed fields are enforced during the iterative solution process [13]. 
+
+2.3. Masking fields construction (a) 
+
+Ωh
+
+(b) 
+
+Ωh
+
+> s
+
+Ωh
+
+> f
+
+Ωh
+
+> sf
+
+(c) 1.0λ [−]0.0 (d) 
+
+in-solid cells – Ωh
+
+> ic
+
+boundary cells – Ωh
+
+> bc
+
+free-stream cells – Ωh     
+
+> fc
+> Figure 1: (a) Discrete spatial domain Ωh. (b) Overlay of a solid body over the domain from (a) with highlighted subdomains from (5). (c) Resulting λfield. (d) Cell groups constructed based on the λfield.
+
+To construct the masking fields αu and αk, the solid bodies need to be projected on the spatial domain Ω. For the description, we will focus solely 6on discrete setting. Thus, let Ωh ≈ Ω be a discrete spatial domain, see Fig-ure 1a. Based on the geometry of the solid body, Ωh can be divided into three subdomains 
+
+Ωh = Ω h 
+
+> f
+
+∪ Ωh 
+
+> sf
+
+∪ Ωh 
+
+> s
+
+, (5) where Ωh 
+
+> f
+
+contains cells that are fully immersed in fluid, Ωh 
+
+> s
+
+contains those fully immersed in solid, and Ωh 
+
+> sf
+
+those intersected by the fluid-solid interface, see Figure 1b. The domain division is represented by an indicator scalar field λ, see Figure 1c. With ΩhP ∈ Ωh being a computational cell, the λ field is defined as 
+
+λ =
+
+
+
+0 if ΩhP ∈ Ωh
+
+> f
+
+˜λ ∈ (0 , 1) if ΩhP ∈ Ωh
+
+> sf
+
+1 if ΩhP ∈ Ωh
+
+> s
+
+, ˜λ = 12
+
+"
+
+1 − tanh σV (Ω hP ) 13
+
+!# 
+
+, (6) where V (Ω hP ) is the volume of the cell and σ is the signed perpendicular distance from the cell center to the solid surface. The distance σ is positive when the cell center is in the fluid and negative when in the solid. When the cell center is exactly at the fluid-solid interface, σ is zero. In openHFDIBRANS, the λ field is used to sort cells into three groups. The groups are visualized in Figure 1d. Each cell can be (i) an in-solid cell ( Ωh
+
+> ic
+
+)if λ ≥ 0.5, (ii) a boundary cell ( Ωh
+
+> bc
+
+) if λ ∈ (0 , 0.5) , or λ = 0 and there is an in-solid cell as the cell neighbor, or (iii) a free-stream cell ( Ωh
+
+> fc
+
+) when λ = 0 .0
+
+and none of the cell neighbors are in-solid cells. Based on the cell groups, the masking fields that limit the area of effect of the sources terms (3) are defined as 
+
+αu = αk =
+
+
+
+1 if ΩhP ∈ Ωh
+
+> ic
+
+1 if ΩhP ∈ Ωh 
+
+> bc
+
+and y+ib ≤ y+lam 
+
+0 elsewhere 
+
+, (7) where y+ib is the y+ value evaluated with respect to the immersed boundary, and 
+
+y+lam ≈ 11 .0 is a constant commonly used as an approximate border between the viscous sublayer and the logarithmic region of the fluid boundary layer [23]. 7Treatment of production and dissipation of k. Note that specific IB-induced source terms were added only to equations for transport of linear momen-tum (1) 1 and of turbulence kinetic energy (2) 1. On the other hand, the im-mersed boundary also affects the values of production and dissipation of k, i.e., of Pk and ω, respectively. But, for ω, this cannot be accounted for by introduc-ing another IB-induced source term, since ω goes to infinity when approaching smooth walls [20]. Instead, imposed fields ωib and Pib are calculated and as-signed directly to ω and Pk in cells with active masking field αω . This masking field is defined as 
+
+αω =
+
+
+
+1 if ΩhP ∈ (Ω h 
+
+> ic
+
+∪ Ωh
+
+> bc
+
+)0 elsewhere 
+
+. (8) For the production of k, the direct assignment of Pib is simple, since no transport equation for Pk is considered and its value is calculated explicitly before the construction of both turbulence model equations (2). On the other hand, the assignment of ωib to the ω field is carried out by direct manipulation with the discretization matrix of the ω equation. In the affected cells, the ω equation is then not solved. Note that the same approach is commonly adopted by OpenFOAM to enforce Dirichlet boundary conditions near walls for ω [17]. 
+
+2.4. Calculation of y+ at the immersed boundary 
+
+To switch between the variants of masking fields (7), it is necessary to com-pute y+ib at the immersed boundary, i.e., to decide if the boundary layer around IB is resolved. For a boundary cell ΩhP ∈ Ωh
+
+> bc
+
+, y+ib is computed as 
+
+y+ib = yeff uτ
+
+ν , yeff = 0 .5
+
+h
+
+y⊥ + 0 .5 V (Ω hP )1/3i
+
+, (9) where y⊥ is the perpendicular distance from the cell center to the solid surface and V (Ω hP ) is the cell volume. For a boundary cell ΩhP ∈ Ωh 
+
+> bc
+
+and its in-solid neighbor ΩhN ∈ Ωh 
+
+> ic
+
+that shares 8(a)                                  
+
+> P
+> r
+> y⊥
+> solid
+> (b)
+> P
+> N
+> r
+> y⊥
+> solid
+> (c) r
+> P
+> N
+> y⊥
+> solid
+> (d) r
+> P
+> N
+> y⊥
+> solid Figure 2: Visualization of y⊥for a boundary cell ΩhPin different situations with ΩhNas its in-solid neighbor. In all cases, orange indicates the solid surface position and rthe normal direction to the surface. (a) Situation where λP∈(0 ,0.5) . (b) Situation where λP= 0 and
+> λN<1.0. (c) Situation where λP= 0 ,λN= 1 .0and cells ΩhPand ΩhNshare one vertex. (d) Same situation as in (c) but ΩhPand ΩhNshare two vertices.
+
+at least one vertex with ΩhP , the perpendicular distance y⊥ is computed as 
+
+y⊥ =
+
+
+
+|σP | if λP ∈ (0 , 0.5) 
+
+nN · [P − (N + |σN |nN )] if λP = 0 and λN ∈ [0 .5, 1.0) 
+
+∥P − ⟨ vP N ⟩∥ if λP = 0 and λN = 1 .0
+
+, (10) where ⟨vP N ⟩ is the average of the shared vertices and σ and n are computed as 
+
+σ = V (Ω h) 13 tanh −1 (1 − 2 λ) , n = −(∇λ)
+
+∥(∇λ)∥ . (11) To find the in-solid neighbor ΩhN , all neighbors of the boundary cell ΩhP are checked and the one with the lowest value of −nP · (P − N ) is chosen, where P
+
+and N are the cell centers and nP is the outer unit normal to the solid surface constructed in P .Nevertheless, the perpendicular distance y⊥ is not used directly for the com-putation of y+ib (9). Instead, an effective perpendicular distance yeff is utilized, because it better represents that the boundary cell (or neighboring in-solid cell) should act as if cut by the solid surface. This is illustrated in Figure 3 for three different cases of solid surface position. Moreover, yeff helps smooth out y+ib .For instance, if cell pairs (a) and (c) from Figure 3 exist next to each other, the difference in yeff is much smaller than in y⊥ and the inclusion of yeff leads to a smoother transition in y+ib .9solid 
+
+(a) 
+
+y⊥yeff 
+
+solid 
+
+(b) 
+
+y⊥yeff 
+
+solid 
+
+(c) 
+
+y⊥yeff Figure 3: Comparison of yeff and y⊥ for three cases of solid surface position. In each case, the bottom cell is a boundary cell and the top an in-solid cell. (a) Boundary cell is intersected by the solid surface. (b) The solid surface goes in between the cell pair. (c) In-solid cell is intersected. 
+
+2.5. Calculation of imposed fields 
+
+The imposed fields uib , kib , ωib , and Pib are calculated differently for differ-ent cell groups, visualized in Figure 1d. In the in-solid cells Ωh
+
+> ic
+
+, the imposed fields are prescribed as 
+
+uib = us, kib = 0 , ωib = max   
+
+> Ωh
+> bc ∪Ωh
+> fc
+
+(ωold ), Pib = 0 , (12) where us is the velocity of the solid and ωold are the values of ω from the previous iteration or the initial guess. In the boundary cells Ωh
+
+> bc
+
+, the calculation of the imposed fields is based on the value of y+ib . The values of uib and kib are required only when y+ib ≤ y+lam ,since only then the corresponding masking fields are active in the boundary cells, see (7). The calculation itself is then done using polynomial interpolation. The interpolation polynomial is constructed in the same way as in open-HFDIB [14, 15]. The construction process is illustrated in Figure 4. In partic-ular, the interpolation is carried out in a normal direction to the solid surface, see Figure 4a, and the polynomial, see the example in Figure 4b, is constructed based on the values from the interpolation points located in the free stream and the value at the solid surface. More details on the interpolation process can be found in [14]. 10 (a) 
+
+S
+
+P
+
+P1
+
+P2
+
+nP
+
+IB 
+
+solid 
+
+fluid 
+
+rS rP rP1 rP2
+
+uS
+
+uP
+
+uP1
+
+uP2
+
+r
+
+(b) Figure 4: Construction of the interpolation polynomial for a boundary cell ΩhP . (a) Interpo-lation points located along the direction of the solid surface normal nP . The points P1 and       
+
+> P2are in the free stream, Sis on the solid surface, and Pin the boundary cell center. (b) Example of a quadratic interpolation profile. Adapted from [24].
+
+For calculations in openHFDIBRANS, the values in the free stream are taken from the previous iteration or the initial guess. Regarding the surface values, the velocity is set equal to the velocity of the solid us and k is calculated using wall functions [25]. The utilized form of the wall functions is the one used in OpenFOAM [17], i.e., 
+
+k = kvis u2 
+
+> τ
+
+, kvis = 2400 Cf
+
+C2eps2 
+
+, Cf = 1(y+ib + C)2 + 2 y+ib 
+
+C3 − 1
+
+C2 , (13) where Ceps2 and C are model constants [20] and uτ is the friction velocity calculated as 
+
+uτ = C 0.25 
+
+> ν
+
+pkP (14) where Cν is another model constant, and kP is the value of k in cell ΩhP from the previous iteration or the initial guess. The values of the imposed fields ωib and Pib are needed regardless of the y+ib 
+
+value. The corresponding masking field is always active, see (8). The calcula-tion of the imposed fields is done using wall functions [25] in the form used in 11 OpenFOAM [17] which is 
+
+ωib = u2
+
+> τ
+
+ν ·
+
+
+
+6
+
+β1 (y+ib )2 if y+ib ≤ y+lam 
+
+1
+
+κ √Cν y+ib 
+
+if y+ib > y +lam 
+
+,Pib =
+
+
+
+Pk if y+ib ≤ y+lam 
+
+κ ν y +ib ∥nib · ∇ u∥2
+
+log 2(E y +ib ) if y+ib > y +lam 
+
+,
+
+(15) where β1, κ and E are model constants [20]. steady-state reached? 
+
+START 
+
+STOP yes 
+
+compute uib 
+
+no 
+
+momentum predictor from (1) 1
+
+correction 
+
+u = u + αu(uib − u)
+
+pressure corrector from (1) 2
+
+velocity update compute ωib and Pib 
+
+assign Pib 
+
+discretize ω equation (2) 1
+
+matrix manipulation to enforce ωib 
+
+solve ω equation 
+
+compute kib 
+
+solve k equation (2) 2
+
+correction 
+
+k = k + αk (kib − k)
+
+> SIMPLE loop
+> turbulence model
+
+Figure 5: Visualization of the SIMPLE algorithm with additional steps required in openHFDI-BRANS. 
+
+12 2.5.1. SIMPLE-based solution strategy with immersed boundary enforcement 
+
+In openHFDIBRANS, the RANS equations (1) and the turbulence model equations (2) are solved using the SIMPLE algorithm [26] that is extended by additional steps. The extended solver loop is sketched in Figure 5. First, before the momentum predictor [27], the values of uib are calculated. Then the momentum equation is solved and a correction on the resulting velocity field is applied as 
+
+u = u + αu(uib − u) . (16) By this correction, the values of uib are directly assigned to cells where the masking field αu is active. This correction is important to ensure convergence in steady-state. The reason for this is that, for steady-state solution, the equa-tion matrix has to be underrelaxed to ensure diagonal dominance [17]. The underrelaxation adds auxiliary sources evaluated based on the values of u from the previous iteration. The correction (16) ensures that theses sources are as correct as possible. With the corrected velocity field, the pressure corrector and velocity update steps follow as usual [27]. After the velocity is updated, the turbulence model part of the solver is entered. There, first the values of the imposed fields ωib and Pib are calculated. The imposed field Pib can already be assigned to Pk. Then, the ω equation is discretized and the values of ωib are enforced by direct manipulation with the discretization matrix. Afterward, the ω equation is solved and the values of 
+
+kib are computed. Here, similarly as for velocity, a correction on the k field is applied and the solver loop ends. 
+
+3. Results and Discussion 
+
+Several verification and validation tests were prepared to compare open-HFDIBRANS performance with standard geometry-conforming simulations run with the simpleFoam (sF) solver available from OpenFOAM [17]. Six test case scenarios are presented in this section, namely (i) 2D pipe flow, (ii) 3D pipe flow, (iii) 2D flow over a backward facing step, (iv) 2D flow over a cylindrical 13 obstacle, (v) 2D flow over a NACA-0009 profile, and (vi) 3D flow over an Ahmed body. In each scenario, different aspects of openHFDIBRANS are showcased and tested. These range from sensitivity to Reynolds number, over interface position and angle, to parallelization. Moreover, a study of the openHFDIBRANS con-vergence, or, e.g., evolution of the system matrix stiffness is included. Lastly, all 2D test scenarios are available as tutorials in https://github.com/techMathGroup/openHFDIBRANS. (a) 
+
+inlet outlet 
+
+wall 
+
+wall 
+
+(b) 
+
+1.0λ [−]0.0
+
+x
+
+y  
+
+> Figure 6: Computational domains and meshes used for simulations of 2D pipe flow. Dashed black line indicates the sampling line used for results comparison. (a) Domain and mesh used for simpleFoam with indicated boundaries. (b) Domain and mesh used for openHFDIBRANS colored by λfield.
+
+3.1. 2D flow in a pipe 
+
+First, a 2D simulation of pipe flow was used to investigate the openHFDI-BRANS sensitivity to the flow Reynolds number, chosen turbulence model, and small variations of the solid-fluid interface position. The computational domain and mesh used for simpleFoam are given in Figure 6a. Note that the com-putational domain is in fact 3D, but has only one cell in the third direction. The domain counterpart used for openHFDIBRANS is illustrated in Figure 6b together with the λ field. 
+
+Boundary conditions. At the pipe inlet, the flow was defined by a zero-gradient boundary condition for pressure and Dirichlet boundary condition for velocity 
+
+u = ( ui, 0, 0) T and turbulence variables. The inlet values of the turbulence 14 variables were calculated according to [28] as 
+
+ki = 32 u2i I2i , εi = Cν
+
+k 32
+
+> i
+
+ℓt
+
+, ωi = εi
+
+Cν ki
+
+, (17) where Ii = 2 .0 % was the turbulence intensity and ℓt the turbulent length-scale determined as a tenth of the pipe inlet width. At the pipe outlet, a Dirichlet boundary condition for pressure po = 0 and zero-gradient condition for velocity and turbulence variables were used. For walls, the zero-gradient condition for pressure, no-slip boundary condition for velocity, and wall functions for turbulence variables were considered. In open-HFDIBRANS, at walls that happen to be inside the solid phase, i.e., when the wall neighboring cells have λ > 0.0, all boundary conditions were set to zero-gradient. 
+
+3.1.1. Flow Reynolds number 
+
+First, the 2D pipe flow simulation was run with different flow Reynolds num-bers which ranged from 10 1 to 10 6. The fluid kinematic viscosity was fixed at 
+
+ν = 10 −6 m2 s−1 and the Reynolds number was varied by changing the inlet velocity ui. For all tested Re , the same computational meshes were used. Con-sequently, the y+ value ranged from y+ ≪ 1 for low Re to y+ ≲ 10 3 for high Re .The simulation results computed with the k-ω turbulence model are depicted in Figure 7. The fields compared in Figure 7 are the x component of velocity ux, the turbulent viscosity νt, and the x-y component of the Reynolds stress tensor divided by the fluid density Σxy . All fields were sampled along the y direction through the middle of the geometry, as indicated by the dashed black line in Figure 6. Moreover, the spatial coordinate and the field values were normalized as 
+
+˜y = [ y − min ( ysF )] / [max ( ysF ) − min ( ysF )] 
+
+φrel = φ/ max( ∥φsF ∥), φ = {ux, ν t, Σxy } ,
+
+(18) where sF stands for simpleFoam. 15 0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+−1
+
+0
+
+1
+
+> Σrel
+> xy  [−]
+
+Re = 10 1 Re = 10 2 Re = 10 3
+
+0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+0 0.5 1
+
+−1
+
+0
+
+1
+
+˜y [−]
+
+> Σrel
+> xy  [−]
+
+0 10.5 ˜y [−]
+
+simpleFoam openHFDIBRANS 
+
+0 0.5 1˜y [−]
+
+Re = 10 4 Re = 10 5 Re = 10 6Figure 7: Simulation of 2D pipe flow with different Re . Compared field profiles were sampled along the black line depicted in Figure 6 and normalized according to (18). 
+
+16 Re 10 1 10 2 10 3 10 4 10 5 10 6
+
+avg ℓ2(urel  
+
+> x
+
+) 2.053e-04 1.997e-04 2.021e-04 4.257e-03 1.881e-03 3.040e-03 
+
+P ℓ2(urel  
+
+> x
+
+) 4.517e-03 4.394e-03 4.447e-03 9.366e-02 4.138e-02 6.688e-02 avg ℓ2(νrel t ) 6.344e-04 8.690e-04 8.643e-04 7.516e-03 2.526e-03 2.907e-03 
+
+P ℓ2(νrel t ) 1.396e-02 1.912e-02 1.902e-02 1.653e-01 5.558e-02 6.396e-02 avg ℓ2(Σ rel xy ) 1.935e-03 3.285e-03 3.220e-03 2.932e-02 1.806e-02 2.395e-02 
+
+P ℓ2(Σ rel xy ) 4.256e-02 7.226e-02 7.085e-02 6.451e-01 3.973e-01 5.269e-01 
+
+Table 1: Average and total ℓ2 norm calculated from the difference of profiles given in Figure 7. 
+
+The comparison of the field profiles showed that for all values of Re , open-HFDIBRANS is capable of providing results that are very close to simpleFoam. To support this, an l2 norm was calculated from the difference of the profiles. Its average and total value computed for each field is given in Table 1. 0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+0 0.5 1
+
+−1
+
+0
+
+1
+
+˜y [−]
+
+> Σrel
+> xy  [−]
+
+0 10.5 ˜y [−]
+
+simpleFoam openHFDIBRANS 
+
+0 0.5 1˜y [−]
+
+k-ω SST k-ε realizable k-ε
+
+Figure 8: Simulation of 2D pipe flow with Re = 10 6 and different turbulence models. Data sampling and normalization was done as in Figure 7. 
+
+17 turbulence model k-ω SST k-ε realizable k-ε
+
+avg ℓ2(urel  
+
+> x
+
+) 3.469e-03 4.175e-03 5.593e-03 
+
+P ℓ2(urel  
+
+> x
+
+) 7.633e-02 9.185e-02 1.230e-01 avg ℓ2(νrel t ) 1.739e-02 8.542e-03 5.322e-03 
+
+P ℓ2(νrel t ) 3.826e-01 1.879e-01 1.171e-01 avg ℓ2(Σ rel xy ) 5.996e-02 4.056e-02 3.637e-02 
+
+P ℓ2(Σ rel xy ) 1.319e+00 8.924e-01 8.000e-01 
+
+Table 2: Average and total ℓ2 norm calculated from the difference of profiles given in Figure 8. k-ω simpleFoam 
+
+> openHFDIBRANS
+
+k-ω SST simpleFoam 
+
+> openHFDIBRANS
+
+k-ε simpleFoam 
+
+> openHFDIBRANS
+
+realizable k-ε simpleFoam 
+
+> openHFDIBRANS
+
+1.0νrel t [−]0.0
+
+Figure 9: Qualitative comparison of νt fields from the 2D simulation of pipe flow run with different turbulence models. 
+
+18 3.1.2. Different turbulence models 
+
+Next, the simulation of pipe flow with Re = 10 6 was recomputed with dif-ferent turbulence models. In addition to the k-ω model, openHFDIBRANS can operate with the k-ε, k-ω SST and realizable k-ε models. For each model, a graphical comparison of results from openHFDIBRANS and simpleFoam is given in Figure 8 and complemented by the values of the l2 norm in Table 2. The comparison showed greater differences in the νt profiles compared to k-ω,see Figure 7. To investigate further, a qualitative comparison of the whole νt
+
+fields is given in Figure 9. This revealed that the νt fields given by some mod-els, namely k-ω SST and realizable k-ε, contain abrupt changes that were not caught precisely by openHFDIBRANS. Nevertheless, for all turbulence models, the qualitative behavior of νt is comparable between openHFDIBRANS and simpleFoam. λ = 0 .4
+
+λ = 1 .0(a) 
+
+yeff 
+
+λ = 0 .3
+
+λ = 1 .0(b) 
+
+yeff 
+
+λ = 0 .0
+
+λ = 1 .0(c) 
+
+yeff 
+
+λ = 0 .0
+
+λ = 0 .7(d) 
+
+yeff 
+
+λ = 0 .0
+
+λ = 0 .6(e) 
+
+yeff 
+
+λ = 0 .0
+
+λ = 0 .5(f) 
+
+yeff      
+
+> Figure 10: Investigated variations of solid-fluid interface position. On the left side, the position of the solid surface (orange) and the effective distance yeff are depicted. On the right side, the resulting λfield values are given. The situation (b) matches the state of interface position depicted in Figure 6.
+
+19 0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+−1
+
+0
+
+1
+
+> Σrel
+> xy  [−]
+
+interface (a) interface (b) interface (c) 
+
+0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+0 0.5 1
+
+−1
+
+0
+
+1
+
+˜y [−]
+
+> Σrel
+> xy  [−]
+
+0 10.5 ˜y [−]
+
+simpleFoam openHFDIBRANS 
+
+0 0.5 1˜y [−]
+
+interface (d) interface (e) interface (f) Figure 11: Simulation of 2D pipe flow with different variations in the solid-fluid interface positions. The interface designations match those from Figure 10. Data sampling and nor-malization was done as in Figure 7. 
+
+20 interface (a) (b) (c) (d) (e) (f) avg ℓ2(urel  
+
+> x
+
+) 3.968e-03 3.040e-03 1.827e-03 2.354e-03 5.099e-03 7.907e-03 
+
+P ℓ2(urel  
+
+> x
+
+) 8.730e-02 6.688e-02 4.019e-02 5.179e-02 1.122e-01 1.740e-01 avg ℓ2(νrel t ) 3.637e-03 2.907e-03 3.390e-03 4.156e-03 6.963e-03 9.614e-03 
+
+P ℓ2(νrel t ) 8.001e-02 6.396e-02 7.459e-02 9.143e-02 1.532e-01 2.115e-01 avg ℓ2(Σ rel xy ) 3.775e-03 2.395e-02 2.691e-02 3.119e-02 4.046e-02 4.675e-02 
+
+P ℓ2(Σ rel xy ) 8.305e-02 5.269e-01 5.919e-01 6.862e-01 8.902e-01 1.029e+00   
+
+> Table 3: Average and total ℓ2norm calculated from the difference of profiles given in Figure 11.
+
+3.1.3. Position of solid-fluid interface 
+
+Lastly, the 2D pipe flow test was used to investigate the effect of small varia-tions of the solid-fluid interface position on the openHFDIBRANS results. The different interface variations that were considered are illustrated in Figure 10. For openHFDIBRANS, the interface variations result in different values of the 
+
+λ field, but the original domain from Figure 6b is still used. For simpleFoam, the width of the middle part of the original domain from Figure 6a was adjusted to match the variations in interface position. For each interface variation, the pipe flow simulation was run with Re = 10 6
+
+and the k-ω turbulence model. The resulting field profiles are compared in Figure 11. As can be expected, the comparison showed that the better the IB is aligned with actual mesh faces, i.e., interface positions (b), (c) and (d), the better openHFDIBRANS works. For worse aligned IB interfaces (a), (e), and (f), the openHFDIBRANS estimates are burdened with a higher error. Still, the overall robustness of openHFDIBRANS with respect to the position of IB; and, consequently, to variations in yeff seems satisfactory. 
+
+3.2. 3D pipe flow 
+
+As a second test scenario, a 3D pipe flow was chosen. Following the design of the 2D domains presented in Figure 6, three 3D variants were created, see Figure 12. With each 3D variant, a simulation of flow with Re = 10 6 was run while using the k-ω turbulence model. A comparison of results from simpleFoam 21 (a) 
+
+(b) 1.0λ [−]0.0
+
+(c) Figure 12: Isometric (left) and cross-sectional (right) view onto computational domains and meshes used for simulation of 3D pipe flow. Only halves of each domain are depicted. Domains used for simpleFoam are colored in grey and for openHFDIBRANS by λ field. 
+
+and openHFDIBRANS is given in Figure 13 and Table 4. For all the tested 3D variants, the agreement between simpleFoam and open-HFDIBRANS is satisfactory. The biggest deviations appear for the last variant which has the worse alignment between IB and mesh faces, see Figure 12c (right). Yet, even with the worst aligned IB, the ℓ2 norms of the profile errors, given in Table 4, are not large in magnitude. 
+
+3.3. Flow over a backward facing step 
+
+As the next test scenario, the backward facing step benchmark was chosen. A detailed description of the benchmark can be found in [29]. In addition, experimental data by Driver and Seegmiller [30] are available. The flow was simulated as 2D and the utilized computational domains, the computational mesh and λ field are given in Figure 14. The mesh resolution of the domain was kept such that y+ ∈ (30 , 200) . Furthermore, the boundary conditions were prescribed in the same way as in the pipe flow test scenarios, see 22 0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+0 0.5 1
+
+−1
+
+0
+
+1
+
+˜y [−]
+
+> Σrel
+> xy  [−]
+
+0 10.5 ˜y [−]
+
+simpleFoam openHFDIBRANS 
+
+0 0.5 1˜y [−]
+
+(a) (b) (c) Figure 13: Simulation of 3D pipe flow in domains from Figure 12. For each domain, the data sampling line is given above the graphs. Data normalization was done according to (18). 
+
+3D pipe variation (a) (b) (c) avg ℓ2(urel  
+
+> x
+
+) 4.858e-03 3.927e-03 8.885e-03 
+
+P ℓ2(urel  
+
+> x
+
+) 1.069e-01 1.139e-01 2.665e-01 avg ℓ2(νrel t ) 3.624e-03 5.972e-03 1.367e-02 
+
+P ℓ2(νrel t ) 7.972e-02 1.732e-01 4.102e-01 avg ℓ2(Σ rel xy ) 1.399e-02 1.237e-02 1.083e-02 
+
+P ℓ2(Σ rel xy ) 3.077e-01 3.587e-01 3.250e-01 
+
+Table 4: Average and total ℓ2 norm calculated from the difference of profiles given in Figure 13. 
+
+23 (a) 
+
+inlet outlet wall 
+
+wall wall 
+
+(b) 
+
+(c) 
+
+x1 x2 x3 x4 x5 x6
+
+(d) 
+
+x
+
+y
+
+1.0λ [−]0.0Figure 14: Backward facing step benchmark. (a) Computational domain used by simpleFoam with indicated boundaries. (b) Computational domain and λ field used by openHFDIBRANS. (c) Mesh in the domain from (a) in the vicinity of the step. (d) λ field in the vicinity of the step with highlighted data sampling lines. 
+
+Section 3.1. Lastly, following the description in [29], the fluid kinematic viscosity was set to ν = 1 .56 10 −5 · m2 s−1, and the inlet velocity uin was calculated such that Re = 36 000 based on the step height hstep = 0 .0127 m .
+
+x/h step −4.0 1.0 2.0 4.0 6.0 10 .0
+
+avg ℓ2(urel  
+
+> x
+
+) 4.540e-03 8.304e-04 8.665e-04 5.580e-04 5.686e-04 3.266e-04 
+
+P ℓ2(urel  
+
+> x
+
+) 3.542e-01 7.224e-02 7.538e-02 4.855e-02 4.947e-02 2.841e-02 avg ℓ2(νrel t ) 7.583e-03 1.990e-03 2.543e-03 2.596e-03 2.342e-03 2.072e-03 
+
+P ℓ2(νrel t ) 5.914e-01 1.731e-01 2.212e-01 2.258e-01 2.037e-01 1.803e-01 avg ℓ2(Σ rel xy ) 1.816e-02 4.038e-03 4.292e-03 3.613e-03 3.584e-03 3.022e-03 
+
+P ℓ2(Σ rel xy ) 1.417e+00 3.513e-01 3.734e-01 3.143e-01 3.118e-01 2.629e-01 
+
+Table 5: Average and total ℓ2 norm calculated from the difference of profiles given in Figure 15. 
+
+In Figure 15 and Table 5, the results from simpleFoam and openHFDI-BRANS are compared. For the comparison, data were sampled at several 
+
+x/h step positions indicated by dashed lines in Figure 14d. Note that the po-sition of the step is at x/h step = 0 .0.The compared profiles are in good agreement. Only openHFDIBRANS un-24 0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+−2
+
+−1
+
+0
+
+1
+
+> Σrel
+> xy  [−]
+
+x1/h step = −4.0 x2/h step = 1 .0 x3/h step = 2 .0
+
+0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+0.5
+
+1
+
+> νrel t [−]
+
+0 0.5 1
+
+−2
+
+−1
+
+0
+
+1
+
+˜y [−]
+
+> Σrel
+> xy  [−]
+
+0 10.5 ˜y [−]
+
+experiment simpleFoam openHFDIBRANS 
+
+0 0.5 1˜y [−]
+
+x4/h step = 4 .0 x5/h step = 6 .0 x6/h step = 10 .0Figure 15: Backward facing step benchmark. Profiles were sampled along lines given in Figure 14d. Data were normalized according to (18). 
+
+25 (a) (b) 
+
+1.0urel  
+
+> x
+
+[−]−0.3 1.0νrel t [−]0.0
+
+(c) (d) Figure 16: Zoomed view onto flow fields in the backward facing step benchmark. (a-b) Fields from simpleFoam. (c-d) Fields from openHFDIBRANS where white indicates the position of the solid surface. 
+
+derestimates the increase in νt behind the step. To investigate this, a qualitative comparison of the ux and νt fields in the vicinity of the step is given in Fig-ure 16. There, the differences in the νt field are apparent, but the effect of these on the ux field is small and the qualitative characteristics of the flow are captured correctly. Furthermore, the evolution of the wall shear stress τw = ν ∂u x 
+
+> ∂y y=ywall
+
+and skin friction coefficient Cf = τw 
+
+> 0.5u2in
+
+along the bottom wall was examined. Com-parison of simpleFoam, openHFDIBRANS and experiment [30] is given in Fig-ure 17. At the domain beginning, openHFDIBRANS underestimates the mag-nitude of the peak in τw. Nevertheless, this effect does not translate to the along the step and the two profiles coincide. Hence, we suspect that the lower tw mag-nitude at the beginning is caused by a non-identical domain transition. Creating an identical transition would require adding an additional domain segment with a jump down as is in domains in Figures 6 and 12. However, this would be against the benchmark description given in [29] and [30], so we accepted the presented version as the best trade-off. Near the position of the step, the profiles given by simpleFoam and open-26 −100 −50 0 50 
+
+−2
+
+0
+
+2
+
+4
+
+6
+
+x/h step 
+
+> τw
+
+0 10 20 30 
+
+0
+
+0.002 
+
+0.004 
+
+x/h step 
+
+> Cf
+
+experiment simpleFoam openHFDIBRANS 
+
+(a) (b) Figure 17: Evolution of the (a) wall shear stress τw and (b) skin friction coefficient Cf sampled along the bottom wall in the backward facing step benchmark. In (b), the x range is adjusted to match the available experimental data from [30]. 
+
+HFDIBRANS agree nicely. Also, the agreement with experiment is acceptable given that the models do not operate with resolved boundary layer since y+ is kept in the logarithmic region. Moreover, the Cf profile can be used to calculate the reattachment length ℓreat . In [30], the length was located as the point with zero skin friction which was ℓreat = ( xreat −ℓstep )/h step = 6 .26 ±0.10 . When cal-culated based on simpleFoam data, the reattachment length is 4.46 , and based on openHFDIBRANS, it is 4.43 .(a) 
+
+inlet outlet 
+
+symmetry 
+
+symmetry 
+
+(b) 
+
+1.0λ [−]0.0  
+
+> Figure 18: Flow over a cylindrical obstacle. (a) Domain used by simpleFoam with indicated boundaries. (b) Domain and λfield used by openHFDIBRANS.
+
+3.4. 2D flow over a cylindrical obstacle 
+
+To evaluate the openHFDIBRANS ability to estimate drag coefficients, a test scenario with flow over a cylindrical obstacle was prepared. The utilized 27 simulation domains together with the λ field used by openHFDIBRANS are given in Figure 18. The inlet and outlet boundary conditions were set the same as in the pipe flow tests, see Section 3.1, and the kinematic viscosity was 
+
+ν = 10 −6 m2 s−1.Meshes with three different resolutions were created. The meshes had around 
+
+80 , 180 and 320 thousands of cells. With each mesh resolution, a series of simulations was run with Reynolds numbers ranging from 10 0 to 10 7 where 
+
+Re = ∥uin ∥ 2 r/ν with uin being the inlet velocity and r the radius of the cylinder. From the simulation results, the drag coefficient was calculated as 
+
+Cd = 2
+
+ρ A ref ∥uin ∥2
+
+Z
+
+> Γsf
+
+ftot · vd dS, Aref = 2 r ∆z, vd = (1 , 0, 0) T,
+
+ftot = fn + ft, fn = ρ n S (˜ p − ˜pref ), ft = −ρ S τ w ,
+
+(19) where ρ is the fluid density, ∆z the thickness of the computational domain, n
+
+the surface normal, and ˜pref a reference kinematic pressure. Next, Γsf represents the fluid-solid interface which is formed, in simpleFoam, by cell faces, and in openHFDIBRANS, by the immersed boundary. 10 0 10 1 10 2 10 3 10 4 10 5 10 6 10 7
+
+10 0
+
+10 1
+
+Re     
+
+> Cd
+> openHFDIBRANS simpleFoam experiments
+> 80 k cells
+> 180 k cells
+> 320 k cells
+> Figure 19: Evolution of the drag coefficient Cdfor a cylindrical obstacle in flow.
+
+The evolution of the drag coefficient with respect to Re is given in Figure 19. As a reference, a compilation of experiments from [31] is added. Compared to the reference, both solvers are unable to resolve the drag crisis. Yet, this is probably caused by the use of RAS turbulence models. As was shown in [32], more advanced two layer models are required to capture the boundary layer 28 transition. In the rest of the Re range, solvers follow the experimental trends. When compared to each other, openHFDIBRANS estimates slightly lower Cd
+
+values. The biggest difference is in the slope transition region around Re = 10 2,but there the flow around the cylinder tends to be unsteady and the RAS results are merely approximate. Outside of the unsteady region, the agreement of openHFDIBRANS and simpleFoam is satisfactory and the solver behavior does not variate much for different mesh resolutions. (a) 
+
+uin 
+
+γ
+
+inlet 
+
+inlet 
+
+inlet 
+
+outlet 
+
+(b) 1.0λ [−]0.0      
+
+> Figure 20: Flow over a NACA-0009 airfoil. (a) Computational domain used by simpleFoam with indicated boundaries and visualization of the relation between the inlet velocity uin and the angle of attack γ.(b) Domain and λfield used by openHFDIBRANS. Black highlights the data sampling line.
+
+3.5. Flow over a NACA-0009 airfoil 
+
+As the next test scenario, the simulation of flow over a NACA-0009 airfoil was chosen. A view of the computational mesh used by simpleFoam is given in Figure 20a, and of the λ field used by openHFDIBRANS in Figure 20b. The simulation was 2D and the number of cells was ∼ 10 5.In Figure 20a, the domain boundaries are also distinguished. At the inlet boundaries, the velocity and turbulence variables were prescribed via Dirichlet boundary conditions. For pressure, the zero-gradient boundary condition was used. The inlet values of the turbulence variables were calculated according to Spalart and Rumsey [33]. At the outlet, the zero-gradient boundary condi-tion for velocity and turbulence variables, and the Dirichlet boundary condition for pressure were used. The flow was simulated as incompressible with fluid 29 kinematic viscosity ν ≈ 10 −6 m2 s−1 and Reynolds number Re ≈ 2 · 10 6 with respect to the airfoil cord length. γ = 0 ◦
+
+γ = 2 ◦
+
+γ = 4 ◦
+
+1.0∥urel ∥ [−]0.0 
+
+> Figure 21: Simulation of flow over a NACA-0009 airfoil. Results from simpleFoam (left) and openHFDIBRANS (right) for different angles of attack γ. Velocity was normalized according to (18).
+
+A qualitative comparison of the simulation results is given in Figure 21. Moreover, Figure 22 and Table 6 features a comparison of field profiles sampled along the dashed line given in Figure 20b. In both figures, it is apparent that openHFDIBRANS is capable of capturing the important features of the flow. However, it also tends to overestimate the size of the wake behind the airfoil. To quantify the effect of larger wake, the resulting flow fields were used to 30 0
+
+0.5
+
+1
+
+> urel
+> x [−]
+
+0
+
+1.5
+
+3
+
+> νrel t [−]
+
+0.2 0.5 0.8
+
+−1
+
+0
+
+1
+
+˜y [−]
+
+> Σrel
+> xy  [−]
+
+0.2 0.5 0.8
+
+˜y [−]
+
+simpleFoam openHFDIBRANS 
+
+0.2 0.5 0.8
+
+˜y [−]
+
+γ = 0 ◦ γ = 2 ◦ γ = 4 ◦Figure 22: Fields profiles from simulation of flow over a NACA-0009 airfoil with different angles of attack γ. Data were sampled along the line given in Figure 21b and normalized according to (18). 
+
+γ 0◦ 2◦ 4◦
+
+avg ℓ2(urel  
+
+> x
+
+) 2.035e-03 3.020e-03 2.998e-03 
+
+P ℓ2(urel  
+
+> x
+
+) 5.250e-01 7.792e-01 7.735e-01 avg ℓ2(νrel t ) 2.634e-02 2.848e-02 2.491e-02 
+
+P ℓ2(νrel t ) 6.796e+00 7.348e+00 6.428e+00 avg ℓ2(Σ rel xy ) 7.902e-03 9.526e-03 9.643e-03 
+
+P ℓ2(Σ rel xy ) 2.039e+00 2.458e+00 2.488e+00 
+
+Table 6: Average and total ℓ2 norm calculated from the difference of profiles given in Figure 22. 
+
+31 −10 0 10 
+
+0
+
+0.05 
+
+0.1
+
+0.15 
+
+γ [◦]
+
+> Cd
+
+−10 0 10 
+
+−1
+
+0
+
+1
+
+γ [◦]
+
+> Cℓ
+
+simpleFoam openHFDIBRANS thin airfoil theory 
+
+(a) (b) Figure 23: Evolution of the (a) drag and (b) lift coefficients for NACA-0009 with respect to the angle of attack. 
+
+calculate the drag and lift coefficients. The coefficients were calculated as 
+
+Cd = 2
+
+ρ A ref ∥uin ∥2
+
+Z
+
+> Γsf
+
+ftot · vd dS, Cℓ = 2
+
+ρ A ref ∥uin ∥2
+
+Z
+
+> Γsf
+
+ftot · vℓ dS
+
+vd = (cos( γ), sin( γ), 0) T, vℓ = ( − sin( γ), cos( γ), 0) T ,
+
+(20) where the calculation of the total force ftot is given in (19). The reference area was calculated as Aref = ℓc · ∆z where ℓc is the chord length and ∆z the thickness of the computational domain. The evolution of the drag and lift coefficients with respect to the angle of attack γ is given in Figure 23. To have a reference, the evolution of the lift coefficient according to the inviscid thin airfoil theory [34] was added. For low magnitudes of γ, both solvers nicely agree with Cℓ given by the theory. For increasing γ magnitudes, the solvers slowly deviate from the theory yet this is expectable given that the solvers work with a viscous fluid. Nonetheless, openHFDIBRANS deviates faster which reflects its tendency to overestimate the size of the wake behind the airfoil. The same effect is visible on the evolution of the drag coefficient where the openHFDIBRANS profile has mostly larger slope magnitudes. But apart from the effect of the larger wake, the profile shapes are captured correctly. 32 (c) (d) 
+
+(a) (b) 
+
+xy z
+
+inlet outlet 
+
+wall 
+
+slip 
+
+inlet outlet 
+
+slip 
+
+slip 
+
+1.0λ [−]0.0Figure 24: (a) Visualization of the Ahmed body. (b) Representation of the Ahmed body using the λ field. (c) Vertical and horizontal view on the Ahmed body inside a computational domain with indicated boundaries. (d) Vertical and horizontal slice of the λ field. 
+
+33 3.6. Flow over an Ahmed body 
+
+As the last test scenario, the simulation of flow over an Ahmed body [35] was chosen. In Figure 24, the Ahmed body geometry is given together with its λ
+
+field representation, positioning within the computational domain and domain description. The simulation was constructed as 3D and the computational mesh consisted of ∼ 2 · 10 7 cells. At the inlet to the domain, the values of velocity and turbulence variables were prescribed, and the zero-gradient condition was used for pressure. At the outlet, the pressure value was prescribed and the zero-gradient condition was used for the rest of the variables. Next, the boundary below the Ahmed body was treated as a wall with the no-slip condition for velocity and zero-gradient condition for the other variables. At the last remaining boundaries (top, left, and right), the slip boundary condition was used for velocity and zero-gradient for the rest. The fluid kinematic viscosity was ν = 1 .5 · 10 −5 m2 s−1 and the flow Reynolds number Re ≈ 3 · 10 4 with respect to the Ahmed body length. A comparison of the resulting ux and νt fields is given in Figure 25. Similarly to the test scenario with NACA-0009, the openHFDIBRANS solver was able to correctly predict the flow patterns, but the size of the recirculation region was overestimated. 
+
+4. Conclusion 
+
+In this work, we propose our custom solver that combines the hybrid ficti-tious domain-immersed boundary method with Reynolds-averaged turbulence models. In particular, the HFDIB is a direct forcing IBM, and it was adjusted for the solution of the steady-state RANS equations with two-equation turbulence models and wall functions. The main strengths of the custom solver, called open-HFDIBRANS, include its open-source implementation using the OpenFOAM library, along with a stability oriented design of wall functions and the incom-pressibility condition at the immersed boundary. The solver performance was tested in a series of benchmark cases, focusing on, e.g., its sensitivity to the 34 (a) 
+
+x
+
+z
+
+(b) 
+
+x
+
+y
+
+1.0urel  
+
+> x
+
+[−]0.0
+
+(c) (d) 
+
+1.0νrel t [−]0.0Figure 25: Vertical and horizontal slices through flow fields from the simulation of flow over an Ahmed body. (a-b) Fields from simpleFoam. (c-d) Fields from openHFDIBRANS. 
+
+35 flow Reynolds number, interface position and curvature, or parallelization. In all test cases, a standard body-fitted simulation run by simpleFoam served as a reference. Our openHFDIBRANS solver achieved very good agreement with the reference in many of the tested scenarios, including the prediction of lift and drag coefficients as well as wall shear stress. However, in some test cases, it tended to slightly overestimate the size of the wake behind the simulated solid objects. Still, this effect behaves predictably, and we believe that our approach is ready for usage in geometry optimizations, where the consistency of results computed for different geometries is of the most importance. In our future stud-ies, we plan to utilize this approach in the topology optimization of engineering devices such as biosensors or molds for die casting. The solver source code and illustrative examples are available at https: //github.com/techMathGroup/openHFDIBRANS .
+
+Acknowledgments 
+
+> The work was financially supported by the Czech Science Foundation project 25-17815S. Also, the authors acknowledge the financial support provided by the Min-istry of Education, Youth, and Sports of the Czech Republic via the project No. CZ.02.01.01/00/23_020/0008501 (METEX), co-funded by the European Union, and the institutional support RVO:61388998.
+
+36 Nomenclature 
+
+d diameter, [L] 
+
+f momentum source term, [L T −2]
+
+I turbulence intensity, [−]
+
+k turbulence kinetic energy, [L 2 T−2]
+
+ℓ length, [L] 
+
+M operator of the momentum transport, [−]
+
+n outer unit normal, [−]
+
+N operator of the turbulence kinetic energy transport, [−]˜p average kinematic pressure, [L 2 T−2]
+
+Pk production of turbulence kinetic energy, [T −1]
+
+S turbulence kinetic energy source term, [T −1]
+
+u average velocity, [L T −1]
+
+uτ friction velocity, [L T −1]
+
+v vertex, [−]
+
+V volume, [L 3]
+
+y+ normalized wall distance, [−]
+
+y⊥ perpendicular distance, [L] 
+
+Greek letters 
+
+α masking field, [−]
+
+γ angle of attack, [] 
+
+ϵ tolerance, [−]
+
+ε dissipation of turbulence kinetic energy, [L 2 T−3]
+
+λ solid phase indicator field, [−]
+
+ν kinematic viscosity, [L T −2]
+
+σ signed perpendicular distance, [L] Σ kinematic Reynolds stress tensor, [] 
+
+ω specific dissipation of turbulence kinetic energy, [T −1]Ωh discrete spatial domain, [−]ΩhP computational cell, [−]
+
+37 Subscripts and superscripts 
+
+atm atmospheric 
+
+bc boundary cells 
+
+eff effective 
+
+f fluid 
+
+fc free-stream cells 
+
+i inlet 
+
+ib immersed boundary 
+
+ic in-solid cells 
+
+lam laminar 
+
+log logarithmic region 
+
+o outlet 
+
+old previous iteration or initial guess 
+
+rel relative 
+
+s solid 
+
+t turbulent 
+
+sf solid-fluid interface 
+
+vis viscous sublayer 
+
+Abbreviations 
+
+CFD computational fluid dynamics DEM discrete element method HFDIB hybrid fictitious domain-immersed boundary method RANS Reynolds-averaged Navier-Stokes equations sF simpleFoam 
+
+References 
+
+[1] C. S. Peskin, Flow patterns around heart valves: A numerical method, Journal of Computational Physics 10 (1972) 252–271. [2] R. Mittal, J. H. Seo, Origin and evolution of immersed boundary methods in computational fluid dynamics, Physical Review Fluids 8 (2023) 100501. 38 [3] R. Verzicco, Immersed boundary methods: Historical perspective and fu-ture outlook, Annual Review of Fluid Mechanics 55 (2023) 129–155. [4] G. Kalitzin, G. Iaccarino, Turbulence modeling in an immersed-boundary RANS method, Center for Turbulence Research Annual Research Briefs (2002) 415–426. [5] F. Capizzano, Turbulent wall model for immersed boundary methods, AIAA Journal 49 (2011) 2367–2381. [6] B. Constant, S. Péron, H. Beaugendre, An improved immersed bound-ary method for turbulent flow simulations on cartesian grids, Journal of Computational Physics 435 (2021) 110240. [7] S.-G. Cai, J. Degrigny, J.-F. Boussuge, P. Sagaut, Coupling of turbulence wall models and immersed boundaries on cartesian grids, Journal of Com-putational Physics 429 (2021) 109995. [8] B. Constant, S. Péron, H. Beaugendre, C. Benoit, An improved immersed boundary method for turbulent flow simulations on cartesian grids: exten-sion of a global geometric approach for thin boundary layers and strong flow incidence, Journal of Computational Physics 519 (2024) 113441. [9] N. Troldborg, N. N. Sørensen, F. Zahle, Immersed boundary method for the incompressible Reynolds Averaged Navier–Stokes equations, Computers and Fluids 237 (2022) 105340. [10] E. Fadlun, R. Verzicco, P. Orlandi, J. Mohd-Yusof, Combined immersed-boundary finite-difference methods for three-dimensional complex flow sim-ulations, Journal of Computational Physics 161 (2000) 35–60. [11] J. Kim, D. Kim, H. Choi, An immersed-boundary finite-volume method for simulations of flow in complex geometries, Journal of Computational Physics 171 (2001) 132–150. 39 [12] M. Uhlmann, An immersed boundary method with direct forcing for the simulation of particulate flows, Journal of Computational Physics 209 (2005) 448–476. [13] F. Municchi, S. Radl, Consistent closures for euler-lagrange models of bi-disperse gas-particle suspensions derived from particle-resolved direct numerical simulations, International Journal of Heat and Mass Transfer 111 (2017) 171–190. [14] M. Isoz, M. K. Šourek, O. Studeník, P. Kočí, Hybrid fictitious domain-immersed boundary solver coupled with discrete element method for simu-lations of flows laden with arbitrarily-shaped particles, Computers & Fluids 244 (2022) 105538. [15] O. Studeník, M. Isoz, M. K. Šourek, P. Kočí, OpenHFDIB-DEM: An extension to OpenFOAM for CFD-DEM simulations with arbitrary particle shapes, SoftwareX 27 (2024) 101871. [16] M. K. Šourek, O. Studeník, M. Isoz, P. Kočí, A. P. York, Viscosity predic-tion for dense suspensions of non-spherical particles based on CFD-DEM simulations, Powder Technology 444 (2024) 120067. [17] H. Weller, C. Greenshields, W. B. et al., OpenFOAM, 2022. URL: https: //openfoam.org/ .[18] B. Launder, D. Spalding, The numerical computation of turbulent flows, Computer Methods in Applied Mechanics and Engineering 3 (1974) 269– 289. [19] S. E. Tahry, k-ϵ equation for compressible reciprocating engine flows, En-ergy 7 (1983) 345–353. [20] D. Wilcox, Turbulence modeling for CFD, 3 ed., DCW Industries, USA, 2006. 40 [21] F. R. Menter, Improved two equation k-ω turbulence models for aerody-namic flows, Technical Report N93-22809, NASA, 1992. [22] T. H. Shih, W. Liou, A. Shabbir, Z. Yang, J. Zhu, A new k-ϵ eddy viscosity model for high Reynolds number turbulent flows, Computer & Fluids 24 (1995) 227–238. [23] J. Bredberg, On the wall boundary condition for turbulence models, Techni-cal Report Internal report 00/4, Chalmers University of Technology, Gote-borg, 2000. [24] L. Kubíčková, M. Isoz, On reynolds-averaged turbulence modeling with im-mersed boundary method, in: D. Šimurda, T. Bodnár (Eds.), Proceedings of Topical Problems of Fluid Mechanics 2023, IT CAS, 2023, pp. 104–111. [25] G. Kalitzin, G. Medic, G. Iaccarino, P. Durbin, Near-wall behavior of rans turbulence models and implications for wall functions, Journal of Computational Physics 204 (2005) 265–291. [26] S. Patankar, D. Spalding, A calculation procedure for heat, mass and momentum transfer in three-dimensional parabolic flows, International Journal of Heat and Mass Transfer 15 (1972) 1787–1806. [27] F. Moukalled, M. Darwish, L. Mangani, The finite volume method in com-putational fluid dynamics: an advanced introduction with OpenFOAM and Matlab, 1 ed., Springer-Verlag, Berlin, Germany, 2016. [28] A. Wimshurst, Calculators & Tools, 2021. URL: https://www. fluidmechanics101.com/pages/tools.html .[29] C. Rumsey, Turbulence modeling resource, 2021. URL: https:// turbmodels.larc.nasa.gov/ .[30] D. M. Driver, H. L. Seegmiller, Features of a reattaching turbulent shear layer in divergent channel flow, AIAA Journal 23 (1985) 163–171. [31] R. Panton, Incompressible flow, 1 ed., John Wiley & Sons, 2013. 41 [32] S. Athkuri, M. Nived, R. Aswin, V. Eswaran, Computation of drag crisis of a circular cylinder using hybrid RANS-LES and URANS models, Ocean Engineering 270 (2023) 113645. [33] P. Spalart, C. Rumsey, Effective inflow conditions for turbulence models in aerodynamic calculations, AIAA Journal 45 (2007) 2544–02553. [34] M. Munk, Isoperimetrische Aufgaben aus der Theorie des Fluges, Ph.D. thesis, Universität Göttingen, 1919. [35] S. Ahmed, G. Ramm, G. Faltin, Some Salient Features Of The Time-Averaged Ground Vehicle Wake, Technical Report 840300, SAE Interna-tional, 1984. doi: 10.4271/840300 .42

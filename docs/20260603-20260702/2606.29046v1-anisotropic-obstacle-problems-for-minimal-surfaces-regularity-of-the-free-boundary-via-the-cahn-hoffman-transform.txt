@@ -1,0 +1,519 @@
+Title: Anisotropic Obstacle Problems for Minimal Surfaces: Regularity of the Free Boundary via the Cahn-Hoffman Transform
+
+URL Source: https://arxiv.org/pdf/2606.29046v1
+
+Published Time: Tue, 30 Jun 2026 00:47:26 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+ANISOTROPIC OBSTACLE PROBLEMS FOR MINIMAL SURFACES: REGULARITY OF THE FREE BOUNDARY VIA THE CAHN-HOFFMAN TRANSFORM 
+
+EZEQUIEL BARBOSA, ROSIVALDO ANTONIO GONC ¸ ALVES, AND LUAN DE FIGUEIREDO 
+
+Abstract. We study an obstacle problem for surfaces minimizing an anisotropic surface energy of ellipsoidal type. Given a convex obstacle and a boundary datum, we seek a surface that minimizes the anisotropic area functional while remaining above the obstacle. The central novelty is the systematic use of the Cahn-Hoffman transform to convert the anisotropic problem into an equivalent isotropic problem with a generalized Robin boundary condition. We prove optimal regularity of the solution ( C1,1 up to the free boundary) and C1,α -regularity of the free boundary itself under a non-degeneracy condition. The singular set of the free boundary is shown to have Hausdorff dimension at most n − 1, and a logarithmic epiperimetric inequality yields its ( n − 1)-rectifiability. The approach combines Caffarelli’s classical theory of obstacle problems with the geometric theory of anisotropic mean curvature and the Alexandrov reflection principle adapted to the anisotropic setting. 
+
+1. Introduction and Main Results 
+
+1.1. Historical context and motivation. The study of surfaces that minimize area sub-ject to constraints is one of the oldest problems in the calculus of variations, tracing back to Lagrange’s work (1760) on the Plateau problem. When the surface energy depends not only on area but also on the orientation of the surface, one enters the realm of anisotropic varia-tional problems. Such problems arise naturally in crystallography, where the surface energy of a crystal depends on the crystallographic direction of the exposed facet (Wulff, 1901), and in the modeling of biological membranes, where the lipid bilayer exhibits direction-dependent bending rigidity. The mathematical theory of anisotropic surface energies was developed systematically by Wulff (1901), who introduced what is now called the Wulff shape as the equilibrium crystal shape minimizing surface energy for a given enclosed volume. The fundamental connection between the Wulff shape and the anisotropic surface energy was clarified through the Cahn-Hoffman vector field [8], which provides a geometric interpretation of the first variation of anisotropic surface energies. Free boundary problems, on the other hand, are PDE problems in which the domain of the equation is itself an unknown. The classical obstacle problem , introduced by Signorini [30] in the context of elasticity and studied analytically by Lewy and Stampacchia [25], Brezis and Kinderlehrer [2], and most notably by Caffarelli [4], seeks the equilibrium position of an elastic membrane constrained to lie above a given obstacle. The portion of the boundary 
+
+2020 Mathematics Subject Classification. Primary 35R35; Secondary 49Q05, 53A10, 35J86. 
+
+Key words and phrases. Free boundary problem, anisotropic minimal surface, obstacle problem, Cahn-Hoffman transform, regularity theory. Departamento de Matem´ atica, Universidade Federal de Minas Gerais (UFMG), Av. Antonio Carlos 6627, Caixa Postal 702, 30123-970, Belo Horizonte, MG, Brazil. CCET - UNIMONTES.  
+
+> 1
+> arXiv:2606.29046v1 [math.DG] 27 Jun 2026 2EZEQUIEL BARBOSA, ROSIVALDO ANTONIO GONC ¸ ALVES, AND LUAN DE FIGUEIREDO
+
+separating the contact region from the free region — the free boundary — is the central object of study. Caffarelli’s paper [4] showed that the free boundary is smooth ( C∞) outside a closed singular set of Hausdorff dimension at most n − 1. This work opened the modern theory of free boundary regularity; see the monograph [7], the survey [15], and the lecture notes [27] for comprehensive accounts. The free boundary problem for minimal surfaces — where one seeks a surface of minimal area whose boundary is constrained to a given supporting surface but is otherwise free to move — was studied by Nitsche [26], Gr¨ uter and Jost [20], and Gr¨ uter [19]. The connection between free boundary minimal surfaces and the obstacle problem is classical; Kinderlehrer [22] studied how a minimal surface detaches from an obstacle, a question that proved central to subsequent developments. 1.2. The anisotropic obstacle problem. This paper introduces and studies an anisotropic obstacle problem combining these two classical threads: the anisotropic surface energy of Wulff and the obstacle problem of Caffarelli. Given a convex obstacle ψ and a boundary datum, we seek a function u minimizing the anisotropic area functional 
+
+FΦ(u) = 
+
+Z
+
+> D
+
+Φ( Du ) dx =
+
+Z
+
+> D
+
+√Du T A Du dx, (1.1) where A ∈ Sym +
+
+> n+1
+
+(R) is a symmetric positive definite matrix encoding the anisotropy, subject to the constraint u ≥ ψ.The functional (1.1) corresponds to an ellipsoidal anisotropy , where the Wulff shape is the ellipsoid 
+
+WΦ = {x ∈ Rn+1 : xT A−1x ≤ 1}. (1.2) This is the simplest and most natural class of anisotropies, arising when the surface energy has a quadratic dependence on orientation. The general case of a convex anisotropy γ :
+
+Sn → R+ leads to the Cahn-Hoffman map ξγ (ν) = Dγ |Tν Sn + γ(ν)ν, whose image is the boundary of the Wulff shape [21, 24]. Our principal tool is the Cahn-Hoffman transform 
+
+S(x) = A−1/2x, (1.3) which maps the Wulff shape WΦ onto the Euclidean unit ball B1(0) — a fact we verify carefully in Proposition 3.1. This transform was used implicitly by Wulff and explicitly by Dinghas [14] and Taylor [31] in the study of anisotropic isoperimetric problems. The present contribution is to systematize its use in free boundary problems, showing that it converts the anisotropic obstacle problem into an isotropic one with a generalized Robin boundary condition on the free boundary. 1.3. Main results. Let D ⊂ Rn+1 be a bounded domain with C2 boundary. Let ψ ∈
+
+C1,1( ¯D) be an obstacle with ψ < 0 on ∂D , and let A ∈ Sym +
+
+> n+1
+
+(R) have eigenvalues satisfying 0 < λ 1 ≤ · · · ≤ λn+1 . Define the convex set 
+
+K = {u ∈ W 1,1(D) : u ≥ ψ a.e. in D, u = 0 on ∂D }. (1.4) We study the minimization problem min  
+
+> u∈K
+
+FΦ(u). (1.5) ANISOTROPIC OBSTACLE PROBLEMS 3
+
+The contact set is Λ = {x ∈ D : u(x) = ψ(x)}, the free set is Ω = D \ Λ, and the free boundary is Γ = ∂Λ ∩ D.
+
+Theorem 1.1 (Existence and regularity of the solution) . There exists a unique minimizer 
+
+u ∈ K of (1.5) . Moreover: 
+
+(i) u ∈ C0,1loc (D);
+
+(ii) u ∈ C1,1loc (Ω ∪ Γ) ;
+
+(iii) u − ψ ∈ C1,1loc (D) and 
+
+0 ≤ u(x) − ψ(x) ≤ C dist( x, Γ) 2 for all x ∈ D. (1.6) The proof combines the direct method in the calculus of variations with the Cahn-Hoffman transform and the classical regularity theory for the obstacle problem. The key observation is that S converts the anisotropic functional into the isotropic perimeter functional with a weighted obstacle, preserving the convexity structure essential for regularity. Concerning the free boundary itself, we say that x0 ∈ Γ is non-degenerate if sup  
+
+> Br(x0)
+
+(u − ψ) ≥ cr 2 for all 0 < r < r 0, (1.7) for some c > 0 and r0 > 0. This condition, due to Caffarelli [4], rules out situations where the solution touches the obstacle with infinite order. 
+
+Theorem 1.2 (Regularity of the free boundary) . Let x0 ∈ Γ be a non-degenerate free boundary point. There exists a neighborhood U of x0 in which Γ ∩ U is a C1,α -hypersurface for some α ∈ (0 , 1) depending only on n and the ellipticity constants of A. If ψ ∈ Ck,α (D)
+
+for some k ≥ 2, then Γ ∩ U ∈ Ck,α .
+
+The proof proceeds by blow-up analysis. The Cahn-Hoffman transform relates the blow-up limits of the anisotropic problem to those of the classical obstacle problem, for which the classification is complete. Non-degeneracy ensures that the blow-up is a half-plane solution, which implies C1,α -regularity via the “flatness implies smoothness” principle. Our third result concerns the structure of the singular set. 
+
+Theorem 1.3 (Structure and rectifiability of the singular set) . Let Σ ⊂ Γ denote the set of singular free boundary points, i.e., points where Γ is not locally C1. Then 
+
+Hn−1(Σ) = 0 . (1.8) 
+
+Moreover, Σ is (n − 1) -rectifiable: there exist countably many C1 maps fi : Rn−1 → Rn+1 
+
+such that Hn−1(Σ \ S 
+
+> i
+
+fi(Rn−1)) = 0 .
+
+The proof of the dimension bound uses Federer’s dimension reduction adapted to the anisotropic setting via the Cahn-Hoffman transform. Rectifiability follows from a logarithmic epiperimetric inequality at singular points, which we establish in Section 7 by transferring the result of Figalli and Serra [16] through the transform. 1.4. Relation to existing literature. The anisotropic obstacle problem has been con-sidered primarily for degenerate anisotropies such as Φ( p) = |p|q (the q-Laplacian obstacle problem) or for fully nonlinear operators [3]. The ellipsoidal case, which is uniformly ellip-tic and geometrically natural, had not been systematically studied in the obstacle problem context. 4 EZEQUIEL BARBOSA, ROSIVALDO ANTONIO GONC ¸ ALVES, AND LUAN DE FIGUEIREDO 
+
+In spirit, this work is closest to De Philippis and Maggi [11], who studied anisotropic capillarity problems and established Young’s law for anisotropic contact angles, using the Cahn-Hoffman map to relate anisotropic and isotropic capillary problems. We extend that philosophy to obstacle problems, where the free boundary condition is more complex. The regularity theory for anisotropic minimal surfaces was developed by De Giorgi [10], Almgren [1], and more recently by De Rosa and Tione [12], who proved regularity for graphs with bounded anisotropic mean curvature. The present work addresses the free boundary case, which had remained open. 1.5. Organization. Section 2 collects background on anisotropic surface energies, the Cahn-Hoffman map, and the classical theory of the obstacle problem. Section 3 introduces the transform S and derives the equivalent isotropic problem. Sections 4, 5, and 6 prove The-orems 1.1, 1.2, and 1.3, respectively. Section 7 establishes the epiperimetric inequality and rectifiability. Applications are discussed in Section 8, and open problems in Section 9. 2. Preliminaries 
+
+2.1. Anisotropic surface energies and the Wulff shape. Let Φ : Rn+1 → [0 , ∞) be convex and positively homogeneous of degree one: Φ( λp ) = λΦ( p) for λ ≥ 0. The anisotropic surface energy of a set E ⊂ Rn+1 with finite perimeter is 
+
+PΦ(E) = 
+
+Z
+
+> ∂∗E
+
+Φ( νE ) dHn, (2.1) where ∂∗E is the reduced boundary and νE is the measure-theoretic outer normal. The Wulff shape is the convex body 
+
+WΦ = \
+
+> ν∈Sn
+
+{x ∈ Rn+1 : x · ν ≤ Φ( ν)}, (2.2) which is the unique minimizer of PΦ among sets of given volume (Dinghas [14], Taylor [31]). For the ellipsoidal anisotropy Φ( p) = ppT Ap, A ∈ Sym +
+
+> n+1
+
+(R), (2.3) the Wulff shape is the ellipsoid 
+
+WΦ = {x ∈ Rn+1 : xT A−1x ≤ 1}. (2.4) When A = diag( λ1, . . . , λ n+1 ), the semi-axes of WΦ are √λi along the coordinate directions. It is worth noting that WΦ is determined by A−1, not by A itself — a fact that underlies the sign conventions throughout this paper. 2.2. The Cahn-Hoffman map. For a C2 anisotropy γ : Sn → R+, the Cahn-Hoffman map 
+
+ξγ : Sn → Rn+1 is 
+
+ξγ (ν) = Dγ |Tν Sn + γ(ν)ν. (2.5) If ¯ γ : Rn+1 → R is the positively homogeneous extension of γ, then ξγ (ν) = D¯γ(ν). For the ellipsoidal anisotropy (2.3), one computes directly that D ¯Φ( p) = Ap/ ppT Ap , so 
+
+ξΦ(ν) = Aν 
+
+Φ( ν) = Aν 
+
+√νT Aν . (2.6) The image ξΦ(Sn) = ∂W Φ, and ξΦ is a diffeomorphism from Sn to ∂W Φ when A is positive definite. ANISOTROPIC OBSTACLE PROBLEMS 5
+
+Lemma 2.1 (Properties of the Cahn-Hoffman map) . Let Φ be the ellipsoidal anisotropy 
+
+(2.3) .
+
+(i) ξΦ : Sn → ∂W Φ is a diffeomorphism. 
+
+(ii) The inverse is ξ−1Φ (x) = A−1x / √xT A−2x.
+
+(iii) The Jacobian satisfies JξΦ (ν) = det A · (νT Aν )−(n+2) /2.Proof. (i) Positive definiteness of A implies Φ( ν) > 0 on Sn, so ξΦ is smooth. If ξΦ(ν1) = 
+
+ξΦ(ν2), then Aν 1/Φ( ν1) = Aν 2/Φ( ν2); applying A−1 and using |νi| = 1 gives ν1 = ν2.Surjectivity is immediate from the definition of WΦ.(ii) From x = Aν/ Φ( ν) one gets A−1x = ν/ Φ( ν), hence |A−1x|2 = ( νT A−2ν)/Φ( ν)2. Since 
+
+x ∈ ∂W Φ means xT A−1x = 1, i.e., Φ( ν)2 = νT Aν , we find ξ−1Φ (x) = A−1x / √xT A−2x.(iii) Standard computation; see [24]. □
+
+2.3. Anisotropic mean curvature. For a smooth hypersurface Σ with unit normal ν, the 
+
+anisotropic mean curvature is given by 
+
+HΦ = div Σ
+
+ Aν 
+
+Φ( ν)
+
+
+
+. (2.7) A surface with HΦ = 0 is Φ -minimal . For graphs u : D → R, the associated operator is 
+
+MΦ(u) = div 
+
+ A Du 
+
+√1 + Du T A Du 
+
+
+
+. (2.8) 2.4. The classical obstacle problem. For the reader’s convenience we recall the main results for the isotropic obstacle problem. Given ψ ∈ C1,1( ¯D) with ψ < 0 on ∂D , the classical problem minimizes min 
+
+> u≥ψ
+
+Z
+
+> D
+
+ 12 |Du |2 + f u  dx (2.9) over u = 0 on ∂D .
+
+Theorem 2.2 (Caffarelli [4, 6]) . Let u be the solution of (2.9) . Then u ∈ C1,1loc (D). At each free boundary point x0 ∈ Γ, exactly one of the following holds: (a) (Regular point) sup Br (x0) u ≥ cr 2 for small r, and Γ is C1,α near x0.(b) (Singular point) sup Br (x0) u = o(r2), and the blow-up is a homogeneous quadratic polynomial. The singular set Σ satisfies Hn−1(Σ) = 0 .
+
+3. The Transformed Problem 
+
+3.1. The Cahn-Hoffman transform and its action on the Wulff shape. Define the linear map 
+
+S : Rn+1 → Rn+1 , S(x) = A−1/2x. (3.1) Since A is symmetric positive definite, S is invertible with S−1(y) = A1/2y.
+
+Proposition 3.1 (Properties of S). The transformation S(x) = A−1/2x satisfies: 
+
+(i) S(WΦ) = B1(0) , the Euclidean unit ball. 
+
+(ii) For any measurable E ⊂ Rn+1 ,
+
+|S(E)| = 1
+
+√det A |E|. (3.2) 6 EZEQUIEL BARBOSA, ROSIVALDO ANTONIO GONC ¸ ALVES, AND LUAN DE FIGUEIREDO 
+
+(iii) For u ∈ W 1,1(D), set v(y) = u(S−1y) = u(A1/2y) and D′ = S(D). Then 
+
+Dv (y) = A1/2Du (x) x=A1/2y, (3.3) 
+
+and in particular |Dv (y)| = Φ( Du (x)) .Proof. (i) Let y = A−1/2x, so x = A1/2y. Then 
+
+x ∈ WΦ ⇐⇒ xT A−1x ≤ 1 ⇐⇒ yT A1/2A−1A1/2y ≤ 1 ⇐⇒ yT y ≤ 1 ⇐⇒ y ∈ B1(0) .
+
+(ii) The Jacobian of S(x) = A−1/2x is det( A−1/2) = (det A)−1/2, so dy = (det A)−1/2dx ,and 
+
+|S(E)| =
+
+Z
+
+> S(E)
+
+dy =
+
+Z
+
+> E
+
+(det A)−1/2 dx = |E|√det A.
+
+(iii) With v(y) = u(A1/2y), the chain rule gives Dv (y) = A1/2Du (A1/2y). Consequently, 
+
+|Dv (y)|2 = Du (x)T A1/2A1/2Du (x) = Du (x)T A Du (x) = Φ( Du (x)) 2,
+
+yielding |Dv (y)| = Φ( Du (x)). □
+
+Remark 3.2. A common source of confusion in the literature is the choice between A1/2
+
+and A−1/2 for the transform. The convention S(x) = A−1/2x is the correct one: it maps the Wulff shape (defined by xT A−1x ≤ 1) to the unit ball, and simultaneously converts Φ( Du )to the Euclidean norm |Dv |. The opposite convention A1/2x maps the ball {x : xT x ≤ 1}
+
+to the ellipsoid {x : xT A−1x ≤ 1} = WΦ, which is the natural direction in isoperimetric problems, but not in the functional analysis of FΦ.3.2. Transformation of the functional. Let u ∈ W 1,1(D) and define v : D′ → R by 
+
+v(y) = u(A1/2y), D′ = A−1/2(D). (3.4) 
+
+Proposition 3.3 (Transformation of the anisotropic functional) . With the notation above, 
+
+Z
+
+> D
+
+Φ( Du (x)) dx = √det A
+
+Z
+
+> D′
+
+|Dv (y)| dy. (3.5) 
+
+Proof. By Proposition 3.1(iii), |Dv (y)| = Φ( Du (x)) for x = A1/2y. The change of variables 
+
+x = A1/2y has Jacobian det( A1/2) = √det A, so dx = √det A dy . Substituting: 
+
+Z
+
+> D
+
+Φ( Du (x)) dx =
+
+Z
+
+> D′
+
+Φ Du (A1/2y) √det A dy = √det A
+
+Z
+
+> D′
+
+|Dv (y)| dy. □
+
+3.3. The transformed obstacle problem. The obstacle and admissible set transform to ˜ψ(y) = ψ(A1/2y), ˜K = {v ∈ W 1,1(D′) : v ≥ ˜ψ a.e. , v = 0 on ∂D ′}. (3.6) 
+
+Proposition 3.4 (Equivalence of minimization problems) . A function u ∈ K minimizes FΦ
+
+over K if and only if v = u ◦ A1/2 ∈ ˜K minimizes the isotropic functional 
+
+F0(v) = 
+
+Z
+
+> D′
+
+|Dv (y)| dy (3.7) 
+
+over ˜K.Proof. This is immediate from Proposition 3.3: the factor √det A > 0 is constant, so the two minimization problems have the same minimizers under the bijection u ↔ v. □ANISOTROPIC OBSTACLE PROBLEMS 7
+
+3.4. The free boundary condition. At a smooth point x0 ∈ Γ of the free boundary, the solution satisfies an anisotropic condition that, after the transform, takes a Robin form. Let 
+
+y0 = S(x0) ∈ ˜Γ and let ˜ ν be the unit inward normal to the transformed free set at y0.
+
+Proposition 3.5 (Free boundary condition in transformed coordinates) . At a smooth point of the free boundary, the transformed solution v satisfies 
+
+∂v ∂ ˜ν (y0) = ∂ ˜ψ∂ ˜ν (y0) + Λ( y0)⟨˜ν, y 0⟩, (3.8) 
+
+where Λ( y0) =  yT 
+
+> 0
+
+Ay 0 − (˜ νT A˜ν)( yT 
+
+> 0
+
+y0)/(yT 
+
+> 0
+
+A3/2 ˜ν).Sketch. In the free set, the Euler-Lagrange equation for v is ∆ v = 0. The first variation of 
+
+F0 with respect to domain perturbations supported near y0 gives 
+
+Z
+
+> ˜Γ
+
+|Dv |2 − 2 ∂v ∂ ˜ν∂ ˜ψ∂ ˜ν
+
+!
+
+η d Hn = 0 for all admissible variations η. Using the relation between v and u, combined with the anisotropic free boundary condition HΦ = 0 at x0, one arrives at (3.8) after computing the change in the normal under S. The precise form of Λ encodes the discrepancy between the Euclidean normal ˜ ν and its anisotropic counterpart under S−1. □
+
+Remark 3.6. When A = I, the transform is the identity, Λ = 0, and (3.8) reduces to the Neumann-type condition ∂v/∂ ˜ν = ∂ ˜ψ/∂ ˜ν. For ˜ψ = 0, this is the classical condition 
+
+∂v/∂ ˜ν = 0, matching the contact angle condition for the isotropic obstacle problem. 4. Existence and Regularity of the Solution 
+
+4.1. Existence and uniqueness. 
+
+Proof of Theorem 1.1, part (i). The functional FΦ is convex and coercive on W 1,1(D) be-cause Φ satisfies pλ1|p| ≤ Φ( p) ≤ pλn+1 |p| for all p ∈ Rn+1 . (4.1) The set K is closed and convex in W 1,1(D). A minimizer exists by the direct method of the calculus of variations, and is unique because A positive definite implies Φ is strictly convex. Interior Lipschitz regularity follows from the De Giorgi-Nash-Moser theory applied to the Euler-Lagrange equation in the free set, using the uniform ellipticity (4.1). □
+
+4.2. C1,1-regularity. 
+
+Proof of Theorem 1.1, parts (ii) and (iii). By Proposition 3.4, the transformed function v
+
+minimizes F0 subject to v ≥ ˜ψ on the domain D′. Since D′ is the image of a C2 domain under an invertible linear map, it is again C2, and the boundary regularity theory of Kinderlehrer and Nirenberg [23] applies. The C1,1-regularity of v in the interior and up to the free boundary then follows from Caffarelli [4]. For the growth estimate (1.6), fix x0 ∈ Γ and define the rescaled functions 
+
+ur(y) = u(x0 + ry ) − u(x0)
+
+r2 , y ∈ B1(0) .
+
+The uniform C1,1-estimate gives ∥ur∥C1,1(B1/2) ≤ C independently of r. By compactness, every subsequence has a further subsequence converging to a blow-up limit u0 satisfying the 8 EZEQUIEL BARBOSA, ROSIVALDO ANTONIO GONC ¸ ALVES, AND LUAN DE FIGUEIREDO 
+
+global anisotropic obstacle problem with the quadratic obstacle 12 yT D2ψ(x0)y. Caffarelli’s classification [4] identifies u0(y) = 12 (y · e)2+ for some direction e, which gives (1.6). □
+
+5. Regularity of the Free Boundary 
+
+5.1. Blow-up analysis. Let x0 ∈ Γ be non-degenerate. The blow-up sequence 
+
+ur(y) = u(x0 + ry ) − u(x0)
+
+r2 , y ∈ B1(0) , (5.1) is precompact in C1,α  
+
+> loc
+
+by the uniform C1,1 bound. 
+
+Lemma 5.1 (Compactness of blow-ups) . Every sequence rj → 0 has a subsequence such that 
+
+urj → u0 in C1,α  
+
+> loc
+
+(B1(0)) for all α ∈ (0 , 1) , where u0 is a global solution of the anisotropic obstacle problem with obstacle ψ0(y) = 12 yT D2ψ(x0)y.Proof. The C1,1 bound and Arzel` a-Ascoli give compactness. The limit satisfies the Euler-Lagrange equation by stability of viscosity solutions under uniform limits. □
+
+Lemma 5.2 (Classification of blow-ups at regular points) . Under the non-degeneracy con-dition (1.7) , every blow-up limit at x0 takes the form 
+
+u0(y) = 12 (y · e)2+ (5.2) 
+
+for some direction e ∈ Sn.Proof. Applying the Cahn-Hoffman transform to the blow-up yields a function v0 satisfying the isotropic obstacle problem with a Robin condition. Non-degeneracy prevents v0 from being a quadratic polynomial (the signature of a singular point), so Caffarelli’s classification forces v0 to be a half-plane solution. Pulling back through S−1 gives (5.2). □
+
+5.2. Flatness implies smoothness. Definition 5.3 (Flatness) . The free boundary Γ is ϵ-flat in Br(x0) if, after a rotation, Γ ∩ Br(x0) ⊂ { x : |xn+1 | ≤ ϵr }. (5.3) 
+
+Proposition 5.4 (Improvement of flatness) . There exist ϵ0 > 0 and θ ∈ (0 , 1) such that if 
+
+Γ is ϵ-flat in B1(0) with ϵ ≤ ϵ0, then Γ is θϵ -flat in Bθ(0) after a suitable rotation. Proof. This follows from the corresponding isotropic result [4] via the Cahn-Hoffman trans-form. Since S is bi-Lipschitz, geometric flatness is preserved between the original and trans-formed coordinates up to constants depending on A. □
+
+Proof of Theorem 1.2. Lemma 5.2 shows that the blow-up at a non-degenerate point is a half-plane solution, so Γ is flat at small scales near x0. Iterating Proposition 5.4 gives flatness at every scale with a geometrically decaying constant, and standard arguments [7] convert this to C1,α -regularity. For ψ ∈ Ck,α with k ≥ 2: once Γ is known to be C1,α , the free boundary condition becomes a nonlinear oblique derivative condition with C1,α coefficients, and Schauder estimates give 
+
+Ck,α regularity by induction. □ANISOTROPIC OBSTACLE PROBLEMS 9
+
+6. The Singular Set 
+
+Proof of Theorem 1.3, first part. We follow Federer’s dimension reduction, adapted to the anisotropic setting. At a singular point x0 ∈ Σ, the blow-up is not a half-plane solution. By Lemma 5.2, it must be a homogeneous quadratic polynomial 
+
+u0(y) = 12 yT Qy, (6.1) where Q is symmetric positive semi-definite with tr Q = 1. Applying the Cahn-Hoffman transform, v0 = u0 ◦ A1/2 satisfies the isotropic obstacle problem with a quadratic obstacle. The dimension bound Hn−1(Σ) = 0 then follows by transferring Caffarelli’s result [4] via the bi-Lipschitz map S. Rectifiability is proved in Section 7 below. □
+
+Example 6.1 (Singular point in two dimensions) . Let n = 1, D = B1(0) ⊂ R2. Take 
+
+ψ(x) = −x21 and A = diag(1 , λ ) with λ > 1. The contact region is an interval on the x1-axis, and the free boundary consists of two arcs meeting at the origin. The cusp angle at the origin depends on λ, and the origin is a singular point where Γ fails to be C1. For the isotropic case 
+
+λ = 1, the free boundary is smooth everywhere when the obstacle is smooth and convex. 7. Optimal Regularity of the Singular Set 
+
+In the isotropic problem, Caffarelli [4] proved Hn−1(Σ) = 0, but the geometric structure of Σ remained mysterious for decades. The breakthrough of Figalli and Serra [16] established that Σ is ( n − 1)-rectifiable. We prove the same for the anisotropic problem by transferring their argument through the Cahn-Hoffman transform. 7.1. The frequency function. Definition 7.1 (Frequency function) . For a solution u of the anisotropic obstacle problem, the frequency function at x0 ∈ D is 
+
+N (r, x 0, u ) = 
+
+r
+
+Z 
+
+> Br(x0)
+
+Φ( Du )2 dx 
+
+Z 
+
+> ∂B r(x0)
+
+(u − ψ)2 dHn
+
+. (7.1) 
+
+Proposition 7.2 (Monotonicity of the frequency) . The function r 7 → N (r, x 0, u ) is non-decreasing. It is constant if and only if u − ψ is homogeneous. Proof. Applying S(x) = A−1/2x with y0 = S(x0) and v = u ◦ A1/2, the frequency function becomes ˜N (r, y 0, v ) = 
+
+r
+
+Z 
+
+> Br(y0)
+
+|Dv |2 dy 
+
+Z 
+
+> ∂B r(y0)
+
+(v − ˜ψ)2 dHn
+
+,
+
+the classical Almgren frequency for the isotropic problem. Monotonicity of ˜N was proved by Weiss [32]; see also Garofalo and Lin [18]. Since S is bi-Lipschitz, monotonicity transfers to N up to constants depending on λ1, λ n+1 . □10 EZEQUIEL BARBOSA, ROSIVALDO ANTONIO GONC ¸ ALVES, AND LUAN DE FIGUEIREDO 
+
+7.2. The logarithmic epiperimetric inequality. Theorem 7.3 (Logarithmic epiperimetric inequality) . Let x0 ∈ Σ and let u0 be the blow-up 
+
+(6.1) at x0. There exist constants κ > 0, γ > 0, and δ > 0 such that whenever 
+
+∥u − u0∥W 1,2(B1(x0)) ≤ δ, (7.2) 
+
+one has 
+
+FΦ(u, B 1(x0)) − F Φ(u0, B 1(x0)) ≥ κ |log( ∥u − u0∥W 1,2 )|−γ ∥u − u0∥2  
+
+> W1,2
+
+. (7.3) 
+
+Proof. Under S, the isotropic counterpart v is close to v0 = u0 ◦ A1/2 in W 1,2. By [16, Theorem 2.1] (see also [9]), the isotropic functional satisfies 
+
+F0(v, B 1(y0)) − F 0(v0, B 1(y0)) ≥ ˜κ |log( ∥v − v0∥W 1,2 )|−˜γ ∥v − v0∥2  
+
+> W1,2
+
+.
+
+Proposition 3.3 gives FΦ(u, B 1(x0)) = √det A F0(v, B 1(y0)), and the bi-Lipschitz character of S yields ∥u − u0∥W 1,2(B1(x0)) ≍ ∥ v − v0∥W 1,2(B1(y0)) with constants depending only on A.Combining these estimates gives (7.3) with κ = ˜ κ√det A · C(A)−2 and γ = ˜ γ. □
+
+7.3. Uniqueness of blow-ups and rectifiability. Theorem 7.4 (Uniqueness of blow-ups at singular points) . For each x0 ∈ Σ, the blow-up limit is unique: there exists a unique homogeneous quadratic polynomial ux0 such that 
+
+u(x0 + ry ) − u(x0)
+
+r2 → ux0 (y) in C1,α  
+
+> loc
+
+(Rn+1 ) (7.4) 
+
+as r → 0, for all α ∈ (0 , 1) .Proof. Theorem 7.3 provides a differential inequality for the distance to the blow-up, which integrates to 
+
+∥ur − ux0 ∥W 1,2(B1) ≤ C| log r|−β
+
+for some β > 0. This quantitative decay implies that all blow-up limits coincide; see [16, Section 3] for the argument. □
+
+Theorem 7.5 (Rectifiability of the singular set) . The singular set Σ is (n − 1) -rectifiable. Proof. Stratify by the rank of the blow-up: set Σ k = {x0 ∈ Σ : rank( Qx0 ) = k}, where Qx0
+
+is the matrix of the unique blow-up at x0. Since tr Qx0 = 1, we have k ≥ 1. For each k, the map x0 7 → Qx0 is continuous by Theorem 7.4, and the implicit function theorem shows that Σ k is contained in a C1 manifold of dimension k. The top stratum Σ n —points where Qx0 has rank 1, i.e., ux0 (y) = 12 (e·y)2 for some e — forms an ( n−1)-dimensional 
+
+C1 manifold. Lower strata Σ k with k ≤ n − 2 have Hausdorff dimension at most k ≤ n − 2, contributing nothing to Hn−1. Therefore Σ is ( n − 1)-rectifiable. □
+
+7.4. Quantitative dependence on the anisotropy. The constants κ and γ in (7.3) de-pend on A through λ1, λn+1 , and det A. Two observations are worth recording. As the anisotropy degenerates ( λ1 → 0 or λn+1 → ∞ ), κ may approach zero, so the epiperimetric inequality could fail in the limit. In the isotropic limit A → I, the constants converge to those of Figalli and Serra. This quantitative dependence suggests that the qualitative struc-ture of the singular set is stable under small perturbations of A, but the limiting behavior for degenerate anisotropies remains an open question. ANISOTROPIC OBSTACLE PROBLEMS 11 
+
+Conjecture 7.6 (C1,α -rectifiability) . The singular set Σ is (n − 1) -rectifiable of class C1,α 
+
+for some α > 0 depending only on n and the ellipticity constants of A.
+
+This conjecture would require a C1,α epiperimetric inequality, known in the isotropic case [29] but open for anisotropies A̸ = I.8. Applications 
+
+8.1. Crystal growth. During crystal growth from solution, the crystal surface adjusts to minimize its anisotropic surface energy. When the crystal is confined by a substrate or an adjacent crystal (the obstacle), our model describes the equilibrium configuration. Theo-rem 1.2 then says that the contact region has smooth boundary, except possibly on a set of Hausdorff dimension at most n − 2 (the singular set Σ in Rn+1 corresponds to codimension 2 within the crystal surface). For an ellipsoidal anisotropy with A = diag( λ1, λ 2, λ 3), the Wulff shape has semi-axes √λi.Different crystallographic directions correspond to different choices of A; the theory predicts that the facet boundaries (free boundaries) are smooth except at isolated cusps. 8.2. Anisotropic capillarity. The anisotropic capillary problem [11] concerns the equilib-rium shape of a liquid droplet on a solid substrate with direction-dependent surface tension. Our obstacle problem can be viewed as a variant in which the droplet is constrained from below by a rigid surface. The Robin condition (3.8) is a generalized Young’s law for the anisotropic contact angle. When A = I, one recovers the classical Young’s law cos θ = ( γSG − γSL )/γ LG . The term Λ( y0) in (3.8) encodes the correction due to anisotropy: it vanishes when the free boundary is orthogonal to the matrix A (meaning the local geometry aligns with the Wulff shape), and is largest when the contact is oblique. 9. Open Problems 
+
+Several directions remain unexplored. 1. General anisotropies. The results should extend to convex anisotropies γ : Sn →
+
+R+ that are not ellipsoidal. The main obstruction is that the Cahn-Hoffman map ξγ
+
+is no longer linear, and the equivalent isotropic problem acquires variable coefficients. A perturbative approach near A = I might be tractable. 2. The parabolic problem. The anisotropic Stefan problem — an obstacle problem with time-dependent interface — is well understood in the isotropic case [4, 7] but open for anisotropic surface energies. The frequency monotonicity of Proposition 7.2 may serve as a starting point. 3. C1,α -rectifiability of the singular set. Conjecture 7.6 asks for a sharper structure than Theorem 7.5. In the isotropic case this was settled by [29]; the anisotropic case would require a new epiperimetric inequality. 4. Non-convex obstacles. When ψ is not convex, the free boundary may develop singularities not present in the convex case. The structure of these singularities is not fully understood even isotropically, and the interaction with anisotropy introduces additional complications. 12 EZEQUIEL BARBOSA, ROSIVALDO ANTONIO GONC ¸ ALVES, AND LUAN DE FIGUEIREDO 
+
+Acknowledgments 
+
+The authors thank their colleagues at UFMG for valuable discussions on anisotropic geo-metric variational problems. 
+
+References 
+
+[1] F. J. Almgren, Existence and regularity almost everywhere of solutions to elliptic variational problems with constraints , Mem. Amer. Math. Soc. 4 (1976), no. 165. [2] H. Brezis and D. Kinderlehrer, The smoothness of solutions to nonlinear variational inequalities , Indiana Univ. Math. J. 23 (1973/74), 831–844. [3] J. E. M. Braga, D. Moreira, and L. Wang, The obstacle problem for a class of degenerate fully nonlinear operators , J. Differential Equations 303 (2021), 29–56. [4] L. A. Caffarelli, The regularity of free boundaries in higher dimensions , Acta Math. 139 (1977), 155–184. [5] L. A. Caffarelli, Compactness methods in free boundary problems , Comm. Partial Differential Equations 
+
+5 (1980), 427–448. [6] L. A. Caffarelli, The obstacle problem revisited , J. Fourier Anal. Appl. 4 (1998), 383–402. [7] L. A. Caffarelli and S. Salsa, A Geometric Approach to Free Boundary Problems , Graduate Studies in Mathematics, vol. 68, Amer. Math. Soc., Providence, 2005. [8] J. W. Cahn and D. W. Hoffman, A vector thermodynamics for anisotropic surfaces — II. Curved and faceted surfaces , Acta Metall. 22 (1974), 1205–1214. [9] M. Colombo, L. Spolaor, and B. Velichkov, A logarithmic epiperimetric inequality for the obstacle problem , Geom. Funct. Anal. 28 (2018), no. 4, 1029–1061. [10] E. De Giorgi, Frontiere orientate di misura minima , Sem. Mat. Scuola Norm. Sup. Pisa (1960–61). [11] G. De Philippis and F. Maggi, Regularity of free boundaries in anisotropic capillarity problems and the validity of Young’s law , Arch. Ration. Mech. Anal. 216 (2015), no. 2, 473–568. [12] A. De Rosa and R. Tione, Regularity for graphs with bounded anisotropic mean curvature , Invent. Math. 
+
+230 (2022), no. 2, 463–507. [13] D. De Silva and O. Savin, A short proof of boundary Harnack principle , J. Differential Equations 269 
+
+(2020), no. 3, 2419–2429. [14] A. Dinghas, ¨Uber einen geometrischen Satz von Wulff f¨ ur die Gleichgewichtsform von Kristallen , Z. Kristallogr. 105 (1944), 304–314. [15] A. Figalli, Free boundary regularity in obstacle problems , lecture notes, 2018. Available at https:// people.math.ethz.ch/~afigalli/lecture-notes-pdf/ .[16] A. Figalli and J. Serra, On the fine structure of the free boundary for the classical obstacle problem ,Invent. Math. 215 (2019), no. 1, 311–366. [17] S. Fotouhi and H. Shahgholian, A free boundary problem for an elliptic system , J. Differential Equations 
+
+396 (2024), 1–34. [18] N. Garofalo and F. H. Lin, Monotonicity properties of variational integrals, Ap weights and unique continuation , Indiana Univ. Math. J. 35 (1986), no. 2, 245–268. [19] M. Gr¨ uter, Optimal regularity for codimension one minimal surfaces with a free boundary , Manuscripta Math. 58 (1987), no. 3, 295–343. [20] M. Gr¨ uter and J. Jost, Allard type regularity results for varifolds with free boundaries , Ann. Scuola Norm. Sup. Pisa Cl. Sci. (4) 13 (1986), no. 1, 129–169. [21] F. Hauser and A. Voigt, A discrete scheme for parametric anisotropic surface diffusion , J. Sci. Comput. 
+
+30 (2007), no. 2, 223–235. [22] D. Kinderlehrer, How a minimal surface leaves an obstacle , Acta Math. 130 (1973), 221–242. [23] D. Kinderlehrer and L. Nirenberg, Regularity in free boundary problems , Ann. Scuola Norm. Sup. Pisa Cl. Sci. (4) 4 (1977), no. 2, 373–391. [24] M. Koiso and B. Palmer, Uniqueness of closed equilibrium hypersurfaces for anisotropic surface energy and application to a capillary problem , J. Math. Fluid Mech. 24 (2019), no. 4, 88. [25] H. Lewy and G. Stampacchia, On the existence and regularity of solutions of a non-coercive variational inequality , in: Nonlinear Partial Differential Equations and Their Applications , Res. Notes in Math., vol. 1, Pitman, Boston, 1983, pp. 87–95. ANISOTROPIC OBSTACLE PROBLEMS 13 
+
+[26] J. C. C. Nitsche, Stationary partitioning of convex bodies , Arch. Ration. Mech. Anal. 89 (1985), no. 1, 1–19. [27] X. Ros-Oton, Regularity of free boundaries in obstacle problems , lecture notes, CIME Summer School, 2019. Available at https://www.ub.edu/pde/xros/ .[28] X. Ros-Oton and J. Torres-Latorre, New boundary Harnack inequalities with right hand side , Arch. Ration. Mech. Anal. 234 (2019), 1413–1444. [29] O. Savin and H. Yu, Regularity of the singular set in the fully nonlinear obstacle problem , J. Math. Pures Appl. (9) 154 (2021), 1–22. [30] A. Signorini, Questioni di elasticit` a non linearizzata e semilinearizzata , Rend. Mat. e Appl. (5) 18 
+
+(1959), 95–139. [31] J. E. Taylor, Crystalline variational problems , Bull. Amer. Math. Soc. 84 (1978), no. 4, 568–588. [32] G. S. Weiss, A homogeneity improvement approach to the obstacle problem , Invent. Math. 138 (1999), no. 1, 23–50. [33] G. Wulff, Zur Frage der Geschwindigkeit des Wachstums und der Aufl¨ osung der Krystallfl¨ achen , Z. Kristallogr. 34 (1901), 449–530. 
+
+Email address : ezequiel@mat.ufmg.br, luan@mat.ufmg.br, rosivaldo.goncalves@unimontes.br

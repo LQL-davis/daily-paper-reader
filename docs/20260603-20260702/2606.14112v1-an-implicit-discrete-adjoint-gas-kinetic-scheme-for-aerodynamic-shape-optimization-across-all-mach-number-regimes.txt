@@ -1,0 +1,822 @@
+Title: An Implicit Discrete Adjoint Gas-Kinetic Scheme for Aerodynamic Shape Optimization across all Mach Number Regimes
+
+URL Source: https://arxiv.org/pdf/2606.14112v1
+
+Published Time: Mon, 15 Jun 2026 00:29:26 GMT
+
+Number of Pages: 35
+
+Markdown Content:
+# An Implicit Discrete Adjoint Gas-Kinetic Scheme for Aerodynamic Shape Optimization across all Mach Number Regimes 
+
+Hangkong Wu a, Yuze Zhu a, Yajun Zhu b, Kun Xu a,c,d, ∗
+
+> a
+
+Department of Mathematics, Hong Kong University of Science and Technology, Clear Water Bay, Kowloon, Hong Kong, China 
+
+> b
+
+Research and Development Office, Shanghai Suochen Information Technology Co., Ltd, Shanghai, China 
+
+> c
+
+Department of Mechanical and Aerospace Engineering, Hong Kong University of Science and Technology, Clear Water Bay, Kowloon, Hong Kong, China 
+
+> d
+
+Shenzhen Research Institute, Hong Kong University of Science and Technology, Shenzhen, China 
+
+Abstract 
+
+The gas-kinetic scheme (GKS) integrates the characteristics of flux difference scheme (FDS) and flux vector splitting (FVS) scheme, providing high accu-racy in smooth regions and strong robustness near discontinuities across all Mach regimes. Leveraging these properties, an implicit discrete adjoint GKS is developed for aerodynamic shape optimization over a wide range of Mach num-bers. The adjoint solver is constructed using the source-transformation-based algorithmic differentiation tool Tapenade. To enhance computational efficiency, both the flow and adjoint GKS equations are solved using an implicit time-marching strategy, also known as the Lower–Upper Symmetric Gauss–Seidel (LU-SGS) method. The effectiveness of the implicit formulation is demonstrated through comparisons with the explicit approach. To accurately impose solid wall boundary conditions, particularly in hypersonic regimes, kinetic boundary con-ditions and their adjoint counterparts are formulated for both adiabatic no-slip and isothermal walls. Four benchmark test cases covering subsonic, transonic, supersonic, and hypersonic flows are used to verify the effectiveness of the de-
+
+> ∗
+
+Corresponding author 
+
+Email address: makxu@ust.hk (Kun Xu) 
+
+> arXiv:2606.14112v1 [physics.flu-dyn] 12 Jun 2026
+
+veloped adjoint-based design optimization system. 
+
+Keywords: discrete adjoint; gas-kinetic scheme; continuum flows; design optimization; algorithmic differentiation. 
+
+1. Introduction 
+
+Aerodynamic shape optimization is a fundamental problem in aerospace de-sign, where accurate prediction of flow physics and efficient gradient evalua-tion are essential for obtaining optimal configurations. Among the available approaches, including finite difference methods (FDM), adjoint-based meth-ods [1; 2; 3; 4; 5] have received increasing attention for gradient evaluation due to their ability to compute sensitivities with respect to a large number of design variables at a cost that is effectively independent of the parameter di-mension. The adjoint methods have been extensively applied to aerodynamic optimization problems governed by the Navier–Stokes equations [6; 7; 8], achiev-ing notable success. Despite these advances, significant challenges remain in achieving robust and efficient optimization across a wide range of Mach num-bers. Conventional CFD solvers are typically based on either flux difference scheme (FDS) [9] or flux vector splitting (FVS) [10] scheme. FDS-type schemes generally provide low numerical dissipation and high accuracy in smooth flow regions but may suffer from stability issues in the presence of strong discontinu-ities. While certain modifications, such as entropy fixes [11], can be introduced to alleviate this issue, they may have an effect on solution accuracy. In contrast, FVS-type schemes offer improved robustness and shock-capturing capabilities, albeit at the expense of increased numerical dissipation. Consequently, develop-ing numerical methods that achieve both high accuracy and robustness across a broad spectrum of Mach regimes is critical for design optimization. The gas-kinetic scheme (GKS) [12; 13], derived from the Boltzmann equa-tion, offers a unified framework for simulating continuum flows across all Mach regimes. In GKS, the time evolution of the gas distribution function naturally incorporates both particle transport and collision processes, yielding a flux func-2tion that consists of equilibrium and non-equilibrium components. These com-ponents exhibit FDS-like and FVS-like characteristics, respectively, and their relative contributions are governed by the ratio of the time step to the numerical collision time. This adaptive mechanism enables GKS to achieve low-dissipation solutions in smooth regions [14] while maintaining robust shock-capturing capa-bility near discontinuities [15; 16; 17; 18]. Consequently, GKS offers a robust and accurate framework for simulations across a wide range of Mach regimes [19; 20]. Given these advantages, it is of great interest to develop adjoint methods within the GKS framework for aerodynamic shape optimization. However, the development of efficient and robust adjoint GKS solvers re-mains limited and presents several challenges. First, GKS requires the evalu-ation of the gas distribution function at cell interfaces, and manually deriving the corresponding adjoint formulation is nontrivial due to its inherent complex-ity. Second, explicit adjoint GKS methods [21] incur substantial computational cost and are constrained by restrictive stability limits on the Courant num-ber. This limitation becomes increasingly severe in large-scale optimization problems. Third, the accurate treatment of boundary conditions [22; 23], par-ticularly for solid walls in hypersonic flows, is challenging and necessitates a consistent formulation for both the primal and adjoint systems. To address these challenges, an implicit discrete adjoint gas-kinetic scheme is developed in the present work for aerodynamic shape optimization across all Mach regimes. The discrete adjoint solver is constructed using the source-transformation-based algorithmic differentiation tool Tapenade [24; 25; 26], en-suring strict consistency between the primal and adjoint discretizations. To im-prove computational efficiency, an implicit time-marching strategy is employed, and both the flow and adjoint equations are solved using the Lower–Upper Symmetric Gauss–Seidel (LU-SGS) method [27], allowing significantly larger Courant numbers compared with explicit approaches [28; 29]. In addition, ki-netic boundary conditions and their adjoint counterparts are formulated for solid walls, including both adiabatic no-slip and isothermal conditions. These bound-ary treatments are particularly important for accurately simulating hypersonic 3flows. The proposed framework ensures consistent treatment of boundary fluxes in both the primal and adjoint systems, which is crucial for accurate sensitiv-ity evaluation. The developed method is verified through four representative benchmark cases covering subsonic, transonic, supersonic, and hypersonic flow regimes. 
+
+2. Gas-Kinetic Scheme 
+
+In this section, the algorithm of GKS is presented first, followed by the introduction of the kinetic boundary condition. 
+
+2.1. Algorithm of GKS 
+
+The Boltzmann equation with the Bhatnagar-Gross-Krook (BGK) model [30] for the collision term is given by 
+
+ft + u · f x = g − fτ (1) where f denotes the velocity distribution function, ft and f x represent the temporal and spatial partial derivatives of f respectively, u is the microscopic velocity vector, τ is the collision time, and g is the equilibrium distribution function, which satisfies the following Maxwellian distribution 
+
+g = ρ
+
+ λπ
+
+ K+2 2
+
+e−λ[( u−U )2+ξ2] (2) where U is the macroscopic velocity vector, ρ is the density, λ = ρ/ (2 p) with 
+
+p denoting the static pressure, K is the number of internal degrees of freedom, and ξi(i = 1 , 2, ..., K ) represents the internal variable for each degree of freedom, with ξ2 = PKi=1 ξ2 
+
+> i
+
+.The integral solution of Eq. 1 is given by 
+
+f (x, u, ξ, t ) = 1
+
+τ
+
+Z t
+
+> 0
+
+g(x′
+
+, u, ξ, t ′
+
+)e−(t−t′ 
+
+> )/τ
+
+dt ′
+
++ e−t/τ f0(x0, u, ξ, 0) (3) where x′
+
+= x − ut′
+
+is the particle trajectory, x0 is the initial position of a particle, f0 is the initial distribution at the beginning of each time step, τ is 4the relaxation time. For notational simplicity, we set x = 0 in the following derivations. According to the Chapman-Enskog expansion, f0 in Eq. 3 can be expressed by 
+
+f0(x0, u, ξ, 0) = gl(0, u, ξ, 0)[1 − (t + τ )al · u − τ A l]H[un]+ 
+
+gr (0, u, ξ, 0)[1 − (t + τ )ar · u − τ A r ][1 − H[un]] 
+
+(4) where gl and gr are the equilibrium distribution at the left and right hand sides of an interface, and are determined by the reconstructed macroscopic flow variables Ql and Qr , un is the normal part of u, H[un] is the Heaviside function, 
+
+al and ar are the spatial derivatives of gl and gr , while Al and Ar are the temporal derivatives of gl and gr .According to the Taylor expansion, g in Eq. 3 can be expressed by 
+
+g(x′
+
+, u, ξ, t ′
+
+) = gc(0, u, ξ, 0)(1 − ac · ut′
+
++ Act′
+
+) (5) where gc is the equilibrium distribution function computed by the kinetic-averaged macroscopic flow variables Qc at the cell interface. In Eqs. 4 and 5, al/r/c and Al/r/c are computed using the following formulae 
+
+al/r/c = 1
+
+gl/r/c 
+
+∂g l/r/c 
+
+∂x = ∂lng l/r/c 
+
+∂x Al/r/c = 1
+
+gl/r/c 
+
+∂g l/r/c 
+
+∂t = ∂lng l/r/c 
+
+∂t 
+
+(6) To save space, the detailed expressions of al/r/c and Al/r/c will be omitted here; interested readers can refer to Ref. [13] for the full derivations. Substituting Eqs. 4 and 5 into Eq. 3, the distribution function f at x = 0 
+
+5can be expressed by 
+
+f (0, u, ξ, t ) =(1 − e− tτn )gc+[( t + τ )e− tτn − τ ]ac · ugc+(t − τ + τ e − tτn )Acgc+
+
+e− tτn [glH[un] + gr (1 − H[un])] −
+
+e− tτn (τ + t)[ al · uglH[un] + ar · ugr (1 − H[un])] −
+
+τ e − tτn [glAlH[un] + gr Ar (1 − H[un])] 
+
+(7) where τn is the numerical collision time, defined by 
+
+τn = μL
+
+p + C| pl − pr
+
+pl + pr
+
+|∆t (8) where ∆t is the time step, μL is the laminar viscosity coefficient, pl and pr are the static pressure at the left and right hand side of an interface, respectively, and C is a constant, typically chosen in the range 1 ≤ C ≤ 10 .Based on the compatibility condition, the relationships between the macro-scopic flow variables and fluxes and the distribution function are given by 
+
+Q =
+
+Z
+
+f ΨdΞ (9) 
+
+F =
+
+Z
+
+f ΨudΞ (10) where Ψ is the collision invariant and has the following form 
+
+Ψ = [Ψ 1, Ψ2, Ψ3, Ψ4]T = [1 , u, v, 12 (u2 + v2 + ξ2)] T (11) 
+
+2.2. Kinetic Boundary Condition 
+
+Solid wall boundary conditions primarily comprise adiabatic slip walls, adia-batic no-slip walls, and isothermal walls, among others. In this section, we focus on the treatment of adiabatic no-slip and isothermal wall boundary conditions from a kinetic-theory perspective. Assuming that the solid wall is located at 
+
+x = 1 /2, with the adjacent inner cell on the right (see Fig. 1). 6Figure 1: The schematic of the solid wall. 
+
+2.2.1. Isothermal Wall Boundary Condition 
+
+Under the non-penetration condition, the mass flux at the wall is evaluated using the following equation 
+
+Fmb + Fmi = 0 (12) where Fm represents the mass flux, and the subscripts i and b represent the inner and boundary cells, respectively. The definition of Fmi is given by 
+
+Fmi =
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u< 0
+
+Z
+
+> ξ
+
+uf idξdudt 
+
+=
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u< 0
+
+Z
+
+> ξ
+
+uf r dξdudt 
+
+=
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u< 0
+
+Z
+
+> ξ
+
+ug r [1 − (t + τ )ar · u − τ A r ]dξdudt 
+
+(13) The definition of Fmb is given by 
+
+Fmb =
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u> 0
+
+Z
+
+> ξ
+
+ug bdξdudt 
+
+= ρb
+
+h U b
+
+2 erfc (−pλbU b) + 12
+
+e−λ2  
+
+> bU2
+> b
+
+√πλ b
+
+i
+
+∆t
+
+(14) where erfc is the error function, defined by erfc (x) = 1 − erf (x) = 2
+
+√π
+
+Z +∞
+
+> x
+
+e−t2
+
+dt 
+
+7where ρb, λb, U b, and gb are the variables on the solid wall. For the isothermal wall boundary condition, the temperature ( Tb) on the wall is known a priori , which can be used to compute λw
+
+λb = 12Rg Tb
+
+(15) where Rg where R is the gas constant. Substituting Eqs. 13 and 14 into Eq. 12 leads to the following explicit expression of ρb
+
+ρb = − Fmi
+
+h U b 
+
+> 2
+
+erfc (−√λwU b) + 12  
+
+> e−λ2
+> bU2
+> b
+> √πλ b
+
+i (16) 
+
+2.2.2. Adiabatic No-slip Wall Boundary Condition 
+
+Under the adiabatic no-slip wall boundary condition, U b is equal to zero at the wall. Therefore, equations 14 and 16 will be reduced to 
+
+Fmb = ρb
+
+2√πλ b
+
+, ρ b = −2pπλ bFmi (17) Furthermore, the wall temperature ( Tb) is not known a priori . To evaluate 
+
+ρb, Tb must first be determined from the energy flux conservation, which is expressed as 
+
+FEb + FEi = 0 (18) where FE represents the energy flux. The definition of FEi is given by 
+
+FEi =
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u< 0
+
+Z
+
+> ξ
+
+12 (u2 + v2 + ξ2)uf idξdudt 
+
+=
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u< 0
+
+Z
+
+> ξ
+
+12 (u2 + v2 + ξ2)f r udξdudt 
+
+=
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u< 0
+
+Z
+
+> ξ
+
+12 (u2 + v2 + ξ2)ug r [1 − (t + τ )ar · u − τ A r ]dξdudt 
+
+(19) The definition of FEb is given by 
+
+FEb =
+
+Z tn+1 
+
+> tn
+
+Z
+
+> u> 0
+
+Z
+
+> ξ
+
+12 (u2 + v2 + ξ2)ug bdξdudt = 3 + K
+
+4
+
+Fmb
+
+λb
+
+(20) 8Substituting Eq. 12 and 18 into Eq. 20 leads to the following explicit ex-pression of λb
+
+λb = 3 + K
+
+4
+
+Fmi
+
+FEi
+
+(21) Substituting Eq. 21 into Eq. 17 yields the wall density ρb. With all flow variables, including ρb, U b, and λb, determined, the reflected Maxwellian dis-tribution gb can be constructed, leading to the following distribution at the wall: 
+
+fb = fi(1 − H[un]) + gbH[un] (22) Based on fb, the flux and macroscopic flow variables at the boundary can be evaluated using Eq. 10. 
+
+Qb =
+
+Z
+
+f ΨdΞ, F b =
+
+Z
+
+f ΨudΞ (23) 
+
+3. Adjoint Gas-Kinetic Scheme 
+
+In this section, a detailed introduction to the adjoint method and the implicit time-marching scheme for solution acceleration is presented. 
+
+3.1. Adjoint Formulation 
+
+The aerodynamic design optimization problem can be formulated as 
+
+min  
+
+> α
+
+I = I(Qi, Qb, α), (24) s.t. R(Qi, Qb, α) = 0, (25) where I is the objective function, α denotes the design variables, and Qi and 
+
+Qb represent the flow variables in the interior and at the boundary, respectively. The boundary variables are implicitly dependent on the interior solution and design variables through the boundary condition, 
+
+Qb = Qb(Qi, α). (26) 93.1.1. Lagrangian Formulation 
+
+To derive the adjoint equations, the Lagrangian function is introduced as 
+
+L = I(Qi, Qb, α) − λT R(Qi, Qb, α), (27) where λ denotes the adjoint variables. At a local optimum, the Karush–Kuhn–Tucker (KKT) conditions require 
+
+dL
+
+dQi
+
+= 0, dL
+
+dα = 0. (28) 
+
+3.1.2. Adjoint Equations 
+
+Taking the total derivative of L with respect to Qi yields 
+
+dL
+
+dQi
+
+= dI dQi
+
+− λT dR
+
+dQi
+
+. (29) Using the chain rule, the derivatives of I and R are written as 
+
+dI dQi
+
+= ∂I ∂Qi
+
++ ∂I ∂Qb
+
+∂Qb
+
+∂Qi
+
+, (30) 
+
+dR
+
+dQi
+
+= ∂R
+
+∂Qi
+
++ ∂R
+
+∂Qb
+
+∂Qb
+
+∂Qi
+
+. (31) Substituting Eqs. (30)–(31) into the KKT condition leads to 
+
+ ∂R
+
+∂Qi
+
++ ∂R
+
+∂Qb
+
+∂Qb
+
+∂Qi
+
+T
+
+λ =
+
+ ∂I ∂Qi
+
++ ∂I ∂Qb
+
+∂Qb
+
+∂Qi
+
+T
+
+. (32) Equation (32) defines the discrete adjoint system. 
+
+3.1.3. Sensitivity Evaluation 
+
+The gradient with respect to the design variables is obtained from 
+
+dL
+
+dα = ∂I ∂α + ∂I ∂Qb
+
+∂Qb
+
+∂α − λT
+
+ ∂R
+
+∂α + ∂R
+
+∂Qb
+
+∂Qb
+
+∂α
+
+
+
+. (33) For a given design, the gradient is generally nonzero and can be used as a convergence indicator for the optimization process. At a local optimum, the norm of the gradient approaches zero. 10 3.1.4. Role of Boundary Contributions 
+
+It is important to emphasize that both the adjoint Jacobian matrix and the sensitivity derivatives include contributions from the boundary. In particular, the terms 
+
+∂R
+
+∂Qb
+
+∂Qb
+
+∂Qi
+
+(34) and 
+
+∂R
+
+∂Qb
+
+∂Qb
+
+∂α (35) account for the implicit influence of the boundary conditions on the adjoint Jacobian matrix and the corresponding sensitivities. For GKS, the boundary residual is evaluated from the boundary flux, which, in turn, is constructed from the gas distribution function at the wall. Specifi-cally, the wall distribution function depends on both the macroscopic flow vari-ables and the design variables. This dependency can be summarized as the following mapping: 
+
+(Qi, Qb, α) → fb → F b → R, (36) where fb denotes the distribution function at the boundary and F b is the cor-responding numerical flux. Accordingly, the residual can be expressed as a nested functional dependence, 
+
+R = R(F b) = R(F b(fb)) = R(F b(fb(Qi, Qb, α))) , (37) which introduces a multi-level coupling between the flow variables and the boundary treatment. As a result, the boundary contribution to the adjoint Jacobian matrix and sensitivities exhibit a chain-rule structure. In particular, the terms 
+
+∂R
+
+∂Qb
+
+∂Qb
+
+∂Qi
+
+(38) and 
+
+∂R
+
+∂Qb
+
+∂Qb
+
+∂α (39) 11 can be expanded as 
+
+∂R
+
+∂Qb
+
+∂Qb
+
+∂Qi
+
+= ∂R
+
+∂F b
+
+∂F b
+
+∂f b
+
+∂f b
+
+∂Qb
+
+∂Qb
+
+∂Qi
+
+. (40) and 
+
+∂R
+
+∂Qb
+
+∂Qb
+
+∂α = ∂R
+
+∂F b
+
+∂F b
+
+∂f b
+
+∂f b
+
+∂Qb
+
+∂Qb
+
+∂α . (41) This expression clearly shows that, compared with conventional Navier– Stokes solvers, the boundary contribution in GKS involves an additional layer of coupling through the distribution function. Consequently, the accurate eval-uation of the adjoint system requires a consistent linearization of the entire boundary flux construction process, including the dependence of the distribu-tion function on the macroscopic variables. From a numerical perspective, this multi-level dependence makes the treat-ment of boundary terms particularly critical in adjoint GKS formulations. Any inconsistency in the linearization of the kinetic boundary condition may lead to significant errors in the computed sensitivities. Therefore, a fully consistent discrete adjoint formulation must account for all intermediate dependencies, ensuring that the adjoint system remains strictly consistent with the primal solver. This requirement is especially important in aerodynamic shape optimization, where boundary contributions often dominate the sensitivity of the objective function. The accurate representation of the kinetic boundary condition in the adjoint system is thus essential for reliable and robust gradient evaluation. 
+
+3.2. Implicit Time Marching Method 
+
+Within the adjoint framework, the principal task is to solve the adjoint equation. To enable an efficient iterative solution procedure, a pseudo-time derivative term is introduced on the left-hand side of Eq. 42, resulting in a pseudo-time marching system 
+
+∂λ
+
+∂t + AT λ = BT (42) 12 where 
+
+A = ∂R
+
+∂Qi
+
++ ∂R
+
+∂Qb
+
+∂Qb
+
+∂Qi
+
+, B = ∂I ∂Qi
+
++ ∂I ∂Qb
+
+∂Qb
+
+∂Qi
+
+(43) The above equation is discretized using an implicit time-marching scheme, resulting in 
+
+∆λ
+
+∆t + AT (λn + ∆ λ) = BT (44) where ∆λ = λn+1 − ∆λn.Making some arrangements leads to 
+
+( I
+
+∆t + AT )∆ λ = BT − AT λn (45) The operator I 
+
+> ∆t
+
++ AT is decomposed into three components, namely, the lower triangular matrix L, the upper matrix U and the diagonal matrix D. An approximate factorization is then applied, yielding 
+
+I
+
+∆t + AT = D + L + U
+
+= D(I + D−1L + D−1U )= D(I + D−1L)( I + D−1U ) − LD −1U
+
+≈ D(I + D−1L)( I + D−1U )
+
+(46) Substituting Eq. 46 into Eq. 42 yields 
+
+D(I + D−1L)( I + D−1U )∆ λ = BT − AT λn (47) To solve Eq. 47, two steps are required: 1. Forward sweep 
+
+D(I + D−1L)∆ λ1/2 = BT − AT λn (48) and then 
+
+∆λ1/2 = D−1(BT − AT λn) − D−1L∆λ1/2 (49) 2. Backward sweep 
+
+(I + D−1U )∆ λ = ∆ λ1/2 (50) and then 
+
+∆λ = ∆ λ1/2 − D−1U ∆λ (51) 13 4. Adjoint-Based Design Optimization System 
+
+Figure 2 illustrates the adjoint-based design optimization system, which com-prises five components: the flow GKS solver, adjoint GKS solver, shape param-eterization, optimizer, and mesh deformation. The flow solver computes the 
+
+> Figure 2: Adjoint-based design optimization system.
+
+flow variables Qn and the objective function In. The adjoint solver involves two steps: solution of the adjoint equations and evaluation of the sensitivities, yielding the adjoint variables and corresponding sensitivity information. The shape parameterization establishes the mapping between grid coordinates and design variables, enabling sensitivity evaluation via the chain rule. In this work, Hicks–Henne functions [31; 32] are employed to parameterize blade perturba-tions. The optimizer updates the design variables using the steepest descent method with a constant step size. As the blade geometry evolves, the mesh is updated accordingly; to preserve mesh quality, a linear elastic deformation method is adopted. 14 5. Test Cases 
+
+Four test cases are used to assess the performance of the adjoint GKS solver for shape optimization across a broad range of Mach regimes. 
+
+5.1. Subsonic Case 1: Flow Past a Cylinder 
+
+The first case examines flow past a cylinder at M a ∞ = 0 .15 and Re ∞ = 40 ,where an adiabatic no-slip kinetic boundary condition is imposed on the solid wall.  
+
+> (a) Flow (b) Adjoint Figure 3: Convergence histories of the residuals related to the mass equation for the cylinder case: a) flow GKS solver; b) adjoint GKS solver.
+
+To demonstrate the advantage of the implicit time-marching method over its explicit counterpart, the residual convergence histories of the mass equation for both the flow and adjoint GKS solvers are presented in Figs. 3(a) and 3(b). The explicit method is limited to a maximum Courant number of approximately 0.8, whereas the implicit method allows a Courant number as large as 100. For the flow GKS solver, the implicit method achieves convergence within about 6000 iterations, compared to more than 20000 iterations required by the explicit method. A similar trend is observed for the adjoint solver. Overall, the implicit approach accelerates convergence by a factor exceeding 3.5. 15 (a) Flow (b) Adjoint Figure 4: Flow and adjoint variable contours related to the y-moment equation for the cylinder case.  
+
+> (a) (b) Figure 5: Verification of the adjoint sensitivities for the cylinder case: a) step size independence study; b) comparison between the adjoint method and FDM.
+
+Prior to design optimization, the adjoint GKS solver is verified from both qualitative and quantitative perspectives. Figures 4(a) and 4(b) present the flow and adjoint fields associated with the y-momentum equation. It is evident that the adjoint field exhibits a structure opposite to that of the flow field. The adjoint sensitivities are further verified against those obtained by the finite dif-ference method. The objective function is the drag and the design variables are the Hicks-Henne coefficients. Since FDM sensitivities depend on the per-turbation step size, a step-size independence study is conducted, as shown in Fig. 5(a). When the step size varies from 10 −7 to 10 −3, the computed sensi-16 tivities exhibit negligible variation, indicating convergence. Accordingly, a step size of 10 −4 is adopted for the subsequent verification. Figure 5(b) compares the sensitivities obtained from the adjoint and finite difference method. Good agreement between the two approaches is observed.   
+
+> (a) Objective Function (b) Shape Figure 6: Aerodynamic shape optimization of the cylinder case: a) evolutionary histories; b) original and optimized shapes.
+> (a) Pressure Contours (b) Drag Figure 7: Static pressure contours in the whole computational domain and Drag on the shape surface: a) pressure; b) drag.
+
+In the optimization, the objective function is the surface drag. Ten de-sign variables are uniformly distributed along the upper surface, and the lower surface deformation is prescribed in an opposite manner to enforce geometric symmetry. Figure 6(a) presents the evolution of the objective function during 17 the optimization process, showing a reduction of approximately 68% after 18 design cycles. Figure 6(b) compares the original and optimized shapes, showing that the optimized geometry becomes more slender. This streamlined config-uration effectively reduces pressure drag. Figures 7(a) and 7(b) compare the pressure contours and surface drag distributions before and after optimization, respectively. A noticeable reduction in drag is observed over the entire sur-face. In particular, the drag in the middle region is significantly reduced and approaches nearly zero. 
+
+5.2. Transonic Case 2: RAE 2822 
+
+The second case is the transonic RAE 2822 airfoil. The grid is a single-block two-dimensional C-grid of 369 × 65 points, including 305 on the airfoil surface. The freestream parameters are set as follows: the total temperature of 255.56 K,the total pressure of 108987.82 Pa, Mach number of 0.729, Reynolds number based on the chord of 6.5 million, and the angle of attack of 2.31 ◦. To compare the numerical results with the experimental data, the pressure coefficient on the blade surfaces is defined as 
+
+Cp = p∞ − p 
+
+> 12
+
+ρ∞U 2
+
+> ∞
+
+(52)      
+
+> (a) (b) Figure 8: The distributions of pand Cpfor the transonic RAE 2822 airfoil: a)in the whole computational domain; b) on airfoil surfaces.
+
+18 Figures 8(a) and 8(b) compare the pressure coefficients from the experimen-tal data with those obtained from the flow GKS solver. On the lower surface, the numerical results almost coincide with the experimental measurements. On the upper surface, the strength and location of the shock wave predicted by the flow GKS solver show small deviations from the experiment, which may be at-tributed to the influence of the Spalart-Allmaras turbulence model [33] adopted in this work.   
+
+> (a) Flow (b) Adjoint Figure 9: Convergence histories of the residuals related to the mass equation for the RAE 2822 case: a) flow GKS solver; b) adjoint GKS solver.
+
+Figures 9(a) and 9(b) present the residual convergence histories of the mass equation for both the flow and adjoint GKS solvers. For both systems, a mono-tonic decay of the residuals is observed, indicating stable and robust conver-gence behavior. Compared with the explicit scheme, the implicit time-marching method significantly accelerates the convergence rate, achieving an approximate fourfold reduction in the number of iterations required to reach the same resid-ual level. This improvement highlights the enhanced efficiency of the implicit formulation for both flow and adjoint GKS solvers. Figures 10(a) and 10(b) show the flow and adjoint fields associated with the turbulence-model equation. As expected, the adjoint field is opposite in structure to the flow field: regions that exhibit downstream influence in the 19 (a) Flow 
+
+> (b) Adjoint Figure 10: Both the flow and adjoint variable contours related to the turbulence model equa-tion for the RAE 2822 airfoil.
+
+flow field correspond to upstream influence in the adjoint field. The quantitative validation of the adjoint GKS solver for the transonic case is presented in Figs. 11 and 12. The drag and lift sensitivities obtained from the finite difference method (FDM) show good agreement with those computed using the adjoint method.    
+
+> (a) (b) Figure 11: Drag sensitivity verification for the RAE 2822 case: a) step size independence study; b) sensitivity verification.
+
+In this optimization, the considered objective function is the lift-to-drag 20 (a) (b) Figure 12: Lift sensitivity verification for the RAE 2822 case: a) step size independence study; b) sensitivity verification. 
+
+ratio, as shown in the following equation 
+
+I = − L/L 0
+
+D/D 0
+
+(53) where L represents the lift and D denotes the drag. The subscript 0 represents the initial value of performance. Figure 13(a) presents the evolution of the drag and lift during the optimiza-tion process. After 15 design cycles, the drag is reduced by approximately 3%, while the lift is increased by about 22%. Figure 13(b) compares the original and optimized airfoil shapes. Compared to the initial configuration, the optimized airfoil exhibits increased camber, leading to enhanced acceleration of the flow over the upper surface and deceleration over the lower surface. Consequently, the velocity increases on the upper surface and decreases on the lower sur-face. The pressure distribution, shown in Fig. 14(a), exhibits an opposite trend to the velocity field. Specifically, the pressure increases on the lower surface and decreases on the upper surface, which contributes to the improvement in lift. Figure 14(b) compares the surface drag distributions between the original and optimized configurations. The drag reduction is primarily observed in the chordwise range of x ∈ [0 .1, 0.4] .21 (a) Objective Function (b) Airfoil Figure 13: Aerodynamic shape optimization of the RAE 2822: a) evolutionary histories; b) original and optimized airfoils.  
+
+> (a) Pressure (b) Drag Figure 14: Comparison of static pressure and drag on airfoil surfaces for the RAE 2822: a) pressure; b) drag.
+
+5.3. Supersonic Case 3: NACA 0012 
+
+The third case considers a NACA 0012 airfoil under supersonic conditions. The freestream Mach number is M∞ = 1 .5, the angle of attack is α = 0 ◦,and the Reynolds number is Re = 6 .5 × 10 6. The freestream temperature and pressure are set to 300 K and 101325 Pa, respectively. Figures 15(a) and 15(b) present the residual convergence histories of the flow 22 (a) Flow (b) Adjoint Figure 15: Convergence histories of the residuals related to the mass equation for the NACA 0012 case: a) flow GKS solver; b) adjoint GKS solver. 
+
+and adjoint GKS solvers. When the residual is reduced to the order of 10 −6, the implicit method requires only about 3500 iterations, whereas the explicit method requires more than 10000 iterations. Compared with the explicit approach, the implicit method reduces the computational cost by a factor of over 4.  
+
+> (a) Flow (b) Adjoint Figure 16: Flow and adjoint variable contours related to the y-moment equation for the NACA 0012 case.
+
+Figures 16(a) and 16(b) present the flow and adjoint fields associated with the y-momentum equation. The adjoint field exhibits a structure that is opposite 23 to that of the flow field. Near the leading edge, the flow variables are positive in the upper region and negative in the lower region, while the adjoint variables display the opposite trend.     
+
+> (a) Flow (b) Adjoint Figure 17: Verification of the adjoint sensitivities for the NACA 0012 case: a) step size independence study; b) comparison between the adjoint method and FDM.
+> (a) Objective Function (b) Shape Figure 18: Aerodynamic shape optimization of the NACA 0012: a) evolutionary histories; b) original and optimized airfoils.
+
+In this optimization, the objective function is defined as the drag on the air-foil surface. Figures 17(a) and 17(b) present the verification of the adjoint sen-sitivities, demonstrating good agreement between the finite difference method 24 (a) Original (b) Optimized Figure 19: Static pressure contours in the whole computational domain: a) original; b) opti-mized.  
+
+> (a) Pressure (b) Drag Figure 20: Comparison of static pressure and drag on airfoil surfaces for the NACA 0012: a) pressure; b) drag.
+
+and the adjoint approach. Figure 18(a) shows the evolution of the objective function, with the drag reduced by more than 50% after 20 design cycles. This reduction can be attributed to the development of a more slender airfoil shape, as illustrated in Fig. 18(b). The slender configuration alleviates the pressure-difference drag, as evidenced by the pressure distributions shown in Figs. 19(a), 19(b), and 20(a). Figure 20(b) compares the surface drag distributions. After 25 optimization, the drag is significantly reduced over the entire airfoil surface. 
+
+5.4. Hypersonic Case 4: Flow Past a Semi-Cylinder 
+
+The final test case considers hypersonic flow past a semi-cylinder. The cylin-der has a radius of 0.5, while the outer computational boundary is located at three times the cylinder radius. The computational domain is discretized using a structured mesh of 51 ×61 cells. The freestream Mach number and Reynolds number are set to 8.0 and 1000, respectively. A kinetic boundary condition is imposed on the solid wall, whereas non-reflecting boundary conditions based on Riemann invariants are applied at the far-field boundaries.  
+
+> (a) Flow (b) Adjoint Figure 21: Convergence histories of the residuals related to the mass equation: a) flow GKS solver; b) adjoint GKS solver.
+
+First, the effectiveness of the implicit LU-SGS scheme in accelerating con-vergence is assessed. Figures 21(a) and 21(b) present the convergence histories of the flow and adjoint solutions, respectively. The maximum allowable CFL number is 0.8 for the explicit flow and adjoint GKS solvers, whereas it reaches 100 for their implicit counterparts. To achieve a reduction of six orders of magnitude in the flow residual, the explicit flow GKS requires approximately 4800 iterations, while the implicit solver converges within 1200 iterations. This demonstrates that the implicit LU-SGS approach reduces the computational 26 cost by a factor of about four for the flow solver. For the adjoint GKS solver, the implicit formulation yields a computational cost reduction by a factor of approximately 3.5. Based on these advantages, the implicit adjoint GKS solver is subsequently employed for sensitivity analysis and design optimization. In the design optimization, ten design variables are uniformly distributed along the upper surface of the semi-cylinder, while the deformation of the lower surface follows an opposite trend relative to that of the upper surface. The objective function is defined as the drag coefficient normalized by its initial value, which is given by 
+
+I = DD0
+
+. (54) Second, the adjoint variable contours associated with the y-momentum equa-tion are compared with the corresponding flow fields, as shown in Figs. 22(a) and 22(b). It is observed that the adjoint fields exhibit an opposite distribution to the flow fields; for example, regions of positive flow velocity correspond to negative adjoint variables. This behavior provides a qualitative verification of the correct implementation of the discrete adjoint GKS solver.  
+
+> (a) Flow (b) Adjoint Figure 22: Flow and adjoint variable contours related to the y-moment equation for the semi-cylinder case.
+
+Furthermore, the adjoint sensitivities are quantitatively verified against finite-27 (a) (b) Figure 23: Verification of the adjoint sensitivities for the semi-cylinder case: a) step size independence study; b) comparison between the adjoint method and FDM. 
+
+difference method results. A step-size independence study is first conducted for the fifth design variable, as illustrated in Fig. 23(a). Within the range of 
+
+[10 −2, 10 −7], the FDM sensitivities remain essentially unchanged, whereas larger step sizes introduce significant errors. Based on this observation, a step size of 
+
+10 −4 is adopted for all design variables to ensure accuracy. Figure 23(b) com-pares the sensitivity results obtained from the FDM and the adjoint GKS solver, showing excellent agreement between the two approaches. Finally, design optimization is performed. Figure 24(a) presents the evolu-tion histories of the objective function and the semi-cylinder area. After seven-teen design cycles, the drag is reduced by 11%, while the reduction in area re-mains within 2%. Figure 24(b) compares the original and optimized geometries. After optimization, the blunt leading edge becomes sharper, which is favorable for reducing the normal-shock-induced drag ahead of the semi-cylinder. Fig-ure 25(a) shows the pressure contours for both configurations, where the upper half corresponds to the original shape and the lower half to the optimized one. It is observed that the shock wave moves downstream relative to the original configuration. This trend is further confirmed in Fig. 25(b), which presents the static pressure distributions at three axial locations. 28 (a) Objective Function (b) Shape Figure 24: Aerodynamic shape optimization of the semi-cylinder: a) evolutionary histories; b) original and optimized shapes.  
+
+> (a) (b) Figure 25: Comparison of the static pressure: a) in the whole computational domain; b) at three different locations.
+
+Figures 26(a) and 26(b) compare the distributions of drag and pressure coef-ficients along the semi-cylinder surface for both configurations. For the original geometry, the dominant contribution to drag arises from the leading edge due to the presence of a strong normal shock. After optimization, the drag near the leading edge is significantly reduced. Although the drag exhibits a slight up-stream increase from the midsection toward the trailing edge, the overall level is reduced compared to the original case. The pressure coefficient distribution also 29 shows noticeable changes after optimization, with a decrease near the leading edge and an increase over the remaining surface.  
+
+> (a) Cd (b) Cp Figure 26: Comparison of the drag (Cd) and pressure (Cp) coefficients on the semi-cylinder surfaces: a) Cd; b) Cp.
+
+6. Conclusion 
+
+In this work, an implicit discrete adjoint gas-kinetic scheme with kinetic boundary conditions is developed for aerodynamic shape optimization across all Mach-number regimes. The proposed method is validated through four rep-resentative test cases, including subsonic flow past a cylinder, transonic flow over the RAE 2822 airfoil, supersonic flow over the NACA 0012 airfoil, and hyper-sonic flow past a semi-cylinder. Compared with the explicit approach, which is limited by a maximum Courant number of approximately 0.8, the implicit time-marching method allows for significantly larger Courant numbers (up to 100), leading to a reduction in computational cost by approximately a factor of four for both the flow and adjoint solvers. Moreover, the adjoint fields exhibit structures that are opposite to those of the corresponding flow fields, providing qualitative validation of the correctness of the discrete adjoint formulation. From a quanti-tative perspective, the computed adjoint sensitivities show excellent agreement with finite-difference results, with negligible discrepancies, thereby confirming 30 the accuracy of the proposed adjoint GKS solver. In the optimization studies, the adjoint-based framework efficiently yields improved designs within a limited number of optimization iterations, demonstrating high efficiency across all test cases. Overall, the developed implicit adjoint GKS solver provides an accurate and efficient framework for aerodynamic shape optimization over a wide range of Mach-number regimes in continuum flows. 
+
+Acknowledgments 
+
+This work was supported by the National Key R&D Program of China (Grant No. 2022YFA1004500), the National Natural Science Foundation of China (Nos. 92371107), and the Hong Kong Research Grant Council (Nos. 16208324). 
+
+References 
+
+[1] A. Jameson, Aerodynamic design via control theory, Journal of Scientific Computing 3 (1988) 233–260. doi:10.1007/BF01061285 .[2] M. B. Giles, M. C. Duta, J.-D. Muller, N. A. Pierce, Algorithm develop-ments for discrete adjoint methods, AIAA Journal 41 (2) (2003) 198–205. 
+
+doi:10.2514/2.1961 .[3] G. Kenway, C. Mader, P. He, J. Martins, Effective adjoint approaches for computational fluid dynamics, Progress in Aerospace Sciences 110 (2019) 100542. doi:10.1016/j.paerosci.2019.05.002 .[4] R. Yuan, L. Wu, A design optimization method for rarefied and continuum gas flows, Journal of Computational Physics 517 (2024) 113366. doi:10. 1016/j.jcp.2024.113366 .[5] R. Yuan, L. Wu, Adjoint shape optimization from the continuum to free-molecular gas flows, Journal of Computational Physics 537 (2025) 114102. 
+
+doi:10.1016/j.jcp.2025.114102 .31 [6] A. Jameson, L. Martinelli, N. Pierce, Optimum aerodynamic design using the Navier–Stokes equations, Theoretical and Computational Fluid Dy-namics 10 (1998) 213–237. doi:10.1007/s001620050060 .[7] H. Wu, X. Da, D. Wang, X. Huang, Multi-row turbomachinery aerody-namic design optimization by an efficient and accurate discrete adjoint solver, Aerospace 10 (2) (2023). doi:10.3390/aerospace10020106 .[8] H. Wu, D. Wang, X. Huang, Three-dimensional unsteady aerodynamic optimization of a transonic compressor stage using an implicit discrete ad-joint harmonic balance method, Journal of Turbomachinery 147 (7) (2024) 071016. doi:10.1115/1.4067290 .[9] P. L. Roe, Approximate Riemann solvers, parameter vectors, and difference schemes, Journal of Computational Physics 43 (2) (1981) 357–372. doi: 10.1016/0021-9991(81)90128-5 .[10] J. L. Steger, R. F. Warming, Flux vector splitting of the inviscid gas-dynamic equations with application to finite-difference methods, Jour-nal of Computational Physics 40 (2) (1981) 263–293. doi:10.1016/ 0021-9991(81)90210-2 .[11] A. Harten, High resolution schemes for hyperbolic conservation laws, Jour-nal of Computational Physics 49 (3) (1983) 357–393. doi:10.1016/ 0021-9991(83)90136-5 .[12] K. Xu, K. H. Prendergast, Numerical Navier-Stokes solutions from gas kinetic theory, Journal of Computational Physics 114 (1) (1994) 9–17. doi: 10.1006/jcph.1994.1145 .[13] K. Xu, A gas-kinetic BGK scheme for the Navier–Stokes equations and its connection with artificial dissipation and Godunov method, Journal of Computational Physics 171 (1) (2001) 289–335. doi:10.1006/jcph.2001. 6790 .32 [14] X. Yang, X. Ji, W. Shyy, K. Xu, Comparison of the performance of high-order schemes based on the gas-kinetic and HLLC fluxes, Journal of Com-putational Physics 448 (2022) 110706. doi:10.1016/j.jcp.2021.110706 .[15] K. Xu, M. Mao, L. Tang, A multidimensional gas-kinetic BGK scheme for hypersonic viscous flow, Journal of Computational Physics 203 (2) (2005) 405–421. doi:10.1016/j.jcp.2004.09.001 .[16] F. Zhao, X. Ji, W. Shyy, K. Xu, Direct modeling for computational fluid dynamics and the construction of high-order compact scheme for compress-ible flow simulations, Journal of Computational Physics 477 (2023) 111921. 
+
+doi:doi.org/10.1016/j.jcp.2023.111921 .[17] X. Ji, W. Shyy, K. Xu, A gradient compression-based compact high-order gas-kinetic scheme on 3d hybrid unstructured meshes, International Journal of Computational Fluid Dynamics 35 (7) (2021) 485–509. doi:10.1080/ 10618562.2021.1991329 .[18] Y. Zhang, X. Ji, K. Xu, A high-order compact gas-kinetic scheme in a rotat-ing coordinates frame and on sliding mesh, International Journal of Compu-tational Fluid Dynamics 37 (3) (2023) 181–200. doi:10.1080/10618562. 2023.2178647 .[19] L. Pan, K. Xu, Q. Li, J. Li, An efficient and accurate two-stage fourth-order gas-kinetic scheme for the Euler and Navier–Stokes equations, Journal of Computational Physics 326 (2016) 197–221. doi:10.1016/j.jcp.2016. 08.054 .[20] X. Ji, F. Zhao, W. Shyy, K. Xu, Compact high-order gas-kinetic scheme for three-dimensional flow simulations, AIAA Journal 59 (8) (2021) 2979–2996. 
+
+doi:10.2514/1.J060208 .[21] H. Wu, Y. Zhu, Y. Zhu, K. Xu, A discrete adjoint gas-kinetic scheme for aerodynamic shape optimization in turbulent continuum flows, arXiv preprint arXiv:2604.14567 (2026). doi:10.48550/arXiv.2604.14567 .33 [22] J. Zhang, X. Ji, K. Xu, Treatment of wall boundary conditions in high-order compact gas-kinetic schemes, Journal of Computational Physics 547 (2026) 114541. doi:10.1016/j.jcp.2025.114541 .[23] Q. Li, S. Fu, K. Xu, Application of gas-kinetic scheme with kinetic bound-ary conditions in hypersonic flow, AIAA Journal 43 (10) (2005) 2170–2176. 
+
+doi:10.2514/1.14130 .[24] L. Hascoet, V. Pascual, The Tapenade automatic differentiation tool: prin-ciples, model, and specification 39 (3) (5 2013). doi:10.1145/2450153. 2450158 .[25] H. Wu, S. Xu, X. Huang, D. Wang, The development and verification of a fully turbulent discrete adjoint solver using algorithmic differentiation, Vol. Volume 2C: Turbomachinery — Design Methods and CFD Modeling for Turbomachinery; Ducts, Noise, and Component Interactions of Turbo Expo, 2021, p. V02CT34A031. doi:10.1115/GT2021-59610 .[26] H. Wu, M. Yang, D. Wang, X. Huang, Efficient forced response minimiza-tion using a full-viscosity discrete adjoint harmonic balance method, AIAA Journal 62 (10) (2024) 3644–3661. doi:10.2514/1.J063749 .[27] X. Huang, H. Wu, D. Wang, Implicit solution of harmonic balance equation system using the lu-sgs method and one-step jacobi/gauss–seidel iteration, International Journal of Computational Fluid Dynamics 32 (4-5) (2018) 176–190. doi:10.1080/10618562.2018.1508658 .[28] Y. Yang, L. Pan, K. Xu, Implicit high-order gas-kinetic schemes for com-pressible flows on three-dimensional unstructured meshes II: Unsteady flows, Journal of Computational Physics 473 (2023) 111724. doi:10.1016/ j.jcp.2022.111724 .[29] Y. Yang, L. Pan, K. Xu, Implicit high-order gas-kinetic schemes for com-pressible flows on three-dimensional unstructured meshes I: Steady flows, 34 Journal of Computational Physics 447 (2022) 110683. doi:10.1016/j. jcp.2021.110683 .[30] P. L. Bhatnagar, E. P. Gross, M. Krook, A model for collision processes in gases. I. small amplitude processes in charged and neutral one-component systems, Physical Review E 94 (1954) 511–525. doi:10.1103/PhysRev. 94.511 .[31] R. M. Hicks, P. A. Henne, Wing design by numerical optimization, Journal of Aircraft 15 (7) (1978) 407–412. doi:10.2514/3.58379 .[32] H. Wu, D. Wang, X. Huang, Multi-objective aerodynamic and aeroelastic coupled design optimization using a full viscosity discrete adjoint harmonic balance method, Journal of Turbomachinery 145 (10) (2023) 101002. doi: 10.1115/1.4062803 .[33] P. Spalart, S. Allmaras, A one-equation turbulence model for aerodynamic flows, in: 30th Aerospace Sciences Meeting and Exhibit, 1992. doi:10. 2514/6.1992-439 .35

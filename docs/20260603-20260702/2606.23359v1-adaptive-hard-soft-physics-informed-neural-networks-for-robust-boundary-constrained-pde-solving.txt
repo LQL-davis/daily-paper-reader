@@ -1,0 +1,567 @@
+Title: Adaptive Hard-Soft Physics-Informed Neural Networks for Robust Boundary-Constrained PDE Solving
+
+URL Source: https://arxiv.org/pdf/2606.23359v1
+
+Published Time: Tue, 23 Jun 2026 03:14:13 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# Adaptive Hard–Soft Physics-Informed Neural Networks for Robust Boundary-Constrained PDE Solving 
+
+Duc Tien Nguyen a,b,1 , Trinh Minh Tuan c,1 , Nguyen Duc Manh d, Vu Linh Nguyen a,b , Dinh Gia Ninh c
+
+> aCollege of Engineering and Computer Science, VinUniversity, Hanoi, Vietnam
+> bCenter for AI Research, VinUniversity, Hanoi, Vietnam
+> cGroup of Materials and Structures, School of Mechanical Engineering, Hanoi University of Science and Technology, Hanoi, Vietnam
+> dDepartment of Mathematics and Informatics, Hanoi University of Science and Technology, Hanoi, Vietnam
+
+Abstract 
+
+Physics-informed neural networks (PINNs) provide an effective way to solve partial differential equations (PDEs) by embedding physical principles into the learning process. However, the conventional PINN for-mulation, in which all constraints are imposed as soft penalty terms within a composite loss, often exhibits slow convergence, sensitivity to loss weight scaling, and inaccurate boundary enforcement due to poor conditioning of the optimization landscape. To address these limitations, this study proposes a unified hard–soft physics–informed neural network (HSPINN) with adaptive loss weighting. In this framework, Dirichlet and periodic boundary conditions are enforced exactly by construction through analytical or polynomial lifting, masking functions, and periodic feature mappings, while the governing PDE residuals, Neumann fluxes, and initial conditions are treated as soft constraints. An inverse-share softmax strategy dynamically balances the relative importance of individual loss components during training, eliminating manual penalty tuning and improving gradient stability. This formulation ensures boundary admissibility throughout optimization and enhances convergence efficiency and numerical robustness. Applications to representative elliptic (Poisson), parabolic (Burgers), and hyperbolic (convection with periodic bound-aries) problems demonstrate that HSPINN consistently achieves faster convergence, higher accuracy, and greater stability than conventional PINNs, establishing a general and scalable foundation for physics constrained deep learning across science and technology. 
+
+Keywords: Physics-informed neural networks, Numerical Simulation, Mathematical Modelling, Partial differential equations, Scientific machine learning 
+
+1. Introduction 
+
+Partial differential equations are widely regarded as fundamental models for describing physical, bio-logical, and engineering systems [1, 2]. They are encountered in heat transfer, fluid flow, elasticity, 
+
+> 1These authors contributed equally to this work.
+> arXiv:2606.23359v1 [cs.LG] 22 Jun 2026
+
+electromagnetism, and chemical diffusion. Conventional numerical techniques, including finite differ-ence, finite element, and spectral methods, have reached a high degree of maturity and accuracy [3, 4]. Nevertheless, mesh generation, stabilization procedures, and domain discretization are required. When geometries are complex, solution features are multiscale, or coupling with heterogeneous data is necessary, these prerequisites can become computationally expensive and practically restrictive. Recently, physics-informed neural networks have emerged as an alternative computational paradigm [5, 6, 7, 8]. Within this framework, the solution of a PDE is approximated by a neural function that is trained through minimization of a composite loss embedding the governing operator together with boundary and initial conditions. Because spatial and temporal derivatives are obtained by automatic differentiation (AD) and no explicit mesh is required, adaptation to irregular domains and the incorporation of observa-tional data can be achieved naturally. As a result, a strong synergy between data and physics has been established, and PINNs have been widely adopted as flexible neural PDE solvers. Despite these advantages, several limitations have been identified in the conventional PINN formulation, particularly in the treatment of boundary and interface conditions. In the canonical approach, all con-straints including the PDE residual, Dirichlet data, Neumann data, and initial conditions are imposed as soft penalties within a weighted objective. The magnitudes of these partial losses often differ by several orders, which leads to loss imbalance, unstable optimization dynamics, and poor boundary adherence [9, 10, 11]. Although adaptive reweighting, curriculum scheduling, and domain decomposition strate-gies such as XPINNs have been proposed [12], exact satisfaction of boundary conditions has not been guaranteed and sensitivity to manually chosen penalty weights has remained. To address these difficulties, hard constraint formulations have been proposed in which certain boundary conditions are satisfied by construction rather than by penalty [13]. Distance based parameterizations and augmented Lagrangian ideas were introduced in DeepXDE [14], followed by distance function and signed distance approaches designed to enforce exact Dirichlet satisfaction [15, 16]. These developments have improved boundary accuracy, but the emphasis has typically been placed on Dirichlet conditions, while Neumann data have remained weakly enforced and training has continued to rely on delicate loss weight choices. Moreover, the evaluation of distance functions and the use of geometry aligned spectral decompositions have increased computational cost and architectural complexity. In parallel, several studies have highlighted the difficulty of enforcing periodic boundaries within the con-ventional PINN framework [17, 18]. When periodicity is treated through soft penalty terms, the network often fails to reproduce smooth transitions across opposite boundaries, resulting in phase discontinuities, loss imbalance, and degraded convergence. These issues arise because periodic constraints couple both the solution and its derivatives at distant points in the domain, which are not naturally captured by localized residual sampling. Although specialized formulations have been proposed to improve periodic [19], their applicability has remained confined to fully periodic domains and has not been extended to mixed or heterogeneous boundary configurations. Consequently, a unified and computationally efficient 2formulation capable of handling Dirichlet, Neumann, and periodic boundaries within a single learning framework has not yet been fully established. In this study, a hard-soft physics-informed neural network framework is proposed to overcome these limi-tations. Within this formulation, the network representation is constructed such that Dirichlet conditions are satisfied exactly by design through analytical or polynomial lifting together with masking functions, thereby eliminating the need for Dirichlet penalty terms and restricting the hypothesis space to boundary admissible functions. The remaining physical relations, including the governing PDE, Neumann fluxes, and initial conditions, are treated as soft constraints through residual minimization. Periodic boundaries are incorporated naturally within the same architecture, ensuring intrinsic periodicity without additional penalty terms and enabling consistent treatment alongside other boundary types. To stabilize multi term optimization without manual tuning, an inverse-share softmax weighting scheme is employed to adaptively balance the contributions of the individual residuals. Through this mechanism, scale disparities among loss components are mitigated, convergence is accelerated, and gradient stability is improved. The proposed framework is demonstrated on three representative classes of PDEs: an elliptic Poisson problem with mixed Dirichlet and Neumann boundaries, a parabolic viscous Burgers problem with pre-scribed Dirichlet and initial conditions, and a hyperbolic convection problem with periodic boundaries. In all cases, faster convergence, improved accuracy, and stronger boundary adherence are achieved compared with conventional fully soft PINNs and representative hard constraint variants, without any increase in model complexity. The major contributions of this paper are summarized as follows: 
+
+• A unified neural parameterization is introduced in which Dirichlet boundaries are enforced exactly through lifting and masking, yielding boundary admissible hypotheses without penalty terms. 
+
+• A single formulation is established that consistently handles Dirichlet, Neumann, and periodic boundary conditions within the same architecture, enabling general applicability across different PDE types. 
+
+• An adaptive inverse-share softmax weighting strategy is developed to balance multiple residual com-ponents automatically, which improves conditioning, accelerates convergence, and removes manual weight tuning. These elements establish a general and efficient framework for learning solutions of PDEs with accurate boundary treatment and robust optimization behavior, and are expected to be broadly applicable to coupled transport, diffusion, and wave systems in scientific and engineering contexts. 
+
+2. Formulation 
+
+In this section, the mathematical and algorithmic formulation of the proposed HSPINN framework is pre-sented. The governing partial differential equations and their associated boundary and initial conditions are first defined, establishing the general problem setting. The neural parameterization that enables exact 3Dirichlet and periodic enforcement through lifting and masking is then introduced, followed by the con-struction of residuals and the composite loss function used for training. An adaptive weighting strategy is described to balance the contributions of the individual residual terms, and the overall optimization procedure is detailed, including stochastic pretraining and quasi-Newton refinement. 
+
+2.1. Governing Equations 
+
+The physical systems considered in this study are modeled by partial differential equations on bounded spatial domains Ω ⊂ Rd with boundary ∂Ω. For boundary-value problems, the boundary is partitioned into Dirichlet and Neumann subsets, denoted by ΓD and ΓN , respectively, such that ∂Ω = Γ D ∪ ΓN and 
+
+ΓD ∩ ΓN = ∅. For time-dependent problems, the spatial domain is extended over a finite time interval 
+
+[0 , T ], forming the space–time domain QT = Ω × (0 , T ].The unknown field u(x, t ) represents a scalar physical quantity (e.g., potential or velocity component). Its evolution is governed by a differential operator N [·], which may be linear or nonlinear and may involve first- or second-order derivatives. The strong form of the generic problem is written as 
+
+N [u]( x, t ) = f (x, t ), (x, t ) ∈ QT , (1) where f is a prescribed source. Well-posedness is completed by boundary and initial data: 
+
+u(x, t ) = gD (x, t ), x ∈ ΓD , t ∈ (0 , T ],
+
+n · ∇ u(x, t ) = gN (x, t ), x ∈ ΓN , t ∈ (0 , T ],u(x, 0) = u0(x), x ∈ Ω,
+
+(2) with n the outward unit normal and compatibility assumed on ΓD at t = 0 . Periodic boundaries, when present, identify opposite faces of ∂Ω and are handled architecturally (see Section 3). Three representative PDEs are considered to span the elliptic, parabolic, and hyperbolic classes: 
+
+• Elliptic (Poisson): 
+
+− ∆u = f in Ω, (3) posed on the unit square with a mixed Dirichlet–Neumann partition (Γ D , ΓN ).
+
+• Parabolic (viscous Burgers): 
+
+ut + u u x − ν u xx = f in (x, t ) ∈ (0 , 1) × (0 , T ], (4) with nonzero Dirichlet data u(0 , t ) = u(1 , t ) = gD (t) and an initial condition u(x, 0) = u0(x).
+
+• Hyperbolic (pure convection): 
+
+ut + β u x = f in (x, t ) ∈ [0 , 2π] × (0 , T ], (5) with periodic boundary conditions in x and a soft initial condition u(x, 0) = u0(x).4In the proposed framework, the PDE and soft constraints are enforced via pointwise residuals evaluated by AD. For a candidate u(x, t ), the residuals read 
+
+Rint (x, t ) = N [u]( x, t ) − f (x, t ),
+
+Rbc (x, t ) = n·∇ u(x, t ) − gN (x, t ),
+
+Ric (x) = u(x, 0) − u0(x).
+
+(6) Unlike conventional PINNs [20], Dirichlet constraints are not included as penalties because they are sat-isfied exactly by construction through an analytic lifting and masking strategy (cf. Section 2.2). Periodic conditions for the convection case are encoded in the network features, yielding an intrinsically periodic representation and eliminating explicit boundary penalties. This formulation unifies the treatment of elliptic, parabolic, and hyperbolic problems under a single learn-ing framework: Dirichlet conditions are embedded analytically, while Neumann and initial constraints, together with the PDE, are enforced softly through residual minimization. The next section details the neural parameterization that enables exact Dirichlet satisfaction and periodic enforcement, forming the core of the proposed hard–soft strategy. 
+
+2.2. Neural Parameterization with Hard–Soft Constraints 
+
+This section introduces the neural parameterization used to embed hard and soft constraints in the proposed framework. Conventional soft PINNs are first revisited to highlight the limitations of penalty-based training, followed by the hard–soft formulation that enforces Dirichlet boundaries exactly while treating the remaining physics as soft residuals. 
+
+2.2.1. Conventional PINNs 
+
+PINNs approximate the solution u(x, t ) of a PDE by a neural function uθ (x, t ) parameterized by weights θ
+
+[20]. Model training is achieved by minimizing a composite loss that penalizes violations of the governing equations and all associated constraints. For the general problem described in Section 2.1, the conven-tional, fully soft formulation (hereafter SPINN , for soft PINN) is expressed as 
+
+LPINN (θ) = λint Lint + λD LD + λN LN + λic Lic , (7) where 
+
+Lint (θ) = E(x,t )∼Ω
+
+[(N [uθ ]( x, t ) − f (x, t )) 2] ,
+
+LD (θ) = E(x,t )∼ΓD
+
+[(uθ (x, t ) − gD (x, t )) 2] ,
+
+LN (θ) = E(x,t )∼ΓN
+
+[(n·∇ uθ (x, t ) − gN (x, t )) 2] ,
+
+Lic (θ) = Ex∼Ω
+
+[(uθ (x, 0) − u0(x)) 2] .
+
+(8) The interior term Lint enforces the PDE in the domain, LD and LN penalize deviations from Dirichlet and Neumann boundary conditions, respectively, and Lic ensures consistency with the initial condition. Each constraint is treated as a soft penalty , enforced only in an average sense through optimization. 5Although conceptually simple, this fully soft formulation suffers from several well-known limitations. The relative magnitudes of the losses may differ drastically, leading to unstable or biased training. If λD is small, the boundary values may be violated even when the PDE residual is small; if λD is large, the optimization becomes dominated by boundary penalties, causing slow convergence or stiffness in the gra-dient updates. This conflict between physical and boundary losses, often termed loss imbalance , produces highly non-convex energy landscapes and large gradient disparities across terms [10, 11]. Consequently, convergence strongly depends on manual tuning of λi and learning-rate schedules. Adaptive weighting [21, 22], domain decomposition [12], and curriculum training [23] alleviate but do not remove these issues, because all conditions remain soft penalties. A more principled approach is to enforce the exactly known constraints directly in the network architecture. 
+
+2.2.2. Proposed Hard–Soft Constraint Formulation 
+
+To overcome the limitations of fully penalty-based training, a hybrid hard–soft enforcement strategy is adopted. In this framework, Dirichlet and periodic boundary conditions are embedded into the neural representation so that they are satisfied exactly, while the PDE residual, Neumann flux, and initial condition are still enforced softly through residual minimization. This distinction eliminates the need for a Dirichlet penalty term and yields a better-conditioned loss landscape. The network output is defined as 
+
+uθ (x, t ) = hD (x, t ) + mD (x) vθ (x, t ), (9) where hD (x, t ) is a lifting function satisfying hD |ΓD = gD , mD (x) is a smooth mask function with 
+
+mD |ΓD = 0 and mD > 0 in Ω, and vθ (x, t ) is a trainable neural function representing the free (interior) component. By construction, uθ |ΓD = hD |ΓD = gD holds for any θ, so Dirichlet boundaries are satisfied identically. For homogeneous Dirichlet conditions, hD ≡ 0. For non-homogeneous data, hD is chosen as the analytical or prescribed boundary trace. On rectangular domains, a simple polynomial mask, 
+
+mD (x, y ) = x(1 − x) y(1 − y), (10) vanishes exactly on all edges; in one dimension mD (x) = x(1 − x). Smooth alternatives such as tanh -based products can be employed to maintain differentiability near the boundary. Periodic boundaries are handled by constructing periodic feature maps, for example ϕ(x, t ) = [sin(2 πx/L ), cos(2 πx/L ), t ], so that uθ (ϕ(x, t )) is periodic over x ∈ [0 , L ].Once the exact boundaries are embedded, only the remaining physics are treated as soft constraints. Defining the residuals 
+
+Rint (x, t ) = N [uθ ]( x, t ) − f (x, t ),
+
+RN (x, t ) = n·∇ uθ (x, t ) − gN (x, t ),
+
+Ric (x) = uθ (x, 0) − u0(x),
+
+(11) 6the total loss becomes 
+
+LHS (θ) = λint EΩ[R2
+
+> int
+
+] + λN EΓN [R2 
+
+> N
+
+] + λic EΩ[R2
+
+> ic
+
+]. (12) Compared with the conventional loss Eq. (7), the Dirichlet penalty λD LD is removed entirely, since those constraints are already satisfied through the structural representation Eq. (9). The optimization thus focuses exclusively on the interior physics, Neumann boundaries, and temporal initialization. To stabilize early training, the last linear layer of vθ is initialized to zero, yielding uθ ≈ hD initially and ensuring that the first iteration is boundary-feasible. Training proceeds in two stages: a stochastic Adam phase for coarse exploration, followed by deterministic refinement using an LBFGS optimizer [24]. This hybrid procedure leverages both gradient-based adaptability and quasi-Newton efficiency once the feasible region is reached. In summary, the proposed hard–soft formulation replaces the purely penalty-based scheme with an architecture-aware enforcement of known conditions. By embedding exact boundary information di-rectly into the network, the feasible search space is restricted to admissible functions, the loss landscape becomes smoother, and convergence is achieved more reliably than with conventional soft-constraint PINNs. Neural Network ( ) Hard Constraints 
+
+## Soft Constraints 
+
+## Loss 
+
+## AD 
+
+## Optimize for                    
+
+> Figure 1: Framework and architecture of the Hard–Soft Physics-Informed Neural Network (HS-PINN). The neural network
+> vθmaps space–time inputs (x, y, t )(optionally via Fourier features) to an intermediate prediction, which is transformed by embedded hard-constraint functions hDand mDto produce the physically admissible field uθ. Automatic differentiation computes the required derivatives ∂u θ/∂x ,∂u θ/∂y , and ∂u θ/∂t for evaluating the governing residuals. Training minimizes a composite soft-constraint loss LHS (θ)combining interior PDE residual, Neumann boundary residual, and initial/Dirichlet condition terms.
+
+2.3. Residual and Loss Construction 
+
+The hard–soft representation introduced in Section 2.2 defines a family of admissible neural functions 
+
+uθ (x, t ) that satisfy the Dirichlet boundaries exactly. To determine the optimal parameters θ, the re-7maining physical constraints including the governing PDE, Neumann fluxes, and initial condition are enforced through minimization of their respective residuals. This section presents the construction of these residual terms, their sampling, and the resulting composite loss function. 
+
+Interior residual. Let N [·] denote the differential operator that defines the governing equation 
+
+N [u]( x, t ) = f (x, t ), (x, t ) ∈ Ω × (0 , T ]. (13) For the neural approximation uθ , the interior residual is defined as 
+
+Rint (x, t ) = N [uθ ]( x, t ) − f (x, t ), (14) where all required derivatives of uθ (spatial and temporal) are computed by AD. For example, if N [u] = 
+
+∂tu − ∇· (k(x)∇u) − s(x, t ), then 
+
+Rint (x, t ) = ∂u θ
+
+∂t − ∇· (k(x)∇uθ
+
+) − s(x, t ).
+
+This term enforces the PDE dynamics within the domain. 
+
+Boundary and initial residuals. The Neumann condition n · ∇ u = gN on ΓN and the initial condition 
+
+u(x, 0) = u0(x) are treated as soft penalties: 
+
+RN (x, t ) = n·∇ uθ (x, t ) − gN (x, t ), (x, t ) ∈ ΓN × (0 , T ],
+
+Ric (x) = uθ (x, 0) − u0(x), x ∈ Ω.
+
+(15) Because the Dirichlet condition is already enforced by the network architecture, no residual term for ΓD
+
+is included. 
+
+Collocation sampling. Residuals are evaluated at a finite set of collocation points. Interior, boundary, and initial sets XΩ, XΓN , and Xic are typically drawn either uniformly, by Latin hypercube sampling (LHS), or via low-discrepancy sequences to improve coverage: 
+
+XΩ = {(xi, t i)}NΩ
+
+> i=1
+
+, XΓN = {(xj , t j )}NN
+
+> j=1
+
+, Xic = {xk}Nic 
+
+> k=1
+
+.
+
+The associated empirical residuals are denoted Ri
+
+> int
+
+, RjN , and Rk
+
+> ic
+
+. To reduce variance and accelerate convergence, adaptive resampling may be employed, whereby new points are placed in regions of large residual (so-called residual-based adaptive refinement), or selected by quasi-Monte-Carlo rules to enhance space–time coverage [25, 26]. 
+
+Total loss function. The mean-squared residuals form the overall loss functional: 
+
+L(θ) = λint 
+
+1
+
+NΩ
+
+> NΩ
+
+∑
+
+> i=1
+
+(Ri
+
+> int
+
+)2 + λN
+
+1
+
+NNNN∑
+
+> j=1
+
+(RjN
+
+)2 + λic 
+
+1
+
+Nic 
+
+> Nic
+
+∑
+
+> k=1
+
+(Rk
+
+> ic
+
+)2. (16) Gradients of L with respect to the network parameters θ are computed automatically through backprop-agation, 
+
+dL
+
+dθ = ∑
+
+> i
+
+2 Ri
+
+∂Ri
+
+∂θ , (17) 8where Ri represents all residual components. Minimizing L(θ) drives the network toward a function that simultaneously satisfies the PDE, Neumann, and initial conditions in a weak (integral) sense. The residual formulation Eq. (14)–Eq. (16) serves as the analytical backbone of the hard–soft PINN approach. It maintains the generality of the conventional PINN framework while eliminating the need for Dirichlet penalties. In the subsequent section, an adaptive weighting strategy is introduced to automat-ically balance the contribution of the different residuals, further enhancing convergence and numerical robustness. 
+
+2.4. Automatic Weighting for Loss Balancing 
+
+Although the hard–soft formulation eliminates large Dirichlet penalties, the remaining residual terms in Eq. (16) may still be imbalanced because their magnitudes and decay rates differ across training. When one term dominates, the corresponding gradients suppress updates driven by the other terms and convergence becomes slow or unstable. To mitigate this effect, the loss coefficients are adapted during optimization so that each physics component contributes comparably to parameter updates. A gradient–based normalization is adopted as the default strategy [10, 22]. At iteration k, the influence of each partial loss Li is measured through the average gradient norm with respect to a proxy set of network parameters ϑ (for example, the final linear layer), 
+
+G(k) 
+
+> i
+
+= ∥∥∇ϑ L(k)
+
+> i
+
+∥∥2. (18) To reduce estimator noise, an exponential moving average is maintained, ̂
+
+G(k) 
+
+> i
+
+= ρ̂ G(k−1)  
+
+> i
+
++ (1 − ρ) G(k) 
+
+> i
+
+, 0 ≤ ρ < 1. (19) Positive, normalized weights are then obtained by inverse–norm scaling, 
+
+λ(k) 
+
+> i
+
+=
+
+(̂ G(k) 
+
+> i
+
++ ε)−1
+
+∑
+
+> j
+
+(̂ G(k) 
+
+> j
+
++ ε)−1 , (20) with a small ε > 0 for numerical stability. This choice equalizes the effective gradient contributions of all residuals and therefore discourages domination by any single term; the mechanism is consistent with gradient-balancing ideas developed for multi-task learning [27]. A self–adaptive alternative treats the weights as learnable variables [21]. Let unconstrained logits αi
+
+be optimized jointly with the network parameters and map them to strictly positive, normalized coeffi-cients, 
+
+λi = softplus( αi)
+
+∑ 
+
+> j
+
+softplus( αj ) . (21) The total objective is Ltotal (θ, α) = ∑ 
+
+> i
+
+λi Li, possibly augmented with a mild regularizer such as 
+
+η ∑ 
+
+> i
+
+λi log λi to avoid collapse. Related formulations based on homoscedastic task uncertainty provide a probabilistic rationale for adaptive loss weights and have been shown to stabilize training. 9For completeness, a magnitude–based softmax can also be used when second–order signals are undesirable. Given current partial losses L(k) 
+
+> i
+
+and optional base scales bi > 0, define 
+
+λ(k) 
+
+> i
+
+= exp (τ log( ε + bi L(k) 
+
+> i
+
+))∑ 
+
+> j
+
+exp (τ log( ε + bj L(k) 
+
+> j
+
+)) , 0 < τ ≤ 1, (22) which preserves positivity and smoothness while tempering large disparities by the temperature τ ;temperature-controlled weighting and related multi-objective schemes have been explored in multi-task optimization. All three mechanisms reduce manual tuning and improve numerical stability by keeping the residual terms in balance. Unless otherwise stated, the gradient–based normalization with an exponential moving average is employed in the reported experiments because it is inexpensive, robust to noise, and requires no extra learnable variables. 
+
+2.5. Training and Optimization Procedure 
+
+The objective Ltotal (θ) defined in Section 2.3 is minimized using a two–stage procedure: an adaptive Adam warmup is employed first, followed by deterministic refinement with a limited–memory BFGS (LBFGS) optimizer [28, 29]. In the PINN setting, this combination has been observed to yield reliable convergence, with LBFGS often providing rapid local refinement once a feasible region is reached [20]. 
+
+Stage I: Stochastic warmup (Adam). An Adam optimizer with a fixed learning rate (typically 10 −3)is used to explore the parameter space from a boundary–feasible initialization [28]. At each iteration, fresh interior, boundary, and (when applicable) initial collocation points are drawn uniformly at random, and the corresponding residual losses are evaluated by automatic differentiation. During this stage, the partial losses are combined using an inverse–share softmax weighting over base–scaled terms (Section 2.4); related adaptive weighting mechanisms have been shown to improve training stability in PINNs. 
+
+Stage II: Deterministic refinement (LBFGS). After the Adam warmup, optimization is continued with LBFGS using a deterministic closure on a fixed collocation grid (with optional refresh after a prescribed number of outer steps). The adaptive weights learned during Adam are kept fixed throughout this stage. A strong–Wolfe line search is employed, as is standard for quasi–Newton methods [30]. The use of LBFGS for PINNs follows prior work demonstrating its effectiveness for physics-constrained neural optimization [31]. 
+
+Initialization and regularization. The last linear layer of the neural head vθ is initialized to zero, so that the initial network output satisfies uθ ≈ hD and the Dirichlet constraints exactly. Hidden layers use tanh 
+
+activations with a width of 64 and depth of 5 unless noted [32]. Training is performed in single precision (torch.float32 ) on a single GPU if available. No explicit weight–decay term is used; an optional, very small solution regularizer Lsol may be included as stated in the experiment sections. 10 Stopping and batching. The Adam stage is run for a fixed number of iterations (e.g., 500 –4000 ). The LBFGS stage is then executed for a fixed number of outer steps with a strong–Wolfe line search [17]. During Adam, collocation points are resampled every iteration; during LBFGS, a fixed batch is used within the closure and is optionally refreshed at a preset interval. The overall workflow is summarized in Algorithm 1, which outlines the sequential Adam warmup and LBFGS refinement used throughout all experiments. 
+
+Algorithm 1: Training HSPINN: Adam warmup followed by LBFGS refinement 
+
+Input: Domain Ω (and ΓN ), PDE operator N [·], source f , Neumann data gN , initial data u0 (if applicable), lifting hD , mask mD , network vθ , sample sizes (NΩ, N N , N ic ), Adam steps 
+
+NAdam , LBFGS steps NLBFGS , adaptive weighting mode. 
+
+Output: Trained parameters θ⋆.
+
+Initialize network vθ with Xavier; set last linear layer to zero. 
+
+Define uθ (x, t ) ← hD (x, t ) + mD (x) vθ (x, t ) (see Section 2.2.2). 
+
+Choose adaptive weighting rule (see Section 2.4). 
+
+Stage I: Adam warmup for k ← 1 to NAdam do 
+
+Sample interior points X (k)Ω ⊂ Ω of size NΩ.Sample Neumann points X (k)ΓN ⊂ ΓN of size NN (if any). Sample initial points X (k)ic ⊂ Ω of size Nic (if time dependent). Compute residuals and partial losses Lint , LN , Lic (see Section 2.3). Compute adaptive weights λint , λ N , λ ic (see Section 2.4). Form total loss L ← λint Lint + λN LN + λic Lic .Backpropagate and update θ with Adam. 
+
+end Stage II: LBFGS refinement for s ← 1 to NLBFGS do 
+
+Define LBFGS closure that recomputes L on a fixed or freshly sampled set, evaluates ∇θ L by AD, and returns L for the line search. Perform one LBFGS iteration with strong–Wolfe line search. 
+
+end Return θ⋆.
+
+3. Numerical Experiments 
+
+A sequence of numerical experiments is conducted to validate the proposed HSPINN framework across representative classes of partial differential equations. The objectives are threefold: (i) to verify that 11 Dirichlet boundaries are satisfied exactly by construction, (ii) to quantify the improvements in accuracy and convergence relative to conventional SPINNs, and (iii) to assess the generality of the method across elliptic, parabolic, and nonlinear problems. All implementations are carried out in PyTorch with AD and double-precision arithmetic to ensure stabil-ity in high-order derivative evaluation. Unless stated otherwise, the network vθ consists of 5 hidden layers, each containing 64 neurons with tanh activations. Weights are initialized using Xavier normalization [33], and the final layer is initialized to zero to guarantee uθ ≈ hD at the start of training. Optimization follows the two-stage procedure outlined in Section 2.5, comprising an Adam warm-up phase followed by LBFGS refinement. The adaptive weighting scheme of Section 2.4 is applied throughout, ensuring balanced gradient contributions across all residual terms. 
+
+3.1. General Experimental Protocol 
+
+Each problem is defined over a spatial domain Ω and, when applicable, a temporal interval [0 , T ]. Dirichlet and Neumann boundaries are denoted by ΓD and ΓN , respectively. For all problems, analytical reference solutions uexact are available, enabling the computation of exact boundary data and source terms. 
+
+Sampling and collocation. Collocation points are sampled uniformly within the computational domain using independent random draws rather than structured or Latin hypercube patterns. Interior points are generated by uniform sampling in Ω, while boundary points on ΓN are drawn uniformly along each edge through a one–dimensional parameterization. For time–dependent problems, temporal coordinates are sampled uniformly in (0 , T ] for the interior, and initial–condition points are fixed at t = 0 .During the Adam warmup stage, all collocation points are resampled at every iteration to improve coverage of high–residual regions. In the subsequent LBFGS refinement, a fixed collocation batch is employed within the optimizer closure and optionally refreshed after a prescribed number of outer steps. This stochastic–deterministic sampling cycle provides both exploration and stability during training, without the need for explicit residual–driven or Latin hypercube resampling. 
+
+Evaluation metrics. Accuracy and boundary adherence are assessed through the relative L2 and L∞
+
+norms, 
+
+L2 = ∥uθ − uexact ∥2
+
+∥uexact ∥2
+
+,
+
+To measure the precision of boundary enforcement, the maximum boundary errors are defined as 
+
+εD = max 
+
+> x∈ΓD
+
+|uθ (x) − gD (x)|, εN = max 
+
+> x∈ΓN
+
+|n·∇ uθ (x) − gN (x)|.
+
+All reported values are computed over dense 256 × 256 grids. 
+
+Baseline models. Three formulations are compared: (i) a conventionally soft PINN that treats all con-straints softly with tuned loss weights, (ii) the proposed hybrid hard–soft PINN. All use identical network architectures and optimizer settings. Loss weights for the baseline PINN are manually tuned to achieve the best balance between boundary and interior accuracy. 12 Visualization. Training progress is reported through loss trajectories, while final predictions are visualized using contour maps and pointwise error distributions. Unless otherwise stated, errors are plotted on a logarithmic scale to highlight convergence behavior. 
+
+3.2. Poisson Equation (Elliptic PDE) 
+
+The second benchmark problem is formulated to examine the performance of the proposed framework on a two-dimensional Poisson equation, 
+
+−∆u = f (x, y ), (x, y ) ∈ (0 , 1) 2,
+
+where the analytical solution is given by u∗(x, y ) = sin( πx ) sin( πy ) and the corresponding source term by f (x, y ) = 2 π2 sin( πx ) sin( πy ). A mixed boundary configuration is considered, in which Dirichlet conditions are imposed on the left and bottom edges, while Neumann conditions are applied on the right and top edges, i.e., 
+
+u = gD = uD on ΓD ,∂u ∂n = gN = π cos( πx ) sin( πy ) at x = 1 , ∂u ∂n = gN = π sin( πx ) cos( πy ) at y = 1 .
+
+To ensure the exact satisfaction of Dirichlet boundaries, the solution is expressed in the lifted form 
+
+u(x, y ) = hD (x, y ) + mD (x, y ) vθ (x, y ),
+
+where hD (x, y ) = uD (x, y ) denotes the lifting function and mD (x, y ) represents a mask function that smoothly vanishes on the Dirichlet edges and remains positive elsewhere. Through this formulation, Dirichlet constraints are enforced exactly, and the optimization focuses solely on reducing violations of the governing equation and the Neumann conditions. During training, the interior, Neumann, and regularization loss terms are adaptively balanced by softmax-based coefficients (λint , λ N, λ sol ), which are updated dynamically during the Adam warm-up phase and subsequently frozen for the LBFGS refinement. This adaptive weighting mechanism automatically adjusts the relative contribution of each loss term according to its magnitude, leading to a stable and balanced optimization process. 
+
+Results. The predicted field and corresponding pointwise error distributions for both models are shown in Fig. 2. An excellent agreement between the HSPINN prediction and the analytical solution is observed, with the error magnitude remaining uniformly small across both Dirichlet and Neumann boundaries. By contrast, the conventional SPINN exhibits minor boundary-layer artifacts, particularly along the Neumann edges, where the loss weighting remains suboptimal. The convergence behavior and the evolution of adaptive weights are illustrated in Fig. 3. A monotonic reduction in the L2 error is achieved by the HSPINN, which converges to 1.02 × 10 −7, whereas the standard SPINN saturates at approximately 1.52 × 10 −5. The adaptive softmaxweights in HSPINN stabilize after approximately 200 iterations, with λN and λsol maintaining moderate influence, indicating 13 that a balanced contribution of PDE, boundary, and regularization losses is achieved throughout training. These observations confirm the capability of the proposed hybrid enforcement to ensure accurate and stable convergence under mixed boundary conditions. (a) 
+
+## (b) 
+
+Figure 2: Predicted field and absolute error distributions for the 2D Poisson equation with mixed Dirichlet–Neumann boundary conditions. Subfigure (a) corresponds to the HSPINN model, while subfigure (b) corresponds to the SPINN model. In each subfigure, the left column shows the ground-truth solution u, the middle column shows the predicted field 
+
+ˆu, and the right column presents the pointwise error (ˆ u − u∗). Both models successfully reproduce the analytical solution, with HSPINN showing slightly improved accuracy near the boundaries. 
+
+14 (a) 
+
+## (b) Figure 3: Training convergence and adaptive weight evolution for the HSPINN and SPINN models applied to the Poisson equation. Subfigure (a) presents the evolution of the L2 error during the Adam and LBFGS optimization stages. Amonotonic and smooth reduction in the error is observed for the HSPINN, reaching an L2 level below 1 × 10 −7, whereas the SPINN saturates at approximately 1.5 × 10 −5. Subfigure (b) illustrates the evolution of the adaptive softmaxweights λk
+
+during the Adam warm-up phase. For HSPINN, the weights stabilize rapidly, indicating balanced learning across interior, initial, and regularization losses, while in SPINN, large oscillations are observed among λint , λN, and λD, reflecting a less stable optimization process. 
+
+3.3. Burgers’ Equation (Parabolic PDE) 
+
+The third benchmark problem is designed to evaluate the performance of the proposed framework on a time-dependent, nonlinear partial differential equation. The viscous Burgers’ equation is consid-ered: 
+
+ut + u u x − ν u xx = f (x, t ), (x, t ) ∈ (0 , 1) × (0 , 1) ,
+
+where ν = 0 .01 denotes the viscosity coefficient. A smooth manufactured solution is adopted to allow for quantitative error evaluation: 
+
+u∗(x, t ) = 1 + sin( πx )e−αt , α = 1 .0,
+
+15 which leads to the corresponding forcing term 
+
+f (x, t ) = u∗u∗ 
+
+> x
+
++ ( νπ 2 − α) sin( πx )e−αt .
+
+Non-zero Dirichlet boundary conditions are imposed on both ends, u(0 , t ) = u(1 , t ) = 1 , while the initial condition is defined by u(x, 0) = 1 + sin( πx ). The non-homogeneous boundary data are incorporated exactly through a lifting function, such that 
+
+u(x, t ) = hD (x, t ) + m(x) vθ (x, t ),
+
+where hD (x, t ) = u∗(x, t ) and m(x) = x(1 −x) ensures that u(0 , t ) = u(1 , t ) = 1 for all t. This formulation enforces the Dirichlet constraints analytically and allows the network vθ (x, t ) to focus on minimizing the residual of the PDE and the initial condition. The governing equation residual, 
+
+R(x, t ) = ut + u u x − ν u xx − f (x, t ),
+
+was minimized together with the initial condition and a small regularization term, resulting in the total loss 
+
+L = λint ∥R∥22 + λic ∥u(x, 0) − u∗(x, 0) ∥22 + λsol ∥m(x)vθ (x, t )∥22.
+
+Adaptive softmax-based balancing was employed among the interior, initial, and regularization losses to achieve stable optimization. The weighting coefficients λk were updated dynamically during the Adam warm-up phase and subsequently frozen for the LBFGS refinement. This strategy automatically balanced the relative importance of the loss components, particularly during early training, when the magnitudes of Lint and Lic can differ by several orders. 
+
+Results. The spatiotemporal distributions of the predicted and analytical solutions are shown in 4. Both approaches were able to capture the nonlinear dynamics of the Burgers’ equation; nevertheless, HSPINN consistently yielded higher accuracy and sharper shock profiles than the conventional SPINN. The point-wise error (ˆ u − u∗) remained below 10 −4 across the domain for HSPINN, whereas the SPINN exhibited diffused transitions near regions of high gradient. The corresponding convergence histories and adaptive weight trajectories are presented in Fig. 5. A monotonic decrease in the L2 error to 7.0×10 −8 was achieved by the HSPINN, while the SPINN saturated at approximately 5 × 10 −6. During the Adam phase, the softmaxweights in HSPINN stabilized rapidly, indicating balanced contributions from the PDE, initial, and regularization terms, whereas the SPINN weights showed significant oscillations, suggesting subop-timal trade-offs between losses. These results confirm that the proposed hybrid soft–hard enforcement enhances training stability and accuracy in nonlinear, time-dependent PDEs. 16 (b) 
+
+## (a) Figure 4: Spatiotemporal fields for the Burgers equation. Subfigure (a) corresponds to the HSPINN model, and subfigure (b) corresponds to the SPINN model. In each subfigure, the left and middle panels display the ground-truth and predicted solutions u∗(x, t ) and ˆu(x, t ), respectively, while the right panel presents the pointwise error (ˆ u − u∗). A stable propagation of nonlinear shock fronts is accurately captured by the HSPINN, whereas the SPINN exhibits slightly diffused transitions and larger local deviations near the shock regions. 
+
+17 (a) 
+
+## (b) Figure 5: Training convergence and adaptive weight evolution for the HSPINN and SPINN models applied to the Burgers equation. Subfigure (a) presents the evolution of the L2 error during the Adam and LBFGS optimization stages. Amonotonic and smooth reduction in the error is observed for the HSPINN, reaching an L2 level below 7 × 10 −8, whereas the SPINN saturates at approximately 5 × 10 −6. Subfigure (b) illustrates the evolution of the adaptive softmaxweights λk
+
+during the Adam warm-up phase. For HSPINN, the weights stabilize rapidly, indicating balanced learning across interior, initial, and regularization losses, while in SPINN, large oscillations are observed among λint , λic , and λD, reflecting a less stable optimization process. 
+
+3.4. Convection equation (Hyperbolic PDE) 
+
+The final benchmark problem demonstrates the ability of the proposed framework to capture advective transport with periodic boundaries under mixed space–time dependencies. The one-dimensional convec-tion–diffusion equation is considered: 
+
+ut + β u x = 0 , (x, t ) ∈ [0 , 2π] × [0 , T ],
+
+where β > 0 denotes the convection velocity and periodic boundary conditions in x. This equation models the translation of a scalar field with constant speed β, and periodic boundary conditions are imposed on x ∈ [0 , 2π] to preserve conservation across domain boundaries. The exact analytical solution is given 18 by 
+
+u∗(x, t ) = sin( x − βt ),
+
+which corresponds to a traveling wave advected at constant speed without distortion. The initial condition is specified by u(x, 0) = sin( x).The periodic boundary conditions are imposed exactly by encoding the spatial periodicity in the neural representation through Fourier features. Specifically, the network input is transformed via 
+
+z = x − βt, ϕ(x, t ) = [sin( z), cos( z), t/t char ],
+
+where tchar = 1 / max( β, 1) is a characteristic scaling for numerical stability. This feature embedding ensures that the learned solution is inherently periodic in space and phase-aligned with the physical advection. The total loss function includes the PDE residual and the soft initial condition: 
+
+L = λint ∥ut + βu x∥22 + λic ∥u(x, 0) − sin( x)∥22
+
+where the last term is a small regularization that stabilizes training without affecting the physics. The relative weighting coefficients λk are adaptively tuned using the inverse-share softmax scheme, which balances the gradient magnitudes of the individual losses. The model was trained in two stages: an Adam warm-up phase with dynamic softmaxreweighting followed by an LBFGS refinement with frozen coefficients. The adaptive weights λint and λic evolved smoothly during the warm-up stage, achieving stable convergence within 4000 iterations. The residual loss and L2
+
+error histories are shown in Fig. 7, where the HSPINN achieves monotonic error decay, while the SPINN baseline stagnates at higher error levels due to imbalance between the interior and initial losses. The predicted spatiotemporal fields and pointwise errors are presented in Fig. 6. The HSPINN success-fully preserves the phase and amplitude of the traveling wave across the entire domain, with relative 
+
+L2 error below 10 −3. In contrast, the SPINN prediction shows phase shifts and amplitude damping along the convective direction, indicating numerical diffusion and poor constraint enforcement. These results confirm that the proposed hard–soft hybrid strategy, combined with adaptive softmaxbalancing, effectively captures the advective transport and periodic dynamics of the convection problem. 19 (a) 
+
+## (b) Figure 6: Predicted spatiotemporal field and corresponding error distributions for the convection–diffusion equation. Sub-figure (a) corresponds to the HSPINN model, and subfigure (b) corresponds to the SPINN model. In each subfigure, the left and middle panels display the ground-truth and predicted solutions u∗(x, t ) and ˆu(x, t ), respectively, while the right panel presents the pointwise error (ˆ u − u∗). The HSPINN accurately preserves preserves the phase and amplitude of the traveling wave, resulting in a consistently small residual, whereas the SPINN exhibits noticeable amplitude damping and phase shift along the convective direction. 
+
+20 (a) 
+
+## (b) Figure 7: Training convergence and adaptive weight evolution for the HSPINN and SPINN models applied to the equation. Subfigure (a) presents the L2 error decay during the Adam and LBFGS optimization stages. The HSPINN achieves progressive error reduction, reaching an L2 level below 10 −3, whereas the SPINN fails to converge effectively. Subfigure (b) depicts the evolution of the softmax-based adaptive weights λk during the Adam warm-up. In HSPINN, the interior and boundary weights adaptively stabilize, indicating well-balanced learning dynamics, while in SPINN, the weights rapidly collapse to fixed values, suggesting poor loss interaction and limited optimization flexibility. 
+
+3.5. Discussion 
+
+The collective evidence across the three representative PDE classes – elliptic (Poisson), parabolic (Burg-ers), and hyperbolic (pure convection) – indicates that the proposed HSPINN framework is both robust and broadly applicable. Dirichlet boundaries are satisfied to machine precision in all tests, confirming the correctness of the analytic lifting and masking construction. Relative to a fully soft PINN, the hybrid formulation exhibits smoother loss decay, fewer apparent local minima, and markedly reduced sensitivity to penalty weights. These behaviors are attributed to the reduced hypothesis space and improved condi-tioning of the training objective once Dirichlet penalties are eliminated. Neumann or initial constraints are handled effectively as soft terms without geometry-specific embeddings or ad hoc rescaling, while full compatibility with AD is retained. 21 To quantify efficiency and accuracy, representative time and final error statistics are summarized in Table 1. Across the benchmarks, HSPINN reached the target with fewer optimizer steps and lower wall-clock time, while achieving equal or better accuracy. The largest improvements were observed for the oscillatory/mixed-boundary elliptic case and for the advective hyperbolic case, where removal of large Dirichlet penalties stabilizes gradients and prevents loss-term competition.     
+
+> Table 1: Wall-clock training time and final relative error for SPINN vs. HSPINN on three benchmark problems. Times were measured on the same GPU. Final L2denotes the relative root-mean-square error over the evaluation grid. A dash indicates that the target tolerance was not reached within the allotted training budget.
+
+Problem (Type) SPINN Time [s] HSPINN Time [s] SPINN L2 HSPINN L2
+
+Poisson (Elliptic) 315 123 1.523 × 10 −5 1.020 × 10 −7
+
+Burgers (Parabolic) 170 128 5.256 × 10 −6 7.623 × 10 −8
+
+Convection (Hyperbolic) 516 160 3.023 × 10 −2 5.752 × 10 −7
+
+The data in Table 1 indicate that the hybrid architecture improves both convergence rate and accuracy across all three PDE categories. On average, HSPINN reduces wall-clock time to the stated tolerance while producing lower residual and generalization errors. For the Poisson problem with mixed Dirichlet– Neumann boundaries, the final relative error was reduced from 1.52 × 10 −5 (SPINN) to 1.02 × 10 −7
+
+(HSPINN). For the Burgers problem, a two-order-of-magnitude gap in the final error (approximately 
+
+5.26 ×10 −6 vs. 7.62 ×10 −8) was observed with smoother, monotonic convergence. For the pure-convection case, HSPINN attained a small relative error ( 5.75 ×10 −7), whereas SPINN failed to capture the behavior of the data. It is emphasized that these benefits were obtained without increasing the number of trainable parameters or altering the underlying optimizers. Per-iteration computational cost remains identical to that of a standard PINN; the observed gains arise purely from the improved conditioning of the loss landscape and the elimination of redundant penalty optimization. Overall, embedding Dirichlet constraints directly into the neural representation restricts the feasible space to boundary-admissible functions and allows the optimizer to focus on the governing dynamics and soft constraints (Neumann or initial). Consequently, HSPINN consistently surpasses SPINN in accuracy, convergence rate, and wall-clock efficiency while preserving architectural simplicity and full compatibility with modern AD frameworks. Future work will extend the approach to irregular domains, vector-valued systems, and inverse problems where accurate and efficient constraint handling is equally critical. 
+
+4. Conclusions 
+
+A unified hybrid hard–soft physics-informed neural network framework has been proposed for solving representative elliptic, parabolic, and hyperbolic partial differential equations with mixed boundary and 22 initial conditions. In this formulation, Dirichlet constraints are imposed exactly through analytic lift-ing and masking functions, while Neumann, initial, and governing PDE constraints are applied softly via residual minimization. This combination eliminates the need for large Dirichlet penalty terms and improves the conditioning of the optimization landscape without altering network size or training algo-rithms. Comprehensive experiments on three canonical problems—the Poisson equation (elliptic), the Burgers equation (parabolic), and the pure-convection equation (hyperbolic)—demonstrated that HSPINN con-sistently outperforms the conventional soft PINN. Across all tests, Dirichlet boundaries were satisfied to machine precision, and the relative L2 errors were reduced by one to two orders of magnitude. HSPINN also achieved faster convergence and lower wall-clock time, speed up training time by approximately 1.3×–
+
+3.2× on average while maintaining stable loss evolution and monotonic error decay. In the pure-convection case, HSPINN accurately preserved phase and amplitude propagation, whereas SPINN exhibited phase drift and amplitude damping. The proposed framework remains fully compatible with AD and standard deep learning toolchains such as PyTorch . Because hard boundary enforcement is implemented architecturally, it can be extended to higher-dimensional or irregular domains using distance-based masks or coordinate charts, and to coupled or multiphysics systems without modification to the training procedure. Future research will focus on extending HSPINN to vector-valued PDE systems, data-driven inverse problems, and adaptive sampling strategies that further enhance efficiency and generalization. Overall, the HSPINN framework provides a simple, stable, and scalable approach that bridges analytic boundary satisfaction with flexible neural optimization, offering a practical pathway toward more accurate and computationally efficient physics-informed learning. 
+
+References 
+
+[1] Duc Tien Nguyen, Nguyen Cong Tan, Darlington Yawson, and Dinh Gia Ninh. Inverse problem solution and optimization in the vibration analysis of nanocomposite cylindrical shell using l-bfgs-b algorithm. Composite Structures , 370:119309, 2025. [2] Duc Tien Nguyen and Dinh Gia Ninh. Modeling and quantifying uncertainty in nanocomposite shell vibrations using heteroscedastic gaussian processes. Engineering Applications of Artificial Intelli-gence , 157:111290, 2025. [3] Kohei Soga. Mathematical analysis of a finite difference method for inhomogeneous incompressible navier–stokes equations. Numerische Mathematik , 156(5):1809–1853, 2024. [4] Thomas JR Hughes. The finite element method: linear static and dynamic finite element analysis .Courier Corporation, 2012. 23 [5] Georgios Akrivis, Charalambos G Makridakis, and Costas Smaragdakis. Runge–kutta physics in-formed neural networks: formulation and analysis: G. akrivis et al. Numerische Mathematik , 157 (6):1975–2016, 2025. [6] Animikh Biswas, Jing Tian, and Suleyman Ulusoy. Error estimates for deep learning methods in fluid dynamics. Numerische Mathematik , 151(3):753–777, 2022. [7] Duc Tien Nguyen, Nguyen Duc Manh, Nguyen Manh Dzung, and Dinh Gia Ninh. Highly effi-cient prediction of beating phenomena in laminated nanocomposite plates using a hybrid neural– numerical–analytical framework. European Journal of Mechanics-A/Solids , page 105844, 2025. [8] Nguyen Cong Tan, Nguyen Duc Tien, Nguyen Manh Dzung, Nguyen Hoang Ha, Nguyen Thanh Dong, and Dinh Gia Ninh. Utilizing optimal physics-informed neural networks for dynamical analysis of nanocomposite one-variable edge plates. Thin-Walled Structures , 202:111928, 2024. [9] Salvatore Cuomo, Vincenzo S. Di Cola, Fabio Giampaolo, Gianluigi Rozza, Maziar Raissi, and Francesco Piccialli. Scientific machine learning through physics-informed neural networks: Where we are and what’s next. Journal of Scientific Computing , 92(3):88, 2022. doi: 10.1007/ s10915-022-01939-z. [10] Sifan Wang, Yujun Teng, and Paris Perdikaris. Understanding and mitigating gradient pathologies in physics-informed neural networks. SIAM Journal on Scientific Computing , 43(5):A3055–A3081, 2021. doi: 10.1137/20M1318043. [11] Aditi S. Krishnapriyan, Amir Gholami, Sibo Zhe, Robert M. Kirby, and Michael W. Mahoney. Characterizing possible failure modes in physics-informed neural networks. Advances in Neural Information Processing Systems (NeurIPS) , 34:26548–26560, 2021. [12] Ameya D. Jagtap, Ehsan Kharazmi, and George E. Karniadakis. Extended physics-informed neural networks (xpinns): A generalized space-time domain decomposition based deep learning framework for nonlinear partial differential equations. Communications in Computational Physics , 28(5):2002– 2041, 2020. doi: 10.4208/cicp.OA-2020-0164. [13] Lu Lu, Raphael Pestourie, Wenjie Yao, Zhicheng Wang, Francesc Verdugo, and Steven G John-son. Physics-informed neural networks with hard constraints for inverse design. SIAM Journal on Scientific Computing , 43(6):B1105–B1132, 2021. [14] Lu Lu, Xuhui Meng, Zhiping Mao, and George E. Karniadakis. Deepxde: A deep learning library for solving differential equations. SIAM Review , 63(1):208–228, 2021. doi: 10.1137/19M1274067. [15] Zhenyu Song, Xuhui Meng, and George E. Karniadakis. Hard constraint enforcement for physics-informed neural networks using distance functions. Computer Methods in Applied Mechanics and Engineering , 393:114778, 2022. doi: 10.1016/j.cma.2022.114778. 24 [16] Pavan Karumuri, Piyush Gajjar, and Prasanth Nair. Hard boundary condition enforcement in pinns using signed distance and neural basis functions. Computer Methods in Applied Mechanics and Engineering , 417:116542, 2023. doi: 10.1016/j.cma.2023.116542. [17] Aliyu Muhammed Awwal, Lin Wang, Poom Kumam, Mohammed Ibrahim Sulaiman, Sani Salisu, Nasiru Salihu, and Petcharaporn Yodjai. Generalized rmil conjugate gradient method under the strong wolfe line search with application in image processing. Mathematical Methods in the Applied Sciences , 46(16):17544–17556, 2023. [18] Baoli Hao, Ulisses Braga-Neto, Chun Liu, Lifan Wang, and Ming Zhong. Structure preserving pinn for solving time dependent pdes with periodic boundary. arXiv preprint arXiv:2404.16189 , 2024. [19] Woojin Cho, Minju Jo, Haksoo Lim, Kookjin Lee, Dongeun Lee, Sanghyun Hong, and Noseong Park. Parameterized physics-informed neural networks for parameterized pdes. arXiv preprint arXiv:2408.09446 , 2024. [20] Maziar Raissi, Paris Perdikaris, and George E. Karniadakis. Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations. Journal of Computational Physics , 378:686–707, 2019. doi: 10.1016/j.jcp. 2018.10.045. [21] Levi McClenny and Ulisses Braga-Neto. Self-adaptive physics-informed neural networks using a soft attention mechanism. arXiv preprint arXiv:2009.04544 , 2020. [22] Sifan Wang, Hanze Wang, and Paris Perdikaris. Respecting causality for training physics-informed neural networks. Computer Methods in Applied Mechanics and Engineering , 404:115783, 2022. doi: 10.1016/j.cma.2022.115783. [23] Lei Yang, Xuhui Meng, and George E. Karniadakis. Learning to accelerate partial differential equations via latent global evolution. Nature Machine Intelligence , 4(12):1071–1083, 2022. doi: 10.1038/s42256-022-00541-8. [24] Peng Qi, Wei Zhou, and Jizhong Han. A method for stochastic l-bfgs optimization. In 2017 IEEE 2nd International Conference on Cloud Computing and Big Data Analysis (ICCCBDA) , pages 156–160. IEEE, 2017. [25] M. D. McKay, R. J. Beckman, and W. J. Conover. A comparison of three methods for selecting values of input variables in the analysis of output from a computer code. Technometrics , 21(2): 239–245, 1979. [26] Harald Niederreiter. Random Number Generation and Quasi-Monte Carlo Methods , volume 63 of 
+
+CBMS-NSF Regional Conference Series in Applied Mathematics . SIAM, 1992. 25 [27] Zhao Chen, Vijay Badrinarayanan, Chen-Yu Lee, and Andrew Rabinovich. Gradnorm: Gradient normalization for adaptive loss balancing in deep multitask networks. In ICML , pages 794–803, 2018. [28] Diederik P. Kingma and Jimmy Ba. Adam: A method for stochastic optimization. In International Conference on Learning Representations , 2015. [29] Stephen Wright, Jorge Nocedal, et al. Numerical optimization. Springer Science , 35(67-68):7, 1999. [30] Philipp Hennig and Martin Kiefel. Quasi-newton methods: A new direction. The Journal of Machine Learning Research , 14(1):843–865, 2013. [31] John Taylor, Wenyi Wang, Biswajit Bala, and Tomasz Bednarz. Optimizing the optimizer for data driven deep neural networks and physics informed neural networks. arXiv preprint arXiv:2205.07430 ,2022. [32] Mian Mian Lau and King Hann Lim. Review of adaptive activation function in deep neural network. In 2018 IEEE-EMBS Conference on Biomedical Engineering and Sciences (IECBES) , pages 686–690. IEEE, 2018. [33] Leonid Datta. A survey on activation functions and their relation with xavier and he normal initial-ization. arXiv preprint arXiv:2004.06632 , 2020. 26

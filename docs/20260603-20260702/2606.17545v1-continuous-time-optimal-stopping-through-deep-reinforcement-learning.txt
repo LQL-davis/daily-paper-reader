@@ -1,0 +1,1070 @@
+Title: Continuous-time Optimal Stopping through Deep Reinforcement Learning
+
+URL Source: https://arxiv.org/pdf/2606.17545v1
+
+Published Time: Wed, 17 Jun 2026 00:34:26 GMT
+
+Number of Pages: 33
+
+Markdown Content:
+# Continuous-time Optimal Stopping through Deep Reinforcement Learning 
+
+Cosmin Borsa and Mike Ludkovski ∗
+
+First announced: June 15, 2026 
+
+Abstract 
+
+Simulation based solvers for optimal stopping problems must discretize the stopping deci-sion. Under classical dynamic programming, a coarse exercise grid with only a few stopping opportunities can materially undervalue the optimal expected reward, whereas on a very fine grid, approximation errors accumulate through the backward recursion. To remove this limita-tion, we develop a new reinforcement-learning inspired algorithm that enables us to learn the exercise rule at arbitrarily fine time resolution. Our CARLOS algorithm utilizes an aggregate deep neural network (ADNN) to learn a joint space-time decision boundary. Starting from a coarse time grid, we progressively increase the frequency of stopping opportunities, while in parallel training the ADNN to refine its timing-value estimates. We moreover design an adap-tive sampling strategy that gradually concentrates training effort near the stopping boundary. Benchmarked results show that CARLOS delivers higher prices than existing Bermudan solvers, approaching the American upper bound, and achieves high computational efficiency relative to to non-RL comparators. 
+
+# 1 Introduction 
+
+Simulation-based solvers for Optimal Stopping problems (OSP), exemplified by the Longstaff-Schwartz (LSMC) framework [25], have been a core part of the quantitative finance toolbox over the past 25 years. Indeed, OSPs are ubiquitous, for example arising in the pricing of all single-name Puts in U.S. markets. Since these solvers operate with simulated trajectories of the underlying stochastic processes, time discretization is a necessary step in their implementation. Consequently, the convention is to focus on the Bermudan formulation where a pre-specified exercise frequency ∆t is given. Real-life contracts are American-style and can be exercised at any point. Mathematically, the role of the time-step ∆ t is well understood [11] and the LSMC-inspired methods can be imple-mented at any frequency, so that in theory one can recover the American-style solution at arbitrary precision. In practice, however, LSMC methods have an intrinsic issue of error back-propagation, which tends to be severe. As a result, one is usually limited to quite coarse ∆ t’s, creating a ma-terial gap to exercise-anytime value. Despite the vast extant literature on machine learning for 
+
+> ∗Department of Statistics & Applied Probability, UC Santa Barbara. Santa Barbara, CA 93106-3110, USA
+
+1
+
+> arXiv:2606.17545v1 [cs.LG] 16 Jun 2026
+
+OSPs [27], to our knowledge this gap between feasible Bermudan solvers and the original American specification has never been adequately addressed. In this paper we propose a new algorithm that explicitly targets American-style contracts. To this end, we employ Reinforcement Learning (RL) to learn the continuous-exercise optimal stopping strategy. We start from a coarse LSMC solver and gradually refine the exercise frequency, employing neural network (NN) surrogates to approximate the underlying timing values. This refinement can be done up to any specified frequency ∆ tex and because no backward iteration is involved, it essentially eliminates error accumulation. We demonstrate that our method (i) effectively closes the Bermudan-American value gap; (ii) is much more efficient (i.e., faster) than a brute force approach running LSMC at a high exercise frequency. The starting idea of our solver is to aggregate the collection of time-discretized stopping rules— indexed by the time step—into a single deep NN surrogate that approximates the entire timing value hypersurface, continuously across t and input state x. This NN provides a stopping decision for any t ∈ [0 , T ] (rather than on a discrete grid like in traditional solvers), and the main task becomes to train it to learn the continuous-time stopping rule. This shift from the original coarse-grained exercise rule to the desired continuous exercise frequency, raises two novel challenges whose resolution is a key part of our methodological contribution. The first challenge we must contend with is of concept drift —the distribution of the training data changes as training proceeds. This is because the pathwise rewards that underlie the LSMC paradigm are intrinsically tied to the exercise frequency. Hence, even on the same simulated trajectory, the stopping time and the collected reward will shift as exercise frequency is refined. To solve this challenge, in parallel with the RL training, we gradually traverse a collection of exercise grids. In particular, we show that a good rule of thumb is to iteratively halve the time steps ∆ t(b) every few RL iterations. The second challenge relates to the fact that the stopping region intrinsically shrinks as ∆ t → 0. This implies that some inputs might be in the stopping region for a given ∆ t but end up in the continuation region for a smaller ∆ t′. However, the base approach immediately stops any trajectory that is in the stopping region, which effectively prevents re-training the NN to expand the continuation region. To solve this issue, we introduce a novel “delayed stopping” technique that adds an exploratory aspect to the training. In all, our algorithm, dubbed CARLOS (Continuous-time Adaptive Reinforcement Learning for Optimal Stopping), is initialized via a regular (but coarse) LSMC step and then trains the neural network surrogate via about a dozen RL loops while traversing 3-6 time-discretization levels. The final decision rule treats t as a continuous input and can be evaluated at arbitrary exercise frequency. 
+
+1.1 Reinforcement Learning for Optimal Stopping 
+
+The dominant approach to pricing of Bermudan options relies on Dynamic Programming (DP) which consists of backward recursion. The LSMC strategy [25] moves backward from option matu-rity tK = T to t0 = 0, using (linear) regression to learn the continuation value which corresponds to a conditional expectation of future expected payoff. Thus, a new regression is done at each time step tk and is coupled to previous regressions (for tℓ > t k) that determine those future payoffs, causing error back-propagation. 2The alternative to DP borrows from the Markov Decision Process literature, namely policy-and value-iteration techniques. RL dispenses with the recursive logic and aims to learn the global stopping policy from forward samples. Training data across different time steps is used jointly to improve the approximation in space and time, resembling transfer learning across tk’s. For optimal stopping, this learning is “reinforcing” because the training samples, i.e., the pathwise rewards, are simulated based on the current stopping rule and the stochastic environment. Unlike LSMC, RL therefore seeks a single “aggregate” state-action emulator Q(x, a ), where state s ≡ (t, x ) now refers both to the stochastic state like underlying asset values, and time t. Early versions of such approaches appeared in [33, 38, 24] using linear approximation (least squares regression against a fixed set of basis functions). Li et al. [24] derived bounds on least-squares policy iteration which is the implementation of RL with linear representation of action-state map in terms of basis functions. The linear structure allows to express RL policy errors in terms of underlying (finite-sample) projection error. Such Q-learning is the basis for our RL framework. The special feature of optimal stopping is that the action space is particularly simple, being binary. Denoting by a = 0 stopping and a = 1 continuation, the reward from a = 0 is explicit, so one only needs to model Q(s, 1). Herrera et al. [18] proposed the RRLM variant which uses randomized Q-fitting iterations to learn the state-action emulator. Another deep-learning inspired implementation of RL for discrete-time optimal stopping is in [23]. One attraction of RL is the ability to handle fully data-driven setups where no such model is available. For American option pricing this corresponds to directly training on past stock trajecto-ries without specifying stochastic dynamics. This “model free” idea was explored in [13] and most recently in [9, 7]. Related control settings where RL is applied include [8, 37]. In our setup, the RL is model-based: the stochastic environment is fully specified and hence arbitrarily many samples can be generated. In particular, we are able to employ adaptive sampling during our training, to preferentially explore regions of interest. 
+
+1.2 Deep Learning for Optimal Stopping 
+
+RL is naturally intertwined with deep learning as policy or value learning go hand in hand with the iterative training of a NN surrogate. Deep learning has been applied extensively to optimal stopping and in this section we summarize the relevant literature. To our knowledge, the first application of neural networks in LSMC was in Kohler et al. [20] who employed shallow single-layered NNs to approximate the conditional expectation underlying Snell envelopes. More recently, Lapeyre and Lelong [21] and Becker et al. [4] considered more advanced deep learning methods, in particular to deal with high-dimensional settings. A key motivation for NNs is to circumvent the well-known challenge of basis function selection in traditional LSMC. Thus, deep NN emulators are employed as flexible approximators that provably converge [21, 16] (in the regime of increasing the network size) by a suitable variant of the universal approximation theorem. While offering high expressivity, training a NN is a non-convex objective and requires gradient descent iterations. As an intermediate approach between classical least squares regression and NN training, Herrera et al. [18, Section 2] proposed the RLSM algorithm where the inner layer weights of the NN are randomly sampled and only the last layer is optimized. This randomized 3approach allows to retain a convex objective, solved via classical linear regression equations, and can be understood as picking expressive random bases. All the above works maintain the DP logic of backward recursion, constructing a separate NN emulator at each tk. In practice, these emulators are very similar, since the stopping policies at two adjacent time steps are so. This observation is not new; for example both [21] and [4] exploit it during backward recursion, by re-using the same NN object and gradually updating it. Such warm starts leverage the gradient descent paradigm of deep learning and substantially speed up training time. Taking this logic a step further, Guo et al. [17] proposed a single NN for Q(s, 1) that takes time t and location x as inputs to approximate continuation values across space-time. This variation increases the prediction accuracy while decreasing the computational time. To train their NN, [17] initially set the stopping time to maturity and perform training-updating loops in a basic reinforcement learning setting until a predefined criterion is met. Additional NN-based approaches were proposed by [3] who targeted learning the 0/1 stopping decision rule and by [31] who approximated the epigraph of the stopping set. Finally, we mention the body of work that utilizes NNs to solve a free-boundary partial differential equation for the option price derived via Feynman Kac formulas, see e.g. deep Galerkin methods [32] and backward stochastic differential equations [6, 15, 35] both of which specifically tackle American option pricing. From the implementation side, the precise architecture of the NN can make a significant dif-ference. Dense feed-forward networks have been used in [20] (a shallow 1-layer version), as well as [18, 21, 4]. [14] proposed convolutional NNs, while [9] proposed recurrent NNs. For RL-type methods, [13] applied customized Double Deep Q-Network (DDQN), Categorical Distributional RL, and Implicit Quantile Networks, deploying LSTM architecture with a dynamic layer and a dropout wrapper to capture long-term dependencies in sequential data. [12] employ a fully con-nected feed-forward NN for a Q-learning approach to recover the optimal stopping times. One of the motivations for our study is to control error back-propagation in LSMC. In that vein, we also mention various modified LSMC methods [39, 2] that correct the errors accumulated during the backward iteration steps. The rest of the paper is organized as follows. Section 2 sets up the simulation-based framework for solving optimal stopping problems. Section 3 presents our new CARLOS algorithm. After a couple of illustrations with a classical 1-dim Put and 2-dim Max Call options, in Section 3.3 we present the benchmarked results over a collection of American options that have been considered in the literature. Section 4 provides the full methodology of our method, including input selection, output generation, and neural network construction details. Along the way, we discuss the key tun-ing parameters of CARLOS through several comparative statics experiments and gives a guidance for users. Section 5 concludes. 
+
+# 2 Optimal Stopping via Dynamic Programming 
+
+We adopt a state-space framework: let ( Xt) be the d-dimensional Markov stochastic state process on a probability space (Ω , P, F), taking values in X ⊂ Rd and adapted to a filtration F := ( Ft)t∈[0 ,T ].4The reward at time t is given by h(Xt), where h : X 7 → R satisfies 
+
+E sup 
+
+> 0≤t≤T
+
+|h(Xt)| < ∞. (1) We interpret h(x) as the (time-stationary) payoff obtained if the state is x ∈ X , and P as the pricing ( risk-neutral ) measure. For instance, for a Put option h(x) = ( K − x)+. Let r represent the discount rate, assumed to be constant; stochastic discounting or time-dependent payoffs can be embedded as a coordinate of X and then subsumed in h(·). Consider a contract maturity T . We use T to denote a time grid ; in what follows for simplicity we restrict attention to uniform grids with a constant step. Indexing grids by their size N , we write 
+
+T(N ) = {t0 = 0 , t 1, . . . , t N = T } with ∆t(N ) = tn+1 − tn = TN , n = 0 , . . . , N − 1. (2) Let Tt denote the set of all F-stopping times taking values in [ t, T ], and similarly T (N ) 
+
+> n
+
+for the 
+
+T(N )-valued stopping times that take values in τ ∈ { tn, t n+1 . . . . , t N }. When N is clear we drop the superscript and just write Tn.The Bermudan formulation of the OSP for a given frequency ∆ t(N ) = T /N is to compute the value function V (N ) : T(N ) × X 7 → R,
+
+V (N )(tn, x ) := sup    
+
+> τ∈T (N)
+> n
+
+E
+
+h
+
+e−r(τ −tn)h(Xτ )| Xtn = x
+
+i
+
+, x ∈ X , n ∈ { 0, . . . , N − 1}, (3) by finding an optimal stopping time τ ⋆n ∈ T (N ) 
+
+> n
+
+at which the supremum of the discounted reward process {e−rt k h(Xtk )}Nk=n is attained [30, p. 12]. The American formulation is to solve for 
+
+V (t, x ) := sup  
+
+> τ∈T t
+
+E
+
+h
+
+e−r(τ −t)h(Xτ )| Xt = x
+
+i
+
+. (4) Classical results [11] imply that V (N )(t, x ) ↑ V (t, x ) as N → ∞ , with a difference on the order of 
+
+O(N −1). Hence, a sufficiently fine-grained Bermudan option can be used to approximate arbitrarily well the value of the American contract. 
+
+2.1 Backward Learning 
+
+In this section we fix the grid T(N ) and review the sequential LSMC approach for approximating 
+
+V (N )(0 , x 0). This is both to contrast with RL and because LSMC is a way to initialize our overall algorithm. The idea of LSMC is to approximate the optimal stopping strategy on T(N ) by pathwise 
+
+dynamic programming : deriving a sequence of stopping times τ ⋆n , indexed by the time step 
+
+tn, by backward induction from tN = T . We focus on the timing values T (tn, x ) defined as the 5difference between the continuation value ˜ q(t, x ) and the immediate reward h(x): 
+
+T (tn, x ) := ˜ q(tn, x ) − h(x) where (5) ˜q(tn, X tn ) := E
+
+h
+
+e−r(τ ⋆n −tn)h(Xτ ⋆n ) | F tn
+
+i
+
+, (6) where τ ⋆n is an optimal stopping time in Tn. The theory of Snell envelopes identifies τ ⋆n with the first instance when the timing value becomes non-positive, 
+
+τ ⋆n = min {tk ∈ T n : ˜ q(tk, X tk ) ≤ h(Xtk )} = min {tk ∈ T n : T (tk, X tk ) ≤ 0} . (7) Using ˜q(tn, X tn ) = e−r∆tE ˜q(tn+1 , X tn+1 ) | F tn
+
+ , (8) one-step-ahead pathwise samples of T (tn, ·) are obtained via 
+
+w(tn, x kn) := e−r∆t ˜q(tn+1 , x kn+1 ) − h(xkn), (9) where xkn+1 is a sample of Xtn+1 conditional on Xtn = xkn, for a collection k ∈ { 1, . . . , K }. The typical construction is to create K trajectories of the process X labeled cross-sectionally as xn =
+
+{xkn, k = 1 , . . . , K }, for n = 0 , . . . , N .One may lift from these samples to the overall L2-prediction by regressing the K pathwise timing values w(tn, xn) against xn. The least-squares regression yields a surrogate Rn whose predicted timing values ˆT (tn, xn) define the pathwise stopping times {τ kn } and pathwise continuation values 
+
+qkn ≡ ˜q(tn, x kn) as follows (τ kn , q kn) = 
+
+
+
+(tn, h (xkn)) if ˆT (tn, x kn) ≤ 0 and h(xkn) > 0; (τ kn+1 , e −r∆tqkn+1 ) otherwise . (10) The recursion for qkn is based upon ˜ q(tn, x ktn ) ≃ e−r(τ kn −tn)h(xkτ kn
+
+), where the latter expression is an unbiased estimator of (6). Another familiar functional representation is ˜q(tn, x ) = max  E[e−r∆t ˜q(tn+1 , X tn+1 )|Xtn = x], h (x) .
+
+For a given trajectory {xkn}Nn=0 , if the immediate payoff at a time step tn is positive and the estimated timing value is non-positive, then we should stop τ kn = tn. Otherwise, we should continue ,and the pathwise stopping time is the one computed in the time step τ kn+1 . For a fixed step n,the set ( τ kn )Kk=1 can be interpreted as a sample of τ ⋆n . Finally, the backward recursion is run from 
+
+n = N down to n = 0 to yield a sequence of regression emulators {Rn}N −1 
+
+> n=0
+
+.
+
+Remark 1 We use neural networks as the regression emulators {Rn}N −1 
+
+> n=1
+
+, training them via stochas-tic gradient descent. The “first” network RN −1 is initialized with random parameters ˜θN −1, drawn from Gaussian or continuous uniform distributions [20]. For subsequent networks, to improve per-
+
+6formance their weights and biases are initialized by an average of the previous (in t) weights and biases, cf. [17] since the current parameters ˜θn is similar to the previous ˜θn+1 . This warm starting reduces training time. 
+
+The timing values are converted into a stopping rule ϕ according to 
+
+ϕ(t, x ) = 
+
+
+
+1 if ˆT (t, x ) ≤ 0 and h(x) ≥ 0, or if t = T, 
+
+0 otherwise; (11) where ϕ(t, x ) = 1 indicates stopping and ϕ(t, x ) = 0 continuation. Globally, the stopping strategy is summarized by the stopping region S := {(t, x ) : ϕ(t, x ) = 0 }. To obtain the ultimate option price, a separate forward evaluation Monte Carlo is needed. For a path {xt} starting from arbitrary (tinit , x init ) and progressing along the exercise grid T, the payoff is h(xτ ), where τ is the first time it leaves the continuation region C := {(t, x ) : ϕ(t, x ) = 1 },
+
+τ := min {t ∈ { tinit } ∪ T : ϕ(t, x t) = 0 } ∧ T. (12) Expected payoff, aka option price with initial state x0, is obtained as an empirical average over M
+
+paths originating at (0 , x 0). 
+
+2.2 Time Discretization Effects 
+
+Before explaining CARLOS, we discuss the dual role of time stepping, namely for decision opti-mization and for forward evaluation. The LSMC paradigm generates two fundamental sources of error. First, it works with stopping rules taking values in T(N ) rather than in continuous time. Second, the training of the surrogates 
+
+Rn is iterative in n = N, . . . , 0 and errors back-propagate. Further numerical errors, such as function approximation error (how well can the surrogate approximate the true T ) and Monte Carlo noise (how much do the particular samples affect the fitted network) can be in principle removed as sufficiently wide/deep NNs are arbitrarily expressive, and sufficiently many stochastic gradient descent steps make the Monte Carlo noise negligible. In contrast, the discretization error directly conflicts with the back-propagation. If we make N
+
+larger (∆ t smaller), then there is more error accumulation. This issue is well known in the folklore, and nearly all benchmarks include just a few time periods. Indeed, the typical recommendation is to keep the number of steps N well below 100, which may be reasonable for T < 1/2, but otherwise becomes quite restrictive. For example, the oft-cited benchmarks in [1] use T = 3 , N = 9, meaning there are just 9 exercise opportunities, with stopping allowed once every 4 months (∆ t(N ) = 1 /3), an extreme example of Bermudization. There are in fact two different discretization parameters when using a discrete-time solver for OSP. The exercise frequency ∆ tex controls when the reward may be collected during forward evaluation. Large ∆ tex values correspond to fewer stopping opportunities. The solver or “training” frequency ∆ ttr determines how often the maximum operator is applied when computing the Snell envelope. This parameter controls the resulting stopping policy, i.e., the exercise rule. While 7classically ∆ tex = ∆ ttr , they can be different: for instance, one may allow stopping very frequently even if the stopping policy is obtained from a coarse time grid; or conversely, one might have a fine-grained policy but exercise only rarely. Literally taking ∆ tex → 0 is unnecessary. First, the loss when using ∆ tex = T /N compared to continuous stopping when computing timing values is theoretically O(N −1) [11], so there is limited upside to refining ad infinitum. Second, to evaluate a rule with exercise frequency ∆ tex 
+
+takes effectively O((∆ tex )−1) = O(N ) effort since we must evaluate the machine learning surrogates 
+
+Rn(·) for every n = 1 , . . . , N (doubling the number of steps will require double the evaluations of 
+
+Rn’s). Third, the learning becomes more challenging as ∆ tex → 0 due to the smooth fit principle: in discrete time, there is (theoretically) a crisp classification between a timing value being positive (and hence not stopping) or negative. However, in continuous time, we have ∂x ˜T (t, x ) = 0 and min x ˜T (t, x ) = 0 so that the value function smooth pastes to the payoff function and the timing value is at least zero, never negative. This makes it harder to numerically determine whether to stop or continue at an input ( t, x ) close to the boundary. To illustrate, we price a 1-dimensional Bermudan Put option ( B1 from Table 2 below) using a variety of exercise frequencies ∆ tex and solver frequencies ∆ ttr . For the latter, we use the Crank-Nicolson partial differential equation solver (CN, which is second-order accurate in both time and space and is unconditionally stable [34, p. 156]) 1. Figure 1 displays the optimal exercise boundaries under various ∆ ttr ’s. Each boundary B[I] is a right-continuous function with steps at each {i∆ttr :
+
+i = 0 , 1, . . . , I }, where I = T / ∆ttr . A larger solver frequency ∆ ttr lowers potential future gains (as there are fewer opportunities to stop) and therefore makes the controller more impatient about collecting the reward early. Accordingly, in Figure 1 as ∆ ttr increases, the boundaries shift upwards. We note that as ∆ ttr decreases, the boundaries B[I] rapidly converge (to the boundary B[∞] of the American formulation). At the other extreme, we plot the European boundary B[0] that delineates the region (t, x ) ∈ [0 , T ] × X : E[e−r(T −t)h(XT ) Xt = x] = h(x) . (13) where the immediate payoff h(x) exceeds the price of the European-style contract, effectively cor-responding to the Bermudan formulation with ∆ ttr = T . The European boundary delineates the region where stopping decision must be evaluated—above it continuation is a priori optimal. Table 1 shows how the interplay between the exercise frequency ∆ tex and the solver frequency ∆ttr influences the expected reward. The classical case of ∆ tex = ∆ ttr is on the diagonal and shows that as expected more frequent stopping opportunities capture greater payoffs. The more interesting behavior is off-diagonal. When ∆ tex > ∆ttr , infrequent stopping “leaves money on the table” by skipping exercise opportunities. This results in lower rewards compared to ∆ ttr = ∆ tex .Conversely, when ∆ tex < ∆ttr , the stopping rule is too cautious: e.g., looking at the blue boundary in Figure 1 when the red one is optimal, yet the ability to stop more frequently still contributes to higher rewards. Making ∆ tex extremely small may lead to lower rewards. Testing the statistical significance of price differences between adjacent ∆ tex values in Table 1 suggests that for a given     
+
+> 1Both the CN and explicit finite-difference schemes use a time step ∆ tP DE ≤∆ttr to approximate time derivatives. The time step ∆ tP DE is inherent to the finite-difference method itself and chosen independently.
+
+8Figure 1: Optimal stopping boundaries of the 1-dimensional Bermudan Put option B1 from Table 2 computed via the CN method at various solver frequencies ∆ ttr . These boundaries were obtained by converting ϕ(t, x ) into contour lines. The CN method used ∆ tPDE = 1 /192 and ∆ x = 0 .02. The dashed contour shows the thresholds B[0] where the European Put becomes less valuable than its intrinsic value, cf. (13). ∆ttr highest rewards are obtained when ∆ tex ≃ 1/4 × ∆ttr 2. Finally we note that the MC-based payoffs are slightly different from those reported by the PDE solver due to the finite-difference and finite-domain boundary errors. ∆ttr 
+
+∆tex 112 124 148 196 1192 PDE  
+
+> 112
+
+4.571 4.584 4.587 4.585 4.582 4.567  
+
+> 124
+
+4.568 4.586 4.593 4.594 ∗∗ 4.593 ∗∗ 4.582  
+
+> 148
+
+4.564 4.585 4.594 4.597 4.597 ∗∗ 4.589  
+
+> 196
+
+4.559 4.583 4.594 4.598 4.600 4.593  
+
+> 1192
+
+4.553 4.579 4.592 4.599 4.601 4.595 Table 1: Average payoffs for the B1 contract from Table 2, estimated using 1 .6 × 10 6 Monte Carlo simulated paths and PDE-based stopping rules. Highest value in each row is bolded. Row-wise price differences between adjacent ∆ tex values are evaluated for statistical significance; standard deviations are approx. 0.0025 throughout. If the difference between a price and its right neighbor is not statistically significant, the right-side price is marked with ∗ at the 0.05 level and ∗∗ at the 0.01 level. For reference, the PDE-based prices for each ∆ ttr are also provided in the last column; the respective CN parameters are ∆ tPDE = 1 /192, ∆ x = 0 .02. Table 1 is one of the motivations for our RL approach. Indeed, we wish to “traverse” the table from the top-left (coarse Bermudan-style optionality) to the bottom-right (fine-grained American-style), by gradually refining ∆ tex and ∆ ttr . The Table shows that we need not to proceed strictly along the diagonal and crystallizes the distinction between training and forward-evaluation dis-cretizations. Part of our objective is then to analyze how much ∆ ttr must be reduced to obtain a sufficiently accurate American option price estimate and how to progressively maximize the ex-tracted payoff as exercise grids are refined. 
+
+> 2These findings are consistent across contracts, see Table A.3 in the Appendix.
+
+93 New Algorithm 
+
+3.1 Reinforcement Learning 
+
+To overcome the limitations of the classical LSMC method we develop a new RL-driven two-step approach: Stage 1a : Run the classical LSMC algorithm to construct a sequence of regression emulators. Stage 1b : Train an aggregate deep neural network using the data from Stage 1a; Stage 2 : Run an RL algorithm that gradually refines the timing values by retraining the ADNN. In Stage 1, we use a coarse time grid and aim for a moderate accuracy level. The goal is to have a reasonable starting point for the RL: the primary effort and computational resources are reserved for Stage 2. To initialize the RL, we stack the training data ( y, (t, x)) generated by the classical LSMC in Stage 1a across all the time steps and use it to train a global regressor RΘ,henceforth referred to as the aggregate deep neural network (ADNN), where Θ denotes its trainable parameters (distinguished from the NN parameters θn, n = 0 , . . . , N in Stage 1a). The ADNN incorporates both the time and spatial dimensions as inputs, setting the stage to learning out-of-sample timing values corresponding to smaller solver frequencies. The core RL iterations in Stage 2, indexed by the loop counter ℓ, serve two concurrent objectives. The first role of the loop is to refine the stopping frequency ∆ ttr . The second role is to converge to the optimal ADNN weights through training on additional inputs, resolving inaccuracies inherited from Stage 1 while mitigating error accumulation. The two objectives must be achieved gradually and in parallel due to the underlying challenge of concept drift : changing the distribution of training inputs and outputs. To formalize our grid refinement, we define a sequence of nested time grids T(b) ⊇ T(b−1) ,
+
+b = 0 , . . . , B and label the exercise grid as T(ex,b ) and the solver grid as T(tr,b ). We use the coarsest 
+
+T(tr, 0) for Stage 1 which also serves to initialize the RL in Stage 2. To update the ADNN R[ℓ], in each loop ℓ we generate a set of M input-output pairs ( y, (t, x)) [ℓ],with boldface denoting vectors y[ℓ] = y1: M , etc. A detailed explanation of how these input-output collections are constructed is provided in Sections 4.2 and 4.3. After each training update, algorithm logic is used to decide what should be the next exercise frequency: either keeping the same grid 
+
+T(tr,b ) or shifting to the next finer grid T(tr,b +1) , see Section 4.5. The learning continues until the ADNN has been trained on the finest solver grid T(tr,B ), see the pseudocode of CARLOS in Algorithm [1]. For visualization purposes, we primarily track the stopping boundaries associated with each 
+
+R[ℓ]. Given the ADNN R[ℓ], the corresponding stopping boundary is defined as 
+
+B[ℓ] = (t, x ) ∈ [0 , T ] × X : ˆT [ℓ](x) = 0 (14) where ˆT [ℓ] denotes the timing value estimated by R[ℓ]. The boundary separates the stopping region 
+
+S[ℓ] and the continuation region C[ℓ].10 Algorithm 1 CARLOS: Continuous-time Adaptive Reinforcement Learning for Optimal Stopping 
+
+Require: Initial ADNN R[0] ; RL parameters e.g. Solver grids T(tr,B ) ⊇ . . . ⊇ T(tr, 0) , Learning rate 
+
+η[0] , Training set size M ; Path and contract parameters . 
+
+> 1:
+
+Initialize loop count ℓ ← 0 and grid index b ← 0 
+
+> 2:
+
+while b ≤ B do  
+
+> 3:
+
+Generate M inputs ( t, x)[ℓ] 
+
+> 4:
+
+Generate M respective outputs y[ℓ] based on rewards on paths with step-size ∆ t(ex ),b  
+
+> 5:
+
+Update to ADNN R[ℓ+1] by training R[ℓ] on ( y, (t, x)) [ℓ] with learning rate η[ℓ] 
+
+> 6:
+
+Set ℓ ← ℓ + 1  
+
+> 7:
+
+Update grid level b and learning rate η[ℓ+1]  
+
+> 8:
+
+end while  
+
+> 9:
+
+return Final refined ADNN R[ℓ]
+
+3.2 Time Grid Refinement 
+
+The ADNN R[ℓ] is trained on input-output samples which directly depend on the underlying solver frequency ∆ ttr,b . Consequently, if one were to initialize the ADNN with a coarse solver grid T(tr, 0) 
+
+and then immediately switch to a fine time grid T(tr,B ), the underlying training samples would shift significantly, strongly affecting the next learning steps. The mismatch between what the network has learned so far and what it is shown next creates an extrapolation error that hurts learning. To give the ADNN time to adapt, we therefore gradually refine the time grids so that we simultaneously learn to stop on a finer grid and discover the best ADNN parameters Θ governing that strategy. At each learning loop ℓ, CARLOS adaptively decides whether to transition to a finer solver grid or keep it the same. To this end, we assess incremental gains via a set of validation paths . Namely we fix a database of V paths {x}1: V and compute the reward vector Υ [ℓ] over these V paths {x}1: V
+
+using the grid T(ex,b ) and the ADNN R[ℓ]. The pathwise reward differences D[ℓ] := Υ [ℓ]−Υ[ℓ−1] across successive loops are used to ascertain whether the learning at level b has saturated. Once average 
+
+D[ℓ] is not statistically different from zero, the RL algorithm advances to the next grid T(tr,b +1) in the schedule, see Section 4.5. When transitioning to a new solver grid, we decrease the learning rate according to η[b+1] =
+
+αdec · η[b]. This stabilizes training and preserves recent performance gains by limiting further changes to the ADNN’s learned parameters. We take η[0] = 10 −4 and αdec = 0 .7 as the default initial learning rates and decay factors. The RL ends when the ADNN has been fully trained on the finest grid T(tr,B ).
+
+Remark 2 The RL algorithm may also be terminated when the reward difference between consec-utive solver grids, T(tr,b ) and T(tr,b −1) , is statistically insignificant. Specifically, one can test the reward difference Υ[ℓ] − Υ[ℓ−1] using the ideas of Section 4.5 
+
+The left panel of Figure 2 illustrates the progression of the average rewards υ[ℓ] := Ave (Υ [ℓ])as a function of ℓ for the B1 contract in Table 2. While υ[ℓ] tends to increase, the pattern is not monotone. Moreover, jumps occur when a finer exercise grid is selected. The right y-axis of the figure displays the corresponding learning rates η[ℓ] which decrease as ∆ ttr decreases. 11 Figure 2: Left Panel: Average rewards υ[ℓ] = Ave (Υ [ℓ]) (left y-axis) and learning rates η[ℓ] (right y-axis, log scale) across RL loops ℓ and exercise grids T(ex,b ) for the B1 option from Table 2. Stopping intervals associated with reward differences D[ℓ] are vertically shifted by υ[ℓ] and displayed as blue bands. Right Panel: Stopping boundaries (obtained using a marching-squares algorithm) 
+
+B[ℓ], ℓ = 0 , . . . , L , after each RL iteration as the step size is refined from ∆ ttr, 0 = 16 to ∆ ttr, 4 = 196 .Distinct colors indicate different grids b, with progressively lighter shades marking repeated loops on the same time grid T(tr,b ). The dashed line demarcates the out-of-the-money region. The heatmap displays the final timing value ˆT [L](·, ·) at loop L = 10, with its zero-contour corresponding to the final stopping boundary drawn with a thicker line. Parameter configuration is reported in Table 6. The right panel of Figure 2 shows the evolution of the stopping boundaries B[ℓ]’s of this Bermu-dan Put B1 across the successive ℓ = 1 , 2, . . . , L = 10 RL loops. As expected, the continuation region expands as the time grid is refined, so that the stopping boundaries shift “downward” and also get steeper near maturity T . However, this expansion is not monotone: in loop 5, the RL overshoots because the ADNN mis-estimates timing values near maturity T on a solver grid with step size ∆ ttr = 148 ; once the grid is further refined in loop 6 to ∆ ttr = 196 , the boundary shifts back upward. This demonstrates that the CARLOS algorithm can correct earlier errors and recover boundaries that yield higher rewards, as evidenced in the left panel of Figure 2. As a further illustration, Figure 3 shows CARLOS solving the 2-d Max Call M2 contract from Table 2. The left panel of Figure 3 tracks the changes in the stopping boundary at time t = 1 over successive learning iterations. Once again we note the expansion of the continuation region as ∆tex is decreased. The resulting ADNN boundaries resemble those reported by [31, 36]. The right panel illustrates the gradual improvements during Stage 2, tracking the average rewards across the RL loops (cf. the earlier Figure 2) across five independent runs of CARLOS. Note that due to the adaptive stopping criterion, the resulting number of RL loops L varies across runs, being as low as 5 and as high as 7. Running our algorithm 5 times, we obtain final prices in the range [14 .170 , 14 .195], just shy of the explicit finite-difference PDE solver value of 14.214 in Table A.3. For comparison purposes, the Bermudan version with ∆ t = 1 /3 has reference prices of 13.901 and 13.898 as reported in [4] and [31], while CARLOS yields 14.173 (see Table 6), capturing more than 90% of the materially large gap (30 cents or more than 2%) between the American and Bermudan formulations. 12 Figure 3: Pricing the M2 contract from Table 2 under the baseline CARLOS configuration in Table 6. Left panel (a): Stopping boundaries (obtained using a marching-squares algorithm from the ADNN R[ℓ]) B[ℓ] at time t = 1, after each RL iteration ℓ = 0 , . . . , L as the step size is refined from ∆ ttr = 16 to ∆ ttr = 196 . The final Stage 2 boundary at loop L = 7 is drawn with a thicker line. Distinct colors indicate different grid levels b, with progressively lighter shades marking repeated loops on the same grid T(tr,b ). The dashed lines encompass the out-of-the-money region. The heatmap (computed via an antialised interpolant) corresponds to the final estimated timing values ˆT [L](t, x ). Right panel (b): Average validation rewards υ[ℓ] across loops ℓ = 1 , 2, . . . , L , over five independent RL runs. Thicker lines denote finer solver grids T(tr,b ).
+
+3.3 Benchmarked Results 
+
+We proceed to evaluate our RL algorithm on a test suite of contracts with a range of payoffs and number of underlying assets. Unlike the vast majority of extant literature, our goal is not to value a Bermudan option with a pre-specified exercise frequency, but the true American contract where exercise can occur at any time. To provide a comprehensive assessment, we consider a collection of option contracts in dimensions 1-5, listed in Table 2. We do not tackle truly high-dimensional problems (which require additional adjustments), but rather focus on realistic settings, emphasizing the aforementioned concepts of time-discretization and efficient learning. To assess performance, for low-dimensional tests we benchmark against PDE-based solvers, which can handle very small ∆ tex but are only tractable in dimensions 1-2 3. These provide a gold-standard deterministic comparator. Next, we compare to the price estimate based on ADNN that is trained on a medium-grained grid ∆ ttr and evaluated on Monte Carlo paths at a fine exercise frequency ∆ tex . This setup allows to capture a substantial chunk of the American early exercise premium as described in Section 2.2, albeit at a high computational cost. Finally, we compare our results against Bermudan solvers reported in the literature, which serve as reference lower bounds for the American value and quantify the gains from removing the time discretization. The underlying assets follow a d-dimensional Black–Scholes framework. Under the risk-neutral 
+
+> 3implementations in 3 dimensions exist, but are cumbersome and not done here.
+
+13 Case Payoff d X0 K T⃗ δ r⃗ σ
+
+B1 Basket Put 1 36 40 1 0 0.05 0.2 
+
+B2 Basket Put 2 {40 , 40 } 40 1 {0, 0} 0.06 {0.2, 0.2}
+
+M2.A Max Call 2 {100 , 100 } 100 3 {0.1, 0.1} 0.05 {0.2, 0.2}
+
+M2.B Max Call 2 {100 , 100 } 100 3 {0.05 , 0.15 } 0.05 {0.2, 0.2}
+
+M3 Max Call 3 {90 , 90 , 90 } 100 3 {0.1, 0.1, 0.1} 0.05 {0.2, 0.2, 0.2}
+
+M5.A Max Call 5 {100 , 100 , 100 ,
+
+100 , 100 } 100 3 {0.1, 0.1, 0.1,
+
+0.1, 0.1} 0.05 {0.2, 0.2,
+
+0.2, 0.2, 0.2}
+
+M5.B Max Call 5 {70 , 70 , 70 ,
+
+70 , 70 } 100 3 {0.1, 0.1, 0.1,
+
+0.1, 0.1} 0.05 {0.08 , 0.16 ,
+
+0.24 , 0.32 , 0.4}
+
+Table 2: Specifications of the benchmarked option contracts. Basket Put and Max Call payoffs are as in (16). For each contract, d denotes the number of underlying assets, X0 the d-vector initial condition, K the strike price, T the maturity, ⃗ δ the vector of dividend yields, r the risk-free interest rate and ⃗σ the vector of volatilities. measure (still denoted as P), the asset dynamics are given by 
+
+Xit = Xi 
+
+> 0
+
+exp 
+
+n 
+
+r − δi − σ2
+
+> i
+> 2
+
+
+
+t + σiW it
+
+o
+
+, i = 1 , 2, . . . , d, (15) where Xi 
+
+> 0
+
+> 0 is the initial value, δi ≥ 0 the dividend yield, and σi > 0 the volatility of the ith asset; 
+
+r ∈ R is the risk-free rate. All the Brownian motions W 1, . . . , W d are independent. We consider two payoff families: the arithmetic basket put hbskt and the max call hmxcl :
+
+hbskt (Xt) = 
+
+
+
+K − 1
+
+d
+
+> d
+
+X
+
+> i=1
+
+Xit
+
+
+
+> +
+
+, hmxcl (Xt) = 
+
+
+
+max  
+
+> 1≤i≤d
+
+Xit − K 
+
+
+
+> +
+
+. (16) When d = 1, these reduce to the standard put and call payoffs, respectively. To assess the CARLOS Algorithm 1, we compare the Stage 2 price estimates with the benchmark prices summarized in Table 3. For the ADNN comparator, we report the average price over five independent instantiations, each using the contract-specific parameter configuration in Table A.4, to reduce run-to-run variability. Literature benchmarks are available for all contracts in Table 2 except B1 ; the closest setup is studied in [17] and differs only in the risk-free rate, with r = 0 .06. Consequently, for the B1 option we use a PDE-based comparator and price the [17] variant with 
+
+r = 0 .06 for a direct cross-check. Our Crank–Nicolson (CN) scheme with ∆ tPDE = 1192 and ∆x = 0 .02 yields a deterministic price of 4 .4846 at r = 0 .06, whereas [17] reports an upper bound of 4 .4893 for the Bermudan formulation with ∆ ttr = 150 .Besides the benchmark prices in Table 3, several contracts are also considered elsewhere. The 
+
+M2.A contract has reported prices of 13 .897 in [36] and 13 .898 in [31]. For M3 , [27] reports a price of 11 .15. For M5.B , reported prices include 25 .84 in [27], 26 .0553 in [36], and 26 .147 in [4]. Table 3 presents the results for the 7 contracts. By using a large N (equivalently, a small training time step ∆ ttr, 0), the ADNN comparators can approach the American-style price, but this requires a very large number of paths K, otherwise the regression predictions are not stable. This refinement comes at a substantial computational cost, especially in dimension d > 2. Our method 14 Contract Literature PDE ADNN CARLOS ADNN Time RL Time 
+
+B1 − 4.601 4.583(0 .010) 4.592(0 .005) 246 .38(1 .77) 11 .70(1 .66) 
+
+B2 1.460 [27] 1.478 1.468(0 .005) 1.474(0 .001) 140 .57(0 .24) 9.37(0 .81) 
+
+M2.A 13 .901 [4] 14 .214 14 .133(0 .067) 14 .171(0 .015) 297 .15(0 .39) 57 .00(5 .11) 
+
+M2.B 15 .575[31] 15 .777 15 .615(0 .131) 15 .711(0 .022) 302 .93(0 .84) 51 .02(0 .95) 
+
+M3 11 .278 [4] − 11 .457(0 .031) 11 .510(0 .008) 1272 .05(22 .97) 117 .91(4 .63) 
+
+M5.A 26 .151 [31] − 26 .401(0 .034) 26 .55(0 .032) 2647 .36(38 .86) 451 .28(36 .26) 
+
+M5.B 11 .810 [27] − 11 .914(0 .073) 12 .009(0 .010) 780 .04(8 .93) 344 .69(44 .41) Table 3: Benchmark price comparators for the option contracts in Table 2: PDE-based Monte Carlo price estimates reported in Table A.3 for contracts in dimension d ≤ 2, ADNN comparators, and the highest report literature sources. Prices are computed using 1 .6 × 10 6 Monte Carlo paths at exercise frequency ∆ tex = 1192 . ADNN and CARLOS values are averaged over five independent runs; standard deviations are shown in parentheses. Parameter configurations are reported in Tables A.4 and 6, respectively. The training times are reported in seconds. not only substantially improves on ADNN but also does so in much shorter runtime. This happens thanks to most of the training done on coarser, hence cheaper grids. Table 3 shows speeds-up of 3-5 times, and sometimes up to 10x, see the M3 contract. 
+
+# 4 Algorithm Details and Ablation Studies 
+
+In this section we provide additional details of our algorithm and present a set of experiments that test the role of the different tuning parameters. A comprehensive analysis can be found in [5]. All parameter tuning is performed on the 2-dimensional Max Call M2 option from Table 2. Starting with the baseline configuration in Table 6, we vary one parameter at a time, reporting post-RL prices, the number of RL loops, and the total training time in seconds. Specifically, we tune hyperparameters controlling the training-set size per loop, input selection, time-grid refinement, and the extent of exploration in computing timing values. We also analyze failure modes to illustrate how ill-tuned settings impede learning and lead to low rewards. In all Tables, reported values are averages over five independent runs with different random seeds, with standard deviations given in parentheses. Final prices are computed using 1 .6 × 10 6
+
+Monte Carlo paths at exercise frequency ∆ tex = 1192 ; the standard error of these estimates is approximately 0 .013. All numerical computations were performed on the CPU of a single Linux server equipped with an AMD Ryzen Threadripper PRO 5965WX and 251 GiB of system memory. The system provides 48 logical CPUs (2 threads per core) on a single NUMA node at up to 4.57 GHz. 
+
+4.1 Neural Network Architecture 
+
+The ADNN in CARLOS is implemented as a fully-connected feedforward neural network RΘ :
+
+Rd+1 → R where the additional dimension accounts for the time input. In Stage 1a, we have a 15 similar construction where the input is just the d-dimensional state, Rθn : Rd → R. The architecture of the network with I layers that consist of qi, i = 1 , . . . , I − 1 nodes respectively, is defined in standard form [4] as: 
+
+Rθ = φqI ◦ aθI ◦ φqI−1 ◦ aθI−1 ◦ · · · ◦ φq1 ◦ aθ 
+
+> 1
+
+(17) where qI = 1 is the output dimension, q0 ∈ { d, d + 1 } is the input dimension and aθi : Rqi−1 →
+
+Rqi , i = 1 , . . . , I are affine functions with weight matrices Ai ∈ Rqi×qi−1 and bias vectors bi ∈ Rqi :
+
+aθi (x) = Aix + bi, i = 1 , . . . , I. 
+
+The parameters Θ of a network RΘ comprise the entries of the weight matrices A1, A2, . . . , AI and the bias vectors b1, b 2, . . . , b I . Consequently, the dimension of Θ is given by 
+
+|Θ| = 1 + q1 + . . . + qI−1 + q0q1 + . . . + qI−2qI−1 + qI−1. (18) By default we use 3 hidden layers ( I = 4) with equal number qi ≡ q of hidden nodes, for a total of |Θ| = 1 + (4 + q0)q + 2 q2 of hyperparameters. The number of neurons qi must be large enough to allow the ADNN to fit the timing value hypersurface. If the widths qi’s are too low, performance suffers; adding nodes beyond a certain level does not translate into materially higher rewards, as fit quality saturates. Theoretically, [16] shows that the number of parameters in a ReLU deep NN surrogate for LSMC ought to scale polynomially in dimension d to maintain a given expressivity error. We do observe that in higher-dimensional settings wider networks are beneficial and in turn require more training epochs to train. Again, insufficient number of epochs lowers accuracy, but a plateau is quickly reached as epochs are added. Algorithm runtime scales linearly in the number of epochs, so it can be worthwhile to tune that parameter. A variety of choices have been proposed for the component-wise activation functions φq : Rq →
+
+Rq, including ReLU [3], Leaky ReLU [21, 18], Tanh [4, 18]; we also mention ELU and Swish. On the one hand, the choice of the activation function tends to have a second-order effect on the final price. On the other hand, different activation functions seem to do better for different contracts and moreover ϕq affects the smoothness of the stopping boundaries: a non-smooth activation like ReLU leads to zig-zaggy, piecewise linear stopping boundaries. We recommend the Swish function 
+
+φq(x1, . . . , x q) := ( x1
+
+1 + e−x1 , . . . , xq
+
+1 + e−xq ), (19) or ReLU, φq(x1, . . . , x q) := ( x+1 , . . . , x + 
+
+> q
+
+), x+ := max {x, 0}. The output layer uses the linear activation function φqI (x) = x.We initialize weights and biases using PyTorch’s built-in uniform initialization, and train using the Adam optimizer based on the mean squared error (MSE) loss function. We take η[0] = 10 −4 as the default initial learning rate. Adam minibatch size has little impact and based on experiments in [5], we use batch size of 64 throughout. 16 4.2 Selecting Inputs 
+
+Since the primary task of the surrogate is to determine the optimal stopping rule, we wish to preferentially train on inputs that are near the estimated stopping boundary. This principle of “training in regions where it matters”—that is, focusing on areas that contribute to achieving superior rewards instead of sampling inputs uniformly corresponds to the exploitation aspect of our training approach. Cognizant of the respective exploration aspect, we also train on inputs beyond the boundary, lest the surrogate makes incorrect stopping decisions in other regions. The balancing of the exploitation-exploration tradeoff is essential because neural networks are prone to overexploit and find hyperparameters that exclusively optimize performance in the training region. A further challenge is learning timing values near maturity T where the stopping boundary moves rapidly (see Figure 1), and which calls for additional training inputs in that region. With the above considerations in mind, we develop an adaptive multi-pronged sampling strategy that is formalized through a sampling density p[ℓ](·, ·) on T(tr,b ) × X . To construct p[ℓ] that governs the selection of the inputs ( t, x)[ℓ] in line 3 of Algorithm 1, we employ a weighted mixture of four components: 
+
+p[ℓ] := λ[b]+ · p{b, +} + λ[b] 
+
+> −
+
+· p{b, −} + λ[b]exl · p{b, exl } + λ[b]ter · p{b, ter } λ[b]+ + λ[b] 
+
+> −
+
++ λ[b]exl + λ[b]ter = 1 . (20) In (20), we balance the exploratory sampling via p{b, exl } with the exploitative boundary-oriented sampling via p{b, +} (samples with positive timing values near the estimated stopping boundary) and 
+
+p{b, −} (samples with negative timing values close to the boundary). Moreover, we also explicitly incorporate terminal samples at t = T governed by p{b, ter }. The weights λ[b]+ , λ[b] 
+
+> −
+
+, λ[b]exl , and λ[b]ter are adaptively adjusted as a function of the grid counter b.Practically, we implement (20) as kernel-smoothed densities based on anchor sites . To construct the anchor sites we generate P i.i.d. pilot paths {ˇx}1: P , started from the randomized initial condition ˇxp,i  
+
+> 0
+
+= [ K1h(X0)=0 + X01h(X0)>0] 1 + βiσiεi
+
+> 0
+
+, i = 1 , . . . , d, εi 
+
+> 0
+
+∼ N (0 , 1) . (21) hey start from at-the-money. The randomized initial condition ensures more exploration, namely to provide information about the timing values for t small. We furthermore discard any ˇ xp 
+
+> 0
+
+that are out of the money, h(ˇ xp
+
+> 0
+
+) = 0, or have a non-positive initial timing value ˆT [ℓ](0 , ˇxp
+
+> 0
+
+) ≤ 0 (deep in-the-money). To construct the exploitative anchor sites that target the neighborhood of the stopping bound-ary, we look for time steps ˇ tp along each pilot path ˇ xp, where the pathwise action shifts from continue 
+
+to stop , i.e., where the current decision is ϕp 
+
+> ˇtp
+
+= 1 while the previous decision was ϕp 
+
+> ˇtp−1
+
+= 0. By construction, timing values are negative at (ˇ tp, ˇxptn )—which we use for the negative anchor sites (ˇ t, ˇx){b, −} —and positive at (ˇ tn−1, ˇxptn−1 )—used for (ˇ t, ˇx){b, +}. Pilot paths that are in-the-money are used for the exploratory anchor set (ˇ t, ˇx){b, exl }.Finally, the terminal anchor sites are based on the terminal values of the in-the-money pilot paths ( T, ˇx){b, ter }. To fence against the upward pull in the learned timing values near T , we assign 17 them a negative terminal timing value yb 
+
+> ter
+
+linked to the loss from delayed exercise: 
+
+yb
+
+> ter
+
+(T, x pT ) := cter, 0 · cbter, 1 · ∆ttr,b . (22) Here, cter ,0, c ter ,1 are tuning parameters. The pseudocode for constructing anchor sets is provided in Algorithm [2]. Given the set of anchor sites, actual training inputs ( t, x), are obtained through jittering (kernel-smoothing) the (ˇ t, ˇx) with Gaussian noise of 0 .01 σixi in space and 0 .5∆ ttr,b in time. To reduce the sample noise of the pathwise payoffs yb(t, x t) in (30), we generate ˇP = 4 paths emanating from each input and use the respective average for ADNN training. 
+
+Algorithm 2 Anchor Set Construction 
+
+Require: Regression surrogate RΘ, # of pilot paths P , Solver grid T(tr,b ), Payoff function h. 
+
+> 1:
+
+Generate P pilot paths {ˇx}1: P on T(tr,b ). Initialize all anchor components to be empty.  
+
+> 2:
+
+For all n = 1 , . . . , N, p = 1 , . . . , p predict timing values ˆT pn ← ˆT (tn, ˇxptn ) using RΘ, compute immediate payoffs hpn ← h(ˇ xptn ) and evaluate stopping decisions ϕpn ← 1{ ˆT pn ≤0}∩{ hpn>0} 
+
+> 3:
+
+for tn ∈ T(tr,b ) do  
+
+> 4:
+
+Append (ˇ t, ˇx){b, −} by {(tn, ˇxptn ) ∈ { ˇx}1: P : ϕpn−1 = 0 , ϕ pn = 1 , h pn > 0} 
+
+> 5:
+
+Append (ˇ t, ˇx){b, +} by {(tn−1, ˇxptn−1 ) ∈ { ˇx}1: P : ϕpn−1 = 0 , ϕ pn = 1 , h pn > 0} 
+
+> 6:
+
+Append exploratory sites (ˇ t, ˇx){b, exl } by {(tn, ˇxptn ) ∈ { ˇx}1: P : hpn > 0} 
+
+> 7:
+
+end for  
+
+> 8:
+
+Save terminal sites ( ˇT, ˇx){b, ter } ← { (T, ˇxpT ) : h(ˇ xpT ) > 0} 
+
+> 9:
+
+return (ˇ t, ˇx){b, +}, (ˇ t, ˇx){b, −} , (ˇ t, ˇx){b, exl }, ( ˇT, ˇx){b, ter }
+
+Figure 4 visualizes the training inputs ( t, x) across learning loops for the 1-dimensional Bermu-dan Put option B1 from Table 2. In the left panel, ∆ ttr = 1 /12 and the training set is more spread out; in the right panel we work with the finest grid with ∆ ttr = 1 /96. As the time grid is refined, the exploitation inputs—with either positive or negative timing values—concentrate around the estimated stopping boundary B[ℓ] because ˇ xptn gets closer to ˇ xptn−1 in lines 4 and 5 of Algorithm 2. 
+
+Remark 3 The above discussion emphasized the benefit of spatially targeting the region around the stopping boundary. For the temporal aspect in terms of t, there is also a non-uniform target, namely the distribution of the stopping time τ ∗. Figure A.2 in the Appendix shows the density of 
+
+τ ∗ ∈ [0 , T ] (which heavily depends on the initial starting location) for the B1 contract. For training purposes, we seek to make sure that ˇt has a strictly positive density on the entire [0 , T ]. Observe that if X0 is out-of-the-money then the probability that τ ∗ is close to zero is negligible, conflicting with the above aim. This is one of the reasons to randomize the starting xp 
+
+> 0
+
+of the pilot paths, see the resulting distribution of ˇt in the right panel of Figure A.2. A further target could be either to take ˇt roughly uniform on [0 , T ] (our default choice) or to preferentially sample closer to T when stopping decisions are most frequently made in many contracts like the max Calls where time is needed for the paths to reach the upper-right quadrant that has the largest impact on option value. 
+
+Exploratory Coverage: In Algorithm 2, anchor sites at tn are based on the pilot paths and reflect the underlying distribution of Xtn |X0. This can be a limiting factor for exploration; in our 18 (a) Inputs on the solver grid with ∆ ttr = 112 . 413 ex-ploratory, 269 with positive timing value, 269 with neg-ative timing value, and 50 terminal.     
+
+> (b) Inputs on the solver grid with ∆ ttr =196 .174 ex-ploratory, 388 with positive timing value, 388 with nega-tive timing value, and 50 terminal.
+
+Figure 4: Input sets ( t, x)[ℓ] for the B1 contract using the parameter configuration in Table 6. There are 1 ,000 distinct training inputs categorized into: exploratory (ˇ t, ˇx){b,exl }, positive timing value (ˇ t, ˇx){b, +}, negative timing value (ˇ t, ˇx){b, −} , and terminal (ˇ t, ˇx){b,ter } sampling mixture components. examples the distribution of Xt is log-normal which has a long right tail. To be concrete, the 2,500 distinct exploratory inputs for the M2.A contract span [33 .55 , 288 .36] × [32 .49 , 244 .66]. By contrast, the 1 .6×10 6 testing paths span a much broader range, [14 .74 , 423 .22] ×[15 .62 , 473 .35]. This mismatch between training and testing set implies that the ADNN stopping rule is inaccurate for very high X1, X 2 values, e.g., along the diagonal X1, X 2 ∈ [200 , 400] 2, which has a disproportionally high impact on option value as this is precisely the high-payoff region. To address this, it may be beneficial to modify the sampling scheme for exploratory training inputs. For instance, we consider a mixture of the underlying log-normal density and a uniform sampling near the diagonal—to obtain more informative training inputs that can expand the learned boundary and sharpen its geometry. Accordingly, we let 
+
+p{b, exl } 
+
+> hybrid
+
+:= (1 − cband ) p{b, exl } + cband Unif([1 , 3] × X band ), (23) where cband controls the weight of the contract-specific exploration component and cwidth controls the width of the diagonal band 
+
+Xband = {(x1, x 2) ∈ X : |x1 − x2| ≤ cwidth , x 1, x 2 ∈ [xmin , x max ]} . (24) A simple manual calibration is to set xmin = K to match the contract’s strike price and choose 
+
+xmax = 300 , c width = 30. To stay on the conservative side, a uniform distribution over the time window [1 , 3] is used as reaching the diagonal band is unlikely early on. 
+
+Tuning Training Set Geometry: The exploration-exploitation balance is controlled by the weights λ[b]+ and λ[b] 
+
+> −
+
+in Equation (20) that define the sampling density p[ℓ]. As the solver-grid step decreases, the anchor inputs in Algorithm [2] are drawn closer to the stopping boundary, so exploitation is intrinsically amplified as ∆ ttr shrinks. While advantageous for improving the ADNN fit around the boundary, over-exploitation limits the ability of ADNN to self-correct and can make 19 the RL prone to error accumulation. Moreover, at the earlier RL iterations the boundary may shift substantially, especially during grid transitions, and selecting inputs based on the previous solver grid can then misdirect learning. At the same time, exploration on fine grids is also inefficient, since the stopping boundary stabilizes once the grid step size ∆ ttr becomes small. These considerations motivate a gradual reallocation of training effort from exploration to ex-ploitation. Let cexpl denote the proportion of exploratory inputs that is reallocated to exploitation after each solver-grid transition. When advancing the grid index from b to b + 1, we update the weights used to construct p[ℓ] in Equation (20) as 
+
+λ[b+1] exl := (1 − cexpl )λ[b]exl , λ[b+1] + := λ[b]+ + cexpl 
+
+2 λ[b]exl , λ[b+1]  
+
+> −
+
+:= λ[b] 
+
+> −
+
++ cexpl 
+
+2 λ[b]exl , (25) while keeping λ[b]ter fixed. Setting cexpl = 0 recovers the baseline setting in which the weights remain constant throughout the RL loops. (λ[0] exl , λ [0] + , λ [0]  
+
+> −
+
+, λ [0] ter ) cexpl Price Loops L Runtime (0 .95 , 0, 0, 0.05) 0 14 .1438 (0 .014) 11 .2(1 .17) 64 .20 (4 .76) 
+
+(0 .55 , 0.2, 0.2, 0.05) 0 14 .1641 (0 .013) 8.6(1 .62) 55 .36 (3 .86) 
+
+(0 .35 , 0.3, 0.3, 0.05) 0 14 .1775 (0 .007) 10 .6(3 .07) 61 .05 (10 .32) 
+
+(0 .15 , 0.4, 0.4, 0.05) 0 14 .1748 (0 .007) 8.2(2 .04) 56 .13 (7 .09) 
+
+(0 , 0.475 , 0.475 , 0.05) 0 14 .1694 (0 .015) 8.0(1 .67) 53 .65 (4 .48) 
+
+(0 .5, 0.2, 0.2, 0.1) 0 14 .1486 (0 .015) 8.8(2 .32) 54 .60 (5 .90) 
+
+(0 .6, 0.2, 0.2, 0.0) 0 14 .1526 (0 .013) 10 .8(2 .23) 60 .44 (10 .42) 
+
+(0 .35 , 0.2, 0.4, 0.05) 0 14 .1725 (0 .005) 7.8(1 .94) 53 .82 (6 .51) 
+
+(0 .55 , 0.2, 0.2, 0.05) 0.25 14 .1777 (0 .009) 9.6(2 .33) 59 .16 (8 .11) 
+
+(0 .55 , 0.2, 0.2, 0.05) 0.5 14 .1698 (0 .018) 9.6(3 .38) 59 .16 (9 .47) 
+
+(0 .35 , 0.3, 0.3, 0.05) 0.25 14 .1764 (0 .007) 8.6(2 .24) 54 .51 (5 .51) 
+
+(0 .35 , 0.3, 0.3, 0.05) 0.5 14 .1762 (0 .006) 10 .0(1 .79) 59 .43 (6 .00) 
+
+Table 4: Impact of the sampling weights ( λexl , λ+, λ−, λ ter ) in (20) and the reallocation factor cexpl 
+
+for balancing exploration and exploitation, for the M2 Max Call contract in Table 2. Table 4 shows the impact of varying the weights λexl , λ+, λ−, λ ter and the tuning parameter cexpl 
+
+for the M2.A contract, yielding several take-aways. First, terminal inputs are helpful: λ[0] ter = 0 does substantially worse than λ[0] ter = 0 .05 ( λ[0] ter = 0 .10 is comparable but leaves fewer interior samples). Second, the two extremes of no-exploitation λ[0] + = λ[0]  
+
+> −
+
+= 0 or no-exploration λ[b]exl = 0 perform relatively poorly. Eliminating exploitation under-samples the region where ADNN accuracy matters most and makes RL less efficient, yielding the lowest price. Conversely, a fully exploitative training with λexl = 0 confines learning to the boundary region. This inhibits self-correction, providing insufficient information to adjust timing values away from the obsolete boundary, leading to lower rewards. Third, we find no benefit from asymmetrically sampling within the stopping/continuation regions, λ[0] + < λ [0]  
+
+> −
+
+. Fourth, a gradual re-allocation towards exploitation cexpl > 0 is beneficial and moreover makes the performance less sensitive to precise λ[0] exl , λ [0] + , λ [0]  
+
+> −
+
+values. In conclusion, we recommend a balanced allocation across exploration, exploitation (split evenly between λ+ and λ−), and terminal fencing, setting λ[0] exl = 0 .55, λ[0] + = λ[0]  
+
+> −
+
+= 0 .2, and λ[0] ter = 0 .05, 20 and choosing cexpl = 0 .25 to gradually reallocate exploratory mass toward exploitation as the solver grid is refine. 
+
+4.3 Exploratory Stopping 
+
+Accurately evaluating timing values becomes challenging as we transition to progressively finer time grids T(ex,b ). In particular, near the stopping boundary B[ℓ] timing values may switch signs, cf. the shifting stopping boundaries in Figure 1. Recall the stopping decision map ϕ[ℓ] from (11) (now based on the ADNN ˆT [ℓ]) and consider a generic path {xt} starting from ( tinit , x tinit ). If (tinit , x tinit ) falls within the stopping region S[ℓ], the default would be to stop immediately, leading to τ = tinit . This implies that any input with ˆT [ℓ](t, x ) < 0 will be assigned a negative training output y, and hence will (almost surely) end up in the stopping region S[ℓ+1] of the next-iteration ADNN ˆT [ℓ+1] . As a result, the naive implementation would cause the continuation region to be non-expanding across the RL rounds. To mitigate this, we introduce “delayed” stopping, with the goal of adjusting the timing values of training inputs in the “old” stopping region. Such exploratory stopping allows a path originating in S[ℓ] to continue for a bit, in the hopes of crossing into the continuation region which then enables bonified stopping. Let ξb be the first time a path {xt}, starting from ( tinit , x tinit ) and progressing along the exercise grid T(ex,b ), enters C[ℓ]:
+
+ξb := min 
+
+n
+
+t ∈ { tinit } ∪ T(ex,b ) : ϕ[ℓ](t, x t) = 0 , t ≥ tinit 
+
+o
+
+∧ T. (26) If the path starts in C[ℓ], then ξb = tinit ; otherwise, ξb > t init and ξb = T for a path that never leaves 
+
+S[ℓ]. We then define ζb as the first time the path {xt} transitions from the continuation region into the stopping region 
+
+ζb := min 
+
+n
+
+t > ξ b, t ∈ T(ex,b ) : ϕ[ℓ](t, x t) = 1 
+
+o
+
+. (27) For trajectories originating within S[ℓ], delayed stopping means that the path is allowed a waiting period of length ∆ b 
+
+> wait
+
+to exit into C[ℓ]; otherwise, it is stopped once the delay expires. Hence, the path is stopped at the minimum of ζb from (27) and ˚τ b := min {t > t init + ∆ b 
+
+> wait
+
+: t ∈ T(ex,b )} ∧ T, (28) which is the first time point in T(ex,b ) after ∆ b
+
+> wait
+
+. The resulting payoff is set to 
+
+yb
+
+> dpf
+
+(tinit , x tinit ) := 
+
+
+
+e−r(ζb−tinit )h(xζb ) if ξb ≤ ˚τ b,e−r(˚ τ b−tinit )h(x˚τ b ) otherwise . (29) If the path {xt} starts in, or enters C[ℓ] before ˚ τ b, it is stopped at the entrance time ζb; otherwise, it is stopped at ˚ τ b, after the waiting period ∆ b 
+
+> wait
+
+has elapsed. Exploratory stopping can be understood via a traffic light analogy, captured by labels zt ∈{0, 1, 2}, interpreted as yellow, green, and red signals. A path that starts in C[ℓ] is labeled green, 
+
+ztinit = 1, while one that originates in C[ℓ] is initially labeled yellow, ztinit = 0. The label transitions 21 follow three rules, illustrated for the B1 contract in Figure A.1b. First, when a yellow path enters the continuation region at hitting time ξb, it turns green: zξb = 1, cf. the green dot on path 1. Second, when a green path enters the stopping region, it becomes red: zζb = 2, see the red dot marking ζb on path 2. Third, when a yellow path—i.e., ztinit = 0 remains in S[ℓ] beyond the waiting period ∆ b
+
+> wait
+
+, it is set to red: z˚τ b = 2 and stopped. This is recorded on path 3, where the gray dashed vertical line indicates the deadline t + ∆ tb 
+
+> wait
+
+and ˚ τ b is shown by a red dot. Algorithm 3 outlines how the labels zt guide the computation of yb 
+
+> dpf
+
+in Equation (29). 
+
+Algorithm 3 Discounted Delayed Payoff Evaluation 
+
+Require: Regression surrogate RΘ, Path {xti } started at tinit , x tinit , Exercise grid T(ex ), Explo-ration window ∆ wait , Path and contract parameters e.g., Payoff function h, Discount rate r. 
+
+> 1:
+
+Set initial label z ← 1 − ϕΘ(tinit , x tinit ) 
+
+> 2:
+
+for tn ∈ { t ∈ T(ex ) : t ≥ tinit } do  
+
+> 3:
+
+Compute stopping decisions ϕn ← ϕΘ(tn, x tn ) based on RΘ by Equation (11)  
+
+> 4:
+
+Set new label zn ← z + ϕn · 1{z=1 } + (1 − ϕn) · 1{z=0 } 
+
+> 5:
+
+Get ydpf ← e−r(tn−tinit )h(xtn ) · (1{zn=2 ,z =1 } + 1{zn=0 ,t n−tinit ≥∆b
+
+> wait }
+
+) 
+
+> 6:
+
+Update the label z ← zn 
+
+> 7:
+
+end for  
+
+> 8:
+
+return ydpf 
+
+The timing value for each training input ( t, x t) ∼ p[ℓ] is given by the difference between the discounted delayed payoff of a path {xt} starting at ( t, x t) that progresses along the grid T(ex,b )
+
+and its immediate payoff: 
+
+yb(t, x t) = yb
+
+> dpf
+
+(t, x t) − h(xt). (30) To regulate exploration in S[ℓ] we shorten ∆ b 
+
+> wait
+
+when time to maturity T − tinit is small or when a finer solver grid provides more stopping opportunities, setting it according to delayed ratio cdlst 
+
+∆b
+
+> wait
+
+(t) := ∆ wait (t; ∆ ttr,b ) = ( cdlst )b+1 ∆ttr,b 
+
+
+
+1 − tT
+
+
+
+. (31) Table A.1 shows the impact of cdlst . Suppressing any delayed stopping cdlst = 0 leads to premature stopping as the expansion of C[ℓ] is largely removed. Taking very large cdlst = 2 is also counter-productive, as excessive ∆ b 
+
+> wait
+
+mislearns the ultimate stopping decision. Both produce poor prices. To allow sufficient exploration within S[ℓ] without introducing overly long waiting periods ∆ b
+
+> wait
+
+, we select cdlst ∈ [1 .1, 1.3] as a balanced choice. In [5] we also experimented with nonlinear dependence on time-to-maturity, such as using (1 − t/T )2 in (31), but this was ultimately rejected. The exploration window ∆ b 
+
+> wait
+
+introduces discontinuities in timing values. Supplementary Fig-ure A.1a illustrates this artifact of exploratory stopping for the B1 option. At the boundary— identified as the zero-timing-value contour of the ADNN R[0] —the timing values jump due to the enforced exploration on yellow-labeled paths. Paths 4 and 5 in Figure A.1b exemplify this: they have the same underlying trajectory, shifted so that their origins lie symmetrically across the boundary. The green-labeled path 4 is stopped at ζ, while the yellow-labeled path 5 remains in the 22 stopping region and is stopped at ˚ τ . In this case, because ζ < ˚τ , Equation (30) assigns different timing values y to the two paths; if the stopping times coincided, the values would be identical. The two-piece spline in Figure A.1a is constructed on timing values y from Equation (30 and shows that this creates a substantial gap right around B[ℓ]. By construction, the ADNN fits a continuous surrogate, smoothing the above discontinuity and producing timing values that distort the stopping boundary, shown by the dashed vertical black line in Figure A.1a. The discontinuity dinimishes as ∆b 
+
+> wait
+
+shrinks, which is the motivation to reducing the exploration window as T(ex,b ) is refined. 
+
+4.4 Stage Allocation 
+
+The quality of Stage 1 shapes the effectiveness of the RL algorithm in Stage 2. If the initial ADNN R[0] is poorly trained, the CARLOS algorithm [1] does not converge, so the Stage 1a data has to be sufficiently large, and the initial ADNN training in Stage 1b must be sufficiently comprehensive. Conversely, over-allocating computational resources to Stage 1 leaves little room for further improvement in Stage 2 and incurs long runtimes. To strike this balance, two parameters need to be tuned: the number of paths K—which determines the size of the data used to train the ADNN R[0] , and the initial grid-step size ∆ tex, 0. As discussed in Section 2.2, errors in the LSMC backpropagate, so reducing ∆ tex, 0 does not necessarily yield better data. As shown in supplementary Table A.2, moderately large values of K improve Stage 1 data quality and yield higher final prices. Since the LSMC cost scales linearly with K, doubling K say from 2 · 10 4 to 4 · 10 4 doubles that portion of the runtime but delivers only minimal improvement on the stopping rule. The number of input–output pairs M controls per-loop training and using too few training inputs may lead to instability due to overfitting the ADNN on sparse data [29]. Conversely, using excessively large M increases runtime while yielding only marginal improvements in timing-value estimates and rewards. For the M2 contract, Table A.1 indicates that M = 20 ,000 strikes this balance, since runtime rises sharply for larger M without a commensurate increase in final prices. 
+
+4.5 Grid Transition 
+
+To guide the learning, we monitor, assess, and adjust the ADNN in each learning loop using the rewards Υ [ℓ] 
+
+> v
+
+over the v = 1 , . . . , V validation paths {x}1: V using the grid T(ex,b ) and the ADNN 
+
+R[ℓ]. Achieving full convergence for each solver frequency ∆ ttr,b is unnecessary, as the marginal benefits of further accuracy at an intermediate level do not justify the additional computational cost. To decide whether to transition to the next grid level, we check whether zero belongs to the interval 0 ∈ [ ¯D[ℓ] − z1−α/ 2 ˆσ[ℓ] 
+
+> D
+
+, ¯D[ℓ] + z1−α/ 2 ˆσ[ℓ] 
+
+> D
+
+], (32) where ¯D[ℓ] and ˆ σ[ℓ] 
+
+> D
+
+are the mean and standard deviation of D[ℓ] 
+
+> v
+
+:= Υ [ℓ] 
+
+> v
+
+− Υ[ℓ−1]  
+
+> v
+
+, v = 1 , . . . , V .A very large fraction (as many as 95% of the paths) of D[ℓ] 
+
+> v
+
+’s are zero. First, many validation paths never yield a positive payoff. Second, some paths receive the same reward Υ [ℓ] 
+
+> v
+
+= Υ [ℓ−1] 
+
+> v
+
+in consecutive loops because ADNN parameter updates do not alter the stopping decisions in Equation (11). Accordingly, we use a Delta method to separately account for the variance in 23 the proportion of zeros and the variance of the non-zero Dv’s. We exploit the decomposition 
+
+Dv = Inz Dnz , where Inz is an indicator of Dv̸ = 0, and Dnz denotes the reward difference conditional on Dv̸ = 0. Let p = P(Dv̸ = 0), and denote μnz := E[Dnz ] and σ2nz := Var( Dnz ). By the law of total expectation, 
+
+E[Dv] = E[Dv | Dv̸ = 0] P(Dv̸ = 0) + E[Dv | Dv = 0] P(Dv = 0) = p μ nz ; (33) 
+
+E[D2 
+
+> v
+
+] = ED2 
+
+> v
+
+| Dv̸ = 0  P(Dv̸ = 0) = p ED2nz 
+
+ = p  σ2nz + μ2nz 
+
+ . (34) It follows that the variance of the i.i.d. sample average ¯D[ℓ] = 1
+
+> V
+
+P 
+
+> v
+
+D[ℓ] 
+
+> v
+
+is Var 
+
+ ¯D[ℓ]
+
+= E( ¯D[ℓ])2 − E ¯D[ℓ]2 = pV σ2nz + p(1 − p)
+
+V μ2nz . (35) Replacing p, μnz , and σ2nz in Equation (35) with their sample counterparts ˆ p[ℓ], ¯D[ℓ]nz , and ( s[ℓ]nz )2 gives the estimated standard error ˆ σ[ℓ] =
+
+qdVar( ¯D[ℓ]). The resulting normal-approximation confidence interval at level 100(1 − α)% is ¯D[ℓ] ± z1−α/ 2 ˆσ[ℓ], where z1−α/ 2 denotes the (1 − α/ 2)-quantile of the standard normal distribution. Unless stated otherwise, we take α = 0 .05, resulting in a 95% stopping interval. If the interval in Equation (32) contains zero, the reward change is not significant and the grid is advanced to the next level. 
+
+4.6 Grid Schedule 
+
+As a last ingredient of CARLOS we discuss the construction of the grid schedule T(tr,b ), b = 0 , . . . , B .Recall that the coarsest grid T(tr, 0) is used in Stage 1 to generate good-enough training data for fitting the initial ADNN, while Stage 2 refines the timing value estimates on progressively denser grids. In constructing {T(tr,b )}Bb=0 , we must both limit concept drift and exploit opportunities to speed up the RL algorithm 1. In particular, we prefer maximal progress on coarse solver grids, where training is computationally inexpensive, while limiting iterations on fine grids, where each loop is costly due to high overhead of generating training samples y. The resulting considerations are investigated in Table 5. It is not necessary to train on very fine solver grids: the stopping boundaries converge rapidly, so accurate American prices can be obtained without taking minuscule ∆ ttr . We find that ∆ ttr,B = 1150 
+
+is sufficient for typical stock volatilities. Table 5 shows that for the M2 contract, although the ADNN is ultimately evaluated on ∆ tex = 1192 , comparable prices are obtained by terminating the RL already at ∆ ttr,B = 196 . Since RL loops on the finest grids are the most time-consuming (and most prone to instabilities that inflate loop counts), this also saves nearly 30% of runtime. For the initial grid size, a good rule of thumb is to use N = 20 steps. Using a coarser T(tr, 0) 
+
+increases the risk of concept drift and ultimately leads to lower rewards, as evidenced in Table 5. Taking N ≫ 20 steps is counterproductive: LS errors back-propagate, so finer discretization does not improve the Stage 1 data while adding computational cost. In terms of grid refinement, our default is halve the step size at each transition. Decreasing the step size more rapidly, e.g., taking ∆ ttr,b +1 = 14 ∆ttr,b or ∆ ttr,b +1 = 18 ∆ttr,b , decreases the overall number of learning loops L. However, as shown in Table 5 the runtime savings remain modest 24 Step Size Schedule ∆ ttr,b Price Loops L Runtime ( 13 , 16 , 112 , 124 , 148 , 196 , 1192 ) 14 .1552 (0 .008) 11 .6(2 .33) 68 .96 (11 .58) 
+
+( 13 , 16 , 112 , 124 , 148 , 196 ) 14 .1616 (0 .009) 10 .6(2 .33) 52 .85 (10 .94) 
+
+( 13 , 112 , 148 , 1192 ) 14 .1482 (0 .007) 6.8(0 .75) 54 .21 (8 .45) 
+
+( 16 , 112 , 124 , 148 , 196 , 1192 ) 14 .1571 (0 .024) 11 .0(1 .90) 89 .10 (11 .06) 
+
+( 16 , 112 , 124 , 148 , 196 ) 14 .1733 (0 .022) 9.4(1 .96) 68 .51 (7 .92) 
+
+( 16 , 124 , 196 ) 14 .1692 (0 .008) 6.4(0 .80) 56 .73 (1 .86) 
+
+( 16 , 196 ) 14 .1499 (0 .034) 5.6(1 .02) 58 .46 (5 .42) 
+
+( 112 , 124 , 148 , 196 , 1192 ) 14 .1782 (0 .010) 7.6(0 .80) 119 .25 (3 .44) 
+
+( 112 , 124 , 148 , 196 ) 14 .1614 (0 .012) 6.0(0 .63) 96 .11 (2 .67) 
+
+( 112 , 148 , 1192 ) 14 .1599 (0 .007) 5.2(0 .40) 107 .43 (4 .80) 
+
+Halve every 1 loop 14 .1528 (0 .015) 5.0(0 .00) 55 .51 (0 .37) 
+
+Halve every 2 loops 14 .1660 (0 .017) 10 .00 (0 .00) 71 .41 (1 .92) 
+
+Halve every 1 + Adaptive on T(ex,B ) 14 .1506 (0 .016) 5.2(0 .40) 59 .27 (2 .47) 
+
+Halve every 2 + Adaptive on T(ex,B ) 14 .1636 (0 .016) 9.8(0 .75) 72 .13 (3 .98) 
+
+Table 5: Tuning of the solver grid schedule {T(tr,b )} for the M2 contract in Table 2. See main text for explanation of the hybrid scheme in the last two rows. The base choice is bolded. because the reduced loop count mainly shifts training away from computationally cheaper training on coarse grid to more expensive fine-grid RL loops. Aggressive schedules also increase concept drift, which makes NN instabilities more likely, and amplify their impact, since the algorithm has fewer chances to self-correct. As a result, ∆ ttr,b = 0 .5b · ∆ttr, 0 is the empirical best choice. To assess the effectiveness of the stopping-interval–based transitions introduced in Section 3.2, we consider a version of our RL algorithm with a pre-specified number of learning loops per solver grid. As shown in Table 5, configurations with deterministic grid transition schedules perform worse, as some of the RL flexibility is removed. As a further option, we implemented a hybrid rule: deterministic transitions with a fixed number of ℓ ∈ [1 , 2] loops for intermediate solver grids, while on the finest grid T(tr,B ), we only conclude learning based on the adaptive rule in (32). This hybrid transition scheme performs on par with the fixed-loop variant. Taken together, these results indicate that the adaptive grid transitioning is effective and beats deterministic alternatives. 
+
+Remark 4 The learning rate η[b] directly impacts the magnitude of ADNN updates. Since solver grid refinement warrants progressively finer updates to the timing value estimates, η[b] should de-crease as ∆ttr,b shrinks. Smaller decay factors αdec should therefore be used if the grid refinement schedule is more rapid than our default halving approach. 
+
+4.7 Tuning Guidelines 
+
+While CARLOS has many tuning parameters, most of them can be set to default values and need not be adjusted according to contract specifics. Based on our extensive experiments, we make the following recommendations. The overarching philosophy is to minimize computational effort 25 without compromising learning stability. Table 2 then summarizes the contract-specific settings of the CARLOS algorithm based on the below guidelines. Stage 1 should employ a sufficiently large number of paths K commensurate with the state dimension d. As a baseline, we recommend setting K = 10 4 × d. Larger K is needed for deep OTM contracts, to ensure enough informative input-output pairs for ADNN initialization. Similarly, the number of input–output pairs M should scale with the contract dimension d; we recommend 
+
+M = 10 4 × d. Although a larger M can improve the price estimate and reduce the standard error, the resulting gains are generally too modest to justify the additional computational cost. As a baseline, ReLU serves as a robust activation function. The ADNN hidden-layer width should scale with the option dimension d. Specifically, we set the number of nodes to max {30 ×
+
+d, 60 }, implying that even one-dimensional contracts use 60 nodes. Finally, we recommend a batch size of 64, with the number of training epochs increasing for higher-dimensional options. For one-and two-dim. contracts, we use 5 training epochs, increasing to 10 for d ∈ { 3, 4, 5}, cf. Table 6. For the training density, we favor relatively high exploration initially, λ[0] exl = 0 .55 , λ [0] + = λ[0]  
+
+> −
+
+=0.2 and λ[0] ter = 0 .05 in (20), coupled with a gradual reallocation toward exploitation through cexpl =0.25 in Equation (25). A moderately large number of validation paths V is needed to ensure stable grid transitions via the adaptive rule (32). Note that larger V makes the transition rule more strict (since the confidence interval shrinks), which can ultimately reduce runtime by avoiding premature transitions to finer grids, where ADNN training is more computationally expensive, see Table A.1. For the grid schedule, we start with roughly N = 20 grid steps in Stage 1 and halve the step size at each transition, up to around ∆ ttr ≃ 1150 , even if the exercise grid ∆ tex is denser. Each grid transition makes further improvement of the timing value estimates roughly twice as computation-ally expensive, so there is a rapid saturation between price gains from further refinement relative to runtime. An initial learning rate η[0] = 10 −4 is a good default, reduced by the decay factor 
+
+αdec = 0 .7 at each grid transition. This allows for larger ADNN updates on the coarser grids, while yielding more measured updates on the finer grids, where the timing value estimates are mainly refined near the stopping boundary. The waiting period ∆ b 
+
+> wait
+
+enforces exploration in the stopping region, and should decrease sub-linearly as step size shrinks. To preserve sufficient exploration for updating timing value estimates inside S[ℓ], we recommend cdlst = 1 .3 in (31) assuming that ∆ tr,b = ∆ tr, 0/2b.Ultimately, one may run the algorithm in the high-fidelity mode, where accuracy and stability is paramount. In that case, one should use a wide/deep network, a large K, M, V and many epochs. If speed is equally important, the values in Table 6, used in our main benchmarking, offer good accuracy-runtime trade-offs and a guide for other contracts. Parameter B1 B2 M2 a/b M3 M5 a/b Stage 1 paths K 10 ,000 10 ,000 20 ,000 30 ,000 50 ,000 NN Nodes q 60 60 60 90 150 NN Epochs 5 10 10 10 10 RL training inputs M 10 ,000 20 ,000 20 ,000 30 ,000 50 ,000 Table 6: Contract-specific parameter settings for the CARLOS algorithm, cf. Table 2. 26 5 Conclusion 
+
+The developed CARLOS algorithm permits, for the first time, to solve continuous-time optimal stopping problems using a Monte Carlo simulation-based framework. To do so, we leveraged neural network techniques to train a single space-time aggregate surrogate that provides a stopping rule for any t. We then employed reinforcement learning logic that simultaneously trains this surrogate while gradually refining the exercise grid. Our main innovation is the iterative refinement which serves a dual purpose, “killing two birds with one stone”. First, it integrates with the mini-batch-based NN training, while controlling for concept drift, i.e., the shift in the timing-value distribution as the time grid changes. Second, it substantially lowers the running time compared to the brute force alternative of directly training a fine-grid ADNN. Instead, in CARLOS most of the training is done on coarser grids, achieving significant speed-up and higher expected payoffs. As we show, 5-12 RL loops are generally sufficient to numerically converge to the American-style formulation and provide an accurate continuous-time stopping boundary. Once RL training is complete, the ADNN can price American options on arbitrarily fine time grids, effectively enabling continuous-time stopping. For cases where PDE-based benchmarks are unavailable, CARLOS produces prices higher than all previously reported values in the literature. Two other important innovations in CARLOS are the exploratory stopping and the adaptive training samples. The continuation region expands as the grid is refined, motivating us to introduce a “waiting interval” for training inputs that start in the stopping region, in order to allow the ADNN to shift the stopping boundaries “outward”. In addition, we prioritize ADNN training near the estimated stopping boundary—where even small timing-value updates matter—and near the contract maturity where timing values are very close to zero and it is important to stabilize them. To that end, we use a mix of exploratory, exploitative, and terminal inputs based on anchor sets. Looking ahead, two aspects of the method could be investigated further. First, while we restrict the ADNN to fully connected feedforward networks, the optimal-stopping literature has explored alternative architectures, including convolutional NNs [14], Long Short-Term Memory (LSTM) networks [13], recurrent NNs [9], and randomized neural networks [18]. In particular, CNNs may be an appealing alternative for the ADNN because they are designed to recognize local patterns., which could help with adaptively refining the near-maturity region without substantially altering the learned timing-value estimates across the rest of the horizon. Second, additional ideas can be leveraged for constructing the training inputs, for instance exploiting contract specifics such as the ATM diagonal present in max-call options, or using batched training designs [28]. It would be worthwhile to generalize the idea of gradual and adaptive temporal grid refinement underlying CARLOS to related control problems, including multiple-stopping (swing option pricing) [22, 10], optimal switching [19] and optimal impulse control [26]. The approach should also prove fruitful for settings where time discretization is a limitation, such as deep BSDE solvers [15]. 
+
+# References 
+
+[1] L. Andersen and M. Broadie , Primal-dual simulation algorithm for pricing multidimen-sional American options , Management Science, 50 (2004), pp. 1222–1234. 27 [2] J. G. Andr´ easson and P. V. Shevchenko , A bias-corrected least-squares Monte Carlo for solving multi-period utility models , European Actuarial Journal, 12 (2022), pp. 349–379. [3] S. Becker, P. Cheridito, and A. Jentzen , Deep optimal stopping , Journal of Machine Learning Research, 20 (2019), p. 2712–2736. [4] S. Becker, P. Cheridito, A. Jentzen, and T. Welti , Solving high-dimensional optimal stopping problems using deep learning , European Journal of Applied Mathematics, 32 (2021), pp. 470–514. [5] C. Borsa , American Option Pricing in Continuous Time via Reinforcement Learning , PhD thesis, UC Santa Barbara, 2026. [6] Y. Chen and J. W. Wan , Deep neural network framework based on backward stochastic dif-ferential equations for pricing and hedging American options in high dimensions , Quantitative Finance, 21 (2021), pp. 45–67. [7] M. Dai, Y. Sun, Z. Q. Xu, and X. Y. Zhou , Learning to optimally stop diffusion processes, with financial applications , Management Science, (2026). [8] R. Daluiso, E. Nastasi, A. Pallavicini, and G. Sartorelli , Swing option pricing con-sistent with futures smiles , Applied Stochastic Models in Business and Industry, 40 (2024), pp. 224–242. [9] N. Damera-Venkata and C. Bhattacharyya , Deep recurrent optimal stopping , Advances in Neural Information Processing Systems, 36 (2023), pp. 12222–12244. [10] T. Deschatre and J. Mikael , Deep combinatorial optimisation for optimal stopping time problems: application to swing options pricing , MathematicS In Action, 11 (2022), pp. 243–258. [11] P. Dupuis and H. Wang , On the convergence from discrete to continuous time in an optimal stopping problem , The Annals of Applied Probability, 15 (2005), pp. 1339–1366. [12] J. Ery and L. Michel , Solving optimal stopping problems with deep Q-learning , 2024. arXiv.org:2101.09682. [13] A. Fathan and E. Delage , Deep reinforcement learning for optimal stopping with applica-tion in financial engineering , 2021. arXiv:2105.08877. [14] L. K. Felizardo, E. Matsumoto, and E. Del-Moral-Hernandez , Solving the optimal stopping problem with reinforcement learning: an application in financial option exercise , in 2022 International Joint Conference on Neural Networks (IJCNN), IEEE, 2022, pp. 1–8. [15] C. Gao, S. Gao, R. Hu, and Z. Zhu , Convergence of the backward deep BSDE method with applications to optimal stopping problems , SIAM Journal on Financial Mathematics, 14 (2023), pp. 1290–1303. 28 [16] L. Gonon , Deep neural network expressivity for optimal stopping problems , Finance and Stochastics, 28 (2024), pp. 865–910. [17] I. Guo, N. Langren´ e, and J. Wu , Simultaneous upper and lower bounds of American-style option prices with hedging via neural networks , Quantitative Finance, 25 (2025), pp. 509–525. [18] C. Herrera, F. Krach, P. Ruyssen, and J. Teichmann , Optimal stopping via randomized neural networks , Frontiers of Mathematical Finance, 3 (2024), pp. 31–77. [19] R. Hu , Deep learning for ranking response surfaces with applications to optimal stopping problems , Quantitative Finance, 20 (2020), pp. 1567–1581. [20] M. Kohler, A. Krzy˙ zak, and N. Todorovic , Pricing of high-dimensional American options by neural networks , Mathematical Finance, 20 (2010), pp. 383–410. [21] B. Lapeyre and J. Lelong , Neural network regression for Bermudan option pricing , Monte Carlo Methods and Applications, 27 (2021), pp. 227–247. [22] M. Lauri` ere and M. Talbi , Deep learning for the multiple optimal stopping problem , arXiv preprint arXiv:2512.22961, (2025). [23] X. Li and C.-G. Lee , ∆ V-learning: An adaptive reinforcement learning algorithm for the optimal stopping problem , Expert Systems with Applications, 231 (2023), p. 120702. [24] Y. Li, C. Szepesvari, and D. Schuurmans , Learning exercise policies for American op-tions , in Artificial intelligence and statistics, PMLR, 2009, pp. 352–359. [25] F. A. Longstaff and E. S. Schwartz , Valuing American options by simulation: A simple least-squares approach , The Review of Financial Studies, 14 (2001), pp. 113–147. [26] M. Ludkovski , Regression Monte Carlo for impulse control , MathematicS In Action, 11 (2022), pp. 73–90. [27] , mlOSP: towards a unified implementation of regression Monte Carlo algorithms , Journal of Computational Finance, 17 (2023). [28] X. Lyu and M. Ludkovski , Adaptive batching for Gaussian process surrogates with appli-cation in noisy level set estimation , Statistical Analysis and Data Mining: The ASA Data Science Journal, 15 (2022), pp. 225–246. [29] V. Mnih, K. Kavukcuoglu, D. Silver, A. A. Rusu, J. Veness, M. G. Bellemare, A. Graves, M. Riedmiller, A. K. Fidjeland, G. Ostrovski, S. Petersen, C. Beat-tie, A. Sadik, I. Antonoglou, H. King, D. Kumaran, D. Wierstra, S. Legg, and D. Hassabis , Human-level control through deep reinforcement learning , Nature (London), 518 (2015), pp. 529–533. [30] G. Peskir and A. Shiryaev , Optimal stopping and free-boundary problems , Lectures in mathematics ETH Zurich, Birkhauser Verlag, Basel, 2006. 29 [31] A. M. Reppen, H. M. Soner, and V. Tissot-Daguette , Neural optimal stopping bound-ary , Mathematical Finance, 35 (2025), pp. 100–128. [32] J. Sirignano and K. Spiliopoulos , DGM: a deep learning algorithm for solving partial differential equations , Journal of computational physics, 375 (2018), pp. 1339–1364. [33] J. N. Tsitsiklis and B. Van Roy , Optimal stopping of Markov processes: Hilbert space theory, approximation algorithms, and an application to pricing high-dimensional financial derivatives , IEEE Transactions on Automatic Control, 44 (2002), pp. 1840–1851. [34] P. Wilmott, S. Howison, and J. Dewynne , The mathematics of financial derivatives: a student introduction , Cambridge University Press, Oxford, 1995. [35] J. Yang and G. Li , A deep primal-dual BSDE method for optimal stopping problems , arXiv preprint arXiv:2409.06937, (2024). [36] , Gradient-enhanced sparse Hermite polynomial expansions for pricing and hedging high-dimensional American options , SIAM Journal on Financial Mathematics, 16 (2025), pp. 959– 987. [37] X. Yang, A. Kratsios, F. Krach, M. Grasselli, and A. Lucchi , Synchronizing pre-trained kernel regressors with applications to American option pricing , Frontiers of Mathemat-ical Finance, 8 (2026), pp. 23–77. [38] H. Yu and D. P. Bertsekas , Q-learning algorithms for optimal stopping based on least squares , in 2007 European Control Conference (ECC), IEEE, 2007, pp. 2368–2375. [39] R. Zhang, N. Langren´ e, Y. Tian, Z. Zhu, F. Klebaner, and K. Hamza , Dynamic port-folio optimization with liquidity cost and market impact: a simulation-and-regression approach ,Quantitative Finance, 19 (2019), pp. 519–532. 
+
+# A Supplementary Plots 
+
+30 (a) (b) 
+
+Figure A.1: Exploratory stopping for the B1 Put contract. (a) Timing values ˆT estimated at t = 0 .89 on 1 ,000 discretized locations x spanning [30 , 40]. The three curves show estimates from the ADNN R[0] at Stage 1 ( ℓ = 0, blue), the ADNN R[1 ,0] 
+
+after the first learning loop ( ℓ = 1, black), and a segmented cubic smoothing spline (red) fitted to Equation (30) outputs. To capture the piecewise structure of ydpf in (29), two splines are fitted separately. Each output y is the average timing value of 10 ,000 simulated paths starting at ( t, x )with exercise frequency ∆ tex = 1 /12, subjected to a waiting period ∆ wait = 0 .065, and stopped according to the ADNN R[0] . Dashed vertical lines mark the zero-timing-value contours. (b) Sample paths (at finest frequency ∆ tex = 1 /192) illustrating the path labeling in Algorithm 3. Yellow paths must exit the stopping region within a waiting period of ∆ wait = 1 /12, indicated by vertical dashed gray lines. The stopping boundary is derived from the final ADNN after Stage 2 .     
+
+> (a) Paths initialized at X0. Approximately 76.7% of these paths are stopped.
+> (b) Paths initialized at xp
+> 0, cf. Equation (21). Approxi-mately 65.1% of these paths are stopped.
+
+Figure A.2: Distributions of the optimal stopping time τ ∗ 
+
+> 0
+
+for the B1 contract in Table 2 across PDE solver and exercise grids, estimated from 1 .6 × 10 6 Monte Carlo paths. The underlying stopping boundaries are computed with the Crank–Nicolson scheme with ∆ tex = ∆ tPDE = 1 /192 and ∆ x = 0 .02. 31 B Supplementary Tables 
+
+Input-Output pairs M
+
+Price Loops L Runtime 
+
+M = 10 ,000 14 .1646 (0 .011) 8.8(1 .94) 44 .96 (2 .36) 
+
+M = 20 ,000 14 .1714 (0 .015) 9.0(1 .67) 57 .00 (5 .11) 
+
+M = 40 ,000 14 .1637 (0 .015) 8.0(0 .63) 72 .10 (2 .04) 
+
+Validation Paths VV = 12 ,500 14 .1619 (0 .025) 8.4(1 .02) 62 .20 (3 .14) 
+
+V = 25 ,000 14 .1733 (0 .022) 9.4(1 .96) 68 .51 (7 .92) 
+
+V = 50 ,000 14 .1688 (0 .004) 8.2(2 .48) 67 .52 (6 .28) 
+
+Exploration Window (31) 
+
+cdlst = 0 14 .1573 (0 .012) 10 .2(2 .04) 58 .45 (6 .79) 
+
+cdlst = 1 .0 14 .1621 (0 .016) 9.2(2 .40) 57 .05 (8 .90) 
+
+cdlst = 1 .1 14 .1686 (0 .020) 8.8(0 .75) 56 .43 (2 .67) 
+
+cdlst = 1 .3 14 .1714 (0 .015) 9.0(1 .67) 57 .00 (5 .11) 
+
+cdlst = 1 .5 14 .1524 (0 .023) 8.4(2 .06) 53 .08 (4 .88) 
+
+cdlst = 2 14 .1066 (0 .046) 9.2(2 .93) 56 .47 (7 .87) 
+
+Table A.1: Tuning the number of input-output pairs M per learning loop and the exploration power factor cdlst in Equation (31) for the M2 contract in Table 2. 
+
+LSMC 
+
+K Stage 1 Price Final Price Loops L Stage 1 Time Total Runtime 10 ,000 14 .0757 (0 .023) 14 .1574 (0 .011) 9.4(1 .96) 15 .60 (0 .05) 42 .44 (4 .21) 
+
+20 ,000 13 .9697 (0 .152) 14 .1714 (0 .015) 9.0(1 .67) 29 .50 (0 .67) 57 .00 (5 .11) 
+
+40 ,000 13 .7377 (0 .467) 14 .1768 (0 .010) 9.6(1 .02) 60 .85 (1 .33) 88 .07 (1 .70) 
+
+Table A.2: Tuning the number of paths K in Stage 1 for the M2 contract in Table 2. Stage 1 and Stage 2 prices are computed using 1 .6 × 10 6 Monte Carlo paths at exercise frequency ∆ tex = 1192 ;the standard error of these estimates is approximately 0 .013. 
+
+# C Full Benchmark Descriptions 
+
+32 Contract ∆ttr 
+
+∆tex Monte Carlo Estimated Prices PDE Price 1/12 1/24 1/48 1/96 1/192 
+
+B2 
+
+> 1
+
+/12 1.459 1.467 1.469 1.468 1.466 1.455 
+
+> 1
+
+/24 1.457 1.469 1.473 1.473 ∗∗ 1.473 ∗∗ 1.465 
+
+> 1
+
+/48 1.454 1.468 1.474 1.475 1.476 1.471 
+
+> 1
+
+/96 1.451 1.467 1.474 1.476 1.477 1.473 
+
+> 1
+
+/192 1.448 1.465 1.473 1.476 1.478 1.475 
+
+M2.A 
+
+> 1
+
+/12 14.137 14.172 14 .177 ∗ 14.167 14.157 14.148 
+
+> 1
+
+/24 14.132 14.181 14.196 14 .198 ∗∗ 14.192 14.190 
+
+> 1
+
+/48 14.111 14.174 14.201 14.209 14 .211 ∗∗ 14.212 
+
+> 1
+
+/96 14.096 14.168 14.200 14.210 14 .214 ∗ 14.222 
+
+> 1
+
+/192 14.080 14.157 14.192 14.209 14.214 14.228 
+
+M2.B 
+
+> 1
+
+/12 15.718 15.738 15.747 15.741 15.734 15.742 
+
+> 1
+
+/24 15.714 15.745 15.759 15 .759 ∗∗ 15 .756 ∗ 15.774 
+
+> 1
+
+/48 15.705 15.744 15.761 15.769 15 .768 ∗∗ 15.790 
+
+> 1
+
+/96 15.692 15.738 15.762 15.773 15 .776 ∗∗ 15.798 
+
+> 1
+
+/192 15.682 15.733 15.760 15.771 15.777 15.802 Table A.3: Expected prices for the B1 , B2 , and M2 options from Table 2, estimated using 1 .6 × 10 6
+
+Monte Carlo simulated paths and PDE-based stopping rules. Row-wise price differences between adjacent ∆ tex values are evaluated for statistical significance. If the difference between a price and its right neighbor is not statistically significant, the right-side price is marked with ∗ at the 0.05 level and ∗∗ at the 0.01 level. Standard deviations of the Monte Carlo estimated prices are approx. 0.0025 for B1 , 0.0015 for B2 , and 0.0115 for M2 . For reference, the PDE-based prices for each ∆ ttr are also provided. The parameters for CN and explicit finite-difference methods are: B1 
+
+(∆ tPDE = 1 /192, ∆ x = 0 .02), B2 (∆ tPDE = 10 −5, ∆ Xi = 0 .2 for i = 1 , 2), and M2 (∆ tPDE = 10 −5,∆Xi = 0 .8 for i = 1 , 2). 
+
+ADNN Parameter Settings 
+
+Parameter B1 B2 M2 a/b M3 M5 a/b 
+
+K 100 ,000 100 ,000 100 ,000 200 ,000 200 ,000 ∆t(N ) 1/24 1/24 1/12 1/12 1/12 Hidden nodes 60 60 60 90 150 Epochs 5 5 5 10 10 Table A.4: Parameter configuration for the Stage 1 high-capacity ADNNs used to price the option contracts in Table 2. Settings are grouped into LSMC parameters and ADNN architecture and training hyperparameters. All runs use ReLU activation and batch size of 64. 33

@@ -1,0 +1,2035 @@
+Title: A simulation study on spatial exponential decay of perturbations in a two-dimensional wave equation with optimal boundary/line control
+
+URL Source: https://arxiv.org/pdf/2606.14410v1
+
+Published Time: Mon, 15 Jun 2026 01:02:29 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+A SIMULATION STUDY ON SPATIAL EXPONENTIAL DECAY OF PERTURBATIONS IN A TWO-DIMENSIONAL WAVE EQUATION WITH OPTIMAL BOUNDARY/LINE CONTROL 
+
+BENEDIKT OPPENEIGER 1,2
+
+Abstract. Recent results have shown that domain-uniform stabilizability and detectability imply spatial exponential decay of perturbations in optimally controlled hyperbolic PDEs on one-dimensional domains. This domain-uniform stabilizability and detectability can be achieved only if the control domain is distributed over the whole spatial domain such that the distance between neighboring control intervals is bounded from above. Motivated by these insights we investigate whether analogous effects can be observed for optimal boundary control in higher dimensions. For this purpose we conduct a simulation study on a two-dimensional wave equation on expanding square domains which is driven by a localized perturbation of the initial displacement. We compare two control geometries: a control acting only on the outer boundary and a control acting on a regular grid of interior line interfaces combined with the boundary. The problem is discretized by conforming P1 finite elements in space and the implicit midpoint rule in time. Instead of assembling the full space-time KKT system, we use a condensed formulation and solve the reduced optimality system by preconditioned conjugate gradients. We show that domain-uniform spatial decay of the perturbation can only be observed in the scenario with a regular grid of line controls. This is because finite propagation velocity requires a uniform bound on the distance that a wave can travel without reaching the control domain. 
+
+1. Introduction 
+
+Robustness is an important concern in the analysis of optimal control problems governed by partial differential equations. In general, this refers to the ability of a system to tolerate perturbations or uncertainties without exhibiting an excessive change in its behaviour. Specifically in the context of optimal control small changes in the data should not lead to disproportionate changes in the optimal state, adjoint state, or control. In many real-world scenarios perturbations may be confined to a small region. Typical examples include a local voltage fluctuation in a power grid, a sudden braking maneouver of a small group of cars on a highway, or a toxic substance entering a drinking water network via a small leak in a pipeline. In all of these cases a global propagation of the local perturbation causing phenomenons like a blackout, traffic congestion or large-scale water pollution is highly undesirable. The fundamental idea of local perturbations only having a local impact has been the subject of substantial mathematical research across several different areas. In optimal control, a closely related phenomenon is the turnpike property (see [5, 4, 7]). There, an initial condition may be interpreted as a local in time perturbation of the optimal steady state. As a consequence of turnpike the distance of the optimal trajectory to this equilibrium decays over time. These ideas were extended in [11] and [10] where an exponential temporal decay of more general local in time perturbations was proven for optimal control problem governed by general evolution equations. 
+
+> 1
+
+Faculty of Mathematics, Chemnitz University of Technology, Germany 
+
+> 2
+
+Optimization-based Control Group, Institute of Mathematics, Technische Universität Ilmenau, Ger-many., Mail: benedikt-florian.oppeneiger@tu-ilmenau.de 
+
+Date : June 15, 2026. B.O. extends his gratitude to the Thüringer Graduiertenförderung for funding his scholarship.  
+
+> 1
+> arXiv:2606.14410v1 [math.OC] 12 Jun 2026 2SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL
+
+Another locality principle appears in graph-structured optimization. In [13], it is shown that sensitiv-ities of primal-dual solutions of graph-structured nonlinear programs may decay exponentially with the graph distance from the perturbed data. Related ideas are used in diffusing-horizon model pre-dictive control [14], where local information is propagated only over a limited neighbourhood in the underlying graph. Such graph-structured optimization problems may have their origin in discretized PDE-constrained optimal control problems, where the network structure corresponds to the geometry of the computational mesh. Interesting results in this context have also appeared in numerical linear algebra. In [6] it was shown that under suitable invertibility and conditioning assumptions, the entries of the inverse of a band matrix decay exponentially away from the diagonal. Since banded and sparse matrices naturally arise from local discretizations of differential operators, such results can be viewed as a discrete precursor of spatial decay phenomena for PDEs. In the more recent work [3] these estimates were refined. For linear-quadratic PDE-constrained optimal control, spatial decay of perturbations was first studied in [8] for elliptic and parabolic problems. In this framework, local perturbations of the data lead to exponentially localized perturbations of the optimal state, adjoint state, and control, provided that the associated KKT solution operators are bounded uniformly with respect to the size of the spatial domain. To achieve this domain-uniform boundedness a particular stabilizability/detectability condition was introduced. This property requires the existence of a bounded state feedback such that the closed loop operators are coercive with constants which are again uniform in the domain size. This mechanism was later significantly generalized to general evolution equations, including hyperbolic problems, in [9]. In contrast to the coercivity-based condition used for elliptic and parabolic equations, the latter work employs a semigroup-based notion of domain-uniform stabilizability and detectability. This condition requires the existence of uniformly bounded feedback operators such that the closed-loop semigroups decay exponentially with constants independent of the spatial domain. For several hyperbolic equations, this property was characterized by a uniform spatial distribution of the control and observation regions. Intuitively, due to the finite propagation velocity the distance between neighbouring controlled parts of the spatial domain must bounded from above, and the controlled sets inside prescribed subdomains must not degenerate. The rigorous characterization in [9], however, is restricted to one-dimensional domains and bounded distributed input and output operators. Boundary control and lower-dimensional control sets, such as line controls in two space dimensions, are therefore not covered by the existing theory. The present paper is motivated by the conjecture that analogous localization phenomena will also occur beyond this setting. In particular, we expect that similar results should be possible for higher-dimensional wave equations and for control mechanisms acting on lower-dimensional subsets, such as boundary parts or interior interfaces. It is to be expected that localized perturbations lead to a localized response if and only if the control geometry prevents waves from travelling arbitrarily far without interacting with the control domain. The contribution of this paper is threefold. First, we formulate a two-dimensional numerical test problem which transfers the localization question from distributed control of one-dimensional wave equations to boundary and line controls on expanding square domains. Second, we propose a fi-nite element and implicit midpoint discretization together with a condensed solution strategy for the resulting linear-quadratic optimal control problem, avoiding the assembly of the full space-time KKT system. Third, we perform an extensive simulation study where we compare different control geometries numerically and investigate whether regularly distributed line controls lead to a spatial localization behaviour that is uniform with respect to an increasing domain size. The paper is structured as follows: In Section 2 we briefly recall the results from the literature which motivated this work. In Section 3 we introduce the model problem which is considered in our SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 3
+
+numerical experiments. In Section 4 we discuss the discretization technique which we used, to make the simulations computationally feasible. Finally we discuss the results of our simulations in Section 5. 2. Theoretical background and working hypothesis 
+
+As mentioned in Section 1 our numerical study is motivated by recent results on the spatial local-ization of perturbations in linear-quadratic optimal control problems [9]. In this section we will briefly recall the core ideas of these results and formulate the hypothesis which will be investigated numeri-cally in the remainder of the paper. We first introduce the abstract optimal control problem considered in that work; see Section 2.1. We then summarize the central spatial decay result; see Section 2.2. Finally, we formulate the working hypothesis for the present numerical study in Section 2.3. 2.1. Abstract optimal control problem. We consider a family of optimal control problems indexed by spatial domains Ω in a set of domains O. Each of these optimal control problems may be written in the form 
+
+min 
+
+> (x,u )
+
+12
+
+∫ T
+
+> 0
+
+∥∥∥C
+
+(
+
+x(t) − xref )∥ ∥∥2 
+
+> Z
+
++ α
+
+∥∥∥u(t) − uref 
+
+∥∥∥2 
+
+> U
+
+dt
+
+s.t. : ˙x(t) = Ax (t) + Bu (t) + F, x (0) = x0,
+
+(OCP TΩ)where 
+
+• Ω ∈ O ⊂ { Ω ⊂ Rd : Ω open, bounded with Lipschitz boundary } is a domain of dimension 
+
+d ∈ N
+
+• the state space X, the input space U and the output space Z are Hilbert spaces, 
+
+• A : X ⊃ D(A) → X generates a strongly-continuous semigroup (T (t)) t≥0 on X,
+
+• the input and output operators B ∈ L(U, X ) and C ∈ L(X, Z ) are bounded, 
+
+• α > 0 is the control weight, 
+
+• the source term F ∈ L1(0 , T ; X) is integrable and 
+
+• we have an initial value y0 ∈ X and references xref ∈ X and uref ∈ U .All of the above quantities may depend on the spatial domain Ω, i.e. formally we should write XΩ
+
+instead of X, AΩ instead of A etc. However in order to keep the notation simple, we omit the Ω-index in the following except where it is indispensable. The first-order optimality system corresponding to the optimal control problem ( OCP TΩ) is 
+
+
+
+C∗C 0 − ddt − A∗
+
+0 0 ET
+
+0 α −B∗ 
+
+> ddt
+
+− A −B 0
+
+E0 0 0
+
+xuλ
+
+ =
+
+
+
+C∗Cy ref 
+
+0
+
+αu ref 
+
+Fx0
+
+ =⇒
+
+
+
+C∗C − ddt − A∗
+
+0 ET 
+
+> ddt
+
+− A −α−1BB ∗
+
+E0 0
+
+︸ ︷︷ ︸
+
+> := M
+
+(xλ
+
+)︸ ︷︷ ︸ 
+
+> := ξ
+
+=
+
+
+
+C∗Cy ref 
+
+0
+
+Bu ref + Fx0
+
+︸ ︷︷ ︸
+
+> := h
+
+,
+
+(1) i.e. if (x, u ) ∈ C(0 , T ; X) × L2(0 , T ; U ) is optimal for ( OCP TΩ), then there exists a Lagrange multiplier 
+
+λ ∈ C(0 , T ; X) such that the optimality system (1) is satisfied. The operators E0 and ET encode the initial and terminal conditions, that is, 
+
+E0 : C(0 , T ; X) → X, E0x := x(0) and ET : C(0 , T ; X) → X, ET λ := λ(T ).
+
+Example 1 (Wave equation) . Consider a wave equation with distributed control and Neumann bound-ary condition 
+
+¨y − c2∆y − χΩC u − f = 0 , on (0 , T ) × Ω,∂ny = 0 , on ∂Ω4 SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 
+
+y(0 , ·) = y0, ˙y(0 , ·) = v0, on Ω 
+
+where Ω ⊂ Rd is a bounded Lipschitz domain and (x0, v 0) ∈ H1(Ω) × L2(Ω) . Introducing the first-order state x = ( y, v ) := ( y, ˙y) the wave equation may be written in the abstract form ˙x = Ax + Bu + F
+
+from Equation (OCP TΩ) where we have the source term F = (0 , f ), the differential operator 
+
+A : D(A) := H2(Ω) × H1(Ω) ⊂ X := H1(Ω) × L2(Ω) → X, Ax := 
+
+( 0 Ic2∆ 0
+
+) ( yv
+
+)
+
+and the input/output operators 
+
+B : U := L2(Ω C ) → X, Bu =
+
+( 0
+
+χΩC u
+
+)
+
+and C : X → L2(Ω O), Cx = v|ΩO
+
+with control domain ΩC and observation domain ΩO.
+
+2.2. Spatial decay of perturbations. In the following we briefly explain the localization mechanism for perturbations in distributed optimal control of the wave equation described in [9]. This mechanism consists of three steps: First assuming a regular distribution of the control and observation areas over the whole spatial domain, a domain-uniform stabilizability and detectability property may be proven for the wave equation with distributed control/observation. Second, this domain-uniform stabilizabil-ity/detectability implies a uniform (in the size of the spatial domain and the control horizon) bound on the solution operator M of the associated KKT system (1). Finally using these domain-uniform bounds it is possible to show the following localization result: Perturbations which are exponentially localized around some point P in space also only have an exponentially localized influence on the solution of the optimal control problem (4). In particular this applies to the optimal state, adjoint state, and control. For Step 1 we first need to recall the meaning of domain-uniform stabilizability/detectability as defined in [9, Definition 12]. 
+
+Definition 2 (Domain-uniform exponential stabilizability/detectability) . We call the family of differ-ential and input operators (AΩ, B Ω)Ω∈O domain-uniformly stabilizable in O if and only if there exists a family of uniformly (in Ω ∈ O ) bounded feedback operators (KB 
+
+> Ω
+
+)Ω∈O , KB 
+
+> Ω
+
+∈ L(XΩ, U Ω), Ω ∈ O 
+
+such that the following two conditions are satisfied: (i) The closed-loop operators AΩ + BΩKB 
+
+> Ω
+
+, Ω ∈ O , generate strongly continuous semigroups 
+
+(TΩ(t)) t≥0, on XΩ, Ω ∈ O .(ii) There exist constants M, k > 0 such that ∀ Ω ∈ O ∀ t ≥ 0 : ∥T Ω(t)∥L(XΩ) ≤ M e −kt .We call (AΩ, C Ω)Ω∈O , CΩ ∈ L(XΩ, Z Ω), Ω ∈ O domain-uniformly exponentially detectable in O if and only if (A∗
+
+> Ω
+
+, C ∗
+
+> Ω
+
+) is domain-uniformly exponentially stabilizable. 
+
+In [9, Theorem 32] domain-uniform stabilizability of the wave equation with distributed control is characterized for one-dimensional spatial domain in O1D := {(0 , L ) : L > 0}, where the control domain is defined by ΩCL := Ω L ∩ ΩC for ΩL ∈ O and a total control domain ΩC ⊂ R≥0. The following Theorem 3 directly follows from this result. 
+
+Theorem 3 (Domain-uniform stabilizability of the wave equation) . Assume that there exist constants 
+
+c0, c 1 > 0 such that for all intervals I ⊂ R≥0 the inequality |ΩC ∩ I| ≥ c1|I| − c2 is fulfilled and 
+
+∀ L > 0 : |ΩCL | = |ΩL ∩ ΩC | > 0. Then the wave equation with distributed control from Theorem 1 is domain-uniformly stabilizable with regard to O1D .
+
+If a distributed observation domain is defined by ΩOL := Ω L ∩ ΩO, ΩO ⊂ R≥0 then domain-uniform detectability is implied by the analogous condition. This follows directly from duality. The main idea of Theorem 3 is the following: The control region is required to be uniformly distributed in the SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 5
+
+sense that the distances between neighbouring controlled parts remain uniformly bounded. At the same time, the controlled parts must not degenerate locally: in each prescribed neighbourhood, their size has to be bounded from below. This non-degeneracy is needed because the input operator is bounded, so arbitrarily small control regions cannot provide a uniform control effect. In the following let W 2Ω := (( L2 
+
+> με
+
+(0 , T ; XΩ)2 × (XΩ)2). The second step is performed by using the following Theorem 4 (see [9, Theorem 12]). 
+
+Theorem 4. Let (AΩ, B Ω)Ω∈O and (AΩ, C Ω)Ω∈O be domain-uniformly stabilizable respectively domain-uniformly detectable families Then there exists a constant c > 0 such that ∀ T > 0 ∀ Ω ∈ O :∥∥∥(MT
+
+> Ω
+
+)−1∥∥∥L(W 2Ω,W 2Ω) ≤ c.
+
+Now we have all the necessary ingredients to describe the spatial decay of perturbations in optimal control in the third step. For this purpose consider the perturbed version Mxd = h + ε and the error system Mδξ d = ε associated with the optimality system (1) where ε ∈ (L1(0 , T ; X) × L2(X)) 2 is the perturbation, ξd = ( xd, λ d) is the perturbed solution and δξ d := ξd − ξ = ( δx, δλ ) is the deviation caused by the perturbation. We call the family (εT
+
+> Ω
+
+) 
+
+> Ω∈O ,T > 0
+
+exponentially localized around some point P ∈ Rd in W 2 if and only if there exist constants με, C ε > 0 such that 
+
+∀ Ω ∈ O ∀ T > 0 : ∥∥εT
+
+> Ω
+
+∥∥W 2Ω,μ 
+
+:= 
+
+∥∥∥eμε∥P −·∥ εT
+
+> Ω
+
+∥∥∥W 2Ω
+
+< C ε < ∞.
+
+The following Theorem 5 is a consequence of [9, Theorem 10]. It holds true under the assumption, that the differential operator A behaves similar to a first-order differential operator (see [9, Assumption 6]). For the purpose of this work it suffices to say, that the wave equation satisfies this Assumption (see [9, Example 8]). 
+
+Theorem 5 (Spatial decay of local perturbations) . Assume that there exists a constant c > 0 such that 
+
+∀ T > 0 ∀ Ω ∈ O :
+
+∥∥∥(MT
+
+> Ω
+
+)−1∥∥∥L(W 2Ω,W 2Ω) ≤ c. (2) 
+
+Let the family of perturbations (εT
+
+> Ω
+
+) 
+
+> Ω∈O ,T > 0
+
+be exponentially localized around P ∈ Rd in W 2 with constants με, C ε > 0 Then, there exist constants K, μ > 0 such that for all T > 0 and for all Ω ∈ O 
+
+the inequality 
+
+∥∥∥eμ∥P −·∥ 1 δx T
+
+> Ω
+
+∥∥∥L2(0 ,T ;X)+
+
+∥∥∥eμ∥P −·∥ 1 δλ T
+
+> Ω
+
+∥∥∥L2(0 ,T ;X)+
+
+∥∥∥eμ∥P −·∥ 1 δu T
+
+> Ω
+
+∥∥∥L2(0 ,T ;U ) ≤ K
+
+∥∥∥eμ∥P −·∥ 1 εT
+
+> Ω
+
+∥∥∥W 2 ≤ K·Cε,
+
+(3) 
+
+i.e. the deviation in the optimal state, optimal control and adjoint state is exponentially localized around P in L2.
+
+2.3. working hypothesis for the numerical study. The results presented in Section 2.2 come with two main drawbacks. First the sufficient condition for domain-uniform stabilizability and detectability in Theorem 3 only applies to one-dimensional domains. Second the results on the domain-uniform boundedness of the solution operator in Theorem 4 as well as on the spatial decay of perturbations in Theorem 5 were only rigorously shown for bounded input and output operators. For hyperbolic equations like the wave equation this disqualifies boundary control and observation. The working hypothesis for the present paper is that similar results may also be shown for scenarios with higher-dimensional domains and/or boundary control observation. For a wave equation one could suspect that - similar to the geometric control condition (GCC) [2] - it may suffice in such a scenario to ensure, that the distance a wave can travel in a straight line without touching any control hyperplanes is bounded from above. 6 SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 
+
+In order to test this hypothesis we have implemented a wave equation on a square domain with a rectangular grid of line controls. If our hypothesis is correct, we should observe a spatial decay of perturbations under the influence of an optimal control on the grid lines, which is independent of the domain size. By contrast, if the control only acts on the outer boundary of the square domain, then the spatial decay is expected to deteriorate as the domain size grows. This seems plausible since a perturbation must propagate across the entire spatial domain before it can be damped by the optimal control. 3. Model problem 
+
+For our simulation study we consider an optimal control problem for the wave equation given by 
+
+min 
+
+> y,u
+
+12
+
+∫ T
+
+> 0
+
+∥y(·, t ) − yd∥2 
+
+> H
+
++ kv∥ ˙y(·, t ) − vd∥2 
+
+> H
+
++ ∥u(·, t )∥2 
+
+> U
+
+(4a) s.t. ¨y − c2∆y = 0 on (Ω \ Γ) × [0 , T ], (4b) 
+
+∂ny = 0 on ∂Ω \ ΓC , (4c) 
+
+y(·, 0) = y0, v (·, 0) = v0 on Ω \ Γ, (4d) 
+
+y+ − y− = 0 on Γ, (4e) 
+
+∂ny+ − ∂ny− = u on ΓC , (4f) where 
+
+• Ω = (0 , L )2 ⊂ R2, L = N L C is a square domain partitioned into subsquares as depicted in Figure 1, 
+
+• Γ ⊂ Ω denotes the inner boundaries of the subsquares Ω1, . . . , ΩN 2 , i.e. Γ = 
+
+(
+
+∪N 2
+
+> k=1
+
+∂Ωk
+
+)
+
+\ ∂Ω,
+
+• ΓC ⊂ ∂Ω ∪ Γ is the control domain on which the boundary/line control is acting, 
+
+• H = L2(Ω) and U = L2(Γ C ) are the spaces of square integrable functions and inputs, 
+
+• n = n(ω) ∈ R2 denotes the normal vector in a point ω ∈ Γ defined as in Figure 1 and c ∈ R is the propagation velocity, 
+
+• y0 ∈ H1(Ω) and v0 ∈ L2(Ω) denote the initial displacement and velocity distributions on the spatial domain Ω,
+
+• yd ∈ X and vd ∈ H denote the desired displacement and velocity distributions on the spatial domain Ω,
+
+• y+ and y− are the solution along a boundary in and against the direction of the normal vector 
+
+n, i.e. we have 
+
+∀ ω ∈ Γ : y+(ω) = lim  
+
+> ε↓0
+
+y(ω + εn ) and y−(ω) = lim  
+
+> ε↓0
+
+y(ω − εn ),
+
+• and ∂ny+(ω) := ( ∇y+)⊤ n and ∂ny−(ω) := ( ∇y−)⊤ n are the normal derivatives of the dis-placement y on both sides of the inner and outer boundary facets. For ω ∈ ∂Ω we define ∂ny−(ω) = 0 if n points into Ω and ∂ny+(ω) = 0 if n points out of Ω.To investigate the localization properties of this optimal control we will consider a perturbation of the initial value, which is given by a gaussian impulse of the form 
+
+d(ω) = e− 12σ2 ∥P −ω∥22 (5) where P ∈ R2 is the mean value around which the perturbation is localized and σ > 0 may be seen as a standard deviation. Furthermore we will consider two different control scenarios: In the first the control only acts on the outer boundary of the square domain, i.e. ΓC = ∂Ω. In the second scenario the control acts on the SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 7
+
+Figure 1. Visualization of the spatial domain Ω, the subdomains Ωk and the grid Γ
+
+for N = 6 .outer boundary as well as on the inner control grid defined by the boundaries of the subdomains, i.e. 
+
+ΓC = ∂Ω ∪ Γ.To confirm our working hypothesis, domain-uniform localization should only be visible in the second scenario, since the distance between the control lines grows with the domain size in the first. 4. Discretization of the model problem 
+
+We now describe the discretization used for the numerical solution of the model problem introduced above. The spatial discretization is based on conforming first-order finite elements on a structured triangular mesh, while time integration is performed by the implicit midpoint rule. This leads to a fully discrete linear-quadratic optimal control problem, which is subsequently solved in condensed form rather than by assembling the full space-time KKT system. 4.1. Discretization of the state equation. In order to discretize the model problem we first derive its weak formulation using Greens formula and the definition of the normal vectors depicted in Figure 1. For y ∈ H2(Ω) , w ∈ H1(Ω) we find 
+
+c2 ⟨∆y, w ⟩L2(Ω) = 
+
+> N2
+
+∑
+
+> k=1
+
+c2 ⟨∆y, w ⟩L2(Ω k ) = 
+
+> N2
+
+∑
+
+> k=1
+
+c2 (
+
+⟨∂nout y, w ⟩L2(∂Ωk ) − ⟨∇ y, ∇w⟩L2(Ω k )
+
+)
+
+= c2
+
+⟨∂ny, w ⟩L2(∂Ω) +  
+
+> 2N(N−1)
+
+∑
+
+> k=1
+
+⟨∂ny− − ∂ny+, w ⟩L2(Γ k ) − 
+
+> N2
+
+∑
+
+> k=1
+
+⟨∇ y, ∇w⟩L2(Ω k )
+
+
+
+= −c2 (
+
+⟨u, w ⟩L2(Γ C ) + ⟨∇ y, ∇w⟩L2(Ω) 
+
+)
+
+,
+
+where nout is an outer normal vector with regard of Ωk and the last step follows from equations (4c) and (4f). Therefore the weak version of the above wave equation with boundary/line control is 
+
+∀ w ∈ H1(Ω) : ⟨¨y, w ⟩L2(Ω) + c2 ⟨u, w ⟩L2(Γ C ) + c2 ⟨∇ y, ∇w⟩L2(Ω) = 0 . (6) 8 SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 
+
+We discretize the square domain ΩL = (0 , L )2 by a structured triangular mesh. Starting from a uniform Cartesian grid with mesh size h, each rectangular cell is subdivided into two triangles. On this triangulation, we use conforming finite elements of first order, i.e. continuous, piecewise affine P1
+
+basis functions φ1, . . . , φ nm leading to a mesh with nm degrees of freedom. We denote the set of nodes by ph and the set of triangular elements by th. Thus we arrive at a second-order semidiscrete version the wave equation, which is 
+
+w⊤ 
+
+> h
+
+Mh ¨yh + c2w⊤ 
+
+> h
+
+Khxh + c2w⊤ 
+
+> h
+
+˜Bhuh = 0 ,
+
+where Mh, K h ∈ Rnm×nm denote the standard mass and stiffness matrices corresponding to the bilinear forms m(w, v ) := ⟨w, v ⟩L2(Ω) and a(w, v ) := ⟨∇ w, ∇v⟩L2(Ω) . The discretized control matrix ˜Bh is de-fined by ˜Bh := Σ h(: , I C ) where IC denotes the indices of the nodes corresponding to the control domain and Σh ∈ Rnm×nm is the mass matrix with regard to the control domain, i.e. Σh(i, j ) := ⟨φi, φ j ⟩L2(Γ C ).Introducing a new state xh = ( yh, v h) := ( yh, ˙yh) in analogy to the first-order formulation of the wave equation in Theorem 1 leads to 
+
+(I 00 Mh
+
+)︸ ︷︷ ︸
+
+> =: Eh
+
+( ˙yh
+
+˙vh
+
+)︸ ︷︷ ︸ 
+
+> =: ˙ xh
+
+=
+
+( 0 I
+
+−Kh 0
+
+)︸ ︷︷ ︸
+
+> =: Ah
+
+(yh
+
+vh
+
+)︸ ︷︷ ︸ 
+
+> =: xh
+
+( 0˜Bh
+
+)︸ ︷︷ ︸ 
+
+> =: Bh
+
+uh, yh(0) ≈ y0, vh(0) ≈ v0 (7) For the time discretization we use the implicit midpoint rule. This choice is motivated by its structure-preserving properties: the implicit midpoint rule is symplectic and preserves quadratic invariants (i.e. quantities constant in time) exactly. Since the semi-discrete, uncontrolled wave equation is a linear Hamiltonian system with a quadratic energy, the method preserves the discrete wave energy in the absence of forcing and control; see, e.g., [12, 1]. This way we are able to avoid artificial numerical dissipation. For the semi-discrete system in (7), sampling time ∆t and time steps t0 = 0 , . . . , t nt = nt∆t
+
+the implicit midpoint rule reads 
+
+Eh
+
+xn+1  
+
+> h
+
+− xnh
+
+∆t = Ah
+
+xn+1  
+
+> h
+
+− xnh
+
+2 + Bhunh =⇒
+
+( 1∆t Eh − 12 Ah
+
+)︸ ︷︷ ︸
+
+> =: D+
+
+xn+1  
+
+> h
+
+=
+
+( 1∆t Eh + 12 Ah
+
+)︸ ︷︷ ︸
+
+> =: −D−
+
+xnh + Bhunh. (8) Combining all time steps we find the linear equation system 
+
+
+
+I 0 . . . 0
+
+D− D+ . . . 0
+
+. . . . . . ...
+
+D− D+
+
+︸ ︷︷ ︸
+
+> =: ˆAh
+
+
+
+x0
+
+> h
+
+......
+
+xnt
+
+> h
+
+︸ ︷︷ ︸
+
+> =: Xh
+
++
+
+
+
+0 . . . 0
+
+−Bh
+
+. . .
+
+−Bh
+
+︸ ︷︷ ︸
+
+> =: ˆBh
+
+
+
+u0
+
+> h
+
+......
+
+unt−1
+
+> h
+
+︸ ︷︷ ︸
+
+> =: Uh
+
+=
+
+(y0
+
+v0
+
+)
+
+0
+
+...
+
+0
+
+︸ ︷︷ ︸
+
+> =: Fh
+
+(9) 4.2. Discretization of the cost functional. In analogy to Section 4.1 the cost functional may be discretized in space using finite elements. The semidiscrete cost is 
+
+Jh(xh, u h) := 12
+
+∫ T
+
+> 0
+
+∥Chxh(t)∥22 + ku ∥uh∥2 
+
+> Rh
+
+dt
+
+where 
+
+Ch := 
+
+(Mh 00 kvMh
+
+)
+
+and Rh := Σ h(IC , I C ).SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 9
+
+Using the midpoint integration rule for discretixation in time we find the discrete cost functional 
+
+Jh, ∆t(Xh, U ) := ∆t
+
+2
+
+> nt−1
+
+∑
+
+> n=0
+
+( xn+1  
+
+> h
+
++ xnh
+
+2
+
+)⊤
+
+C⊤ 
+
+> h
+
+Ch
+
+︸ ︷︷ ︸ 
+
+> =: Qh
+
+xn+1  
+
+> h
+
++ xnh
+
+2 +
+
+(
+
+ukh
+
+)⊤
+
+Rhukh = 12
+
+(
+
+X⊤ 
+
+> h
+
+ˆQhXh + U ⊤ 
+
+> h
+
+ˆRhUh
+
+)
+
+where 
+
+ˆQh := ∆t
+
+4
+
+
+
+Qh Qh
+
+Qh 2Qh
+
+. . . . . . . . .
+
+2Qh Qh
+
+Qh Qh
+
+
+
+and ˆRh := ∆t
+
+2 ku
+
+
+
+Rh
+
+. . .
+
+Rh
+
+
+
+4.3. Discrete optimality system. Instead of assembling and solving a discretized version of the full space-time KKT system in (1), we use a condensed formulation in which the state and adjoint equations are eliminated. This leads to a reduced optimality system posed only in terms of the control. The action of the reduced Hessian is evaluated matrix-free by one forward and one adjoint solve. This approach has several advantages. First, the large indefinite KKT matrix does not have to be assembled or factorized. Second, the reduced system is symmetric positive definite under the standard assumptions of the linear-quadratic problem, so that it can be solved by a preconditioned conjugate gradient (PCG) method rather than by a general Krylov method for indefinite systems like for example MINRES or GMRES. Third, the time-stepping structure of the wave equation can be exploited directly in each iteration of PCG, since a forward-backward solve only requires the repeated application of 
+
+D−1+ and D−⊤  
+
+> +
+
+to the current state/adjoint state. This procedure is feasible, since the matrix ˆA from the discrete state equation is invertible, which allows us to eliminate the discrete Xh by solving (9) for Uh. Thus we find 
+
+Xh = ˆA−1 
+
+> h
+
+Fh − ˆA−1 
+
+> h
+
+ˆBhUh =⇒ Jh, ∆t(Xh, U h) = 12 U ⊤
+
+> h
+
+( ˆB⊤ 
+
+> h
+
+ˆA−⊤  
+
+> h
+
+ˆQh ˆA−1 
+
+> h
+
+ˆBh + ˆRh
+
+)
+
+Uh + 12 F ⊤ 
+
+> h
+
+ˆA−⊤  
+
+> h
+
+ˆQh ˆA−1 
+
+> h
+
+ˆBhUh.
+
+Hence the discretized optimization problem can be written as 
+
+min 
+
+> Uh∈Rnt·nC
+
+∥∥∥∥(
+
+ˆCh ˆA−1 
+
+> h
+
+ˆBh + ˆR 12
+
+> h
+
+)
+
+Uh
+
+∥∥∥∥
+
+> 22
+
++
+
+( ˆCh ˆA−1 
+
+> h
+
+Fh
+
+)⊤ ˆCh ˆA−1 
+
+> h
+
+ˆBhUh
+
+Taking the derivative with regard to Uh we arrive at the corresponding necessary optimality condition 
+
+(
+
+ˆCh ˆA−1 
+
+> h
+
+ˆBh + ˆR 12
+
+> h
+
+)⊤ (
+
+ˆCh ˆA−1 
+
+> h
+
+ˆBh + ˆR 12
+
+> h
+
+)︸ ︷︷ ︸
+
+> =: Hh
+
+Uh = − 12
+
+( ˆCh ˆA−1 
+
+> h
+
+ˆBh
+
+)⊤ ˆCh ˆA−1 
+
+> h
+
+Fh
+
+︸ ︷︷ ︸
+
+> =: bh
+
+(10) To solve the discrete optimality system (10) we first note that applying ˆC ˆA−1 to F is the same as sequentially forward-solving the semidiscrete system (7) with initial values x0, v 0 using the implicit midpoint rule. In analogy applying 
+
+( ˆCh ˆA−1 
+
+> h
+
+ˆBh
+
+)⊤
+
+to the resulting state trajectory X0 = ˆCh ˆA−1 
+
+> h
+
+Fh
+
+is the same as solving the adjoint equation of (7) backward in time using the implicit midpoint rule. From the perspective of the adjoint equation the state trajectory X0 is an input. Thus we may obtain the right hand side of (10). The main computational challenge of this approach lies in the repeated application of D−1+ and D−⊤  
+
+> +
+
+to the current state/adjoint state. To simplify this computation we use the Schur complement. We find 
+
+D+y =
+
+( 1∆t I − 12 I 
+
+> 12
+
+Kh 1∆t Mh
+
+) ( y1
+
+y2
+
+)
+
+= b =
+
+(b1
+
+b2
+
+)
+
+⇔ y2 = 2∆t y1 − 2b1 ∧ y1 = S−1
+
+( ∆t
+
+2 b2 + Mhb1
+
+)10 SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 
+
+where S := 1∆t Mh + ∆4 Kh. In analogy we find 
+
+D⊤
+
+> +
+
+y = b ⇔ y1 = ∆ tb 1 − ∆t
+
+2 Khy2 ∧ y2 = S−1
+
+( ∆t
+
+2 b1 + b2
+
+)
+
+Therefore it suffices to factorize the Schur matrix S of size nm instead of the matrix D+ of size 
+
+2nm. This factorization only needs to be carried out once. Afterwards we can use it to solve the linear equation systems originating from the implicit midpoint rule in each time step by forward backward substitution. To solve the optimality condition Equation (10) we use the preconditioned conjugate gradient method. Here the control weighting matrix ˆR serves as preconditioner in order to avoid unfavourable conditioning which may be caused by a very small control weight ku. The computationally most challenging part of PCG is the application of the reduced hessian matrix Hh to a control sequence. However using the above ideas this simply corresponds to performing a forward-backward solve of the wave equation using the implicit midpoint again. Therefore the only matrix we need to factorize in order to solve the complete optimal control problem numerically is the Schur matrix S.5. Simulation results 
+
+In this section, the numerical results obtained for the model problem introduced in Section 3 are presented. Our main aim is to investigate whether our working hypothesis from Section 2.3 is reflected in the numerical results. As described in Section 3, we compare two different control scenarios: 
+
+• Scenario 1: The control acts only on the outer boundary of the spatial domain Ω.
+
+• Scenario 2: The control acts on the outer boundary as well as on the rectangular grid depicted in Figure 1. All simulations were carried out with zero reference trajectories, i.e. yref = 0 and vref = 0 . This way the initial displacement y0 = d defined in (5) can be interpreted as a local in space perturbation of the zero solution of the wave equation. For the numerical experiments the perturbation was centered at P = (0 .65 , 0.65) while the standard deviation was set to σ = 0 .12 . Furthermore the velocity was initialized with zero. The optimal control problems were solved on a sequence of squares of increasing size L = 0 .5, 1.0, . . . , 10 .0, with fixed distance LC = 1 between neighbouring control lines. Since the numerical experiments are intended to provide insight into the continuous optimal control problem, the computations were carried out for several different spatial resolutions h ∈ { 0.025 , 0.05 , 0.1, 0.2, 0.4}. This allows us to assess whether the observed localization behaviour is a property of the underlying optimally controlled wave equation rather than an artefact of a particular discretization. The remaining parameters were kept fixed throughout all simulations with a wave speed of c = 1 .0 and weights ku = 10 −3 and kv = 10 −3 in the cost functional. The final time was set to T = 10 .0 to ensure, that the perturbation is able to travel through the whole spatial domain during each simulation run. For the time discretization nt = 150 
+
+time steps were used. The reduced optimality system is solved by the preconditioned conjugate gradient method with relative tolerance 10 −6 and a maximum number of 3000 iterations. Figure 2 shows snapshots of the displacement for the optimally controlled wave equation for both scenarios. This simulation was conducted on large spatial domain ( L = 10 ) with a fine resolution of 
+
+h = 0 .025 . If the control acts only at the outer boundary, the initial perturbation is able to propagate over the entire spatial domain as an undamped wave with time. Since the area over which this wave spreads increases quadratically with time, we observe a slow polynomial decay of the perturbation in space caused by the inherent nature of the problem. In the scenario, where the control acts on a regularly distributed grid, the decay becomes significantly faster. Since it is not necessary for the perturbation to spread to the far boundary before it can be damped this is only reasonable. Instead the SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 11 
+
+wave is cancelled as soon as it reaches the control grid on the boundary of the bottom left subdomain 
+
+Ω1. As a result, at t = 5 .0 the displacement is already so small that it falls within the numerical error tolerance corresponding to the chosen resolution h = 0 .025 .00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 00 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+000 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 0
+
+0 
+
+0 
+
+0 
+
+0 
+
+00 
+
+00 
+
+0000 
+
+00 
+
+00 
+
+0 
+
+0 
+
+00 
+
+0 
+
+00 
+
+00 
+
+000 
+
+00 
+
+00 
+
+0 
+
+0 
+
+00 00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 00 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+000 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 0
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 
+
+00 
+
+00 
+
+0000 
+
+00 
+
+00 
+
+0 
+
+0 
+
+00 
+
+00 
+
+00 
+
+000 
+
+00 
+
+00 
+
+00 
+
+0 00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 00 
+
+00 
+
+000 
+
+00 
+
+0000 
+
+00 
+
+000 
+
+00 
+
+000 
+
+0 
+
+00 
+
+00 
+
+00 
+
+00 
+
+00 
+
+000 
+
+00 
+
+00 
+
+00 
+
+00 
+
+00 
+
+00 
+
+000 
+
+0000 
+
+000 
+
+00 
+
+00 00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 0 
+
+00  0  00 
+
+ω
+
+> 
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+ 00 
+
+00 
+
+00 00 
+
+00 
+
+000 
+
+000 
+
+00000 
+
+000 
+
+000 
+
+00 
+
+0000 
+
+000 
+
+000 
+
+0000 
+
+0000 
+
+00000 
+
+0000 
+
+0000 
+
+000 
+
+000 
+
+0000 
+
+0000 
+
+0000 
+
+0000 
+
+000000 
+
+0000 
+
+0000 
+
+0000 
+
+0000 
+
+Figure 2. Snapshots of the displacement for pure boundary (top) and grid control (bottom) with resolution h = 0 .025 and domain size L = 10 .The snapshots of the corresponding optimal control in Figure 3 show a consistent behaviour. In Scenario 1 the control is activated in those segments where the wave originating from the initial perturbation reaches the outer boundary of the spatial domain. In Scenario 2 an analogue phenomenon can be observed for the optimal control on the grid lines which are near the waves current location. 12 SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 00 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 0 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 0 
+
+0 
+
+0 
+
+00 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 
+
+00 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 
+
+0 
+
+00 
+
+0 
+
+0 
+
+0 
+
+0 0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 00 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 0 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 0 
+
+0 
+
+0 
+
+0 
+
+00 
+
+0 
+
+0 
+
+0 
+
+ 
+
+0 
+
+0 
+
+00 
+
+0 
+
+0 
+
+ 
+
+0 
+
+0 0
+
+0 
+
+000 
+
+0 
+
+0 0
+
+0 0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 0 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+  0 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 00 
+
+0 
+
+0 
+
+0 
+
+00 
+
+0 
+
+0 
+
+0 
+
+00 
+
+00 
+
+00 
+
+00 
+
+000 
+
+00 
+
+00 
+
+00 
+
+00 
+
+000 
+
+000 
+
+0000 
+
+000 
+
+000 0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 0 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+  0 
+
+0 0 
+
+ω
+
+
+
+0
+
+
+
+
+
+0 
+
+> ω
+> 
+
+
+
+ 
+
+ 00 
+
+0 
+
+0 
+
+00 
+
+0 
+
+0 
+
+00 
+
+000 
+
+000 
+
+0000 
+
+000 
+
+000 
+
+00 
+
+00000 
+
+00000 
+
+000000 
+
+00000 
+
+00000 
+
+Figure 3. Snapshots of the optimal control for pure boundary (top) and grid control (bottom) with resolution h = 0 .025 and domain size L = 10 .SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 13 
+
+Once again, we notice that the magnitude of the optimal control declines very rapidly in Scenario 2 due to the rapid damping of the disturbance. In Scenario 1, this decay occurs much more slowly, and the amplitude of the optimal control travels along the boundary away from the origin. 00  0  00         
+
+>   
+> 000
+> 0
+> 00
+> 0
+> 00
+> 
+> 0
+>    
+> 0
+> 0
+> 00 00  0  00
+>   
+> 000
+> 0
+> 00
+> 0
+> 00
+> 
+> 0
+>    
+> 0
+> 0
+> 00
+
+Figure 4. Development of the wave energy over time for different sizes of the spatial domain with pure boundary (left) and grid control (right). The difference in damping between the two different scenarios becomes also visible in Figure 4 where the wave energy 
+
+Eopt (t) := 12
+
+(
+
+∥∇ yopt (·, t )∥L2(Ω) + ∥vopt (·, t )∥L2(Ω) 
+
+)
+
+.
+
+is depicted for three different sizes of the spatial domain. If the control acts on the whole grid, we observe a rapid decay of the wave energy which shows hardly any change at all, as the domain size increases. However if the control only acts on the outer boundary, a significant change of behaviour becomes visible. For L = 2 .0 the decay in energy is nearly identical to what we found in Scenario 2. For L = 5 .0 the energy declines in two steps around t = 1 and t = 5 . And for L = 10 .0 the prescribed time horizon is not sufficient for the energy to be completely drawn from the system. This can be explained by the fact that, within this time frame, the wave does not cover the entire diagonal of the spatial domain preventing the control from absorbing the remaining energy. The remaining question to be answered is, whether the decay under the influence of grid control which we noticed in Figures 2-4 is connected to exponential localization, or if we are just observing a higher order polynomial degree. The following two Figures 5 and 6 provide strong evidence with regard to this subject. Figure 5 shows a semilogarithmic plot of the distribution of the temporal L2-norm 
+
+∥yopt (ω, ·)∥L2(0 ,T ) := 
+
+∫ T
+
+0
+
+∥yopt (ω, t )∥22 dt
+
+over the spatial domain Ω = [0 , 10] × [0 , 10] . This norm is well defined since the displacement yopt is weakly differentiable, i.e. its trace is well defined. For Scenario 2, we observe a clear spatial decay as the distance from the initial perturbation increases. In the semilogarithmic representation, this decay is approximately linear over a substantial part of the domain, which indicates an exponential decay behaviour. 14 SPATIAL DECAY OF PERTURBATIONS IN A WAVE EQUATION WITH OPTIMAL BOUNDARY CONTROL 0    
+
+> 
+> 
+> 0
+> ω
+> 
+> 0
+> 
+> 
+> 0
+> ω
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 0
+> ‖ω
+> 
+> 
+> ‖0  
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 0 0
+> 
+> 
+> 0
+> ω
+> 
+> 0
+> 
+> 
+> 0
+> ω
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 0
+> ‖ω
+> 
+> 
+> ‖0  
+> 
+> 0
+> 
+> 0
+> 
+> 0
+> 0
+
+Figure 5. Spatial distribution of the temporal L2-norm of the displacement for pure boundary (left) and grid control (right). The exponential decay is, however, no longer resolved accurately once the values reach approximately 
+
+5·10 −4. Below this level, the profile enters an uneven plateau rather than continuing to decay smoothly. This effect is most likely caused by the finite spatial discretization, rather than being a feature of the optimally controlled wave equation. On the other hand no decay is visible on the semilogarithmic scale when examining the illustration of the norm for pure boundary control. This observation is only consistent with our previous considerations, where noticed, that the wave is propagated across the whole spatial domain without being damped. Figure 6 shows a comparison of the optimal boundary 2                             
+
+>  
+> 
+> 
+> 2
+> ‖x‖
+> 
+> 2
+> 
+>    
+> μ 
+> μ 2
+> μ
+> μ 
+> μ2 2
+>  
+> 2
+> 
+> 
+> 
+> 
+> ‖x‖
+> 
+> 2
+> 
+>     μ 
+> μ 2
+> μ
+> μ 
+> μ2
+
+Figure 6. Comparison of an exponentially weighted norm for pure boundary (left) and grid control (right) for several grid resolutions. REFERENCES 15 
+
+and grid control w.r.t. the exponentially weighted state space norm 
+
+∥xopt ∥Xμ := 
+
+∥∥∥eμ∥P −·∥ 2 yopt 
+
+∥∥∥L2(0 ,T ;H1(Ω)) +
+
+∥∥∥eμ∥P −·∥ 2 vopt 
+
+∥∥∥L2(0 ,T ;L2(Ω)) .
+
+For this simulation the decay parameter was set to μ = 0 .2. For scenario 1 we observe a steep nonlinear growth of the norm with the domain size for all resolutions except the very coarse grid size 
+
+h = 0 .4. On the other hand for scenario 2 the norm seems asymptotically approach an upper bound. This boundedness from above is precisely what is required by exponential localisation. This seems to support our hypothesis, that the impact of the perturbation is localized for scenario 1 but not for scenario 2. 6. Conclusion 
+
+In this paper, we investigated spatial localization effects for an optimally controlled two-dimensional wave equation. In particular we tested whether a uniformly distributed lower-dimensional control geometry can induce localization behaviour similar to that predicted by the results in [9]. The numerical results support this hypothesis. For pure boundary control, the perturbation is able to propagate over large parts of the spatial domain before interacting with the controlled boundary. As a consequence, the observed decay deteriorates as the domain size increases. In contrast, when the control acts on a rectangular grid of interior line interfaces (see Figure 1), the perturbation is damped much earlier, and the spatial profiles of the time-integrated displacement exhibit an exponential decay in the distance to the source of the perturbation. The computations were performed for several spatial resolutions in order to distinguish genuine lo-calization effects from discretization artefacts. Nonetheless, the simulations should be interpreted as numerical evidence rather than as a proof of domain-uniform localization. Overall, the results suggest that localization phenomena known for one-dimensional wave equations with distributed control may also appear in higher-dimensional wave equations with lower-dimensional control sets. Building on this important insight future research may successfully extend the results on domain-uniform stabilizability and detectability of hyperbolic equations to boundary and line controls in multiple space dimensions. 
+
+Acknowledgements 
+
+The author thanks Manuel Schaller and Karl Worthmann for helpful comments and discussions. 
+
+References 
+
+[1] Ascher, Uri M. and Reich, Sebastian. “The midpoint scheme and variants for Hamiltonian sys-tems: advantages and pitfalls”. In: SIAM Journal on Scientific Computing 21.3 (1999), pp. 1045– 1065. [2] Bardos, Claude, Lebeau, Gilles, and Rauch, Jeffrey. “Sharp sufficient conditions for the observa-tion, control, and stabilization of waves from the boundary”. In: SIAM Journal on Control and Optimization 30.5 (1992), pp. 1024–1065. [3] Benzi, Michele and Simoncini, Valeria. “Decay bounds for functions of Hermitian matrices with banded or Kronecker structure”. In: SIAM Journal on Matrix Analysis and Applications 36.3 (2015), pp. 1263–1282. [4] Breiten, Tobias and Pfeiffer, Laurent. “On the turnpike property and the receding-horizon method for linear-quadratic optimal control problems”. In: SIAM Journal on Control and Opti-mization 58.2 (2020), pp. 1077–1102. 16 REFERENCES 
+
+[5] Damm, Tobias et al. “An exponential turnpike theorem for dissipative discrete time optimal control problems”. In: SIAM Journal on Control and Optimization 52.3 (2014), pp. 1935–1957. [6] Demko, Stanley, Moss, William F., and Smith, Philip W. “Decay rates for inverses of band matrices”. In: Mathematics of Computation 43.168 (1984), pp. 491–499. [7] Faulwasser, Timm and Grüne, Lars. “Turnpike properties in optimal control: An overview of discrete-time and continuous-time results”. In: Handbook of Numerical Analysis 23 (2022), pp. 367–400. [8] Göttlich, Simone, Schaller, Manuel, and Worthmann, Karl. “Perturbations in PDE-constrained optimal control decay exponentially in space”. In: ESAIM: COCV 31 (2025), p. 27. [9] Göttlich, Simone et al. “Spatial exponential decay of perturbations in optimal control of general evolution equations”. In: ESAIM: COCV 32 (2026), p. 11. [10] Grüne, Lars, Schaller, Manuel, and Schiela, Anton. “Efficient model predictive control for para-bolic PDEs with goal oriented error estimation”. In: SIAM Journal on Scientific Computing 44.1 (2022), A471–A500. [11] Grüne, Lars, Schaller, Manuel, and Schiela, Anton. “Exponential sensitivity and turnpike analysis for linear quadratic optimal control of general evolution equations”. In: Journal of Differential Equations 268.12 (2020), pp. 7311–7341. [12] Hairer, Ernst, Lubich, Christian, and Wanner, Gerhard. Geometric Numerical Integration: Structure-Preserving Algorithms for Ordinary Differential Equations . 2nd ed. Springer, 2006. [13] Shin, Sungho, Anitescu, Mihai, and Zavala, Victor M. “Exponential decay of sensitivity in graph-structured nonlinear programs”. In: SIAM Journal on Optimization 32.2 (2022), pp. 1156–1183. [14] Shin, Sungho and Zavala, Victor M. “Diffusing-horizon model predictive control”. In: IEEE Transactions on Automatic Control 68.1 (2023), pp. 188–201.

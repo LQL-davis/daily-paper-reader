@@ -1,0 +1,1553 @@
+Title: Optimization with inequality constraints by the embedded gradient vector field method
+
+URL Source: https://arxiv.org/pdf/2606.20059v1
+
+Published Time: Fri, 19 Jun 2026 00:52:35 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# Optimization with inequality constraints by the embedded gradient vector field method 
+
+## Petre Birtea, Ioan Ca¸ su, Dan Com˘ anescu 
+
+Department of Mathematics, West University of Timi¸ soara Bd. V. Pârvan, No 4, 300223 Timi¸ soara, România Email: petre.birtea@e-uvt.ro, ioan.casu@e-uvt.ro, dan.comanescu@e-uvt.ro 
+
+Abstract 
+
+We develop a geometric framework for constrained optimization problems with in-equality constraints through the introduction of quadratic slack variables. This formu-lation makes it possible to employ the language of Riemannian geometry and to solve the problem via the embedded gradient vector field method. We lift the feasible set to a smooth submanifold of an extended ambient space. The stratified structure of the re-sulting constraint manifold is analyzed in detail, yielding a natural partition according to which constraints are active. Using the embedded gradient vector field formalism, we de-rive explicit, determinantal formulas for the Lagrange multiplier functions directly from the geometry of the constraint manifold, recovering and re-framing the classical Karush-Kuhn-Tucker first-order necessary conditions without invoking the classical Lagrange multiplier method. Second-order optimality conditions are obtained by computing the restricted Hessian on each stratum, and a complete sign condition on the Lagrange mul-tipliers is identified as the geometric counterpart of the classical complementary slack-ness condition. The theory is illustrated on the double ice-cream cone example, where the geometry of the problem determines the nature and number of local minima. 
+
+Keywords: optimization, inequality constraints, Karush-Kuhn-Tucker conditions, embedded gradient vector fields 
+
+MSC Subject Classification 2020: 49K10, 58C05, 53B21, 90C30, 90C46. 
+
+# 1 Introduction 
+
+For smooth functions f0, fi , h j : RN → R, we consider the following optimization problem 1
+
+arg min 
+
+> x∈RN
+
+f0(x)s.t. fi (x) ≤ 0, i = 1, . . . , mh j (x) = 0, j = 1, . . . , p.(1.1) 
+
+> 1
+
+The argmax problem is equivalent with the argmin problem for the objective function − f0.
+
+1
+
+> arXiv:2606.20059v1 [math.OC] 18 Jun 2026
+
+Under appropriate regularity and constraint qualification assumptions on the objective function f0 and the constraint functions fi and h j , the optimization problem can be char-acterized by the Karush-Kuhn-Tucker (KKT) conditions. The Karush-Kuhn-Tucker condi-tions occupy a central role in nonlinear optimization. Originally derived independently by Karush (1939) and by Kuhn and Tucker (1951), they provide necessary (and, under a con-vexity assumption, sufficient) first-order optimality conditions for problems with inequality and equality constraints. Standard treatments appear in the monographs of Rockafellar [15], Bertsekas [2], and Nocedal and Wright [14]. These conditions extend the classical method of Lagrange multipliers to problems with inequality constraints. A classical device for converting inequality constraints into equality constraints is the in-troduction of the so-called slack variables. The squared slack variable technique, in the form 
+
+fi (x) + 12 z2 
+
+> i
+
+= 0, appears in the context of Newton-type methods for general mathematical programming in the work of Tapia [18]. A detailed modern analysis of this technique, includ-ing its implications for regularity, constraint qualifications, and the relationship between the original and slack-extended problems, is given by Fukuda and Fukushima [10], who clarify several subtle points regarding the equivalence of KKT points and second-order conditions before and after the slack transformation. Our purpose is to solve this optimization problem by means of the embedded gradient vector field method. This method was developed by the authors in [6], originally in the con-text of geometric dissipation for dynamical systems, and extended to second-order (Hessian) analysis on constraint manifolds in [7]. These works place constrained optimization firmly within Riemannian geometry: the gradient and Hessian of a restricted function are expressed intrinsically in terms of determinantal formulas involving Gram matrices of constraint gradi-ents, bypassing the need to explicitly solve for Lagrange multipliers. The present paper develops this programme in the setting of inequality constraints. The central idea is to introduce quadratic slack variables zi , converting each inequality fi (x) ≤ 0into an equality fi (x) + 12 z2 
+
+> i
+
+= 0, and to regard the resulting level set as a submanifold of an extended ambient space M × Rm . Away from singular points, those at which the gradients of the slack constraint functions become linearly dependent, the Regular Value Theorem en-dows this level set with a smooth manifold structure, and the embedded gradient vector field formalism applies directly. A key feature of this approach is the natural stratification it induces on the feasible set. The constraint manifold decomposes into strata indexed by subsets of active constraints: a fully interior stratum S0, where all slack variables are nonzero and no constraint is active, and boundary strata S(i1,..., ik ), where precisely the constraints fi1 , . . . , fik are active. We prove that each stratum, and its projection onto the original variable space M, is itself a smooth submanifold. This stratified structure organizes the search for local minima into a finite col-lection of subproblems, one for each possible active set, and is analyzed in detail in Section 2. The stratification of the feasible set by active constraints, exploited systematically in the present paper, is related to the Whitney stratification theory of semi-algebraic sets; see [11] and the optimization-oriented treatment in [17]. The idea of organizing optimality condi-tions stratum by stratum, distinguishing the interior, boundary faces, and their intersections, connects also to the theory of active-set methods in nonlinear programming, see [14] and to 2the study of partly smooth functions introduced in [13], where manifold-like structure of the active constraint set is similarly exploited to obtain sharper second-order conditions. Within each stratum, the embedded gradient vector field method yields explicit deter-minantal formulas for the Lagrange multiplier functions μi associated with the active con-straints, expressed directly in terms of Gram matrices of constraint gradients via Cramer’s rule. The vanishing of the embedded gradient is shown to be equivalent to the classical KKT stationarity condition, while the complementary slackness condition emerges geometrically from the product structure of the tangent space to the constraint manifold. Crucially, the sign requirement μi ≤ 0 for a minimum appears not as an additional hypothesis imposed from outside, but as a necessary consequence of the positive semi-definiteness of the re-stricted Hessian on the constraint manifold. Second-order sufficient conditions are likewise obtained by computing the restricted Hessian on each stratum, yielding a complete set of first- and second-order optimality tests summarized in Figure 1. Second-order necessary and sufficient conditions for nonlinear programs have a long history; see the surveys [9] and the treatment in[16]. The sign conditions on Lagrange multipliers identified in the present paper, strict negativity for a strict local minimum, correspond to the classical strict complementarity condition, whose role in sensitivity analysis and in the convergence of interior-point meth-ods is well documented in [19]. In Section 3, we illustrate the theory on the double ice-cream cone problem, which seeks to minimize the linear function f0(x) : = c1x1 + c2x2 + c3x3 over the intersection of a ball and a solid cone in R3. This example is chosen because the geometry of the feasible set, and in particular the position of the vector c relative to the cone, determines both the number and nature of the local minima in a way that is transparent within the stratified framework. When c lies strictly inside the cone the unique local minimum is found on the spherical-cap stratum; when c lies strictly outside the cone two local minima appear on the stratum where both constraints are simultaneously active; and when c lies exactly on the cone the first- and second-order tests are inconclusive on part of the boundary stratum, and an ad hoc argument using compactness identifies the global/local minimizers. This case-by-case analysis demonstrates both the power and the current limitations of the method, and points naturally toward future work on degenerate cases. 
+
+# 2 Necessary optimality and sufficient optimality conditions for problems with inequality constraints 
+
+The first stage is to organize the equality constraints as a Riemannian manifold, i.e. sup-pose that M := {x ∈ RN | h j (x) = 0, j ∈ {1, . . . , p}} is a smooth manifold of dimension N − p, a condition guaranteed when the null element 0p ∈ Rp is a regular value for the set of equal-ity constraints. We endow this manifold with the induced Riemannian metric, denoted by g,from the ambient space RN . The initial problem becomes arg min 
+
+> x∈M
+
+f0(x)s.t. fi (x) ≤ 0, i = 1, . . . , m
+
+(2.1) 3The second stage is to introduce a set of so-called “slack variables” that further transform the inequality constraints into equality constraints. Let Fi : M × Rm → R be the smooth func-tions, that we call the slack constraint functions , Fi (x, z) : = fi (x) + 12 z2 
+
+> i
+
+. It is immediate to see that the feasible set can be described by the set equality {x ∈ M| fi (x) ≤ 0, i ∈ {1, . . . , m}} = Π(F−1(0m )), where F = (F1, . . . , Fm ) and 
+
+Π : M × Rm → M, Π(x, z) : = x
+
+is the projection on M along Rm .Observing the above set equality, we relate the initial optimization problem (1.1), or equiv-alently (2.1), with the following optimization problem with equality constraints, arg min  
+
+> (x,z)∈F−1(0m)
+
+F0(x, z) (2.2) where F0 : M × Rm → R be the smooth function F0(x, z) : = f0(x). The next result appears in [18] (without proof), and is also cited in [10]. 
+
+Theorem 2.3. The optimization problems (2.1) and (2.2) are equivalent. More precisely: (i) If x∗ ∈ Π(F−1(0m )) is a solution of (2.1) , then any (x∗, z) ∈ F−1(0m ) is a solution of (2.2) .(ii) If (x∗, z∗) ∈ F−1(0m ) is a solution of (2.2) , then x∗ ∈ Π(F−1(0m )) and it is a solution of (2.1) .Proof. On M × Rm we use the product distance 
+
+ρ¡(x, z), ( x′, z′)¢ := d(x, x′) + ∥ z − z′∥,where d is the Riemannian distance on ( M, g) and ∥ · ∥ is the Euclidean norm on Rm . This distance induces the product topology and is equivalent to the Riemannian distance of eg =
+
+g ⊕ gEuc on M × Rm .(i ) Let x∗ be a solution of the problem (2.1), i.e. there is δ > 0 such that 
+
+f0(x∗) ≤ f0(x) for all x ∈ B(x∗, δ) ∩ Π(F−1(0m )). Fix any z with ( x∗, z) ∈ F−1(0m ) and let ( x,ez) ∈ F−1(0m ) satisfy ρ¡(x,ez), ( x∗, z)¢ < δ. Then d(x, x∗) ≤
+
+ρ¡(x,ez), ( x∗, z)¢ < δ, and x ∈ Π(F−1(0m )). Hence x ∈ B(x∗, δ)∩Π(F−1(0m )), and since F0 does not depend on the slack variable, 
+
+F0(x∗, z) = f0(x∗) ≤ f0(x) = F0(x,ez). As δ does not depend on the chosen z, every ( x∗, z) ∈ F−1(0m ) is a solution of (2.2). (i i ) Let ( x∗, z∗) be a solution of the problem (2.2), i.e. there is δ > 0 such that 
+
+F0(x∗, z∗) ≤ F0(x, z) for all ( x, z) ∈ F−1(0m ) with ρ¡(x, z), ( x∗, z∗)¢ < δ.Since ( x∗, z∗) ∈ F−1(0m ), we have x∗ = Π(x∗, z∗) ∈ Π(F−1(0m )). 4It remains to show x∗ is a local minimizer of (2.1). We lift x to a slack vector whose signs match those of z∗. For i ∈ {1, . . . , m} define 
+
+zi (x) : = εi
+
+q
+
+−2 fi (x), εi :=
+
+(sgn( z∗ 
+
+> i
+
+), z∗
+
+> i
+
+̸ = 0, 
+
++1, z∗ 
+
+> i
+
+= 0, for x ∈ Π(F−1(0m )) in a neighborhood of x∗. We have ( x, z(x)) ∈ F−1(0m ), and z(x∗) = z∗.Each map x 7 → zi (x) = εi
+
+p−2 fi (x) is continuous on the feasible set, since fi is smooth and −2 fi ≥ 0 there. Hence x 7 → z(x) is continuous at x∗ with z(x∗) = z∗, and we may choose 
+
+δ′ ∈
+
+³
+
+0, δ
+
+> 2
+
+i
+
+such that 
+
+x ∈ Π(F−1(0m )), d(x, x∗) < δ′ implies ∥z(x) − z∗∥ < δ 
+
+> 2
+
+.For such an x,
+
+ρ¡(x, z(x)), ( x∗, z∗)¢ = d(x, x∗) + ∥ z(x) − z∗∥ < δ 
+
+> 2
+
++ δ 
+
+> 2
+
+= δ,so ( x, z(x)) lies in the admissible δ-ball of (2.2), and therefore 
+
+F0(x∗, z∗) = f0(x∗) ≤ f0(x) = F0(x, z(x)). Thus f0(x∗) ≤ f0(x) for all x ∈ B (x∗, δ′) ∩ Π(F−1(0m )), i.e. x∗ is a solution of (2.1). In [10], it is analyzed in detail the relation between the classical Lagrange multiplier ap-proach for the optimization problem (2.2) and the classical Karush-Kuhn-Tucker approach for the optimization problem (2.1).The same work also emphasizes the equivalence of the first- and second-order optimality conditions for these two problems. 
+
+## 2.1 First order optimality conditions 
+
+First, we address the problem associated with (2.2), which consists of determining the critical points of the function F0 subject to the constraint given by the level set F−1(0m ). We solve this new problem using the embedded gradient vector field method. For this, we need that a non-empty open subset of F−1(0m ) to be a submanifold of M × Rm , which will be of dimension (dim( M) + m) − m = N − p. This is ensured by the Regular Value Theorem, possibly after removing the singular points, i.e. points ( x, z) where the gradients 2 ∇F1(x, z), . . . , ∇Fm (x, z) are linearly dependent (for the example of a cone we have to remove the origin in order to have the Regular Value Theorem valid). We introduce the set of singular points and characterize it in the next lemma, 
+
+F−1(0m )sing := {( x, z) ∈ F−1(0m ) | ∇ F1(x, z), . . . , ∇Fm (x, z) are linearly dependent}. 
+
+Lemma 2.4. A point (x, z) ∈ F−1(0m )sing if and only if there is k ∈ {1, . . . , m} and 1 ≤ i1 < · · · < 
+
+ik ≤ m such that z i1 = · · · = zik = 0, z j̸ = 0, j ∉ {i1, . . . , ik } and ∇ fi1 (x), ..., ∇ fik (x) are linearly dependent. 
+
+> 2To simplify the notations, when we take the gradient of a function we use the induced metric from the ambient space on the manifold where the function is defined without mentioning it explicitly.
+
+5Proof. The Jacobian matrix associated to the constraint functions F1, . . . , Fm is [DF(x, z)] =
+
+
+
+∇ f1(x) ... ∇ fm (x)
+
+z1 . . . 0... . . . ...0 ... zm
+
+
+
+> T
+
+.First, we suppose that ∇F1(x, z), . . . , ∇Fm (x, z) are linearly dependent. Then, rank [ DF(x, z)] <
+
+m. This in turn implies that there is k ∈ {1, . . . , m} and 1 ≤ i1 < · · · < ik ≤ m such that zi1 = · · · = 
+
+zik = 0, z j̸ = 0, j ∉ {i1, . . . , ik }. Without loss of generality, we can assume that i1 = 1, . . . , ik = k.The Jacobian matrix becomes [DF(x, z)] =
+
+
+
+∇ f1(x) ... ∇ fk (x) ∇ fk+1(x) . . . ∇ fm (x)
+
+0 . . . 0 0 . . . 0
+
+0 . . . 0 zk+1 . . . 0... . . . ... ... . . . ...0 . . . 0 0 . . . zm
+
+
+
+> T
+
+.The hypothesis implies that ∇ f1(x), ..., ∇ fk (x) are linearly dependent. The converse follows immediately from the above form of Jacobian matrix. We define the set of regular points as 
+
+F−1(0m )reg := F−1(0m )\ F−1(0m )sing ,which we call the lifted feasible set. As a consequence of the Regular Value Theorem (for a comprehensive treatment for this fundamental result, see [1] or [12]), we have the following fundamental result. 
+
+Theorem 2.5. If F−1(0m )reg ̸ = ; , then it is a manifold. 
+
+The following partitions hold 
+
+F−1(0m )reg = S0 ∪ [
+
+> 1≤k≤m
+
+[ 
+
+> 1≤i1<···< ik≤m
+
+S(i1,..., ik ), (2.6) 
+
+Π ¡F−1(0m )reg ¢ = ΠS0 ∪ [
+
+> 1≤k≤m
+
+[ 
+
+> 1≤i1<···< ik≤m
+
+ΠS(i1,..., ik ), (2.7) where 
+
+S0 = ©(x, z) ∈ F−1(0m ) | zi̸ = 0, ∀i ∈ {1, . . . , m}ª ⊂ F−1(0m )reg ,
+
+S(i1,..., ik ) = ©(x, z) ∈ F−1(0m )reg | zi1 = · · · = zik = 0, z j̸ = 0, j ∉ {i1, . . . , ik }ª ,
+
+ΠS0 = ©x ∈ M| fi (x) < 0, ∀i ∈ {1, . . . , m}ª ,
+
+ΠS(i1,..., ik ) = ©x ∈ Π ¡F−1(0m )reg ¢ | fi1 (x) = · · · = fik (x) = 0, f j (x) < 0, j ∉ {i1, . . . , ik }ª .Note that for each x ∈ ΠS(i1,..., ik ), the condition that ∇ fi1 (x), ..., ∇ fik (x) are linearly inde-pendent is satisfied. This condition is called in the literature LICQ (linear independence con-straint qualification), see [14], Definition 12.4, pp. 320. 6Lemma 2.8. Furthermore, we have the following characterization. (i) Each element of the partition (2.6) is a submanifold of M × Rm .(ii) Each element of the partition (2.7) is a submanifold of M.Proof. (i ) The set S0 is an open subset of F−1(0m )reg , and consequently a submanifold of 
+
+M × Rm . Without loss of generality, we can assume that i1 = 1, . . . , ik = k. The set S(1,..., k) =
+
+eF−1(0m+k ), where eF := (F, z1, . . . , zk ) : M × Rm → Rm+k . For ( x, z) ∈ S(1,..., k), the Jacobian matrix is 
+
+£DeF(x, z)¤ =
+
+
+
+∇ f1(x) ... ∇ fk (x) ∇ fk+1(x) . . . ∇ fm (x) 00 . . . 0 0 . . . 0 Ik
+
+0 . . . 0 zk+1 . . . 0 0... . . . ... ... . . . ... ...0 . . . 0 0 . . . zm 0
+
+
+
+> T
+
+.By permuting the rows, we obtain maximal rank for £DeF(x, z)¤ if and only if the vectors ∇ f1(x), ..., ∇ fk (x) are linearly independent. This linear independence is guaranteed by the hypothesis that ( x, z) ∈ F−1(0m )reg .(i i ) The set ΠS0 is an open subset of M, and consequently a submanifold of M. The set ( fi1 , . . . , fik )−1(0k )reg is a submanifold of M because the vectors ∇ fi1 (x), ..., ∇ fik (x) are as-sumed linearly independent. The set ΠS(i1,..., ik ) is the intersection between the submanifold ( fi1 , . . . , fik )−1(0k )reg and the open set ©x ∈ M| f j (x) < 0, j ∉ {i1, . . . , ik }ª.
+
+In the sequel, we will work on the manifold F −1(0m )reg , and, to simplify the notation, we will omit the superscript reg .Finding the critical points of the function F0 subject to the constraints F−1(0m ) is equiva-lent with finding ( x, z) ∈ F−1(0m ) such that 
+
+∇gind  
+
+> F−1(0m)
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x, z) = 0, (2.9) where g is the Riemannian metric on M and gind   
+
+> F−1(0m)
+
+is the induced metric on F−1(0m ). To solve this constrained optimization problem, we employ the embedded gradient vector field method developed in [6] and [7]. It has been shown that for ( x, z) ∈ F−1(0m ), the following equality holds 
+
+∇gind  
+
+> F−1(0m)
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x, z) = ∂F0(x, z) : = ∇ F0(x, z) −
+
+> m
+
+X
+
+> α=1
+
+σα(x, z)∇Fα(x, z), (2.10) where the Lagrange multiplier functions 3 σα : M × Rm → R associated with the constraint functions F1, . . . , Fm , are defined by the (Cramer’s rule, see [6] ) formula 
+
+σα(x, z) : =
+
+det 
+
+³
+
+## Σ(F1,..., Fα−1,F0,Fα+1,..., Fm )(F1,..., Fα−1,Fα,Fα+1,..., Fm )(x, z)
+
+´
+
+det 
+
+³
+
+## Σ(F1,..., Fα−1,Fα,Fα+1,..., Fm )(F1,..., Fα−1,Fα,Fα+1,..., Fm )(x, z)
+
+´ , 
+
+> 3These functions are defined on the open subset of regular points of the function F.
+
+7where 4
+
+# Σ(h1,..., hs )( f1,..., fr ) :=
+
+eg(∇h1, ∇ f1) ... eg(∇hs , ∇ f1)... . . . ...
+
+eg(∇h1, ∇ fr ) ... eg(∇hs , ∇ fr )
+
+ .Applying this method to our case, a straightforward computation gives us the embedded gradient vector field 
+
+∂F0(x, z) =
+
+μ
+
+∇ f0(x) −
+
+> m
+
+X
+
+> α=1
+
+σα(x, z)∇ fα(x), −σ1(x, z)z1, . . . , −σm (x, z)zm
+
+¶
+
+.This gradient vector field is defined on the open set of M×Rm given by the regular points of F,moreover it is tangent to every regular leaf generated by F, in particular is tangent to F−1(0m ). 
+
+Remark 2.11. Our choice of sign in (2.10) (coming from geometric reasons) are opposite with the standard choice, in the Karush-Kuhn-Tucker optimization problem, for the ”augmented Lagrangian function”, thus producing a sign inversion for these multipliers. 
+
+As a consequence of the embedded gradient vector field method, we have a first charac-terization for the solutions of problem (2.9). 
+
+Theorem 2.12. (i) A point (x∗, z∗) ∈ F−1(0m ) is a solution of (2.9) if and only if 
+
+
+
+∇ f0(x∗) − mP
+
+> α=1
+
+σα(x∗, z∗)∇ fα(x∗) = 0N −p
+
+σα(x∗, z∗)z∗ 
+
+> α
+
+= 0, α ∈ {1, . . . , m}. 
+
+(ii) A point (x∗, z∗) ∈ S(i1,..., ik ) ⊂ F−1(0m ) is a solution of (2.9) if and only if 
+
+
+
+∇ f0(x∗) − P  
+
+> i∈{i1,..., ik}
+
+σi (x∗, z∗)∇ fi (x∗) = 0N −p
+
+σj (x∗, z∗) = 0, j ∉ {i1, . . . , ik }. (2.13) 
+
+(iii) A point (x∗, z∗) ∈ S0 ⊂ F−1(0m ) is a solution of (2.9) if and only if ∇ f0(x∗) = 0N −p .In the literature, the second set of equations in (i) is called complementary conditions of the classical Karush-Kuhn-Tucker approach, see [14], pp.321. Our next goal is to eliminate the slack variables z1, . . . , zm , which corresponds to projecting the embedded gradient vector field ∂F0 along the projection map Π(x, z) = x. The issue is that the vector field ∂F0 is not projectable along the map Π.
+
+Theorem 2.14. A point (x∗, z∗) ∈ S(i1,..., ik ) is a solution of (2.9) (equivalently, a solution of 
+
+(2.13) ) if and only if x∗ ∈ ΠS(i1,..., ik ) = ©x ∈ M| fi1 (x) = · · · = fik (x) = 0, f j (x) < 0, j ∉ {i1, . . . , ik }ª
+
+is a solution of 
+
+∇ f0(x∗) − X  
+
+> i∈{i1,..., ik}
+
+μi (x∗)∇ fi (x∗) = 0N −p ,      
+
+> 4eg:=g+gEuc is the Riemannian metric on
+
+M × Rm .
+
+8where the Lagrange multiplier functions 5 μiα : ΠS(i1,..., ik ) → R associated with the active con-straints f i1 , . . . , fik , are given by 
+
+μiα (x) : =
+
+det 
+
+μ
+
+## Σ( fi1 ,..., fiα−1 , f0 , fiα+1 ,..., fik )( fi1 ,..., fiα−1 , fiα , fiα+1 ,..., fik )
+
+¶
+
+det 
+
+μ
+
+## Σ( fi1 ,..., fiα−1 , fiα , fiα+1 ,..., fik )( fi1 ,..., fiα−1 , fiα , fiα+1 ,..., fik )
+
+¶ (x), α ∈ {1, . . . , k}. (2.15) 
+
+Moreover, we have the equalities σi (x∗, z∗) = μi (x∗), i ∈ {i1, . . . , ik }, and σj (x∗, z∗) = 0, j ∉
+
+{i1, . . . , ik }.Proof. First we prove the implication ′′ ⇒′′ . Let ( x∗, z∗) ∈ S(i1,..., ik ) be a solution of (2.13) which implies the following vector equality 
+
+X  
+
+> i∈{i1,..., ik}
+
+σi (x∗, z∗)∇ fi (x∗) = ∇ f0(x∗). By scalar multiplying each member of the above vector equality with ∇ fi1 (x∗), . . . , ∇ fik (x∗), we obtain that the vector ¡σi1 (x∗, z∗), . . . , σik (x∗, z∗)¢ is a solution of the linear system 
+
+# Σfi1 ,..., fik
+
+fi1 ,..., fik
+
+(x∗)
+
+
+
+σi1 (x∗, z∗)...
+
+σik (x∗, z∗)
+
+ =
+
+
+
+g(∇ f0(x∗), ∇ fi1 (x∗)) ...
+
+g(∇ f0(x∗), ∇ fik (x∗)) 
+
+ .By our hypotheses, the matrix Σfi1 ,..., fik  
+
+> fi1,..., fik
+
+(x∗) is non-degenerate and consequently, by Cramer’s rule, the vector ¡μi1 (x∗), . . . , μik (x∗)¢ is the unique solution, where μiα (x∗) are given by (2.15). For the converse implication ′′ ⇐′′ , we assume without loss of generality that i1 = 1, . . . ik =
+
+k. For ( x, z) ∈ F−1(0m ), we have the computation: 
+
+σα(x, z) =
+
+det 
+
+³
+
+## Σ( f1,..., fα−1, f0, fα+1,..., fm )( f1,..., fα−1, fα, fα+1,..., fm )(x) + diag( z21 , . . . , z2
+
+> α−1
+
+, 0, z2
+
+> α+1
+
+, . . . , z2 
+
+> m
+
+)
+
+´
+
+det 
+
+³
+
+## Σ( f1,..., fα−1, fα, fα+1,..., fm )( f1,..., fα−1, fα, fα+1,..., fm )(x) + diag( z21 , . . . , z2
+
+> α−1
+
+, z2
+
+> α
+
+, z2
+
+> α+1
+
+, . . . , z2 
+
+> m
+
+)
+
+´ , α ∈ {1, . . . m}. For x∗ ∈ ΠS(i1,..., ik ) and z∗ ∈ Rm so that ( x∗, z∗) ∈ S(i1,..., ik ) ⊂ F−1(0m ), we have 
+
+σj (x∗, z∗) =
+
+det 
+
+³
+
+## Σ( f1,..., fk , fk+1,..., f0,..., fm )( f1,..., fk , fk+1,..., f j ,..., fm )(x∗) + diag(0, . . . , 0, z2
+
+> k+1
+
+, . . . , 0, . . . , z2 
+
+> m
+
+)
+
+´
+
+det 
+
+³
+
+## Σ( f1,..., fk , fk+1,..., f j ,..., fm )( f1,..., fk , fk+1,..., f j ,..., fm )(x∗) + diag(0, . . . , 0, z2
+
+> k+1
+
+, . . . , z2 
+
+> j
+
+, . . . , z2 
+
+> m
+
+)
+
+´ ,for all j ∉ {1, . . . , k}. In the matrix of the numerator the j -th column is a linear combination of the first k columns. This fact is a consequence of equation (2.14) and scalar multiplication argument as above. 
+
+> 5
+
+These functions are defined on the open subset of regular points of the function ( fi1 , . . . , fik ). 
+
+9By the definition of the Lagrange multiplier functions, the vector ( σ1(x, z), . . . , σm (x, z)) is a solution of the linear system 
+
+# ΣF1,..., Fm 
+
+> F1,..., Fm
+
+(x, z)
+
+
+
+σ1(x, z)...
+
+σm (x, z)
+
+ =
+
+
+
+g(∇F0(x, z), ∇F1(x, z)) ...
+
+g(∇F0(x, z), ∇Fm (x, z)) 
+
+ .For ( x∗, z∗) ∈ S(i1,..., ik ) ⊂ F−1(0m ), the above system becomes 
+
+"
+
+## Σf1,..., fk  
+
+> f1,..., fk
+
+(x∗) A(x∗, z∗)
+
+AT (x∗, z∗) B (x∗, z∗)
+
+#
+
+σ1(x∗, z∗)...
+
+σk (x∗, z∗)0...0
+
+
+
+=
+
+
+
+g(∇ f0(x∗), ∇ f1(x∗)) ...
+
+g(∇ f0(x∗), ∇ fk (x∗)) 
+
+g(∇ f0(x∗), ∇ fk+1(x∗)) ...
+
+g(∇ f0(x∗), ∇ fm (x∗)) 
+
+
+
+.Consequently, the vector ( σ1(x∗, z∗), . . . , σk (x∗, z∗)) is a solution of the linear system 
+
+# Σf1,..., fk  
+
+> f1,..., fk
+
+(x∗)
+
+
+
+σ1(x∗, z∗)...
+
+σk (x∗, z∗)
+
+ =
+
+
+
+g(∇ f0(x∗), ∇ f1(x∗)) ...
+
+g(∇ f0(x∗), ∇ fk (x∗)) 
+
+ ,which is the same linear system verified by the vector ¡μ1(x∗), . . . , μk (x∗)¢. By the uniqueness of the solution, we obtain the announced result. 
+
+## 2.2 Second order optimality conditions 
+
+First we discuss the second order conditions for the optimization problem (2.2). We need to compute Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+. According to the result proved in [7], for every ( x, z) ∈ F−1(0m ), we have the following formula Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x, z) : =
+
+μ
+
+Hess F0(x, z) −
+
+> m
+
+X
+
+> α=1
+
+σα(x, z)Hess Fα(x, z)
+
+¶  
+
+> |T(x,z)F−1(0m)×T(x,z)F−1(0m)
+
+.The tangent space is defined by 
+
+T(x,z)F−1(0m ) = ©(v, w) ∈ TxM × Rm | (v, w) ⊥ ∇ Fα(x, z), ∀α ∈ {1, . . . , m}ª
+
+= ©(v, w) ∈ TxM × Rm | g(v, ∇ fα(x)) + wαzα = 0, ∀α ∈ {1, . . . , m}ª ,where we use the canonical basis for Rm and write w = (w1, . . . , wm )T .Fixing a basis for TxM, we have the following matrix form 
+
+h
+
+Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x, z)
+
+i
+
+=
+
+
+
+Hess f0(x) − mP
+
+> α=1
+
+σα(x, z)Hess fα(x) 0
+
+−σ1(x, z) . . . 0
+
+0 ... . . . ...0 . . . −σm (x, z)
+
+  
+
+> |T(x,z)F−1(0m)×T(x,z)F−1(0m)
+
+.10 For a tangent vector ( v, w) ∈ T(x,z)F−1(0m ), we have [vT , wT ]
+
+h
+
+Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x, z)
+
+i · vw
+
+¸
+
+=
+
+[vT ]
+
+·
+
+Hess f0(x) −
+
+> m
+
+X
+
+> α=1
+
+σα(x, z)Hess fα(x)
+
+¸ £ v ¤ −
+
+> m
+
+X
+
+> α=1
+
+σα(x, z)w2 
+
+> α
+
+(2.16) 
+
+Theorem 2.17. Let (x∗, z∗) ∈ S(i1,..., ik ) be a solution of (2.9) . Then (i) The matrix 
+
+h
+
+Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x∗, z∗)
+
+i
+
+is positive semi-definite if and only if the matrix 
+
+"
+
+Hess f0(x∗) − X  
+
+> i∈{i1,..., ik}
+
+μi (x∗)Hess fi (x∗)
+
+#    
+
+> |Tx∗ΠS(i1,..., ik)×Tx∗ΠS(i1,..., ik)
+
+is positive semi-definite and μi (x∗) ≤ 0, for all i ∈ {i1, . . . , ik }.(ii) The matrix 
+
+h
+
+Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x∗, z∗)
+
+i
+
+is positive definite if and only if the matrix 
+
+"
+
+Hess f0(x∗) − X  
+
+> i∈{i1,..., ik}
+
+μi (x∗)Hess fi (x∗)
+
+#    
+
+> |Tx∗ΠS(i1,..., ik)×Tx∗ΠS(i1,..., ik)
+
+is positive definite and μi (x∗) < 0, for all i ∈ {i1, . . . , ik }.Proof. From Theorem 2.14, for a critical point ( x∗, z∗) ∈ S(i1,..., ik ) (i.e. a solution of (2.9)), we have the equalities σi (x∗, z∗) = μi (x∗), i ∈ {i1, . . . , ik }, and σj (x∗, z∗) = 0, j ∉ {i1, . . . , ik }. A vector ( v, w) ∈ T(x∗,z∗)F−1(0m ) is characterized by the equations 
+
+g(v, ∇ fi (x∗)) = 0, ∀i ∈ {i1, . . . , ik }; 
+
+g(v, ∇ f j (x∗)) + w j z∗ 
+
+> j
+
+= 0, ∀ j ∉ {i1, . . . , ik }. It is important to discuss the geometric interpretation of the above two equations. The first equation gives us a restriction for the tangent vector v, more precisely v ∈ Tx∗ ΠS(i1,..., ik ) ⊂
+
+Tx∗ M and no restriction in the components wi1 , . . . , wik of the vector w. The second equation gives us a restriction for the components w j of w and no further restriction for the vector v.The relation (2.16) becomes [vT , wT ]
+
+h
+
+Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x∗, z∗)
+
+i · vw
+
+¸
+
+=
+
+[vT ]
+
+"
+
+Hess f0(x∗) − X  
+
+> i∈{i1,..., ik}
+
+μi (x∗)Hess fi (x∗)
+
+# £ v ¤ − X  
+
+> i∈{i1,..., ik}
+
+μi (x∗)w2 
+
+> i
+
+.Applying the above formula for the cases ( v, 0) with v ∈ Tx∗ ΠS(i1,..., ik ) ⊂ Tx∗ M and ( 0, w) with 
+
+wi1 , . . . , wik arbitrary, we obtain the announced results. 11 argmin f0(x)
+
+x ∈ M
+
+s.t. f1(x) ≤ 0...
+
+fm (x) ≤ 0
+
+# ⇕
+
+argmin F0(x, z)(x, z) ∈ F−1(0m )
+
+# ⇑ ⇓
+
+(x∗, z∗) ∈ F−1(0m )s.t. 
+
+∇
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x∗, z∗) = 0
+
+Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x∗, z∗) > 0
+
+(x∗, z∗) ∈ F−1(0m )s.t. 
+
+∇
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x∗, z∗) = 0
+
+Hess 
+
+³
+
+F0|F−1(0m )
+
+´
+
+(x∗, z∗) ≥ 0
+
+# ⇕ ⇕
+
+(x∗, z∗) ∈ F−1(0m )s.t. μ
+
+∇F0 − mP
+
+α=1
+
+σα∇Fα
+
+¶
+
+(x∗, z∗) = 0
+
+μ
+
+Hess F0 − mP
+
+> α=1
+
+σαHess Fα
+
+¶
+
+> |T×T
+
+(x∗, z∗) > 0
+
+T := T(x∗,z∗)F−1(0m )
+
+(x∗, z∗) ∈ F−1(0m )s.t. μ
+
+∇F0 − mP
+
+α=1
+
+σα∇Fα
+
+¶
+
+(x∗, z∗) = 0
+
+μ
+
+Hess F0 − mP
+
+> α=1
+
+σαHess Fα
+
+¶
+
+> |T×T
+
+(x∗, z∗) ≥ 0
+
+T := T(x∗,z∗)F−1(0m )
+
+# ⇕ ⇕
+
+x∗ ∈ ΠS(i1,..., ik )
+
+s.t. μ
+
+∇ f0 − P
+
+i ∈I
+
+μi ∇ fi
+
+¶
+
+(x∗) = 0
+
+μ
+
+Hess f0 − P
+
+i ∈I
+
+μi Hess fi
+
+¶
+
+|Θ×Θ
+
+(x∗) > 0
+
+Θ := Tx∗ ΠS(i1,..., ik )
+
+μi (x∗) < 0, (∀)i ∈ I := {i1, . . . , ik }
+
+x∗ ∈ ΠS(i1,..., ik )
+
+s.t. μ
+
+∇ f0 − P
+
+i ∈I
+
+μi ∇ fi
+
+¶
+
+(x∗) = 0
+
+μ
+
+Hess f0 − P 
+
+> i∈I
+
+μi Hess fi
+
+¶
+
+> |Θ×Θ
+
+(x∗) ≥ 0
+
+Θ := Tx∗ ΠS(i1,..., ik )
+
+μi (x∗) ≤ 0, (∀)i ∈ I := {i1, . . . , ik }
+
+Figure 1: Overview of the necessary, respectively sufficient conditions for the argmin problem based on first- and second-order tests. 12 2.3 Algorithmic procedure for searching local minima 
+
+Based on the previous first- and second-order results, in what follows we describe the suc-cession of steps in solving the argmin problem (2.1). 
+
+I. Determine the manifold F−1(0m )reg and the elements of the partitions (2.6) and (2.7). 
+
+II. Solve the problem on the open stratum ΠS0 = {x ∈ M| fi (x) < 0, i ∈ {1, . . . , m}}. This is an unconstrained optimization problem. 
+
+III. For each element ΠS(i1,..., ik ) of the partition (2.7) proceed as follows: 
+
+Step 1. On the open set 
+
+O(i1,..., ik ) := {x ∈ M| ∇ fi1 (x), . . . , ∇ fik (x) are linearly independent} ⊂ M,construct the Lagrange multiplier functions μi1 , . . . , μik defined in (2.15). Using the active constraints fi1 , . . . , fik , in some cases these functions can be further simplified, see [3], [4], and [5]. Find all x ∈ O(i1, . . . , ik ) that solve the system of equations 
+
+∇ f0(x) − X  
+
+> i∈{i1,..., ik}
+
+μi (x)∇ fi (x) = 0. (2.18) Since ΠS(i1,..., ik ) ⊂ O(i1, . . . , ik ), select the solutions x∗ that verify the active constraints fi1 (x) =
+
+0, . . . , fik (x) = 0 and the strict inequalities f j (x∗) < 0, j ∉ {i1, . . . , ik }. This is the set of candidate solutions (coming from the stratum where fi1 , . . . , fik are the active constraints) for the initial problem (2.1). 
+
+Step 2. For each x∗ in the set of candidate solutions found in the previous step, compute the set of (scalar) Lagrange multipliers { μi1 (x∗), . . . , μik (x∗)}. 2.1. If μi (x∗) < 0, for all i ∈ {i1, . . . , ik }, then check the positive definiteness, i.e. 
+
+"
+
+Hess f0(x∗) − X  
+
+> i∈{i1,..., ik}
+
+μi (x∗)Hess fi (x∗)
+
+#    
+
+> |Tx∗ΠS(i1,..., ik)×Tx∗ΠS(i1,..., ik)
+
+> 0. (2.19) If (2.19) is also verified, then such a point x∗ is a solution for the initial problem (2.1). 2.2. If there exists i ∈ {i1, . . . , ik } such that μi (x∗) > 0, then such a point is not a solution for (2.1). 2.3. If μi (x∗) ≤ 0, for all i ∈ {i1, . . . , ik }, and at least one is zero, then we cannot decide if x∗ is a solution of (2.1). In the literature, this corresponds to the fact that the strictly complemen-tary conditions are not satisfied (see [14], Definition 12.5, pp. 321). □
+
+In many real-world applications, the computational burden makes the use of numerical methods essential. The algorithm presented above enables the application of steepest de-scent and Newton-type optimization algorithms. We have shown that for solving the initial problem (2.1) it is sufficient to proceed stratum by stratum. Once we fix a stratum ΠS(i1,..., ik ), the problem splits in two parts. First, on O(i1,..., ik )
+
+13 solve numerically, using embedded steepest descent as in [3] or embedded Newton method as in [8] and [4], the classical optimization problem with constraints argmin  
+
+> x∈O(i1,..., ik)
+
+f0(x)s.t. fi1 (x) = 0, . . . , fik (x) = 0. Second, choose the solutions x∗ that also satisfy the necessary conditions f j (x∗) < 0, j ∉
+
+{i1, . . . , ik } and μi (x∗) ≤ 0, for all i ∈ {i1, . . . , ik }. If, moreover, μi (x∗) < 0 for all i ∈ {i1, . . . , ik }, we have obtained a solution for (2.1). 
+
+# 3 Double ice-cream cone example 
+
+Let c = (c1, c2, c3), where all components of c are nonzero real numbers. Consider the follow-ing optimization problem: argmin 
+
+> x∈R3
+
+f0(x) : = c1x1 + c2x2 + c3x3
+
+s.t. f1(x) : = x21 + x22 + x23 − 1 ≤ 0, 
+
+f2(x) : = x21 + x22 − x23 ≤ 0. Adding the slack variables z1 and z2, we transform the above optimization problem with in-equality constraints into a classical optimization problem with equality constraints: argmin 
+
+> (x,z)∈R3×R2
+
+F0(x, z)s.t. F1(x, z) : = x21 + x22 + x23 + 12 z21 − 1 = 0, 
+
+F2(x, z) : = x21 + x22 − x23 + 12 z22 = 0, where F0(x, z) : = f0(x). 
+
+I. First we study the structure of the set F−1(02). The Jacobian of the constraint functions is 
+
+2x1 2x1
+
+2x2 2x2
+
+2x3 −2x3
+
+z1 00 z2
+
+
+
+> T
+
+.In order for 02 ∈ R2 to be a regular value for F, we need to exclude the two points (0, 0, 0, ±p2, 0) from F−1(02). The manifold F−1(02)reg = F−1(02)\{(0, 0, 0, ±p2, 0)} has the following partition: 
+
+S0 = ©(x, z) ∈ F−1(02) | z1̸ = 0, z2̸ = 0ª ⊂ F−1(02)reg ,
+
+S(1) = ©(x, z) ∈ F−1(02)reg | z1 = 0, z2̸ = 0ª ,
+
+S(2) = ©(x, z) ∈ F−1(02)reg | z1̸ = 0, z2 = 0ª ,
+
+S(1,2) = ©(x, z) ∈ F−1(02)reg | z1 = 0, z2 = 0ª
+
+14 and its projection is 
+
+ΠS0 = ©x ∈ R3 | x21 + x22 + x23 − 1 < 0, x21 + x22 − x23 < 0ª ,
+
+ΠS(1) = ©x ∈ R3 | x21 + x22 + x23 − 1 = 0, x21 + x22 − x23 < 0ª ,
+
+ΠS(2) = ©x ∈ R3\{(0, 0, 0)} | x21 + x22 + x23 − 1 < 0, x21 + x22 − x23 = 0ª ,
+
+ΠS(1,2) = ©x ∈ R3 | x21 + x22 + x23 − 1 = 0, x21 + x22 − x23 = 0ª .The geometrical description of the above sets is as follows (see Figure 2): (i) ΠS0 is the intersection between the open ball and the open solid cone; (ii) ΠS(1) is formed by the two open spherical caps; (iii) ΠS(2) is formed by the skin of the cone that is inside the open ball minus the origin; (iv) ΠS(1,2) is formed by the two circles given by the intersection of the sphere with the skin of the cone. 
+
+II. It is clear that on ΠS0 we find no solution for the optimization problem since 0̸ = c =∇ f0.
+
+III. We proceed to solve the optimization problem on each stratum. 
+
+• Search for solutions on ΠS(1) (the case when f1 is the active constraint). Step 1. In this case O(1) = R3\{(0, 0, 0)} and the Lagrange multiplier function is μ1(x) = 〈c,x〉 
+
+> 2∥x∥2
+
+.The system (2.18) becomes 
+
+∇ f0(x) − μ1(x)∇ f1(x) = 0.Using the constraint ∥x∥2 = 1, it is equivalent with 
+
+c − 〈 c, x〉 x = 0.The solutions of this system are x∗± = ± c 
+
+> ∥c∥
+
+, which verify the active constraint. These points are candidate solutions for the optimization problem if and only if c21 + c22 − c23 < 0. 
+
+Step 2. Under the condition c21 + c22 − c23 < 0, we have μ1(x∗±) = ± ∥c∥ 
+
+> 2
+
+.Because μ1(x∗+) = ∥c∥ 
+
+> 2
+
+> 0, the candidate x∗+ cannot be a solution for our argmin problem (actually is a solution for the argmax problem). The only remaining candidate is x∗−. It becomes a solution if condition (2.19) is verified. In our case (2.19) it is clearly verified, since (∥c∥I3)|Tx∗− ΠS(1) ×Tx∗− ΠS(1) > 0. 
+
+• Search for solutions on ΠS(2) (the case when f2 is the active constraint). Step 1. In this case O(2) = R3\{(0, 0, 0)} and the Lagrange multiplier function is μ2(x) =    
+
+> c1x1+c2x2−c3x3
+> 2∥x∥2
+
+. The system (2.18) becomes 
+
+∇ f0(x) − μ2(x)∇ f2(x) = 0.15 or equivalently: 
+
+−c2x1x2 + c3x1x3 + c1x22 + c1x23 = 0
+
+−c1x1x2 + c2x21 + c2x23 + c3x2x3 = 0
+
+x3(c1x1 + c2x2 + c3x3) = 0, which has the one parameter set of solutions α(c1, c2, −c3), with α ∈ R∗. The candidate solu-tions are the ones the verify c21 + c22 + c23 < 1 
+
+> α2
+
+and c21 + c22 − c23 = 0. When c21 + c22 − c23̸ = 0, then we have no candidate solutions. If c21 + c22 − c23 = 0 and by hypothesis c3̸ = 0, we have the following family of candidate solutions α(c1, c2, −c3), with α ∈
+
+³
+
+− 
+
+> p22|c3|
+
+, 0 
+
+´
+
+∪
+
+³
+
+0, 
+
+> p22|c3|
+
+´
+
+.
+
+Step 2. Under the condition c21 + c22 − c23 = 0 and α ∈
+
+³
+
+− 
+
+> p22|c3|
+
+, 0 
+
+´
+
+∪
+
+³
+
+0, 
+
+> p22|c3|
+
+´
+
+, each point x∗ 
+
+> α
+
+:=
+
+α(c1, c2, −c3) is a candidate solution and μ2(x∗
+
+> α
+
+) = 12α .When α ∈
+
+³
+
+0, 
+
+> p22|c3|
+
+´
+
+, we obtain μ2(x∗
+
+> α
+
+) > 0 and consequently the candidate x∗ 
+
+> α
+
+cannot be a solution for our argmin problem. When α ∈
+
+³
+
+− 
+
+> p22|c3|
+
+, 0 
+
+´
+
+, we obtain μ2(x∗
+
+> α
+
+) < 0 and so, it is necessary to check the positive definiteness of the Hessian matrix 
+
+− 1
+
+α
+
+
+
+1 0 00 1 00 0 −1
+
+  
+
+> |Tx∗
+> αΠS(2) ×Tx∗
+> αΠS(2)
+
+.Choosing the basis e1 := (c3, 0, −c1) and e2 := (0, c3, −c2) for the tangent space Tx∗ 
+
+> α
+
+ΠS(2) , the Hessian matrix becomes 
+
+− 1
+
+α
+
+· c22 −c1c2
+
+−c1c2 c21
+
+¸
+
+.This matrix has as eigenvalues 0 and − 1 
+
+> α
+
+c23 , thus being positive semi-definite, but not positive definite. We cannot decide if x∗ 
+
+> α
+
+are solutions for our initial argmin problem. 
+
+• Search for solutions on ΠS(1,2) (the case when both f1 and f2 are active constraints). Step 1. In this case O(1,2) = R3\({( x1, x2, 0) | x1, x2 ∈ R} ∪ {(0, 0, x3) | x3 ∈ R}) and the Lagrange multiplier functions (after using the two active constraints) are 
+
+μ1(x) = c1x1 + c2x2 + c3x3
+
+2 , μ2(x) = c1x1 + c2x2 − c3x3
+
+2 .The system (2.18) becomes 
+
+∇ f0(x) − μ1(x)∇ f1(x) − μ2(x)∇ f2(x) = 0.or equivalently: (x2 (c1x2 − c2x1) = 0
+
+x1 (c1x2 − c2x1) = 0. 16 The candidate solutions on ΠS(1,2) are the four points 
+
+u∗± =
+
+ c1
+
+q
+
+2( c21 + c22 ), c2
+
+q
+
+2( c21 + c22 ), ±p22
+
+ , v∗± =
+
+− c1
+
+q
+
+2( c21 + c22 ), − c2
+
+q
+
+2( c21 + c22 ), ±p22
+
+ .
+
+Step 2. The Lagrange multipliers for the above four candidate solutions are 
+
+μ1(u∗±) =
+
+q
+
+c21 + c22 − c3
+
+2p2 , μ2(u∗±) =
+
+q
+
+c21 + c22 + c3
+
+2p2and 
+
+μ1(v∗±) = − 
+
+q
+
+c21 + c22 − c3
+
+2p2 , μ2(v∗±) = − 
+
+q
+
+c21 + c22 + c3
+
+2p2 .For the points u∗±, at least one of the Lagrange multipliers is strictly positive. Conse-quently, these two points cannot be solutions for our initial argmin problem. Under the condition c21 + c22 > c23 , for both points v∗± the Lagrange multipliers are strictly negative. It is necessary to check the positive definiteness of the Hessian matrices Hess 
+
+³
+
+f0|ΠS(1,2) 
+
+´
+
+(v∗±) =
+
+q
+
+2c21 + 2c22 0 00
+
+q
+
+2c21 + 2c22 00 0 ∓c3
+
+p2
+
+  
+
+> |Tv∗±ΠS(1,2) ×Tv∗±ΠS(1,2)
+
+.Choosing the basis e := (−c2, c1, 0) for the tangent spaces Tv∗± ΠS(1,2) , the Hessian matrices become hp2( c21 + c22 ) 32
+
+i
+
+.Since the above expression is strictly positive, we conclude that both v∗+ and v∗− are local min-ima and therefore are solutions for the initial argmin problem. Under the condition c21 + c22 < c23 one of the Lagrange multipliers is strictly positive and consequently, v∗+ and v∗− cannot be solutions for our initial argmin problem. Under the condition c21 +c22 = c23 one of the Lagrange multipliers is zero, and the other one is strictly negative and the Hessian matrices Hess 
+
+³
+
+f0|ΠS(1,2) 
+
+´
+
+(v∗±) are positive definite, conse-quently we cannot decide if v∗+ and v∗− are solutions for our initial argmin problem. It follows that for the ”cone case” c21 + c22 = c23 , the first- and second-order tests are incon-clusive. We give an ad hoc analysis by directly inspecting the values of the objective function 
+
+f0. Since the double ice-cream cone is a compact set and f0 is a continuous function, when restricted to this set f0 has global extrema. From the previous analysis the candidates are v∗±,
+
+x∗ 
+
+> α
+
+with α ∈
+
+³
+
+− 
+
+> p22|c3|
+
+, 0 
+
+´
+
+, and possibly the origin of the cone. 17 Figure 2: The planes represent the level sets of f0. The point v∗− is the global minimum. The continuous family x∗ 
+
+> α
+
+with α ∈
+
+³
+
+− 
+
+> p22|c3|
+
+, 0 
+
+´
+
+and v∗+ are local minima. By direct computation we obtain: 
+
+f0(u∗−) =p22 (|c3| − c3); f0(u∗+) =p22 (|c3| + c3); 
+
+f0(v∗−) = − p22 (|c3| + c3); f0(v∗+) =p22 (−| c3| + c3); 
+
+f0(0) = f0(x∗
+
+> α
+
+) = 0, ∀α ∈
+
+Ã
+
+−p22|c3| , 0 
+
+!
+
+∪
+
+Ã
+
+0, 
+
+p22|c3|
+
+!
+
+.Therefore, it follows that for c3 > 0 the (global) minimizer of the objective function f0 is 
+
+v∗− (and the (global) maximizer is u∗+), while for c3 < 0 the (global) minimizer of the objective function f0 is v∗+ (and the (global) maximizer is u∗−). In order to illustrate this case (see Figure 2), we consider c = (1, 1, p2). The point v∗− is the global minimum and f0(v∗−) = − 2. The continuous family x∗ 
+
+> α
+
+with α ∈
+
+³
+
+− 
+
+> p22|c3|
+
+, 0 
+
+´
+
+and v∗+ are local minima, where the value of f0 in these points is zero. The vertex of the cone behaves like a ”saddle” point. Analogously, the point u∗+ is the global maximum and f0(u∗+) = 2, the continuous family x∗ 
+
+> α
+
+with α ∈
+
+³
+
+0, 
+
+> p22|c3|
+
+´
+
+and u∗− are local maxima, where the value of f0 in these points is also zero. 
+
+Summary. We have seen that the solutions of the argmin problem are dependent on the relative position of the vector c to the cone. The following table summarizes the discussion. 18 Position of c Condition Solutions of the argmin problem Interior of the cone c21 + c22 < c23
+
+The only solution of the argmin problem (i.e. local minima) is x∗− = − c
+
+∥c∥ , found on the stratum ΠS(1) .
+
+Exterior of the cone c21 + c22 > c23
+
+Two solutions v∗+ and v∗− of the argmin problem, both found on the stratum ΠS(1,2) .
+
+On the cone c21 + c22 = c23 The first order method produces the candidates 
+
+u∗±, v∗± ∈ ΠS(1,2) and two continuous families x∗ 
+
+> α
+
+∈ ΠS(2) ,
+
+α ∈
+
+³
+
+− 
+
+> p22|c3|
+
+, 0 
+
+´
+
+∪
+
+³
+
+0, 
+
+> p22|c3|
+
+´
+
+.The second order method excludes u∗± and x∗ 
+
+> α
+
+with 
+
+α ∈
+
+³
+
+0, 
+
+> p22|c3|
+
+´
+
+and cannot decide the nature of the re-maining candidates. A direct inspection of the level sets of the objective function f0 shows that for c3 > 0 the (global) minimizer is v∗− and for c3 < 0 the (global) minimizer is v∗+.Table 1: Solutions of the argmin problem depending on the position of c relative to the cone. 
+
+# References 
+
+[1] R. Abraham, J.E. Marsden, T. Ratiu, Manifolds, Tensor Analysis, and Applications, 2nd ed., Springer New York, 1988. [2] D.P . Bertsekas, Nonlinear Programming, 2nd ed., Athena Scientific, 1999. [3] P . Birtea, I. Ca¸ su, D. Com˘ anescu, First order optimality conditions and steepest descent algorithm on orthogonal Stiefel manifolds, Optim. Lett., Vol. 13, 8 (2019), pp. 1773-1791. [4] P . Birtea, I. Ca¸ su, D. Com˘ anescu, Second order optimality on orthogonal Stiefel mani-folds, Bull. Sci. Math., Vol. 161, 102868 (2020). [5] P . Birtea, I. Ca¸ su, D. Com˘ anescu, Optimization on the real symplectic group, Monat-shefte für Mathematik, Vol. 191 (2020), pp. 465–485. [6] P . Birtea, D. Com˘ anescu, Geometric dissipation for dynamical systems, Comm. Math. Phys., Vol. 316, 2 (2012), pp. 375-394. [7] P . Birtea, D. Com˘ anescu, Hessian operators on constraint manifolds, J. Nonlinear Sci., Vol. 25, 6 (2015), pp. 1285-1305. [8] P . Birtea, D. Com˘ anescu, Newton algorithm on constraint manifolds and the 5-electron Thomson problem, J Optimiz. Theory App., Vol. 173, 2 (2017), pp. 563-583. 19 [9] J.F. Bonnans, A. Shapiro, Perturbation Analysis of Optimization Problems, Springer New York, 2000. [10] E.H. Fukuda, M. Fukushima, A note on the squared slack variables technique for nonlin-ear optimization, Journal of the Operations Research Society of Japan, Vol. 60, 3 (2017), pp. 262-270. [11] M. Goresky, R. MacPherson, Stratified Morse Theory, Springer Berlin, Heidelberg, 1988. [12] J.M. Lee, Introduction to Smooth Manifolds, Springer New York, 2012. [13] A.S. Lewis, Active sets, nonsmoothness, and sensitivity, SIAM J. Optim., Vol. 13, 3 (2002), pp. 702-725. [14] J. Nocedal, S. Wright, Numerical Optimization, 2nd ed., Springer New York, 2006. [15] R.T. Rockafellar, Convex Analysis, Princeton University Press, 1970. [16] A. Ruszczynski, Nonlinear Optimization, Princeton University Press, 2006. [17] A. Shapiro, Sensitivity analysis of generalized equations, J. Math. Sci., Vol. 115 (2003), pp. 2554-2565. [18] R.A. Tapia, A Stable Approach to Newton’s Method for General Mathematical Program-ming Problems in Rn , JOTA, Vol. 14, 5 (1974), pp. 453-476. [19] S.J. Wright, Primal-Dual Interior-Point Methods, SIAM, 1997. 20
