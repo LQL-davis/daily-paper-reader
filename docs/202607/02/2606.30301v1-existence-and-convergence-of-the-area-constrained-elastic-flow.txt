@@ -1,0 +1,6841 @@
+Title: Existence and convergence of the area-constrained elastic flow
+
+URL Source: https://arxiv.org/pdf/2606.30301v1
+
+Published Time: Tue, 30 Jun 2026 02:43:18 GMT
+
+Number of Pages: 61
+
+Markdown Content:
+EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 
+
+> FLORIAN HAUSER, CHRISTIAN SCHARRER, AND ALEXANDER WEST
+
+Abstract 
+
+We study the evolution of plane closed curves with fixed area moving by the neg-ative L2-gradient of their elastic energy. For smooth initial data, we establish local and global existence of the flow. By imposing a simplicity assumption and an ini-tial energy bound, we show that the length of the evolving curve remains uniformly bounded. This yields subconvergence to a critical point, which is then improved to full convergence by utilizing a Lojasiewicz–Simon inequality. Conversely, an ana-lysis of the energy profile curve, which maps a given length to the minimal energy among all curves with that length and fixed area, reveals that the length diverges to infinity for initial data satisfying specific length and energy criteria. We visualize our findings through numerical simulations. 
+
+Contents 
+
+Abstract 11. Introduction 22. Local existence 62.1. The linearized problem 92.2. The nonlinear problem 13 3. Global existence 16 3.1. Uniform curvature bounds 19 3.2. Proof of global existence 21 4. Convergence 23 4.1. Embeddedness 23 4.2. Subconvergence 25 4.3. Lojasiewicz–Simon inequality 32 4.4. Full convergence 37 5. Energy profile curve 38 5.1. Continuity 38 5.2. Critical points 42 6. Numerical simulations 50 6.1. Algorithm 53 6.2. Simulation results 55 Acknowledgments 58 Appendix A. Derivatives of operators 58 References 60  
+
+> 1
+> arXiv:2606.30301v1 [math.AP] 29 Jun 2026 EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 2
+
+1. Introduction 
+
+The Bernoulli model of an elastic rod, represented by a smooth immersed curve 
+
+γ : S1 → R2, aims to describe the bending behaviour through its stored elastic energy. This has led to an extensive study of minimizers and gradient flows, often subject to a length constraint, of this energy. In this article, we analyze the gradient flow subject to prescribed area and demonstrate local and global existence, as well as convergence under conditions on the initial data. We denote the arc-length element ds := |∂xγ|dx and the arc-length derivative 
+
+∂s := ∂x 
+
+> |∂xγ|
+
+. This allows us to define the unit tangent vector τ := ∂sγ. Throughout this work, we assume that closed embedded curves are positively oriented (traced counter-clockwise). We define the unit normal vector ν as the inner normal, ob-tained by a rotation ν := ( −τ2, τ 1) of the tangent vector. The Frenet equations 
+
+describe the relations 
+
+κν = ∂sτ, −κτ = ∂sν, 
+
+where κ denotes the curvature. Hence, the curvature is nonnegative for convex curves. Let 
+
+E(γ) := 
+
+Z
+
+> S1
+
+κ2ds 
+
+be twice the elastic energy. This functional is not invariant under scaling: E(rγ ) = 
+
+r−1E(γ) for r > 0. Consequently, the functional does not admit a global minimizer on the space of all closed curves. Thus, we study the variational problem under constraints. For instance, Langer–Singer [14] proved that among curves of fixed length and winding number 1, the circle is the unique minimizer. However, the problem is also interesting from a dynamical perspective. Starting from an initial curve, we aim to deform it to reduce the elastic energy while keeping the length fixed. This evolution is modeled by the constrained L2(ds )-gradient flow of the elastic energy. For a family of curves γ : [0 , T ) × S1 → R2 evolving according to the normal velocity ∂tγ = ξν for ξ ∈ C∞(S1, R) (tangential components represent reparametrizations and do not affect the energy), the time derivative of the energy is given by 
+
+∂tE(γ) = 
+
+Z
+
+> S1
+
+(2 ∂2 
+
+> s
+
+κ + κ3)ξds. 
+
+Consequently, the unconstrained L2(ds )-gradient reads 
+
+∇E (γ) = ∇L2(ds )E(γ) = (2 ∂2 
+
+> s
+
+κ + κ3)ν. 
+
+Similarly, for the length functional 
+
+L(γ) = 
+
+Z
+
+> S1
+
+ds, 
+
+there holds 
+
+∇L (γ) = −κν. 
+
+To enforce length preservation, we define the flow as a linear combination of the gradients 
+
+( ∂tγ = −∇E (γ) + μ(γ)∇L (γ) = −(2 ∂2 
+
+> s
+
+κ + κ3 + μ(γ)κ)ν on (0 , T ) × S1,γ(0) = γ0 on S1,EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 3
+
+for some T ∈ (0 , ∞]. Here, the time-dependent Lagrange multiplier μ is determined by the condition ddt L(γ) = 0. A short calculation yields 
+
+μ(γ) = −
+
+R 
+
+> S1
+
+(2 ∂2 
+
+> s
+
+κ + κ3)κds 
+
+E(γ) .
+
+Dziuk–Kuwert–Sch¨ atzle [8] proved that the gradient flow exists globally in time and subconverges to a length-constrained elastica. Such an elastica is a critical point of the energy under the length constraint, satisfying the Euler-Lagrange equation 2∂2 
+
+> s
+
+κ + κ3 + μ∞κ = 0 for some constant μ∞ ∈ R. More recently, Dall’Acqua–Pozzi–Spener [5] and 
+
+Rupp [22] established full convergence by utilizing a Lojasiewicz–Simon inequality. One may also introduce further constraints, such as on the enclosed area. For a simple closed planar positively oriented curve γ, the enclosed area is given by 
+
+A(γ) = − 12
+
+Z
+
+> S1
+
+ν · γds. 
+
+For general immersed curves, this remains well defined and is often referred to as 
+
+algebraic area . The L2(ds )-gradient is given by 
+
+∇A (γ) = −ν. 
+
+Solutions to the Euler-Lagrange equation 0 = −∇E (γ) + λ1∇A (γ) + λ2∇L (γ)subject to fixed length and area were analyzed by Murai–Matsumoto–Yotsutani 
+
+[18]. The corresponding dynamical problem was studied by Okabe [19]. A natural question arises: What happens if we omit the length constraint? 
+
+Bucur–Henrot [4], as well as Ferone–Kawohl–Nitsch [10], proved the ex-istence of a minimizer, namely the circle, among all simple curves with fixed area. The simplicity assumption is crucial, as there exist non-simple curves with fixed area but length diverging to infinity whose elastic energy tends to zero, see Figure 1. In this article, we address the associated dynamical problem. We study solutions to the equation (1.1) ( ∂tγ = −∇E (γ) + λ(γ)∇A (γ) = −(2 ∂2 
+
+> s
+
+κ + κ3 + λ(γ)) ν on (0 , T ) × S1,γ(0) = γ0 on S1,
+
+for some T ∈ (0 , ∞]. To ensure the area constraint ddt A(γ) = 0, the Lagrange multiplier is chosen as (1.2) λ(γ) = −
+
+R 
+
+> S1
+
+κ3ds 
+
+L(γ) .
+
+The area constraint R 
+
+> S1
+
+∇A (γ) · ∂tγds = 0 yields the energy identity (1.3) ∂tE(γ) = 
+
+Z
+
+> S1
+
+∇E (γ) · ∂tγds = −
+
+Z
+
+> S1
+
+|∂tγ|2ds, 
+
+which implies that the elastic energy is non-increasing. Local and global existence of solutions can be shown by methods similar to [6] and [8]. 
+
+Theorem 1.1. There exists a global (i.e. T = ∞) smooth solution γ to (1.1) for smooth immersed initial data γ0 : S1 → R2.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 4
+
+Figure 1. An example of a curve exhibiting three ’bellies’. If the radii of the circular segments are increased appropriately, the elastic energy of this configuration approaches zero while the total enclosed area remains constant. However, the asymptotic analysis poses challenges, primarily because there is no uniform bound on the length of the curve. As in the static case, curves may develop increasing length while the energy vanishes and the area is preserved. This behavior arises due to negative contributions to the area, for example of the middle ’belly’ of Figure 1. These negative contributions allow the curve’s length to increase without bound, as the negative area of the middle ’belly’ compensates for the gain in area of the outer ’bellies’. To prevent this, we require restrictions on the initial data, relying on the ’optimal drop’ result from [4]. To formulate our main result, it is convenient to describe the curve geometry of a continuously differentiable immersion γ : S1 → R2 using the tangent angle θ,representing the angle between the tangent vector and the horizontal axis. To be more precise, writing S1 as the interval [0 , 2π] with identified endpoints, we choose 
+
+θ according to [13, Theorem 2.24] satisfying ˙γ = | ˙γ|(cos θ, sin θ)such that θ is continuous on [0 , 2π) and θ(0) ∈ [0 , 2π). Following Bucur–Henrot 
+
+[4], we define a drop as a simple, immersed curve γ ∈ W 2,2([0 , π ], R2) with γ(0) = 
+
+γ(π) and θ(π) = θ(0) + π. The space W 2,2 is the natural choice, since the curvature is well defined and the elastic energy is finite. We denote by γ∗ the optimal drop [4], which is a minimizer of the functional 
+
+A+E in the class of drops. Let γ∗ 
+
+> a
+
+be the rescaled version of γ∗ such that A(γ∗ 
+
+> a
+
+) = a.The drop γ∗ 
+
+> a
+
+is the minimizer of the elastic energy among all drops with area a.Indeed, if there were a drop γ with area a and lower energy, the rescaling of γ would contradict the optimality of γ∗.The crucial idea for the convergence is an energy barrier argument. By restricting the initial energy, we ensure that the flow preserves the simplicity of the curve. Specifically, we compare the initial energy to the energy of a configuration consisting of two disjoint optimal drops. The minimal energy for such a ’split’ configuration with total area a is attained by two equal drops with area a 
+
+> 2
+
+. If the initial energy is strictly below this threshold, the curve is energetically prevented from forming self-intersections. Consequently, the curve remains simple along the flow. Although the length may theoretically diverge, we show that in this regime of preserved simplicity, a divergence of length would imply that the curve approaches a configuration with energy close to 2 E(γ∗
+
+> a
+> 2
+
+), leading to a contradiction. The energy identity implies that the flow converges to an area-constrained elastica, that is, a solution to 2∂2 
+
+> s
+
+κ + κ3 + λ∞ = 0 EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 5
+
+for some constant λ∞ ∈ R.
+
+Theorem 1.2. Let γ0 ∈ C∞(S1, R2) be simple and immersed with 
+
+A(γ0) = a, E(γ0) < 2E(γ∗ 
+
+> a
+> 2
+
+).
+
+A translated (time-dependent) and reparametrized version ˜γ of the global, smooth and simple solution γ to (1.1) from Theorem 1.1 with initial data γ0 converges smoothly to an area-constrained elastica γ∞.
+
+It remains unclear whether the conditions specified in Theorem 1.2 are the least restrictive necessary to ensure convergence. For example, one possible improvement would be to omit the simplicity assumption. In this case, we need to specify the winding number 
+
+nγ = 12π
+
+Z
+
+> S1
+
+κds 
+
+of the curve γ, which is 1 if the curve is simple. The analysis of the energy profile curve E : [2 π, ∞) → [0 , ∞)(1.4) E(ℓ) := inf E(γ) | γ ∈ W 2,2Imm (S1, R2), n γ = 1 , A(γ) = π, L(γ) = ℓ
+
+reveals another strategy to obtain a length bound. The subscript ’Imm’ restricts the space to immersed curves. The domain of the function starts at 2 π, a consequence of the isoperimetric inequality A(γ) ≤ L2(γ)4π (see [20]), where equality is attained exclusively for the circle. We will demonstrate that this function is continuous (see Theorem 5.8) and, as illustrated by the example in Figure 1, E(ℓ) → 0 as ℓ → ∞ .Consequently, the energy profile curve attains its maximum at some ℓ∗ ∈ [2 π, ∞). As elaborated in Theorem 5.9, the maximum is not achieved by the circle, proving 
+
+ℓ∗̸ = 2 π. Employing an energy barrier argument once more, we establish a bound on the length, which yields convergence. 
+
+Corollary 1.3. Let γ0 ∈ C∞(S1, R2) be an immersed curve satisfying nγ = 1 ,
+
+A(γ0) = π, L(γ0) < ℓ ∗ and E(γ0) < E (ℓ∗). Then, the solution γ to (1.1) has length strictly bounded from above by ℓ∗, and a reparametrized and translated (time-dependent) version ˜γ of the flow converges smoothly to an area-constrained elastica. 
+
+Moreover, this approach allows us to specify explicit conditions under which the length of the curve is guaranteed to diverge. If the length remains bounded, the flow converges to an area-constrained elastica. However, if the initial data γ0
+
+lies energetically below these area-constrained elasticae, convergence cannot occur, leading to a divergence in length. A detailed analysis, similar to [4], reveals that each area-constrained elastica exhibits periodicity, with exactly one such elastica existing for each number of periods. It is found that, apart from the circle, the only area-constrained elasticae that could potentially lie on the energy profile curve are those with 2 and 3 periods. By employing a similar energy barrier argument as previously discussed, we can exclude convergence to the circle. 
+
+Corollary 1.4. Let γ2, γ 3 be the area-constrained elasticae with two and three peri-ods, respectively, and A(γ2) = A(γ3) = π. Let γ0 ∈ C∞(S1, R2) be immersed and such that nγ0 = 1 , A(γ0) = π, and 
+
+L(γ0) > ℓ ∗, E(γ0) < min {E(ℓ∗), E(γ2), E(γ3)}.
+
+Then, L(γt) → ∞ as t → ∞ for the solution γ to the area-constrained elastic flow 
+
+(1.1) .EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 6
+
+Despite these results, several open questions remain. We believe that the circle and γ2 are the only area-constrained elasticae that lie on the energy profile curve. Furthermore, we expect that the energy profile curve is differentiable at its max-imum, and that this maximum is attained by γ2. Should this be the case, it would provide a direct method to compute the explicit energy and length barriers required in Corollary 1.4. Another natural extension of this work concerns the stability analysis of the area-constrained elastic flow. While such an analysis has recently been carried out for the circle under the free elastic flow [16], our interest lies in the multi-loop con-figuration depicted in Figure 2. Our numerical simulations suggest that this con-figuration exhibits unbounded growth while asymptotically preserving its shape; more precisely, we expect that the corresponding blowdown converges. However, rigorously proving this behavior presents a formidable challenge, especially consid-ering that a comparable stability analysis remains an open problem even for the lemniscate of Bernoulli under the free elastic flow. 
+
+Figure 2. A numerical picture of a shape conjectured to be stable under the area-constrained elastic flow. The article is organized as follows. In Section 2, we establish the local existence of the area-constrained elastic flow. Section 3 is devoted to deriving the necessary energy estimates for long-time existence. In Section 4, we show subconvergence by proving a length bound using an analysis that relies on the ’optimal drop’ result. Moreover, we demonstrate how a Lojasiewicz–Simon inequality can be used to deduce full convergence. In Section 5, we analyze the energy profile curve, which also yields conditions for the convergence of the flow. Furthermore, we show that this analysis can be used to specify conditions under which the length of the flow is guaranteed to diverge. Section 6 illustrates our findings with numerical simulations. 2. Local existence 
+
+Following an approach similar to [23, Chapter 3, Section 2], we introduce a tangential motion to transform (1.1) into a quasilinear parabolic system, for which we then establish local existence using the Inverse Function Theorem. A comparable strategy was applied in [6]. To begin, we require an explicit formulation of (1.1) in terms of the standard derivatives ∂x.
+
+Proposition 2.1 ([24, Proposition A.1]) . Suppose γ ∈ C∞(S1, R2) is immersed. Then, (1) ⃗κ := κν = ∂2 
+
+> s
+
+γ = ∂2 
+
+> xγ
+> |∂xγ|2
+
+− ∂2 
+
+> xγ·∂xγ
+> |∂xγ|4
+
+∂xγ = (∂2 
+
+> xγ)⊥
+> |∂xγ|2
+
+,EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 7
+
+(2) (∂sκ)ν = ∇s⃗κ = ∂3 
+
+> xγ
+> |∂xγ|3
+
+− ∂3 
+
+> xγ·∂xγ
+> |∂xγ|5
+
+∂xγ − 3 ∂2 
+
+> xγ·∂xγ
+> |∂xγ|5
+
+∂2
+
+> x
+
+γ + 3 (∂2 
+
+> xγ·∂xγ)2
+> |∂xγ|7
+
+∂xγ,(3) 
+
+(∂2 
+
+> s
+
+κ)ν = ∇2
+
+> s
+
+⃗κ = ∂4
+
+> x
+
+γ
+
+|∂xγ|4 − 6 ∂2
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|6 ∂3
+
+> x
+
+γ − 4 ∂3
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|6 ∂2
+
+> x
+
+γ
+
+− 3 |∂2
+
+> x
+
+γ|2
+
+|∂xγ|6 ∂2
+
+> x
+
+γ + 18 (∂2
+
+> x
+
+γ · ∂xγ)2
+
+|∂xγ|8 ∂2
+
+> x
+
+γ
+
+!⊥
+
+,
+
+(4) 
+
+∇E (γ) = T (γ)⊥,
+
+with 
+
+T (γ) = 2 ∂4
+
+> x
+
+γ
+
+|∂xγ|4 − 12 ∂2
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|6 ∂3
+
+> x
+
+γ − 8 ∂3
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|6 ∂2
+
+> x
+
+γ
+
+− 5 |∂2
+
+> x
+
+γ|2
+
+|∂xγ|6 ∂2
+
+> x
+
+γ + 35 (∂2
+
+> x
+
+γ · ∂xγ)2
+
+|∂xγ|8 ∂2
+
+> x
+
+γ, 
+
+where f ⊥ = ( f · ν)ν and ∇sf = ( ∂sf )⊥.
+
+By adding the tangential motion −(T (γ) · τ )τ , the problem (1.1) takes the form (2.1) 
+
+
+
+∂tγ = −T (γ) − λ(γ)ν
+
+= ˜F (|∂xγ|−1, ∂ xγ, . . . , ∂ 4
+
+> x
+
+γ) − λ(γ)ν on [0 , T ) × S1
+
+γ(0 , ·) = γ0 on S1,
+
+for some smooth function ˜F : (0 , ∞) × (R2)4 → R2.It is sufficient to solve (2.1). Indeed, suppose γ ∈ C∞([0 , T ) × S1, R2) solves it. Define the reparametrized version ˜ γ := γ(t, ϕ (t, x )) for a family of diffeomorphisms 
+
+ϕ(t, ·) : S1 → S1 yet to be determined. Taking the derivative gives 
+
+∂t ˜γ(t, x ) = ∂tγ(t, ϕ (t, x )) + ∂xγ(t, ϕ (t, x )) ∂tϕ(t, x ).
+
+We claim that there is a smooth solution ϕ : [0 , T ) × S1 → S1 = R/2πZ of the ordinary differential equation (2.2) 
+
+(
+
+∂tϕ(t, x ) = φ(t, ϕ (t, x )) ,ϕ(0 , x ) = x, 
+
+where φ(t, x ) := T (γ)( t,x )·τ (t,x ) 
+
+> |∂xγ(t,x )|
+
+. Observe from the initial condition that ϕ is orienta-tion preserving. Because λ and T ⊥ = ∇E are invariant under orientation preserving reparametrizations, ˜ γ solves ˜ γ(0 , x ) = γ0(x) and 
+
+∂t ˜γ(t, x ) = ( ∂tγ)( t, ϕ (t, x )) + ( T (γ)( t, ϕ (t, x )) · τ (t, ϕ (t, x ))) τ (t, ϕ (t, x )) = −T ⊥(γ)( t, ϕ (t, x )) − λ(γ)ν(t, ϕ (t, x )) = −T ⊥(˜ γ)( t, x ) − λ(˜ γ)˜ ν(t, x ),
+
+where ˜ ν is the normal of ˜ γ.Notice that by the global existence and uniqueness theorem for ordinary differ-ential equations [1, (7.6)], the maximal integral curve solving (2.2) corresponding to any given initial data x ∈ S1 exists on all of [0 , T ). Thus, after extending φ to (−T, T ) × S1 according to [25], the existence of a solution ϕ for (2.2) follows from [15, Theorem 9.48]. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 8
+
+To solve (2.1), we require the following setup. 
+
+Definition 2.2 ([9, Chapter II.3.1]) . For s ∈ N, α ∈ (0 , 1), define the parabolic H¨ older space H s+α 
+
+> 4,s +α
+
+([0 , T ] × S1, Rn) as the set of functions γ : [0 , T ] × S1 → Rn,for which the norm 
+
+∥γ∥H s+α  
+
+> 4,s +α
+
+:= X
+
+> k+4 l≤s
+
+sup  
+
+> (t,x )∈[0 ,T ]×S1
+
+|∂kx ∂ltγ(t, x )|
+
++ X
+
+> k+4 l=s
+
+sup  
+
+> t∈[0 ,T ], x ̸=y∈S1
+
+|∂kx ∂ltγ(t, x ) − ∂kx ∂ltγ(t, y )|
+
+dist( x, y )α
+
++ X
+
+> 0<s +α−4l−k< 4
+
+sup  
+
+> t̸=˜ t∈[0 ,T ], x ∈S1
+
+|∂kx ∂ltγ(t, x ) − ∂kx ∂ltγ(˜ t, x )||t − ˜t| s+α−4l−k
+
+> 4
+
+is finite. Here, dist( x, y ) denotes the geodesic distance between x and y on S1.
+
+Remark 2.3 . Parabolic H¨ older spaces are Banach spaces. 
+
+Lemma 2.4. Let s ∈ { 1, 2, 3} and v ∈ H s+α 
+
+> 4,s +α
+
+([0 , T ] × S1, Rn) with v(0 , ·) = 0 
+
+and T ≤ 1. Then, there is a constant c > 0 independent of v such that for every 
+
+˜s ∈ { 0, . . . , s − 1} we have 
+
+∥v∥H ˜s+α  
+
+> 4,˜s+α
+
+≤ cT s+α−˜s−14 ∥v∥H s+α  
+
+> 4,s +α
+
+.
+
+Proof. We bound each term of the norm ∥v∥H ˜s+α  
+
+> 4,˜s+α
+
+. For the supremum term, since v(0 , ·) = 0, we have ∂kx v(0 , x ) = 0. The condition k + 4 l ≤ ˜s ≤ 2 requires 
+
+l = 0, hence no time derivatives appear in the expression. Thus, 
+
+X
+
+> k+4 l≤˜s
+
+sup 
+
+> (t,x )
+
+|∂kx ∂ltv(t, x )| ≤ X
+
+> k+4 l≤˜s
+
+sup 
+
+> (t,x )
+
+|t| s+α−4l−k
+
+> 4
+
+|∂kx ∂ltv(t, x ) − ∂kx ∂ltv(0 , x )||t| s+α−4l−k
+
+> 4
+
+≤ T s+α−˜s 
+
+> 4
+
+∥v∥H s+α  
+
+> 4,s +α
+
+.
+
+For the spatial H¨ older term, since the geodesic diameter of S1 is bounded, the Mean Value Theorem yields 
+
+X
+
+> k+4 l=˜ s
+
+sup 
+
+> t,x,y
+
+|∂kx ∂ltv(t, x ) − ∂kx ∂ltv(t, y )|
+
+dist( x, y )α
+
+≤ c X
+
+> k+4 l=˜ s
+
+sup 
+
+> (t,x )
+
+|∂k+1  
+
+> x
+
+∂ltv(t, x )|≤ c X
+
+> k+4 l=˜ s
+
+sup 
+
+> (t,x )
+
+|t| s+α−4l−k−14
+
+|∂k+1  
+
+> x
+
+∂ltv(t, x ) − ∂k+1  
+
+> x
+
+∂ltv(0 , x )||t| s+α−4l−k−14
+
+≤ cT s+α−˜s−14 ∥v∥H s+α  
+
+> 4,s +α
+
+,EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 9
+
+where the last inequality holds since 0 < s + α − ˜s − 1 < 4. Finally, for the time H¨ older term, we obtain 
+
+X
+
+> 0<˜s+α−4l−k< 4
+
+sup 
+
+> t, ˜t,x
+
+|∂kx ∂ltv(t, x ) − ∂kx ∂ltv(˜ t, x )||t − ˜t| ˜s+α−4l−k
+
+> 4
+
+= X
+
+> 0<˜s+α−4l−k< 4
+
+sup 
+
+> t, ˜t,x
+
+|t − ˜t| s−˜s
+
+> 4
+
+|∂kx ∂ltv(t, x ) − ∂kx ∂ltv(˜ t, x )||t − ˜t| s+α−4l−k
+
+> 4
+
+≤ T s−˜s 
+
+> 4
+
+∥v∥H s+α  
+
+> 4,s +α
+
+.
+
+Since α ∈ (0 , 1), the smallest exponent of T extracted across all terms is s+α−˜s−14 .
+
+□
+
+Lemma 2.5. Let γ ∈ H α 
+
+> 4,α
+
+([0 , T ] × S1, Rn) and 0 < β < α < 1. Then, γ ∈
+
+H β  
+
+> 4,β
+
+([0 , T ] × S1, Rn) and there is a constant c > 0 such that we have 
+
+∥γ∥H β  
+
+> 4,β
+
+≤ c∥γ∥1− βα 
+
+> C0
+
+∥γ∥ βα   
+
+> Hα
+> 4,α
+
+.
+
+Proof. The bound on the supremum term in the parabolic H¨ older norm holds trivi-ally. For the spatial H¨ older term we obtain 
+
+|γ(t, x ) − γ(t, y )|
+
+dist( x, y )β ≤ | γ(t, x ) − γ(t, y )|1− βα
+
+|γ(t, x ) − γ(t, y )|
+
+dist( x, y )α
+
+! βα
+
+≤ (2 ∥γ∥C0 )1− βα ∥γ∥ βα   
+
+> Hα
+> 4,α
+
+.
+
+The time H¨ older term can be treated in the same way. □
+
+Corollary 2.6. Let 0 < β < α < 1. The embedding H α 
+
+> 4,α
+
+([0 , T ] × S1, Rn) ,→
+
+H β  
+
+> 4,β
+
+([0 , T ] × S1, Rn) is compact. Proof. This follows for instance from the Arzel` a–Ascoli theorem. □
+
+2.1. The linearized problem. Consider the following problem for γ : [0 , T ]×S1 →
+
+R2.(2.3) 
+
+
+
+Lγ = ∂tγ −
+
+> 4
+
+X
+
+> k=0
+
+ak∂kx γ = ψ on [0 , T ] × S1
+
+γ(0 , ·) = γ0 on S1,
+
+where a0, . . . , a 4 are 2 × 2 matrices. We will see that L is an isomorphism of Banach spaces under appropriate as-sumptions. We use the notation for H¨ older spaces C4+ α = C⌊4+ α⌋,4+ α−⌊ 4+ α⌋.
+
+Theorem 2.7. Suppose L is parabolic in the sense of Petrovskiˇ ı (cf. [9, Defini-tion I.3] ) and ak ∈ H α 
+
+> 4,α
+
+([0 , T 0] × S1, R2×2) for k = 0 , . . . , 4 for some α ∈ (0 , 1) .Then, for all (ψ, γ 0) ∈ H α 
+
+> 4,α
+
+([0 , T 0] × S1, R2) × C4+ α(S1, R2) there exists a unique 
+
+γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2) for some 0 < T ≤ T0 such that (2.3) is satisfied. Moreover, there exists a constant c > 0 independent of (ψ, γ 0) such that the follow-ing estimate holds 
+
+∥γ∥H 4+ α   
+
+> 4,4+ α([0 ,T ]×S1,R2)
+
+≤ c(∥ψ∥H α   
+
+> 4,α ([0 ,T ]×S1,R2)
+
++ ∥γ0∥C4+ α(S1,R2)).EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 10 
+
+We prove this with a partition of unity and the analogue of this theorem on an interval. Consider the following problem for γ : [0 , T ] × [0 , π ] → R2
+
+(2.4) 
+
+
+
+Lγ = ∂tγ −
+
+> 4
+
+X
+
+> k=0
+
+ak∂kx γ = ψ on [0 , T ] × [0 , π ]
+
+γ(0 , ·) = γ0 on [0 , π ]
+
+γ(t, x ) = 0 for t ∈ [0 , T ], x ∈ { 0, π },∂xγ(t, x ) = 0 for t ∈ [0 , T ], x ∈ { 0, π }.
+
+The Shapiro-Lopatinskiˇ ı condition (cf. [9, p. 10-15]) can be checked as in [26, p. 2070]. Since our boundary conditions are identically zero, the required compatibility conditions of order ⌊ 4+ α 
+
+> 4
+
+⌋ (see [9, p. 217]) ensure that the initial data matches the boundary data at the corners ( t, x ) ∈ { 0} × { 0, π }. Specifically, the zero-order condition requires 
+
+γ0(x) = 0 , ∂xγ0(x) = 0 for x ∈ { 0, π }.
+
+Because ∂tγ(t, x ) = 0 on the boundary, the first-order compatibility condition re-quires evaluating (2.4) at t = 0, yielding 
+
+ψ(0 , x ) + 
+
+> 4
+
+X
+
+> k=0
+
+ak(0 , x )∂kx γ0(x) = 0 for x ∈ { 0, π }.
+
+For α > 4, higher-order compatibility conditions mandate that (2.4) differentiated in time, evaluated at t = 0, vanishes at the corners to match the higher time derivatives of the boundary condition. We refer to [9, Chapter II.3.1] for the definition of parabolic H¨ older spaces on an interval instead of S1.
+
+Theorem 2.8 ([9, Theorem VI.21]) . Suppose L is parabolic in the sense of Pet-rovskiˇ ı (see [9, Definition I.3] ) and ak ∈ H α 
+
+> 4,α
+
+([0 , T ] × [0 , π ], R2×2) for k = 0 , . . . , 4
+
+for some α > 0, α / ∈ N. Then, for (ψ, γ 0) ∈ H α 
+
+> 4,α
+
+([0 , T ]×[0 , π ], R2)×C4+ α([0 , π ], R2)
+
+that satisfy the compatibility conditions of order ⌊ 4+ α 
+
+> 4
+
+⌋, there exists a unique γ ∈
+
+H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × [0 , π ], R2) such that (2.4) is satisfied. Moreover, there exists a constant c > 0 independent of (ψ, γ 0) such that the following estimate holds 
+
+∥γ∥H 4+ α   
+
+> 4,4+ α([0 ,T ]×[0 ,π ],R2)
+
+≤ c(∥ψ∥H α   
+
+> 4,α ([0 ,T ]×[0 ,π ],R2)
+
++ ∥γ0∥C4+ α([0 ,π ],R2)).
+
+Proof of Theorem 2.7. We want to apply Theorem 2.8. For this, consider the charts of S1
+
+ϕ1 : [0 , π ] → { (x, y ) ∈ S1 | y ≥ 0} = V1 ⊂ S1,ϕ2 : [0 , π ] → { (x, y ) ∈ S1 | x ≤ 0} = V2 ⊂ S1,ϕ3 : [0 , π ] → { (x, y ) ∈ S1 | y ≤ 0} = V3 ⊂ S1,ϕ4 : [0 , π ] → { (x, y ) ∈ S1 | x ≥ 0} = V4 ⊂ S1,
+
+(2.5) where the charts are chosen to be isometries. Define the corresponding charts ˜ϕi : [0 , T ] × [0 , π ] → [0 , T ] × Vi
+
+on [0 , T ] × S1. Choose a partition of unity χ1 + . . . + χ4 = 1 of S1 subordinate to 
+
+{V ◦ 
+
+> i
+
+}, where V ◦ 
+
+> i
+
+denotes the interior of Vi. Moreover, choose bump functions ηi :EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 11 
+
+S1 → [0 , 1] with supp ηi ⊂ V ◦ 
+
+> i
+
+and ηi|supp χi = 1. Then, for ( ˜ψ, ˜γ0) ∈ H α 
+
+> 4,α
+
+([0 , T ] ×
+
+S1, R2) × C4+ α(S1, R2) consider the equation (2.6) 
+
+
+
+∂tui − P4 
+
+> k=0
+
+ak ◦ ˜ϕi∂kx ui = ( ˜ψη i) ◦ ˜ϕi
+
+ui(0 , ·) = (˜ γ0ηi) ◦ ˜ϕi
+
+ui|{0,π } = 0 ,∂xui|{0,π } = 0 .
+
+Since ηi is compactly supported in V ◦ 
+
+> i
+
+, the compatibility conditions are satisfied. We find with Theorem 2.8 a unique solution ui ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × [0 , π ], R2) of (2.6). Moreover, there are constants Ci = Ci(α, T, a k) such that 
+
+∥ui∥H 4+ α  
+
+> 4,4+ α([0 ,T ]×[0 ,π ],R2)
+
+≤ Ci(∥( ˜ψη i) ◦ ˜ϕi∥H α   
+
+> 4,α ([0 ,T ]×[0 ,π ],R2)
+
++ ∥(˜ γ0ηi) ◦ ˜ϕi∥C4+ α([0 ,π ],R2))
+
+≤ Ci(∥ ˜ψη i∥H α   
+
+> 4,α ([0 ,T ]×S1,R2)
+
++ ∥˜γ0ηi∥C4+ α(S1,R2))
+
+≤ Ci(∥ ˜ψ∥H α   
+
+> 4,α ([0 ,T ]×S1,R2)
+
++ ∥˜γ0∥C4+ α(S1,R2)).
+
+(2.7) In the following, we will need the commutator [ L, f ]v := L(f v )−f (Lv ) for functions 
+
+f ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R) and v ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2). First, consider solutions ui to (2.6) for ˜ γ0 = γ0 and ˜ψ = 0. Let ˜ γ1 := P4 
+
+> i=1
+
+χiui ◦ ˜ϕ−1 
+
+> i
+
+. Since the 
+
+ϕi are isometries, we have ∂kx (ui ◦ ˜ϕ−1 
+
+> i
+
+) = ∂kx ui ◦ ˜ϕ−1 
+
+> i
+
+. Hence, 
+
+L˜γ1 =
+
+> 4
+
+X
+
+> i=1
+
+L(χiui ◦ ˜ϕ−1 
+
+> i
+
+)=
+
+> 4
+
+X
+
+> i=1
+
+
+
+χi∂tui ◦ ˜ϕ−1 
+
+> i
+
+− χi
+
+> 4
+
+X
+
+> k=0
+
+ak∂kx ui ◦ ˜ϕ−1 
+
+> i
+
++ L, χ i
+
+ui ◦ ˜ϕ−1
+
+> i
+
+
+
+=
+
+> 4
+
+X
+
+> i=1
+
+(χiηi ˜ψ) + E = E, 
+
+where we define the error term E := P4
+
+> i=1
+
+L, χ i
+
+ui ◦ ˜ϕ−1 
+
+> i
+
+.Now, we are left with solving (2.3) for initial data zero. Consider solutions ˜ ui to (2.6) with ˜ γ0 = 0. We will choose ˜ψ later. Let ˜ γ2 := P4 
+
+> i=1
+
+χi ˜ui ◦ ˜ϕ−1 
+
+> i
+
+. We have 
+
+L˜γ2 =
+
+> 4
+
+X
+
+> i=1
+
+(χiηi ˜ψ) + 
+
+> 4
+
+X
+
+> i=1
+
+L, χ i
+
+˜ui ◦ ˜ϕ−1 
+
+> i
+
+= ˜ψ + K ˜ψ = ( I + K) ˜ψ, 
+
+where I is the identity and K is a linear operator defined by 
+
+K ˜ψ := 
+
+> 4
+
+X
+
+> i=1
+
+L, χ i
+
+˜ui ◦ ˜ϕ−1 
+
+> i
+
+.
+
+Here we need the initial data zero, otherwise the map ˜ψ 7 → ˜ui is not linear. The commutator [ L, χ i] is a differential operator containing derivatives only up to order three and no time derivatives [L, χ i] = −
+
+> 4
+
+X
+
+> k=1
+> k−1
+
+X
+
+> l=0
+
+kl
+
+
+
+ak(∂k−lx χi)∂lx.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 12 
+
+Hence, we have the bound for some constant c = c(a1, . . . , a 4, χ i) > 0
+
+∥[L, χ i]˜ ui ◦ ˜ϕ−1 
+
+> i
+
+∥H α  
+
+> 4,α
+
+≤ c
+
+> 3
+
+X
+
+> k=0
+
+∥∂kx ˜ui∥H α  
+
+> 4,α
+
+.
+
+By Lemma 2.4 (more specifically, an analogue on an interval), which we can apply because ˜ γ0 = 0, we have (2.8) ∥[L, χ i]˜ ui ◦ ˜ϕ−1 
+
+> i
+
+∥H α  
+
+> 4,α
+
+≤ cT α
+
+> 3
+
+X
+
+> k=0
+
+∥∂kx ˜ui∥H 1+ α  
+
+> 4,1+ α
+
+≤ cT α∥˜ui∥H 4+ α  
+
+> 4,4+ α
+
+.
+
+Then, by (2.7) we may choose T sufficiently small such that (2.9) ∥K∥H α      
+
+> 4,α ([0 ,T ]×S1,R2)→Hα
+> 4,α ([0 ,T ]×S1,R2)
+
+< 1.
+
+Hence, I + K : H α 
+
+> 4,α
+
+([0 , T ] × S1, R2) → H α 
+
+> 4,α
+
+([0 , T ] × S1, R2) is invertible. Con-sequently, for ˜ψ = ( I + K)−1(ψ − E), the function γ := ˜ γ1 + ˜ γ2 solves Lγ =
+
+L(˜ γ1 + ˜ γ2) = E + ψ − E = ψ. Since ˜ γ1(0 , ·) = γ0 and ˜ γ2(0 , ·) = 0, the inital condition is satisfied. Equation (2.7) applied to the solutions ui as well as ˜ ui yields 
+
+∥˜γ1∥H 4+ α  
+
+> 4,4+ α
+
+≤ c
+
+> 4
+
+X
+
+> i=1
+
+∥ui∥H 4+ α  
+
+> 4,4+ α
+
+≤ c∥γ0∥C4+ α ,
+
+∥˜γ2∥H 4+ α  
+
+> 4,4+ α
+
+≤ c
+
+> 4
+
+X
+
+> i=1
+
+∥˜ui∥H 4+ α  
+
+> 4,4+ α
+
+≤ c∥(I + K)−1(ψ − E)∥H α 
+
+> 4,α
+
+≤ c∥(I + K)−1∥(∥ψ∥H α  
+
+> 4,α
+
++ ∥E∥H α  
+
+> 4,α
+
+)
+
+≤ c(∥ψ∥H α  
+
+> 4,α
+
++ ∥γ0∥C4+ α )for some constant c > 0, which proves the desired bound on the norm of γ.In order to prove uniqueness, it is enough to show that any solution of (2.4) satisfies the H 4+ α 
+
+> 4,4+ α
+
+-estimate of Theorem 2.7. To this end, let T be as in (2.9), and γ : [0 , T ] × S1 → S1 be a solution of (2.3). Then, χiγ solves (2.10) 
+
+Li(( χiγ) ◦ ˜ϕi) = ( χiL(γ)) ◦ ˜ϕi + ([ L, χ i]γ) ◦ ˜ϕi
+
+= ( χiψ) ◦ ˜ϕi + ([ L, χ i]γ) ◦ ˜ϕi on [0 , T ] × [0 , π ](χiγ) ◦ ˜ϕi(0 , ·) = ( χiγ0) ◦ ϕi on [0 , π ](χiγ) ◦ ˜ϕi(t, x ) = 0 for x ∈ { 0, π },∂x(( χiγ) ◦ ˜ϕi(t, x )) = 0 for x ∈ { 0, π },
+
+where Li denotes the operator L written in local coordinates on [0 , T ] × [0 , π ], that is, Li = ∂t − P4 
+
+> k=0
+
+ak ◦ ˜ϕi∂kx . Theorem 2.8 and Equation (2.8) imply 
+
+∥(χiγ) ◦ ˜ϕi∥H 4+ α  
+
+> 4,4+ α
+
+≤ c(∥(χiψ) ◦ ˜ϕi + ([ L, χ i]γ) ◦ ˜ϕi)∥H α  
+
+> 4,α
+
++ ∥(χiγ0) ◦ ϕi∥C4+ α )
+
+≤ c(∥ψ∥H α  
+
+> 4,α
+
++ T α∥γ∥H 4+ α  
+
+> 4,4+ α
+
++ ∥γ0∥C4+ α ).
+
+Choosing T > 0 small enough, it follows that 
+
+∥γ∥H 4+ α  
+
+> 4,4+ α
+
+≤ c(∥ψ∥H α  
+
+> 4,α
+
++ ∥γ0∥C4+ α )which implies the conclusion. □EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 13 
+
+So far, we have only shown that there is a solution for α ∈ (0 , 1). To obtain higher regularity, we apply Theorem 2.8 on four patches. 
+
+Corollary 2.9. Suppose L is parabolic in the sense of Petrovskiˇ ı (see [9, Defini-tion I.3] ) and ak ∈ H α 
+
+> 4,α
+
+([0 , T 0] × S1, R2×2) for k = 0 , . . . , 4 for some α > 0, α / ∈ N.Then, for all (ψ, γ 0) ∈ H α 
+
+> 4,α
+
+([0 , T 0] × S1, R2) × C4+ α(S1, R2) there exists a unique 
+
+γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2) for some 0 < T ≤ T0 such that (2.3) is satisfied. Moreover, there exists a constant c > 0 independent of (ψ, γ 0) such that the follow-ing estimate holds 
+
+∥γ∥H 4+ α   
+
+> 4,4+ α([0 ,T ]×S1,R2)
+
+≤ c(∥ψ∥H α   
+
+> 4,α ([0 ,T ]×S1,R2)
+
++ ∥γ0∥C4+ α(S1,R2)).
+
+Proof. By Theorem 2.7, we may assume α > 1 and let α0 := α − ⌊ α⌋. Then, Theorem 2.7 yields a unique solution γ ∈ H 4+ α04 ,4+ α0 ([0 , T ] × S1, R2) to (2.3). It remains to show that γ ∈ H 4+ α  
+
+> 4,4+ α
+
+and that the estimate holds. Let Vi, ϕ i, ˜ϕi, χ i
+
+be as in the proof of Theorem 2.7. The function χiγ solves (2.10). Since the commutator is a differential operator containing derivatives only up to order three and no time derivatives, the source term ( χiψ) ◦ ˜ϕi + ([ L, χ i]γ) ◦ ˜ϕi belongs to 
+
+H 1+ α04 ,1+ α0 ([0 , T ] × [0 , π ], R2). Because χi is compactly supported strictly inside 
+
+V ◦ 
+
+> i
+
+, the source term and initial data vanish near the boundary points x ∈ { 0, π },meaning all higher-order compatibility conditions required by Theorem 2.8 are trivi-ally satisfied. Theorem 2.8 gives χiγ ◦ ˜ϕi ∈ H 5+ α04 ,5+ α0 ([0 , T ] × [0 , π ], R2) with 
+
+∥χiγ ◦ ˜ϕi∥H 5+ α04 ,5+ α0
+
+≤ c(∥(χiψ) ◦ ˜ϕi + ([ L, χ i]γ) ◦ ˜ϕi∥H 1+ α04 ,1+ α0 + ∥(χiγ0) ◦ ϕi∥C5+ α0 )
+
+≤ c(∥ψ∥H 1+ α04 ,1+ α0 + ∥γ∥H 4+ α04 ,4+ α0 + ∥γ0∥C5+ α0 )
+
+≤ c(∥ψ∥H 1+ α04 ,1+ α0 + ∥γ0∥C5+ α0 )for some constant c > 0. It follows that γ ∈ H 5+ α04 ,5+ α0 ([0 , T ] × S1, R2). Iterating this argument yields γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2). □
+
+2.2. The nonlinear problem. In this chapter, we assume α ∈ (0 , 1). Define 
+
+W := {γ ∈ C4(S1, R2) | γ is immersed }.
+
+Then, W is an open subset of C4(S1, R2) and we assume γ0 ∈ W . Since ˜F from (2.1) is a polynomial componentwise with smooth coefficients, ˜F induces a smooth mapping 
+
+F : H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2) ∩ W → H α 
+
+> 4,α
+
+([0 , T ] × S1, R2),γ 7 → F (γ) := ˜F (|∂xγ|−1, ∂ xγ, . . . , ∂ 4
+
+> x
+
+γ).
+
+(2.11) We write H 4+ α 
+
+> 4,4+ α
+
+([0 , T ]×S1, R2)∩W for the subset of functions γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ]×
+
+S1, R2) such that γ(t, ·) ∈ W for all 0 ≤ t ≤ T . Computing the derivative of F at 
+
+γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2) ∩ W yields (2.12) DF[γ]v =
+
+> 4
+
+X
+
+> k=0
+
+ak∂kx v. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 14 
+
+We have 
+
+a4(t, x ) =  
+
+> −2
+> |∂xγ|4
+
+00 −2
+
+> |∂xγ|4
+
+!
+
+and ak(t, x ) = ˜ ak(|∂xγ|−1, ∂ xγ, . . . , ∂ 4
+
+> x
+
+γ) for smooth functions ˜ ak : (0 , ∞)×(R2)4 →
+
+R2×2 that are polynomials componentwise. The computation is given in (A.1). Moreover, let 
+
+G : H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2) ∩ W → H 2+ α 
+
+> 4,2+ α
+
+([0 , T ] × S1, R2),γ 7 → G (γ) := −λ(γ)νγ .
+
+(2.13) As can be seen in (A.2), the norm can be estimated 
+
+∥DG[γ]v∥H α  
+
+> 4,α
+
+≤ c(|∂xγ|−1, ∥γ∥H 4+ α  
+
+> 4,4+ α
+
+)( ∥∂xv∥H α  
+
+> 4,α
+
++ ∥∂2
+
+> x
+
+v∥H α  
+
+> 4,α
+
+).
+
+Lemma 2.4 yields 
+
+∥DG[γ]v∥H α  
+
+> 4,α
+
+≤ c(|∂xγ|−1, ∥γ∥H 4+ α  
+
+> 4,4+ α
+
+)∥v∥H 2+ α 
+
+> 4,2+ α
+
+≤ T α 
+
+> 4
+
+c(|∂xγ|−1, ∥γ∥H 4+ α  
+
+> 4,4+ α
+
+)∥v∥H 3+ α  
+
+> 4,3+ α
+
+.
+
+(2.14) Hence, the operator norm can be made arbitrarily small for fixed γ, if we choose T
+
+small enough. 
+
+Remark 2.10 . By continuity and compactness, for γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2)such that γ(0 , ·) ∈ W , we find δ > 0 such that δ ≤ 1 
+
+> |∂xγ|
+
+≤ 1 
+
+> δ
+
+uniformly on [0 , T ]×S1.Hence, L = ∂t −P4 
+
+> k=0
+
+ak∂kx is parabolic in the sense of Petrovskiˇ ı for ak as in (2.12). This allows us to solve (2.1). 
+
+Theorem 2.11. Let γ0 ∈ C4+ α(S1, R2) ∩ W . Then, there exist ε > 0 and a unique solution γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , ε ] × S1, R2) ∩ W to 
+
+(
+
+∂tγ = F(γ) + G(γ)
+
+γ(0 , ·) = γ0.
+
+Proof. Let us first show existence. Notice that F(γ0) + G(γ0) − DF[γ0]γ0 ∈
+
+H α 
+
+> 4,α
+
+([0 , T ] × S1, R2). Thus, we infer with Theorem 2.7 that there exists a unique solution ˜ γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , T ] × S1, R2) to the linear problem (2.15) 
+
+(
+
+∂t ˜γ − DF[γ0]˜ γ = F(γ0) + G(γ0) − DF[γ0]γ0,
+
+˜γ(0 , ·) = γ0.
+
+For T sufficiently small, we have ˜ γ(t, ·) ∈ W for all 0 ≤ t ≤ T . Define ˜f := 
+
+∂t ˜γ − F (˜ γ) − G (˜ γ). Then, ˜f ∈ H α 
+
+> 4,α
+
+([0 , T ] × S1, R2). Continuity of F and G implies (2.16) ˜f (0 , ·) = ∂t ˜γ|t=0 − F (γ0) − G (γ0) = 
+
+
+
+F(γ0) + G(γ0)
+
+
+
+− F (γ0) − G (γ0) = 0 .
+
+We apply the Inverse Function Theorem to the following spaces for 0 < β < α 
+
+XT := {η ∈ H 4+ β  
+
+> 4,4+ β
+
+([0 , T ] × S1, R2) | η(0 , ·) = 0 },
+
+YT := H β  
+
+> 4,β
+
+([0 , T ] × S1, R2).
+
+Consider the map Φ : XT → Y T , η 7 → ∂t(˜ γ + η) − F (˜ γ + η) − G (˜ γ + η).EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 15 
+
+The map Φ is well defined and smooth on a neighborhood of 0 and Φ(0) = ˜f .We deduce from Remark 2.10 and Theorem 2.7 that ∂t − DF[˜ γ] := L˜γ is a linear isomorphism L˜γ : XT → Y T . Write 
+
+DΦ[0] = L˜γ − DG[˜ γ] = L˜γ (I − L−1˜γ DG[˜ γ]) ,
+
+where L−1˜γ has bounded operator norm by Theorem 2.7 (with a bound independent of T ). Moreover, by reducing T , the operator norm of DG[˜ γ] can be made arbit-rarily small, as remarked in (2.14). Hence, I − L−1˜γ DG[˜ γ] is invertible. Therefore, the Inverse Function Theorem [7, Chapter 3, Theorem 8] yields the existence of neighborhoods 0 ∈ U ⊂ X T and ˜f = Φ(0) ∈ V ⊂ Y T such that Φ : U → V is a diffeomorphism. It remains to show 0 ∈ V . For all 0 < ε < min {1, T 
+
+> 2
+
+}, define a cut-off function ϕε ∈ C∞([0 , T ]) satisfying 0 ≤ ϕε ≤ 1, 0 ≤ ∂tϕε ≤ 2
+
+ε and ϕε(t) = 
+
+(
+
+0, 0 ≤ t ≤ ε, 
+
+1, 2ε ≤ t ≤ T. 
+
+Let fε := ϕε ˜f ∈ H α 
+
+> 4,α
+
+. By the proof of [11, Lemma 2.5.8] (setting γ = α 
+
+> 4
+
+), we obtain that the family ( fε)ε is uniformly bounded in H α 
+
+> 4,α
+
+([0 , T ] × S1, R2). By Corollary 2.6, the embedding H α 
+
+> 4,α
+
+([0 , T ] × S1, R2) ,→ H β  
+
+> 4,β
+
+([0 , T ] × S1, R2) is compact. Therefore, there exists ˆf ∈ Y T with fεk → ˆf in YT for some subsequence 
+
+εk → 0. On the other hand, we have sup  
+
+> (t,x )∈[0 ,T ]×S1
+
+|fε − ˜f | ≤ sup 
+
+> t∈[0 ,2ε]
+
+∥ ˜f ∥C(S1,R2).
+
+Since ˜f (0 , ·) = 0 by (2.16), we obtain fε → ˜f uniformly. Hence, ˜f = ˆf and fεk → ˜f
+
+in YT . Thus, there exists ε := εk0 > 0 such that fε ∈ V . Since Φ : U → V is a diffeomorphism, there exists η ∈ U such that fε = Φ( η) = ∂t(˜ γ + η) − F (˜ γ + η) −G(˜ γ + η). Then, γ := ˜ γ + η ∈ H 4+ β  
+
+> 4,4+ β
+
+([0 , T ] × S1, R2) satisfies 
+
+(
+
+∂tγ = F(γ) + G(γ) + fε
+
+γ(0 , ·) = 0 + ˜ γ(0 , ·) = γ0.
+
+Since fε = 0 on [0 , ε ], we find that γ solves (2.1) on [0 , ε ] × S1.We still need to show that γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , ε ] × S1, R2). We can rewrite (2.1) as a linear equation in γ by freezing the argument γ in the coefficients of ∂xγ, . . . , ∂ 4
+
+> x
+
+γ.Since the coefficients of the lower-order terms depend on derivatives of maximal or-der three, they lie in the space H 1+ β  
+
+> 4,1+ β
+
+([0 , ε ]×S1, R2×2) ⊂ H α 
+
+> 4,α
+
+([0 , ε ]×S1, R2×2). Note that the coefficient  
+
+> −2
+> |∂xγ|4
+
+00 −2
+
+> |∂xγ|4
+
+!
+
+of the principal part ∂4
+
+> x
+
+γ makes the problem uniformly parabolic by the compactness of [0 , T ] × S1, as before. By Corollary 2.9, γ ∈ H 4+ β  
+
+> 4,4+ β
+
+([0 , ε ] × S1, R2) is the unique solution to this frozen linear problem with initial data γ0 ∈ C4+ α(S1, R2) and coefficients in H α 
+
+> 4,α
+
+. Con-sequently, Corollary 2.9 yields the improved regularity γ ∈ H 4+ α 
+
+> 4,4+ α
+
+([0 , ε ]×S1, R2), by potentially reducing ε.It remains to show uniqueness. Suppose there are two solutions γ1, γ 2 to (2.1) in the space H 4+ α 
+
+> 4,4+ α
+
+([0 , T i]×S1, R2). Without loss of generality assume 0 < T 1 ≤ T2.We want to show that the solutions coincide on the interval [0 , T 1]. First, we show that they coincide on an interval [0 , T ] for some T > 0. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 16 
+
+Define u := γ1 − γ2. It solves (2.17) 
+
+
+
+∂tu − F (γ1) + F(γ2) − G (γ1) + G(γ2)= ( ∂t − R 10 DF[ur ]dr − R 10 DG[ur ]dr )u = 0 
+
+u(0 , ·) = 0 ,
+
+where ur := rγ 1 + (1 − r)γ2. Since γ0 ∈ W , there is c > 0 such that |∂xγ0| ≥ c.Moreover, by continuity for T > 0 sufficiently small, we find |∂xγi − ∂xγ0| ≤ c 
+
+> 2
+
+. The reverse triangle inequality yields 
+
+|∂xur | = |∂xγ0 + r(∂xγ1 − ∂xγ0) + (1 − r)( ∂xγ2 − ∂xγ0)|≥ c − r c
+
+2 − (1 − r) c
+
+2 = c
+
+2 .
+
+Therefore, DF[ur ], D G[ur ] are well defined. Furthermore, ∂t −R 10 DF[ur ]dr is para-bolic and, by Theorem 2.7, an isomorphism. Similarly to (2.14), we can show that the operator norm of R 10 DG[ur ]dr is arbitrarily small for T > 0 small enough. Con-sequently, ∂t − R 10 DF[ur ]dr − R 10 DG[ur ]dr is an isomorphism and (2.17) has the unique solution u = 0. To conclude the argument, assume that 0 < T s < T 1 where 
+
+Ts := sup {t ∈ [0 , T 1) | γ1 = γ2 in H 4+ α 
+
+> 4,4+ α
+
+([0 , t ] × S1, R2)}.
+
+Define v0 := γ1(Ts) = γ2(Ts). Since γ1 is a solution to (2.1) on [0 , T 1] and Ts < T 1,the function γ1(Ts) is an immersion. We may use the same argument to find δ > 0with γ1(Ts+·) = γ2(Ts+·) in H 4+ α 
+
+> 4,4+ α
+
+([0 , δ ]×S1, R2), contradicting the maximality of Ts. □
+
+Using a similar bootstrap argument as in the end of the proof above, we deduce that higher regularity of the initial data γ0 yields higher regularity of the solution. Note that this step requires Corollary 2.9 instead of Theorem 2.7. 
+
+Corollary 2.12. If γ0 ∈ C4+ m+α(S1, R2) for the initial data from Theorem 2.11, where m ∈ N, α ∈ (0 , 1) , then the solution γ satisfies γ ∈ H 4+ m+α 
+
+> 4,4+ m+α
+
+([0 , ε ] ×
+
+S1, R2). In particular, if γ0 ∈ C∞(S1, R2), we have γ ∈ C∞([0 , ε ] × S1, R2).
+
+3. Global existence 
+
+We argue by contradiction to establish the global existence of the area-constrained elastic flow. Suppose the maximal time of existence T is finite. Using a compact-ness argument, we will show that the solution can be smoothly extended past T ,contradicting its maximality. For the compactness argument, we need bounds on the solution γ and all its derivatives. These bounds are obtained using Gagliardo-Nirenberg inequalities and the fact that the elastic energy is bounded, as in [8]. First, we present the following statements from the literature, which will be needed later in this chapter. 
+
+Lemma 3.1 ([8, Lemma 2.1]) . Suppose γ ∈ C2([0 , T ) × S1, R2) is immersed and evolves by ∂tγ = ξν + φτ for some ξ, φ ∈ C1([0 , T ), C 2(S1, R)) . Then, (1) ∂t(ds ) = ( ∂sφ − κξ )ds 
+
+(2) ∂t∂s − ∂s∂t = ( κξ − ∂sφ)∂s
+
+(3) ∂tτ = ( ∂sξ + φκ )ν
+
+(4) ∂tν = −(∂sξ + φκ )τ
+
+(5) ∂tκ = ∂2 
+
+> s
+
+ξ + κ2ξ + φ∂ sκ.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 17 
+
+Lemma 3.2 ([8, Lemma 2.2]) . Suppose γ ∈ C2([0 , T ) × S1, R2) is immersed with 
+
+∂tγ = ξν and let ϕ ∈ C5([0 , T ) × S1, R). Moreover, let Y = ∂tϕ + 2 ∂4 
+
+> s
+
+ϕ. Then, 
+
+12
+
+ddt 
+
+Z
+
+> S1
+
+ϕ2ds + 2 
+
+Z
+
+> S1
+
+(∂2 
+
+> s
+
+ϕ)2ds =
+
+Z
+
+> S1
+
+Y ϕds − 12
+
+Z
+
+> S1
+
+ϕ2κξds. 
+
+Furthermore, we have 
+
+∂t∂sϕ + 2 ∂5 
+
+> s
+
+ϕ = ∂sY + ξκ∂ sϕ. 
+
+Definition 3.3 ([8, Equation (2.13)]) . For γ ∈ C∞(S1, R2) immersed, we denote for 0 ≤ i ≤ k, 2 ≤ p < ∞∥∂isκ∥p := L(γ)i+1 − 1
+
+> p
+
+Z 
+
+> S1
+
+|∂isκ|pds 
+
+ 1
+
+> p
+
+and 
+
+∥∂isκ∥∞ := L(γ)i+1 ∥∂isκ∥L∞ .
+
+Define the norms for 2 ≤ p < ∞∥κ∥k,p := 
+
+> k
+
+X
+
+> i=0
+
+∥∂isκ∥p.
+
+Remark 3.4 . These norms are scale invariant since for r > 0 it holds 
+
+∥∂isrγ κrγ ∥p = L(rγ )i+1 − 1
+
+> p
+
+Z 
+
+> S1
+
+|∂isrγ 
+
+1
+
+r κγ |pds rγ 
+
+ 1
+
+> p
+
+= ri+1 − 1 
+
+> p
+
+L(γ)i+1 − 1
+
+> p
+
+Z 
+
+> S1
+
+r−ip −p+1 |∂isγ κγ |pds γ
+
+ 1
+
+> p
+
+= L(γ)i+1 − 1
+
+> p
+
+Z 
+
+> S1
+
+|∂isγ κγ |pds γ
+
+ 1
+
+> p
+
+.
+
+Lemma 3.5 ([8, Lemma 2.4]) . Let γ ∈ C∞(S1, R2) be immersed. Then, for any 
+
+k ∈ N, p ≥ 2, 0 ≤ i < k there is a constant c = c(k, p ) > 0 such that we have 
+
+∥∂isκ∥p ≤ c∥κ∥1−α 
+
+> 2
+
+∥κ∥αk, 2,
+
+where α = i+ 12 − 1 
+
+> p
+> k
+
+and c = c(p, k ).
+
+Lemma 3.6. Let γ ∈ C∞(S1, R2) be immersed. Then, for any k ∈ N there is a constant c = c(k) > 0 such that we have 
+
+∥∂ks κ∥∞ ≤ c∥∂ks κ∥ 12 
+
+> 2
+
+(∥∂ks κ∥2 + ∥∂k+1  
+
+> s
+
+κ∥2) 12 .
+
+Proof. We will use the identification [0 , 1] of S1 in this proof. In view of Remark 3.4, the inequality is invariant under both scaling and reparametrization. Thus, we may assume that γ has length 1 and is parametrized by arc length. Hence, ∂s = ∂x and EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 18 
+
+ds = dx . Using [3, Comments on Chapter 8, 1.(iii)], we obtain 
+
+∥∂ks κ∥∞ = ∥∂kx κ∥L∞
+
+≤ c∥∂kx κ∥ 12
+
+> L2(dx )
+
+∥∂kx κ∥ 12 
+
+> W1,2(dx )
+
+= c∥∂kx κ∥ 12
+
+> L2(dx )
+
+(∥∂kx κ∥L2(dx ) + ∥∂k+1  
+
+> x
+
+κ∥L2(dx )) 12
+
+= c∥∂ks κ∥ 12
+
+> L2(ds )
+
+(∥∂ks κ∥L2(ds ) + ∥∂k+1  
+
+> s
+
+κ∥L2(ds )) 12
+
+= c∥∂ks κ∥ 12 
+
+> 2
+
+(∥∂ks κ∥2 + ∥∂k+1  
+
+> s
+
+κ∥2) 12 .
+
+□
+
+Lemma 3.7 ([8, Equation 2.17]) . For γ ∈ C∞(S1, R2) immersed and k ∈ N we have 
+
+∥κ∥2 
+
+> k, 2
+
+≤ c(k)( ∥∂ks κ∥22 + ∥κ∥22).
+
+We introduce new notation. For a function ϕ : S1 → R, we denote by P μη (ϕ) any linear combination of terms of the type ∂i1 
+
+> s
+
+ϕ · · · ∂iη 
+
+> s
+
+ϕ with constant coefficients and 
+
+μ = i1 + . . . + iη is the total number of derivatives. Observe the following properties 
+
+P μη (ϕ)P αβ (ϕ) = P μ+αη+β (ϕ),∂sP μη (ϕ) = P μ+1  
+
+> η
+
+(ϕ).
+
+Lemma 3.8. Suppose γ evolves by ∂tγ = ( −2∂2 
+
+> s
+
+κ − κ3 − λ)ν where λ ∈ R. For 
+
+m ∈ N, the derivatives ϕm = ∂ms κ satisfy 
+
+∂tϕm + 2 ∂4 
+
+> s
+
+ϕm = λP m 
+
+> 2
+
+(κ) + P m 
+
+> 5
+
+(κ) + P m+2 3 (κ).
+
+This holds even if λ is time dependent. Proof. For m = 0, Lemma 3.1 gives us 
+
+∂tκ = ∂2 
+
+> s
+
+(−2∂2 
+
+> s
+
+κ − κ3 − λ) + κ2(−2∂2 
+
+> s
+
+κ − κ3 − λ)= −2∂4 
+
+> s
+
+κ + λP 02 (κ) + P 05 (κ) + P 23 (κ).
+
+We proceed by induction on m. Again with Lemma 3.1, we have 
+
+∂tϕm+1 = ∂t∂sϕm = ∂s∂tϕm + κ(−2∂2 
+
+> s
+
+κ − κ3 − λ)∂sϕm
+
+= ∂s(−2∂4 
+
+> s
+
+ϕm + λP m 
+
+> 2
+
+(κ) + P m 
+
+> 5
+
+(κ) + P m+2 3 (κ)) + P m+3 3 (κ) + P m+1 5 (κ) + λP m+1 2 (κ)= −2∂4 
+
+> s
+
+ϕm+1 + λP m+1 2 (κ) + P m+1 5 (κ) + P m+3 3 (κ).
+
+□
+
+Proposition 3.9 ([8, Proposition 2.5]) . Let γ ∈ C∞(S1, R2) be immersed and 
+
+k ∈ N. Furthermore, let P μη (κ) be a term with η ≥ 2, which only contains derivatives of κ of order at most k − 1, and denote σ = μ+ 12 η−1 
+
+> k
+
+. If μ + 12 η < 2k + 1 , we have 
+
+σ < 2 and there exists c = c(k, μ, η ) > 0 such that for any ε > 0
+
+Z
+
+> S1
+
+|P μη (κ)|ds ≤ ε
+
+Z
+
+> S1
+
+|∂ks κ|2ds + cε − σ
+
+> 2−σ
+
+Z 
+
+> S1
+
+|κ|2ds 
+
+ η−σ
+
+> 2−σ
+
++ c
+
+Z 
+
+> S1
+
+|κ|2ds 
+
+μ+η−1
+
+.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 19 
+
+To estimate the absolute value of λ(γ) = −  
+
+> R
+> S1κ3ds
+> L(γ)
+
+, we first establish a uniform lower bound on the length of the curve. 
+
+Proposition 3.10. Suppose γ : [0 , T ) × S1 → R2 smoothly evolves according to 
+
+(1.1) . Then, there is a constant c(γ0) > 0 such that 
+
+c(γ0) ≤ L (γt)
+
+for all t ∈ [0 , T ).Proof. As the circle minimizes the elastic energy among curves of fixed length by [14, Corollary 1.8], we obtain by (1.3) 4π2
+
+L(γ) ≤ E (γ) ≤ E (γ0).
+
+Rearranging this inequality yields 4π2 
+
+> E(γ0)
+
+≤ L (γ). □
+
+3.1. Uniform curvature bounds. Lemma 3.11. For a solution γ to (1.1) , λ chosen as in (1.2) , and every m ∈ N
+
+there is a constant cm(γ0) > 0 such that we have the bound 
+
+|λ| ≤ cm(γ0)(1 + ∥∂m+2  
+
+> s
+
+κ∥ 12m+4 
+
+> L2(ds )
+
+).
+
+Proof. Denote L := L(γ). Estimate |λ| with Lemmas 3.5 and 3.7 
+
+|λ| ≤ L −1∥κ∥3 
+
+> L3(ds )
+
+= L−3∥κ∥33
+
+≤ cmL−3∥κ∥3− 12m+4  
+
+> 2
+
+∥κ∥ 12m+4 
+
+> m+2 ,2
+
+≤ cmL−3∥κ∥ 6m+11 2m+4  
+
+> 2
+
+(∥κ∥22 + ∥∂m+2  
+
+> s
+
+κ∥22) 14m+8 
+
+≤ cmL−3 ∥κ∥32 + ∥κ∥ 6m+11 2m+4  
+
+> 2
+
+∥∂m+2  
+
+> s
+
+κ∥ 12m+4 
+
+> 2
+
+
+
+≤ cmL−3 L 32 ∥κ∥3 
+
+> L2(ds )
+
++ L 6m+11 4m+8 ∥κ∥ 6m+11 2m+4  
+
+> L2(ds )
+
+L 2m+5 4m+8 ∥∂m+2  
+
+> s
+
+κ∥ 12m+4 
+
+> L2(ds )
+
+
+
+≤ cm(γ0)( L− 32 + L−1∥∂m+2  
+
+> s
+
+κ∥ 12m+4 
+
+> L2(ds )
+
+).
+
+Here, we used that the energy is non-increasing along the gradient flow, meaning 
+
+∥κ∥2 
+
+> L2(ds )
+
+= E(γ) ≤ E (γ0). The length bound from Proposition 3.10 yields the result. □
+
+We will apply the previous statements to obtain bounds on the curvature and its derivatives. These bounds form the basis of the global existence proof. 
+
+Lemma 3.12. Suppose γ ∈ C∞([0 , T ) × S1, R2) evolves according to (1.1) . For all 
+
+ε > 0 and m ∈ N there exists a constant cm(γ0, ε ) > 0 such that 
+
+12
+
+ddt 
+
+Z
+
+> S1
+
+(∂ms κ)2ds + 2 
+
+Z
+
+> S1
+
+(∂m+2  
+
+> s
+
+κ)2ds ≤ 4ε
+
+Z
+
+> S1
+
+|∂m+2  
+
+> s
+
+κ|2ds + cm(γ0, ε ).EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 20 
+
+Proof. From Lemma 3.2 and Lemma 3.8 with ϕm = ∂ms κ, it follows that 12
+
+ddt 
+
+Z
+
+> S1
+
+ϕ2
+
+> m
+
+ds + 2 
+
+Z
+
+> S1
+
+ϕ2
+
+> m+2
+
+ds 
+
+=
+
+Z
+
+> S1
+
+(∂tϕm + 2 ∂4 
+
+> s
+
+ϕm)ϕmds 
+
+−
+
+Z
+
+> S1
+
+12 ϕ2
+
+> m
+
+κ(−2∂2 
+
+> s
+
+κ − κ3 − λ)ds 
+
+=
+
+Z
+
+> S1
+
+ϕm(λP m 
+
+> 2
+
+(κ) + P m 
+
+> 5
+
+(κ) + P m+2 3 (κ)) ds. 
+
+(3.1) By using integration by parts, we can ensure that only derivatives of maximal order 
+
+m+1 appear in the expression. Hence, we can use Proposition 3.9 with μ = 2 m+2, 
+
+η = 4, k = m + 2, σ = 2m+3  
+
+> m+2
+
+:(3.2) 
+
+Z
+
+> S1
+
+ϕmP m+2 3 (κ)ds ≤ ε
+
+Z
+
+> S1
+
+|∂m+2  
+
+> s
+
+κ|2ds + c(ε)
+
+Z 
+
+> S1
+
+|κ|2ds 
+
+2m+5 
+
+.
+
+Similarly, with μ = 2 m, η = 3, k = m + 2, σ = 4m+1 2m+4 , one obtains: 
+
+Z
+
+> S1
+
+ϕmP m 
+
+> 2
+
+(κ)ds ≤ ε
+
+Z
+
+> S1
+
+|∂m+2  
+
+> s
+
+κ|2ds + cε − 4m+1 7
+
+Z 
+
+> S1
+
+|κ|2ds 
+
+ 2m+11 7
+
++ c
+
+Z 
+
+> S1
+
+|κ|2ds 
+
+2m+2 
+
+;(3.3) and lastly with μ = 2 m, η = 6, k = m + 2, σ = 2m+2  
+
+> m+2
+
+:(3.4) 
+
+Z
+
+> S1
+
+ϕmP m 
+
+> 5
+
+(κ)ds ≤ ε
+
+Z
+
+> S1
+
+|∂m+2  
+
+> s
+
+κ|2ds + c(ε)
+
+Z 
+
+> S1
+
+|κ|2ds 
+
+2m+5 
+
+.
+
+Formally replacing ε by ε 
+
+> |λ|
+
+in (3.3) yields (3.5) |λ|
+
+Z
+
+> S1
+
+ϕmP m 
+
+> 2
+
+(κ)ds ≤ ε∥∂m+2  
+
+> s
+
+κ∥2 
+
+> L2(ds )
+
++ cm(ε, γ 0)( |λ| 4m+8 7 + |λ|).
+
+If λ = 0, the term is already 0. Combining (3.1), (3.2), (3.4) and (3.5), we have 12
+
+ddt 
+
+Z
+
+> S1
+
+ϕ2
+
+> m
+
+ds + 2 
+
+Z
+
+> S1
+
+ϕ2
+
+> m+2
+
+ds 
+
+≤ 3ε∥∂m+2  
+
+> s
+
+κ∥2 
+
+> L2(ds )
+
++ cm(ε, γ 0)( |λ| 4m+8 7 + |λ| + 1) .
+
+Recall Lemma 3.11 and observe for the exponents 4m+8 7(2 m+4) = 27 < 2 and 12m+4 < 2. So we can use Young’s inequality to arrive at 12
+
+ddt 
+
+Z
+
+> S1
+
+ϕ2
+
+> m
+
+ds + 2 
+
+Z
+
+> S1
+
+ϕ2
+
+> m+2
+
+ds ≤ 4ε∥∂m+2  
+
+> s
+
+κ∥2 
+
+> L2(ds )
+
++ cm(ε, γ 0).
+
+□
+
+Lemma 3.13. For a smooth solution γ : [0 , T ) × S1 → R2 to (1.1) and all m ∈ N
+
+we have bounds 
+
+∥∂ms κ∥L∞ ≤ cm(γ0)
+
+for some constant cm(γ0) > 0.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 21 
+
+Proof. Using Lemma 3.5, Lemma 3.7, and Proposition 3.10, we find 
+
+∥∂ms κ∥L2(ds ) = L−m− 12 ∥∂ms κ∥2
+
+≤ cmL−m− 12 ∥κ∥1− mm+2  
+
+> 2
+
+∥κ∥ mm+2 
+
+> m+2 ,2
+
+≤ cmL−m− 12 ∥κ∥ 2 
+
+> m+2
+> 2
+
+(∥κ∥ mm+2  
+
+> 2
+
++ ∥∂m+2  
+
+> s
+
+κ∥ mm+2  
+
+> 2
+
+)= cm(L−m∥κ∥L2(ds ) + L−m− 12 + 1   
+
+> m+2 +(m+5 /2) mm+2
+
+∥∂m+2  
+
+> s
+
+κ∥ mm+2 
+
+> L2(ds )
+
+∥κ∥ 2
+
+> m+2
+> L2(ds )
+
+)
+
+≤ cm(γ0)(1 + ∥∂m+2  
+
+> s
+
+κ∥ mm+2 
+
+> L2(ds )
+
+)
+
+≤ cm(γ0)(1 + ∥∂m+2  
+
+> s
+
+κ∥L2(ds )).
+
+This implies 12
+
+ddt 
+
+Z
+
+> S1
+
+|∂ms κ|2ds + 1
+
+cm(γ0)
+
+Z
+
+> S1
+
+|∂ms κ|2ds 
+
+≤ 12
+
+ddt 
+
+Z
+
+> S1
+
+|∂ms κ|2ds +
+
+Z
+
+> S1
+
+|∂m+2  
+
+> s
+
+κ|2ds + 1 .
+
+Thus, from Lemma 3.12 with ε = 14 it follows 12
+
+ddt 
+
+Z
+
+> S1
+
+|∂ms κ|2ds + 1
+
+cm(γ0)
+
+Z
+
+> S1
+
+|∂ms κ|2ds ≤ cm(γ0).(3.6) Denote f (t) := R 
+
+> S1
+
+|∂ms κ|2ds . Multiplying (3.6) by 2 e 2  
+
+> cm (γ0)t
+
+gives an equation of the form ddt 
+
+ e 2 
+
+> cm (γ0)t
+
+f (t) ≤ 2cm(γ0)e 2 
+
+> cm (γ0)t
+
+.
+
+By integrating in time and absorbing constants, we obtain (3.7) ∥∂ms κ∥L2(ds ) ≤ cm(γ0).
+
+Using Lemma 3.6 and Proposition 3.10 gives 
+
+∥∂ms κ∥L∞ = L−m−1∥∂ms κ∥∞
+
+≤ cL−m−1∥∂ms κ∥ 12 
+
+> 2
+
+(∥∂ms κ∥2 + ∥∂m+1  
+
+> s
+
+κ∥2) 12
+
+≤ cL−m−1(∥∂ms κ∥2 + ∥∂ms κ∥ 12 
+
+> 2
+
+∥∂m+1  
+
+> s
+
+κ∥ 12 
+
+> 2
+
+)= cL−m−1(Lm+ 12 ∥∂ms κ∥L2(ds ) + Lm+1 ∥∂ms κ∥ 12
+
+> L2(ds )
+
+∥∂m+1  
+
+> s
+
+κ∥ 12
+
+> L2(ds )
+
+)
+
+≤ c(γ0)( ∥∂ms κ∥L2(ds ) + ∥∂ms κ∥ 12
+
+> L2(ds )
+
+∥∂m+1  
+
+> s
+
+κ∥ 12
+
+> L2(ds )
+
+).
+
+Because (3.7) holds for all m ∈ N, both L2-norms on the right-hand side are uni-formly bounded by a constant depending only on γ0 and m, which completes the proof. □
+
+3.2. Proof of global existence. 
+
+Proof of Theorem 1.1. Suppose γ : [0 , T ) × S1 → R2 is a maximal solution to (1.1). We seek bounds for all derivatives of γ, and start with ∥γ∥L∞ . From (1.2) and Lemma 3.13, we obtain for ξ(γ) := −2∂2 
+
+> s
+
+κ − κ3 − λ(γ), 
+
+|ξ| ≤ 2|∂2 
+
+> s
+
+κ| + |κ3| + |λ|≤ c(γ0).
+
+(3.8) EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 22 
+
+Then, (3.8) shows 
+
+|γ| ≤ | γ0| +
+
+Z t
+
+> 0
+
+|∂tγu|du = |γ0| +
+
+Z t
+
+> 0
+
+|ξ(γu)|du ≤ c(γ0, T ).
+
+For the first derivative ∥∂xγ∥L∞ , we deduce with Lemma 3.1 
+
+∂t|∂xγ| = −κξ |∂xγ| ≤ c(γ0)|∂xγ|.
+
+Gr¨ onwall’s lemma gives |∂xγ| ≤ c(γ0, T ). Similarly, 
+
+∂t|∂xγ| ≥ − c(γ0)|∂xγ|.
+
+Again, Gr¨ onwall’s lemma yields (3.9) |∂xγ| ≥ c−1(γ0, T ).
+
+Lemma 3.13 together with ∂2 
+
+> s
+
+γ = κν leads to bounds ∥∂ms γ∥L∞ ≤ cm(γ0) for m ≥ 2, using the following observation (3.10) ∂ms γ = ∂m−2 
+
+> s
+
+κν + P1(κ, . . . , ∂ m−3 
+
+> s
+
+κ)ν + P2(κ, . . . , ∂ m−3 
+
+> s
+
+κ)τ. 
+
+This follows from the Leibniz rule and the Frenet equations. The polynomials P1, P 2
+
+have at most degree m − 1. So far, we have established bounds for ∥γ∥L∞ , ∥∂xγ∥L∞ and, using Lemma 3.13, 
+
+∥∂ms γ∥L∞ for m ≥ 2. From this, we want to show bounds on ∂mx γ for m ≥ 2. First, note that for any function h : S1 → R, we have the identity (3.11) ∂mx h − | ∂xγ|m∂ms h = Pm(|∂xγ|−1, |∂xγ|, . . . , ∂ m−1 
+
+> x
+
+|∂xγ|, h, . . . , ∂ m−1 
+
+> s
+
+h),
+
+where Pm is a polynomial. This identity can be proven by induction. Assume inductively that ∥∂jx|∂xγ|∥ L∞ ≤ c(j, γ 0, T ) for 0 ≤ j ≤ m − 1. We apply (3.11) to h = ∂isκ for all i ∈ N. This gives bounds ∥∂mx ∂isκ∥L∞ ≤ c(m, i, γ 0, T ). From Lemma 3.1, we have 
+
+∂t|∂xγ| = κ(2 ∂2 
+
+> s
+
+κ + κ3 + λ)|∂xγ|,∂t∂mx |∂xγ| = ∂mx (κ(2 ∂2 
+
+> s
+
+κ + κ3 + λ)|∂xγ|)= Qm(λ, κ, . . . , ∂ mx κ, ∂ 2 
+
+> s
+
+κ, . . . , ∂ mx ∂2 
+
+> s
+
+κ, |∂xγ|, . . . , ∂ m−1 
+
+> x
+
+|∂xγ|)+ κ(2 ∂2 
+
+> s
+
+κ + κ3 + λ)∂mx |∂xγ|,
+
+where Qm is a polynomial. Taking the absolute value gives 
+
+|∂t∂mx |∂xγ|| ≤ c1(m, γ 0, T ) + c2(γ0)|∂mx |∂xγ|| .
+
+Observe 
+
+|∂mx |∂xγ|| = ∂mx |∂xγ0| +
+
+Z t
+
+> 0
+
+∂t∂mx |∂xγu|du 
+
+≤ | ∂mx |∂xγ0|| +
+
+Z t
+
+> 0
+
+|∂t∂mx |∂xγu|| du 
+
+≤ cm(γ0) + c1(m, γ 0, T )t + c2(γ0)
+
+Z t
+
+> 0
+
+|∂mx |∂xγu|| du. 
+
+(3.12) Applying Gr¨ onwall’s inequality yields ∥∂mx |∂xγ|∥ L∞ ≤ c(m, γ 0, T ). Again, we apply identity (3.11) to h = γ for m ≥ 2 and obtain bounds ∥∂mx γ∥L∞ ≤ cm(γ0, T ). Because of the bounded velocity ∥∂tγ∥L∞ = ∥ξ∥L∞ ≤ c(γ0, T ), γti is a Cauchy sequence for an arbitrary sequence ti → T in C0(S1, R2). Therefore, it converges uniformly to γT ∈ C0(S1, R2). By Arzel` a–Ascoli and the bounds on all derivatives EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 23 
+
+of γ, we obtain smooth convergence and γT ∈ C∞(S1, R2). The bound (3.9) ensures that γT is immersed. Lastly, we need to show that the derivative from the left satisfies the gradient flow equation (1.1) lim  
+
+> t→T−
+
+γT − γt
+
+T − t = lim  
+
+> t→T−
+
+R Tt ∂tγudu T − t
+
+= lim  
+
+> t→T−
+
+R Tt ξ(γu)νudu T − t = ξ(γT )νT ,
+
+where the last limit is in the C∞(S1, R2)-topology. Thus, we can extend γ smoothly to [0 , T ] and even beyond by local existence. Therefore, γ : [0 , T ) → R2 is not a maximal solution, which contradicts our initial assumption. □
+
+4. Convergence 
+
+4.1. Embeddedness. As indicated in the numerical simulations in Section 6 later on, we expect that if the initial curve is sufficiently close to the circle, the gradient flow will converge to the circle. Importantly, the gradient flow is expected to remain simple, i.e. without developing self-intersections. In the following, we give explicit conditions on the initial data under which the gradient flow stays simple for all time, leveraging a known result on the optimal drop [4]. A priori, self-intersections might occur. If this is the case, we show that the first one is tangential. For [ x], [y] ∈ R/2πZ = S1, we define the interval [ x, y ] ⊂ R/2πZ = S1 by [x, y ] := {[z] ∈ R/2πZ | z ∈ [x, y + 2 πk ] ⊂ R}
+
+with k ∈ Z minimal such that y + 2 πk ≥ x. For simplicity, from now on we write 
+
+x instead of [ x]. 
+
+Lemma 4.1. Let γ be the global smooth solution to (1.1) for simple immersed initial data γ0 ∈ C∞(S1, R2). Suppose γ develops self-intersections and denote ts =inf {t > 0 | γ is not simple }. Then, γ(ts) is not simple and every self-intersection is tangential, i.e. for a self-intersection γ(ts, x ) = γ(ts, y ), we have τts (x) = ±τts (y).Proof. Note that by [17, Lemma 4.1, Lemma 4.3] the set of simple and immersed 
+
+C1(S1, R2)-curves is open in C1(S1, R2). If γ(ts, ·) were simple, then γ(t, ·) would remain simple for a small time interval [ ts, t s + δ]. This contradicts the definition of ts. Hence, γ(ts, ·) is not simple. Let x0, y 0 ∈ S1 be an arbitrary self-intersection, meaning x0̸ = y0 and γ(ts, x 0) = γ(ts, y 0). Suppose that it is not tangential, i.e. 
+
+τts (x0)̸ = ±τts (y0). By continuous differentiability in time, we obtain a contradic-tion to ts = inf {t > 0 | γ is not simple }. Indeed, consider the function 
+
+f : [ ts − ε, t s + ε] × [x0 − ε, x 0 + ε] × [y0 − ε, y 0 + ε] → R2,f (t, x, y ) = γ(t, x ) − γ(t, y ).
+
+Compute 
+
+Df (t, x, y ) =  ∂tγ(t, x ) − ∂tγ(t, y ) ∂xγ(t, x ) −∂y γ(t, y ) .
+
+The differential D(x,y )f with respect to the spatial variables is invertible if and only if ∂xγ(t, x ) and ∂y γ(t, y ) are linearly independent. This is the case if the tangents are not parallel. Then, we obtain by the Implicit Function Theorem a continuous map φ that maps a neighborhood of ts to a neighborhood of ( x0, y 0)EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 24 
+
+with f (t, φ (t)) = 0. In particular, there has to be t0 < t s such that γ(t0, ·) has a self-intersection, a contradiction. □
+
+We check the necessary conditions to apply the proof of [4, Theorem 3.1]. The following Lemma is required to compare the energy of a curve to the energies of two drops with smaller combined area. 
+
+Lemma 4.2. Let γ ∈ W 2,2(S1, R2) be immersed and simple. Let x, y ∈ S1. If one of the following conditions (1) 0 /∈ [x, y ] and θ(y) ≤ θ(x) − π,(2) 0 ∈ [x, y ] and θ(y) ≤ θ(x) − 3π
+
+holds, then there exist drops γ1, γ 2 with 
+
+E(γ1) + E(γ2) ≤ E (γ),
+
+A(γ1) + A(γ2) ≤ A (γ).
+
+Proof. The proof is essentially the same as the proof of [4, Lemma 3.3]. The idea is to extend the segment γ([ x, y ]) by straight line segments such that it touches the remaining curve. In the newly constructed curve, we can identify two drops with the desired properties. The second condition accounts for the 2 π shift of θ if 0 ∈ [x, y ]. □
+
+Lemma 4.3. Let γ1, γ 2 be two arbitrary drops and denote a1 = A(γ1), a 2 = A(γ2).If a1 + a2 ≤ a for some a > 0, then 
+
+E(γ1) + E(γ2) ≥ 2E(γ∗ 
+
+> a
+> 2
+
+).
+
+Proof. Define ˜ a := a1 + a2 and obtain 
+
+E(γ1) + E(γ2) ≥ E (γ∗ 
+
+> a1
+
+) + E(γ∗ 
+
+> a2
+
+)=
+
+s
+
+A(γ∗)
+
+a1
+
+E(γ∗) + 
+
+s
+
+A(γ∗)
+
+a2
+
+E(γ∗)= pA(γ∗)E(γ∗)
+
+ 1
+
+√a1
+
++ 1
+
+√˜a − a1
+
+
+
+.
+
+The minimum of this function is attained at a1 = ˜a 
+
+> 2
+
+. This shows 
+
+E(γ1) + E(γ2) ≥ pA(γ∗)E(γ∗) 2
+
+q ˜a
+
+> 2
+
+≥ pA(γ∗)E(γ∗) 2
+
+p a
+
+> 2
+
+= 2 E(γ∗ 
+
+> a
+> 2
+
+).
+
+□
+
+We have gathered all the necessary results to prove simplicity of the flow for all time under certain conditions on the energy. 
+
+Theorem 4.4. Let γ0 ∈ C∞(S1, R2) be simple and immersed with A(γ0) = a and 
+
+E(γ0) < 2E(γ∗
+
+> a
+> 2
+
+). Then, the global smooth solution γ to (1.1) will be simple for all time. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 25 
+
+Proof. Suppose γ develops a self-intersection and denote by 
+
+ts = inf {t > 0 | γ(t) is not simple }
+
+the first time, where a self-intersection occurs. Following the argument in the proof of [4, Theorem 3.1], we can identify two self-intersections (which are potentially the same) 
+
+γts (x1) = γts (y1), γts (x2) = γts (y2),
+
+such that γ1 = γts |[x1,y 1], γ 2 = γts |[x2,y 2] are drops. They satisfy A(γ1) + A(γ2) ≤A(γ(ts)) and necessarily E(γ1) + E(γ2) ≤ E (γ(ts)). Applying Lemma 4.3 leads to a contradiction, since the energy is non-increasing along the flow. □
+
+4.2. Subconvergence. To show convergence, we first want to obtain subconver-gence by using a compactness argument. A key requirement for this strategy is a bound on the length of the curve. As we shall see, the curve cannot have arbitrarily narrow pieces, if the flow starts with an energy below twice that of the optimal drop for a given area. However, if the length of the curve tends to infinity, the curve must develop arbitrarily narrow pieces. Therefore, the length has to be bounded. In the following, we formalize this argument. 
+
+Definition 4.5. Let γ ∈ C∞(S1, R2) be simple and immersed. Define 
+
+d : S1 × S1 → [0 , ∞],d(x, y ) = inf {t > 0 | ∃ 0 ≤ r1, r 2 ≤ t : γ(x) + r1ν(x) = γ(y) + r2ν(y)},
+
+where the infimum is ∞, if the set is empty. This is shown in Figure 3. 
+
+Remark 4.6 . Even though this map is denoted by d, it is not a metric, since it does not satisfy the triangle inequality. 
+
+γ(x)
+
+γ(y)
+
+r1
+
+d(x, y )
+
+r2
+
+Figure 3. A sketch illustrating the distance d(x, y ). 
+
+Lemma 4.7. Let γ ∈ C∞(S1, R2) be simple and immersed and δ > 0 with 
+
+3 A(γ)
+
+L(γ) ≤ δ ≤ 1
+
+∥κ∥L∞
+
+.
+
+Then, there are x̸ = y ∈ S1 with d(x, y ) ≤ δ.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 26 
+
+Proof. Suppose that for all x̸ = y ∈ S1 it holds d(x, y ) > δ . Denote by ˜ γ :[0 , L(γ)] → R2 the constant speed reparametrization of γ with speed 1. Then, define the map 
+
+f : [0 , L(γ)] × [0 , δ ] → A := {p ∈ R2 | p = γ(x) + rν (x), x ∈ S1, r ∈ [0 , δ ]},f (l, r ) = ˜ γ(l) + r˜ν(l).
+
+A sketch of the set A is given in Figure 4. Observe that f is injective (up to a set of measure zero) by the assumption d(x, y ) > δ for all x, y ∈ S1. Hence, by the area formula we have 
+
+H2(A) = 
+
+Z
+
+> [0 ,L(γ)] ×[0 ,δ ]
+
+J(Df (l, r )) dL2(l, r )for the two-dimensional Hausdorff measure H2 and Lebesgue measure L2. Compute 
+
+Df (l, r ) =  ˜τ (l) − r˜κ(l)˜ τ (l) ˜ν(l) ,J(Df (l, r )) = 
+
+q
+
+det( Df (l, r )⊤Df (l, r )) = 
+
+s
+
+det 
+
+(1 − r˜κ(l)) 2 00 1
+
+
+
+= 1 − r˜κ. 
+
+This yields 
+
+H2(A) = 
+
+Z δ
+
+> 0
+
+Z L(γ)0
+
+(1 − r˜κ)dldr 
+
+=
+
+Z δ
+
+> 0
+
+L(γ) − r2πdr 
+
+= δL(γ) − δ2π ≥ δ
+
+2 L(γ) ≥ 32 A(γ),
+
+(4.1) where we used δ ≤ 1 
+
+> ∥κ∥L∞
+
+≤ L(γ)2π . We claim that A is contained in the set that is enclosed by γ, which leads to a contradiction to (4.1). If A is not contained in the set that is enclosed by γ, then there are x, y ∈ S1 and r ≤ δ such that 
+
+γ(x) + rν (x) = γ(y). This is impossible by the assumption d(x, y ) > δ . □
+
+A
+
+Figure 4. A sketch illustrating the set A which is the tubular neighborhood inside of γ.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 27 
+
+Lemma 4.8. Let γ ∈ C∞(S1, R2) be simple and immersed. Suppose that there are 
+
+˜x, ˜y ∈ S1 with d(˜ x, ˜y) ≤ δ 
+
+> 2
+
+for δ < 1 
+
+> ∥κ∥L∞
+
+. Then, there are x0, y 0 such that 
+
+|γ(x0) − γ(y0)| ≤ δ, τ (x0) = −τ (y0),
+
+(γ(x0) − γ(y0)) · τ (x0) = 0 ,
+
+and the straight line segment connecting γ(x0), γ (y0) does not intersect γ.Proof. In this proof, we will use the identification S1 = R/2πZ. Define the function 
+
+φ1 : S1 → S1,φ1([ x]) = [min {z ∈ R | z > x, τ ([ z]) · τ ([ x]) = 0 }].
+
+Similarly, we define 
+
+φ2 : S1 → S1,φ2([ x]) = [max {z ∈ R | z < x, τ ([ z]) · τ ([ x]) = 0 }].
+
+The functions φ1, φ 2 are not continuous in general, but for a sequence xn ∈ S1 with 
+
+xn → x0 we claim that 
+
+φ1(x0) ∈ [x0, lim inf  
+
+> n→∞
+
+φ1(xn)] ,φ2(x0) ∈ [lim sup 
+
+> n→∞
+
+φ2(xn), x 0],
+
+(4.2) where lim inf, lim sup are taken with respect to the identification [ x0, x 0 +2 π) of S1.To see this, choose a subsequence xnk such that φ1(xnk ) → x∞ := lim inf n→∞ φ1(xn)as k → ∞ . It holds τ (xnk ) · τ (φ1(xnk )) = 0. This gives τ (x0) · τ (x∞) = 0, which shows the claim. The result for the supremum follows in a similar manner. Let x, y ∈ S1 be such that y ∈ [φ2(x), φ 1(x)]. Assume y ∈ [x, φ 1(x)]. The case 
+
+y ∈ [φ2(x), x ] can be treated by a similar calculation. We claim that d(x, y ) ≥ 1 
+
+> ∥κ∥L∞
+
+. We may assume d(x, y ) < ∞. By the choice of 
+
+y it holds τ (z) · τ (x) ≥ 0 for every z ∈ [x, y ]. Define b = R 
+
+> [x,y ]
+
+τ (s) · τ (x)ds . Since 
+
+∂sθ(x) = κ(x), we estimate 
+
+∥κ∥L∞ b = ∥κ∥L∞
+
+Z
+
+> [x,y ]
+
+τ (s) · τ (x)ds 
+
+≥
+
+Z
+
+> [x,y ]
+
+|κ(s)|τ (z) · τ (x)ds 
+
+=
+
+Z
+
+> [x,y ]
+
+|κ(s)| cos( θ(z) − θ(x)) ds 
+
+≥
+
+Z θ(y)
+
+> θ(x)
+
+cos( α − θ(x)) dα 
+
+=
+
+Z θ(y)−θ(x)0
+
+cos( α)dα = sin( |θ(y) − θ(x)|).
+
+(4.3) Since b = ( γ(y) − γ(x)) · τ (x), it holds sin( |θ(y) − θ(x)|) = b 
+
+> |γ(y)−S|
+
+for the intersection S of the rays from x, y in direction of their normals, which exists by 
+
+d(x, y ) < ∞, see Figure 5. This shows the claim (4.4) d(x, y ) ≥ | γ(y) − S| = b
+
+sin( |θ(y) − θ(x)|) ≥ 1
+
+∥κ∥L∞
+
+.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 28 
+
+By assumption, there are ˜ x, ˜y ∈ S1 such that d(˜ x, ˜y) ≤ δ 
+
+> 2
+
+< 12∥κ∥L∞ . Equation (4.4) then yields ˜ y ∈ [φ1(˜ x), φ 2(˜ x)]. The triangle inequality gives 
+
+|γ(˜ y) − γ(˜ x)| ≤ 2d(˜ x, ˜y) ≤ δ < 1
+
+∥κ∥L∞
+
+.
+
+We want to find a minimizer of |γ(y) − γ(x)| for x, y ∈ { (x, y ) ∈ S1 × S1 | y ∈
+
+[φ1(x), φ 2(x)] }. Choose a minimizing sequence ( xn, y n). Compactness of S1 × S1
+
+shows that up to a subsequence, ( xn, y n) → (x0, y 0). We have yn ∈ [φ1(xn), x n]and using (4.2) gives y0 ∈ [lim inf n→∞ φ1(xn), x 0] ⊂ [φ1(x0), x 0]. Similarly, we see 
+
+y0 ∈ [x0, φ 2(x0)] and thus y0 ∈ [φ1(x0), φ 2(x0)]. Therefore, ( x0, y 0) is a minimizer, and it holds 
+
+|γ(y0) − γ(x0)| ≤ | γ(˜ y) − γ(˜ x)| ≤ δ < 1
+
+∥κ∥L∞
+
+.
+
+Also, by (4.3) y0 ∈ (φ1(x), φ 2(x)), because if y0 = φ1(x0) we have (4.5) 
+
+|γ(y0) − γ(x0)| ≥ 
+
+Z
+
+> [x0,y 0]
+
+τ (z) · τ (x0)ds ≥ 1
+
+∥κ∥L∞
+
+sin( |θ(y0) − θ(x0)|) = 1
+
+∥κ∥L∞
+
+.
+
+A similar argument works for y = φ2(x0). Therefore, we can take the derivative and deduce 0 = ddε ε=0 
+
+|γ(x0) − γ(y0 + ε)|2 = 2 ∂xγ(y0) · (γ(y0) − γ(x0)) .
+
+The tangent is just a dilation of ∂xγ(y0). We want to apply a similar argument for the tangent at x0. We have to show that there is r > 0 such that y0 ∈ [φ1(x), φ 2(x)] for all x ∈ [x0 − r, x 0 + r] to be able to take the derivative. If for all z ∈ [x0, y 0] we have τ (z) · τ (x0) ≥ 0, it holds 
+
+|γ(y0) − γ(x0)| ≥ 
+
+Z
+
+> [x0,y 0]
+
+τ (z) · τ (x0)ds ≥
+
+Z
+
+> [x0,φ 1(x0)]
+
+τ (z) · τ (x0)ds 
+
+and by (4.5) we arrive at a contradiction. Thus, there is z ∈ [x0, y 0] such that 
+
+τ (z) · τ (x0) < 0. By continuity, there is r > 0 such that τ (z) · τ (x) < 0 for all x ∈ [x0 − r, x 0 + r]. We conclude y0 ∈ [z, x ] ⊂ [φ1(x), x ] for all x ∈ [x0 −
+
+r, x 0 + r]. Similarly, we see y0 ∈ [x, φ 2(x)] and hence y0 ∈ [φ1(x), φ 2(x)] for all 
+
+x ∈ [x0 − r, x 0 + r] for sufficiently small r > 0. As before, taking the derivative yields τ (x0) · (γ(y0) − γ(x0)) = 0. Lastly, assume that the line segment from γ(x0) to γ(y0) intersects γ at a point 
+
+γ(z0). We make the following case distinction: 
+
+Case 1: τ (z0) · τ (x0) ≤ 0Then z0 ∈ [φ1(x0), φ 2(x0)], which is a contradiction to ( x0, y 0) being a minimizer of |γ(x) − γ(y)| on the set {(x, y ) ∈ S1 × S1 | y ∈ [φ1(x), φ 2(x)] }.
+
+Case 2.1: τ (z0) · τ (x0) > 0 and τ (y0) = −τ (x0)It follows that τ (z0)·τ (y0) < 0, which again leads to case 1, since z0 ∈ [φ1(y0), φ 2(y0)]. 
+
+Case 2.2: τ (z0) · τ (x0) > 0 and τ (y0) = τ (x0)If z0 ∈ [x0, y 0], assume that γ(z0) is the geometrically closest (in the Euclidean distance) intersection to γ(x0) of γ with the straight line connecting γ(x0) and 
+
+γ(y0). We are in one of the two situations illustrated in Figure 6. By the Jordan EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 29 
+
+curve theorem, the curve ˜ γ consisting of γ|[x0,z 0] and the straight line segment from 
+
+γ(z0) to γ(x0) separates the plane in two open connected components A, B . There is ε > 0 such that for all 0 < δ ≤ ε it holds γ(x0 − δ) ∈ A and γ(z0 + δ) ∈ B.Hence, the segment γ|[z0+ε,x 0−ε] has to intersect with ˜ γ, which can only happen at the straight line from γ(z0) to γ(x0). However, then there is another intersection of 
+
+γ with the straight line from γ(y0) to γ(x0), which is geometrically closer to γ(x0)than γ(z0), a contradiction. If z0 ∈ [y0, x 0], we can swap the roles of x0 and y0 in the argument before. Using the same argument as for case 2.2, one can show that the tangents have to be opposed to one another, i.e. τ (x0) = −τ (y0). □
+
+b
+
+γ(x)
+
+γ(y)
+
+S
+
+β
+
+Figure 5. Relation between β := θ(y) − θ(x) and b.
+
+γ(x0)
+
+γ(y0)
+
+γ(z0)
+
+A B
+
+γ(x0)
+
+γ(y0)
+
+γ(z0)
+
+A
+
+B
+
+Figure 6. Case 2.2: A straight line connecting γ(x0) and γ(y0)intersects γ at γ(z0). 
+
+Lemma 4.9. Suppose γ ∈ C∞(S1, R2) is simple and immersed with A(γ) = a,
+
+E(γ) < 2E(γ∗
+
+> a
+> 2
+
+). Moreover, suppose there are x0, y 0 ∈ S1 with 
+
+(γ(x0) − γ(y0)) · τ (x0) = 0 ,τ (x0) = −τ (y0),
+
+the straight line segment connecting γ(x0), γ (y0) does not intersect γ and |γ(y0) −
+
+γ(x0)| ≤ δ for some δ > 0. Then, for every l > 0 there is a curve ˜γ ∈ W 2,2(S1, R2)
+
+with a self-intersection (x, y ) such that 
+
+˜γ(x) = ˜ γ(y),
+
+˜τ (x) = −˜τ (y),EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 30 
+
+which separates ˜γ in two drops γ1 = ˜ γ|[x,y ], γ 2 = ˜ γ|[y,x ]. Furthermore, it holds 
+
+L(˜ γ) ≥ L (γ),
+
+A(˜ γ) ≤ A (γ) + lδ, 
+
+E(˜ γ) ≤ E (γ) + 512 pl2 + 4 δ2 δ2
+
+l4 .
+
+Proof. The idea is to add arcs at γ(x0) and γ(y0) such that the resulting curve has a self-intersection. To ensure that the resulting curve can actually be separated in two drops, we have to show θ(x0) = θ(y0) + π if 0 /∈ [y0, x 0] or θ(x0) = θ(y0) − π
+
+if 0 ∈ [y0, x 0]. Without loss of generality assume 0 /∈ [y0, x 0]. Suppose θ(x0) ≥
+
+θ(y0) + 3 π. However, then 0 ∈ [x0, y 0] and θ(y0) ≤ θ(x0) − 3π. By Lemma 4.2 and Lemma 4.3 we arrive at a contradiction to E(γ) < 2E(γ∗
+
+> a
+> 2
+
+). If θ(x0) ≤ θ(y0) − π, we again have a contradiction with Lemma 4.2 and Lemma 4.3. Without loss of generality we may assume equality |γ(y0) − γ(x0)| = δ. Consider a bump function ψ ∈ C∞(R, [0 , ∞)) with supp ψ ⊂ (0 , l ), ψ
+
+ l
+
+2
+
+
+
+= δ
+
+2 ,
+
+|ψ′(x)| ≤ 2δl , |ψ′′ (x)| ≤ 16 δl2 .
+
+Define ˜ψ : [0 , l ] → R2, ˜ψ(x) := ( x, ψ (x)). It holds ˜ψ′(x) = 
+
+ 1
+
+ψ′(x)
+
+
+
+,
+
+| ˜ψ′(x)| = p1 + ψ′(x)2,∂s ˜ψ(x) = 1
+
+p1 + ψ′(x)2
+
+ 1
+
+ψ′(x)
+
+
+
+.
+
+We compute 
+
+∂2 
+
+> s
+
+˜ψ(x) = 1
+
+p1 + ψ′(x)2 − ψ′(x)ψ′′ (x)(1 + ψ′(x)2) 32
+
+ 1
+
+ψ′(x)
+
+
+
++ 1
+
+p1 + ψ′(x)2
+
+ 0
+
+ψ′′ (x)
+
+ !
+
+= ψ′′ (x)(1 + ψ′(x)2)2
+
+−ψ′(x)1
+
+
+
+,
+
+|κ ˜ψ | = |∂2 
+
+> s
+
+˜ψ(x)| ≤ | ψ′′ (x)| ≤ 16 δl2 .
+
+The tangents at x0, y 0 are parallel and we may assume τ (x0) = (1 , 0). So we can cut the curve γ at γ(x0) and γ(y0) and insert the arc ˜ψ at γ(x0) respectively γ(y0)to retrieve a curve ˜ γ as illustrated in Figure 7. The resulting curve ˜ γ is C1 and except for x0, y 0 it is C∞. In particular, it is in W 2,2(S1, R2). Moreover, it has a self-intersection with the desired properties by construction. The bound on the absolute value of the curvature of ˜ψ directly yields the energy bound for ˜ γ, if we account for the additional length R l 
+
+> 0
+
+| ˜ψ′(x)|dx ≤ l
+
+q
+
+1 + 4 δ2 
+
+> l2
+
+. Also, the added area is contained in a rectangle with length l and width δ. □EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 31 
+
+γ(x0)
+
+γ(y0)
+
+γ
+
+γ(x0)γ(x0)
+
+γ(y0)γ(y0)
+
+˜γδ
+
+l
+
+Figure 7. We add a smooth segment at x0 and y0 such that the resulting curve ˜ γ has a self-intersection. 
+
+Theorem 4.10. Let γ0 ∈ C∞(S1, R2) be simple and immersed with A(γ0) = a
+
+and E(γ0) < 2E(γ∗
+
+> a
+> 2
+
+). Then, the global smooth and simple solution γ to (1.1) has bounded length L(γ) ≤ c(γ0).Proof. Suppose that there is a sequence of times tn → ∞ such that L(γtn ) → ∞ .Define the energy gap ∆ := 2 E(γ∗
+
+> a
+> 2
+
+) − E (γ0). From Lemma 3.13 we have ∥κ∥L∞ ≤
+
+c(γ0). Choose δ > 0 such that it holds 
+
+δ < 1
+
+c(γ0) ,
+
+512 p1 + 4 δ2δ2 ≤ ∆4 ,
+
+2
+
+r aa + δ E(γ∗ 
+
+> a
+> 2
+
+) > 2E(γ∗ 
+
+> a
+> 2
+
+) − ∆4 .
+
+By assumption there exists n ∈ N such that 3 A(γtn )  
+
+> L(γtn )
+
+= 3 a  
+
+> L(γtn )
+
+≤ δ 
+
+> 2
+
+. Hence, we can apply Lemma 4.7 to γtn and δ 
+
+> 2
+
+. Then, we apply Lemma 4.8. This yields the necessary conditions for Lemma 4.9 with δ. So apply Lemma 4.9 with l = 1 to find ˜γδ ∈ W 2,2(S1, R2) with 
+
+A(˜ γδ ) ≤ A (γtn ) + δ, 
+
+E(˜ γδ ) ≤ E (γtn ) + 512 p1 + 4 δ2δ2 ≤ E (γtn ) + ∆4 .
+
+(4.6) We know that ˜ γ has a self-intersection, which separates two drops γ1, γ 2 of ˜ γδ with area a1 := A(γ1), a 2 := A(γ2). By (4.6) we obtain aδ := a1 + a2 ≤ a + δ. Lemma 4.3 yields 
+
+E(γtn ) ≥ E (˜ γδ ) − ∆4 = E(γ1) + E(γ2) − ∆4
+
+≥ 2E(γ∗
+
+> aδ
+> 2
+
+) − ∆4 = 2 
+
+r aaδ
+
+E(γ∗ 
+
+> a
+> 2
+
+) − ∆4
+
+≥ 2
+
+r aa + δ E(γ∗ 
+
+> a
+> 2
+
+) − ∆4 > 2E(γ∗ 
+
+> a
+> 2
+
+) − ∆2
+
+> E(γ0).
+
+This is a contradiction because the energy is non increasing along the flow. □
+
+Now, we will use a compactness argument to obtain subconvergence of γ and the energy identity to show that the limit is an area-constrained elastica. 
+
+Theorem 4.11. Let γ0 ∈ C∞(S1, R2) be simple and immersed with A(γ0) = a
+
+and E(γ0) < 2E(γ∗
+
+> a
+> 2
+
+). The global smooth and simple solution γ to (1.1) for initial EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 32 
+
+data γ0 subconverges up to translation and reparametrization to an area-constrained elastica γ∞.Proof. Define u(t) := ∥∂tγ∥2
+
+> L2(ds )
+
+. The energy identity (1.3) shows (4.7) u(t) = −∂tE(γ).
+
+Hence, for 0 ≤ T < ∞ it holds R T 
+
+> 0
+
+u(t)dt = E(γ0) − E (γT ) and 0 ≤ E (γT ) ≤ E (γ0), since the energy is non-increasing along the flow. We deduce u ∈ L1((0 , ∞)) by taking the limit. Consequently, there is a subsequence ti → ∞ with u(ti) → 0. From Theorem 4.10, we obtain a length bound L(γ) ≤ c(γ0). By translating γ(ti)for each i ∈ N to a new curve ˜ γi, e.g. such that ˜ γi(0) = 0, we arrive at ∥˜γi∥L∞ ≤
+
+c(γ0). Moreover, we reparametrize ˜ γi to a constant speed curve. Proposition 3.10 demonstrates (4.8) c(γ0) ≤ | ∂x ˜γi| = L(γ)2π ≤ c(γ0).
+
+Lemma 3.13 and (3.10) yield bounds ∥∂ms ˜γi∥L∞ = ∥∂ms γ(ti)∥L∞ ≤ cm(γ0) for 
+
+m ≥ 2. Thus, Equation (4.8) implies ∥∂mx ˜γi∥L∞ ≤ cm(γ0). Therefore, we have uniform bounds on all derivatives of ˜ γi. Compactness, which is obtained by Arzel` a– Ascoli, and taking a subsequence proves that ˜ γi converges smoothly to an immersed curve γ∞. Observe (4.9) u(ti) = 
+
+Z
+
+> S1
+
+(−2∂2 
+
+> s
+
+˜κi − ˜κ3 
+
+> i
+
+− λ(˜ γi)) 2ds ˜γi
+
+as the curvature and λ are invariant under reparametrizations. Since u(ti) → 0, we have that 2 ∂2 
+
+> s
+
+˜κi + ˜ κ3 
+
+> i
+
++ λ(˜ γi) → 0 in L2(ds ) as i → ∞ . Recall (1.2) and note that 
+
+λ is continuous with respect to the C∞(S1, R2)-topology. By smooth convergence, we conclude that γ∞ is an area-constrained elastica. □
+
+4.3. Lojasiewicz–Simon inequality. In order to prove convergence of gradient flows from subconvergence, we will apply a Lojasiewicz–Simon inequality. In the derivation of said inequality we need to analyze analyticity of the functionals E and 
+
+A.For Banach spaces X, Y and an open set D ⊂ X, a map f : D → Y is analytic in x0 ∈ D, if in a neighborhood of x0 it holds 
+
+> ∞
+
+X
+
+> k=0
+
+∥ak∥∥ x − x0∥k converges and f (x) = 
+
+> ∞
+
+X
+
+> k=0
+
+ak(x − x0)k.
+
+Each ak is a k-linear, symmetric and continuous map ak : Xk → Y and by ak(x −
+
+x0)k we mean ak(x − x0, . . . , x − x0
+
+| {z } 
+
+> kentries
+
+). By ∥ak∥ we denote the multilinear operator norm. For a more detailed discussion on analyticity, we refer to [5, Section 3.1]. First of all, we determine the suitable spaces and functionals. The following definitions and arguments are very similar to the ones in [23, Article B, Section 4]. 
+
+Definition 4.12. Define 
+
+W 4,2Imm (S1, R2) = {γ ∈ W 4,2(S1, R2) | ∂xγ(x)̸ = 0 ∀x ∈ S1}.
+
+We will use this subindex for other Sobolev spaces as well. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 33 
+
+By the Sobolev embedding theorem, the following inclusion holds 
+
+W 4,2(S1, R2) ,→ C3(S1, R2).
+
+Therefore, it makes sense to evaluate the derivatives γ ∈ W 4,2(S1, R2) pointwise and for i ∈ { 0, 1, 2, 3} we have ∂ixγ(0) = ∂ixγ(2 π). 
+
+Definition 4.13. Fix ¯ γ ∈ W 5,2Imm (S1, R2). We define 
+
+V = W 4,2(S1, R2).
+
+Then define the space of vector fields normal to ¯ γV ⊥ = {γ ∈ W 4,2(S1, R2) | ∀ x ∈ S1 γ(x) · ∂x ¯γ(x) = 0 }
+
+and 
+
+H⊥ = L2,⊥(S1, R2) = {u ∈ L2(S1, R2) | u · ∂x ¯γ = 0 a.e. }.
+
+Both of these spaces are Hilbert spaces with ⟨., . ⟩W 4,2 , ⟨., . ⟩L2 respectively. Lastly, for ε > 0 define 
+
+Uε = {u ∈ V ⊥ | ∥ u∥W 4,2 < ε }.
+
+The L2-orthogonal projection on H⊥ is given by 
+
+P ⊥(γ) = γ − (γ · ∂s ¯γ)∂s ¯γ. 
+
+Using the Sobolev embedding theorem again, we have for u ∈ Uε that ∥∂xu∥∞ < cε 
+
+for some constant c > 0 independent of u. So, for ε sufficiently small, ¯ γ + u is still immersed. 
+
+Definition 4.14. Fix ¯ γ ∈ W 5,2Imm (S1, R2) and define 
+
+Aε : Uε → R, u 7 → A (¯ γ + u),Eε : Uε → [0 , ∞), u 7 → E (¯ γ + u).
+
+Proposition 4.15 ([5, Proof of Theorem 3.1, Remark 3.3, Corollary 3.13]) . The energy Eε satisfies for ¯γ ∈ W 5,2
+
+> Imm
+
+(S1, R2)
+
+(1) Eε : Uε → [0 , ∞) is analytic, (2) The gradient ∇L2 Eε : Uε → H⊥ is analytic, (3) The Fr´ echet derivative (∇L2 Eε)′(0) : V ⊥ → H⊥ is Fredholm with index zero. 
+
+Proposition 4.16. The area functional satisfies the following properties for ¯γ ∈
+
+W 5,2
+
+> Imm
+
+(S1, R2)
+
+(1) Aε : Uε → R is analytic, (2) The gradient ∇L2 Aε : Uε → H⊥ is analytic, (3) The Fr´ echet derivative (∇L2 Aε)′(0) : V ⊥ → H⊥ is compact, (4) Aε(0) = A(¯ γ) and ∇L2 Aε(0) ̸ = 0 .Proof. (1) The functional Aε is given by 
+
+Aε(u) = A(¯ γ + u) = 
+
+Z
+
+> S1
+
+(¯ γ1 + u1)∂x(¯ γ2 + u2)dx, 
+
+where ¯ γ = (¯ γ1, ¯γ2) and u = ( u1, u 2). The projection on coordinates is linear and continuous, thus analytic. Similarly, the derivative ∂x is analytic. As the multiplication is analytic as well, and so is the integral, analyticity of 
+
+A follows. Aε is just the concatenation of an affine function and A and therefore also analytic. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 34 
+
+(2) The H⊥-gradient is given by ∇L2 Aε(u) = P ⊥(−ν¯γ+u|∂x(¯ γ + u)|). The map 
+
+u 7 → | ∂x(¯ γ + u)| is analytic by [5, Lemma 3.4, 1.]. Also from [5, Lemma 3.4, 2.] it follows that τ¯γ+u = ∂s(¯ γ + u) is analytic in u. The normal field 
+
+ν¯γ+u is just a rotation of τ¯γ+u, which is a linear bounded map and hence analytic. By the same argument, the projection is analytic as well. (3) We compute with Lemma 3.1 (∇L2 Aε)′(0) u = ∂h|h=0 ∇L2 Aε(hu ) = ∂h|h=0 P ⊥(−ν¯γ+hu |∂x(¯ γ + hu )|)= −P ⊥(∂h|h=0 ν¯γ+hu |∂x ¯γ|) − P ⊥(ν¯γ ∂h|h=0 |∂x ¯γ + h∂ xu|)= −∂su · τ¯γ |∂x ¯γ|ν¯γ .
+
+The Sobolev embedding gives ¯ γ ∈ C4(S1, R2). Therefore, we can bound the 
+
+W 3,2-norm of the term −∂su · τ¯γ |∂x ¯γ|ν¯γ by a constant depending on ¯ γ and the W 4,2-norm of u. Hence, by Rellich-Kondrachov u 7 → − ∂su · τ¯γ |∂x ¯γ|ν¯γ
+
+is compact as a map to L2(S1, R2). (4) By definition, we have Aε(0) = A(¯ γ) and ∇L2 Aε(0) = −ν¯γ |∂x ¯γ|̸ = 0, since ¯γ is immersed. 
+
+□
+
+The main result we want to use is the following corollary. The symbol Cω denotes the space of analytic functions between Banach spaces. 
+
+Corollary 4.17 ([22, Corollary 5.2]) . Let V be a Hilbert space, U ⊂ V be an open set, m ∈ N and let E ∈ Cω (U, R), G ∈ Cω (U, Rm). Let ¯u ∈ U and suppose (1) there exists a Hilbert space (H, ⟨· , ·⟩ ) with V , → H densely, (2) E possesses an H-gradient ∇E (u) at each u ∈ U and the map u 7 → ∇E (u) : 
+
+U → H is analytic, (3) the second derivative E′′ (¯ u) = ( ∇E )′(¯ u) : V → H is Fredholm of index zero, (4) for any u ∈ U , the components Gk : U → R of G possess H-gradients ∇G k
+
+such that U ∋ u 7 → ∇G k(u) ∈ H is analytic for all k = 1 , . . . , m ,(5) the Fr´ echet derivatives (∇G k)′(¯ u) : V → H are compact for all k =1, . . . , m ,(6) G(¯ u) = 0 and the H-gradients ∇G 1(¯ u), . . . , ∇G m(¯ u) are linearly independ-ent. Then, M := {u ∈ U | G (u) = 0 } is locally an analytic submanifold of V of codimension m near ¯u.If ¯u is a critical point of E| M, then the restriction satisfies a refined Lojasiewicz– Simon gradient inequality at ¯u, i.e. there exist C, σ > 0 and θ ∈ (0 , 12 ] such that for any u ∈ M with ∥u − ¯u∥V ≤ σ, we have 
+
+|E (u) − E (¯ u)|1−θ ≤ C∥P (u)∇E (u)∥H ,
+
+where P (u) : H → H is the orthogonal projection onto TuM := TuM∥·∥ H
+
+, which denotes the closure of the tangent space at u with respect to the H-norm. 
+
+First, we will only consider normal variations. To generalize the result to arbit-rary variations, we use the following reparametrization argument. 
+
+Lemma 4.18 ([21, Lemma 3.26]) . Let ¯γ ∈ C∞(S1, R2) be an immersed curve. There is ρ = ρ(¯ γ) > 0 such that for any 0 < σ < ρ there exists ˜σ = ˜ σ(σ, ¯γ) > 0EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 35 
+
+with the property that for any ψ ∈ W 4,2(S1, R2) with ∥ψ∥W 4,2 ≤ ˜σ, there exists a 
+
+W 4,2-diffeomorphism Φ : S1 → S1 such that 
+
+(4.10) (¯ γ + ψ) ◦ Φ = ¯ γ + ϕ
+
+for some ϕ ∈ V ⊥ with ∥ϕ∥W 4,2 ≤ σ.
+
+As we shall see, we will show convergence of reparametrized versions of the gradient flows. Hence, we need the following relations between the original curve and its reparametrized version. 
+
+Definition 4.19 ([24, Definition 4.9]) . Let T ∈ (0 , ∞] and let γ : [0 , T ) × S1 → R2
+
+be a family of immersed curves. The reparametrization ˜ γ(t) of γ(t) with constant speed L(γ(t)) 2π is given by ˜γ(t, x ) := γ (t, ψ (t, x )) where ψ(t, ·) : S1 → S1 is the inverse of ϕ(t, ·) : S1 → S1 given by 
+
+ϕ(t, x ) := 2π
+
+L(γ(t)) 
+
+Z x
+
+> 0
+
+|∂xγ(t, z )|dz = 2π
+
+L(γ(t)) 
+
+Z x
+
+> 0
+
+ds γ(t).
+
+The inverse exists since γ is immersed. 
+
+Lemma 4.20 ([24, Lemma 4.10]) . Suppose T ∈ (0 , ∞] and γ : [0 , T ) × S1 → R2 is a family of immersed curves in R2 and L(γ(t)) > 0 for all t ∈ [0 , T ). Then, if ˜γ(t)
+
+is the constant speed L(γ(t)) 2π reparametrization of γ(t), for all t ∈ [0 , T ) we have 
+
+∥∂t ˜γ(t)∥L2(dx ) ≤
+
+s
+
+2π
+
+ 2
+
+L(γ(t)) + 16 E(γ(t)) 
+
+
+
+∥∂tγ∥L2(ds γ(t)).
+
+In particular, if the length is uniformly bounded in time from below, i.e. L(γ) ≥
+
+c1 > 0, and the energy from above, i.e. E(γ) ≤ c2, we have 
+
+∥∂t ˜γ(t)∥L2(dx ) ≤ C∥∂tγ∥L2(ds γ ),
+
+for all t ∈ (0 , T ), where C =
+
+q
+
+2π( 2 
+
+> c1
+
++ 16 c2).
+
+As we work in the space of curves with fixed area, consider the following defini-tion. 
+
+Definition 4.21. Fix a ∈ R and define 
+
+X = {γ ∈ W 4,2Imm (S1, R2) | A (γ) = a}.
+
+From the Sobolev embedding theorem it follows that we can embed X ,→
+
+C3(S1, R2). 
+
+Theorem 4.22. Let ¯γ ∈ X ∩ W 5,2(S1, R2) be an area-constrained elastica. Then, there exist C, σ > 0 and θ ∈ (0 , 12 ] such that for all γ = ¯ γ + u ∈ X with u ∈ V ⊥ and 
+
+∥u∥W 4,2 ≤ σ we have 
+
+|E (γ) − E (¯ γ)|1−θ ≤ C∥ − ∇E (γ) + λ(γ)∇A (γ)∥L2(ds γ ).
+
+Proof. We need to verify the conditions of Corollary 4.17 for the energy E = Eε
+
+and the constraint G(u) = A(¯ γ + u) − a on the spaces V = V ⊥, H = H⊥.(1) We have V ⊥ ,→ H⊥ densely. (2) By Proposition 4.15. (3) By Proposition 4.15. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 36 
+
+(4) Follows from Proposition 4.16. (5) Also follows from Proposition 4.16. (6) The gradient is P ⊥(∇L2(dx )A(¯ γ)) = P ⊥(−ν¯γ |∂x ¯γ|) = −ν¯γ |∂x ¯γ|. This does not vanish. Since we assumed that ¯ γ is an area-constrained elastica, we know that 0 is a critical point of Eε on M = G−1({0}). Then, by Corollary 4.17 there exist C, σ > 0 and 
+
+θ ∈ (0 , 12 ] such that for any u ∈ M with ∥u∥W 4,2 ≤ σ we have 
+
+|Eε(u) − Eε(0) |1−θ ≤ C∥P (u)∇L2 Eε(u)∥L2(dx ),
+
+where P (u) : H⊥ → H⊥ denotes the orthogonal projection on TuM = {y ∈ H⊥ |⟨∇ L2(dx )Aε(u), y ⟩L2(dx ) = 0 }. Thus, for λ = λ(γ) from (1.2) with γ = ¯ γ + u we have 
+
+∥P (u)∇L2(dx )Eε(u)∥L2(dx )
+
+= ∥P (u)( −∇ L2(dx )Eε(u) + λ∇L2(dx )Aε(u)) ∥L2(dx )
+
+≤ ∥ − ∇ L2(dx )Eε(u) + λ∇L2(dx )Aε(u)∥L2(dx )
+
+= ∥ − ∇ L2(ds γ )Eε(u)|∂xγ| + λ∇L2(ds γ )Aε(u)|∂xγ|∥ L2(dx )
+
+≤ ∥ ∂xγ∥ 12 
+
+> L∞
+
+∥ − ∇ L2(ds γ )Eε(u) + λ∇L2(ds γ )Aε(u)∥L2(ds γ ).
+
+By the Sobolev embedding we may assume ∥∂xγ∥L∞ is bounded independent of 
+
+u. □
+
+Using Lemma 4.18, we demonstrate that a Lojasiewicz–Simon inequality also holds for nonnormal deviations which are sufficiently small. 
+
+Theorem 4.23. Let ¯γ ∈ X ∩ C∞(S1, R2) be an area-constrained elastica. Then, there exist C, ˜σ > 0 and θ ∈ (0 , 12 ] such that 
+
+|E (γ) − E (¯ γ)|1−θ ≤ C∥ − ∇E (γ) + λ∇A (γ)∥L2(ds γ )
+
+for γ ∈ X with ∥γ − ¯γ∥W 4,2 ≤ ˜σ.Proof. Let C, σ > 0, θ ∈ (0 , 12 ] be as in Theorem 4.22. Since ¯ γ ∈ C∞(S1, R2), we can use Lemma 4.18. This gives us ˜ σ > 0 such that for all γ ∈ X ⊂ W 4,2(S1, R2)with ∥γ − ¯γ∥W 4,2 ≤ ˜σ there exist a reparametrization Φ and a normal vector field 
+
+ϕ ∈ V ⊥ such that 
+
+γ ◦ Φ = ¯ γ + ϕ
+
+and with ∥ϕ∥W 4,2 ≤ σ. Since the area A is invariant under orientation-preserving diffeomorphisms, we have A(¯ γ + ϕ) = A(γ ◦ Φ) = A(γ) = a and thus ¯ γ + ϕ ∈ X .By observing that the elastic energy is invariant under reparametrization and using Theorem 4.22, we have 
+
+|E (γ) − E (¯ γ)|1−θ = |E (¯ γ + ϕ) − E (¯ γ)|1−θ
+
+≤ C∥−∇E (¯ γ + ϕ) + λ(¯ γ + ϕ)∇A (¯ γ + ϕ)∥L2(ds ¯γ+ϕ).
+
+Observe that the Lagrange multiplier from (1.2), the gradients as well as the L2(ds )-norm are geometric, i.e. are invariant under reparametrization. We obtain 
+
+|E (γ) − E (¯ γ)|1−θ ≤ C∥−∇E (γ) + λ(γ)∇A (γ)∥L2(ds γ ).
+
+□
+
+This yields the result below since γ∞ is smooth and an area-constrained elastica. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 37 
+
+Corollary 4.24. Let γ0 ∈ C∞(S1, R2) be simple with A(γ0) = a and E(γ0) <
+
+2E(γ∗
+
+> a
+> 2
+
+). For the reparametrized and translated version ˜γ of the global smooth and simple solution γ to (1.1) for initial data γ0 from Theorem 4.11 there exist θ ∈ (0 , 12 ],
+
+C, ˜σ > 0 such that 
+
+|E (˜ γ) − E (γ∞)|1−θ ≤ C∥∂tγ∥L2(ds γ )
+
+holds for all t such that ∥˜γt − γ∞∥W 4,2 ≤ ˜σ, where γ∞ is the limit from The-orem 4.11. 
+
+4.4. Full convergence. Corollary 4.24 is essentially enough to prove convergence of ˜ γ. However, in the proof of Theorem 1.2, we need to bound the full derivative 
+
+∥∂t ˜γ∥L2(dx ) by its normal component ∥∂tγ∥L2(ds ), for which we use Lemma 4.20. 
+
+Proof of Theorem 1.2. Let x0 = 0 ∈ S1 and for each t ≥ 0, let ˜ γt be the constant speed parametrization of γ(t, ·) − γ(t, x 0). Let ti → ∞ be the times such that ˜γti → γ∞ as i → ∞ in the C∞-topology, where γ∞ is the area-constrained elastica from Theorem 4.11. Define the function H(t) = ( E(˜ γt) − E (γ∞)) θ with θ as in Corollary 4.24. Notice 
+
+H is decreasing. So if H(t) = 0 for some t0 ∈ [0 , ∞) it stays zero for all time t ≥ t0. Therefore, by the energy identity we have for t ≥ t0
+
+0 = ∂tE(˜ γt) = ∂tE(γt) = −∥ ∂tγt∥2 
+
+> L2(ds γt)
+
+.
+
+It follows from subconvergence that ˜ γt = γ∞ for t ≥ t0.From now on assume H(t) > 0 for all t ∈ [0 , ∞). Since H is decreasing and 
+
+H(ti) → 0 as i → ∞ , we have H(t) → 0 as t → ∞ . Compute for all t such that 
+
+∥˜γt − γ∞∥W 4,2(dx ) ≤ δ for δ ≤ ˜σ with ˜ σ as in Corollary 4.24 
+
+−C∂ tH(t) = −Cθ (H(t)) θ−1 
+
+> θ
+
+∂tE(˜ γt)= Cθ (H(t)) θ−1 
+
+> θ
+
+∥∂tγ∥2 
+
+> L2(ds γ)
+
+≥ Cθ (H(t)) θ−1 
+
+> θ
+
+∥∂tγ∥L2(ds γ )(H(t)) 1−θθ
+
+= Cθ ∥∂tγ∥L2(ds γ )
+
+≥ θ∥∂t ˜γt∥L2(dx ),
+
+(4.11) where in the above chain of inequalities, the constant C > 0 absorbs the constants from the Lojasiewicz–Simon inequality (Corollary 4.24) and the reparametrization bound (Lemma 4.20), and may change its value from line to line. Our goal is to show that ∥˜γt −γ∞∥W 4,2 ≤ ˜σ for all t ∈ [t0, ∞) for some t0 ∈ [0 , ∞). Define si := sup {s ≥ ti | ∀ t ∈ [ti, s ] ∥˜γt − γ∞∥W 4,2 ≤ ˜σ}. Then, (4.11) holds for 
+
+t ∈ [ti, s i), and if i is sufficiently large, the set [ ti, s i) is nonempty. From Minkowski’s inequality and (4.11) it follows (4.12) ∥˜γt − ˜γti ∥L2(dx ) ≤
+
+Z tti
+
+∥∂t ˜γr ∥L2(dx )dr ≤ C(H(ti) − H(t)) → 0as i → ∞ . Assume that all si are finite. By continuity, we get (4.12) also for t = si.From a similar argument as in the subconvergence result Theorem 4.11, we obtain ˜γsi → ψ in C∞ up to a subsequence. Due to continuity and the definition of si we have ∥ψ − γ∞∥W 4,2 = ˜ σ. However, (4.12) yields 
+
+∥ψ − γ∞∥L2(dx ) = lim  
+
+> i→∞
+
+∥˜γsi − ˜γti ∥L2(dx ) = 0 .EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 38 
+
+Thus, ψ = γ∞ in L2 and as they are both smooth we have ψ = γ∞ in W 4,2, a contradiction. So there is i ∈ N such that si = ∞. Hence, for all t ≥ ti it holds 
+
+∥˜γt − γ∞∥W 4,2 ≤ ˜σ.As before in (4.12) we deduce 
+
+∥˜γt − ˜γ˜t∥L2(dx ) ≤
+
+Z t
+
+> ˜t
+
+∥∂t ˜γr ∥L2(dx )dr ≤ C(H(˜ t) − H(t)) → 0as t, ˜t → ∞ . So every subsequence ˜ γti with ti → ∞ of (˜ γ(t, ·)) t∈[0 ,∞) is a Cauchy sequence in L2(S1, R2) and converges to γ∞. Then it already has to converge to 
+
+γ∞ in C∞ by the compactness argument from the proof of Theorem 4.11. □
+
+5. Energy profile curve 
+
+In order to find a length bound for the area-constrained elastic flow, one can also analyze the function that maps a given length to the minimal energy of a curve with said length and fixed area. Here, we fix the area to π. In this section, we will only consider curves with winding number nγ = 1. 5.1. Continuity. Proposition 5.1. The function E : W 2,2
+
+> Imm
+
+(S1, R2) → [0 , ∞) is weakly lower semi-continuous. Proof. Let ( γn)n∈N ⊂ W 2,2Imm (S1, R2) be a sequence such that γn ⇀ γ weakly for some γ ∈ W 2,2Imm (S1, R2). Without loss of generality, we may pass to a subsequence, which will be still denoted by γn, such that lim n→∞ E(γn) = lim inf n→∞ E(γn). We know from the Sobolev embedding that W 2,2Imm (S1, R2) continuously embeds in 
+
+C1, 12 (S1, R2). The weak convergence implies that ( γn) is bounded in C1, 12 (S1, R2). By Arzel` a–Ascoli, after passing to a subsequence, γn → γ in C1(S1, R2). Hence, 
+
+|∂xγn| ≥ c > 0 uniformly, because the limit γ is an immersion. Moreover, the weak convergence in W 2,2(S1, R2) implies ∂2
+
+> x
+
+γn weakly converges to ∂2
+
+> x
+
+γ in L2(S1, R2). Let us write the energy in a more general formulation with Proposition 2.1 
+
+E(w) = I(∂xw, ∂ 2
+
+> x
+
+w) = 
+
+Z
+
+> S1
+
+f (∂xw, ∂ 2
+
+> x
+
+w)dx 
+
+for f (u, v ) = v 
+
+> |u|2
+
+− (v·u) 
+
+> |u|4
+
+u 2|u| and I(g, h ) = R 
+
+> S1
+
+f (g, h )dx . If we can show lower semicontinuity with respect to L∞(S1, R2) × L2(S1, R2) where L∞ is equipped with the standard topology and L2 with the weak topology, we are done. For this, we want to apply [12, Theorem 1]. First of all, f is continuous away from (0 , v ), which is sufficient for us, since our sequence γn has a first derivative bounded away from zero. Moreover, for fixed u the map v 7 → v 
+
+> |u|2
+
+− (v·u) 
+
+> |u|4
+
+u is linear. Consequently, 
+
+v 7 → v 
+
+> |u|2
+
+− (v·u) 
+
+> |u|4
+
+u 2|u| is convex. Because f ≥ 0, it trivially satisfies the lower compactness property. We are left with verifying the following conditions: 
+
+(H1): Let gk → 0 in L∞(S1, R2) and hk ⇀ 0 weakly in L2(S1, R2). Moreover, let 
+
+Tk ⊂ S1 such that R 
+
+> Tk
+
+dx → 0. It trivially holds 1Tk gk → 0 in L∞(S1, R2). For ϕ ∈ (L2(S1, R2)) ∗ = L2(S1, R2) it holds 
+
+Z
+
+> S1
+
+ϕ · (1Tk hk)dx 
+
+!2
+
+≤
+
+Z
+
+> Tk
+
+|ϕ|2dx 
+
+Z
+
+> S1
+
+|hk|2dx → 0EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 39 
+
+by dominated convergence and the fact that weakly converging sequences are bounded. 
+
+(H2): The topology of L∞(S1, R2) is not weaker than the topology of convergence in measure. Since (L1(S1, R2)) ∗ = L∞(S1, R2) ⊂ L2(S1, R2) = ( L2(S1, R2)) ∗,
+
+the weak topology of L2(S1, R2) is not weaker than the weak topology of 
+
+L1(S1, R2). [12, Theorem 1] yields lim inf  
+
+> n→∞
+
+I(∂xγn, ∂ 2
+
+> x
+
+γn) ≥ I(∂xγ, ∂ 2
+
+> x
+
+γ).
+
+□
+
+Remark 5.2 . This proposition shows that the infimum in (1.4) is actually a min-imum. Indeed, choose a minimizing sequence γn ∈ W 2,2Imm (S1, R2) with A(γn) = 
+
+π and L(γn) = ℓ. Without loss of generality we may assume that |∂xγn| = 
+
+> ℓ
+> 2π
+
+. Moreover, since length, area, and energy are translation invariant, fixing 
+
+γn(0) = 0 by translating the curves ensures ∥γn∥L∞ is uniformly bounded. It holds ∥∂2
+
+> x
+
+γn∥2 
+
+> L2(dx )
+
+= ℓ 
+
+> 2π
+
+E(γn). Thus, γn is bounded in W 2,2Imm (S1, R2) and con-sequently γn ⇀ γ weakly up to a subsequence for some γ ∈ W 2,2Imm (S1, R2). As in the proof of Proposition 5.1, we have γn → γ in C1(S1, R2) by potentially reducing to a further subsequence. As the length and area are continuous with respect to the C1-topology, we conclude that L(γ) = ℓ and A(γ) = π. By the same reason, we have |∂xγ| = ℓ 
+
+> 2π
+
+> 0. Proposition 5.1 yields the claim. 
+
+Theorem 5.3. For given length ℓ and area a, the constant speed minimizer γ of 
+
+E : W 2,2
+
+> Imm
+
+(S1, R2) → [0 , ∞) subject to fixed area a and length ℓ is in C∞(S1, R2).Proof. In this proof we will use ∂s instead of ∂x for convenience, which is justified because they only differ by a multiplicative constant. Since γ is a minimizer, it formally satisfies the Euler-Lagrange equation 0 = 2 ∂2 
+
+> s
+
+κ + κ3 + λ1 + λ2κ
+
+with respect to ds for some λ1, λ 2 ∈ R. Rewriting this in terms of γ gives 0 = 2 ∂4 
+
+> s
+
+γ + 3 ∂s(|∂2 
+
+> s
+
+γ|2∂sγ) + λ1Q(∂sγ) + λ2∂2 
+
+> s
+
+γ
+
+for the rotation Q =
+
+0 −11 0
+
+
+
+. So for arbitrary φ ∈ C∞(S1, R2) we have (5.1) 
+
+Z
+
+> S1
+
+∂2 
+
+> s
+
+γ · (∂2 
+
+> s
+
+φ)ds = 12
+
+Z
+
+> S1
+
+ 3|∂2 
+
+> s
+
+γ|2∂sγ + λ1Qγ + λ2∂sγ · (∂sφ)ds. 
+
+Define f := 3 |∂2 
+
+> s
+
+γ|2∂sγ + λ1Qγ + λ2∂sγ. By the Sobolev embedding we have the continuous embedding W 2,2(S1, R2) ,→ C1(S1, R2). Hence, f ∈ L1(S1, R2). Equation (5.1) shows that ∂2 
+
+> s
+
+γ ∈ W 1,1(S1, R2) with ∂3 
+
+> s
+
+γ = − 12 f + c where c ∈ R2
+
+is constant. It arises because we only test against functions ( ∂sφ) with zero mean in (5.1). We have the embedding W 1,1(S1, R2) ,→ C0(S1, R2) and hence ∂2 
+
+> s
+
+γ ∈
+
+C0(S1, R2). By definition, f ∈ C0(S1, R2) and from ∂3 
+
+> s
+
+γ = − 12 f + c it follows 
+
+γ ∈ C3(S1, R2). Iterating this argument allows us to conclude γ ∈ C∞(S1, R2). □
+
+Let us show continuity of E : [2 π, ∞) → [0 , ∞) defined in (1.4). 
+
+Lemma 5.4. The function E : [2 π, ∞) → [0 , ∞) is lower semicontinuous. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 40 
+
+Proof. Suppose ( ℓn)n∈N ⊂ [2 π, ∞) with ℓn → ℓ̸ = ∞. Without loss of generality, we may assume that lim inf n→∞ E(ℓn) < ∞ (otherwise the claim holds trivially). Let us pass to a subsequence, still denoted by ℓn, such that lim n→∞ E(ℓn) = lim inf n→∞ E(ℓn). Let γn ∈ W 2,2Imm (S1, R2) be curves realizing these energies with length ℓn and area π, i.e. E(ℓn) = E(γn). Since the energies and lengths are bounded, we find by the same method as in the proof of Remark 5.2 that γn ⇀ ˜γ ∈
+
+W 2,2Imm (S1, R2) weakly up to a subsequence (and translation and reparametrization) with A(˜ γ) = π, L(˜ γ) = ℓ. Proposition 5.1 gives 
+
+E(ℓ) ≤ E (˜ γ) ≤ lim inf  
+
+> n→∞
+
+E(γn) = lim inf  
+
+> n→∞
+
+E(ℓn).
+
+□
+
+Lemma 5.5. Let γ ∈ C∞(S1, R2) be an immersed curve whose image is not a circle. Define γt := γ + t(κ − 2πn γ 
+
+> L(γ)
+
+)ν. It holds 
+
+ddt t=0 
+
+L(γt)̸ = 0 , ddt t=0 
+
+A(γt) = 0 ,
+
+and t 7 → E (γt) is differentiable at t = 0 .Proof. Compute 
+
+ddt t=0 
+
+L(γt) = −
+
+Z
+
+> S1
+
+κ
+
+
+
+κ − 2πn γ
+
+L(γ)
+
+
+
+ds = −E (γ) + 4π2n2
+
+> γ
+
+L(γ) < 0.
+
+The last inequality is due to Cauchy-Schwarz and the nonconstant curvature by assumption (5.2) 4π2n2 
+
+> γ
+
+=
+
+ Z
+
+> S1
+
+κds 
+
+2
+
+<
+
+Z
+
+> S1
+
+κ2ds 
+
+Z
+
+> S1
+
+ds. 
+
+The derivative of the area is given by 
+
+ddt t=0 
+
+A(γt) = −
+
+Z
+
+> S1
+
+κ − 2πn γ
+
+L(γ) ds = 0 .
+
+□
+
+Lemma 5.6. The function E is upper semicontinuous on (2 π, ∞).Proof. Let ℓ ∈ (2 π, ∞) and γ ∈ C∞(S1, R2) be a minimizer of the energy E :
+
+W 2,2Imm (S1, R2) → [0 , ∞) subject to fixed length ℓ and area π. Since γ cannot be a circle by the isoperimetric inequality and the winding number is fixed nγ = 1, the curvature is nonconstant. Consider the variation γt from Lemma 5.5 and define ˜γt := q π 
+
+> A(γt)
+
+γt. We have 
+
+ddt t=0 
+
+L(˜ γt) = ddt t=0 
+
+r π
+
+A(γt) L(γt)
+
+
+
+= ddt t=0 
+
+L(γt)̸ = 0 ,ddt t=0 
+
+E(˜ γt) = ddt t=0 
+
+r A(γt)
+
+π E(γt)
+
+
+
+= ddt t=0 
+
+E(γt),
+
+(5.3) and ˜ γt has constant area π. Since ddt t=0 L(˜ γt)̸ = 0, by the Inverse Function The-orem, there is a continuously differentiable inverse ψ : ( ℓ−ε, ℓ +ε) → R of t 7 → L (˜ γt)for ε > 0 onto a neighborhood of 0. By continuity of t 7 → E (˜ γt) it holds lim sup 
+
+> l→ℓ
+
+E(l) ≤ lim sup 
+
+> l→ℓ
+
+E(˜ γψ(l)) = lim sup 
+
+> t→0
+
+E(˜ γt) = E(ℓ).EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 41 
+
+□
+
+Lemma 5.7. The function E is upper semicontinuous at 2π.Proof. The idea is to construct an explicit sequence of curves with greater length than the circle which converge to the circle and whose energy also converges to the energy of the circle. Specifically, let γa(x) = ( a cos( x), 1 
+
+> a
+
+sin( x)) for a ≥ 1. For 
+
+a → 1 this function converges smoothly to the circle. Observe 
+
+A(γa) = 
+
+Z
+
+> S1
+
+cos 2(x)dx = π. 
+
+The isoperimetric inequality proves that γa has length greater than the circle for 
+
+a > 1. Moreover, the map a 7 → L (γa) is continuous with L(γ1) = 2 π. Thus, for any length ℓ sufficiently close to 2 π, there is a(ℓ) ≥ 1 such that L(γa(ℓ)) = ℓ. Because 
+
+γa(ℓ) has area π and length ℓ, it is a valid test curve for the infimum E(ℓ), meaning 
+
+E(ℓ) ≤ E(γa(ℓ)). Taking the lim sup yields lim sup 
+
+> ℓ→2π
+
+E(ℓ) ≤ lim  
+
+> a→1
+
+E(γa) = 2 π = E(2 π).
+
+□
+
+Theorem 5.8. The function E is continuous on [2 π, ∞) and for ℓ → ∞ we have 
+
+E(ℓ) → 0.Proof. Continuity follows from Lemma 5.4, Lemma 5.6 and Lemma 5.7. For the second part, we construct an explicit sequence of curves with area π, length that goes to ∞ and energy that goes to zero. These curves are of the form shown in Figure 1. The left ’belly’ is formed by three-quarters of a circle, connected to the central ’belly’ via straight line segments. By matching the tangents, the resulting curve is smooth except for the ’glueing points’, where it is C1. Hence, it is a valid test curve in W 2,2(S1, R2). The upper and lower parts of the central ’belly’ each consist of a quarter circle. The right half of the curve is symmetric to the left half. By scaling the radii of the circles appropriately, we can ensure that the enclosed area of the curve remains constant, since the central ’belly’ contributes negatively to the total area. Consequently, we can increase the overall size of the curve such that its length tends to infinity while the enclosed area remains fixed. The elastic energy of the curve can then be bounded from above by the energy of three circles, whose radii tend to infinity. This implies that the energy of the curve converges to zero. □
+
+Theorem 5.8 ensures that E : [2 π, ∞) → [0 , ∞) actually attains its supremum. In order to find a noteworthy regime of convergence later on, we demonstrate that the maximum is not attained by the circle. 
+
+Theorem 5.9. Denote by ℓ∗ a global maximum of the function E : [2 π, ∞) →
+
+[0 , ∞). Then E(ℓ∗) > 2π, proving that the maximum is not achieved by the circle. Proof. From [27, Lemma 7] it follows that a minimizer γ of all curves in W 2,2Imm (S1, R2)with fixed area π and length ℓ with 2 π < ℓ ≤ 52 π is simple. [4, Theorem 1.1] yields 
+
+E(γ) > 2π. Since ℓ∗ is a global maximizer, it follows that E(ℓ∗) ≥ E(ℓ) = E(γ) >
+
+2π. □EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 42 
+
+Proof of Corollary 1.3. If there is t ∈ (0 , ∞) with L(γt) ≥ ℓ∗, by continuity there exists t0 ≤ t with L(γt0 ) = ℓ∗. This implies E(γt0 ) ≥ E (ℓ∗) > E(γ0), which is a contradiction since the energy is non-increasing along the flow. The convergence result can be proven in the same way as Theorem 1.2. □
+
+Using the same barrier argument, one can also establish a lower bound for the length. 
+
+Corollary 5.10. Let γ0 ∈ C∞(S1, R2) with A(γ0) = π, L(γ0) > ℓ ∗ and E(γ0) <E(ℓ∗) for the maximum as in Theorem 5.9. Then, the solution γ to (1.1) has length strictly bounded from below by ℓ∗.
+
+5.2. Critical points. Numerical simulations reveal curves whose lengths diverge along the gradient flow (1.1), as seen in the triple-eight configuration (Figure 12). Our goal is to derive explicit conditions for this behavior. However, the flow could also converge to a local minimum of E : [2 π, ∞) → [0 , ∞) or an area-constrained elastica. We show that local minima are area-constrained elasticae, so we can focus on the latter to understand halting mechanisms. 
+
+Lemma 5.11. Let ℓ ∈ (2 π, ∞) be a local minimum of E. Then, E is differentiable at ℓ with ddl l=ℓ E(l) = 0 .Proof. Let γ ∈ C∞(S1, R2) be a minimizer of E : W 2,2Imm (S1, R2) → [0 , ∞) subject to fixed length ℓ and area π. Since γ cannot be a circle by the isoperimetric inequality and the winding number is fixed nγ = 1, the curvature is nonconstant. Consider the variation γt from Lemma 5.5 and define ˜ γt := q π 
+
+> A(γt)
+
+γt. We have (5.3), hence   
+
+> ddt t=0
+
+L(˜ γt)̸ = 0, and ˜ γt has constant area π. By the Inverse Function Theorem, there is a continuously differentiable inverse ψ : ( ℓ − ε, ℓ + ε) → R of t 7 → L (˜ γt) for 
+
+ε > 0 onto a neighborhood of 0. Since ℓ is a local minimum of E, there is 0 < δ ≤ ε
+
+with E(l) ≥ E(ℓ) for l ∈ (ℓ − δ, ℓ + δ). Hence, it holds 
+
+E(˜ γψ(l)) ≥ E(l) ≥ E(ℓ) = E(˜ γψ(ℓ))for l ∈ (ℓ − δ, ℓ + δ). To show differentiability, we consider the one-sided limits of the difference quotient. For l > ℓ , dividing by l − ℓ > 0 preserves the inequality 0 ≤ E(l) − E(ℓ)
+
+l − ℓ ≤ E(˜ γψ(l)) − E (˜ γψ(ℓ))
+
+l − ℓ .
+
+Taking the limit as l ↘ ℓ, the right-hand side goes to ddl l=ℓ E(˜ γψ(l)) = 0, since 
+
+l 7 → E (˜ γψ(l)) is differentiable and attains a local minimum at ℓ. Thus, the right derivative of E is 0. For l < ℓ , dividing by l − ℓ < 0 reverses the inequalities 0 ≥ E(l) − E(ℓ)
+
+l − ℓ ≥ E(˜ γψ(l)) − E (˜ γψ(ℓ))
+
+l − ℓ .
+
+Taking the limit as l ↗ ℓ, the right-hand side again goes to 0, meaning the left derivative of E is also 0. Since both one-sided limits exist and equal 0, E is differentiable at ℓ with   
+
+> ddl l=ℓ
+
+E(l) = 0. □
+
+Theorem 5.12. If E is differentiable at some ℓ ∈ (2 π, ∞) with ddl l=ℓ E(l) = 0 ,then every minimizer γ of E among all curves with length ℓ and area π is an area-constrained elastica. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 43 
+
+Proof. Since γ is a minimizer among all curves with area a and length ℓ, there are 
+
+λ1, λ 2 ∈ R with 
+
+∇E (γ) + λ1∇A (γ) + λ2∇L (γ) = 0 .
+
+Testing the Euler-Lagrange equation with the normal variations ν, κν gives 
+
+Z
+
+> S1
+
+2∂2 
+
+> s
+
+κ + κ3ds = L(γ)λ1 + 2 πn γ λ2,
+
+Z
+
+> S1
+
+(2 ∂2 
+
+> s
+
+κ + κ3)κds = 2 πn γ λ1 + E(γ)λ2.
+
+Hence, we look for a solution of the linear system of equations (5.4) 
+
+L(γ) 2πn γ
+
+2πn γ E(γ)
+
+  λ1
+
+λ2
+
+
+
+=
+
+ R  
+
+> S1
+
+2∂2 
+
+> s
+
+κ + κ3ds R 
+
+> S1
+
+(2 ∂2 
+
+> s
+
+κ + κ3)κds 
+
+
+
+.
+
+We only consider curves with nγ = 1. Hence, from ℓ̸ = 2 π it follows that the curvature is nonconstant. Compute det 
+
+L(γ) 2πn γ
+
+2πn γ E(γ)
+
+
+
+= L(γ)E(γ) − 4π2n2 
+
+> γ
+
+> 0by (5.2). So there is a unique solution, which we compute now. Consider the variation γt from Lemma 5.5 and define ˜ γt := q π 
+
+> A(γt)
+
+γt. It holds (5.3) and ˜ γt has constant area π. The Inverse Function Theorem yields a continuously differentiable inverse of t 7 → L (˜ γt) named ψ : ( ℓ−ε, ℓ +ε) → R for some ε > 0 onto a neighborhood of 0. Compute 
+
+ddl l=ℓ
+
+E(˜ γψ(l)) = ψ′(ℓ) ddt t=0 
+
+E(˜ γt) = 1  
+
+> ddt t=0
+
+L(˜ γt)
+
+ddt t=0 
+
+E(˜ γt).
+
+Observe for l ∈ (ℓ, ℓ + ε)
+
+E(l) − E (ℓ)
+
+l − ℓ ≤ E(˜ γψ(l)) − E (˜ γψ(ℓ))
+
+l − ℓ .
+
+Taking the limit l ↘ ℓ shows 0 ≤ lim l↘ℓ 
+
+> E(˜ γψ(l))−E (˜ γψ(ℓ))
+> l−ℓ
+
+. Similarly, the inequality reverses for l ↗ ℓ due to the division by a negative number 0 ≥ lim l↗ℓ 
+
+> E(˜ γψ(l))−E (˜ γψ(ℓ))
+> l−ℓ
+
+.Therefore, it holds ddt t=0 E(˜ γt) = ddl l=ℓ E(˜ γψ(l)) = 0. We obtain together with (5.3) and the definition of the variation from Lemma 5.5 0 = ddt t=0 
+
+E(˜ γt) = ddt t=0 
+
+E(γt) = 
+
+Z
+
+> S1
+
+(2 ∂2 
+
+> s
+
+κ + κ3)
+
+
+
+κ − 2πn γ
+
+L(γ)
+
+
+
+ds, 
+
+2πn γ
+
+L(γ)
+
+Z
+
+> S1
+
+2∂2 
+
+> s
+
+κ + κ3ds =
+
+Z
+
+> S1
+
+(2 ∂2 
+
+> s
+
+κ + κ3)κds. 
+
+Consequently, the unique solution to (5.4) is given by λ1 = 1
+
+> L(γ)
+
+R 
+
+> S1
+
+2∂2 
+
+> s
+
+κ+κ3ds, λ 2 =0. □
+
+Let us analyze area-constrained elastica. Suppose γ ∈ C∞(S1, R2) is an area-constrained elastica with constant speed and area π, i.e. (5.5) 2∂2 
+
+> s
+
+κ + κ3 + λ = 0 EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 44 
+
+for λ ∈ R. Rescaling γ by   − λ
+
+> 2
+
+ 13 and considering the parametrization [0 , L(γ)] of 
+
+S1, we obtain (5.6) −κ′′ − 12 κ3 + 1 = 0 .
+
+Since solutions to (5.5) are rescalings of solutions to (5.6), it suffices to analyze the latter. This has already been done in [4] for the analysis of the optimal drop. [4] derived the following optimality conditions, where (3) and (4) are obtained using that a solution κ to the equation (5.6) has to correspond to a closed curve γ.
+
+Theorem 5.13 ([4, Theorem 2.5]) . Let ℓ > 0 and γ ∈ W 2,2
+
+> Imm
+
+((0 , ℓ ), R2) be a weak solution of (5.6) parametrized by arc-length. Then, γ ∈ C∞((0 , ℓ ), R2) and (1) κ′′ = − 12 κ3 + 1 ,(2) κ′2 = − 14 κ4 + 2 κ + 2 C for some constant C ∈ R,(3) there is p ∈ R2 such that for all x ∈ (0 , ℓ ) it holds |γ(x) − p|2 = 2 κ(x) + 2 C
+
+for some constant C,(4) there is p ∈ R2 such that for all x ∈ (0 , ℓ ) it holds (p−γ(x)) ·ν(x) = 12 κ2(x).Remark 5.14 ([4, Remark 2.6]) . The constant C in (2) and (3) is identical, as is the point p in (3) and (4). 
+
+Lemma 5.15. Let γ ∈ W 2,2
+
+> Imm
+
+(S1, R2) be a weak solution of (5.6) parametrized by arc-length which is not a circle. Then C ≥ 0 for the constant in (2) and (3). Proof. From [4, Appendix] we know that a solution to κ′2 = − 14 κ4 + 2 κ + 2 C on R
+
+is periodic. On each period there is only one local minimum κm, which is actually a global minimum, and similarly the only local maximum κM is a global maximum. They are the two real roots of the polynomial PC (x) = − 14 x4 + 2 x + 2 C. The mapping C 7 → κm(C) is decreasing and it holds κm(0) = 0. So if C < 0, then 
+
+κm(C) > 0 and the associated curve γ is convex. [2, Theorem 1.5] showed that the only convex solution to −γ · ν = 12 κ2 are circles. This condition is precisely, up to translation, condition (4) of Theorem 5.13. Hence, C ≥ 0. □
+
+Lemma 5.16. Let γ be as in Lemma 5.15. Then, κ is periodic with number of periods m ≥ 2. Conversely, for each m ≥ 2 there is exactly one solution κ to (5.6) 
+
+with m periods, which corresponds to a closed curve γ. Furthermore, the following estimates hold 
+
+E(γ) ≥
+
+r 11 6 mπ, 
+
+A(γ) = 14 E(γ) ≥
+
+r 11 96 mπ. 
+
+Proof. By Lemma 5.15 we know that γ satisfies condition (2) from Theorem 5.13 with C ≥ 0. Since C 7 → κm(C) is decreasing and κm(0) = 0, it holds κm(C) ≤ 0. We know from [4, Appendix] that κ is periodic. Assume that γ is constant speed 1 and let T > 0 be the length of one period. Define 
+
+I(C) := 
+
+Z T
+
+> 0
+
+κ(x)dx = 2 
+
+Z κM
+
+> κm
+
+k
+
+q
+
+− 14 k4 + 2 k + 2 Cdk, 
+
+where the second equality comes from condition (2) of Theorem 5.13 and the fact that κ is symmetric with respect to its minimizers and maximizers, and monotone EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 45 
+
+between them (cf. [4, Appendix]). Moreover, the only values where the denominator is zero are κm, κ M . This is precisely the integral that has been analyzed in [4, proof of theorem 3.5]. If we split the integral in two parts from κm to 0 and from 0 to 
+
+κM , we can compute the derivative explicitly and show that it is strictly negative. A direct computation yields I(0) = 4π 
+
+> 3
+
+. Since γ is a closed curve with winding number 1, it has to hold 4π 
+
+> 3
+
+≥ I(C) = 2πm for the number of periods m. This can only hold for m ≥ 2. Let us prove that the limit of I(C) as C → ∞ is smaller than or equal to 0. We want to estimate I(C) from above. Let S = κM + κm, P = κM κm and 
+
+PC (x) = 2 C + 2 x − 14 x4. Since κM , κ m are the two real roots of PC (cf. [4, Appendix]), we may write −4PC (k) = ( k − w)( k − z)( k − κM )( k − κm). PC does not have a cubic term, so it holds w + z + κM + κm = 0. This gives −4PC (k) = (k2 +Sk +wz )( k2 −Sk +P ). From the quadratic term we obtain P −S2 +wz = 0 and it follows −4PC (k) = ( k2 + Sk + S2 − P )
+
+| {z }
+
+> Q(k)
+
+(k2 − Sk + P ). The linear and constant term yield the equations 
+
+SP + ( P − S2)S = −8,
+
+(S2 − P )P = −8C. 
+
+From this it follows 
+
+P = − 4
+
+S + S2
+
+2 ,
+
+0 = 8 C + S4
+
+4 − 16 
+
+S2 .
+
+(5.7) We conclude Q(k) = k2 + Sk + S2 
+
+> 2
+
++ 4 
+
+> S
+
+.We define D := κM −κm 
+
+> 2
+
+and obtain by a substitution 
+
+I(C) = 4 
+
+Z κM
+
+> κm
+
+k
+
+p(κM − k)( k − κm)Q(k) dk 
+
+= 4 
+
+Z D
+
+> −D
+
+k + S
+
+> 2
+
+q
+
+(D2 − k2)Q(k + S 
+
+> 2
+
+)
+
+dk 
+
+= 4 
+
+Z D
+
+> 0
+
+k
+
+√D2 − k2
+
+1
+
+q
+
+Q(k + S 
+
+> 2
+
+)
+
+− 1
+
+q
+
+Q(−k + S 
+
+> 2
+
+)
+
+!
+
+dk 
+
++ 2 
+
+Z D
+
+> −D
+
+S
+
+q
+
+(D2 − k2)Q(k + S 
+
+> 2
+
+)
+
+dk. 
+
+We have Q(k + S 
+
+> 2
+
+) ≥ Q(−k + S 
+
+> 2
+
+) for k ≥ 0, since S ≥ 0 (due to the coeffiecient of the linear term of PC , which is positive). We estimate 
+
+I(C) ≤ 2S
+
+Z D
+
+> −D
+
+1
+
+q
+
+(D2 − k2)Q(k + S 
+
+> 2
+
+)
+
+dk 
+
+≤ 2S
+
+min k∈[−D,D ]
+
+q
+
+Q(k + S 
+
+> 2
+
+)
+
+Z D
+
+> −D
+
+1
+
+√D2 − k2 dk. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 46 
+
+Write Q(k) = ( k + S 
+
+> 2
+
+)2 + S2 
+
+> 4
+
++ 4 
+
+> S
+
+. Thus, min k∈[−D,D ]
+
+q
+
+Q(k + S 
+
+> 2
+
+) ≥
+
+q S2 
+
+> 4
+
++ 4 
+
+> S
+
+.Together with a substitution this shows 
+
+I(C) ≤ 2S
+
+q S2 
+
+> 4
+
++ 4
+
+> S
+
+Z 1
+
+> −1
+
+1
+
+√1 − k2 dk = 2Sπ 
+
+q S2 
+
+> 4
+
++ 4
+
+> S
+
+= 4πS 32
+
+√S3 + 16 .
+
+Equation (5.7) reveals that S → 0 as C → ∞ , proving the claim. One can use this analysis to find an upper bound on C also. Conversely, let m ≥ 2. For C ∈ R, which will be determined later on, consider a solution to the ordinary differential equation 
+
+κ′′ = − 12 κ3 + 1 ,κ(0) = κm(C),κ′(0) = 0 ,
+
+(5.8) which has a unique solution. For any other curve ˜ γ that solves (5.6) and has m
+
+periods, a shifted version of its curvature ˜ κ(· + x0) solves (5.8), where x0 is a point that attains the minimum of the curvature ˜ κ. Therefore, proving uniqueness of C
+
+demonstrates that there is at most one area-constrained elastica with m periods. The solution κ is periodic with period T . We claim that, if we find a value for 
+
+C such that I(C) = 2πm , we have found a closed solution to (5.6). We have to check the closedness condition. Let γ be the associated curve to κ. Without loss of generality, we assume γ(0) = 0 and θ(0) = 0. The solution κ of (5.8) is symmetric with respect to its maximizers and minimizers (cf. [4, Appendix]). Let xm = mT  
+
+> 2
+
+.Then, xm is a minimizer or a maximizer, since it is either at the beginning of a period or exactly in the middle. By symmetry, it has to hold θ(xm) = π and we have κ(xm + x) = κ(xm − x). Integrating gives θ(xm + x) = 2 π − θ(xm − x). We deduce for γ = ( γ1, γ 2)
+
+γ2(mT ) = 
+
+Z xm
+
+> 0
+
+sin θ(x)dx +
+
+Z mT xm
+
+sin θ(x)dx 
+
+=
+
+Z xm
+
+> 0
+
+sin θ(x) + sin(2 π − θ(x)) dx = 0 .
+
+Since the curvature is minimal at 0, by (3) from Theorem 5.13 we have 0 =  
+
+> ddx
+
+|x=0 |γ(x) − p|2 = 2 τ (0) · (γ(0) − p). Therefore, p lies on the y-axis. Since we know that xm is a minimizer or maximizer of κ and θ(xm) = π, we have by the same argument that γ(xm) lies on the y-axis. We obtain 
+
+γ1(mT ) = 
+
+Z mT 
+
+> 0
+
+cos( θ(x)) dx =
+
+Z xm
+
+> 0
+
+cos θ(x) + cos(2 π − θ(x)) dx 
+
+= 2 γ1(xm) = 0 .
+
+As mentioned before, I is strictly decreasing with I(0) = 4π 
+
+> 3
+
+and the limit of I(C)is smaller than or equal to 0 as C → ∞ . Consequently, there actually is exactly one solution to I(C) = 2πm with C ≥ 0. Moreover, by Lemma 5.15 we deduce that it is the only solution. For the energy observe E(γ) = 2 m R xM 
+
+> 0
+
+κ2(x)dx , where xM ∈ [0 , T ] is the first maximizer of κ. Since κ is increasing on [0 , x M ] and κ′(x) = 
+
+q
+
+2C + 2 κ(x) − 14 κ(x)4 =EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 47 
+
+r
+
+b
+
+r
+
+Figure 8. Family of curves with small length. 0 only for 0 and xM , it holds 
+
+E(γ) = 2 m
+
+Z κM
+
+> κm
+
+k2
+
+q
+
+2C + 2 k − 14 k4
+
+dk. 
+
+[4] estimated in the proof of Theorem 3.5 
+
+Z κM
+
+> κm
+
+k2
+
+q
+
+2C + 2 k − 14 k4
+
+dk ≥ π
+
+4
+
+r 22 3 .
+
+As the area is invariant under translation, condition (4) of Theorem 5.13 gives 
+
+A(γ) = 12
+
+Z L(γ)0
+
+(p − γ(x)) · ν(x)dx = 14
+
+Z L(γ)0
+
+κ2(x)dx = 14 E(γ).
+
+□
+
+Lemma 5.17. There is a family of curves in W 2,2
+
+> Imm
+
+(S1, R2) with area π and length varying between the values 2π and 83 π, whose energy is bounded from above by 16 3 π.Proof. Let γ ∈ W 2,2Imm (S1, R2) with A(γ) = π of the form illustrated in Figure 8. It consists of a half circle on the left which is connected via straight lines to another half circle. Let r > 0 be the radius of the circles and b ≥ 0 the length of the straight line segments. Then, it holds 
+
+A(γ) = πr 2 + 2 br, 
+
+L(γ) = 2 πr + 2 b, 
+
+E(γ) = 2πr .
+
+We want A(γ) = π, which gives b = π 
+
+> 2r
+
+− π 
+
+> 2
+
+r. Hence, for the length we have 
+
+L(γ) = πr + πr . For r ∈ (0 , 1] this is strictly decreasing in r. To cover all lengths 
+
+ℓ ∈ [2 π, 83 π], we restrict our family to radii r ∈ [ 38 , 1]. At the lower endpoint 
+
+r = 38 , the length is L(γ) = 73 24 π, which is strictly greater than 83 π. By continuity, this family of curves covers all lengths between 2 π and 83 π. The energy is also decreasing in r. Consequently, over this restricted family, the maximum energy is attained at r = 38 , and is given by E(γ) = 16 3 π. □
+
+Lemma 5.18. There is a family of curves in W 2,2
+
+> Imm
+
+(S1, R2) with area π and length varying between the values 4π
+
+q ππ+4 ≈ 2.653 π and ∞, whose energy is bounded from above by 4π
+
+q π+4  
+
+> π
+
+≈ 6.031 π.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 48 
+
+r
+
+r
+
+√2b
+
+Figure 9. Family of curves with increasing length. 
+
+Proof. Let γ ∈ W 2,2Imm (S1, R2) with A(γ) = π of the form illustrated in Figure 9. It consists of two three-quarter circles (solid), that are connected via straight line segments (dotted) to the missing quarters of the circles (dashed). We may vary its length by altering the length of the straight line segments up until the point where the two middle quarters touch each other tangentially. From here on, we can increase the length of the curve indefinitely by splitting the curve at the touching point and inserting two perfectly overlapping straight line segments. Because these segments perfectly overlap, they enclose zero area, and because they are straight, they contribute zero to the elastic energy. Hence, the length grows to infinity while the area and energy remain constant. Let r ∈ (0 , 1] be the radius of the circles. The energy of the curve is given by E(γ) = 4πr . Let √2b be the length of the straight line segments for b ≥ 0 and compute the enclosed area by A(γ) = r2(π + 4) − 2b2.We want A(γ) = π, which leads to r =
+
+q π+2 b2 
+
+> π+4
+
+. So, r is increasing in b. As the energy is decreasing in r, its maximal value is obtained for b = 0. Inserting shows 
+
+E(γ) ≤ 4π
+
+q π+4  
+
+> π
+
+. The length is given by L(γ) = 4 πr + 4 √2b. The minimum is achieved for b = 0, yielding the result. □
+
+Theorem 5.19. Let γ ∈ C∞(S1, R2) be a solution to (5.6) parametrized by arc-length with the number of periods m ≥ 4. Then, for the rescaled version ˜γ with 
+
+A(˜ γ) = π, we have E(˜ γ) > E (ℓ∗). Hence, E : [2 π, ∞) → [0 , ∞) has at most 3
+
+critical points, one of which is the circle. Proof. From Lemma 5.16 we obtain 
+
+E(γ) ≥
+
+r 11 6 mπ, 
+
+A(γ) = 14 E(γ) ≥
+
+r 11 96 mπ. 
+
+Hence, for the rescaled version ˜ γ with area π it holds 
+
+E(˜ γ) = 
+
+r A(γ)
+
+π E(γ) ≥
+
+ 11 96 
+
+ 14  11 6
+
+ 12
+
+m 32 π. 
+
+The expression is increasing in m and for m = 4 it evaluates to E(˜ γ) ≥ 6.302 π.By Lemma 5.17 and Lemma 5.18, the maximum of E : [2 π, ∞) → [0 , ∞) is strictly below 6 .302 π. Therefore, E(˜ γ) > E (ℓ∗), meaning ˜ γ does not lie on the profile curve. Every critical point of the energy profile curve is attained by an area-constrained elastica by Theorem 5.12. By Lemma 5.16 every number m ∈ N corresponds to exactly one area-constrained elastica (the circle corresponding to m = 1) and vice EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 49 
+
+versa. By the previous calculation, the only possible critical points can be attained by the area-constrained elasticae with m = 2 , 3 or by the circle. □
+
+This result allows us to prove that the length diverges under specific conditions on the length and energy. 
+
+Proof of Corollary 1.4. Assume there is an increasing sequence 0 ≤ ti → ∞ as 
+
+i → ∞ such that L(γti ) ≤ c for some constant c > 0. We apply the same method of proof as the one of Theorem 4.11 and define the translated and arc-length para-metrized version ˜ γ of γ. However, this time, we obtain compactness only for the sequence (˜ γti )i∈N, since only for these times the length is bounded. Then, up to a subsequence, ˜ γti → γ∞ ∈ C∞(S1, R2) smoothly. We claim that γ∞ is an area-constrained elastica. As in the proof of The-orem 4.11, define u(t) := ∥∂tγt∥2
+
+> L2(ds )
+
+. By the energy identity u(t) = −∂tE(γ) we conclude u ∈ L1((0 , ∞)). This is not sufficient to conclude u(ti) → 0 as i → ∞ up to a subsequence. L1((0 , ∞)) only gives us a sequence ˜ ti such that u(˜ ti) → 0. How-ever, ˜ ti could be a completely different sequence of times than ti. Consequently, we require bounds on the derivative of u. Define ξ := ∂tγ ·ν. Compute with Lemma 3.1 
+
+∂tu(t) = 2 
+
+Z
+
+> S1
+
+∂2 
+
+> t
+
+γ · ∂tγds −
+
+Z
+
+> S1
+
+|∂tγ|2ξκds, ∂2 
+
+> t
+
+γ = −2∂t(∂2 
+
+> s
+
+κ)ν − 3∂tκκ 2ν − ∂tλν + ξ∂ tν, ∂tλ = −
+
+R 
+
+> S1
+
+3∂tκκ 2ds 
+
+L(γ) +
+
+R 
+
+> S1
+
+κ4ξds 
+
+L(γ) + ∂tL(γ) R 
+
+> S1
+
+κ3ds 
+
+L2(γ) ,∂tL(γ) = −
+
+Z
+
+> S1
+
+κξds, ∂tκ = ∂2 
+
+> s
+
+ξ + κ2ξ, ∂tν = −∂sξτ. 
+
+First, consider the integral R 
+
+> S1
+
+∂2 
+
+> t
+
+γ · ∂tγds . Let us compute the first summand 
+
+−2∂t(∂2 
+
+> s
+
+κ)ν in ∂2 
+
+> t
+
+γt with Lemma 3.1 
+
+∂t(∂2 
+
+> s
+
+κ) = ∂s∂t∂sκ + κξ∂ 2 
+
+> s
+
+κ
+
+= ∂2 
+
+> s
+
+∂tκ + ∂s(κξ∂ sκ) + κξ∂ 2 
+
+> s
+
+κ
+
+= ∂2 
+
+> s
+
+(∂2 
+
+> s
+
+ξ + κ2ξ) + ξ(∂sκ)2 + κ∂ sξ∂ sκ + 2 κξ∂ 2 
+
+> s
+
+κ. 
+
+(5.9) With the notation from Section 3 and ξ = −2∂2 
+
+> s
+
+κ − κ3 − λ we write 
+
+−2∂t(∂2 
+
+> s
+
+κ) = P 61 (κ) + P 43 (κ) + P 25 (κ) + λP 22 (κ).
+
+For the second summand −3∂tκκ 2ν we write 
+
+−3∂tκκ 2 = −3( ∂2 
+
+> s
+
+ξ + κ2ξ)κ2
+
+= P 43 (κ) + P 25 (κ) + P 07 (κ) + λP 04 (κ).
+
+We leave the third summand −∂tλν as it is for now. The last term ξ∂ tν in ∂2 
+
+> t
+
+γt can be neglected, since it has only a tangential component and ∂tγ has only a normal component. Similarly, we write 
+
+∂tγ = ( P 21 (κ) + P 03 (κ) − λ)ν. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 50 
+
+The product ∂2 
+
+> t
+
+γ·∂tγ is a sum of terms of the form λk(∂tλ)lP αβ (κ) with k, l, β, α ∈ N.We either have k + l > 0 or β ≥ 2. If β ≥ 2, we estimate with Lemma 3.13 
+
+|λ| ≤ 
+
+R 
+
+> S1
+
+|κ|3ds 
+
+L(γ) ≤ c(γ0)
+
+R 
+
+> S1
+
+ds 
+
+L(γ) = c(γ0),
+
+|∂tλ| ≤ 3
+
+R 
+
+> S1
+
+|∂tκκ 2|ds 
+
+L(γ) +
+
+R 
+
+> S1
+
+|κ4ξ|ds 
+
+L(γ) +
+
+R 
+
+> S1
+
+|κξ |ds R 
+
+> S1
+
+|κ3|ds 
+
+L2(γ)
+
+≤ c(γ0)
+
+ R 
+
+> S1
+
+ds 
+
+L(γ) +
+
+R 
+
+> S1
+
+ds R 
+
+> S1
+
+ds 
+
+L2(γ)
+
+
+
+= c(γ0).
+
+(5.10) Then Proposition 3.9 and (3.7) show 
+
+Z
+
+> S1
+
+|λk(∂tλ)lP αβ (κ)|ds ≤ c(γ0).
+
+If k + l > 0, we estimate with Lemma 3.13 
+
+|P αβ (κ)| ≤ c(γ0).
+
+Moreover, we can bound with Lemma 3.13 
+
+|λ| ≤ 
+
+R 
+
+> S1
+
+|κ|3ds 
+
+L(γ) ≤ c(γ0)
+
+R 
+
+> S1
+
+κ2ds 
+
+L(γ) = c(γ0)
+
+L(γ) ,
+
+|∂tλ| ≤ 3
+
+R 
+
+> S1
+
+|∂tκκ 2|ds 
+
+L(γ) +
+
+R 
+
+> S1
+
+|κ4ξ|ds 
+
+L(γ) +
+
+R 
+
+> S1
+
+|κξ |ds R 
+
+> S1
+
+|κ3|ds 
+
+L2(γ)
+
+≤ c(γ0)
+
+ R 
+
+> S1
+
+κ2ds 
+
+L(γ) +
+
+R 
+
+> S1
+
+ds R 
+
+> S1
+
+κ2ds 
+
+L2(γ)
+
+
+
+= c(γ0)
+
+L(γ) .
+
+This shows together with Equation (5.10) 
+
+Z
+
+> S1
+
+|λk(∂tλ)lP αβ (κ)|ds ≤ c(γ0) R 
+
+> S1
+
+ds 
+
+L(γ) = c(γ0).
+
+In total, we have found a bound |R 
+
+> S1
+
+∂2 
+
+> t
+
+γ · ∂tγds | ≤ c(γ0). Using the same strategy we can also bound |R 
+
+> S1
+
+|∂tγ|2ξκds | ≤ c(γ0). Consequently, ∂tu(t) is bounded. Since it is in L1((0 , ∞)), u(ti) → 0 for i → ∞ . Now, we can proceed as in the proof of Theorem 4.11 and obtain that γ∞ is an area-constrained elastica. However, this area-constrained elastica cannot have more than 3 periods, since the energy of such an elastica is larger than E(ℓ∗) by Theorem 5.19. Also, it cannot be an area-constrained elastica with 2 or 3 periods because E(γ2), E(γ3) > E(γ0). If it were the circle, there is a time t∗ > 0 such that L(γt∗ ) = ℓ∗. Then, E(γt∗ ) ≥
+
+E(ℓ∗) > E(γ0), which is a contradiction. Therefore, L(γ) → ∞ as t → ∞ . □
+
+6. Numerical simulations 
+
+In this chapter, we complement the analysis of the area-constrained elastic flow with numerical simulations, adapting the discretization schemes proposed by [8]. Our goal is to investigate the behavior of the gradient flow under various initial configurations, offering insights into potential regimes of convergence. First, recall that by the Frenet equations, we have 
+
+∂s(2 ∂s(κν ) + 3 κ2τ ) = ∂s(2 ∂sκν + κ2τ )= 2 ∂2 
+
+> s
+
+κν − 2∂sκκτ + 2 ∂sκκτ + κ3ν
+
+= (2 ∂2 
+
+> s
+
+κ + κ3)ν. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 51 
+
+For that reason, we write (1.1) as 
+
+∂tγ + 2 ∂2
+
+> s
+
+⃗κ + 3 ∂ s(κ2∂sγ) + λν = 0 ,
+
+where we denote ⃗κ := κν . By definition, the following hold true 0 = ν − Q∂ sγ, 
+
+0 = ⃗κ − ∂ 2 
+
+> s
+
+γ, 
+
+where the rotation Q is given by Q =
+
+0 −11 0
+
+
+
+. The variational formulation of (1.1) is 
+
+Z
+
+> S1
+
+∂tγ · φ|∂xγ|dx − 2
+
+Z
+
+> S1
+
+∂x⃗κ
+
+|∂xγ| · ∂xφdx − 3
+
+Z
+
+> S1
+
+|⃗κ| 2 ∂xγ
+
+|∂xγ| · ∂xφdx 
+
++λ
+
+Z
+
+> S1
+
+ν · φ|∂xγ|dx = 0 ,
+
+Z
+
+> S1
+
+ν · θ|∂xγ|dx −
+
+Z
+
+> S1
+
+Q∂ xγ · θdx = 0 ,
+
+Z
+
+> S1
+
+⃗κ · ψ|∂ xγ|dx +
+
+Z
+
+> S1
+
+∂xγ
+
+|∂xγ| · ∂xψdx = 0 ,
+
+(6.1) for all test functions φ, θ, ψ ∈ W 1,2(S1, R2). For the purpose of the simulations, we want to use a finite element discretization in space. Consider the parametrization I = [0 , 2π] of S1. For a decomposition 
+
+I = SNj=1 Ij given by nodes 0 = x0 < x 1 < . . . < x N = 2 π with Ij = [ xj−1, x j ]define hj = |Ij | and the diameter of the maximal grid element h = max j∈[1 ,...,N ] hj .We use the discretization Yh := ( Xh)2 ⊂ W 1,2(I, R2) as the space of test functions, where 
+
+Xh := {w ∈ C0(I, R) | ∀ j ∈ [1 , . . . , N ] w|Ij ∈ P1(Ij ), w (x0) = w(xN )}.
+
+We denote by P1 polynomials of degree 1. Hence, Xh is the space of scalar continu-ous piecewise affine functions. The scalar nodal basis functions φj ∈ Xh, which are uniquely defined by φj (xi) = δij , form a basis of Xh. Therefore, it is sufficient to test with φj e1 and φj e2 for all j ∈ [1 , . . . , N ], where {e1, e 2} denotes the standard basis of R2.For a function w ∈ C0(I, R) with w(0) = w(2 π) consider the pointwise inter-polation Ih(w) ∈ Xh, which is uniquely defined by Ih(w)( xj ) = w(xj ). We may write 
+
+Ih(w)( x) = 
+
+> N
+
+X
+
+> j=1
+
+w(xj )φj (x).EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 52 
+
+A numerical solution to (6.1) will be a triplet γh : [0 , T ] → Yh, ν h : [0 , T ] → Yh,⃗ κ h :[0 , T ] → Yh given by 
+
+γh(t, x ) = 
+
+> N
+
+X
+
+> j=1
+
+γj (t)φj (x),νh(t, x ) = 
+
+> N
+
+X
+
+> j=1
+
+νj (t)φj (x),⃗ κ h(t, x ) = 
+
+> N
+
+X
+
+> j=1
+
+⃗κ j (t)φj (x).
+
+Observe that the normal as well as the curvature cannot be computed at the nodes of functions in Yh as they are essentially a rotation of the first derivative and the second derivative of the curve γh. For that reason we need the variational formulation of the normal and curvature equations. The problem is the following: search γh(t, ·), ν h(t, ·),⃗ κ h(t, ·) ∈ Yh such that 
+
+γh(0 , ·) = Ih(γ0) and for all discrete test functions φh, θ h, ψ h ∈ Yh the equations 
+
+Z
+
+> I
+
+Ih(∂tγh · φh)|∂xγh|dx − 2
+
+Z
+
+> I
+
+∂x⃗κ h
+
+|∂xγh| · ∂xφhdx 
+
+−3
+
+Z
+
+> I
+
+|⃗κ h|2 ∂xγh
+
+|∂xγh| · ∂xφhdx + λ
+
+Z
+
+> I
+
+Ih(νh · φh)|∂xγh|dx = 0 ,
+
+Z
+
+> I
+
+Ih(νh · θh)|∂xγh|dx −
+
+Z
+
+> I
+
+Q∂ xγh · θhdx = 0 ,
+
+Z
+
+> I
+
+Ih(⃗κ h · ψh)|∂xγh|dx +
+
+Z
+
+> I
+
+∂xγh
+
+|∂xγh| · ∂xψhdx = 0 (6.2) are satisfied. We apply the interpolation Ih in the equations, which is known as mass lumping, to accelerate and stabilize the computations. As mentioned before, testing against φj in both coordinates is enough. Inserting and integrating gives a system of 2 N ODEs 12 (∂tγj + λν j )( |γj − γj−1| + |γj+1 − γj |)
+
+−2
+
+⃗κ j −⃗κ j−1
+
+|γj − γj−1| −⃗ κ j+1 −⃗κ j
+
+|γj+1 − γj |
+
+
+
+− (|⃗κ j−1|2 +⃗κ j−1 ·⃗κ j + |⃗κ j |2) γj − γj−1
+
+|γj − γj−1|
+
++( |⃗κ j |2 +⃗κ j ·⃗κ j+1 + |⃗κ j+1 |2) γj+1 − γj
+
+|γj+1 − γj | =0 ,
+
+12 νj (|γj − γj−1| + |γj+1 − γj |) − 12 Q(γj+1 − γj−1) =0 ,
+
+12⃗κ j (|γj − γj−1| + |γj+1 − γj |) + γj − γj−1
+
+|γj − γj−1| − γj+1 − γj
+
+|γj+1 − γj | =0 ,
+
+where γ0 = γN , γ N +1 = γ1, ν 0 = νN , ν N +1 = ν1,⃗ κ 0 =⃗κ N ,⃗ κ N +1 =⃗κ 1. The initial values are given by γj (0) = γ0(xj ). Moreover, in order to compute λ, we test with the normal νh. The area constraint leads to Z
+
+> I
+
+Ih(∂tγh · νh)|∂xγh|dx = 0 .EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 53 
+
+Then (6.2) shows 
+
+−2
+
+Z
+
+> I
+
+∂x⃗κ h
+
+|∂xγh| · ∂xνhdx − 3
+
+Z
+
+> I
+
+|⃗κ h|2 ∂xγh
+
+|∂xγh| · ∂xνhdx 
+
++λ
+
+Z
+
+> I
+
+Ih(|νh|2)|∂xγh|dx = 0 .
+
+Rearranging and computing the integrals gives 
+
+λ =
+
+ NX
+
+> j=1
+
+|γj − γj−1|(|νj |2 + |νj−1|2)
+
+−1
+
+
+
+4
+
+> N
+
+X
+
+> j=1
+
+⃗κ j −⃗κ j−1
+
+|γj − γj−1| · (νj − νj−1)+ 2 
+
+> N
+
+X
+
+> j=1
+
+γj − γj−1
+
+|γj − γj−1| · (νj − νj−1)( |⃗κ j−1|2 +⃗κ j−1 ·⃗κ j + |⃗κ j |2)
+
+
+
+.
+
+For the algorithm we will use the notation wm = w(m∆t, ·) where ∆ t is the time step and T = M ∆t is the total simulation time. 6.1. Algorithm. For j = 1 , . . . , N :
+
+γ0 
+
+> j
+
+= γ0(xj )
+
+h0 
+
+> j
+
+= |γ0 
+
+> j
+
+− γ0
+
+> j−1
+
+|
+
+ν0 
+
+> j
+
+= Q(γ0 
+
+> j+1
+
+− γ0
+
+> j−1
+
+)
+
+h0 
+
+> j
+
++ h0
+
+> j+1
+
+⃗κ 0 
+
+> j
+
+= 2
+
+h0
+
+> j+1
+
+(h0 
+
+> j
+
++ h0
+
+> j+1
+
+) γ0 
+
+> j+1
+
+− 2
+
+h0 
+
+> j
+
+h0
+
+> j+1
+
+γ0 
+
+> j
+
++ 2
+
+h0 
+
+> j
+
+(h0 
+
+> j
+
++ h0
+
+> j+1
+
+) γ0
+
+> j−1
+
+.
+
+For m = 0 , . . . , M − 1: 
+
+hmj = |γmj − γmj−1|
+
+βmj = |⃗κ mj−1|2 +⃗κ mj−1 ·⃗κ mj + |⃗κ mj |2
+
+λm =
+
+ NX
+
+> j=1
+
+hmj (|νmj |2 + |νmj−1|2)
+
+−1
+
+
+
+4
+
+> N
+
+X
+
+> j=1
+
+⃗κ mj −⃗κ mj−1
+
+hmj
+
+· (νmj − νmj−1)+ 2 
+
+> N
+
+X
+
+> j=1
+
+γmj − γmj−1
+
+hmj
+
+· (νmj − νmj−1)βmj
+
+
+
+.EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 54 
+
+Determine γm+1  
+
+> j
+
+, ν m+1  
+
+> j
+
+,⃗ κ m+1  
+
+> j
+
+∈ R2 from the linear system 
+
+βmj
+
+hmj
+
+γm+1  
+
+> j−1
+
++
+
+ hmj + hmj+1 
+
+2∆ t − βmj
+
+hmj
+
+− βmj+1 
+
+hmj+1 
+
+
+
+γm+1  
+
+> j
+
++ βmj+1 
+
+hmj+1 
+
+γm+1 
+
+> j+1
+
++ 2
+
+hmj⃗ κ m+1  
+
+> j−1
+
+−
+
+ 2
+
+hmj
+
++ 2
+
+hmj+1 
+
+⃗κ m+1  
+
+> j
+
++ 2
+
+hmj+1 ⃗κ m+1 
+
+> j+1
+
++ λm
+
+2 (hmj + hmj+1 )νm+1  
+
+> j
+
+= hmj + hmj+1 
+
+2∆ t γmj ,
+
+− Q(γm+1  
+
+> j+1
+
+− γm+1  
+
+> j−1
+
+) + ( hmj + hmj+1 )νm+1  
+
+> j
+
+= 0 ,
+
+− 1
+
+hmj
+
+γm+1  
+
+> j−1
+
++ ( 1
+
+hmj
+
++ 1
+
+hmj+1 
+
+)γm+1  
+
+> j
+
+− 1
+
+hmj+1 
+
+γm+1 
+
+> j+1
+
++ 12 (hmj + hmj+1 )⃗κ m+1  
+
+> j
+
+= 0 .
+
+For the sake of numeric stability, we rearranged the points γj every k ∈ N steps such that they are evenly distributed along the curve. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 55 
+
+6.2. Simulation results. In the following calculations, we used N = 100 for the first two simulations and N = 300 for the last two for stability. We parametrized S1
+
+with I = [0 , 2π] and distributed nodes xj = 2 π j−1 
+
+> N
+
+evenly, omitting the redundant closure point at 2 π. As in [8], we choose ∆ t = 0 .5h2 for the maximal grid element 
+
+h. As mentioned before, we rearrange the points γj every k := 100 steps. We are particularly interested in the four following cases. 
+
+Convergence to the circle 
+
+The circle is an area-constrained elastica, satisfying the equation 
+
+−2∂2 
+
+> s
+
+κ − κ3 − λ = 0 for some λ ∈ R. We expect that if the gradient flow starts from a curve γ0 suffi-ciently close to the circle, it will converge to the circle. For example, consider the initial curve γ0(x) = (cos( x), 12 sin( x)), an oval shape. The gradient flow starting from this curve is illustrated in Figure 10.         
+
+> (a) t= 0 (b) t= 0 .04 (c) t= 0 .16
+
+Figure 10. Oval shape γ0(x) = (cos( x), 12 sin( x)). 
+
+Unbounded growth due to scaling 
+
+The elastic energy E exhibits scaling properties: E(rγ ) = 1 
+
+> r
+
+E(γ). This implies scaling a curve by r > 1 reduces its elastic energy. For the unconstrained elastic flow, we therefore expect the curve to grow indefinitely. However, under an area constraint, this growth is limited—unless the algebraic area A remains unchanged. Consider the lemniscate of Bernoulli 
+
+γ0(x) = 11 + sin 2(x) (cos( x), 12 sin(2 x)) .
+
+As mentioned in [16], the lemniscate expands self-similarly for the free elastic flow with length in O(t 14 ) as t → ∞ . It holds λ = −  
+
+> R
+> S1κ3ds
+> L(γ0)
+
+= 0 for the lemniscate by its symmetry properties. Therefore, the area-constrained elastic flow behaves in the same way. Since A(γ0) = 0, scaling γ0 does not alter its algebraic area. The gradient flow for this initial curve is shown in Figure 11, with curve lengths provided in Table 1 to highlight the growth behavior. Moreover, in Table 2 we observe the same scaling behavior t 14 as for the free elastic flow. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 56 
+
+(a) t = 0 (b) t = 19 .74 
+
+Figure 11. Lemniscate of Bernoulli γ0(x) = 
+
+> 11+sin 2(x)
+
+(cos( x), 12 sin(2 x)). 
+
+t 0.0 1.97 3.95 4.93 7.9 15.79 19.74 
+
+L(γt) 5.24 17 .41 20 .52 21 .65 24 .27 28 .78 30 .41 
+
+Table 1. Lengths of lemniscate of Bernoulli. 
+
+t1 t2 L(γt1 ) L(γt2 )
+
+ L(γt1 ) 
+
+> L(γt2)
+
+4
+
+7.9 1.97 24 .27 17 .41 3.78 15 .79 3.95 28 .78 20 .52 3.87 19 .74 4.93 30 .41 21 .65 3.89 
+
+Table 2. Lengths of the flow for different times t1, t 2. The ratio 
+
+ L(γt1 ) 
+
+> L(γt2)
+
+4
+
+highlights the expected length growth of t 14 and approx-imates the ratio of times t1 
+
+> t2
+
+= 4. 
+
+Unbounded length with fixed algebraic area 
+
+Finally, we examine a curve γ0 with winding number nγ0 = 1, such as the ’triple-eight’ γ0(x) = 
+
+ cos( x)sin 2(x)+1 , cos( x) sin(2 x)sin 2(x)+1 − sin( x)2
+
+
+
+. Here, the algebraic area A accounts for the signed contributions of each loop. The curve can expand indefinitely while preserving A, if the central ’belly’ compensates for the gain in area of the outer loops. This behavior is observed in Figure 12 and the evolution of its lengths can be seen in Table 3, while the scaling behavior can be observed in Table 4. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 57 
+
+(a) t = 0 (b) t = 0 .11 
+
+(c) t = 0 .22 (d) t = 2 .19 
+
+Figure 12. Triple-eight shape γ0(x) = 
+
+ cos( x)sin 2(x)+1 , cos( x) sin(2 x)sin 2(x)+1 −
+
+> sin( x)2
+
+
+
+.
+
+t 0.0 0.22 0.44 0.55 0.88 1.75 2.19 
+
+L(γt) 6.79 12 .67 15 .05 15 .91 17 .9 21 .32 22 .56 
+
+Table 3. Lengths of ’triple-eight’ shaped curves. 
+
+t1 t2 L(γt1 ) L(γt2 )
+
+ L(γt1 ) 
+
+> L(γt2)
+
+4
+
+0.88 0.22 17 .9 12 .67 3.98 1.75 0.44 21 .32 15 .05 4.03 2.19 0.55 22 .56 15 .91 4.04 
+
+Table 4. Lengths of the flow for different times t1, t 2. The ratio 
+
+ L(γt1 ) 
+
+> L(γt2)
+
+4
+
+highlights the expected length growth of t 14 and approx-imates the ratio of times t1 
+
+> t2
+
+= 4. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 58 
+
+Convergence to the circle for nonsimple curve 
+
+To highlight the importance of the convergence result Corollary 1.3, we present a flow starting from a nonsimple initial curve Figure 13, which converges to a circle. Consequently, there may exist a broader regime of guaranteed convergence than that specified in Theorem 1.2, which also encompasses nonsimple curves. This suggests that the conditions stated in Theorem 1.2 are not sharp. 
+
+(a) t = 0 (b) t = 0 .01 (c) t = 0 .04 (d) t = 0 .11 
+
+Figure 13. Nonsimple curve γ0(x) = 
+
+ cos( x)sin 2(x)+1 , cos( x) sin(2 x)sin 2(x)+1 −
+
+> sin( x)10
+
+
+
+.
+
+Acknowledgments 
+
+This article was submitted as the first author’s master thesis at the University of Bonn. The authors want to thank Stefan M¨ uller for his interest in the work and for reviewing the thesis. 
+
+Appendix A. Derivatives of operators 
+
+In the following, the derivative of the operator F from (2.11) is presented. Recall that it was given by 
+
+F(γ) = −2 ∂4
+
+> x
+
+γ
+
+|∂xγ|4 + 12 ∂2
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|6 ∂3
+
+> x
+
+γ + 8 ∂3
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|6 ∂2
+
+> x
+
+γ
+
++ 5 |∂2
+
+> x
+
+γ|2
+
+|∂xγ|6 ∂2
+
+> x
+
+γ − 35 (∂2
+
+> x
+
+γ · ∂xγ)2
+
+|∂xγ|8 ∂2
+
+> x
+
+γ. 
+
+We compute the derivative of the summands separately: EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 59 
+
+(A.1) 
+
+ddl l=0 
+
+∂4
+
+> x
+
+(γ + lv )
+
+|∂x(γ + lv )|4 = ∂4
+
+> x
+
+v
+
+|∂xγ|4 − 4 (∂xγ · ∂xv)
+
+|∂xγ|6 ∂4
+
+> x
+
+γ;
+
+ddl l=0 
+
+(∂2
+
+> x
+
+(γ + lv ) · ∂x(γ + lv )) 
+
+|∂x(γ + lv )|6 ∂3
+
+> x
+
+(γ + lv )= (∂2
+
+> x
+
+v · ∂xγ) + ( ∂2
+
+> x
+
+γ · ∂xv)
+
+|∂xγ|6 ∂3
+
+> x
+
+γ − 6 (∂2
+
+> x
+
+γ · ∂xγ)( ∂xγ · ∂xv)
+
+|∂xγ|8 ∂3
+
+> x
+
+γ
+
++ (∂2
+
+> x
+
+γ · ∂xγ)
+
+|∂xγ|6 ∂3
+
+> x
+
+v;
+
+ddl l=0 
+
+(∂3
+
+> x
+
+(γ + lv ) · ∂x(γ + lv )) 
+
+|∂x(γ + lv )|6 ∂2
+
+> x
+
+(γ + lv )= (∂3
+
+> x
+
+v · ∂xγ) + ( ∂3
+
+> x
+
+γ · ∂xv)
+
+|∂xγ|6 ∂2
+
+> x
+
+γ − 6 (∂3
+
+> x
+
+γ · ∂xγ)( ∂xγ · ∂xv)
+
+|∂xγ|8 ∂2
+
+> x
+
+γ
+
++ (∂3
+
+> x
+
+γ · ∂xγ)
+
+|∂xγ|6 ∂2
+
+> x
+
+v;
+
+ddl l=0 
+
+|∂2
+
+> x
+
+(γ + lv )|2
+
+|∂x(γ + lv )|6 ∂2
+
+> x
+
+(γ + lv ) = 2 (∂2
+
+> x
+
+γ · ∂2
+
+> x
+
+v)
+
+|∂xγ|6 ∂2
+
+> x
+
+γ − 6 |∂2
+
+> x
+
+γ|2(∂xγ · ∂xv)
+
+|∂xγ|8 ∂2
+
+> x
+
+γ
+
++ |∂2
+
+> x
+
+γ|2
+
+|∂xγ|6 ∂2
+
+> x
+
+v;
+
+ddl l=0 
+
+(∂2
+
+> x
+
+(γ + lv ) · ∂x(γ + lv )) 2
+
+|∂x(γ + lv )|8 ∂2
+
+> x
+
+(γ + lv )= 2 (∂2
+
+> x
+
+γ · ∂xγ)(( ∂2
+
+> x
+
+v · ∂xγ) + ( ∂2
+
+> x
+
+γ · ∂xv)) 
+
+|∂xγ|8 ∂2
+
+> x
+
+γ − 8 (∂2
+
+> x
+
+γ · ∂xγ)2(∂xγ · ∂xv)
+
+|∂xγ|10 ∂2
+
+> x
+
+γ
+
++ (∂2
+
+> x
+
+γ · ∂xγ)2
+
+|∂xγ|8 ∂2
+
+> x
+
+v. 
+
+These are all linear expressions in v and hence we can write the derivative in the claimed form. Let us compute the derivative of G from (2.13). Recall that it is given by 
+
+G(γ) = 
+
+R 
+
+> S1
+
+κ3ds 
+
+R 
+
+> S1
+
+ds ν. 
+
+Recall ν = 1
+
+> |∂xγ|
+
+−∂xγ2
+
+∂xγ1
+
+
+
+. Moreover, we write κ = ( κν ) · ν and with Proposi-tion 2.1, we can compute the derivative of R 
+
+> S1
+
+κ3ds by EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 60 
+
+ddl l=0 
+
+Z
+
+> S1
+
+ ∂2
+
+> x
+
+(γ + lv )
+
+|∂x(γ + lv )|2 − ∂2
+
+> x
+
+(γ + lv ) · ∂x(γ + lv )
+
+|∂x(γ + lv )|4 ∂x(γ + lv )
+
+
+
+· 1
+
+|∂x(γ + lv )|
+
+−∂x(γ + lv )2
+
+∂x(γ + lv )1
+
+ !3
+
+|∂x(γ + lv )|dx 
+
+=
+
+Z
+
+> S1
+
+3
+
+ ∂2
+
+> x
+
+v
+
+|∂xγ|2 − 2 (∂xγ · ∂xv)
+
+|∂xγ|4 ∂2
+
+> x
+
+γ − (∂2
+
+> x
+
+γ · ∂xv) + ( ∂2
+
+> x
+
+v · ∂xγ)
+
+|∂xγ|4 ∂xγ
+
++ 4 (∂2
+
+> x
+
+γ · ∂xγ)( ∂xγ · ∂xv)
+
+|∂xγ|6 ∂xγ − (∂2
+
+> x
+
+γ · ∂xγ)
+
+|∂xγ|4 ∂xv
+
+
+
+· 1
+
+|∂xγ|
+
+−∂xγ2
+
+∂xγ1
+
+
+
++
+
+ ∂2
+
+> x
+
+γ
+
+|∂xγ|2 − ∂2
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|4 ∂xγ
+
+
+
+·
+
+
+
+− (∂xγ · ∂xv)
+
+|∂xγ|3
+
+−∂xγ2
+
+∂xγ1
+
+
+
++ 1
+
+|∂xγ|
+
+−∂xv2
+
+∂xv1
+
+  !  ∂2
+
+> x
+
+γ
+
+|∂xγ|2 − ∂2
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|4 ∂xγ · 1
+
+|∂xγ|
+
+−∂xγ2
+
+∂xγ1
+
+ !2
+
+|∂xγ|dx 
+
++
+
+Z
+
+> S1
+
+  ∂2
+
+> x
+
+γ
+
+|∂xγ|2 − ∂2
+
+> x
+
+γ · ∂xγ
+
+|∂xγ|4 ∂xγ · 1
+
+|∂xγ|
+
+−∂xγ2
+
+∂xγ1
+
+  3 (∂xγ · ∂xv)
+
+|∂xγ| dx. 
+
+The derivative of 1R  
+
+> S1ds
+
+is given by 
+
+ddl l=0 
+
+1
+
+R 
+
+> S1
+
+|∂x(γ + lv )|dx = −
+
+R 
+
+> S1
+> (∂xγ·∂xv)
+> |∂xγ|
+
+dx 
+
+  R  
+
+> S1
+
+|∂xγ|dx 2 .
+
+Lastly, the derivative of ν is given by 
+
+ddl l=0 
+
+1
+
+|∂x(γ + lv )|
+
+−∂x(γ + lv )2
+
+∂x(γ + lv )1
+
+
+
+= − (∂xγ · ∂xv)
+
+|∂xγ|3
+
+−∂xγ2
+
+∂xγ1
+
+
+
++ 1
+
+|∂xγ|
+
+−∂xv2
+
+∂xv1
+
+
+
+.
+
+Since H¨ older spaces are algebras and we can pull the H¨ older-norm inside the integral, while S1 has finite measure, the derivative can be estimated by (A.2) ∥DG[γ]v∥H α  
+
+> 4,α
+
+≤ c(|∂xγ|−1, ∥γ∥H 4+ α  
+
+> 4,4+ α
+
+)( ∥∂xv∥H α  
+
+> 4,α
+
++ ∥∂2
+
+> x
+
+v∥H α  
+
+> 4,α
+
+)as claimed. 
+
+References 
+
+[1] H. Amann. Ordinary differential equations , volume 13 of De Gruyter Studies in Mathematics .Walter de Gruyter & Co., Berlin, 1990. An introduction to nonlinear analysis, Translated from the German by Gerhard Metzen. [2] B. Andrews. Classification of limiting shapes for isotropic curve flows. J. Amer. Math. Soc. ,16(2):443–459, 2003. [3] H. Brezis. Functional analysis, Sobolev spaces and partial differential equations . Universitext. Springer, New York, 2011. EXISTENCE AND CONVERGENCE OF THE AREA-CONSTRAINED ELASTIC FLOW 61 
+
+[4] D. Bucur and A. Henrot. A new isoperimetric inequality for elasticae. J. Eur. Math. Soc. (JEMS) , 19(11):3355–3376, 2017. [5] A. Dall’Acqua, P. Pozzi, and A. Spener. The lojasiewicz-Simon gradient inequality for open elastic curves. J. Differential Equations , 261(3):2168–2209, 2016. [6] A. Dall’Acqua and A. Spener. The elastic flow of curves in the hyperbolic plane, 2017. [7] C. M. Doria. Differentiability in Banach spaces, differential forms and applications . Springer, Cham, [2021] ©2021. [8] G. Dziuk, E. Kuwert, and R. Sch¨ atzle. Evolution of elastic curves in Rn: existence and computation. SIAM J. Math. Anal. , 33(5):1228–1245, 2002. [9] S. D. Eidelman and N. V. Zhitarashu. Parabolic boundary value problems , volume 101 of 
+
+Operator Theory: Advances and Applications . Birkh¨ auser Verlag, Basel, 1998. Translated from the Russian original by Gennady Pasechnik and Andrei Iacob. [10] V. Ferone, B. Kawohl, and C. Nitsch. The elastica problem under area constraint. Math. Ann. , 365(3-4):987–1015, 2016. [11] C. Gerhardt. Curvature problems , volume 39 of Series in Geometry and Topology . Interna-tional Press, Somerville, MA, 2006. [12] A. D. Ioffe. On lower semicontinuity of integral functionals. I. SIAM J. Control Optim. ,15(4):521–538, 1977. [13] W. K¨ uhnel. Differential geometry , volume 16 of Student Mathematical Library . American Mathematical Society, Providence, RI, 2002. Curves—surfaces—manifolds, Translated from the 1999 German original by Bruce Hunt. [14] J. Langer and D. A. Singer. Curve straightening and a minimax argument for closed elastic curves. Topology , 24(1):75–88, 1985. [15] J. M. Lee. Introduction to smooth manifolds , volume 218 of Graduate Texts in Mathematics .Springer, New York, second edition, 2013. [16] T. Miura and G. Wheeler. The free elastic flow for closed planar curves. J. Funct. Anal. ,289(7):Paper No. 111030, 22, 2025. [17] M. M¨ uller and F. Rupp. A Li-Yau inequality for the 1-dimensional Willmore energy. Adv. Calc. Var. , 16(2):337–362, 2023. [18] M. Murai, W. Matsumoto, and S. Yotsutani. Representation formula for the plane closed elastic curves. Discrete Contin. Dyn. Syst. , pages 565–585, 2013. [19] S. Okabe. The motion of elastic planar closed curves under the area-preserving condition. 
+
+Indiana Univ. Math. J. , 56(4):1871–1912, 2007. [20] R. Osserman. The isoperimetric inequality. Bull. Amer. Math. Soc. , 84(6):1182–1238, 1978. [21] M. Pozzetta. Convergence of elastic flows of curves into manifolds. Nonlinear Anal. , 214:Paper No. 112581, 53, 2022. [22] F. Rupp. On the lojasiewicz-Simon gradient inequality on submanifolds. J. Funct. Anal. ,279(8):108708, 33, 2020. [23] F. Rupp. Constrained gradient flows for Willmore-type functionals . PhD thesis, Universit¨ at Ulm, 2022. [24] F. Rupp and A. Spener. Existence and convergence of the length-preserving elastic flow of clamped curves. J. Evol. Equ. , 24(3):Paper No. 59, 41, 2024. [25] R. T. Seeley. Extension of C∞ functions defined in a half space. Proc. Amer. Math. Soc. ,15:625–626, 1964. [26] A. Spener. Short time existence for the elastic flow of clamped curves. Math. Nachr. ,290(13):2052–2077, 2017. [27] K. Watanabe. Plane domains which are spectrally determined. Ann. Global Anal. Geom. ,18(5):447–475, 2000. 
+
+Email address : fhauser@uni-bonn.de 
+
+Email address : scharrer@iam.uni-bonn.de 
+
+Email address : west@iam.uni-bonn.de 
+
+Institute for Applied Mathematics, University of Bonn, Endenicher Allee 60, 53115 Bonn, Germany

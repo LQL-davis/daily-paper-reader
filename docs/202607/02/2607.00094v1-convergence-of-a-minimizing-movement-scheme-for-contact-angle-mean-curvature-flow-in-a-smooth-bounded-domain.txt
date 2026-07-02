@@ -1,0 +1,1657 @@
+Title: Convergence of a minimizing movement scheme for contact-angle mean curvature flow in a smooth bounded domain
+
+URL Source: https://arxiv.org/pdf/2607.00094v1
+
+Published Time: Thu, 02 Jul 2026 00:04:24 GMT
+
+Number of Pages: 23
+
+Markdown Content:
+# Convergence of a minimizing movement scheme for contact-angle mean curvature flow in a smooth bounded domain 
+
+Tokuhiro Eto ∗, Jiwoong Jang †
+
+Abstract 
+
+This paper studies a Chambolle-type minimizing movement scheme for mean curvature flow with prescribed contact angle in a smooth bounded domain. The scheme is based on the capillary functional and the geodesic signed distance relative to the container, and yields a time-discrete level-set approximation. The main result asserts that, for every C1 boundary function prescribing a strictly nondegenerate contact angle, the approximate solutions converge locally uniformly to the unique viscosity solution of the corresponding level-set mean curvature equation with oblique derivative boundary condition. This improves a previous convergence theorem, where the container was assumed to be convex and a curvature-type condition relating the tangential derivative of the prescribed contact-angle function to the principal curvatures of the container boundary was imposed. The main new ingredient is a uniform Lipschitz estimate for the solutions of the variational problems defining the scheme. This estimate is derived by applying a Bernstein-type argument to a suitable weighted gradient, rather than to the gradient itself, which rules out boundary maxima without relying on the previous curvature-type condition. 
+
+Key words. Mean curvature flow, Contact angle condition, Viscosity solutions, Minimizing movement schemes 
+
+MSC codes. 35D40, 53E10, 35K93 
+
+# 1 Introduction 
+
+In this paper, we consider the mean curvature flow in a smooth bounded domain Ω ⊂ Rd (d ⩾ 2) with general contact angle condition. Precisely, we aim to find an evolving interface {Γ( t)}t⩾0
+
+satisfying the following system of equations: 
+
+
+
+V = − div Γ νΓ( t), on Γ( t), t > 0,νΩ · νΓ( t) = −β on ∂Γ( t) ∩ ∂Ω, t > 0,
+
+Γ(0) = Γ 0,
+
+(1.1) where νΓ( t) denotes the normal vector field on Γ( t), and V is the normal velocity of Γ( t) in the direction of νΓ( t); the operator div Γ designs the surface divergence. The first equation in (1.1) means that Γ( t) should move with the speed being equal to its mean curvature, whereas the second equation stresses that the boundary ∂Γ( t) contacts the boundary ∂Ω of the container Ω with the angle being equal to arccos ( −β). Here, νΩ denotes the outward unit normal vector field on ∂Ω, 
+
+> ∗
+
+Universit´ e Claude Bernard Lyon 1, CNRS, Centrale Lyon, INSA Lyon, Universit´ e Jean Monnet, ICJ UMR5208, 69622 Villeurbanne, France (eto@math.univ-lyon1.fr), 
+
+> †
+
+Department of Mathematics, University of Maryland-College Park (jjang124@umd.edu). 
+
+1
+
+> arXiv:2607.00094v1 [math.AP] 30 Jun 2026
+
+2and the function β : ∂Ω → (−1, 1) is the cosine function which is associated with a prescribed contact angle function θ : ∂Ω → (0 , π ). Here, we exclude the case where Γ( t) is tangential to the boundary of the container. Finally, to close the system (1.1), the third equation is imposed as the initial condition. The first author and Giga [10] proposed a minimizing movement scheme (MMS) to approximate the solution to (1.1). We briefly review their idea here. To define a time discrete solution to (1.1), the following iteration was implemented. Given an initial level-set function u0:
+
+un+1 := arg min  
+
+> u∈L2(Ω) ∩BV (Ω)
+
+Jβ (u) (1.2) with 
+
+Jβ (u) := Cβ (u) + 12h
+
+ˆ
+
+> Ω
+
+(u − dΩ,E n )2 dLd,Cβ (u) := 
+
+ˆ
+
+> Ω
+
+|∇ u| +
+
+ˆ
+
+> ∂Ω
+
+βγu dHd−1,
+
+where Ld and Hd−1 respectively denote the d-dimensional Lebesgue measure and ( d−1)-dimensional Hausdorff measure; γ : BV (Ω) → L1(∂Ω) is the trace operator; En := {un ⩽ 0}, and dΩ,E n denotes the geodesic signed distance function to En in Ω whose sign is negative interior of En; Cβ (u) is called the capillary functional . The target energy in (1.2) was originally motivated by Chambolle’s scheme [7] to approximate the mean curvature flow without contact boundary. In contrast to his scheme, the target energy of the MMS is replaced with the capillary functional Cβ (u) to cope with contact boundary. Moreover, it should be also noted that the data function is replaced with the geodesic signed distance function. In the case when Ω is not convex, this replacement of the distance function guarantees the monotonicity of the discrete scheme, that is, we have dΩ,E ⩽ dΩ,F 
+
+whenever E ⊃ F (see [11, Lemma 3.5]). We remark that these discrete schemes are the level-set analogue of Almgren–Taylor–Wang-type variational scheme to construct a flat flow [1]. Letting P(Ω) denote the family of all subsets in Ω, we define a set operator Th : P(Ω) → P (Ω) by using (1.2). Namely, we set 
+
+Th(E) := {x ∈ Ω | u(x) ⩽ 0}, (1.3) where u is a minimizer of (1.2) with E ⊂ Ω in place of En. In fact, this set operator Th is well defined since the minimizer of (1.2) is unique by strict convexity of the target energy and the lower semi-continuity of the capillary functional Cβ (u) (see Modica [25]). For the proof of the lower semi-continuity of Cβ (u) which works for a uniformly C2 bounded domain Ω, we refer the reader to [10, Proposition 4]. The geometric evolution equation (1.1) can be represented as the following Neumann boundary value problem in the level-set formulation: 
+
+
+
+ut = |∇ u| div ∇ϕ(∇u) in Ω × (0 , T ),
+
+∇u · νΩ + β|∇ u| = 0 on ∂Ω × (0 , T ),u(·, 0) = u0 in Ω,
+
+(1.4) where ϕ(p) := |p| for p ∈ Rd, and u0 is supposed to be a level-set function whose zero-level set corresponds to the interface Γ( t). We note that the first equation of (1.4) is singular if ∇u = 0, thus we will adapt the notion of viscosity solutions which will be defined later. The interpretation from the geometric form (1.1) to (1.4) is clear on noting that if u(·, t ) is a level-set function of Γ( t), 3then ut(·, t )/|∇ u(·, t )| and ∇u(·, t )/|∇ u(·, t )| correspond to the normal velocity and the unit normal vector field νΓ( t) of Γ( t), respectively. In [11], the first author and Giga constructed an approximate solution to (1.4), which is discrete in time, by using the set operator Th. Precisely, given a function u ∈ C(Ω), the next-step function 
+
+Shu of u was defined by 
+
+Shu(x) := sup {λ ∈ R | x ∈ Th({u ⩾ λ})} for x ∈ Ω. (1.5) The definition of Sh in (1.5) is given in [11] (see also [12,13] for no contact boundary case). The iteration of Sh leads to the construction of approximate solution (discrete in time) to the level-set equation (1.4): 
+
+uh(t, x ) := S⌊ th ⌋ 
+
+> h
+
+u(x), (1.6) where for r ∈ R, ⌊r⌋ denotes the largest integer which does not exceed r. Then, they showed the following convergence result [11, Theorem 1.1, Corollary 1.1]: 
+
+Proposition. Assume that Ω is a bounded convex domain in Rd with C2,1 boundary. Assume that β ∈ C1(∂Ω) , ∥β∥C0(∂Ω) < 1, and |∇ ∂Ωβ| ⩽ κ(x) for every x ∈ ∂Ω, where κ(x) denotes the minimum positive principal curvature of ∂Ω at x. Then, uh uniformly converges to the unique viscosity solution to (1.4) as h → 0.
+
+The above result would be restrictive in the sense that the geodesic signed distance function 
+
+dΩ,E coincides with the standard signed distance function dE when Ω is convex. Moreover, though the contact angle function β is supposed to be a prescribed, its derivative should be bounded by geometric features of the container Ω. In particular, in the half-space case, all principal curvatures of the boundary are zero, and hence β must be constant; this implies that in practice, we cannot prescribe contact angle condition. This motivate us to explore a more general criteria on Ω and β
+
+to guarantee the convergence of the scheme. We now state our main result: 
+
+Theorem 1.1. Assume that Ω is a bounded domain in Rd with smooth boundary. Assume that 
+
+β ∈ C1(∂Ω) and ∥β∥C0(∂Ω) < 1. Then, uh converges locally uniformly to the unique viscosity solution to (1.4) as h → 0.
+
+The variational problem (1.2) is interpreted as the Euler–Lagrange inclusion: 
+
+w − dΩ,E 
+
+h + ∂C β (w) ∋ 0,
+
+where ∂C β (u) denotes the subdifferential of Cβ (u). The solution w to the above inclusion was characterized by the first author and Giga [10, Theorem 2], and we observe that w solves the discrete variant of the level-set equation (1.4): 
+
+(
+
+w − h div ∇ϕ(∇w) = dΩ,E in Ω,
+
+∇w · νΩ + β|∇ w| = 0 on ∂Ω. (1.7) The framework to prove Theorem 1.1 is similar as explained in [11]. Given an initial function 
+
+u0 ∈ C(Ω) whose zero-level set equals Γ 0, we define uh(x, h ) := Shu0(x) and observe that uh(·, h )is the solution to (1.7) with E = {u0 ⩽ 0} = {u0 < 0}. Taking E as the sub zero-level set of 
+
+uh in (1.7), we can also define uh(·, 2h). Repeating this procedure, we have a discrete solution 
+
+uh up to the time horizon T as in (1.6). We now consider the upper and lower relax limits 
+
+u = lim sup h→0∗uh and u = lim inf h→0∗uh (see Definition 2.17). If we can prove that u and u4are respectively a subsolution and supersolution of the level-set equation (1.4), then a comparison principle for viscosity solutions (Proposition 2.14) together with the trivial inequality u ⩾ u implies 
+
+u = u as soon as the function operator Sh satisfies the monotonicity, translation invariance, stability, and consistency (Proposition 2.18). The most involved part in the proof is the consistency; roughly speaking, we need to show the relation between the generator of the function operator Sh and the function F :lim 
+
+> h→0
+
+Shφ(x) − φ(x)
+
+h = −F (∇φ(x), ∇2φ(x)) (1.8) for smooth test functions φ with ∇φ(x)̸ = 0. To this end, we are led to relate the level sets of 
+
+{Shφ ⩾ λ} to the set Th({φ ⩾ λ}) for λ ∈ R, and if we admit this, then the consistency property will be proven as in [11]. The relation between Sh and Th can be deduced from the continuity property of Th (Proposition 2.24), and this property can be shown as a consequence of the equi-continuity of the solution w to (1.7) with respect to the choice of the data E (Proposition 2.25). In [11], the assumption that 
+
+|∇ ∂Ωβ| ⩽ min  
+
+> 1⩽i⩽d−1
+
+κi everywhere on ∂Ω (1.9) was essentially used to adapt a classical maximum principle of an elliptic partial differential equa-tion. Here, κi’s are the principal curvatures of ∂Ω. The main result of this paper obtains the same convergence but not relying on the assumption (1.9) so that we can include general cases. Interestingly, variant versions of (1.9) appeared in the literature. For instance, on a convex domain with the right-angle condition (which corresponds to the assumption (1.9) with β ≡ 0), the Lipschitz continuity of viscosity solutions to (1.4) is proved in [17], which is directly related to the existence of stable stationary surfaces of (1.1). Paper [21] includes a spatial forcing term (possibly on a nonconvex domain) and provides a sufficient condition on the forcing term and the domain to guarantee the Lipchitz continuity of viscosity solutions, which is a generalization of the condition (1.9). Paper [20] then extends the conclusions including general angle conditions. The main result of this paper can be seen as a continuation of this context since our paper obtains the uniform Lipschitz regularity of the solution w of (1.7) (see Proposition 3.2) that was proved in [11] under the assumption (1.9). Our main result removes the assumption (1.9), and thus, Theorem 1.1 applies on a nonconvex domain as well. In [11], the assumption (1.9) was used in order to use the maximum principle on the gradient function (denote by u), which then implies that the solution w of (1.7) is uniformly Lipschitz continuous. More precisely, the assumption (1.9) ensures that the gradient function is a subsolution of an elliptic equation up to the boundary. In other words, the gradient function does not assume maximum on the boundary ∂Ω due to the assumption (1.9). However, this argument is no more valid if we do not assume (1.9). In this context, the technical novelty of our main result (see Theorem 1.1 and Proposition 3.2) is as follows: Instead of estimating the gradient function, we alternatively prove a uniform estimate for the weighted gradient (denote by v := ρu ) in order to avoid the use of the assumption (1.9). The weight function ρ is taken so that the weighted gradient v cannot assume maximum on the boundary ∂Ω, and consequently, the function ρ depends on the shape of ∂Ω naturally. We then next derive an elliptic partial differential inequality in Ω which is satisfied by the function v and a uniform constant function. The maximum principle is thus applied so that the weight gradient 
+
+v = ρu (as well as the original gradient u up to a multiplicative constant) is bounded by a uniform constant. 5We briefly review previous works on MMSs for the mean curvature flow. We first consider the case without contact with a container boundary. Almgren–Taylor–Wang [1] introduced a MMS for mean curvature flow in the whole space Rd, starting from a bounded set E0 of finite perimeter. They proved the existence of a limiting flow, called a flat Φ-curvature flow , and showed that it agrees with the smooth mean curvature flow as long as the latter exists. Luckhaus–Sturzenhecker [24] studied the same MMS and proved convergence to a distributional solution of mean curvature flow under the additional assumption that the perimeters of the discrete solutions converge to the perimeter of the limiting flow. Chambolle [7] proposed a level-set formulation of the Almgren– Taylor–Wang scheme. In the present notation, the corresponding energy is given by (1.2) with 
+
+β ≡ 0. This formulation yields a well-defined discrete operator despite the possible non-uniqueness of set minimizers thanks to the strict convexity of the energy. Chambolle proved that the re-sulting discrete flow converges, in the L1 sense, to the level-set mean curvature flow up to the time horizon on which the latter is uniquely defined. The works of Eto–Giga–Ishii [12, 13] are foundational earlier works for the approach adopted in the present paper. They revisited Cham-bolle’s scheme from the viewpoint of morphological operators (see [6]), and introduced a function operator associated with the discrete scheme. By exploiting a sup–inf representation of this oper-ator, they proved convergence of the approximate solutions to the unique viscosity solution of the corresponding level-set mean curvature equation. Chambolle–De Gennaro–Morini [8] developed a MMS for anisotropic and inhomogeneous mean curvature flows with mobility and time-dependent forcing. They proved convergence to level-set/viscosity solutions and, in low dimensions and un-der a suitable energy convergence assumption, convergence to distributional solutions in the sense of Luckhaus–Sturzenhecker. The same authors [9] studied a fully discrete variant of the implicit variational scheme for crystalline mean curvature flow. Their scheme combines the time-discrete minimizing-movement approach of Almgren–Taylor–Wang and Luckhaus–Sturzenhecker with a spa-tial discretization based on discrete total variation energies. A key point of their construction is a suitable discrete signed-distance/redistancing operator, which avoids the drift and pinning phe-nomena arising in more direct fully discrete implementations. They proved convergence to the corresponding distributional crystalline curvature flow in arbitrary dimension for a large class of purely crystalline anisotropies. We next recall related works in the presence of contact with a boundary. Bellettini–Kholmatov [4] studied a MMS for mean curvature flow of droplets in the half-space Rd 
+
+> +
+
+with a prescribed, pos-sibly non-constant, contact angle. They proved the existence of generalized minimizing movements (GMMs) and showed their compatibility with a distributional formulation of mean curvature flow with prescribed contact angle. This work motivated the subsequent works by the first author and Giga [10, 11]. Kholmatov [22] subsequently extended this set-theoretic GMM framework to forced anisotropic curvature flows of droplets in a half-space, based on anisotropic capillary energies and prescribed anisotropic Young laws. The same author [23] proved consistency of GMMs with the smooth mean curvature flow of droplets in R3+ with prescribed contact angle. In particular, under suitable regularity assumptions on the initial droplet and on the contact angle function β, including 
+
+β ∈ C1+ α(∂R3+) and ∥β∥C0(∂R3+) < 1, the GMM agrees with the corresponding smooth flow as long as the latter exists. This paper is organized as follows. In Section 2, we recall basic definitions and properties of the geodesic signed distance function, viscosity solutions, and set operator and function operators. Section 3 is devoted to derivation of a Lipschitz bound estimate of approximate solutions. We emphasize that this section presents a main contribution of this paper. Finally, in Section 4, we perform the proof of Theorem 1.1. 6
+
+# 2 Preliminaries 
+
+2.1 Geodesic distance 
+
+In this paper, we will work with the geodesic signed distance function dΩ,E to a relatively closed set E in Ω instead of the ordinary signed distance function dE . We give the precise definition of this function and mention about some gradient bound. 
+
+Definition 2.1 (Geodesic distance between points) . For x, y ∈ Ω, a Lipschitz continuous map 
+
+ℓ : [0 , 1] → Ω is called a path between x and y, which is written as ℓ ∈ Path( x, y ), if and only if 
+
+ℓ(0) = x and ℓ(1) = y. The geodesic distance dist Ω(x, y ) between x and y is defined by: 
+
+dist Ω(x, y ) := inf 
+
+ˆ 10
+
+|ℓ′(t)| dt ℓ ∈ Path( x, y )
+
+
+
+. (2.1) 
+
+Definition 2.2 (Geodesic distance to sets) . For each E ⊂ Ω, the geodesic distance function dist Ω(·, E ) to the set E is defined by: 
+
+dist Ω(x, E ) := inf 
+
+
+
+dist Ω(x, y ) y ∈ E
+
+
+
+.
+
+Definition 2.3 (Geodesic signed distance to sets) . For each E ⊂ Ω, the geodesic signed distance function dΩ,E to the set E is defined by: 
+
+dΩ,E (x) := 
+
+(
+
+− dist Ω(x, Ω \ E) if x ∈ E, 
+
+dist Ω(x, E ) if x / ∈ E. 
+
+Remark 2.4. In the case when Ω is convex, dΩ,E coincides with the ordinary signed distance function dE since the segment connecting x and y is always included in Ω, and the corresponding map ℓ ∈ Path( x, y ) attains the minimum of (2.1) .
+
+Proposition 2.5. Assume that Ω is bounded Lipschitz domain in Rd. Then, there exists a constant 
+
+CΩ > 0 such that 
+
+|dΩ,E (x) − dΩ,E (y)| ⩽ CΩ|x − y| ∀x, y ∈ Ω.
+
+In particular, dΩ,E is differentiable a.e. in Ω, and it holds that |∇ dΩ,E (x)| ⩽ CΩ for a.e. x ∈ Ω.Proof. This can be deduced from the fact that any bounded Lipschitz domain is uniform (see [5], for instance). The differentiability of dΩ,E follows from Rademacher’s theorem (see [14, Theorem 3.2]). 
+
+Remark 2.6. For the classical signed distance functions, it is well known that |∇ dE | = 1 . To claim our main result, we impose C2,1 regularity to Ω, and hence we have the bound ∥∇ dΩ,E ∥L∞(Ω) ⩽ CΩ
+
+as above. We note that if x ∈ Ω, then we have |∇ dΩ,E (x)| ⩽ 1 since we can take δ > 0 so small that dist Ω(x, y ) = |x − y| for every y ∈ Bδ(x).
+
+2.2 Viscosity solutions 
+
+In this section, we recall the notion of viscosity solutions and its well known properties which will be used in the sequel. For later use, we introduce functions F : ( Rd \ { 0}) × Sd → R and 
+
+B : ∂Ω × Rd → R, where Sd denotes the set of all symmetric matrices in Rd×d, and Id ∈ Rd×d7designs the identity matrix. Using these functions, we consider the following initial boundary problem: 
+
+ut + F (∇u, ∇2u) = 0 in Ω × (0 , T ),B(·, ∇u) = 0 on ∂Ω × (0 , T ),u(·, 0) = u0 in Ω,
+
+(2.2) where ∇2u denotes the Hessian matrix of u, say ( ∇2u)ij := ∂2 
+
+> xixj
+
+u for 1 ⩽ i, j ⩽ d.We note that the level-set equation (1.4) can be represented as (2.2) by choosing 
+
+F (p, X ) := − tr 
+
+ 
+
+Id − p ⊗ p
+
+|p|2
+
+
+
+X
+
+
+
+for p ∈ Rd \ { 0}, X ∈ Sd,B(x, p ) := p · νΩ(x) + β(x)|p| for x ∈ Ω, p ∈ Rd.
+
+(2.3) We now introduce the notion of viscosity solutions to (2.2). Let us begin with recalling a family of test functions from [16, §2.1.3]. 
+
+Definition 2.7 (Compatible test functions) . Let F be the set of smooth functions on the half line defined by 
+
+F := 
+
+
+
+f ∈ C2[0 , ∞) f (0) = f ′(0) = f ′′ (0) = 0 , f ′′ (r) > 0 ∀r > 0
+
+
+
+.
+
+A function φ ∈ C2(Ω × (0 , T )) is compatible with the function F provided that for any (ˆ x, ˆt) ∈
+
+Ω × (0 , T ) with ∇φ(ˆ x, ˆt) = 0 , there exist a constant δ > 0, a function f ∈ F , and a modulus 
+
+ω ∈ C[0 , ∞) with lim σ→0 ω(σ)/σ = 0 satisfying 
+
+|φ(x, t ) − φ(ˆ x, ˆt) − φt(ˆ x, ˆt)( t − ˆt)| ⩽ f (|x − ˆx|) + ω(|t − ˆt|)
+
+for every (x, t ) ∈ Ω × (0 , T ) with |x − ˆx| ⩽ δ and |t − ˆt| ⩽ δ. The set of all compatible test functions with F is denoted by C2 
+
+> F
+
+(Ω × (0 , T )) .
+
+Definition 2.8 (Semi-continous envelopes) . The lower (resp., upper) semi-continuous envelope F∗
+
+(resp., F ∗) of F : Rd \ { 0} × Sd → R is defined by 
+
+F∗(p, X ) := lim inf 
+
+> ε→0
+
+
+
+F (q, Y ) |p − q| < ε, ∥X − Y ∥2 < ε 
+
+
+
+resp., F ∗(p, X ) := lim sup 
+
+> ε→0
+
+
+
+F (q, Y ) |p − q| < ε, ∥X − Y ∥2 < ε 
+
+
+
+,
+
+where ∥X∥2 := 
+
+qPdi,j =1 x2 
+
+> ij
+
+for X = ( xij )1⩽i,j ⩽d ∈ Rd×d.
+
+Definition 2.9 (Viscosity solutions) . A function u : Ω ×(0 , T ) → R is called a viscosity subsolution (resp., supersolution) to (2.2) provided that u∗(x, t ) < ∞ (resp., u∗(x, t ) > −∞ ) for all (x, t ) ∈
+
+Ω × (0 , T ) and for any test function φ ∈ C2 
+
+> F
+
+(Ω × (0 , T )) and (ˆ x, ˆt) ∈ Ω × (0 , T ) such that u∗ − φ
+
+takes a local maximum (resp., local minimum) at (ˆ x, ˆt), it holds that 
+
+
+
+φt(ˆ x, ˆt) + F∗(∇φ(ˆ x, ˆt), ∇2φ(ˆ x, ˆt)) ⩽ 0 if ∇φ(ˆ x, ˆt)̸ = 0 (resp., φ t(ˆ x, ˆt) + F ∗(∇φ(ˆ x, ˆt), ∇2φ(ˆ x, ˆt)) ⩾ 0 if ∇φ(ˆ x, ˆt)̸ = 0) ,φt(ˆ x, ˆt) ⩽ 0 if ∇φ(ˆ x, ˆt) = 0 (resp., φ t(ˆ x, ˆt) ⩾ 0 if ∇φ(ˆ x, ˆt) = 0) ,
+
+(2.4) 8
+
+if ˆx ∈ Ω and either (2.4) or B∗(ˆ x, ∇φ(ˆ x, ˆt)) ⩽ 0 (resp., B∗(ˆ x, ∇φ(ˆ x, ˆt)) ⩾ 0) holds if ˆx ∈ ∂Ω.A function u is called a viscosity solution to (2.2) if u is a viscosity subsolution and supersolu-tion. 
+
+Remark 2.10. Definition 2.9 is based on the notion of F-solutions (see e.g., [16, Definition 2.3.7]). For the special choice of F in (2.3) , we have that 
+
+C2 
+
+> F
+
+(Ω × (0 , T )) = 
+
+
+
+φ ∈ C2(Ω × (0 , T )) ∇φ(z) = 0 = ⇒ ∇ 2φ(z) = O
+
+
+
+. (2.5) 
+
+Therefore, for test functions φ with φ(ˆ x, ˆt) = 0 , we may assume that ∇2φ(ˆ x, ˆt) = O for the confirmation of either φt(ˆ x, ˆt) ⩽ 0 or φt(ˆ x, ˆt) ⩾ 0. We refer the reader to [16, Remark 2.1.6, Proposition 2.1.8] for the detail. 
+
+Definition 2.11 (Degenerate ellipticity and geometricity) . A function F : ( Rd \ { 0}) × Sd → R is said to be degenerate elliptic if for any p ∈ Rd and X, Y ∈ Sd satisfying X ⩽ Y , then it holds that 
+
+F (p, X ) ⩾ F (p, Y ),
+
+where the condition X ⩽ Y means that Y − X is positive semi-definite. A function F : ( Rd \ { 0}) ×
+
+Sd → R is said to be geometric if for any λ > 0, p ∈ Rd \ { 0} and X ∈ Sd, then it holds that 
+
+F (λp, λX + σp ⊗ p) = λF (p, X ) for all σ ∈ R.
+
+Remark 2.12. The viscosity solution describes a weak notion of solutions in the sense that any classical solution satisfies the partial differential inequalities in (2.4) due to the maximum principle as soon as F is degenerate elliptic. 
+
+Remark 2.13. The geometric property F is important to apply the level-set method to geometric flows like the mean curvature flow (1.1) . This property guarantees an invariant property of the level sets yielded from the solution of (2.2) in regard to the choice of the initial condition u0 satisfying 
+
+{u0 = 0 } = Γ 0. See [2, Theorem 4.2], for instance. 
+
+We now state an important property of viscosity solutions which guarantees its uniqueness. 
+
+Proposition (Comparison principle) . Let u (resp., v) be a bounded viscosity subsolution (resp., supersolution) to (2.2) . Assume that F is degenerate elliptic and geometric. Then, it holds that 
+
+u ⩽ v in Ω × (0 , T ) provided that u(·, 0) ⩽ v(·, 0) in Ω.
+
+We now recall from [11, Theorem 2.2] the comparison principle for (2.2). 
+
+Proposition 2.14. Assume that Ω is C2,1, ∥β∥C0(∂Ω) < 1 and ∥∇ ∂Ωβ∥C0(∂Ω) < ∞. Then, for the choice of F and B as in (2.3) , the target level-set equation (2.2) satisfies the comparison principle. 
+
+Remark 2.15 (Regularity of the boundary) . Proposition 2.14 was shown in [11, Theorem 2.1] by invoking the comparison result due to Barles [2, Theorem 3.1]; the C2,1 regularity of Ω was crucial to guarantee the uniformly boundedness of the surface gradient ∇∂ΩνΩ of the outward normal vector field νΩ. We can find a similar comparison result by Ishii–Sato [19, Theorem 2.1, §5], and their theorem also required the C2,1 regularity of Ω.
+
+Remark 2.16 (Boundedness of the surface gradient of β). We note that Ω is not necessarily bounded in the hypothesis of Proposition 2.14. However, we will invoke the assumption that Ω is bounded to claim the maximum principle of the variational problem (1.2) , and hence ∥∇ ∂Ωβ∥C0(∂Ω) <
+
+∞ is automatically satisfied as soon as β is smooth since ∂Ω is compact. 9
+
+Definition 2.17 (Relaxed limit) . Let O be a set, being typically either Ω or Ω × [0 , T ], and let uh
+
+be a function on O parametrized by h > 0. Then, the relaxed limits u and u of uh are defined by 
+
+u(x) = lim sup 
+
+> h→0
+> ∗
+
+uh(x) := lim  
+
+> h→0
+
+sup 
+
+
+
+uh(y) |x − y| < δ, 0 < δ < h 
+
+
+
+,u(x) = lim inf  
+
+> h→0∗
+
+uh(x) := lim  
+
+> h→0
+
+inf 
+
+
+
+uh(y) |x − y| < δ, 0 < δ < h 
+
+
+
+.
+
+In this study, we aim to apply the convergence result of discrete schemes approximating viscosity solutions by Barles and Souganidis [3, Theorem 2.1] to show Theorem 1.1. 
+
+Proposition 2.18. For each h > 0, suppose that Sh : BU C (Ω) → BU C (Ω) satisfies the following conditions: 
+
+Monotonicity: 
+
+Shu ⩽ Shv if u ⩽ v in Ω.
+
+Translation invariance: 
+
+Sh(u + c) = Shu + c ∀c ∈ R,Sh(0) = 0 .
+
+Consistency: Assume that F : ( Rd \ { 0}) × Sd → R is degenerate elliptic, geometric, and contin-uous, and F satisfies −∞ < F ∗(0 , O ) = F ∗(0 , O ) < ∞. For every φ ∈ C2 
+
+> F
+
+(Ω) ∩ C2(Ω) and z ∈ Ω
+
+satisfying either 
+
+• z ∈ Ω, or 
+
+• z ∈ ∂Ω and ⟨∇ φ(z), ν Ω(z)⟩ + β(z)|∇ φ(z)| > 0 ( resp., < 0) ,it holds that 
+
+lim sup  
+
+> h→0
+> ∗
+
+Shφ(z) − φ(z)
+
+h ⩽ −F∗(∇φ(z), ∇2φ(z)) (( resp., lim inf  
+
+> h→0∗
+
+Shφ(z) − φ(z)
+
+h ⩾ −F ∗(∇φ(z), ∇2φ(z))) .
+
+(2.6) 
+
+Finally, assume that the limit problem (2.2) satisfies the comparison principle. Then, for any 
+
+u0 ∈ BU C (Ω) , the function uh defined by (1.6) converges locally uniformly to the unique viscosity solution to (2.2) .
+
+Remark 2.19. We note that the original criterion of the consistency condition in [3, Theorem 2.1] did not include the case for z ∈ ∂Ω. We do not have to check (2.6) if ⟨∇ φ(z), ν Ω(z)⟩+β(z)|∇ φ(z)| ⩽
+
+0 ( resp., ⩾ 0) thanks to the definition of viscosity solutions in Definition 2.9. 
+
+Remark 2.20. According to the proof of the convergence result by Barles and Souganidis [3, Theo-rem 2.1], it is enough to show the consistency condition for compatible test functions with F . Thus, thanks to the relation (2.5) , the Hessian of test functions can be supposed to be zero whenever its gradient vanishes. 10 
+
+2.3 Set operator and function operator 
+
+In this section, we give a general framework which connects a set operator like Th introduced in (1.3) to a function operator via a level-set interpretation. First, we call a map T : P(Ω) → P (Ω) a 
+
+set operator on Ω 
+
+Definition 2.21 (Monotonicity of set operators) . A set operator T on Ω is said to be monotone provided that 
+
+T (E) ⊂ T (F ) if E ⊂ F ⊂ Ω.
+
+Definition 2.22 (Continuity of set operators) . A set operator T on Ω is said to be continuous provided that for any non-increasing sequence {Ei}i of closed sets in Ω, it holds that 
+
+> ∞
+
+\
+
+> i=1
+
+T (Ei) = T
+
+> ∞
+
+\
+
+> i=1
+
+Ei
+
+!
+
+. (2.7) 
+
+Definition 2.23 (A function operator associated to a set operator) . Let T be a set operator on Ω.Then, the function operator S associated to T is defined by 
+
+Su (x) := sup 
+
+
+
+λ ∈ R x ∈ T (u ⩾ λ)
+
+
+
+for x ∈ Ω, u ∈ C(Ω) . (2.8) 
+
+Proposition 2.24. Assume that a set operator T is continuous, and let S be the function operator associated to T . Then, it holds that 
+
+{Su ⩾ λ} = T ({u ⩾ λ}) ∀λ ∈ R, ∀u ∈ C(Ω) .
+
+Proof. If x ∈ T ({u ⩾ λ}), then we deduce from the definition of S (2.8) that Su (x) ⩾ λ, and hence 
+
+{Su ⩾ λ} ⊃ T ({u ⩾ λ}). We show the opposite inclusion. Assume that Su (x) ⩾ λ. We can take a non-decreasing sequence λi ↑ Su (x) for which x ∈ T (Ei) for every i ∈ N using the notation that 
+
+Ei := {u ⩾ λi}. Since {Ei}i is non-increasing, we can invoke the continuity of T (2.7) and obtain 
+
+x ∈
+
+> ∞
+
+\
+
+> i=1
+
+T (Ei) = T
+
+> ∞
+
+\
+
+> i=1
+
+Ei
+
+!
+
+= T ({u ⩾ λ}).
+
+This means {Su ⩽ λ} ⊂ T ({u ⩾ λ}) which concludes the proof. 
+
+Proposition 2.25. Suppose that a map P(Ω) ∋ E 7 → wE ∈ C(Ω) satisfies the following conditions: 
+
+Monotonicy: For any E ⊂ F ⊂ Ω,
+
+wE ⩾ wF .
+
+Uniformly boundedness: 
+
+sup 
+
+> E⊂Ω
+
+∥wE ∥C0(E) < ∞.
+
+Equi-continuity: The Lipschitz constant of wE does not depend on E, namely we have 
+
+sup 
+
+> E⊂Ω
+
+Lip( wE ) < ∞,11 
+
+where 
+
+Lip( f ) := sup 
+
+> x̸=y
+
+|f (x) − f (y)||x − y| for f : Ω → R.
+
+Assume that the set operator T on Ω is defined by T (E) := {x ∈ Ω | wE (x) ⩽ 0}. Then, T is continuous. Proof. Since E 7 → wE is monotone, T is obviously monotone, and therefore the left-hand side of the formula (2.7) is larger than the right-hand side. The opposite inclusion can be shown to extract a subsequence of {Ei}i such that wEi locally uniformly converges to a function from the Arzer´ a– Ascoli theorem (see [11, Lemma 3.6] for a similar discussion, which directly applied to the operator 
+
+Th defined in (1.3)). We now revisit the capillary Chambolle-type scheme which defines the map E 7 → whE (so the set operator Th is also monotone for each h > 0). We see that this map is monotone due to [11, Lemma 3.1] and is uniformly bounded from this monotonicity together with the boundedness of the domain Ω. To apply Proposition 2.25, it remains to show a Lipschitz bound estimate of wE which is independent of the choice of E. In the strategy which was presented by the first author and Giga [11], they assumed the convexity of Ω and a point-wise bound of the contact angle function β
+
+by the minimal principal curvature of the boundary of the container ∂Ω (see [11, Theorem 3.1]). 
+
+# 3 Lipschitz bound estimate for the approximate solutions 
+
+In this section, we aim to show a Lipschitz bound for the solution w of the minimization problem 
+
+w := arg min  
+
+> u∈L2(Ω) ∩BV (Ω)
+
+ˆ
+
+> Ω
+
+|∇ u| +
+
+ˆ
+
+> ∂Ω
+
+βγu dHd−1 + 12h
+
+ˆ
+
+> Ω
+
+(u − g)2 dLd
+
+
+
+. (3.1) Here, g is a given Lipschitz continuous function on Ω. In view of [10], we can interpret the Euler– Lagrange equation as the Neumann boundary problem: 
+
+(
+
+w − h div ∇ϕ(∇w) = g in Ω,B(·, ∇w) = 0 on ∂Ω. (3.2) However, the equation (3.2) is categorized as a very singular diffusion equation since its divergence term becomes unbounded at |∇ w| = 0, and it is involved to define its viscosity solution (see e.g., [15]). Thus, instead of solving (3.2) directly, we consider approximate energies, corresponding minimizers, and Euler-Lagrange equations as arranged in the below: 
+
+Proposition 3.1. For a smooth approximation {gε}ε∈(0 ,1) of g satisfying ∥∇ gε∥L∞(Ω) ⩽ ∥∇ g∥L∞(Ω) ,define 
+
+Jε,β (u) := Cε,β (u) + 12h
+
+ˆ
+
+> Ω
+
+(u − gε)2 dLd
+
+with 
+
+Cε,β (u) := 
+
+ˆ
+
+> Ω
+
+pε2 + |∇ u|2 dLd +
+
+ˆ
+
+> ∂Ω
+
+βγu dHd−1.
+
+Then, the following statements hold: 12 
+
+(i) There exists a unique minimizer wε ∈ L2(Ω) of Jε,β . Furthermore, wε is smooth and solves the equation 
+
+(
+
+wε − h div ∇ϕε(∇wε) = gε in Ω,Bε(·, ∇wε) = 0 on ∂Ω, (3.3) 
+
+where 
+
+ϕε(p) := pε2 + |p|2 and Bε(x, p ) := νΩ(x) · p + β(x)ϕε(p).
+
+(ii) The energy Jε,β Γ-converges to Jβ strongly in L2(Ω) as ε → 0. As a consequence, if the minimizer wε of the energy Jε,β converges to w in L2(Ω) , then w solves the minimization problem (3.1) .
+
+We mention that the equation (3.3) is from the first variation of Jε,β being zero and that the smoothness of wε (as stated in Proposition 3.1(i)) is a consequence of a priori gradient estimates (Proposition 3.2). We omit the proof of Proposition 3.1 as it is standard. Furthermore, by proving the uniform boundedness and the equi-continuity of wε with respect to ε ∈ (0 , 1), as stated in Proposition 3.2, we will obtain the convergence wε in C0(Ω) as ε → 0 (up to a subsequence). Then, Proposition 3.1(ii) is applied so that we obtain the solution w to the minimization problem (3.1). Write the condition ∥β∥C0(∂Ω) < 1 as 
+
+∥β∥C0(∂Ω) ⩽ 1 − 2κ for some κ ∈
+
+
+
+0, 12
+
+
+
+. (3.4) As the main result of this section, we have the following uniform estimate: 
+
+Proposition 3.2. Let wε be a smooth solution to the equation (3.3) . Then, there exists a constant 
+
+C = C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) > 0 such that for any ε, h ∈ (0 , 1) , it holds 
+
+∥∇ wε∥L∞(Ω) ⩽ C  ∥∇ gε∥L∞(Ω) + 1  .
+
+In particular, there exists a subsequence ε → 0, still denoted by ε → 0, along which wε converges uniformly on Ω to a function w satisfying 
+
+∥∇ w∥L∞(Ω) ⩽ C  ∥∇ g∥L∞(Ω) + 1  .
+
+The remainder of this section is devoted to the proof of Proposition 3.2. We consider vε = ρu ε
+
+instead of uε = 12 (|∇ wε|2 + ε2), where ρ ∈ C∞(Ω) is a multiplier that will be chosen later. 
+
+Proposition 3.3. There exists a constant C = C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) > 0 such that 
+
+ξε(uε) ⩽ Cu ε on ∂Ω.
+
+Here, ξε : C1(Ω) → R is the oblique boundary operator defined by 
+
+ξε(f ) := νΩ · Df + β Df · Dw ε
+
+pε2 + |Dw ε|2 for f ∈ C1(Ω) .
+
+Proof. Fix x0 ∈ ∂Ω. By translation and rotation, we can assume x0 = 0 and νΩ(x0) = −−→ed without loss of generality and let ( x1, · · · , x d−1) be the geodesic coordinate of x0 ∈ ∂Ω. Take the transport 13 of the tangential directions 
+
+n ∂∂x i
+
+od−1 
+
+> i=1
+
+along the geodesic xd ∈ [0 , δ ) for some small number δ > 0so that the geodesic coordinate is set around the point x0 ∈ ∂Ω (see [18]). Let ∇∂Ω denote the induced connection on ∂Ω by the Euclidean connection D. We differentiate the boundary condition Bε(·, ∇wε) = 0 at x0 with respect to ∇∂Ω,i for i = 1 , · · · , d − 1 and use the Gauss-Weingarten equation (see [27] for instance) to obtain 
+
+> d−1
+
+X
+
+> j=1
+
+hij wεj − wεdi + βi
+
+pε2 + |∇ wε|2 + β
+
+Pdj=1 wεji wεj
+
+pε2 + |∇ wε|2 = 0 at x0.
+
+Here, {hij }d−1 
+
+> i,j =1
+
+is the second fundamental form of ∂Ω at x0 and the subscript i (1 ⩽ i ⩽ d − 1) denotes the derivative by the connection ∇∂Ω,i . Multiplying by wεi and summing over i = 1 , · · · , d −
+
+1, we obtain 
+
+> d−1
+
+X
+
+> i,j =1
+
+hij wεi wεj − ∂∂x d
+
+ 12 |∇ ∂Ωwε|2
+
+
+
++ ( ∇∂Ωwε · ∇ ∂Ωβ)pε2 + |∇ wε|2
+
++ β ∇   12 |∇ ∂Ωwε|2 · ∇ wε
+
+pε2 + |∇ wε|2 = 0 at x0. (3.5) Consider an extension eβ ∈ C1(Ω) of the function β ∈ C1(∂Ω) on the whole domain Ω satisfying 
+
+∥ eβ∥C0(Ω) ⩽ ∥β∥C0(∂Ω) and ∥∇ eβ∥C0(Ω) ⩽ C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ).
+
+We refer the reader to [18, Section 6.3, Chapter 14] for this extension. We use the same notation 
+
+β to denote the extension by abuse of notations. We define 
+
+uε := (1 − β2)uε on Ω.
+
+Then, in particular, we have 
+
+uε = 12 (|∇ ∂Ωwε|2 + ε2) on ∂Ω. (3.6) This is because, at x0,
+
+uε − uε = β2uε = 12 β2(|∇ wε|2 + ε2) = 12
+
+ ∂w ε
+
+∂x d
+
+2
+
+.
+
+Here, the last inequality follows from the boundary condition Bε(·, ∇wε) = ∂w ε 
+
+> ∂ν Ω
+
++βpε2 + |∇ wε|2 =0 at x0. Consequently, 
+
+uε = uε − 12
+
+ ∂w ε
+
+∂x d
+
+2
+
+= 12 (|∇ ∂Ωwε|2 + ε2) at x0.
+
+Since the point x0 ∈ ∂Ω was arbitrary, we see that (3.6) holds. Furthermore, substituting the above identity into (3.5) gives 
+
+> d−1
+
+X
+
+> i,j =1
+
+hij wεi wεj − ∂u ε
+
+∂x d
+
++ ( ∇∂Ωwε · ∇ ∂Ωβ)pε2 + |∇ wε|2 + β ∇uε · ∇ wε
+
+pε2 + |∇ wε|2 = 0 at x0.14 We deduce from the above identity that at x0, we have 
+
+ξε(uε) = − ∂u ε
+
+∂x d
+
++ β ∇uε · ∇ wε
+
+pε2 + |∇ wε|2 = −
+
+> d−1
+
+X
+
+> i,j =1
+
+hij wεi wεj − (∇∂Ωwε · ∇ ∂Ωβ)pε2 + |∇ wε|2
+
+⩽ −λ|∇ ∂Ωwε|2 + |∇ ∂Ωwε||∇ ∂Ωβ|pε2 + |∇ wε|2
+
+⩽  2 max {− λ, 0} + ∥∇ ∂Ωβ∥C0(∂Ω) 
+
+ uε. (3.7) Here, λ denotes the minimum of all the principal curvatures of ∂Ω at x0, and the first inequality is deduced from the relation {hij }d−1 
+
+> i,j =1
+
+⩾ λI d−1.Finally, using (3.5), the fact that uε ⩽ uε, and that ξε (uε) = (1 − β2)ξε (uε) + uεξε  1 − β2,we derive that 
+
+ξε (uε) = 11 − β2
+
+ ξε (uε) − uεξε  1 − β2 
+
+⩽ 14κ(1 − κ)
+
+ Cu ε + ∥ξε  1 − β2 ∥C0(∂Ω) uε ⩽ Cu ε at x0.
+
+Here, C = C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) > 0 denotes a constant varying line by line. As x0 ∈ ∂Ω was arbitrary, we finish the proof. 
+
+Proposition 3.4. There exists a function ρ ∈ C∞(Ω) that depends only on Ω, κ, ∥∇ ∂Ωβ∥C0(∂Ω) 
+
+such that ρ ⩾ 1 on Ω, ρ = 1 on ∂Ω, and vε = ρu ε satisfies 
+
+ξε(vε) < 0 on ∂Ω.
+
+Proof. Consider a function ρ ∈ C∞(Ω) that is of the form 
+
+ρ = 1 + Kd ∂Ω near the boundary ∂Ωand ρ ⩾ 1 on Ω, ρ = 1 on ∂Ω. Here, d∂Ω = dist( ·, ∂ Ω) and K = K(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) > 0 is a constant to be determined. Then, it holds that 
+
+ξε(ρ) = νΩ + β ∇wε
+
+pε2 + |∇ wε|2
+
+!
+
+· (−Kν Ω) ⩽ −K + K(1 − 2κ) = −2κK on ∂Ω.
+
+Therefore, by Proposition 3.3, since uε > 0 for every ε > 0, we have 
+
+ξε(vε) = ρξ ε(uε) + uεξε(ρ) ⩽ Cu ε − 2κKu ε = uε(C − 2κK ) < 0 on ∂Ωonce we choose K = K(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) > 0 such that K > C 
+
+> 2κ
+
+. Here, C = C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) >
+
+0 is the constant from Proposition 3.3. 
+
+Lemma 3.5. There exists a constant C = C(Ω , κ ) > 0 such that 
+
+∥wε∥L∞(Ω) ⩽ ∥gε∥L∞(Ω) + 1 + C(h + ε).15 
+
+Proof. We recall that the function wε is a solution to the equation (3.3) which enjoys the maximum principle. The proof is by constructing barrier functions above and below. In this proof, we let d = dist( ·, ∂ Ω) denote the distance function to ∂Ω defined on the neighbor-hood N2δ := {x ∈ Ω | d(x) ⩽ 2δ} of ∂Ω, where δ ∈ (0 , 1) is a sufficiently small number depending only on Ω. We will consider barrier functions V (x) of the form 
+
+V (x) := M + f (d(x)) ,
+
+where M > 0 is a sufficiently large number that will be determined later. The function f : R → R
+
+is defined by 
+
+f (r) := εδ 
+
+ˆ rδ
+
+> −1
+
+ψ(y) dy, 
+
+where ψ ∈ C∞ (( −1, 1)) is a bump function satisfying 
+
+ˆ 1
+
+> −1
+
+ψ(y) dy = 0 and −ψ(0) 
+
+p1 + |ψ(0) |2 ⩾ 1 − 2κ. (3.8) Let us confirm that V (x) is a supersolution to (3.3). This choice of ψ satisfying (3.8) ensures that the function V (x) satisfies 
+
+Bε(·, ∇V ) ⩾ 0 on ∂Ω.
+
+Indeed, for every x ∈ ∂Ω, we compute 
+
+∇V (x) = f ′(d(x)) ∇d(x) = f ′(0) · (−νΩ(x)) ,
+
+and hence 
+
+Bε(x, ∇V (x)) = νΩ(x) · ∇ V (x) + β(x)pε2 + |∇ V (x)|2.
+
+Meanwhile, we have f ′(r) = εψ   rδ
+
+, and thus f ′(0) = εψ (0). Therefore, by (3.4) and (3.8), we have 
+
+Bε(x, ∇V (x)) = ε
+
+
+
+−ψ(0) + β(x)p1 + |ψ(0) |2
+
+
+
+⩾ εp1 + |ψ(0) |2 (1 − 2κ − β(x)) ⩾ 0.
+
+It remains to check that V (x) is a supersolution inside Ω as well. We first mention that the function V (x) = M + f (d(x)) is well-defined for all x ∈ Ω since f (d(x)) ≡ 0 when d(x) ⩾ δ, and 
+
+V (x) is smooth on Ω. We calculate the divergence term: For a smooth positive function ϕ, we have div 
+
+ ∇Vϕ
+
+
+
+= ∆Vϕ − ∇ϕ · ∇ Vϕ2 = f ′(d)∆ d + f ′′ (d)
+
+ϕ − ∇ϕ · ∇ Vϕ2 . (3.9) Here, the last equality follows from the fact that 
+
+∇V = f ′(d)∇d and thus ∆V = f ′(d)∆ d + f ′′ (d),
+
+where we again used the formula |∇ d|2 = 1 (on the support of the function f ). Expanding the gradient ∇ϕ in terms of partial derivatives of V , we have 
+
+∇ϕ · ∇ V =
+
+> d
+
+X
+
+> i,j =1
+
+ViVj Vij 
+
+ϕ = 1
+
+ϕ
+
+> d
+
+X
+
+> i,j =1
+
+(f ′(d)di)( f ′(d)dj )( f ′′ (d)dj di + f ′(d)dij ) = (f ′(d)) 2f ′′ (d)
+
+ϕ . (3.10) 16 Here, we used once again the fact |∇ d|2 = 1 in the last equality. Therefore, putting (3.10) into (3.9) leads to div 
+
+ ∇Vϕ
+
+
+
+= f ′(d)
+
+ϕ ∆d + f ′′ (d)
+
+ϕ − (f ′(d)) 2f ′′ (d)
+
+ϕ3
+
+= f ′(d)
+
+ϕ ∆d + f ′′ (d)
+
+ϕ
+
+
+
+1 − (f ′(d)) 2
+
+ϕ2
+
+
+
+= f ′(d)
+
+ϕ ∆d + ε2f ′′ (d)
+
+ϕ3 .
+
+Now, putting ϕ = ϕε(∇V ) leads to div ∇V
+
+pε2 + |∇ V |2
+
+!
+
+= f ′(d)
+
+pε2 + f ′(d)2 ∆d + ε2f ′′ (d)(ε2 + f ′(d)2)3/2
+
+= f ′(d)
+
+pε2 + f ′(d)2 ∆d + ε2   εδ2 ψ′
+
+ε2 +   εδ ψ′23/2
+
+= f ′(d)
+
+pε2 + f ′(d)2 ∆d + ψ′   dδ
+
+
+
+δ
+
+
+
+1 + ψ′   dδ
+
+23/2 .
+
+We mention that the both terms on the right-hand side are bounded by a constant C > 0 depending on only Ω and κ (not on ε), namely we have 
+
+div ∇V
+
+pε2 + |∇ V |2
+
+!
+
+⩽ C. 
+
+Therefore, the choice M := ∥gε∥L∞(Ω) + 1 + C(h + ε) (by taking a larger constant C = C(Ω , κ ) > 0) ensures that the function V (x) is a supersolution inside and thus to the whole equation (3.3) as well. Hence, we have 
+
+wε(x) ⩽ ∥V ∥L∞(Ω) ⩽ ∥gε∥L∞(Ω) + 1 + C(h + ε) for all x ∈ Ω.
+
+By working with −V (x) similarly, we also obtain 
+
+wε(x) ⩾ −∥ V ∥L∞(Ω) ⩾ −(∥gε∥L∞(Ω) + 1 + C(h + ε)) for all x ∈ Ω,
+
+which completes the proof. 
+
+Proposition 3.6. Let the subscript, say k = 1 , · · · , d , denote the partial derivative with respect to the variable xk. The following hold. (i) The function uε = 12 (|∇ wε|2 + ε2) satisfies 
+
+uε(x) − h
+
+> d
+
+X
+
+> i=1
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε(x)) uεj (x)
+
+
+
+> i
+
+⩽ 12 (∥∇ gε∥2 
+
+> L∞(Ω)
+
++ ε2).
+
+(ii) There exist a smooth vector field b on ∂Ω and a constant C = C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) > 0
+
+such that the function vε = ρu ε satisfies 
+
+12 vε(x) + b(x) · ∇ vε(x) − h
+
+> d
+
+X
+
+> i,j =1
+
+ϕεij (∇wε(x)) vεij (x) ⩽ C(∥∇ gε∥2 
+
+> L∞(Ω)
+
++ 1) .17 
+
+Proof. (i) Although it is already established in [11, Theorem 3.1] based on Bernstein’s method [18, Chapter 15], we include the proof for completeness. Differentiating the first equation of (3.3) in xk
+
+and multiplying by wεk(x), we obtain 
+
+wεk(x)2 − h
+
+> d
+
+X
+
+> i=1
+
+wεk(x)
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε(x)) wεjk (x)
+
+
+
+> i
+
+= wεk(x)gεk(x). (3.11) We further calculate 
+
+> d
+
+X
+
+> i=1
+
+wεk(x)
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε(x)) wεjk (x)
+
+
+
+> i
+
+(3.12) =
+
+> d
+
+X
+
+> i=1
+
+
+
+> d
+
+X
+
+> j=1
+
+wεk(x)ϕεij (∇wε(x)) wεjk (x)
+
+
+
+> i
+
+−
+
+> d
+
+X
+
+> i,j =1
+
+wεik (x)ϕεij (∇wε(x)) wεjk (x)
+
+⩽
+
+> d
+
+X
+
+> i=1
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε(x)) wεk(x)wεjk (x)
+
+
+
+> i
+
+=
+
+> d
+
+X
+
+> i=1
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε(x)) 
+
+ wεk(x)2
+
+2
+
+
+
+> j
+
+
+
+> i
+
+.
+
+Combining (3.11) and (3.12), we derive 2uε(x) − ε2 − h
+
+> d
+
+X
+
+> i=1
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε(x)) uεj (x)
+
+
+
+> i
+
+⩽
+
+> d
+
+X
+
+> k=1
+
+wεk(x)2 − h
+
+> d
+
+X
+
+> i=1
+
+wεk(x)
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε(x)) wεjk (x)
+
+
+
+> i
+
+
+
+=
+
+> d
+
+X
+
+> k=1
+
+wεk(x)gεk(x) ⩽ 12 |∇ wε(x)|2 + 12 |∇ gε(x)|2 ⩽ uε(x) − 12 ε2 + 12 ∥∇ gε∥2
+
+> L∞(Ω)
+
+.
+
+(ii) By (i), the function vε = ρu ε satisfies 
+
+vε − hρ 
+
+> d
+
+X
+
+> i=1
+
+
+
+> d
+
+X
+
+> j=1
+
+ϕεij (∇wε)  ρ−1vε
+
+> j
+
+
+
+> i
+
+⩽ 12 ∥ρ∥L∞(Ω) (∥∇ gε∥2 
+
+> L∞(Ω)
+
++ ε2). (3.13) We adopt the Einstein summation convention and drop the superscript ε to functions for brevity in the rest of the proof. We expand the divergence term on the left-hand side (with ϕij = ϕij (∇w)): 
+
+
+
+ϕij 
+
+ ρ−1v
+
+> j
+
+ 
+
+> i
+
+= ( ϕij )i
+
+ ρ−1 
+
+> j
+
+v + ϕij 
+
+ ρ−1 
+
+> ij
+
+v + ϕij 
+
+ ρ−1 
+
+> j
+
+vi +  ϕij 
+
+ ρ−1 vj
+
+
+
+> i
+
+= ( ϕij )i
+
+ ρ−1 
+
+> j
+
+v + ϕij 
+
+ ρ−1 
+
+> ij
+
+v + ϕij 
+
+ ρ−1 
+
+> j
+
+vi +  ϕij 
+
+ ρ−1  
+
+> i
+
+vj + ρ−1ϕij vij .
+
+(3.14) The coefficients of the first order derivative of v that appear during the expansion will be collected later at once which will result in the vector field b. Before we continue expansion, we estimate the 18 second term of (3.14) on the right-hand side ϕij 
+
+ ρ−1 
+
+> ij
+
+v together with the prefactor hρ :
+
+hρϕ ij 
+
+ ρ−1 
+
+> ij
+
+v ⩽ ϕij (∇w)  ρ−1 
+
+> ij
+
+ρ 32 hpε2 + |∇ w|2 · ρ1/2pε2 + |∇ w|2
+
+⩽ 4ρ3ϕij (∇w)2  (ρ−1)ij 
+
+2 h2(ε2 + |∇ w|2) + 116 ρ(ε2 + |∇ w|2)
+
+⩽ C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) )) h2 + 18 v. (3.15) Here, we used the fact that ϕij (p)pε2 + |p|2 is bounded in the last inequality and the fact that the multiplier ρ can determined by only Ω, κ, and ∥∇ ∂Ωβ∥C0(∂Ω) . From now on until the end of this proof, we let C > 0 denote constants depending only on Ω, κ, and ∥∇ ∂Ωβ∥C0(∂Ω) that can vary line by line. We continue the expansion of the term ( ϕij )i
+
+ ρ−1 
+
+> j
+
+v. By direct differentiation, we obtain (ϕij (∇w)) i
+
+ ρ−1 
+
+> j
+
+= 3( ∇u · ∇ w)( ∇w · ∇ ρ−1)(ε2 + |∇ w|2)5/2 − 2∇u · ∇ ρ−1 + ∆ w(∇w · ∇ ρ−1)(ε2 + |∇ w|2)3/2 .
+
+We use the equality that comes from the equation (3.3) that ∆w = ∇w · ∇ uε2 + |∇ w|2 + w − gh
+
+pε2 + |∇ w|2
+
+to derive 
+
+hρ (ϕij (∇w)) i
+
+ ρ−1 
+
+> j
+
+v = 2hρ (∇u · ∇ w)( ∇w · ∇ ρ−1)v
+
+(ε2 + |∇ w|2)5/2 − 2hρ (∇u · ∇ ρ−1)v
+
+(ε2 + |∇ w|2)3/2 − 12 (w − g)ρ2(∇w · ∇ ρ−1).
+
+(3.16) 
+
+To handle the first term of (3.16) on the right-hand side, we use ∇u = v∇ρ−1 + ρ−1∇v and use the estimate 
+
+hρ 2 v(∇w · ∇ ρ−1)2
+
+(ε2 + |∇ w|2)3/2 ⩽ Ch pε2 + |∇ w|2 ⩽ Ch 2 + 18 v
+
+in order to obtain 2hρ (∇u · ∇ w)( ∇w · ∇ ρ−1)v
+
+(ε2 + |∇ w|2)5/2 ⩽ Ch 2 + 18 v + hρ (∇w · ∇ ρ−1)∇w
+
+(ε2 + |∇ w|2)3/2 · ∇ v. (3.17) The second term of (3.16) on the right-hand side is similarly handled so that we have 
+
+− 2hρ (∇u · ∇ ρ−1)v
+
+(ε2 + |∇ w|2)3/2 ⩽ Ch 2 + 18 v − hρ ∇ρ−1
+
+(ε2 + |∇ w|2)1/2 · ∇ v. (3.18) Finally, we estimate the last term by using Lemma 3.5: 
+
+− 12 (w − g)ρ2(∇w · ∇ ρ−1) ⩽ C + 18 v. (3.19) All in all, combining (3.13)–(3.19), we derive 12 v + b · ∇ v − hϕ ij vij ⩽ C(∥∇ gε∥2 
+
+> L∞(Ω)
+
++ 1) ,
+
+where b = ( b1, · · · , b d) with 
+
+bk = −hρ (ρ−1ϕki (∇w)) i for all k = 1 , · · · , d, 
+
+which finishes the proof. We mention that the coefficient vector field v with respect to ∇v is simplified due to cancellations when collecting the ones from (3.14), (3.17), and (3.18). 19 We are now in the position to prove the Lipschitz bound estimate. 
+
+Proof of Proposition 3.2. Thanks to the maximum principle (see [26]) applied to the following boundary value problem (as a consequence of Propositions 3.4 and 3.6(ii)) 
+
+
+
+12 vε(x) + b(x) · ∇ vε(x) − hD 2ϕ(∇wε(x)) : D2vε(x) ⩽ C(∥∇ gε∥2 
+
+> L∞(Ω)
+
++ 1) in Ω,ξ(vε) ⩽ 0 on ∂Ω,
+
+we obtain that 
+
+vε ⩽ C(∥∇ gε∥2 
+
+> L∞(Ω)
+
++ 1) on Ω.
+
+Here, A : B denotes the inner product value Pdi,j =1 aij bij of two d × d symmetric matrices A =(aij )di,j =1 and B = ( bij )di,j =1 . Since vε = ρu ε = 12 ρ(|∇ wε|2 + ε2) and ρ ⩾ 1 on Ω by the choice of ρ,we derive that 
+
+|∇ wε|2 ⩽ C(∥∇ gε∥2 
+
+> L∞(Ω)
+
++ 1) on Ωfor some constant C = C(Ω , κ, ∥∇ ∂Ωβ∥C0(∂Ω) ) > 0. Taking the square root to both sides yields the conclusion of the proposition and finishes the proof. Finally, on noting that ∥gε∥L∞(Ω) ⩽ ∥g∥L∞(Ω) and ∥∇ gε∥L∞(Ω) ⩽ ∥∇ g∥L∞(Ω) , we see that wε
+
+is uniformly bounded and equi-continuous with respect to ε. Hence, we deduce from the Arzer´ a– Ascoli theorem that wε locally uniformly converges to some function w as ε → 0, which also ensures the strong convergence of wε to w in L2(Ω). Therefore, we can invoke Proposition 3.1 to conclude that the limit function w corresponds to the unique solution of the minimization problem (3.1). 
+
+# 4 Convergence result 
+
+In this section, we shall give a proof of Theorem 1.1. The proof consists in verifying that the function operator Sh defined in (1.5) satisfies the criteria which has been presented in Proposition 2.18. To this end, we prepare several lemmas, although some part of the proofs will be left to previous works [10, 11] in the case when the proof might become lengthy. 
+
+Lemma 4.1 (Monotonicity of Th). The set operator Th is monotone; for every E ⊂ F ⊂ Ω, it holds that Th(E) ⊂ Th(F ).Proof. Let wE be the unique solution of the variational problem (1.2). Then, we have {wE ⩽ 0}.Since E ⊂ F , it is immediate that dΩ,E ⩾ dΩ,F in Ω. We deduce from [11, Lemma 3.1] that 
+
+wE ⩾ wF in Ω which concludes the proof. 
+
+Lemma 4.2 (Monotonicity of Sh). The function operator Sh is monotone; for every u, v ∈ C(Ω) 
+
+satisfying u ⩽ v in Ω, it holds that 
+
+Shu ⩽ Shv in Ω.
+
+Proof. Take any u, v ∈ C(Ω) with u ⩽ v in Ω, and x ∈ Ω. Then, for every λ ∈ R, it immediately follows that {u ⩾ λ} ⊂ { v ⩾ λ}. Since Th is monotone by Lemma 4.1, we obtain that Th({u ⩾
+
+λ}) ⊂ Th({v ⩾ λ}), which concludes the proof. 
+
+Lemma 4.3 (Translation invariance of Sh). The function operator Sh is translation invariant; for every u ∈ C(Ω) and c ∈ R, it holds that 
+
+Sh(u + c) = Shu + c in Ω.20 
+
+Proof. This is straightforward from the definition of Sh.
+
+Lemma 4.4 (Continuity of Th). The set operator Th is continuous in the sense of Definition 2.22. Proof. Since Th is defined by E 7 → Th(E) := {wE ⩽ 0}, it is enough to confirm that for every E ⊂ Ω, 
+
+wE satisfies all conditions in Proposition 2.25. The monotonicity has been shown in [11, Lemma 3.1]. Since Ω is bounded, there exists a constant M > 0 satisfying −M ⩽ dΩ,E ⩽ M for all E ⊂ Ω. Since the constant functions w± ≡ ± M are classical solutions to the discrete equation (3.2) with 
+
+g = ±M , the monotonicity property again yields −M ⩽ wE ⩽ M , and thus wE is uniformly bounded with respect to E.Finally, we shall check the equi-continuity of wE with respect to E. We deduce from Propo-sition 3.2 that there exists a positive constant C depending only on Ω, κ, and ∥∇ ∂Ωβ∥C0(∂Ω) 
+
+satisfying 
+
+∥∇ wE ∥L∞(Ω) ⩽ C(∥∇ dΩ,E ∥L∞(Ω) + 1) ⩽ C(CΩ + 1) ,
+
+where the constant CΩ is from Proposition 2.5. Since the right-hand side of this inequality is independent of E, we see that wE is uniformly Lipschitz continuous with respect to E.
+
+Remark 4.5. We note that wE depends on the choice of h > 0, although we see that it is uniformly bounded and continuous with respect to h ≪ 1 as well. This fact will be used in the proof of Theorem 1.1. 
+
+Lemma 4.6 (Consistency of Sh). For every φ ∈ C2 
+
+> F
+
+(Ω) ∩ C2(Ω) and z ∈ Ω satisfying either 
+
+• z ∈ Ω or 
+
+• z ∈ ∂Ω and ⟨∇ φ(z), ν Ω(z)⟩ + β(z)|∇ φ(z)| > 0 ( resp., < 0) ,it holds that 
+
+lim sup  
+
+> h→0
+> ∗
+
+Shφ(z) − φ(z)
+
+h ⩽ −F∗(∇φ(z), ∇2φ(z)) 
+
+resp., lim inf  
+
+> h→0∗
+
+Shφ(z) − φ(z)
+
+h ⩾ −F ∗(∇φ(z), ∇2φ(z)) .
+
+(4.1) 
+
+Sketch of proof. We follow the consistency argument in [11, Theorem 4.3]. We recall the points needed for the present paper. First, by Lemma 4.4 and Proposition 2.24, we have 
+
+{Shφ ⩾ λ} = Th({φ ⩾ λ}) ∀λ ∈ R.
+
+Thus, the desired consistency inequalities are reduced to one-step inclusion estimates for 
+
+Eφλ := {φ ⩾ λ}.
+
+Second, near a regular level set of φ, the argument of [11, Proposition 4.2] gives the one-sided local expansion 
+
+whEφλ
+
+= dΩ,E φλ − hκ Eφλ + o(h) as h → 0,
+
+where κEφλ denotes the mean curvature of the smooth hyper surface ∂E φλ , say κEφλ := div( ∇ϕ(∇φ)), in the sense needed for the comparison argument. At boundary points on ∂Ω, the sign condition 
+
+⟨∇ φ(z), ν Ω(z)⟩ + β(z)|∇ φ(z)| ≷ 021 allows one to use the same translating-soliton barriers as in [11]. As in that proof, the test function may be modified outside a small neighborhood of z, and the monotonicity of Th is used to compare the corresponding super-level sets. Third, inserting this one-step estimate into the relation between Sh and Th, and expanding φ
+
+at the points zh → z, gives lim sup  
+
+> h→0
+> ∗
+
+Shφ(z) − φ(z)
+
+h ⩽ −F∗(∇φ(z), ∇2φ(z)) ,
+
+and similarly for the lower inequality. This is precisely the last part of the proof of [11, Theorem 4.3]. Finally, if ∇φ(z) = 0 and ∇2φ(z) = O, the flat barrier argument of [11, Theorem 4.3] applies and yields both upper and lower limits, since F∗(0 , O ) = F ∗(0 , O ) = 0. We are now in the position to prove our main result. 
+
+Proof of Theorem 1.1 . We follow the strategy by Barles and Souganidis [3, Theorem 2.1]. Since 
+
+u ⩾ u is trivial, we aim to show u ⩽ u in Ω × [0 , T ]. By the definition, it immediately follows that 
+
+u(·, 0) = u0 = u(·, 0) in Ω. Thus, the comparison principle (Proposition 2.14) implies u ⩽ u in Ω × [0 , T ] once u (resp., u) is shown to be a viscosity subsolution (resp., supersolution). Hereafter, we only show the former case since the latter one can be proved by a symmetric argument. Take any φ ∈ C2 
+
+> F
+
+(Ω × [0 , T ]) and (ˆ x, ˆt) ∈ Ω × [0 , T ]. Assume that u − φ takes a local maximum at (ˆ x, ˆt). We need to show 
+
+φt(ˆ x, ˆt) + F∗(∇φ(ˆ x, ˆt), ∇2φ(ˆ x, ˆt)) ⩽ 0. (4.2) Then, there exists sequences {hn}n and {(xn, t n)}n such that 
+
+hn ↓ 0, (xn, t n) → (ˆ x, ˆt), uhn (xn, t n) → u(ˆ x, ˆt) as n → ∞ 
+
+and uhn − φ takes the global maximum at ( xn, t n). This is possible since uh is uniformly bounded with respect h > 0, and we can modify φ outside a ball Bδ(ˆ x, ˆt). First, we treat the case when ∇φ(ˆ x, ˆt)̸ = 0, and assume that either ˆ x ∈ Ω or ˆ x ∈ ∂Ω and 
+
+⟨νΩ(ˆ x), ∇φ(ˆ x, ˆt)⟩ + β(ˆ x)|∇ φ(ˆ x, ˆt)| > 0 (otherwise, the conclusion is straightforward due to the definition of viscosity subsolutions). Then, we have 
+
+uhn (·, t n − hn) − φ(·, t n − hn) ⩽ uhn (xn, t n) − φ(xn, t n) in Ω. (4.3) Let ξn denote the right-hand side of the above equality. We apply Shn to both sides of (4.3) and obtain that 
+
+uhn (·, t n) ⩽ Shn [φ(·, t n − hn)] + ξn in Ω. (4.4) Here, we have invoked the monotonicity and translation invariance of Shn (Lemma 4.2 and Lemma 4.3 on noting that ξn is constant). Subtracting φ(xn, t n − hn) from both sides of (4.4) and evaluating at x = ˆ x, we derive 
+
+φ(xn, t n) − φ(xn, t n − hn) ⩽ Shn [φ(·, t n − hn)] ( xn) − φ(xn, t n − hn).22 We divide the above inequality by hn and send n → ∞ to obtain 
+
+φt(ˆ x, ˆt) = lim 
+
+> n→∞
+
+φ(xn, t n) − φ(xn, t n − hn)
+
+hn
+
+⩽ lim sup 
+
+> h→0
+> ∗
+
+ Shφ(·, ˆt) − φ(·, ˆt)
+
+h
+
+
+
+(ˆ x) ⩽ −F∗(∇φ(ˆ x, ˆt), ∇2φ(ˆ x, ˆt)) .
+
+Here, we have invoked the consistency property of Shn (Lemma 4.6) to derive the last inequality, and hence (4.2) follows. In the case when ∇φ(ˆ x, ˆt) = 0, we may assume that ∇2φ(ˆ x, ˆt) = O (see (2.5)). Since F∗(0 , O ) = 0 holds for our definition of F , the previous argument works, and we see that φt(ˆ x, ˆt) ⩽ 0. Therefore, we conclude that u is a viscosity subsolution of (2.2). 
+
+# References 
+
+[1] F. Almgren, J. E. Taylor, and L. Wang. Curvature-driven flows: a variational approach. SIAM J. Control Optim. , 31(2):387–438, 1993. [2] G. Barles. Nonlinear Neumann boundary conditions for quasilinear degenerate elliptic equa-tions and applications. J. Differ. Equations , 154(1):191–224, 1999. [3] G. Barles and P. E. Souganidis. Convergence of approximation schemes for fully nonlinear second order equations. Asymptotic Anal. , 4(3):271–283, 1991. [4] G. Bellettini and S. Y. Kholmatov. Minimizing movements for mean curvature flow of droplets with prescribed contact angle. Journal de Math. Pures et Appl. , 117:1–58, 2018. [5] S. M. Buckley and D. A. Herron. Uniform domains and capacity. Isr. J. Math. , 158:129–157, 2007. [6] F. Cao. Geometric curve evolution and image processing , volume 1805 of Lect. Notes Math. 
+
+Berlin: Springer, 2003. [7] A. Chambolle. An algorithm for mean curvature motion. Interfaces Free Bound. , 6(2):195–218, 2004. [8] A. Chambolle, D. De Gennaro, and M. Morini. Minimizing movements for anisotropic and inhomogeneous mean curvature flows. Adv. Calc. Var. , 17(4):1095–1129, 2024. [9] A. Chambolle, D. De Gennaro, and M. Morini. Discrete-to-continuum crystalline curvature flows. Analysis & PDE , 19(4):783–822, 2026. [10] T. Eto and Y. Giga. On a minimizing movement scheme for mean curvature flow with pre-scribed contact angle in a curved domain and its computation. Annali di Matematica Pura ed Applicata (1923-) , 203:1195–1221, 2024. [11] T. Eto and Y. Giga. A convergence result for a minimizing movement scheme for mean curvature flow with prescribed contact angle in a curved domain. Advances in Mathematical Sciences and Applications , 34(1):115–147, 2025. [12] T. Eto, Y. Giga, and K. Ishii. An area minimizing scheme for anisotropic mean curvature flow. 
+
+Proc. Japan Acad., Ser. A , 88(1):7–10, 2012. 23 [13] T. Eto, Y. Giga, and K. Ishii. An area-minimizing scheme for anisotropic mean-curvature flow. 
+
+Adv. Differ. Equ. , 17(11-12):1031–1084, 2012. [14] L. C. Evans and R. F. Gariepy. Measure theory and fine properties of functions . Textb. Math. Boca Raton, FL: CRC Press, revised ed. edition, 2015. [15] M.-H. Giga, Y. Giga, and N. Poˇ z´ ar. Periodic total variation flow of non-divergence type in 
+
+Rn. J. Math. Pures Appl. (9) , 102(1):203–233, 2014. [16] Y. Giga. Surface evolution equations. A level set approach , volume 99 of Monogr. Math., Basel .Basel: Birkh¨ auser, 2006. [17] Y. Giga, M. Ohnuma, and M.-H. Sato. On the strong maximum principle and the large time behavior of generalized mean curvature flow with the neumann boundary condition. J. Differential Equations , 154(1):107–131, 1999. [18] D. Gilbarg and N. S. Trudinger. Elliptic partial differential equations of second order. 2nd ed ,volume 224 of Grundlehren Math. Wiss. Springer, Cham, 1983. [19] H. Ishii and M.-H. Sato. Nonlinear oblique derivative problems for singular degenerate parabolic equations on a general domain. Nonlinear Anal., Theory Methods Appl., Ser. A, Theory Methods , 57(7-8):1077–1098, 2004. [20] J. Jang. Capillary-type boundary value problems of mean curvature flow with force and transport terms on a bounded domain. Calc. Var. Partial Differential Equations , 62, 2023. [21] J. Jang, D. Kwon, H. Mitake, and H. V. Tran. Level-set forced mean curvature flow with the neumann boundary condition. Journal de Math. Pures et Appl. , 168:143–167, 2022. [22] S. Kholmatov. Minimizing movements for forced anisotropic curvature flow of droplets. Inter-faces Free Bound. , 27(3):349–402, 2025. [23] S. Y. Kholmatov. Consistency of minimizing movements with smooth mean curvature flow of droplets with prescribed contact angle in R3. Calc. Var. Partial Differ. Equ. , 64(7):29, 2025. Id/No 211. [24] S. Luckhaus and T. Sturzenhecker. Implicit time discretization for the mean curvature flow equation. Calc. Var. Partial Differential Equations , 3(2):253–271, 1995. [25] L. Modica. Gradient theory of phase transitions with boundary contact energy. Ann. Inst. Henri Poincar´ e, Anal. Non Lin´ eaire , 4:487–512, 1987. [26] M. H. Protter and H. F. Weinberger. Maximum Principles in Differential Equations . Springer-Verlag, New York, 1984. Corrected reprint of the 1967 original. [27] M. Spivak. A Comprehensive Introduction to Differential Geometry , volume 3. Publish or Perish, Houston, 3rd edition, 1999.

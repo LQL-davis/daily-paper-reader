@@ -1,0 +1,4754 @@
+Title: A prox-Based Semi-Smooth Newton Method for Convex Variational Problems
+
+URL Source: https://arxiv.org/pdf/2606.25948v1
+
+Published Time: Thu, 25 Jun 2026 01:09:55 GMT
+
+Number of Pages: 41
+
+Markdown Content:
+# A prox-Based Semi-Smooth Newton Method for Convex Variational Problems 
+
+## S¨ oren Bartels ∗1 and Alex Kaltenbach †2,3 1Department of Applied Mathematics, University of Freiburg, Hermann–Herder-Str. 10, D-79104 Freiburg 
+
+> 2
+
+Department of Mathematical Sciences and the Center for Mathematics and Artificial Intelligence (CMAI), George Mason University, Fairfax, VA 22030, USA. 
+
+> 3
+
+Institute of Mathematics, Technical University of Berlin, Straße des 17. Juni 136, D-10623 Berlin 
+
+## June 25, 2026 
+
+Abstract 
+
+In this paper, we devise a prox -based semi-smooth Newton method that is applicable to a finite element discretization of a broad class of nonsmooth convex variational problems, including the TV-minimization problem, the p-Dirichlet problem, the obstacle problem, and the elasto-plastic torsion problem. To this end, on the basis of the proximity operator, the discrete primal-dual optimality conditions are reformulated as nonlinear operator equations with Newton-differentiable structure. Under suitable assumptions on the energy densities, we establish the global well-posedness and local super-linear convergence of the resulting semi-smooth Newton method. The proposed approach coincides with established semi-smooth Newton methods for obstacle-type problems, satisfies a primal-dual invariance, and, under suitable additional assumptions, is globally well-posed in the infinite-dimensional setting .
+
+Keywords: Proximity operator; semi-smooth Newton method; convex variational problems; Fenchel duality; finite element method; total variation minimization; p-Dirichlet problem; elasto-plastic torsion 
+
+AMS MSC (2020): 49M15; 65K10; 65N30; 49M29; 49J52; 90C25 
+
+1. Introduction 
+
+In this paper, we devise a prox -based semi-smooth Newton method that is applicable to a finite element discretization of a broad class of nonsmooth convex variational problems and is based on a Fenchel duality framework. 
+
+1.1 Fenchel duality for general convex variational problems 
+
+Let a general convex minimization problem be given via the minimization of the primal energy functional I : W 1,p D (Ω) → R ∪ { +∞} , where p ∈ [1 , +∞), for every v ∈ W 1,p D (Ω) defined by 
+
+I(v) := 
+
+ˆ
+
+> Ω
+
+ϕ(·, ∇v) d x +
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x , (1.1) where the energy densities ϕ : Ω × Rd → R ∪ { +∞} and ψ : Ω × R → R ∪ { +∞} are convex normal integrands having the lower compactness property ( cf . Assumption 3.1). Under appropriate additional assumptions on the energy density ψ (cf . Assumption 3.3), a (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) is given via the maximization of the dual energy functional D : W p′ 
+
+> N
+
+(div; Ω) → R ∪ {−∞} , for every y ∈ W p′ 
+
+> N
+
+(div; Ω) defined by 
+
+D(y) := −
+
+ˆ
+
+> Ω
+
+ϕ∗(·, y ) d x −
+
+ˆ
+
+> Ω
+
+ψ∗(·, div y) d x , (1.2) where ϕ∗ : Ω × Rd → R ∪ { +∞} and ψ∗ : Ω × R → R ∪ { +∞} denote the Fenchel conjugates (with respect to the second argument) of the energy densities ϕ and ψ, respectively. 
+
+> ∗
+
+Email: bartels@mathematik.uni-freiburg.de 
+
+> †
+
+Email: kaltenbach@math.tu-berlin.de 
+
+> arXiv:2606.25948v1 [math.OC] 24 Jun 2026
+
+S. Bartels and A. Kaltenbach 2A minimizer u ∈ W 1,p D (Ω) of the primal energy functional (1.1) , called primal solution , and a maximizer z ∈ W p′ 
+
+> N
+
+(div; Ω) of the dual energy functional (1.2) , called dual solution , are characterized and related by the primal optimality inclusions 
+
+z ∈ ∂tϕ(·, ∇u) a.e. in Ω , (1.3a) div z ∈ ∂sψ(·, u ) a.e. in Ω , (1.3b) where ∂tϕ : Ω × Rd → 2Rd
+
+and ∂sψ : Ω × R → 2R denote the subdifferentials (with respect to the second argument) of the energy densities ϕ and ψ, respectively. Note that the primal optimality inclusions (1.3) are equivalent to the strong duality relation (cf . [9, Prop. 3.1(ii)]) 
+
+I(u) = D(z) . (1.4) 
+
+1.2 Equivalence of the primal optimality inclusions to a root-finding problem 
+
+Inspired by the derivation of the first-order primal-dual algorithm for general convex variational problems by Chambolle and Pock ( cf . [ 12 ]) as well as the derivation of the semi-smooth Newton method for Tikhonov functionals with ℓ1-sparsity constraints by Herzog and Lorenz ( cf . [ 22 ]), the primal optimality inclusions (1.3) may be rewritten as a root-finding problem with Newton-type differentiability properties: Multiplying the primal optimality inclusions (1.3) by proximity parameters γ1, γ 2 > 0 and adding ∇u and u to both sides, respectively, we obtain the equivalent inclusions 
+
+∇u + γ1z ∈ (id Rd +γ1∂tϕ)( ·, ∇u) a.e. in Ω , (1.5a) 
+
+u + γ2 div z ∈ (id R +γ2∂sψ)( ·, u ) a.e. in Ω . (1.5b) Using the proximity operators (with respect to the second argument) prox γ1ϕ := ( id Rd +γ1∂tϕ)−1 :Ω × Rd → Rd and prox γ2ψ := ( id R +γ2∂sψ)−1 : Ω × R → R of the energy densities ϕ and ψ, respec-tively, the inclusions (1.5) may be rewritten equivalently as the proximal optimality conditions 
+
+∇u = prox γ1ϕ(·, ∇u + γ1z) a.e. in Ω , (1.6a) 
+
+u = prox γ2ψ (·, u + γ2 div z) a.e. in Ω . (1.6b) The proximal optimality conditions (1.6) may be viewed as a fixed-point system involving 1-Lipschitz proximity operators, as in Chambolle–Pock [ 12 ]. Equivalently, the primal optimality in-clusions (1.3) are equivalent to the root-finding problem for the nonlinear mapping F : W p′ 
+
+> N
+
+(div; Ω) ×
+
+W 1,p D (Ω) → (Lmin {p,p ′}(Ω)) d × Lmin {p,p ′}(Ω), for every (y, v ) ∈ W p′ 
+
+> N
+
+(div; Ω) × W 1,p D (Ω) defined by 
+
+F(y, v ) := 
+
+ï∇v − prox γ1ϕ(·, ∇v + γ1y)
+
+v − prox γ2ψ (·, v + γ2 div y)
+
+ò
+
+a.e. in Ω , (1.7) which, by the equations (1.6) , admits the root ( z, u ) ∈ W p′ 
+
+> N
+
+(div; Ω) × W 1,p D (Ω) , i.e. , we have that 
+
+F(z, u ) = ( 0d, 0) a.e. in Ω .
+
+1.3 Newton-type differentiability properties of the root-finding problem 
+
+For a.e. x ∈ Ω, the proximity operators prox γ1ϕ(x, ·) : Rd → Rd and prox γ2ψ (x, ·) : R → R are 1-Lipschitz continuous and, consequently, according to [ 14 , Thm. 2.6], point-wise Newton differen-tiable ( cf . Definition 2.1) with point-wise Newton derivatives Jprox γ1ϕ (x, ·) : Bdδx,t (t) → Rd×d, δx,t > 0,for all t ∈ Rd and Jprox γ2ψ (x, ·) : B1 
+
+> δx,s
+
+(s) → R, δx,s > 0, for all s ∈ R, respectively. Similarly, the mapping F : W p′ 
+
+> N
+
+( div ; Ω) ×W 1,p D (Ω) → (Lmin {p,p ′}(Ω)) d×Lmin {p,p ′}(Ω), defined by (1.7) , is Lipschitz continuous and, consequently, according to [ 14 , Thm. 2.6], point-wise Newton differentiable with a point-wise Newton derivative at a root that may depend on this root. Such a dependence of the point-wise Newton derivative on this root would render it impractical for use in a semi-smooth Newton method, as the respective root is not known a priori . Therefore, it is in-dispensable to identify a Newton derivative that can be evaluated without prior knowledge of a root. However, constructing an explicit instance of such a derivative is severely obstructed by the typical 
+
+norm gap phenomenon (cf . [24, Prop. 4.1]), which is likewise expected in the present setting. A prox -based Semi-Smooth Newton Method 3Apparently, a canonical candidate for a Newton derivative is given via the Newton-type deriva-tive JF : W p′ 
+
+> N
+
+(div; Ω) × W 1,p D (Ω) → L (W p′ 
+
+> N
+
+(div; Ω) × W 1,p D (Ω); (Lmin {p,p ′}(Ω)) d × Lmin {p,p ′}(Ω) ), for every ( y, v ), (by, bv) ∈ W p′ 
+
+> N
+
+(div; Ω) × W 1,p D (Ω) defined by 
+
+JF(y, v )( by, bv) := 
+
+ñ (1 − Jprox γ1ϕ (a)) ∇bv − γ1Jprox γ1ϕ (a)by
+
+(1 −Jprox γ2ψ (b)) bv − γ2Jprox γ2ψ (b) div by
+
+ô
+
+a.e. in Ω , (1.8) where a := ∇v + γ1y ∈ (Lmin {p,p ′}(Ω)) d and b := v + γ2 div y ∈ Lmin {p,p ′}(Ω). Although the Newton-type derivative (1.8) , in general, does not represent a genuine Newton derivative on the continuous level, it leads to a rigorous justification of semi-smooth Newton methods for corresponding discretizations. For well-posedness of the semi-smooth Newton steps, the dual components of iterates, update directions, and roots are sought in W pN (div ; Ω) rather than in the natural Fenchel-dual space W p′ 
+
+> N
+
+(div; Ω) which, under suitable assumptions, allows the linear-ized equations to be reduced to elliptic problems for the primal components of update directions in 
+
+W 1,p D (Ω) with right-hand sides in W −1,p D (Ω). Accordingly, we introduce 
+
+Ap := W pN (div; Ω) × W 1,p D (Ω) , Bp := ( Lp(Ω)) d × Lp(Ω) ,
+
+and formulate the resulting prox-based semi-smooth Newton iteration as follows: 
+
+Algorithm 1.1 (prox -based semi-smooth Newton method for general convex variational problems ).
+
+Let γ1, γ 2 > 0 be proximity parameters, let εabs , ε rel > 0 be stopping parameters, let (z0, u 0) ∈ Ap
+
+be an initial iterate, and let kmax ∈ N ∪ { +∞} be a maximum number of iterations. Then, for 
+
+k = 0 , . . . , k max , perform the following iteration loop: (1) Compute the primal-dual update direction ( δz k, δu k) ∈ Ap such that 
+
+JF(zk, u k)( δz k, δu k) = −F(zk, u k) in Bp , (1.9) 
+
+and the updated iterate (zk+1 , u k+1 ) := ( zk, u k) + ( δz k, δu k) ∈ Ap;(2) If ∥F(zk+1 , u k+1 )∥Bp < max {εabs , ε rel ∥F(z0, u 0)∥Bp }, then STOP ; otherwise, k 7 → k + 1 and continue with (1). 
+
+The well-posedness of Algorithm 1.1 can be ensured ( cf . [ 2, Thm. 2.7]) for p in a small interval around 2 by Gr¨ oger regularity theory, or, under additional regularity assumptions, for all p ∈
+
+(1 , +∞) by Schauder regularity theory. However, due to the lack of genuine Newton differentiability of F : W pN ( div ; Ω) × W 1,p D (Ω) → (Lp(Ω)) d × Lp(Ω), defined by (1.7) , in the natural function spaces by the norm-gap phenomenon, it is unclear whether one can expect local super-linear convergence. In the present paper, we focus on a finite-dimensional counterpart of the above construction based on a finite element discretization of the primal (1.1) and the dual (1.2) problem, in which the norm-gap phenomenon does not occur and, therefore, a thorough convergence analysis is possible .Proximity-operator and Moreau–Yosida reformulations are well-established in nonsmooth opti-mization, in particular, through splitting schemes and proximal Newton-type methods for compos-ite minimization in finite-dimensional and Hilbert-space settings; see, e.g. , [38, 33, 39, 40] . Closely related proximal optimality conditions occur in inverse and PDE-constrained optimization with nonsmooth control or sparsity terms, where reduced or dual formulations often exploit smoothing by a solution operator; see, e.g. , [ 22 , 49 ]. By contrast, the present work treats nonsmooth convex variational energies directly, without relying on such solution-operator smoothing, and combines the proximal optimality conditions (1.6) with a discrete Fenchel duality framework. 
+
+The outline of the article is as follows. In Section 2, we recall important definitions and results in connection with Newton differentiability, semi-smooth Newton methods, Moreau envelopes, and proximity operators as well as notation for standard continuous and discrete function spaces. In Section 3, we present a (Fenchel) duality framework for a broad class of convex integral functionals, which we transfer to a discrete level in Section 4. In Section 5, starting from the discrete (Fenchel) duality framework in Section 4, we derive and study a discrete variant of the prox -based semi-smooth Newton method ( cf . Algorithm 1.1). In Section 6, we apply the discrete (Fenchel) duality framework and the discrete prox -based semi-smooth Newton method derived in Section 5 to the TV-minimization problem, the p-Dirichlet problem, and the elasto-plastic torsion problem. In Section 7, we present numerical tests for these three benchmark problems. S. Bartels and A. Kaltenbach 4
+
+2. Preliminaries 
+
+2.1 Newton differentiability and the semi-smooth Newton method 
+
+In this subsection, we recall the notion of Newton (or slant) differentiability along with related results, outline the semi-smooth Newton method, and state the main result concerning its local well-posedness and local (super-linear) convergence. For a detailed presentation, we refer to [ 14 , 48 , 24 ]. In doing so, throughout this subsection, let ( X, ∥ · ∥ X ) and ( Y, ∥ · ∥ Y ) be normed vector spaces. At the basis of the semi-smooth Newton method is a generalized concept of differentiability. 
+
+Definition 2.1 (Newton (or slant) differentiability) . Let U ⊆ X be an open subset. Then, a map-ping F : U → Y is called Newton (or slantly ) differentiable at x ∈ U if there exists a ( non-trivial )1
+
+mapping ∂NF : BXε (x) ⊆ U → 2L(X;Y ), ε > 0, called Newton derivative of F at x ∈ U , where 
+
+2L(X;Y ) denotes the power set of the space of linear and bounded operators L(X; Y ), such that 
+
+lim  
+
+> τ→0X
+
+n
+
+sup   
+
+> L∈∂NF(x+τ)
+
+ 1  
+
+> ∥τ∥X
+
+∥F (x + τ ) − F (x) − Lτ ∥Y
+
+o
+
+= 0 . (2.1) 
+
+A selection JF : BXε (x) → L (X; Y ) of the Newton derivative ∂NF : BXε (x) → 2L(X;Y ), i.e., 
+
+JF (bx) ∈ ∂NF (bx) for all bx ∈ BXε (x), is called Newton derivative selection (or slanting function ). The mapping F : U → Y is called Newton (or slantly ) differentiable in U if there exists a (non-trivial) mapping ∂NF : U → 2L(X;Y ) such that (2.1) holds at every x ∈ U .
+
+Remark 2.2 (on Definition 2.1) . Let U ⊆ X be an open subset and F : U → Y (cf. [ 14 , Sec. 2]): (i) In general, a Newton derivative ∂NF : BXε (x) → 2L(X;Y ) is not unique; (ii) If F : U → Y is continuously Fr´ echet differentiable in U , then it is Newton differentiable in U
+
+and the Fr´ echet derivative DF : U → L (X; Y ) is a possible Newton derivative selection; (iii) If F : U → Y is Lipschitz continuous at x ∈ U , i.e., there exists some L > 0 such that ∥F (x+
+
+τ )−F (x)∥Y ≤ L∥τ ∥X for sufficiently small τ ∈ X, then it is Newton differentiable at x ∈ U .
+
+Building on Definition 2.1, the semi-smooth Newton method is analogous to the classical Newton method, while employing a Newton derivative selection rather than the Fr´ echet derivative. 
+
+Algorithm 2.3 (Semi-smooth Newton method) . Let U ⊆ X be an open subset and F : U → Y .Let εabs , ε rel > 0 be stopping parameters, let x0 ∈ U be an initial iterate, and let kmax ∈ N ∪ { +∞} 
+
+be a maximum number of iterations. Then, for k = 0 , . . . , k max , perform the following iteration loop: (i) Check if F : U → Y is Newton differentiable at xk ∈ U and compute a Newton derivative selection JF (xk) ∈ L (X; Y );(ii) Compute the update direction δx k ∈ X such that 
+
+JF (xk)δx k = −F (xk) in Y , (2.2) 
+
+and the updated iterate xk+1 := xk +αkδx k ∈X, where αk >0 is a (possibly variable ) step size ;(iii) If ∥F (xk+1 )∥Y < max {εabs , ε rel ∥F (x0)∥Y }, then STOP ; otherwise, k → k + 1 and continue with Step (i). 
+
+If the mapping F : U → Y is Newton differentiable at a root x ∈ U and in a ball BXε (x) ⊆ U , ε > 0,a uniformly bounded inverse of a Newton derivative selection exists, then Algorithm 2.3 is locally well-posed , i.e. , if x0 ∈ U is sufficiently close to x, all iterates {xk}k∈N ⊆ BXε (x) are computable, and locally super-linearly convergent to x, i.e. , if x0 ∈ U is sufficiently close to x, for every η > 0, there exists some K ∈ N, such that for every k ∈ N with k ≥ K, there holds 
+
+∥xk+1 − x∥X ≤ η∥xk − x∥X .
+
+Theorem 2.4 (Well-posedness and convergence) . Let U ⊆ X be an open subset and F : U → Y
+
+such that F (x) = 0 Y for some x ∈ U . If F : U → Y is Newton differentiable at x ∈ U with point-wise invertible Newton derivative selection JF : BXε (x)→L (X; Y ) and sup ex∈BXε (x) {∥ JF (ex)−1∥L(Y ;X)}
+
+<+∞ for some ε > 0, Algorithm 2.3 (with αk = 1 for all k ∈ N) is locally well-posed and locally super-linearly convergent to x.Proof. See [14, Thm. 3.4].            
+
+> 1Here, ‘non-trivial’ means that ∂NF(bx)̸=∅for all bx∈BXε(x).
+
+A prox -based Semi-Smooth Newton Method 5
+
+2.2 Moreau envelope, proximity operator, resolvent operator, and Yosida approximation 
+
+In this subsection, we collect the most important results connected with the Moreau envelope, proximity operator, resolvent operator, and Yosida approximation. For a detailed presentation , we refer to [ 10 , 44 ]. Throughout this subsection, if not otherwise specified, let ( X, (·, ·)X ) be a Hilbert space and Γ 0(X) the class of proper, convex, and lower semi-continuous functionals defined on X.Then, a Fr´ echet differentiable approximation of a functional from Γ 0(X), which also preserves the minimizers of the latter, is obtained via infimal convolution with a scaled quadratic functional. 
+
+Definition 2.5 (Moreau envelope) . Let f : X → R∪{ +∞} be a functional. Then, for every γ > 0,the Moreau envelope of f (of proximity parameter γ > 0) f γ : X → R ∪ { +∞} , for every x ∈ X,is defined by 
+
+f γ (x) := inf 
+
+> y∈X
+
+f (y) + 12γ ∥x − y∥2 
+
+> X
+
+. (2.3) For functionals from Γ 0(X), the Moreau envelope offers the following approximation properties. 
+
+Lemma 2.6. Let f ∈ Γ0(X) be a functional. Then, for every proximity parameter γ > 0, the Moreau envelope f γ : X → R is real-valued, convex, and continuous. Moreover, for every x ∈ X
+
+and the associated net {f γ (x)}γ> 0: γ→0+ ⊆ R, the following statements apply: (i) {f γ (x)}γ> 0: γ→0+ ⊆ R is non-decreasing; (ii) f γ (x) ↗ f (x) ( γ → 0+);(iii) f γ (x) ↘ inf y∈X {f (y)} (γ → +∞). In particular, inf y∈X {f γ (y)} = inf y∈X {f (y)}.Proof. See [10, Props. 12.15 & 12.32]. The approximation properties of Moreau envelopes ( cf. Lemma 2.6) are illustrated in Figure 1 by two examples of functionals from Γ 0(Rd) relevant for the forthcoming analysis (cf . [11, Chap. 6] ). 
+
+Examples 2.7 (for Moreau envelopes) . Let γ > 0 be a proximity parameter and d ∈ N.(i) The Moreau envelope of the Euclidean distance f := | · | ∈ Γ0(Rd), called Huber regularization 
+
+(cf. [26]), f γ : Rd → R (cf. Figure 1(left)), for every t ∈ Rd, is given via 
+
+f γ (t) = min { 12γ |t|2, |t| − γ 
+
+> 2
+
+} .
+
+(ii) The Moreau envelope of the functional f := 12 | · | 2 + IKd  
+
+> 1(0)
+
+∈ Γ0(Rd)2, where IKd 
+
+> 1(0)
+
+(t) := 0 if 
+
+|t| ≤ 1 and IKd 
+
+> 1(0)
+
+(t) := + ∞ else, f γ : Rd → R (cf. Figure 1(right)), for every t ∈ Rd, is given via 3
+
+f γ (t) = 12(1+ γ) |t|2 + 12γ(1+ γ) (|t| − (1 + γ)) 2+ .3 2 1 0 1 2 3
+
+t
+
+> 0
+> 1
+> 2
+> 3
+> f(t), f  γ(t)
+
+f = | · |             
+
+> f0.1
+> f0.25
+> f0.5
+> f1.0
+> f2.0
+> f4.0
+> f3210123
+
+t
+
+> 0
+> 1
+> 2
+> 3
+> 4
+> f(t), f  γ(t)
+
+f = 12 | · | 2 + IK d       
+
+> 1(0)
+> f0.1
+> f0.25
+> f0.5
+> f1.0
+> f2.0
+> f4.0
+> f
+
+Figure 1: left: Euclidean distance f := |·| ∈ Γ0(R); right: the functional f := 12 |·| 2 +IKd  
+
+> 1(0)
+
+∈ Γ0(R); each with Moreau envelopes f γ : R → R, γ ∈ { 0.1( ) , 0.25( ) , 0.5( ) , 1( ) , 2( ) , 4( ) }, which, con-sistent with Lemma 2.6, approximate f ∈ Γ0(R) ( ) point-wise from below with matching minima .             
+
+> 2Here, Kd
+> 1(0) := {x∈Rd| | x| ≤ 1}
+> 3Here, ( ·)+:= max {0,·} :R→R≥0.
+
+S. Bartels and A. Kaltenbach 6Beyond that, for functionals from Γ 0(X), by the direct method in the calculus of variations, the infimum in (2.3) is always attained, which gives rise to the following definition. 
+
+Definition 2.8 (Proximity operator) . Let f ∈Γ0(X) be a functional. Then, the proximity operator 
+
+of f –or proximal mapping – prox f : X → X, for every x ∈ X, is defined by 
+
+prox f (x) := arg min 
+
+> y∈X
+
+f (y) + 12 ∥x − y∥2 
+
+> X
+
+. (2.4) Important properties of the proximity operator are collected in the following lemma. 
+
+Lemma 2.9. Let f ∈ Γ0(X) be a functional. Then, the following statements apply: (i) For every x ∈ X and γ > 0, there holds the Moreau decomposition 
+
+x = γ prox 1   
+
+> γf∗
+
+( 1 
+
+> γ
+
+x) + prox γf (x) , (2.5) 
+
+where, identifying X with its (topological) dual space X∗, the (Fenchel) conjugate functional 
+
+f ∗ : X → R ∪ { +∞} , for every x ∈ X, is defined by f ∗(x) := sup y∈X {(x, y )X − f (y)};(ii) The proximity operator prox f : X → X and 1X −prox f : X → X, where 1X ∈ L (X) := L(X; X)
+
+denotes the identity operator (i.e., 1X (x) := x for all x ∈ X), are monotone and 1-Lipschitz continuous. More specifically, for every x, y ∈ X, there holds 
+
+∥prox f (x) − prox f (y)∥2 
+
+> X
+
+≤ (prox f (x) − prox f (y), x − y)X , (2.6a) 
+
+∥x − prox f (x) − (y − prox f (y)) ∥2 
+
+> X
+
+≤ (x − prox f (x) − (y − prox f (y)) , x − y)X ; (2.6b) 
+
+(iii) The proximity operator prox f : X → X is Newton differentiable point-wise at every x ∈ X
+
+and for every L ∈ ∂Nprox f (x), there holds L ⪰ 0X as well as ∥L∥L(X) ≤ 1, where 0X ∈ L (X)
+
+is the zero operator (i.e., 0X (x) = 0 X for all x ∈ X). (iv) If the functional f : X → R is twice continuously Fr´ echet differentiable with second Fr´ echet derivative D2f : X → L (X), the proximity operator prox f : X → X is Fr´ echet differentiable with Fr´ echet derivative Dprox f : X → L (X), for every x ∈ X given via 
+
+Dprox f (x) =  1X + D 2f (prox f (x)) −1 in L(X) . (2.7) 
+
+Proof. ad (i). See [ 10 , Thm. 14.3(ii)]. ad (ii). See [ 10 , Prop. 12.28]. ad (iii). See Remark 2.2(iii). 
+
+ad (iv). By the definition of prox f : X → X (cf . Definition 2.8), for every x ∈ X, the element prox f (x) ∈ X is the unique root of the mapping F (x, ·) : X → X, for every y ∈ X defined by 
+
+F (x, y ) := y − x + D f (y) in X . (2.8) This is a consequence of the first-order optimality condition associated with the minimization problem in (2.4) and the assumed continuous Fr´ echet differentiability of the functional f : X → R.Due to the assumed twice continuous Fr´ echet differentiability of the functional f : X → R, the mapping F : X × X → X, defined via (2.8) , is continuously Fr´ echet differentiable with Fr´ echet derivative D F : X × X → L (X × X; X), for every ( x, y ) ∈ X × X given via DF (x, y ) = 
+
+ï DxF (x, y )Dy F (x, y )
+
+ò
+
+=
+
+ï −1X
+
+1X + D 2f (y)
+
+ò
+
+in L(X × X; X) .
+
+By the convexity and twice continuous Fr´ echet differentiability of f : X → R, for every y ∈ X, the second Fr´ echet derivative D 2f (y) ∈ L (X) is bounded, self-adjoint, positive semi-definite and, thus, Dy F (·, y ) = 1X +D 2f (y) ∈ L (X) an isomorphism. Then, due to F (x, prox f (x)) = 0 in X for all x ∈ X,by the implicit function theorem ( cf . [23, p. 133] ), for every x ∈ X, there exist open sets Ux, V x ⊆
+
+X with x ∈ Ux and prox f (x) ∈ Vx and a continuously Fr´ echet differentiable function yx : Ux → Vx
+
+such that F (bx, y x(bx)) = 0 in X for all bx ∈ Ux, which, due to the uniqueness of the root of the mapping F (bx, ·) : X → X for all bx ∈ X, satisfies yx(bx) = prox f (bx) for all bx ∈ Ux. In other words, the proximity operator is continuously Fr´ echet differentiable in Ux. Beyond that, for every bx ∈ Ux,we have that D yx(bx) = −(D y F (bx, y x(bx))) −1DxF (bx, y x(bx)) = ( 1X +D 2f (yx(bx))) −1 in L(X), which implies the claimed representation (2.7) of the Fr´ echet derivative of prox f : X → X.A prox -based Semi-Smooth Newton Method 7Note that point (iii) in Lemma 2.9 asserts only point-wise Newton differentiability of proximity operators, not global (or even local ) Newton differentiability. However, global Newton differentia-bility is typically satisfied in practice and can be verified on a case-by-case basis (cf . [11, Chap. 6] ). 
+
+Examples 2.10 (for proximity operators) . Let γ > 0 be a proximity parameter and d ∈ N.(i) The proximity operator prox γf : Rd → Rd (cf. Figure 2(left)) of the Euclidean distance f :=
+
+| · | ∈ Γ0(Rd), for every t ∈ Rd, is given via 
+
+prox γf (t) = ( |t| − γ)+ t 
+
+> |t|
+
+, (2.9) 
+
+and, thus, not only Newton differentiable point-wise at every t ∈ Rd, but Newton differentiable in Rd with Newton derivative ∂Nprox γf : Rd → 2Rd
+
+, for every t ∈ Rd given via 4
+
+∂N prox γf (t) = 
+
+
+
+1 − γ 
+
+> |t|
+
+(1 − t⊗t 
+
+> |t|2
+
+) if |t| > γ , 
+
+[0 , 1] t⊗t 
+
+> |t|2
+
+if |t| = γ , 
+
+0 if |t| < γ ;(2.10) 
+
+(ii) The proximity operator prox γf : Rd → Rd (cf. Figure 2(right)) of the functional f := 12 | · | 2
+
++IKd  
+
+> 1(0)
+
+∈ Γ0(Rd), for every t ∈ Rd, is given via 
+
+prox γf (t) = min { 11+ γ , 1 
+
+> |t|
+
+}t , (2.11) 
+
+and, thus, not only Newton differentiable point-wise at every t ∈ Rd, but Newton differentiable in Rd with Newton derivative ∂Nprox γf : Rd → 2Rd
+
+, for every t ∈ Rd given via 
+
+∂N prox γf (t) = 
+
+ 
+
+> 1
+> |t|
+
+(1 − t⊗t 
+
+> |t|2
+
+) if |t| > 1 + γ ,  
+
+> 11+ γ
+
+(1 − [0 , 1] t⊗t 
+
+> |t|2
+
+) if |t| = 1 + γ ,  
+
+> 11+ γ
+
+1 if |t| < 1 + γ . 
+
+(2.12) 3 2 1 0 1 2 3
+
+t
+
+> 3
+> 2
+> 1
+> 0
+> 1
+> 2
+> 3
+> prox γf (t)
+
+f = | · |       
+
+> prox 0.1f
+> prox 0.25 f
+> prox 0.5f
+> prox 1.0f
+> prox 2.0f
+> prox 4.0f
+> id 3210123
+
+t
+
+> 3
+> 2
+> 1
+> 0
+> 1
+> 2
+> 3
+> prox γf (t)
+
+f = 12 | · | 2 + IK d 
+
+> 1(0)
+> prox 0.1f
+> prox 0.25 f
+> prox 0.5f
+> prox 1.0f
+> prox 2.0f
+> prox 4.0f
+> id
+
+Figure 2: left: Euclidean distance f := |·| ∈ Γ0(R); right: the functional f := 12 |·| 2 +IKd  
+
+> 1(0)
+
+∈ Γ0(R); each with proximity operators prox γf : R → R, γ ∈ { 0.1( ) , 0.25( ) , 0.5( ) , 1( ) , 2( ) , 4( ) }, which, consistent with Lemma 2.13(ii), approximate the identity operator id R ∈ L (R) ( ). The precise relation between the Moreau envelope and the proximity operators –in particular, with regard to their derivatives– can be found in the following lemma. 
+
+Lemma 2.11. Let f ∈ Γ0(X) be a functional. Then, the following statements apply: (i) For every x ∈ X and γ > 0, we have that f γ (x) = f (prox γf (x)) + 12γ ∥x − prox γf (x)∥2 
+
+> X
+
+;(ii) For every γ > 0, the Moreau envelope f γ : X → R is Fr´ echet differentiable with 1 
+
+> γ
+
+-Lipschitz continuous Fr´ echet derivative Df γ : X → X, for every x ∈ X given via 
+
+Df γ (x) = 1 
+
+> γ
+
+(x − prox γf (x)) .         
+
+> 4By 1:= ( δij )i,j ∈{ 1,...,d },0∈Rd×d, we denote the identity and zero matrix , respectively.
+
+S. Bartels and A. Kaltenbach 8
+
+(iii) For every λ, γ > 0 and x ∈ X, we have that 
+
+prox γf λ (x) = 1 
+
+> γ+λ
+
+(λx + γ prox (γ+λ)f (x)) in X . 
+
+In particular, the proximity operator prox γf λ : X → X is λγ+λ -strongly monotone and, thus, for every x ∈ X and L ∈ ∂N prox γf λ (x), there holds L ⪰ λγ+λ 1X 5.Proof. ad (i). See [ 10 , Rem. 12.24]. ad (ii). See [ 10 , Prop. 12.30]. ad (iii). See [ 11 , Cor. 6.64]. We recall two related concepts from monotone operator theory: the resolvent and the Yosida approximation, which provide equivalent regularizations of subdifferentials of convex functionals. 
+
+Definition 2.12 (Resolvent and Yosida approximation) . Let f ∈ Γ0(X) be a functional with subdifferential ∂f : X → 2X , where 2X denotes the power set of X, for every x ∈ X defined by 
+
+∂f (x) := 
+
+®{x∗ ∈ X | f − f (x) ≥ (x∗, (·) − x)X in X} if f (x) < +∞ ,
+
+∅ else .
+
+Then, the Yosida approximation of ∂f : X → 2X is defined by (∂f )γ := 1 
+
+> γ
+
+(1X − Jγ∂f ) : X → X,where Jγ∂f := ( 1X + γ∂f )−1 : X → X denotes the resolvent of ∂f : X → 2X .
+
+The precise relations between the Moreau envelope, proximity operator, resolvent, and Yosida approximation are presented in the following lemma. 
+
+Lemma 2.13. Let f ∈ Γ0(X) be a functional. Then, the following statements apply: (i) For every x ∈ X and γ > 0, there holds Jγ∂f (x) = prox γf (x) and (∂f )γ (x) = D f γ (x) in X;(ii) For every x ∈ X, we have that 
+
+Jγ∂f (x) → x in X (γ → 0+) ,
+
+(∂f )γ (x) → arg min y∈∂f (x) {∥ y∥X } in X (γ → 0+) ; 
+
+(iii) If the functional f ∈ Γ0(X) is μ-strongly convex for some μ > 0, i.e., for every x, y ∈ X
+
+and x∗ ∈ ∂f (x), there holds 
+
+f (y) ≥ f (x) + ( x∗, y − x)X + μ 
+
+> 2
+
+∥x − y∥2 
+
+> X
+
+,
+
+then the proximity operator prox f : X → X is 11+ μ -Lipschitz continuous. In particular, for every x ∈ X and L ∈ ∂N prox f (x), there holds ∥L∥L(X) ≤ 11+ μ .Proof. ad (i). See [ 10 , Expl. 23.3]. ad (ii). See [ 10 , Cor. 23.46 & Thm. 23.48]. ad (iii). See [10, Prop. 23.13]. 3 2 1 0 1 2 3
+
+t
+
+> 1.5
+> 1.0
+> 0.5
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> f(t), Df γ(t)
+
+f = | · |             
+
+> Df0.1
+> Df0.25
+> Df0.5
+> Df1.0
+> Df2.0
+> Df4.0
+> f3210123
+
+t
+
+> 3
+> 2
+> 1
+> 0
+> 1
+> 2
+> 3
+> f(t), Df γ(t)
+
+f = 12 | · | 2 + IK d       
+
+> 1(0)
+> Df0.1
+> Df0.25
+> Df0.5
+> Df1.0
+> Df2.0
+> Df4.0
+> f
+
+Figure 3: left: Euclidean distance f := |·| ∈ Γ0(R); right: the functional f := 12 |·| 2 +IKd  
+
+> 1(0)
+
+∈ Γ0(R); each with derivatives of Moreau envelopes Df γ : R → R, γ ∈ { 0.1( ) , 0.25( ) , 0.5( ) , 1( ) , 2( ) , 4( ) },which approximate the subdifferential ∂f : R → 2R ( ) in the sense of Lemma 2.13(ii).                           
+
+> 5For A,B∈Rd×d, we write A⪯B(or A⪰B) if (( B−A)t)·t≥0 (or (( B−A)t)·t≤0) for all t∈Rd.
+
+A prox -based Semi-Smooth Newton Method 9
+
+2.3 Continuous function spaces 
+
+Throughout the paper, if not otherwise specified, let Ω ⊆ Rd, d ∈ N, be a bounded polyhedral Lipschitz domain with (topological) boundary ∂Ω split into a relatively open Dirichlet part ΓD ⊆ ∂Ωand a relatively open Neumann part Γ N ⊆ ∂Ω; i.e. , we have that Γ D ∪ΓN = ∂Ω and Γ D ∩ΓN = ∅.For p ∈ [1 , +∞], the space of p-integrable (Lebesgue) measurable functions is denoted by Lp(Ω) and equipped with the norm ∥·∥ p, Ω := ( ´ 
+
+> Ω
+
+| · | p dx) 1 
+
+> p
+
+if p < +∞ and ∥·∥ ∞,Ω := ess sup x∈Ω{| (·)( x)|} .Then, for p, p ′ ∈ [1 , +∞], where 1 
+
+> p
+
++ 1 
+
+> p′
+
+= 1 with 1 
+
+> ∞
+
+:= 0, we employ the standard function spaces 
+
+W 1,p (Ω) := v ∈ Lp(Ω) | ∇ v ∈ (Lp(Ω)) d ,W p′
+
+(div; Ω) := y ∈ (Lp′
+
+(Ω)) d | div y ∈ Lp′
+
+(Ω) ,
+
+where ∇ := (∂x1 , . . . , ∂ xd ) and div : = Pdi=1 ∂xi initially are to be understood in a distributional sense. If we denote by tr (·) : W 1,p (Ω) → W 1− 1 
+
+> p,p
+
+(∂Ω) and tr(( ·) · n) : W p′
+
+(div; Ω) → (W 1− 1 
+
+> p,p
+
+(∂Ω)) ∗
+
+the trace and the normal trace operator, respectively, where n : ∂Ω → Sd−1 := {x ∈ Rd | | x| = 1 }
+
+is the outward unit normal vector field to Ω, then, for every v ∈ W 1,p (Ω) and y ∈ W p′
+
+(div ; Ω), there holds the integration-by-parts formula ( cf . [20, Sec. 4.3, (4.12)]) 
+
+ˆ
+
+> Ω
+
+∇v · y dx +
+
+ˆ
+
+> Ω
+
+v div y dx = ⟨tr( y · n), tr( v)⟩W 1− 1 
+
+> p ,p (∂Ω)
+
+. (2.13) Then, we introduce the spaces of functions in W 1,p (Ω) with vanishing trace on Γ D and of vector fields in W p′
+
+( div ; Ω) with vanishing normal trace in Γ N (in a generalized sense), respectively, i.e. ,
+
+W 1,p D (Ω) := v ∈ W 1,p (Ω) | tr( v) = 0 a.e. on Γ D ,W p′ 
+
+> N
+
+(div; Ω) := y ∈ W p′
+
+(div; Ω) | ⟨ tr( y · n), tr( v)⟩W 1− 1 
+
+> p ,p (∂Ω)
+
+= 0 for all v ∈ W 1,p D (Ω) .
+
+2.4 Discrete function spaces 
+
+Throughout the paper, if not otherwise specified, let {T h}h> 0 be a family of shape-regular trian-gulations of Ω ⊆ Rd, d ∈ N, ( cf . [ 19 , Def. 11.2]), where h > 0 refers to the maximal mesh-size , i.e. ,
+
+h := max T ∈T h {hT := diam( T )}. The set of nodes (of the triangulation Th) is denoted by Nh, the 
+
+set of Dirichlet nodes by N Dh := {ν ∈ N h | ν ∈ ΓD }, and the set of free nodes by N Fh := Nh \ N Dh .For k ∈ { 0, 1} and T ∈ T h, let Pk(T ) denote the space of polynomials of maximal degree k on T .Then, the space of element-wise constant functions is defined by 
+
+L0(Th) := vh ∈ L∞(Ω) | vh|T ∈ P0(T ) for all T ∈ T h ,
+
+while the space of globally continuous element-wise affine functions is defined by 
+
+S1(Th) := vh ∈ C0(Ω) | vh|T ∈ P1(T ) for all T ∈ T h .
+
+Next, we introduce the space of globally continuous element-wise affine functions vanishing on ΓD
+
+S1 
+
+> D
+
+(Th) := S1(Th) ∩ W 1,1 
+
+> D
+
+(Ω) ,
+
+along with the (node-wise) nodal interpolation operator Ip1 
+
+> h
+
+: ( R ∪ { +∞} )Nh → S 1 
+
+> D
+
+(Th) ∪ { +∞} ,where ( R ∪ { +∞} )Nh := {vh | vh : Nh → R ∪ { +∞}} , for every vh ∈ (R ∪ { +∞} )Nh defined by 
+
+Ip1 
+
+> h
+
+vh := X 
+
+> ν∈N Fh
+
+vh(ν)φν , (2.14) where ( φν )ν∈N h denotes the shape basis of S1(Th) , which may be used to approximate the L2(Ω)-inner product through the mass-lumped inner product , for every vh, w h ∈ (R ∪ { +∞} )Nh defined by (vh, w h)h := 
+
+ˆ
+
+> Ω
+
+Ip1 
+
+> h
+
+{vhwh} dx = X 
+
+> ν∈N Fh
+
+Å
+
+βν := 
+
+ˆ
+
+> Ω
+
+φν dx
+
+ã
+
+vh(ν)wh(ν) ∈ R ∪ { +∞} . (2.15) Furthermore, we canonically extend the nodal interpolation operator (2.14) and the mass-lumped inner product (2.15) to functions v, w ∈ C0(Ω) via Ip1 
+
+> h
+
+v := Ip1 
+
+> h
+
+(v|Nh ) and (v, w )h := ( v|Nh , w |Nh )h.S. Bartels and A. Kaltenbach 10 
+
+3. Continuous (Fenchel) duality for integral functionals 
+
+In this section, we introduce a (Fenchel) duality framework for a broad class of convex integral functionals. For a detailed presentation, we refer to the textbook [18] (see also [42, 43, 44]). To this end, let ϕ : Ω×Rd → R∪{ +∞} and ψ : Ω×R → R∪{ +∞} be energy densities such that the following assumptions are satisfied. 
+
+Assumption 3.1 (on ϕ and ψ). The energy densities ϕ : Ω×Rd → R∪{ +∞} and ψ : Ω×R → R∪{+∞} are such that for an integrability exponent p ∈ [1 , ∞) the following conditions are satisfied: (i) Convex normal integrands (cf. [42, Sec. 2]): (i.a) ϕ is M(d x; Ω) ⊗ B (Rd)-measurable 6 and for a.e. x ∈ Ω, we have that ϕ(x, ·) ∈ Γ0(Rd);(i.b) ψ is M(d x; Ω) ⊗ B (R)-measurable and for a.e. x ∈ Ω, we have that ψ(x, ·) ∈ Γ0(R).(ii) Lower compactness property (cf. [28, Sec. 2]): (ii.a) If {yn}n∈N ⊆ (Lp(Ω)) d is a sequence such that yn → y in (Lp(Ω)) d (n → ∞ ) and 
+
+sup n∈N {´ 
+
+> Ω
+
+ϕ(·, y n) d x} < +∞, then {(ϕ(·, y n)) −}n∈N ⊆ L1(Ω) 7 is uniformly integrable ;(ii.b) If {vn}n∈N ⊆ Lp(Ω) is a sequence such that vn → v in Lp(Ω) ( n → ∞ ) and 
+
+sup n∈N {´ 
+
+> Ω
+
+ψ(·, v n) d x} < +∞, then {(ψ(·, v n)) −}n∈N ⊆ L1(Ω) is uniformly integrable. (iii) Non-triviality: there exists a function u⋆ ∈ W 1,p D (Ω) such that ϕ(·, ∇u⋆), ψ (·, u ⋆) ∈ L1(Ω) .
+
+Then, if Assumption 3.1 is satisfied, the primal energy functional I : W 1,p D (Ω) → R ∪ { +∞} ,for every v ∈ W 1,p D (Ω), is defined by 
+
+I(v) := 
+
+ˆ
+
+> Ω
+
+ϕ(·, ∇v) d x +
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x , (3.1) and we refer to the problem that seeks to minimize the primal energy functional (3.1) as the primal problem . In order to refrain from imposing further restrictive assumptions on the energy densities 
+
+ϕ : Ω×Rd → R∪{ +∞} and ψ : Ω×R → R∪{ +∞} (in addition to Assumption 3.1) that would just be sufficient for the existence of a minimizer u ∈ W 1,p D (Ω) of the primal energy functional (3.1) ,in this section, we assume the existence of such a minimizer and refer to it as the primal solution .
+
+Remark 3.2 (on Assumption 3.1) . Assumption 3.1 precisely ensures that I ∈ Γ0(W 1,p D (Ω)) :(i) Assumption 3.1(iii) ensures that the primal energy functional (3.1) is proper; (ii) Assumption 3.1(i),(ii) ensure that the primal energy functional (3.1) is well-defined, convex, and lower semi-continuous (cf. [28, Thm. 1]). 
+
+Denote by ϕ∗ : Ω × Rd → R ∪ { +∞} and ψ∗ : Ω × R → R ∪ { +∞} the (Fenchel) conjugates (with respect to the second argument) of the energy densities ϕ : Ω × Rd → R ∪ { +∞} and 
+
+ψ : Ω×R → R∪{ +∞} , respectively. Then, if the following additional assumption on the validity of a convex conjugation formula is satisfied, a (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (3.1) likewise is given via the maximization of an integral functional. 
+
+Assumption 3.3 (Convex conjugation formula) . The (Fenchel) conjugate ψ∗ : Ω×R → R∪{ +∞} 
+
+is such that for every v∗ ∈ (W 1,p D (Ω)) ∗, there holds the convex conjugation formula sup   
+
+> v∈W1,p D(Ω)
+
+ß
+
+⟨v∗, v ⟩W 1,p D (Ω) −
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x
+
+™
+
+=
+
+
+
+ˆ
+
+> Ω
+
+ψ∗(·, w ∗) d x if 
+
+®(id W 1,p D (Ω) )∗w∗ = v∗
+
+for w∗ ∈ Lp′
+
+(Ω) ,
+
++∞ else .
+
+(3.2) 
+
+Remark 3.4 (on Assumption 3.3) . Assumption 3.1 implicitly also ensures that the integral on the right-hand side of the convex conjugation formula (3.2) is well-defined: (i) Due to Assumption 3.1(i), the (Fenchel) conjugates ϕ∗ : Ω×Rd → R∪{ +∞} and ψ∗ : Ω×R →
+
+R ∪ { +∞} are convex normal integrands as well (cf. [42, Lem. 5]); (ii) Due to Assumption 3.1(i),(iii), the (Fenchel) conjugates ϕ∗ : Ω×Rd → R∪{ +∞} and ψ∗ : Ω×
+
+R → R ∪ { +∞} have the lower compactness property as well, where p is replaced with p′,which follows from the Fenchel–Young inequality (cf. [51, Prop. 51.2]).                  
+
+> 6Here, M(d x; Ω) denotes the Lebesgue σ-algebra on Ω and B(Rd) the Borel σ-algebra on Rd.
+> 7Here, ( ·)−:= −min {0,·} :R→R≥0.
+
+A prox -based Semi-Smooth Newton Method 11 The following lemma provides a general sufficient condition on the energy density ψ : Ω × R →
+
+R ∪ { +∞} that ensures the validity of the convex conjugation formula (3.2) in Assumption 3.3. 
+
+Lemma 3.5 (Sufficient condition for Assumption 3.3) . Let ψ : Ω × R → R ∪ { +∞} be an energy density such that the extended functional F : Lp(Ω) → R, for every v ∈ Lp(Ω) defined by 
+
+F (v) := 
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x , 
+
+is well-defined, continuous, and bounded (i.e., maps bounded sets in Lp(Ω) into bounded sets in R). Then, the convex conjugation formula (3.2) in Assumption 3.3 applies. 
+
+Remark 3.6 (on Lemma 3.5) . By the Krasnoselskii theorem (cf. [ 30 , Prop. 1.1]), the assumptions of Lemma 3.5 are satisfied if ψ : Ω × R → R is a Carath´ eodory mapping (i.e., ψ(x, ·) ∈ C0(R) for a.e. x ∈ Ω and ψ(·, s ) ∈ L0(Ω) for all s ∈ R) and, for every v ∈ Lp(Ω) , there holds ψ(·, v ) ∈ L1(Ω) .Proof (of Lemma 3.5). Let v∗ ∈ (W 1,p D (Ω)) ∗ be fixed, but arbitrary. Then, we distinguish between the cases v∗ ∈ (id W 1,p D (Ω) )∗(Lp′
+
+(Ω)) and v∗ /∈ (id W 1,p D (Ω) )∗(Lp′
+
+(Ω)): 
+
+• Case v∗ ∈ ( id W 1,p D (Ω) )∗(Lp′
+
+(Ω)) . In this case, there exists a function w∗ ∈ Lp′
+
+(Ω) such that 
+
+v∗ = ( id W 1,p D (Ω) )∗w∗ in ( W 1,p D (Ω)) ∗. Then, by the density of W 1,p D (Ω) in Lp(Ω) and the continuity of 
+
+F : Lp(Ω) → R, the convex conjugation formula for integral functionals ( cf . [ 42 , Thm. 2]) yields sup   
+
+> v∈W1,p D(Ω)
+
+ß
+
+⟨v∗, v ⟩W 1,p D (Ω) −
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x
+
+™
+
+= sup 
+
+> v∈Lp(Ω)
+
+ßˆ
+
+> Ω
+
+w∗v dx −
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x
+
+™
+
+=
+
+ˆ
+
+> Ω
+
+ψ∗(·, w ∗) d x , 
+
+which is the claimed convex conjugation formula (3.2) in the case v∗ ∈ (id W 1,p D (Ω) )∗(Lp′
+
+(Ω)). 
+
+• Case v∗ /∈ ( id W 1,p D (Ω) )∗(Lp′
+
+(Ω)) . In this case, there exists a sequence {vn}n∈N ⊆ W 1,p D (Ω) boun-ded in Lp(Ω) such that ⟨v∗, v n⟩W 1,p D (Ω) → +∞ (n → ∞ ). By the boundedness of F : Lp(Ω) → R,the sequence {F (vn)}n∈N ⊆ R is bounded as well, so that sup   
+
+> v∈W1,p D(Ω)
+
+ß
+
+⟨v∗, v ⟩W 1,p D (Ω) −
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x
+
+™
+
+≥ ⟨ v∗, v n⟩W 1,p D (Ω) − F (vn) → +∞ ,
+
+which is the claimed convex conjugation formula (3.2) in the case v∗ /∈ (id W 1,p D (Ω) )∗(Lp′
+
+(Ω)) .Then, if Assumptions 3.1 and 3.3 are satisfied, a (Fenchel) dual problem (in the sense of [ 18 ,Rem. 4.2, p. 60/61]) to the minimization of (3.1) is given via the maximization of the dual energy functional D : W p′ 
+
+> N
+
+(div; Ω) → R ∪ {−∞} , for every y ∈ W p′ 
+
+> N
+
+(div; Ω) defined by 
+
+D(y) := −
+
+ˆ
+
+> Ω
+
+ϕ∗(·, y ) d x −
+
+ˆ
+
+> Ω
+
+ψ∗(·, div y) d x , (3.3) which is established along with the existence of a maximizer z ∈ W p′ 
+
+> N
+
+(div; Ω) , called dual solution ,a strong duality relation, and primal optimality inclusions in the following proposition. 
+
+Proposition 3.7 (Identification of dual problem, strong duality, and primal optimality inclusions) .
+
+Let Assumptions 3.1 and 3.3 be satisfied. Then, the following statements apply: (i) A (Fenchel) dual problem to the minimization of (3.1) is given via the maximization of (3.3) ;(ii) If, in addition, (y 7 → ´ 
+
+> Ω
+
+ϕ(·, y ) d x) : (Lp(Ω)) d → R ∪ { +∞} is continuous at ∇u⋆ ∈ (Lp(Ω)) d,then a dual solution exists, a strong duality relation applies, i.e., we have that I(u) = D(z),which is precisely equivalent to the primal optimality inclusions 
+
+z ∈ ∂tϕ(·, ∇u) a.e. in Ω , (3.4a) div z ∈ ∂sψ(·, u ) a.e. in Ω , (3.4b) 
+
+where the subdifferentials ∂t, ∂s are formed with respect to the second arguments, respectively. S. Bartels and A. Kaltenbach 12 
+
+Proof. ad (i). To begin with, we introduce the functionals G ∈ Γ0(( Lp(Ω)) d) and F ∈ Γ0(W 1,p D (Ω)) ,for every y ∈ (Lp(Ω)) d and v ∈ W 1,p D (Ω), respectively, defined by 
+
+G(y) := 
+
+ˆ
+
+> Ω
+
+ϕ(·, y ) d x , F (v) := 
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x . (3.5) Then, according to [ 18 , Rem. 4.2, p. 60/61], the (Fenchel) dual problem to the minimization of (3.1) is given via the maximization of D : ( Lp′
+
+(Ω)) d → R ∪ {−∞} , for every y ∈ (Lp′
+
+(Ω)) d given via 
+
+D(y) := −G∗(y) − F ∗(∇∗y) , (3.6) where ∇∗ : ( Lp′
+
+(Ω)) d → (W 1,p D (Ω)) ∗ is the adjoint operator to the gradient operator ∇ : W 1,p D (Ω) →
+
+(Lp(Ω)) d. Thus, it only remains to establish that the claimed integral representation (3.3) applies: 
+
+• Due to Assumption 3.1(i.a),(ii.a) and Remark 3.4, the convex conjugation formula for integral functionals ( cf . [42, Thm. 2]) is applicable and, for every y ∈ (Lp′
+
+(Ω)) d, yields 
+
+G∗(y) := 
+
+ˆ
+
+> Ω
+
+ϕ∗(·, y ) d x . (3.7) 
+
+• Due to Assumption 3.3, for every y ∈ (Lp′
+
+(Ω)) d, we have that 
+
+F ∗(−∇ ∗y) = sup   
+
+> v∈W1,p D(Ω)
+
+ß
+
+⟨−∇ ∗y, v ⟩W 1,p D (Ω) −
+
+ˆ
+
+> Ω
+
+ψ(·, v ) d x
+
+™
+
+=
+
+
+
+ˆ
+
+> Ω
+
+ψ∗(·, w ∗) d x if 
+
+®(id W 1,p D (Ω) )∗w∗ = −∇ ∗y
+
+for w∗ ∈ Lp′
+
+(Ω) ,
+
++∞ else ,
+
+=
+
+
+
+ˆ
+
+> Ω
+
+ψ∗(·, div y) d x if y ∈ W p′ 
+
+> N
+
+(div; Ω) ,
+
++∞ else ,
+
+(3.8) so that dom (−D) ⊆ W p′ 
+
+> N
+
+(div; Ω) , where we used in the last step that ( id W 1,p D (Ω) )∗w∗ = −∇ ∗y in (W 1,p D (Ω)) ∗ for some w∗ ∈ Lp′
+
+(Ω) is equivalent to that y ∈ W p′ 
+
+> N
+
+(div; Ω) with div y = w∗ a.e. in Ω. Using (3.7) and (3.8) in (3.6) , we conclude that the claimed integral representation (3.3) applies. 
+
+ad (ii). By Assumption 3.1(iii), we have that G(∇u⋆) < +∞, F (u⋆) < +∞, and, by the addi-tional assumption of this proposition, G : (Lp(Ω)) d → R∪{ +∞} is continuous at ∇u⋆ ∈ (Lp(Ω)) d.Therefore, the Fenchel duality theorem ( cf . [ 18 , Rem. 4.1, eqs. (4.21), p. 61]) yields the existence of a dual solution z ∈ dom( −D) ⊆ W p′ 
+
+> N
+
+(div; Ω) as well as that a strong duality relation applies. According to [ 18 , Rem. 4.1, eqs. (4.22),(4.23), p. 61], the strong duality relation is equivalent to 
+
+ˆ
+
+> Ω
+
+(ϕ∗(·, z ) − z · ∇ u + ϕ(·, ∇u)) d x = 0 , (3.9a) 
+
+ˆ
+
+> Ω
+
+(ψ∗(·, div z) − div z u + ψ(·, u )) d x = 0 . (3.9b) By the Fenchel–Young inequality ( cf . [ 51 , Prop. 51.2]), the integrands of the integrals in (3.9a) and (3.9b) are point-wise a.e. non-negative, so that (3.9) is precisely equivalent to 
+
+ϕ∗(·, z ) − z · ∇ u + ϕ(·, ∇u) = 0 a.e. in Ω , (3.10a) 
+
+ψ∗(·, div z) − div z u + ψ(·, u ) = 0 a.e. in Ω , (3.10b) which, by the equality condition in the Fenchel–Young inequality ( cf . [ 51 , Prop. 51.2]), in turn, is equivalent to the claimed primal optimality inclusions (3.4). 
+
+Remark 3.8 (Proximity operators of (3.5) ). If Assumptions 3.1 and 3.3 are satisfied and p = 2 ,due to [ 44 , Thm. 14.60], for the functionals (3.5) , for every y ∈ (L2(Ω)) d and v ∈ L2(Ω) , we have that 
+
+prox G(y)( x) = prox ϕ(x, ·)(y(x)) for a.e. x ∈ Ω , (3.11a) prox F (v)( x) = prox ψ(x, ·)(v(x)) for a.e. x ∈ Ω . (3.11b) A prox -based Semi-Smooth Newton Method 13 
+
+4. Discrete duality for first-order continuous Lagrange approximations 
+
+In this section, we transfer the convex duality framework from Section 3 to a discrete setting; more precisely, to a first-order continuous Lagrange approximation of the primal problem (3.1) and a zeroth-order discontinuous Lagrange approximation of the dual problem (3.3) . In this connection ,for the rest of the paper, we consider the following two Hilbert spaces 
+
+Vh := S1 
+
+> D
+
+(Th) , Yh := ( L0(Th)) d ,
+
+where ( ·,·)Vh ∈ { (·,·)L2(Ω) , (·,·)h} and ( ·,·)Yh := ( ·,·)(L2(Ω)) d ; i.e. , ∥·∥ Vh := (·,·)1/2 
+
+> Vh
+
+and ∥·∥ Yh := ( ·,·)1/2 
+
+> Yh
+
+.Whereas the canonical discretization of the energy density ϕ : Ω × Rd → R ∪ { +∞} is an element-wise constant one, the discretization of the energy density ψ : Ω × R → R ∪ { +∞} is not uniquely prescribed and, hence, permits more flexibility. The main requirements on the discretiza-tion of the energy density ψ : Ω × R → R ∪ { +∞} are that a discrete convex conjugation formula (cf . Lemma 4.3) applies and that its subdifferential maps Vh into its power set ( cf . Remark 4.2). In this section, we consider two discretization strategies for the energy density ψ : Ω×R → R∪{ +∞} 
+
+that satisfy these criteria: the first employs mass lumping and is applicable to a broad class of en-ergy densities ψh; the second avoids mass lumping but is, thus, restricted to at most quadratic ψh.In this connection, for the rest of the paper, in order to consider both discretization strategies simultaneously, we will employ a discrete operator IVh : ψh(·, V h) → { L1(Ω) , +∞} and a discrete inner product ( ·, ·)Vh associated with Vh, which, depending on the employed discretization strategy, serve as placeholders for the following two concrete choices: 
+
+• Mass lumping (ML): In this case, we employ IVh = Ip1 
+
+> h
+
+and ( ·, ·)Vh = ( ·, ·)h;
+
+• No mass lumping (NML): In this case, we employ IVh = id R and ( ·, ·)Vh = ( ·, ·)L2(Ω) .Then, depending on whether mass lumping is employed or not, let ϕh : Ω×Rd → R∪{ +∞} and 
+
+ψh : Ω×R → R∪{ +∞} be approximations of ϕ : Ω×Rd → R∪{ +∞} and ψ : Ω×R → R∪{ +∞} ,respectively, such that the following assumptions are satisfied. 
+
+Assumption 4.1 (on ϕh and ψh). The discrete energy densities ϕh : Ω × Rd → R ∪ { +∞} and 
+
+ψh : Ω × R → R ∪ { +∞} are such that the following conditions are satisfied: (i) Assumptions on ϕh:
+
+(i.a) For every t ∈ Rd, we have that ϕh(·, t ) ∈ L 0(Th);(i.b) For a.e. x ∈ Ω, we have that ϕh(x, ·) ∈ Γ0(Rd).(ii) Assumptions on ψh:
+
+(ii.a) Mass lumping: If (ML) applies, for every ν ∈ N Fh , we have that ψh(ν, ·) ∈ Γ0(R);(ii.b) No mass lumping: If (NML) applies, there exists a constant ah ≥ 0 as well as functions 
+
+bh ∈ Vh and ch ∈ L1(Ω) such that for a.e. x ∈ Ω and every s ∈ R, we have that 
+
+ψh(x, s ) = ahs2 + bh(x)s + ch(x) .
+
+(iii) Non-triviality: there exists a function u⋆h ∈ Vh such that ϕh(·, ∇u⋆h), I Vh {ψh(·, u ⋆h)} ∈ L1(Ω) .
+
+Then, if Assumption 4.1 is satisfied, the discrete primal energy functional Ih : Vh → R∪{ +∞} ,for every vh ∈ Vh, is defined by 
+
+Ih(vh) := 
+
+ˆ
+
+> Ω
+
+ϕh(·, ∇vh) d x +
+
+ˆ
+
+> Ω
+
+IVh {ψh(·, v h)} dx , (4.1) and we refer to the problem that seeks to minimize the discrete primal energy functional (4.1) as the 
+
+discrete primal problem . In order to refrain from imposing further restrictive assumptions on the discrete energy densities ϕh : Ω ×Rd → R∪ { +∞} and ψh : Ω × R → R ∪{ +∞} (in addition to As-sumption 4.1) that would just be sufficient for the existence of a minimizer uh ∈ Vh of the discrete primal energy functional (4.1) , in this section, we assume the existence of such a minimizer and refer to it as the discrete primal solution .S. Bartels and A. Kaltenbach 14 
+
+Remark 4.2. Assumption 4.1(ii) also ensures that the inclusion IVh {∂sψh(·, V h)} ⊆ 2Vh applies; more precisely, for every vh ∈ Vh, there holds IVh {∂sψh(·, v h)} ⊆ Vh.
+
+In order to identify a (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimi-zation of (4.1) , we introduce the discrete divergence operator (with respect to (·, ·)Vh ) div h : Yh → Vh,for every yh ∈ Yh and vh ∈ Vh defined by (div h yh, v h)Vh := −
+
+ˆ
+
+> Ω
+
+yh · ∇ vh dx . (4.2) Then, if Assumption 4.1(ii) is satisfied, a discrete counterpart of the convex conjugation formula (3.8) in Assumption 3.3 applies. 
+
+Lemma 4.3 (Discrete convex conjugation formula) . Let Assumption 4.1(ii) be satisfied. Then, for every yh ∈ Yh, there holds the discrete convex conjugation formula sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+IVh {div h yhvh − ψh(·, v h)} dx
+
+™
+
+=
+
+ˆ
+
+> Ω
+
+IVh {ψ∗
+
+> h
+
+(·, div h yh)} dx . (4.3) 
+
+Proof. We distinguish the cases with and without mass lumping ( i.e. , Assumption 4.1(ii.a/b)): 
+
+• Case 1: (ML). In this case, for every yh ∈ Yh, we have that sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+Ip1 
+
+> h
+
+{div h yhvh − ψh(·, v h)} dx
+
+™
+
+= sup 
+
+> vh∈Vh
+
+X 
+
+> ν∈N Fh
+
+βν (div h yh(ν)vh(ν) − ψh(ν, v h(ν))) 
+
+
+
+= X 
+
+> ν∈N Fh
+
+βν sup 
+
+> s∈R
+
+{div h yh(ν)s − ψh(ν, s )}
+
+= X 
+
+> ν∈N Fh
+
+βν ψ∗
+
+> h
+
+(ν, div h yh(ν)) =
+
+ˆ
+
+> Ω
+
+Ip1 
+
+> h
+
+{ψ∗
+
+> h
+
+(·, div h yh)} dx , 
+
+which is the claimed discrete convex conjugation formula (4.3) in the case with mass lumping. 
+
+• Case 2: (NML). We distinguish the cases ah = 0 and ah > 0: 
+
+• Case 2.1: ( ah = 0 ). In this case, the (Fenchel) conjugate (with respect to the second argu-ment) ψ∗ 
+
+> h
+
+: Ω × R → R ∪ { +∞} , for a.e. x ∈ Ω and every s∗ ∈ R, is given via 
+
+ψ∗
+
+> h
+
+(x, s ∗) = 
+
+®−ch(x) if s∗ = bh(x) ,
+
++∞ else .
+
+In particular, for every yh ∈ Yh, due to div h yh − bh ∈ Vh, we have that sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+(div h yhvh − ψh(·, v h)) d x
+
+™
+
+= sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+(div h yh − bh)vh dx
+
+™
+
+−
+
+ˆ
+
+> Ω
+
+ch dx
+
+=
+
+
+
+−
+
+ˆ
+
+> Ω
+
+ch dx if div h yh = bh in Ω ,
+
++∞ else ,
+
+=
+
+ˆ
+
+> Ω
+
+ψ∗
+
+> h
+
+(·, div h yh) d x . 
+
+• Case 2.2: ( ah > 0). In this case, the (Fenchel) conjugate (with respect to the second argu-ment) ψ∗ 
+
+> h
+
+: Ω × R → R ∪ { +∞} , for a.e. x ∈ Ω and every s∗ ∈ R, is given via 
+
+ψ∗
+
+> h
+
+(x, s ∗) = 14ah (s∗ − bh(x)) 2 − ch(x) .
+
+In particular, for every yh ∈ Yh, due to div h yh − bh ∈ Vh, we have that sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+(div h yhvh − ψh(·, v h)) d x
+
+™
+
+= sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+(div h yh − ahvh − bh)vh dx
+
+™
+
+−
+
+ˆ
+
+> Ω
+
+ch dx . A prox -based Semi-Smooth Newton Method 15 Using that, by the direct method in the calculus of variations, the supremum is attained at some 
+
+v∗ 
+
+> h
+
+:= v∗
+
+> h
+
+(yh) ∈ Vh, which, by the Fr´ echet differentiability of the functional, for every vh ∈ Vh, satisfies ´ 
+
+> Ω
+
+(div h yh − 2ahv∗ 
+
+> h
+
+− bh)vh dx = 0 and, consequently, taking into account that div h yh − bh ∈ Vh,is given via v∗ 
+
+> h
+
+= 12ah (div h yh − bh) ∈ Vh, we find that sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+(div h yhvh − ψh(·, v h)) d x
+
+™
+
+=
+
+ˆ
+
+> Ω
+
+(div h yh − ahv∗ 
+
+> h
+
+− bh)v∗ 
+
+> h
+
+dx −
+
+ˆ
+
+> Ω
+
+ch dx
+
+=
+
+ˆ
+
+> Ω
+
+  14ah (div h yh − bh)2 − ch
+
+ dx
+
+=
+
+ˆ
+
+> Ω
+
+ψ∗
+
+> h
+
+(·, div h yh) d x , 
+
+which is the claimed discrete convex conjugation formula (4.3) in the case without mass lumping. Then, if Assumption 4.1 is satisfied, the (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (4.1) is given via the maximization of the discrete dual energy functional Dh : Y ∗ 
+
+> h
+
+∼= Yh → R ∪ {−∞} , for every yh ∈ Yh defined by 
+
+Dh(yh) := −
+
+ˆ
+
+> Ω
+
+ϕ∗
+
+> h
+
+(·, y h) d x −
+
+ˆ
+
+> Ω
+
+IVh {ψ∗
+
+> h
+
+(·, div h yh)} dx , (4.4) which is established along with the existence of a maximizer zh ∈ Yh, called discrete dual solution ,a discrete strong duality relation, and discrete primal optimality inclusions in the following proposition. 
+
+Proposition 4.4 (Identification of dual problem, strong duality, and primal optimality inclusions) .
+
+Let Assumption 4.1 be satisfied. Then, the following statements apply: (i) The (Fenchel) dual problem to the minimization of (4.1) is given via the maximization of (4.4) ;(ii) If, in addition, (yh 7 → ´ 
+
+> Ω
+
+ϕh(·, y h) d x) : Yh → R ∪ { +∞} is continuous at ∇u⋆h ∈ Yh, then a discrete dual solution exists, a discrete strong duality relation applies, i.e., we have that 
+
+Ih(uh) = Dh(zh), which is precisely equivalent to the discrete primal optimality inclusions 
+
+zh ∈ ∂tϕh(·, ∇uh) a.e. in Ω , (4.5a) div h zh ∈ IVh {∂sψh(·, u h)} in Ω . (4.5b) 
+
+Proof. ad (i). To begin with, we introduce the functionals Gh ∈ Γ0(Yh) and Fh ∈ Γ0(Vh), for every yh ∈ Yh and vh ∈ Vh, respectively, defined by 
+
+Gh(yh) := 
+
+ˆ
+
+> Ω
+
+ϕh(·, y h) d x , Fh(vh) := 
+
+ˆ
+
+> Ω
+
+IVh {ψh(·, v h)} dx . (4.6) Then, a (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (4.1) is given via the maximization of Dh : Yh → R ∪ {−∞} , for every yh ∈ Yh defined by 
+
+Dh(yh) := −G∗
+
+> h
+
+(yh) − F ∗ 
+
+> h
+
+(−∇ ∗
+
+> h
+
+yh) , (4.7) where ∇∗ 
+
+> h
+
+: Yh → V ∗ 
+
+> h
+
+is the adjoint operator to the restricted gradient operator ∇h := ∇| Vh : Vh → Yh.Thus, it only remains to establish that the claimed integral representation (4.4) applies: 
+
+• Since ϕh(·, t ) ∈ L 0(Th) for all t ∈ Rd (cf . Assumption 4.1(i.a)), denoting by xT := 1
+
+> d+1
+
+P 
+
+> ν∈N h
+
+ν ∈ T
+
+the barycenter of an element T ∈ T h, for every yh ∈ Yh, we find that 
+
+G∗
+
+> h
+
+(yh) = sup 
+
+> byh∈Yh
+
+ßˆ
+
+> Ω
+
+yh · byh dx −
+
+ˆ
+
+> Ω
+
+ϕh(·, byh) d x
+
+™
+
+= X 
+
+> T∈T h
+
+|T | sup 
+
+> t∈Rd
+
+{yh(xT ) · t − ϕh(xT , t )}
+
+= X 
+
+> T∈T h
+
+|T |ϕ∗
+
+> h
+
+(xT , y h(xT )) =
+
+ˆ
+
+> Ω
+
+ϕ∗
+
+> h
+
+(·, y h) d x ;(4.8) S. Bartels and A. Kaltenbach 16 
+
+• By the definition of the discrete divergence (4.2) and Lemma 4.3, for every yh ∈ Yh, we find that 
+
+F ∗ 
+
+> h
+
+(−∇ ∗
+
+> h
+
+yh) = sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+−yh · ∇ vh dx −
+
+ˆ
+
+> Ω
+
+IVh {ψh(·, v h)} dx
+
+™
+
+= sup 
+
+> vh∈Vh
+
+ßˆ
+
+> Ω
+
+IVh {div h yhvh − ψh(·, v h)} dx
+
+™
+
+=
+
+ˆ
+
+> Ω
+
+IVh {ψ∗
+
+> h
+
+(·, div h yh)} dx . 
+
+(4.9) Using (4.8) and (4.9) in (4.7) , we conclude that the claimed integral representation (4.4) applies. 
+
+ad (ii). By Assumption 4.1(iii), we have that Gh(∇u⋆h) < +∞, Fh(u⋆h) < +∞, and, by the additional assumption of this proposition, Gh : Yh → R ∪ { +∞} is continuous at ∇u⋆h ∈ Yh.Therefore, the Fenchel duality theorem ( cf . [ 18 , Rem. 4.1, eqs. (4.21), p. 61]) yields the existence of a discrete dual solution zh ∈ Yh as well as that a discrete strong duality relation applies. According to [18, Rem. 4.1, eqs. (4.22),(4.23), p. 61], the discrete strong duality relation is equivalent to 
+
+ˆ
+
+> Ω
+
+(ϕ∗
+
+> h
+
+(·, z h) − zh · ∇ uh + ϕh(·, ∇uh)) d x = 0 , (4.10a) 
+
+ˆ
+
+> Ω
+
+IVh {ψ∗
+
+> h
+
+(·, div h zh) − div h zhuh + ψh(·, u h)} dx = 0 . (4.10b) By the Fenchel–Young inequality ( cf . [ 51 , Prop. 51.2]), the integrands of the integrals in (4.10a) and (4.10b) are point-wise (a.e.) non-negative, so that (4.10) is precisely equivalent to 
+
+ϕ∗
+
+> h
+
+(·, z h) − zh · ∇ uh + ϕh(·, ∇uh) = 0 a.e. in Ω , (4.11a) 
+
+IVh {ψ∗
+
+> h
+
+(·, div h zh) − div h zh uh + ψh(·, u h)} = 0 in Ω , (4.11b) which, by the equality condition in the Fenchel–Young inequality ( cf . [ 51 , Prop. 51.2]), in turn, is equivalent to the claimed discrete primal optimality inclusions (4.5). 
+
+Remark 4.5 (Discrete a posteriori error identity) . Inspired by [ 6 , 1 , 16 , 2 ], the discrete strong du-ality relation in Proposition 4.4(ii) implies a discrete a posteriori error identity, which may be used in a stopping criterion enabling explicit error control or in line-search strategies in iterative solvers :
+
+• Estimator: The discrete primal-dual gap estimator η2gap ,h : Vh×Yh → [0 , +∞], for every vh ∈ Vh
+
+and yh ∈ Yh defined by η2gap ,h (vh, y h) := Ih(vh)−Dh(yh), measures the discrete primal-dual gap; 
+
+• Primal error: The discrete optimal convexity measure ρ2 
+
+> Ih
+
+: Vh → [0 , +∞], for every vh ∈ Vh
+
+defined by ρ2 
+
+> Ih
+
+(vh) := Ih(vh)−Ih(uh), measures the strong convexity of the discrete primal energy functional (4.1) at a discrete primal solution uh ∈Vh and serves as a measure for the primal error ;
+
+• Dual error: The discrete optimal convexity measure ρ2 
+
+> −Dh
+
+: Yh → [0 , +∞], for every yh ∈ Yh
+
+defined by ρ2 
+
+> −Dh
+
+(yh) := −Dh(yh)+ Dh(zh), measures the strong concavity of the discrete dual en-ergy functional (4.4) at a discrete dual solution zh ∈ Yh and serves as a measure for the dual error .If Assumption 4.1 is satisfied, by Proposition 4.4(ii), a discrete strong duality relation applies, which, for every vh ∈ Vh and yh ∈ Yh, implies the discrete a posteriori error identity 
+
+ρ2 
+
+> Ih
+
+(vh) + ρ2 
+
+> −Dh
+
+(yh) = η2gap ,h (vh, y h) . (4.12) 
+
+By the integral representations of the discrete primal energy functional (4.1) and dual energy func-tional (4.4) as well as the definition of the discrete divergence operator (4.2) , the discrete primal-dual gap estimator, for every vh ∈ Vh and yh ∈ Yh, admits the integral representation 
+
+η2gap ,h (vh, y h) = 
+
+ˆ
+
+> Ω
+
+(ϕ∗
+
+> h
+
+(·, y h) − yh · ∇ vh + ϕh(·, ∇vh)) d x
+
++
+
+ˆ
+
+> Ω
+
+IVh {ψ∗
+
+> h
+
+(·, div h yh) − div h yhvh + ψh(·, v h)} dx , 
+
+(4.13) 
+
+which reveals that it precisely measures the violation of the discrete primal optimality inclusions (4.5) ,the starting point of the prox -based semi-smooth Newton method proposed in the next section. A prox -based Semi-Smooth Newton Method 17 As in Remark 3.8, the proximity operators of the discrete energy functionals (4.6) inherit a local decoupling structure and admit point-wise representations in terms of the proximity operators (with respect to the second argument) of the underlying discrete energy densities. 
+
+Proposition 4.6 (Proximity operators of the discrete energy functionals (4.6) ). Let Assump-tion 4.1 be satisfied. Then, the following statements apply: (i) The proximity operators prox Gh : Yh → Yh and prox ϕh(x, ·) : Rd → Rd, x ∈ Ω, for every yh ∈ Yh,are related via 
+
+prox Gh (yh)( x) = prox ϕh(x, ·)(yh(x)) for a.e. x ∈ Ω . (4.14) 
+
+(ii) The proximity operators prox Fh : Vh → Vh and prox ψh(x, ·) : R → R, x ∈ Ω, for every vh ∈ Vh
+
+are related via 
+
+prox Fh (vh)( x) = IVh {prox ψh (vh)}(x) for all x ∈ Ω , (4.15) 
+
+where prox ψh (vh)( x) := prox ψh(x, ·)(vh(x)) for all x ∈ Ω.Proof. ad (i). For every yh ∈ Yh, we have that prox Gh (yh) = arg min 
+
+> byh∈Yh
+
+Gh(byh) + 12 ∥yh − byh∥22,Ω
+
+= arg min 
+
+> byh∈Yh
+
+ß ˆ
+
+> Ω
+
+(ϕh(·, byh) + 12 |yh − byh|2) d x
+
+™
+
+= X 
+
+> T∈T h
+
+χT arg min 
+
+> t∈Rd
+
+{ϕh(xT , t ) + 12 |yh(xT ) − t|2}
+
+= X 
+
+> T∈T h
+
+χT prox ϕh(xT ,·)(yh(xT )) ,
+
+which implies the claimed local relation (4.14). 
+
+ad (ii). We distinguish the cases with and without mass lumping ( i.e. , Assumption 4.1(ii.a/b)): 
+
+• Case 1: (ML). In this case, for every vh ∈ Vh, we have that prox Fh (vh) = arg min 
+
+> bvh∈Vh
+
+Fh(bvh) + 12 ∥vh − bvh∥2
+
+> h
+
+= arg min 
+
+> bvh∈Vh
+
+ß ˆ
+
+> Ω
+
+Ip1 
+
+> h
+
+{ψh(·, bvh) + 12 |vh − bvh|2} dx
+
+™
+
+= X 
+
+> ν∈N Fh
+
+φν arg min 
+
+> s∈R
+
+{ψh(ν, s ) + 12 |vh(ν) − s|2}
+
+= X 
+
+> ν∈N Fh
+
+φν prox ψh(ν, ·)(vh(ν)) ,
+
+which implies the claimed local relation (4.15) in the case with mass lumping. 
+
+• Case 2: (NML). In this case, for every vh ∈ Vh, we have that prox Fh (vh) = arg min 
+
+> bvh∈Vh
+
+Fh(bvh) + 12 ∥vh − bvh∥22,Ω
+
+= arg min 
+
+> bvh∈Vh
+
+ß ˆ
+
+> Ω
+
+(ah|bvh|2 + bhbvh + ch + 12 |vh − bvh|2) d x
+
+™
+
+= 11+2 ah (vh − bh)= prox ψh (vh) ,
+
+(4.16) which implies the claimed local relation (4.15) in the case without mass lumping. S. Bartels and A. Kaltenbach 18 The following result shows that the Newton derivative selections of the proximity operators associated with the discrete integral functionals (4.6) inherit the local decoupling structure established in Proposition 4.6. In particular, they can be characterized element-wise or node-wise in terms of the Newton derivatives of the corresponding point-wise proximity operators. 
+
+Corollary 4.7 (Newton derivatives of proximity operators of the discrete integral functionals (4.6) ).
+
+Let Assumption 4.1 be satisfied. Then, the following statements apply: (i) For every yh ∈ Yh, a mapping Jprox Gh
+
+: BYh 
+
+> εh
+
+(yh) → L (Yh), εh > 0, is a Newton derivative se-lection of the proximity operator prox Gh : Yh → Yh at yh ∈ Yh if and only if, for every T ∈ T h,the mapping Jprox ϕh(xT ,·) : Bdεh (yh(xT )) → Rd×d, for every t ∈ Bdεh (yh(xT )) defined by 
+
+Jprox ϕh(xT ,·) (t) := Jprox Gh
+
+(tχ T ) , (4.17) 
+
+is a Newton derivative selection of the proximity operator prox ϕh(xT ,·) : Rd → Rd at yh(xT ) ∈ Rd;(ii) For every vh ∈ Vh, a mapping Jprox Fh
+
+: BVh 
+
+> εh
+
+(vh) → L (Vh), εh > 0, is a Newton derivative se-lection of the proximity operator prox Fh : Vh → Vh at vh ∈ Vh if and only if, for every ν ∈ N Fh ,the mapping Jprox ψh(ν, ·) : B1 
+
+> εh
+
+(vh(ν)) → R, for every s ∈ B1 
+
+> εh
+
+(vh(ν)) defined by 
+
+Jprox ψh(ν, ·) (s) := Jprox Fh
+
+(sφ ν ) , (4.18) 
+
+is a Newton derivative selection of the proximity operator prox ψh(ν, ·) : R → R at vh(ν) ∈ R.Proof. ad (i). Using Proposition 4.6(i), for every Lh ∈ (L0(Th)) d×d and τh ∈ Yh, we find that 
+
+∥ prox Gh (yh + τh) − prox Gh (yh) − Lhτh∥2
+
+> Yh
+
+= X 
+
+> T∈T h
+
+|T || prox ϕh(xT ,·)(yh(xT ) + τh(xT )) − prox ϕh(xT ,·)(yh(xT )) − Lh(xT )τh(xT )|2 ,
+
+which readily implies the assertion. 
+
+ad (ii). We distinguish the cases with and without mass lumping ( i.e. , Assumption 4.1(ii.a/b)): 
+
+• Case 1: (ML). Using Proposition 4.6(ii), for every ℓh ∈ Vh and wh ∈ Vh, we find that 
+
+∥ prox Fh (vh + wh) − prox Fh (vh) − ℓhwh∥2
+
+> Vh
+
+= X 
+
+> ν∈N Fh
+
+βν | prox ψh(ν, ·)(vh(ν) + wh(ν)) − prox ψh(ν, ·)(vh(ν)) − ℓh(ν)wh(ν)|2 ,
+
+which readily implies the assertion. 
+
+• Case 2: (NML). Using Proposition 4.6(ii) (more precisely, the representation formula (4.16) ), for every ℓh ∈ Vh and wh ∈ Vh, we find that 
+
+∥ prox Fh (vh + wh) − prox Fh (vh) − ℓhwh∥2 
+
+> Vh
+
+=   11+2 ah 1L(Vh) − ℓh
+
+wh
+
+> 2
+> Vh
+
+. (4.19) On the other hand, by the standard equivalence of ∥·∥ Vh to a dof-based norm ( cf . [ 19 , Prop. 12.5]), for every ℓh ∈ Vh and wh ∈ Vh, we have that 
+
+  11+2 ah 1L(Vh) − ℓh
+
+wh
+
+> 2
+> Vh
+
+∼ X 
+
+> ν∈N Fh
+
+hdν 11+2 ah wh(ν) − ℓh(ν)wh(ν) 2
+
+= X 
+
+> ν∈N Fh
+
+βν | prox ψh(ν, ·)(vh(ν) + wh(ν)) − prox ψh(ν, ·)(vh(ν)) − ℓh(ν)wh(ν)|2 ,
+
+(4.20) where hν := diam ( supp φν ) ∼ β 1 
+
+> d
+> ν
+
+for all ν ∈ N Fh and the implicit constants in ∼ do not depend on h.As a consequence, by combining (4.19) and (4.20) , we conclude the assertion analogously to the case with mass lumping. A prox -based Semi-Smooth Newton Method 19 
+
+5. A prox -based semi-smooth Newton method 
+
+In this section, we derive the prox -based semi-smooth Newton method. In doing so, for fixed, but arbitrary proximity parameters γ1, γ 2 > 0, the discrete energy densities ϕh : Ω × Rd → R ∪ { +∞} 
+
+and ψh : Ω×R → R∪{ +∞} such that Assumption 4.1 is satisfied, for Newton derivative selections at ∇uh + γ1zh ∈ Yh and uh + γ2 div h zh ∈ Vh (the existence of which is ensured by Lemma 2.9(iii)) of the proximity operators prox γ1Gh : Yh → Yh and prox γ2Fh : Vh → Vh of the discrete energy functionals (4.6), respectively, we employ the notation 
+
+Jprox γ1Gh
+
+: BYh 
+
+> εh
+
+(∇uh + γ1zh) → L (Yh) , (5.1a) 
+
+Jprox γ2Fh
+
+: BVh 
+
+> εh
+
+(uh + γ2 div h zh) → L (Vh) . (5.1b) Here, εh > 0 is a possibly mesh-dependent radius. Then, the prox -based semi-smooth Newton method is derived through the following steps: To begin with, the discrete primal optimality inclusions (4.5) equivalently may be rewritten as 
+
+∇uh + γ1zh ∈ (id Rd +γ1∂tϕh)( ·, ∇uh) a.e. in Ω , (5.2a) 
+
+uh + γ2 div h zh ∈ IVh {(id R +γ2∂sψh)( ·, u h)} in Ω . (5.2b) Then, by Lemma 2.13(i), the inclusions in (5.2) are each equivalent to the discrete proximal optimality conditions 
+
+∇uh = prox γ1ϕh (·, ∇uh + γ1zh) a.e. in Ω , (5.3a) 
+
+uh = IVh {prox γ2ψh (·, u h + γ2 div h zh)} in Ω , (5.3b) respectively. Thus, based on Proposition 4.6, the discrete primal optimality inclusions (4.5) equiva-lently may be rewritten as a root-finding problem for the nonlinear mapping Fh : Yh×Vh → Yh×Vh,for every ( yh, v h) ∈ Yh × Vh defined by 
+
+Fh(yh, v h) := 
+
+ï ∇vh − prox γ1Gh (∇vh + γ1yh)
+
+vh − prox γ2Fh (vh + γ2 div h yh)
+
+ò
+
+in Yh × Vh . (5.4) Due to the point-wise Newton differentiability of the proximity operators prox γ1Gh : Yh → Yh and prox γ2Fh : Vh → Vh (cf . Lemma 2.9(iii)), the mapping (5.4) is point-wise Newton differentiable and, a Newton derivative selection JFh : BYh×Vh 
+
+> εh
+
+(zh, u h) → L (Yh × Vh) at ( zh, u h) ∈ Yh × Vh, for every (yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h), is defined by 
+
+JFh (yh, v h) := 
+
+ñ −γ1Jprox γ1Gh
+
+(ah) (1L(Yh) − Jprox γ1Gh
+
+(ah)) ∇h
+
+−γ2Jprox γ2Fh
+
+(bh) div h 1L(Vh) − Jprox γ2Fh
+
+(bh)
+
+ô
+
+in L(Yh × Vh) , (5.5) where ah := ∇vh+γ1yh ∈ Yh, bh := vh+γ2 div h yh ∈ Vh and, again, ∇h := ∇| Vh : Vh → Yh denotes the restricted gradient operator. These observations motivate the formulation of the following prox -based semi-smooth Newton method: 
+
+Algorithm 5.1 ( prox -based semi-smooth Newton method) . Let γ1, γ 2 > 0 be proximity parame-ters, let εh
+
+> abs
+
+, ε h 
+
+> rel
+
+> 0 be stopping parameters, let (z0
+
+> h
+
+, u 0
+
+> h
+
+) ∈ Yh × Vh be an initial iterate, and let 
+
+kh 
+
+> max
+
+∈ N ∪ { +∞} be a maximum number of iterations. Then, for k = 0 , . . . , k h
+
+> max
+
+, perform the following iteration loop: (i) Compute the primal-dual update direction ( δz kh, δu kh) ∈ Yh × Vh such that 
+
+JFh (zkh, u kh)( δz kh, δu kh) = −Fh(zkh, u kh) in Yh × Vh , (5.6) 
+
+and the updated iterate (zk+1  
+
+> h
+
+, u k+1  
+
+> h
+
+) := ( zkh, u kh) + αk(δz kh, δu kh) ∈ Yh × Vh, where αk > 0 is a (possibly variable) step size; (ii) If ∥Fh(zk+1  
+
+> h
+
+, u k+1  
+
+> h
+
+)∥Yh×Vh < max {εh
+
+> abs
+
+, ε h
+
+> rel
+
+∥Fh(z0
+
+> h
+
+, u 0
+
+> h
+
+)∥Yh×Vh }, then STOP ; otherwise, k →
+
+k + 1 and continue with Step (i). S. Bartels and A. Kaltenbach 20 
+
+Remark 5.2 (Dual invariance in Algorithm 5.1) . Instead of the discrete primal optimality inclusions (4.5) , one could start from the equivalent discrete dual optimality inclusions 
+
+∇uh ∈ ∂tϕ∗
+
+> h
+
+(·, z h) a.e. in Ω , (5.7a) 
+
+uh ∈ IVh {∂sψ∗
+
+> h
+
+(·, div h zh)} in Ω . (5.7b) 
+
+The discrete dual optimality inclusions (5.7) , in turn, for γ1, γ 2 > 0, equivalently may be rewritten as 
+
+zh + γ1∇uh ∈ (id Rd +γ1∂tϕ∗
+
+> h
+
+)( ·, z h) a.e. in Ω , (5.8a) div h zh + γ2uh ∈ IVh {(id R +γ2∂sψ∗
+
+> h
+
+)( ·, div h zh)} in Ω . (5.8b) 
+
+Then, by Lemma 2.13(i), the inclusions in (5.8) are each equivalent to the proximal optimality conditions 
+
+zh = prox γ1ϕ∗ 
+
+> h
+
+(·, z h + γ1∇uh) a.e. in Ω , (5.9a) div h zh = IVh {prox γ2ψ∗ 
+
+> h
+
+(·, div h zh + γ2uh)} in Ω , (5.9b) 
+
+respectively. However, by the Moreau decomposition (cf. Lemma 2.9(i)), the identities in (5.9) 
+
+are each equivalent to 
+
+∇uh = prox 1  
+
+> γ1ϕh
+
+(·, ∇uh + 1 
+
+> γ1
+
+zh) a.e. in Ω , (5.10a) 
+
+uh = IVh {prox 1  
+
+> γ2ψh
+
+(·, u h + 1 
+
+> γ2
+
+div h zh)} in Ω , (5.10b) 
+
+respectively, so that, up to replacing the regularization parameters by their reciprocals, we arrive at the same mapping Fh : Yh ×Vh → Yh ×Vh, defined by (5.4) , reflecting the hidden dual invariance in Algorithm 5.1 based on the discrete strong duality relation Ih(uh) = Dh(zh) (cf. Proposition 4.4(ii)). 
+
+Remark 5.3 (Alternative stopping criteria) . Instead of the nonlinear residual-based stopping cri-terion ∥Fh(zk∗+1  
+
+> h
+
+, u k∗+1  
+
+> h
+
+)∥Yh×Vh < max {εh
+
+> abs
+
+, ε h
+
+> rel
+
+∥Fh(z0
+
+> h
+
+, u 0
+
+> h
+
+)∥Yh×Vh } for some k∗ ∈ N in Step (ii), the following stopping criteria (or combinations thereof ) may be employed in Algorithm 5.1: (i) Incremental stopping criterion: if ∥(δz k∗ 
+
+> h
+
+, δu k∗ 
+
+> h
+
+)∥Yh×Vh < max {εh
+
+> abs
+
+, ε h
+
+> rel
+
+∥(z0
+
+> h
+
+, u 0
+
+> h
+
+)∥Yh×Vh } for some k∗ ∈ N in Step (ii), then STOP ;(ii) Duality-based stopping criterion: if η2gap ,h (uk∗+1  
+
+> h
+
+, z k∗+1  
+
+> h
+
+) < max {εh
+
+> abs
+
+, ε h
+
+> rel
+
+η2gap ,h (u0
+
+> h
+
+, z 0
+
+> h
+
+)} for some k∗ ∈ N in Step (ii), then STOP .
+
+Remark 5.4 (Line-search strategies) . In Algorithm 5.1, the step sizes αk > 0, k = 0 , . . . , k h
+
+> max
+
+,in Step (i) can be chosen by a line-search strategy that is consistent with the residuals listed in Remark 5.3. We point out three typical variants: (i) Residual-based Armijo–Goldstein line-search: If the nonlinear residual-based criterion of Remark 5.3 is used, we consider Φh := 12 ∥Fh(·, ·)∥2 
+
+> Yh×Vh
+
+: Yh × Vh → R≥0, where Fh : Yh × Vh
+
+→ Yh ×Vh is defined by (5.4) . Then, for β, σ ∈ (0 , 1) , choose the maximal αk ∈ { βℓ | ℓ ∈ N0}
+
+such that 
+
+Φh(zkh + αkδz kh, u kh + αkδu kh) ≤ (1 − 2σα k)Φ h(zkh, u kh) ; 
+
+(ii) Increment-based damping: If the incremental criterion of Remark 5.3(i) is used, then, for 
+
+β, θ ∈ (0 , 1) , the step size αk > 0 is accepted whenever 
+
+∥(δz k+1  
+
+> h
+
+, δu k+1  
+
+> h
+
+)∥Yh×Vh ≤ θ∥(δz kh, δu kh)∥Yh×Vh ;
+
+otherwise, αk ← βα k;(iii) Duality-based line-search: If the duality-based criterion of Remark 5.3(ii) is used, we consider Φh := η2gap ,h : Vh × Yh → R≥0, where η2gap ,h : Vh × Yh → [0 , +∞] is given via (4.13) .Then, for β ∈ (0 , 1) , choose the maximal αk ∈ { βℓ | ℓ ∈ N0} such that 
+
+Φh(ukh + αkδu kh, z kh + αkδz kh) ≤ Φh(ukh, z kh) .A prox -based Semi-Smooth Newton Method 21 
+
+Remark 5.5 (Gradient-flow initializations) . In the case that the energy density ψh : Ω × R →
+
+R ∪ { +∞} is at most quadratic (cf. Assumption 4.1(ii.b)), depending on the growth properties of the energy density ϕh : Ω×Rd → R∪{ +∞} reliable initial iterates for the prox -based semi-smooth Newton method (cf. Algorithm 5.1) may be generated by means of performing a few steps of a semi-implicit discretized L2-gradient flow. More precisely, with respect to the growth properties of the energy density ϕh : Ω × Rd → R ∪ { +∞} , we distinguish the following two cases: 
+
+• Case 1: subquadratic growth. If there exists a mapping bφh : Ω × R≥0 → R such that 
+
+φh(x, ·) = bφh(x, | · | ) and bφh(x, ·) ∈ C1(R≥0) for a.e. x ∈ Ω ,
+
+we employ the following semi-implicit discretized primal L2-gradient flow algorithm: 
+
+Algorithm 5.6 (Semi-implicit discretized primal L2-gradient flow) . Let εh 
+
+> init
+
+> 0 be a stopping parameter, let τ > 0 be a step size, let eu0 
+
+> h
+
+∈ Vh be an initial iterate, and let ℓh 
+
+> max
+
+∈ N ∪ { +∞} be a maximum number of iterations. Then, for ℓ = 0 , . . . , ℓ h
+
+> max
+
+, perform the following iteration loop: (i) Compute euℓ+1  
+
+> h
+
+∈ Vh such that for every vh ∈ Vh, there holds 
+
+ˆ
+
+> Ω
+
+dτ euℓ+1  
+
+> h
+
+vh dx +
+
+ˆ  
+
+> ΩDrbφh(·,|∇ euℓh|)
+> |∇ euℓh|
+
+∇euℓ+1  
+
+> h
+
+· ∇ vh dx +
+
+ˆ
+
+> Ω
+
+IVh
+
+Dsψh(·, euℓ+1  
+
+> h
+
+)vh dx = 0 ,
+
+where d τ euℓ+1  
+
+> h
+
+:= 1 
+
+> τ
+
+(euℓ+1  
+
+> h
+
+− euℓh) ∈ Vh;(ii) If ∥Fh(ezℓ+1  
+
+> h
+
+, euℓ+1  
+
+> h
+
+)∥Yh×Vh < ε h
+
+> init
+
+, where ezℓ+1  
+
+> h
+
+:= D r bφh(·, |∇ euℓh|)|∇ euℓh|−1∇euℓ+1  
+
+> h
+
+∈ Yh, then STOP; otherwise, ℓ 7 → ℓ + 1 and continue with Step (i). 
+
+If the mapping (r 7 → Dr bφh(x, r )r−1) : R≥0 → R>0 is well-defined, non-increasing, and con-tinuous (cf. [ 4 , Prop. 5.2]), Algorithm 5.6 is globally well-posed, unconditionally strongly stable, and terminates after a finite number of iterations. 
+
+• Case 2: superquadratic growth. If there exists a mapping bφ∗ 
+
+> h
+
+: Ω × R≥0 → R such that 
+
+φ∗
+
+> h
+
+(x, ·) = bφ∗
+
+> h
+
+(x, | · | ) and bφ∗
+
+> h
+
+(x, ·) ∈ C1(R≥0) for a.e. x ∈ Ω ,
+
+we employ the following semi-implicit discretized dual L2-gradient flow algorithm: 
+
+Algorithm 5.7 (Semi-implicit discretized dual L2-gradient flow) . Let εh 
+
+> init
+
+> 0 be a stopping parameter, let τ > 0 be a step size, let ez0 
+
+> h
+
+∈ Yh be an initial iterate, and let ℓh 
+
+> max
+
+∈ N ∪ { +∞} be a maximum number of iterations. Then, for ℓ = 0 , . . . , ℓ h
+
+> max
+
+, perform the following iteration loop: (i) Compute ezℓ+1  
+
+> h
+
+∈ Yh such that for every yh ∈ Yh, there holds 
+
+ˆ
+
+> Ω
+
+dτ ezℓ+1  
+
+> h
+
+· yh dx +
+
+ˆ  
+
+> ΩDrbφ∗
+> h(·,|ezℓh|)
+> |ezℓh|
+
+ezℓ+1  
+
+> h
+
+· yh dx +
+
+ˆ
+
+> Ω
+
+IVh
+
+Dsψ∗
+
+> h
+
+(·, div h ezℓ+1  
+
+> h
+
+) div h yh dx = 0 ,
+
+where d τ ezℓ+1  
+
+> h
+
+:= 1 
+
+> τ
+
+(ezℓ+1  
+
+> h
+
+− ezℓh) ∈ Yh;(ii) If ∥Fh(ezℓ+1  
+
+> h
+
+, euℓ+1  
+
+> h
+
+)∥Yh×Vh < ε h
+
+> init
+
+, where euℓ+1  
+
+> h
+
+:= IVh {Dsψ∗
+
+> h
+
+(·, div h ezℓ+1  
+
+> h
+
+)} ∈ Vh, then STOP ;otherwise, ℓ 7 → ℓ + 1 and continue with Step (i). 
+
+If the mapping (r 7 → Dr bφ∗
+
+> h
+
+(x, r )r−1) : R≥0 → R>0 is well-defined, non-increasing, and con-tinuous (cf. [ 4 , Prop. 5.2]), Algorithm 5.7 is globally well-posed, unconditionally strongly stable, and terminates after a finite number of iterations. S. Bartels and A. Kaltenbach 22 The following assumptions on the invertibility of the Newton derivative selections (5.1) of the proximity operators prox γ1Gh : Yh → Yh and prox γ2Fh : Vh → Vh are sufficient, but not necessary (cf . Subsubsection 6.1.3), to ensure the global well-posedness of the prox-based semi-smooth New-ton method ( cf . Algorithm 5.1), i.e. , if kmax = + ∞, for an arbitrary initial iterate (z0
+
+> h
+
+, u 0
+
+> h
+
+) ∈ Yh × Vh,all iterates {(zkh, u kh)}k∈N ⊆ Yh × Vh are computable. 
+
+Assumption 5.8 (for global well-posedness of Algorithm 5.1) . The discrete energy densities 
+
+ϕh : Ω × Rd → R ∪ { +∞} and ψh : Ω × R → R ∪ { +∞} are such that Assumption 4.1 and the following conditions are satisfied: (i) Assumptions on ϕh: The proximity operator prox γ1Gh : Yh → Yh is (globally) Newton differentia-ble with a global Newton derivative selection Jprox γ1Gh
+
+: Yh → L (Yh) such that for every yh ∈ Yh,there holds 8
+
+0L(Yh) ≺ Jprox γ1Gh
+
+(yh) ≺ 1L(Yh) ;
+
+(ii) Assumptions on ψh:
+
+(ii.a) Mass lumping: If (ML) applies, the proximity operator prox γ2Fh : Vh → Vh is (globally) Newton differentiable with a global Newton derivative selection Jprox γ2Fh
+
+: Vh → L (Vh)
+
+such that for every vh ∈ Vh, there holds 
+
+0L(Vh) ≺ Jprox γ2Fh
+
+(vh) ; 
+
+(ii.b) No mass lumping: If (NML) applies, on the basis of Proposition 4.6 (4.16) , as a Newton derivative selection, we employ Jprox γ2Fh
+
+:= 11+2 γ2ah 1L(Vh) : Vh → L (Vh).
+
+One set of sufficient conditions for Assumption 5.8, relying on C2-regularity of the discrete energy densities, is presented in the following remark. Further conditions are given in Remark 5.12. 
+
+Remark 5.9 (on Assumption 5.8) . (i) Sufficient conditions for Assumption 5.8(i): If ϕh ∈
+
+C2(Rd), then, by Lemma 2.9(iv), D prox γ1ϕh (t) = ( 1+D 2γ1ϕh( prox γ1ϕh (t))) −1 for all t ∈ Rd.Therefore, Dprox γ1ϕh (t) ≻ 0 for all t ∈ Rd and, thus, Jprox γ1Gh
+
+(yh) ≻ 0L(Yh) for all yh ∈ Yh.If, in addition, ϕh is locally strongly convex, i.e., we have that D2ϕh(t) ≻ 0 for all t ∈ Rd,then Dprox γ1ϕh (t) ≺ 1 for all t ∈ Rd and, thus, Jprox γ1Gh
+
+(yh) ≺ 1L(Yh) for all yh ∈ Yh.(ii) Sufficient conditions for Assumption 5.8(ii.a): If ψh ∈ C2(R), then, by Lemma 2.9(iv), 
+
+Dprox γ2ψh (s) > 0 for all s ∈ R and, thus, Jprox γ2Fh
+
+(vh) ≻ 0L(Vh) for all vh ∈ Vh.
+
+Finally, given Assumption 5.8, let us establish that Algorithm 5.1 is globally well-posed. 
+
+Theorem 5.10 (Global well-posedness of Algorithm 5.1) . If Assumption 5.8 is satisfied, then Algorithm 5.1 is globally well-posed, i.e., if kh 
+
+> max
+
+= + ∞, given an arbitrary initial iterate (z0
+
+> h
+
+, u 0
+
+> h
+
+) ∈
+
+Yh × Vh, all iterates {(zkh, u kh)}k∈N ⊆ Yh × Vh are computable. Proof. In order to prove the existence of primal-dual update directions ( δz kh, δu kh) ∈ Yh × Vh,solving (5.6) , for each k ∈ N, it is sufficient to establish the invertibility of the Newton derivative selection JFh (zkh, u kh) ∈ L (Yh × Vh). To this end, let ( yh, v h) ∈ Yh × Vh be fixed, but arbitrary. To begin with, employing the abbreviated notations 
+
+J1 
+
+> h
+
+:= Jprox γ1Gh
+
+(∇vh + γ1yh) ∈ L (Yh) , (5.11) 
+
+J2 
+
+> h
+
+:= Jprox γ2Fh
+
+(vh + γ2 div h yh) ∈ L (Vh) , (5.12) on the basis of Assumption 5.8, which guarantees that the operators 1L(Yh) − J1 
+
+> h
+
+∈ L (Yh) and 
+
+J2 
+
+> h
+
+∈ L (Vh) are both positive definite and, consequently, invertible with positive definite inverse, we introduce the invertible block diagonal operator 
+
+Th := 
+
+ï −(1L(Yh) − J1
+
+> h
+
+)−1 0L(Vh)
+
+0L(Yh) − 1 
+
+> γ2
+
+(J2
+
+> h
+
+)−1
+
+ò
+
+∈ L (Yh × Vh) . (5.13)                         
+
+> 8For A,B∈Rd×d, we write A≺B(or A≻B) if (( A−B)t)·t < 0 (or (( A−B)t)·t > 0) for all t∈Rd.
+
+A prox -based Semi-Smooth Newton Method 23 By means of this invertible operator, we observe that the invertibility of the Newton derivative selection JFh (yh, v h) ∈ L (Yh × Vh) is equivalent to the invertibility of the 2 × 2-block matrix 
+
+Mh := 
+
+ï Ah Bh
+
+Ch Dh
+
+ò
+
+:= 
+
+ï γ1(1L(Yh) − J1
+
+> h
+
+)−1J1 
+
+> h
+
+−∇ h
+
+div h − 1 
+
+> γ2
+
+(J2
+
+> h
+
+)−1(1L(Vh) − J2
+
+> h
+
+)
+
+ò
+
+∈ L (Yh × Vh) ,
+
+(5.14) where the single blocks have the following properties: 
+
+• the (1 , 1)-block Ah ∈ L (Yh) is positive definite ( cf . Assumption 5.8(i)); 
+
+• the (1 , 2)-block Bh ∈ L (Vh; Yh) is injective; 
+
+• the (2 , 1)-block Ch ∈ L (Yh; Vh) is surjective with Ch = B∗
+
+> h
+
+;
+
+• the (2 , 2)-block Dh ∈ L (Vh) is negative semi-definite ( cf . Assumption 5.8(ii)). The Newton derivative selection JFh (yh, v h) ∈ L (Yh×Vh) and the 2 ×2-block matrix Mh ∈ L (Yh × Vh),defined by (5.14), are related via 
+
+Mh = ThJFh (yh, v h) in L(Yh × Vh) . (5.15) By the standard theory of invertibility of block matrices ( cf . [ 36 , Thm. 2.1]), the 2 ×2-block matrix 
+
+Mh ∈ L (Yh × Vh) (and, thus, JFh (yh, v h) ∈ L (Yh × Vh)) is invertible if and only if the (1 , 1)-block 
+
+Ah ∈ L (Yh) as well as the Schur complement Mh/Ah := Dh −ChA−1 
+
+> h
+
+Bh ∈ L (Vh) are invertible ; which is a consequence of the following LDU factorization of the 2 × 2-block matrix Mh ∈ L (Yh × Vh): 
+
+Mh =
+
+ï 1L(Yh) 0L(Vh)
+
+ChA−1 
+
+> h
+
+1L(Vh)
+
+ò ï Ah 0L(Vh)
+
+0L(Yh) Mh/Ah
+
+ò ï 1L(Yh) A−1 
+
+> h
+
+Bh
+
+0L(Yh) 1L(Vh)
+
+ò
+
+=: LhDhUh ∈ L (Yh × Vh) .
+
+(5.16) On the one hand, inasmuch as the (1 , 1)-block Ah ∈ L (Yh) is positive definite, it is invertible as well. On the other hand, the Schur complement Mh/Ah ∈ L (Vh) is negative definite and, thus, invertible, since the (2 , 2)-block Dh ∈ L (Vh) is negative semi-definite and ChA−1 
+
+> h
+
+Bh ∈ L (Vh) is positive definite, which follows from the positive definiteness of A−1 
+
+> h
+
+∈ L (Yh), the injectivity of Bh ∈ L (Vh; Yh) , and that, by the definition of the discrete divergence operator (4.2), we have that Ch = B∗
+
+> h
+
+.The following assumption ensures the local well-posedness and local super-linear convergence of Algorithm 5.1. 
+
+Assumption 5.11 (for local well-posedness and local super-linear convergence of Algorithm 5.1) .
+
+The discrete energy densities ϕh : Ω × Rd → R ∪ { +∞} and ψh : Ω × R → R ∪ { +∞} are such that Assumption 4.1 and the following conditions are satisfied: (i) Assumptions on ϕh: There exist 0 < μ 1 
+
+> h
+
+≤ μ1 
+
+> h
+
+< 1 such that for every yh ∈ BYh 
+
+> εh
+
+(∇uh +γ1zh),there holds 
+
+μ1
+
+> h
+
+1L(Yh) ⪯ Jprox γ1Gh
+
+(yh) ⪯ μ1
+
+> h
+
+1L(Yh) ;
+
+(ii) Assumptions on ψh:
+
+(ii.a) Mass lumping: There exist 0 < μ 2 
+
+> h
+
+≤ 1 such that for every vh ∈ BVh 
+
+> εh
+
+(uh + γ2 div h zh),there holds 
+
+μ2
+
+> h
+
+1L(Vh) ⪯ Jprox γ2Fh
+
+(vh) ; 
+
+(ii.b) No mass lumping: If (NML) applies, on the basis of Proposition 4.6 (4.16) , as a Newton derivative selection, we employ Jprox γ2Fh
+
+:= 11+2 γ2ah 1L(Vh) : Vh → L (Vh).
+
+Remark 5.12 (on Assumption 5.11) . (i) Sufficient conditions for Assumption 5.11(i): 
+
+(i.a) Lower bound. If ϕh is given via a Moreau envelope of ϕ (with respect to the second argument), i.e., for some γ > 0, there holds ϕh(x, ·) := ( ϕ(x, ·)) γ for a.e. x ∈ Ω, then, by Lemma 2.11(iii), for every yh ∈ Yh, we have that Jprox γ1Gh
+
+(yh) ⪰ γγ+γ1 1L(Yh).(i.b) Upper bound. If ϕh is μ-strongly convex for some μ > 0 (with respect to the second ar-gument), by Lemma 2.13(iii), for every yh ∈ Yh, we have that Jprox γ1Gh
+
+(yh) ⪯ 11+ μ 1L(Yh).S. Bartels and A. Kaltenbach 24 
+
+(ii) Sufficient conditions for Assumption 5.11(ii.a): If ψh is given via a Moreau envelope of ψ (with respect to the second argument), i.e., for some γ > 0, there holds ψh(x, ·) := ( ψ(x, ·)) γ for a.e. 
+
+x ∈ Ω, then, by Lemma 2.11(iii), for every vh ∈ Vh, we have that Jprox γ2Fh
+
+(vh) ⪰ γγ+γ2 1L(Vh).
+
+Finally, given Assumption 5.11, let us establish that Algorithm 5.1 is locally well-posed and locally super-linearly convergent. 
+
+Theorem 5.13 (Local well-posedness and local super-linear convergence of Algorithm 5.1) . If Assumption 5.11 is satisfied, then Algorithm 5.1 (with αk = 1 for all k ∈ N) is locally well-posed and locally super-linearly convergent to a root (zh, u h) ∈ Yh × Vh.Proof. To begin with, we note that, analogously to the proof of Theorem 5.10, we observe that, for every ( yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h), the Newton derivative selection JFh (yh, v h) ∈ L (Yh × Vh) is invertible. Apart from that, employing the same notation as in the proof of Theorem 5.10, for every ( yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h), its inverse can be represented by 
+
+JFh (yh, v h)−1 = M−1 
+
+> h
+
+Th , (5.17) where Mh, Th ∈ L (Yh × Vh) depend on ( yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h) ( cf . (5.13), (5.14)), so that 
+
+∥JFh (yh, v h)−1∥L(Yh×Vh) ≤ ∥ M−1 
+
+> h
+
+∥L(Yh×Vh)∥Th∥L(Yh×Vh) . (5.18) Therefore, it only remains to establish that the operator norms on the right-hand side of (5.18) can be estimated independently of ( yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h): 
+
+• By Assumption 5.11, for every ( yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h), we have that 
+
+∥Th∥L(Yh×Vh) ≤ max {∥ (1L(Yh) − J1
+
+> h
+
+)−1∥L(Yh), 1 
+
+> γ2
+
+∥(J2
+
+> h
+
+)−1∥L(Vh)}≤ max  11−μ1
+
+> h
+
+, 1
+
+> γ2μ2
+> h
+
+. (5.19) 
+
+• Due to the representation theorem for inverses of 2 ×2-block matrices ( cf . [ 36 , Thm. 2.1]), which is based on the LDU factorization (5.16), for every ( yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h), we have that 
+
+M−1 
+
+> h
+
+= U−1 
+
+> h
+
+D−1 
+
+> h
+
+L−1
+
+> h
+
+=
+
+ï 1L(Yh) −A−1 
+
+> h
+
+Bh
+
+0L(Yh) 1L(Vh)
+
+òï A−1 
+
+> h
+
+0L(Vh)
+
+0L(Yh) (Mh/Ah)−1
+
+òï 1L(Yh) 0L(Vh)
+
+−ChA−1 
+
+> h
+
+1L(Vh)
+
+ò
+
+∈ L (Yh × Vh) , (5.20) so that 
+
+∥M−1 
+
+> h
+
+∥L(Yh×Vh) ≤ ∥ U−1 
+
+> h
+
+∥L(Yh×Vh)∥D−1 
+
+> h
+
+∥L(Yh×Vh)∥L−1 
+
+> h
+
+∥L(Yh×Vh) , (5.21) where 
+
+∥U−1 
+
+> h
+
+∥L(Yh×Vh) ≤ 1 + ∥A−1 
+
+> h
+
+∥L(Yh)∥Bh∥L(Vh;Yh)
+
+≤ 1 + 2
+
+> γ1μ1
+> h
+
+∥Bh∥L(Vh;Yh) ;
+
+)
+
+(5.22a) 
+
+∥D−1 
+
+> h
+
+∥L(Yh×Vh) ≤ max {∥ A−1 
+
+> h
+
+∥L(Yh), ∥(Mh/Ah)−1∥L(Vh)}≤ max  2
+
+> γ1μ1
+> h
+
+, γ1μ1 
+
+> h
+> σ2
+> min (Bh)(1 −μ1
+> h)
+
+;
+
+)
+
+(5.22b) 
+
+∥L−1 
+
+> h
+
+∥L(Yh×Vh) ≤ 1 + ∥Ch∥L(Yh;Vh)∥A−1 
+
+> h
+
+∥L(Yh)
+
+≤ 1 + 2
+
+> γ1μ1
+> h
+
+∥Bh∥L(Vh;Yh) .
+
+)
+
+(5.22c) In the second inequality in (5.22b) , we used that |λmin (Mh/Ah)| ≥ λmin (Dh) + λmin (ChA−1 
+
+> h
+
+Bh) and 
+
+λmin (ChA−1 
+
+> h
+
+Bh) ≥ σ2
+
+> min
+
+(Bh)λmin (Ah), where σmin (Bh) is the smallest singular value of Bh ∈ L (Vh; Yh) .In summary, noting that ∥Bh∥L(Vh;Yh), σ min (Bh) are independent of ( yh, v h) ∈ BYh×Vh 
+
+> εh
+
+(zh, u h), from (5.18)–(5.22c), it follows that sup  
+
+> (yh,v h)∈BYh×Vhεh(zh,u h)
+
+∥JFh (yh, v h)−1∥L(Yh×Vh) < +∞ .
+
+Hence, the local well-posedness and super-linear convergence result for semi-smooth Newton meth-ods ( cf . Theorem 2.4) is applicable and yields that the prox -based semi-smooth Newton method ( cf .Algorithm 5.1) is locally well-posed and super-linearly convergent to a root (zh, u h) ∈ Yh × Vh.A prox -based Semi-Smooth Newton Method 25 
+
+Remark 5.14 (Reduced formulation of primal-dual update direction computation) . The per-turbed saddle point problem (5.6) , which, for every k ∈ { 0, . . . , k h
+
+> max
+
+}, computes the primal-dual update direction (δz kh, δu kh) ∈ Yh × Vh from the most recent iterate (zkh, u kh) ∈ Yh × Vh can be reduced to a linear elliptic problem: In fact, for every k ∈ { 0, . . . , k h
+
+> max
+
+}, employing the abbreviations 
+
+J1,k h := Jprox γ1Gh
+
+(∇ukh + γ1zkh) ∈ L (Yh) ,
+
+J2,k h := Jprox γ2Fh
+
+(ukh + γ2 div h zkh) ∈ L (Vh) ,
+
+the perturbed saddle point system (5.6) reads 
+
+−γ1J1,k h δz kh + ( 1L(Yh) − J1,k h )∇δu kh = −∇ ukh + prox γ1Gh (∇ukh + γ1zkh) in Yh , (5.23a) 
+
+−γ2J2,k h div h δz kh + ( 1L(Vh) − J2,k h )δu kh = −ukh + prox γ2Fh (ukh + γ2 div h zkh) in Vh , (5.23b) 
+
+which, using the abbreviations 
+
+f 1,k h := −∇ ukh + prox γ1Gh (∇ukh + γ1zkh) ∈ Yh ,f 2,k h := −ukh + prox γ2Fh (ukh + γ2 div h zkh) ∈ Vh ,
+
+and assuming that J1,k h ≻ 0L(Yh) and J2,k h ≻ 0L(Vh), may be reformulated as 
+
+δz kh = 1 
+
+> γ1
+
+(J1,k h )−1{(1L(Yh) − J1,k h )∇δu kh − f 1,k h } in Yh , (5.24a) div h δz kh = IVh
+
+ 1 
+
+> γ2
+
+(J2,k h )−1{(1L(Vh) − J2,k h )δu kh − f 2,k h } in Vh . (5.24b) 
+
+Therefore, for every k ∈ { 0, . . . , k h
+
+> max
+
+}, inserting (5.24a) in (5.24b) , we arrive at the discrete linear elliptic problem 
+
+− div h
+
+  1 
+
+> γ1
+
+(J1,k h )−1(1L(Yh) − J1,k h )∇δu kh
+
+ + IVh
+
+ 1 
+
+> γ2
+
+(J2,k h )−1(1L(Vh) − J2,k h )δu kh
+
+= − div h
+
+  1 
+
+> γ1
+
+(J1,k h )−1f 1,k h
+
+
+
+− IVh
+
+ 1 
+
+> γ2
+
+(J2,k h )−1f 2,k h
+
+
+
+in Vh , (5.25) 
+
+or equivalently, by the definition of the discrete divergence operator (4.2) , for every vh ∈ Vh,there holds 
+
+ˆ 
+
+> Ω1
+> γ1
+
+(J1,k h )−1(1L(Yh) − J1,k h )∇δu kh · ∇ vh dx +
+
+ˆ
+
+> Ω
+
+IVh { 1 
+
+> γ2
+
+(J2,k h )−1(1L(Vh) − J2,k h )δu khvh} dx
+
+=
+
+ˆ 
+
+> Ω1
+> γ1
+
+(J1,k h )−1f 1,k h · ∇ vh dx
+
++
+
+ˆ
+
+> Ω
+
+IVh { 1 
+
+> γ2
+
+(J2,k h )−1f 2,k h vh} dx . 
+
+(5.26) 
+
+In view of these observations, for every k ∈ { 0, . . . , k h
+
+> max
+
+}, instead of solving the perturbed saddle point problem (5.6) directly, we may compute the primal-dual update direction (δz kh, δu kh) ∈ Yh ×Vh,solving (5.6) , in two steps: (1) Compute the primal update direction δu kh ∈ Vh, solving the discrete linear elliptic problem (5.25) ;(2) Compute the dual update direction δz kh ∈ Yh, given via the representation formula (5.24a) .If the Newton derivative selections J1,k h ∈ L (Yh) and J2,k h ∈ L (Vh) are self-adjoint, the discrete linear elliptic problem (5.25) may be solved efficiently by direct sparse Cholesky factorizations for moderate problem sizes or by preconditioned conjugate gradient (CG) methods for larger problem sizes. Otherwise, it may be solved efficiently by direct sparse LU factorizations for moderate problem sizes, by general Krylov subspace methods such as GMRES or BiCGStab for larger problem sizes, or one may even solve the original saddle point formulation (5.6) directly. S. Bartels and A. Kaltenbach 26 
+
+6. Applications 
+
+In this section, we apply the prox -based semi-smooth Newton method ( cf . Algorithm 5.1) de-rived in Section 5 to three benchmark problems: the TV-minimization problem (linear growth), the 
+
+p-Dirichlet problem ( p-growth, p ∈ (1 , +∞)), and the elasto-plastic torsion problem (∞-growth ). 
+
+6.1 TV-minimization problem 
+
+In this subsection, we consider the Rudin–Osher–Fatemi (ROF) image denoising model (cf . [ 45 ]) –or TV-minimization problem –, which is formulated as the minimization of an energy functional combining total variation (TV) regularization with a lower-order L2-data fidelity term, promoting piece-wise smooth reconstructions while suppressing noise. 
+
+6.1.1 The continuous problem 
+
+Given a noisy image g ∈ L2(Ω), fidelity parameter α > 0, and full Neumann boundary condition (i.e. , Γ N = ∂Ω), the TV-minimization problem seeks a denoised image u ∈ BV (Ω) ∩ L2(Ω) that minimizes the primal energy functional I : BV (Ω) ∩ L2(Ω) → R, for every v ∈ BV (Ω) ∩ L2(Ω) defined by 
+
+I(v) := |Dv|(Ω) + α
+
+2
+
+ˆ
+
+> Ω
+
+|v − g|2 dx , (6.1) where |D( ·)|(Ω) : L1loc (Ω) → R ∪ { +∞} , for every v ∈ L1loc (Ω) defined by 
+
+|Dv|(Ω) := sup    
+
+> y∈(C∞
+> c(Ω)) d:∥y∥∞,Ω≤1
+
+ß ˆ
+
+> Ω
+
+v div y dx
+
+™
+
+,
+
+denotes the total variation (TV) functional and BV (Ω) := {v ∈ L1(Ω) | | Dv|(Ω) < +∞} the space of functions with bounded variation . In [ 3 , Thms. 10.5 & 10.6], it has been established that there exists a unique primal solution u ∈ BV (Ω) ∩ L2(Ω), i.e. , a minimizer of (6.1). A (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (6.1) was identified in [ 25 , Sec. 2] (see also [ 3 , Sec. 10.1.3, p. 305]) and is given via the maximization of the dual energy functional D : W 2 
+
+> N
+
+( div ; Ω) → R ∪ {−∞} , for every y ∈ W 2 
+
+> N
+
+( div ; Ω) defined by 
+
+D(y) := −IΩ 
+
+> Kd
+> 1(0)
+
+(y) − 12α
+
+ˆ
+
+> Ω
+
+|div y + αg |2 dx + α
+
+2
+
+ˆ
+
+> Ω
+
+|g|2 dx . (6.2) Here, the indicator functional IΩ  
+
+> Kd
+> 1(0)
+
+: (L2(Ω)) d → R∪{ +∞} , for every by ∈ (L2(Ω)) d, is defined by 
+
+IΩ 
+
+> Kd
+> 1(0)
+
+(by) := 
+
+®0 if |by| ≤ 1 a.e. in Ω ,
+
++∞ else .
+
+By [ 25 , Prop. 2.1 & Thm. 2.2] (see also [ 3, Prop. 10.3]), there exists a (not necessarily unique) dual solution z ∈ W 2 
+
+> N
+
+( div ; Ω), i.e. , a maximizer of (6.2) , and a strong duality relation applies , i.e. , we have that I(u) = D(z), which is equivalent to the primal optimality relations ( cf . [ 3, Prop. 10.4]) 
+
+|Du|(Ω) = −
+
+ˆ
+
+> Ω
+
+u div z dx , (6.3a) div z = α(u − g) a.e. in Ω . (6.3b) In the case u ∈ W 1,1(Ω) ∩ L2(Ω), which cannot be expected in general, by the equality condition in the Fenchel–Young inequality ( cf . [ 51 , Prop. 51.2]), the primal optimality relation (6.3a) is equivalent to 
+
+z ∈
+
+(  1 
+
+> |∇ u|
+
+∇u} if |∇ u| > 0 ,Kd 
+
+> 1
+
+(0) if |∇ u| = 0 
+
+)
+
+a.e. in Ω .A prox -based Semi-Smooth Newton Method 27 
+
+6.1.2 The discrete problem 
+
+Given a discrete noisy image gh ∈ Vh, i.e. , an approximation of the actual noisy image g ∈ L2(Ω) ,the discrete TV-minimization problem seeks a discrete denoised image uh ∈ Vh that minimizes the discrete primal energy functional Ih : Vh → R, for every vh ∈ Vh defined by 
+
+Ih(vh) := 
+
+ˆ
+
+> Ω
+
+ϕε(∇vh) d x + α
+
+2
+
+ˆ
+
+> Ω
+
+IVh {| vh − gh|2} dx . (6.4) Here, the discrete energy density ϕε := min { 12ε |·| 2, |·|− ε 
+
+> 2
+
+} : Rd → R denotes the Huber regularization (cf . [ 26 ]) obtained as Moreau envelope of the energy density ϕ := | · | : Rd → R (cf . Example 2.7(i)). The direct method in the calculus of variations yields the existence of a unique discrete primal solution uh ∈ Vh, i.e. , a minimizer of (6.4). According to Proposition 4.4(i), a (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (6.4) is given via the maximization of the discrete dual energy functional 
+
+Dh : Yh → R ∪ {−∞} , for every yh ∈ Yh defined by 
+
+Dh(yh) := −
+
+ˆ
+
+> Ω
+
+ϕ∗ 
+
+> ε
+
+(yh) d x − 12α
+
+ˆ
+
+> Ω
+
+IVh {| div h yh + αg h|2} dx + α
+
+2
+
+ˆ
+
+> Ω
+
+IVh {| gh|2} dx , (6.5) where the Fenchel conjugate ϕ∗ 
+
+> ε
+
+: Rd → R ∪ { +∞} , for every t∗ ∈ Rd, is given via 
+
+ϕ∗ 
+
+> ε
+
+(t∗) = ε 
+
+> 2
+
+|t∗|2 + IKd 
+
+> 1(0)
+
+(t∗) . (6.6) By Proposition 4.4(ii), there exists a (due to the strict convexity of ϕ∗ 
+
+> ε
+
+: Rd → R ∪ { +∞} , unique) discrete dual solution zh ∈ Yh, i.e. , a maximizer of (6.5) , and discrete strong duality applies, i.e. ,we have that Ih(uh) = Dh(zh), which is equivalent to the discrete primal optimality relations 
+
+zh = D ϕε(∇uh) = min { 1 
+
+> |∇ uh|
+
+, 1 
+
+> ε
+
+}∇ uh a.e. in Ω , (6.7a) div h zh = α(uh − gh) in Ω . (6.7b) 
+
+6.1.3 The semi-smooth Newton method 
+
+Given proximity parameters γ1, γ 2 > 0, following the reasoning in the beginning of Section 5, we observe that the primal optimality relations (6.7) are equivalent to the existence of a root of the mapping Fh : Yh × Vh → Yh × Vh, defined by (5.4) , where, by virtue of Proposition 4.6, Lemma 2.11(iii), and Example 2.10(i), for every yh ∈ Yh and vh ∈ Vh, respectively, we have that prox γ1Gh (yh) = (1 − min { γ1 
+
+> |yh|
+
+, γ1 
+
+> γ1+ε
+
+})yh a.e. in Ω , (6.8a) prox γ2Fh (vh) = 11+ γ2α (vh + γ2αg h) in Ω . (6.8b) A Newton derivative selection JFh : Yh × Vh → L (Yh × Vh) of the mapping Fh : Yh × Vh → Yh × Vh
+
+is given via (5.5), where, for every yh ∈ Yh and vh ∈ Vh, respectively, we have that 
+
+Jprox γ1Gh
+
+(yh) = 
+
+(1L(Yh) − γ1 
+
+> |yh|
+
+(1L(Yh) − yh⊗yh 
+
+> |yh|2
+
+) if |yh| ≥ ε + γ1 , 
+
+> εγ1+ε
+
+1L(Yh) if |yh| < ε + γ1
+
+)
+
+a.e. in Ω , (6.9a) 
+
+Jprox γ2Fh
+
+(vh) = 11+ γ2α 1L(Vh) in Ω . (6.9b) Note that the upper bound condition Jprox γ1Gh
+
+(yh) ≺ 1L(Yh) for all yh ∈ Yh in Assumption 5.8(i) is, in general, not satisfied for the Newton derivative selection given via (6.9a) . In fact, there holds 
+
+Jprox γ1Gh
+
+(yh) = 1L(Yh) − γ1 
+
+> |yh|
+
+Pyh a.e. in {| yh| > γ 1 + ε}, where Pyh := 1L(Yh) − yh⊗yh 
+
+> |yh|2
+
+∈ L (Yh)denotes the orthogonal projection onto (Ryh)⊥. In particular, since Pyh yh = 0d a.e. in Ω, we obtain Jprox γ1Gh
+
+(yh)yh = yh a.e. in Ω, i.e. , the eigenvalue 1 is attained in the radial direction Ryh.However, thanks to the lower-order quadratic fidelity term, resorting to a discrete inverse estimate, one can still prove global well-posedness and local super-linear convergence of Algorithm 5.1. 
+
+Theorem 6.1. Algorithm 5.1 employing the representations (6.8) and (6.9) is globally well-posed and locally super-linearly convergent (with αk = 1 for all k ∈ N) to a root (zh, u h) ∈ Yh × Vh.Proof. See [2, Thm. 4.2]. S. Bartels and A. Kaltenbach 28 
+
+6.2 p-Dirichlet problem 
+
+In this subsection, we consider the p-Dirichlet problem (cf . [ 32 , 34 ]), a nonlinear generalization of the classical Dirichlet problem arising in the modelling of non-Newtonian fluid flow and nonlin-ear elasticity. Originating from the early studies of power-law rheology ( cf . [ 37 , 50 ]), the model is formulated as the minimization of the p-Dirichlet energy functional , which combines nonlinear diffusion with prescribed mixed (homogeneous) Dirichlet and Neumann boundary conditions, and leads to the p-Laplace equation , describing stationary states in media whose effective conductivity or viscosity depends nonlinearly on the gradient magnitude. In contrast to the linear case p = 2, however, the design of robust nonlinear solvers for the p-Dirichlet problem is delicate, and there appears to be no universally preferred solution strategy across the full range p ∈ (1 , +∞). 
+
+6.2.1 The continuous problem 
+
+Given an exponent p ∈ (1 , +∞), a right-hand side f ∈ Lp′
+
+(Ω), and a homogeneous Dirichlet boundary condition on a non-empty Dirichlet boundary part Γ D ⊆ ∂Ω, the p-Dirichlet problem seeks a function u ∈ W 1,p D (Ω) that minimizes the primal energy functional I : W 1,p D (Ω) → R, for every 
+
+v ∈ W 1,p D (Ω) defined by 
+
+I(v) := 1
+
+p
+
+ˆ
+
+> Ω
+
+|∇ v|p dx −
+
+ˆ
+
+> Ω
+
+f v dx . (6.10) The direct method in the calculus of variations yields the existence of a unique primal solution 
+
+u ∈ W 1,p D (Ω), i.e. , a minimizer of (6.10). A (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (6.10) (e.g. , derived in [ 18 , Subsec. 2.2, p. 81/82]) is given via the maximization of the dual energy func-tional D : W p′ 
+
+> N
+
+(div; Ω) → R ∪ {−∞} , for every y ∈ W p′ 
+
+> N
+
+(div; Ω) defined by 
+
+D(y) := − 1
+
+p′
+
+ˆ
+
+> Ω
+
+|y|p′
+
+dx − IΩ 
+
+> {− f}
+
+(div y) , (6.11) where the indicator functional IΩ  
+
+> {− f}
+
+: Lp′
+
+(Ω) → R ∪ { +∞} , for every bv ∈ Lp′
+
+(Ω), is defined by 
+
+IΩ 
+
+> {− f}
+
+(bv) := 
+
+®0 if bv = −f a.e. in Ω ,
+
++∞ else . (6.12) By [ 18 , Prop. 2.2, p. 82], there exists a (due to the strict convexity of ϕ∗ = 1 
+
+> p′
+
+|·| p′
+
+: Rd → R, unique) dual solution z ∈ W p′ 
+
+> N
+
+(div; Ω) , i.e. , a maximizer of (6.11) , and a strong duality relation applies, 
+
+i.e. , we have that I(u) = D(z), which is equivalent to the primal optimality relations 
+
+z = |∇ u|p−2∇u a.e. in Ω , (6.13a) div z = −f a.e. in Ω . (6.13b) 
+
+6.2.2 The discrete problem 
+
+Given a discrete right-hand side fh ∈ Vh, the discrete p-Dirichlet problem seeks a function uh ∈ Vh
+
+that minimizes the discrete primal energy functional Ih : Vh → R, for every vh ∈ Vh defined by 
+
+Ih(vh) := 
+
+ˆ
+
+> Ω
+
+ϕε(∇vh) d x −
+
+ˆ
+
+> Ω
+
+IVh {fhvh} dx . (6.14) Here, ϕε := 1 
+
+> p
+
+(ε2 + | · | 2) p 
+
+> 2
+
+: Rd → R denotes the standard regularization of the p-Dirichlet density 
+
+ϕ := 1 
+
+> p
+
+| · | p : Rd → R (cf . [ 5, Expl. 2.1(i)]). The direct method in the calculus of variations yields the existence of a unique discrete primal solution uh ∈ Vh, i.e. , a minimizer of (6.14). According to Proposition 4.4(i), a (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (6.14) is given via the maximization of the discrete dual energy functional 
+
+Dh : Yh → R ∪ {−∞} , for every yh ∈ Yh defined by 
+
+Dh(yh) := −
+
+ˆ
+
+> Ω
+
+ϕ∗ 
+
+> ε
+
+(yh) d x − IΩ
+
+> {− fh}
+
+(div h yh) . (6.15) A prox -based Semi-Smooth Newton Method 29 Note that, in general, there is no explicit representation for the Fenchel conjugate ϕ∗ 
+
+> ε
+
+: Rd → R.By Proposition 4.4(ii), there exists a (due to the strict convexity of ϕ∗ 
+
+> ε
+
+: Rd → R, unique) discrete dual solution zh ∈ Yh, i.e. , a maximizer of (6.15) , discrete strong duality applies, i.e. , we have that 
+
+Ih(uh) = Dh(zh), which is equivalent to the discrete primal optimality relations 
+
+zh = D ϕε(∇uh) = ( ε2 + |∇ uh|2) p−22 ∇uh a.e. in Ω , (6.16a) div h zh = −fh in Ω . (6.16b) 
+
+6.2.3 The semi-smooth Newton method 
+
+Given proximity parameters γ1, γ 2 > 0, following the reasoning in the beginning of Section 5, we observe that the primal optimality relations (6.16) are equivalent to the existence of a root of the mapping Fh : Yh × Vh → Yh × Vh, defined by (5.4) , where, by virtue of Proposition 4.6, for every yh ∈ Yh and vh ∈ Vh, respectively, we have that prox γ1Gh (yh)( x) = prox γ1ϕh(x, ·)(yh(x)) for a.e. x ∈ Ω , (6.17a) prox γ2Fh (vh) = vh + γ2fh in Ω . (6.17b) For the proximity operator prox γ1Gh : Yh → Yh, in general, no explicit representation formula is available. In fact, due to the non-quadratic p-growth of the regularized energy density ϕε ∈ C1(Rd),closed formulas can merely be derived in particular cases, e.g. , for p ∈ { 1, 2, 3, 4}. For this reason, for a given yh ∈ Yh, the value prox γ1Gh (yh) ∈ Yh has to be computed numerically. 
+
+Remark 6.2 (on computation of prox γ1Gh (yh) ∈ Yh). For a given yh ∈ Yh, due to the definition of the proximity operator (cf. Definition 2.8) and ϕε ∈ C1(Rd), the value byh := prox γ1Gh (yh) ∈ Yh
+
+is characterized as the unique solution of 
+
+Dϕε(byh) + 1 
+
+> γ1
+
+(byh − yh) = 0 in Yh . (6.18) 
+
+Since Yh consists of element-wise constant vector fields, the system (6.18) decouples element-wise ,i.e., for every T ∈ T h, byh|T ∈ Rd depends only on yh|T ∈ Rd and is determined by a system in Rd.Moreover, exploiting the radial symmetry of ϕε : Rd → R, for every T ∈ T h, the respective system reduces to a scalar equation for the modulus |byh|T | ∈ R. As a consequence, the computation of byh =prox γ1Gh (yh) ∈ Yh reduces to the parallel solution of scalar equations on each element T ∈ T h.Due to the additional quadratic term in the definition of the proximity operator (cf. Definition 2.8), the scalar equations are 1 
+
+> γ1
+
+-strongly monotone. Therefore, they admit unique solutions , their derivatives do not vanish at the root, and the scalar Newton iterations converge locally quadratically .
+
+Since ϕε ∈ C2(Rd), due to Lemma 2.9(iv), the proximity operator prox γ1Gh : Yh → Yh is even continuously Fr´ echet differentiable. In particular, for every yh ∈ Yh and vh ∈ Vh, respectively, we have that 
+
+Jprox γ1Gh
+
+(yh) =  1L(Yh) + γ1D2Gh(prox γ1Gh (yh)) −1 a.e. in Ω , (6.19a) 
+
+Jprox γ2Fh
+
+(vh) = 1L(Vh) in Ω . (6.19b) In other words, the evaluation of the Fr´ echet derivative Jprox γ1Gh
+
+(yh) ∈ L (Yh) requires only the computation of the value prox γ1Gh (yh) ∈ Yh itself. The explicit representations in (6.19) show that the assumptions of Theorems 5.10 and 5.13 are satisfied in the present setting. 
+
+Theorem 6.3. Algorithm 5.1 employing the representations (6.17) and (6.19) is globally well-posed and locally super-linearly convergent (with αk = 1 for all k ∈ N) to a root (zh, u h) ∈ Yh × Vh.Proof. From representation (6.19a) , it follows that 0L(Yh) ≺ Jprox γ1Gh
+
+(yh) ≺ 1L(Yh) for all yh ∈ Yh
+
+and μ1
+
+> h
+
+1L(Yh) ≺ Jprox γ1Gh
+
+(yh) ≺ μ1
+
+> h
+
+1L(Yh) for all yh ∈ BYh 
+
+> εh
+
+(0), where 0 < μ 1 
+
+> h
+
+≤ μ1 
+
+> h
+
+< 1 depend on 
+
+BYh 
+
+> εh
+
+(0), so that, also using representation (6.19b) , we conclude that Assumptions 5.8 and 5.11 are satisfied. S. Bartels and A. Kaltenbach 30 
+
+6.3 Elasto-plastic torsion problem 
+
+In this subsection, we consider the elasto-plastic torsion problem (cf . [ 17 ]), a classical model problem in structural mechanics –originating in Prandtl’s torsion theory ( cf . [ 41 ])–, describing the torsional deformation of a prismatic bar made of an elasto-plastic material, formulated as a variational problem with a point-wise gradient constraint reflecting the yield condition. 
+
+6.3.1 The continuous problem 
+
+Given an external load (or torque ) f ∈ L1(Ω) and a homogeneous Dirichlet boundary condition on a non-empty Dirichlet boundary part Γ D ⊆ ∂Ω, the elasto-plastic torsion problem seeks a Prandtl stress potential u ∈ W 1,∞ 
+
+> D
+
+(Ω) that minimizes the primal energy functional I : W 1,∞ 
+
+> D
+
+(Ω) → R ∪ { +∞} ,for every v ∈ W 1,∞ 
+
+> D
+
+(Ω) defined by 
+
+I(v) := 12
+
+ˆ
+
+> Ω
+
+|∇ v|2 dx + IΩ 
+
+> Kd
+> 1(0)
+
+(∇v) −
+
+ˆ
+
+> Ω
+
+f v dx . (6.20) The direct method in the calculus of variations yields the existence of a unique primal solution 
+
+u ∈ W 1,∞ 
+
+> D
+
+(Ω) ( cf . [1, Sec. 3]), i.e. , a minimizer of (6.20). A (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (6.20) was identified in [ 1, Thm. 3.1(i)] and is given via the maximization of the dual energy functional 
+
+D : ( ba (Ω)) d → R∪{−∞} , for every ν = y⊗dx+νs ∈ ( ba (Ω)) d, where y ∈ (L1(Ω)) d and νs ∈ (ba(Ω)) d
+
+with νs ⊥ y ⊗ dx form the unique Lebesgue decomposition of ν ∈ (ba (Ω)) d (cf . [ 47 , Thm. 3.1]), defined by 
+
+D(ν) := − 12
+
+ˆ
+
+> Ω
+
+|y|2 dx − 12
+
+ˆ
+
+> Ω
+
+(|y| − 1) 2+ dx − | νs|(Ω) − IK∗ (ν) , (6.21) Here, ( ba (Ω)) d denotes the space of bounded and finitely additive vector measures on M(d x; Ω) ( cf .[47 , Def. 4.1]) and the indicator functional IK∗ : (ba (Ω)) d → R ∪ { +∞} , for every bν ∈ (ba (Ω)) d,is defined by 
+
+IK∗ (bν) := 
+
+
+
+0 if ⟨bν, ∇v⟩(L∞(Ω)) d =
+
+ˆ
+
+> Ω
+
+f v dx for all v ∈ W 1,∞ 
+
+> D
+
+(Ω) ,
+
++∞ else ,
+
+i.e. , for every bν = by ⊗ dx ∈ (ba(Ω)) d, where by ∈ (L1(Ω)) d, there holds 
+
+IK∗ (bν) = 
+
+®0 if by ∈ W 1 
+
+> N
+
+(div; Ω) with div by = −f a.e. in Ω ,
+
++∞ else .
+
+In particular, for every ν = y ⊗ dx ∈ (ba(Ω)) d, where y ∈ W 1 
+
+> N
+
+(div; Ω), we have that 
+
+D(ν) = − 12
+
+ˆ
+
+> Ω
+
+|y|2 dx − 12
+
+ˆ
+
+> Ω
+
+(|y| − 1) 2+ dx − IΩ 
+
+> {− f}
+
+(div y) . (6.22) By [ 1 , Thm. 3.1(ii)], there exists a (not necessarily unique) dual solution μ = z ⊗ dx+μs ∈ (ba(Ω)) d,where z ∈ (L1(Ω)) d and μs ∈ (ba (Ω)) d with μs ⊥ z ⊗ dx form the unique Lebesgue decomposition of μ ∈ (ba (Ω)) d (cf . [ 47 , Thm. 3.1]), i.e. , a maximizer of (6.21) , and strong duality applies, i.e. , we have that I(u) = D(μ), which is equivalent to the primal optimality relations ( cf . [1, Thm. 3.1(ii)] )
+
+∇u = min {1, 1 
+
+> |z|
+
+}z a.e. in Ω , (6.23a) 
+
+|μs|(Ω) = ⟨μs, ∇u⟩(L∞(Ω)) d , (6.23b) 
+
+⟨μ, ∇v⟩(L∞(Ω)) d =
+
+ˆ
+
+> Ω
+
+f v dx for all v ∈ W 1,∞ 
+
+> D
+
+(Ω) . (6.23c) A prox -based Semi-Smooth Newton Method 31 
+
+6.3.2 The discrete problem 
+
+Given a discrete external load (or torque ) fh ∈ Vh, the discrete elasto-plastic torsion problem seeks a discrete Prandtl stress potential uh ∈ Vh that minimizes the discrete primal energy func-tional Ih : Vh → R, for every vh ∈ Vh defined by 
+
+Ih(vh) := 
+
+ˆ
+
+> Ω
+
+ϕε(∇vh) d x −
+
+ˆ
+
+> Ω
+
+IVh {fhvh} dx . (6.24) Here, the discrete energy density ϕε := 12(1+ ε) | · | 2 + 12ε(1+ ε) (| · | − (1 + ε)) 2+ : Rd → R denotes the Moreau envelope of the energy density ϕ := 12 |·| 2 +IKd  
+
+> 1(0)
+
+:Rd → R∪{ +∞} (cf . Example 2.7(ii)). The direct method in the calculus of variations yields the existence of a unique discrete primal solution uh ∈ Vh, i.e. , a minimizer of (6.24). According to Proposition 4.4(i), a (Fenchel) dual problem (in the sense of [ 18 , Rem. 4.2, p. 60/61]) to the minimization of (6.24) is given via the maximization of the discrete dual energy functional 
+
+Dh : Yh → R ∪ {−∞} , for every yh ∈ Yh defined by 
+
+Dh(yh) := −
+
+ˆ
+
+> Ω
+
+ϕ∗ 
+
+> ε
+
+(yh) d x − IΩ
+
+> {− fh}
+
+(div h yh) , (6.25) where the Fenchel conjugate ϕ∗ 
+
+> ε
+
+: Rd → R of the discrete energy density ϕε : Rd → R, for every t∗ ∈ Rd,is given via 
+
+ϕ∗ 
+
+> ε
+
+(t∗) = ε 
+
+> 2
+
+|t∗|2 + |t∗| − 12 + 12 (1 − | t∗|)2+ =
+
+® 1+ ε 
+
+> 2
+
+|t∗|2 if |t∗| ≤ 1 , 
+
+> ε
+> 2
+
+|t∗|2 + |t∗| − 12 if |t∗| > 1 . (6.26) By Proposition 4.4(ii), there exists a (not necessarily unique) discrete dual solution zh ∈ Yh, i.e. ,a maximizer of (6.25) , and discrete strong duality applies, i.e. , we have that Ih(uh) = Dh(zh), which is equivalent to the discrete primal optimality relations 
+
+zh = D ϕε(∇uh) = 1 
+
+> ε
+
+(1 − min { 11+ ε , 1 
+
+> |∇ uh|
+
+})∇uh a.e. in Ω , (6.27a) div h zh = −fh in Ω . (6.27b) 
+
+6.3.3 The semi-smooth Newton method 
+
+Given proximity parameters γ1, γ 2 > 0, following the reasoning in the beginning of Section 5, we observe that the primal optimality relations (6.27) are equivalent to the existence of a root of the mapping Fh : Yh × Vh → Yh × Vh, defined by (5.4) , where, by virtue of Proposition 4.6, Lemma 2.11(iii), and Example 2.10(ii), for every yh ∈ Yh and vh ∈ Vh, respectively, we have that prox γ1Gh (yh) = min { 1+ ε 
+
+> 1+ ε+γ1
+
+, εε+γ1 + γ1 
+
+> (ε+γ1)|yh|
+
+}yh a.e. in Ω , (6.28a) prox γ2Fh (vh) = vh + γ2fh in Ω . (6.28b) A global Newton derivative selection JFh : Yh × Vh → L (Yh × Vh), for every ( yh, v h) ∈ Yh × Vh, is given by (5.5), where for every yh ∈ Yh and vh ∈ Vh, respectively, we have that 
+
+Jprox γ1Gh
+
+(yh) = 
+
+ 
+
+> 1+ ε
+> 1+ ε+γ1
+
+1L(Yh) if |yh| ≤ 1 + ε + γ1 , 
+
+> εε+γ1
+
+1L(Yh)
+
++ γ1 
+
+> ε+γ1
+> 1
+> |yh|
+
+(1L(Yh) − yh⊗yh 
+
+> |yh|2
+
+)
+
+´
+
+if |yh| > 1 + ε + γ1 ,
+
+ a.e. in Ω , (6.29a) 
+
+Jprox γ2Fh
+
+(vh) = 1L(Vh) in Ω . (6.29b) The explicit representations in (6.29) show that the assumptions of Theorems 5.10 and 5.13 are satisfied in the present setting. 
+
+Theorem 6.4. Algorithm 5.1 employing the representations (6.28) and (6.29) is globally well-posed and locally super-linearly convergent (with αk = 1 for all k ∈ N) to a root (zh, u h) ∈ Yh × Vh.Proof. From representation (6.29a) , it follows that εε+γ1 1L(Yh) ⪯ Jprox γ1Gh
+
+(yh) ⪯ 1+ ε 
+
+> 1+ ε+γ1
+
+1L(Yh) for all yh ∈ Yh, so that, also using representation (6.29b) , we conclude that Assumptions 5.8 and 5.11 are satisfied. S. Bartels and A. Kaltenbach 32 
+
+7. Numerical experiments 
+
+In this section, we carry out numerical experiments reviewing the findings on the prox -based semi-smooth Newton methods derived in Section 6, i.e. , for the TV-minimization problem, the 
+
+p-Dirichlet problem, and the elasto-plastic torsion problem. 
+
+7.1 Implementation details 
+
+All experiments were conducted using the finite element software package FEniCS (version 2019.1.0, cf . [ 35 ]). All graphics were generated using the Matplotlib library (version 3.5.1, cf . [ 27 ]). 
+
+7.1.1 Linear solver 
+
+The linear systems (5.6) arising in the semi-smooth Newton iteration in Algorithm 5.1 are solved according to the procedure outlined in Remark 5.14. In particular, the symmetric positive definite linear systems (5.26) for the computation of the primal update direction are solved by a sparse Cholesky factorization using CHOLMOD [15 ] through the Python package scikit-sparse 
+
+(version 0.5.0, cf . [ 46 ]). The same direct solver is used for the linear systems arising in the primal semi-smooth Newton method. 
+
+7.1.2 Computation of proximity operators and Newton derivatives 
+
+For the TV-minimization problem ( cf . Subsection 6.1) and the elasto-plastic torsion problem (cf . Subsection 6.3), the proximity operator and its Newton derivative are computed using the ex-plicit representation formulas (6.9) and (6.29) , respectively. In the case of the p-Dirichlet problem (cf . Subsection 6.2), the proximity operator is computed according to the procedure outlined in Re-mark 6.2, while its Newton derivative is evaluated via the implicit representation formula (6.19a) .
+
+7.1.3 Globalization strategies 
+
+In Theorems 6.1, 6.3, and 6.4, we established the global well-posedness and local super-linear convergence of the prox -based semi-smooth Newton methods ( cf . Algorithm 5.1) for the TV-minimi-zation problem, the p-Dirichlet problem and the elasto-plastic torsion problem. In this connection ,we globalize these prox -based semi-smooth Newton methods either by combining them with one of the semi-implicit discretized (primal/dual) L2-gradient-flow initializations described in Remark 5.5, or by incorporating a nonlinear residual-based Armijo–Goldstein-type step-size criterion: 
+
+• Strategy 1 ( L2-gradient-flow initialization): First, depending on the growth properties of the discrete energy density ϕh : Ω × Rd → R, exploiting that for the TV-minimization problem, the 
+
+p-Dirichlet problem, and the elasto-plastic torsion problem, the discrete energy density ψh : Ω ×
+
+R → R is at most quadratic, we run either Algorithm 5.6 (primal) with zero initial iterate 
+
+eu0 
+
+> h
+
+= 0 ∈ Vh or Algorithm 5.7 (dual) with zero initial iterate ez0 
+
+> h
+
+= 0d ∈ Yh until for some ℓ0 ∈ N,there holds ∥Fh(ezℓ0+1  
+
+> h
+
+, euℓ0+1  
+
+> h
+
+)∥Yh×Vh < ε h
+
+> init
+
+, where εh 
+
+> init
+
+> 0 is a prescribed stopping parameter. If the subsequent semi-smooth Newton iteration fails to converge, the initialization may be strengthened by decreasing εh
+
+> init
+
+.Second, we run Algorithm 5.1 with initial iterate ( z0
+
+> h
+
+, u 0
+
+> h
+
+) := ( ezℓ0+1  
+
+> h
+
+, euℓ0+1  
+
+> h
+
+) ∈ Yh×Vh and constant step size αk = 1 for all k ∈ N until for some k∗ ∈ N, there holds ∥Fh(zk∗+1  
+
+> h
+
+, u k∗+1  
+
+> h
+
+)∥Yh×Vh < ε h
+
+> abs
+
+;
+
+• Strategy 2 (Armijo–Goldstein backtracking line search): We run Algorithm 5.1 directly with zero initial iterate ( z0
+
+> h
+
+, u 0
+
+> h
+
+) = ( 0d, 0) ∈ Yh × Vh and step sizes αk > 0, k ∈ N, chosen by the residual-based Armijo–Goldstein backtracking line search described in Remark 5.4 until for some k∗ ∈ N,there holds ∥Fh(zk∗+1  
+
+> h
+
+, u k∗+1  
+
+> h
+
+)∥Yh×Vh < ε h
+
+> abs
+
+.In all experiments below, for both Strategy 1 and Strategy 2, Algorithm 5.1 is run with 
+
+εh 
+
+> abs
+
+:= 1e −12, εh 
+
+> rel
+
+:= 0, kh 
+
+> max
+
+:= 25 for Strategy 1, and kh 
+
+> max
+
+:= 250 for Strategy 2. The gradient-flow initializations in Algorithms 5.6 and 5.7 are run with εh 
+
+> init
+
+:= 0 .1 and ℓh 
+
+> max
+
+:= + ∞.A prox -based Semi-Smooth Newton Method 33 
+
+7.2 TV-minimization problem 
+
+In this test, we compare the prox -based semi-smooth Newton method ( cf . Algorithm 5.1) with a canonical primal semi-smooth Newton method applied directly to the Fr´ echet derivative DIh : Vh → V ∗ 
+
+> h
+
+of the discrete primal functional (6.4) , which is globally Newton differentiable with possible (global) Newton derivative selection JDIh : Vh → L (Vh; V ∗ 
+
+> h
+
+), for every uh, v h, w h ∈ Vh
+
+defined by 
+
+⟨JDIh (uh)wh, v h⟩Vh := 
+
+ˆ
+
+> Ω
+
+JDϕε (∇uh)∇wh · ∇ vh dx + α
+
+ˆ
+
+> Ω
+
+IVh {whvh} dx , 
+
+where JDϕε : Rd → Rd×d, for every t ∈ Rd defined by 
+
+JDϕε (t) := 
+
+® 1 
+
+> ε
+
+1 if |t| < ε ,  
+
+> 1
+> |t|
+
+Pt if |t| ≥ ε , 
+
+denotes a possible (global) Newton derivative of D ϕε : Rd → Rd.
+
+Algorithm 7.1 (Primal semi-smooth Newton method for discrete TV-minimization) . Let ε > 0
+
+be a regularization parameter, let εh 
+
+> abs
+
+> 0 be a stopping parameter, let u0 
+
+> h
+
+∈ Vh be an initial iterate, and let kh 
+
+> max
+
+∈ N ∪ { +∞} be a maximal number of iterations. Then, for k = 0 , . . . , k h
+
+> max
+
+,perform the following iteration loop: (1) Compute the primal update direction δu kh ∈ Vh such that 
+
+JDIh (ukh)δu kh = −DIh(ukh) in V ∗ 
+
+> h
+
+,
+
+and the updated iterate uk+1  
+
+> h
+
+:= ukh+αkδu kh ∈ Vh, where αk > 0 is a (possibly variable ) step size; (2) If ∥DIh(uk+1  
+
+> h
+
+)∥V ∗ 
+
+> h
+
+< ε h
+
+> abs
+
+, then STOP ; otherwise, set k → k + 1 and continue with Step (1). 
+
+We consider the following benchmark example for the TV-minimization problem that provides a discontinuous primal solution and a Lipschitz continuous dual solution (see, e.g. , [ 3 , Expl. 10.4]). 
+
+Example 7.2. Let Ω = ( −1, 1) d, d ∈ N, ΓD = ∂Ω, α > 0, 0 < r < 1, and g = χBdr (0) ∈ L2(Ω) .Then, the unique primal solution u ∈ BV (Ω) ∩L2(Ω) with u = 0 a.e. on ∂Ω, i.e., a minimizer of (6.1) ,and a dual solution z ∈ W 2(div; Ω) , i.e., a maximizer of (6.2) , are given via 
+
+u := max 0, 1 − dαr χBdr (0) a.e. in Ω , (7.1a) 
+
+z := − r 
+
+> max {r, |·|} 2
+
+min 1, αr d id Rd in Ω . (7.1b) More precisely, in the following, we consider the case d = 3, α = 10, r = 12 , and a sequence of triangulations {T hi }i=0 ,..., 6 (cf . Figure 4), each consisting of 6 ·8i tetrahedra and (2 i+1) 3 vertices, obtained by red-refinement starting from a standard Kuhn triangulation T0 (cf . [ 31 ]) of Ω = [ −1, 1] 3,
+
+γ1 = γ2 = 1, and ε = h (which preserves the quasi-optimal error decay rates for element-wise affine approximations of the TV-minimization problem under uniform mesh-refinement, cf . [ 13 , 4, 7 ]). i = 0 i = 1 i = 2 i = 3 
+
+# · · · 
+
+Figure 4: Sequence of triangulations {T hi }i=0 ,..., 6 obtained by red-refinement of a standard Kuhn triangulation T0 (cf . [31]) of Ω = [ −1, 1] 3.S. Bartels and A. Kaltenbach 34 For the above experimental setup, Figures 5 and 6 compare the prox -based semi-smooth Newton method ( cf . Algorithm 5.1 employing the representations (6.8) and (6.9) ) with the primal semi-smooth Newton method ( cf . Algorithm 7.1) under mesh-refinement. To enable a direct com-parison, we report the common prox -based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0,for both methods. The convergent runs exhibit fast local residual decay for both methods. Therefore, the main difference is not the local decay rate, but the robustness of the iteration: for both the mass-lumped (ML) and non-mass-lumped (NML) variants and both globalization strategies ( cf . Strategies 1 and 2), the prox -based semi-smooth Newton method remains effective for a larger range of refined triangulations. 2 4 6 8 10 12 14 16 
+
+Iterations k
+
+10 −13 
+
+10 −9
+
+10 −5
+
+10 −1
+
+> ‖Fh(zkh, u kh)‖(L2(Ω)) d×L2(Ω)
+
+Algorithm 5.1 (Strategy 1) 
+
+2 4 6 8 10 12 14 
+
+Iterations k
+
+Algorithm 7.1 (Strategy 1)  
+
+> Th0
+> Th1
+> Th2
+> Th3
+> Th4
+> Th5
+> Th6without mass lumping with mass lumping
+
+Figure 5: Residual decay for the TV-minimization problem ( cf . Subsection 6.1) using Strategy 1, 
+
+i.e. , the L2-gradient-flow initialization described in Remark 5.5; each measured by the prox -based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0: left: prox -based semi-smooth Newton method ( cf . Algorithm 5.1 employing the representations (6.8) and (6.9) ); right: primal semi-smooth Newton method ( cf . Algorithm 7.1). The prox -based semi-smooth Newton method is less sensitive to mesh-refinement and to the use of mass lumping. 2 4 6 8 10 12 14 16 
+
+Iterations k
+
+10 −14 
+
+10 −11 
+
+10 −8
+
+10 −5
+
+10 −2
+
+> ‖Fh(zkh, u kh)‖(L2(Ω)) d×L2(Ω)
+
+Algorithm 5.1 (Strategy 2) 
+
+4 8 12 16 20 24 28 32 
+
+Iterations k
+
+Algorithm 7.1 (Strategy 2)  
+
+> Th0
+> Th1
+> Th2
+> Th3
+> Th4
+> Th5
+> Th6without mass lumping with mass lumping line-search failure
+
+Figure 6: Residual decay for the TV-minimization problem ( cf . Subsection 6.1) using Strategy 2, 
+
+i.e. , the residual-based Armijo–Goldstein line search; each measured by the prox -based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0: left: prox -based semi-smooth Newton method ( cf .Algorithm 5.1 employing the representations (6.8) and (6.9) ); right: primal semi-smooth Newton method ( cf . Algorithm 7.1). The prox -based semi-smooth Newton method is less sensitive to mesh-refinement and to the use of mass lumping. A prox -based Semi-Smooth Newton Method 35 
+
+7.3 p-Dirichlet problem 
+
+In this test, we compare the prox -based semi-smooth Newton method ( cf . Algorithm 5.1) with the classical primal Newton method applied directly to the discrete primal functional (6.14) , which is twice continuously Fr´ echet differentiable with second Fr´ echet derivative D 2Ih : Vh → L (Vh; V ∗ 
+
+> h
+
+), for every uh, v h, w h ∈ Vh defined by 
+
+⟨D2Ih(uh)wh, v h⟩Vh := 
+
+ˆ
+
+> Ω
+
+D2ϕε(∇uh)∇wh · ∇ vh dx , 
+
+where the second derivative D 2ϕε : Rd → Rd×d, for every t ∈ Rd, is given via D2ϕε(t) := ( |t|2 + ε2) p−22 1 + ( p − 2)( |t|2 + ε2) p−42 t ⊗ t . 
+
+Algorithm 7.3 (Primal classical Newton method for the discrete p-Dirichlet problem) . Let 
+
+ε > 0 be a regularization parameter, let εh 
+
+> abs
+
+> 0 be a stopping parameter, let u0 
+
+> h
+
+∈ Vh be an initial iterate, and let kh 
+
+> max
+
+∈ N ∪ { +∞} be a maximal number of iterations. Then, for k = 0 , . . . , k h
+
+> max
+
+,perform the following iteration loop: (1) Compute the primal update direction δu kh ∈ Vh such that 
+
+D2Ih(ukh)δu kh = −DIh(ukh) in V ∗ 
+
+> h
+
+,
+
+and the updated iterate uk+1  
+
+> h
+
+:= ukh+αkδu kh ∈ Vh, where αk > 0 is a ( possibly variable ) step size ;(2) If ∥DIh(uk+1  
+
+> h
+
+)∥V ∗ 
+
+> h
+
+< ε h
+
+> abs
+
+, then STOP ; otherwise, set k → k + 1 and continue with Step (1). 
+
+We consider the following benchmark example for the p-Dirichlet problem, which provides a radially symmetric primal solution and an affine dual solution (see, e.g. , [29, §3]). 
+
+Example 7.4. Let Ω = Bd 
+
+> 1
+
+(0) , d ∈ N, ΓD = ∂Ω, p ∈ (1 , +∞), and f ≡ 1 ∈ Lp′
+
+(Ω) . Then, the unique primal solution u∈W 1,p D (Ω) , i.e., a minimizer of (6.10) , and the unique dual solution z ∈W p′ 
+
+> N
+
+(div; Ω) ,i.e., the maximizer of (6.11) , are given via 
+
+u := p−1 
+
+> p
+
+d− 1 
+
+> p−1
+
+(1 − | · | p′
+
+) in Ω , (7.2a) 
+
+z := − 1 
+
+> d
+
+id Rd in Ω . (7.2b) More precisely, in the following, we consider the case d = 2, p ∈ { 1.1, 100 }, a sequence of trian-gulations {T hi }i=0 ,..., 9 of Ω = K21 (0) ( cf . Figure 7 and Table 1, for the corresponding mesh data), obtained according to [8, Sec. 5], γ1 = 1 if p = 1 .1, γ1 = 110 if p = 100, γ2 = 1, and ε = h2.i = 0 i = 1 i = 2 i = 3 
+
+# · · · 
+
+Figure 7: Sequence of triangulations {T hi }i=0 ,..., 9 obtained according to [ 8, Sec. 5] on Ω = K21 (0) .
+
+Th1 Th2 Th3 Th4 Th5 Th6 Th7 Th8 Th9
+
+hi 7.65e −1 4.74e −1 2.47e −1 1.25e −1 6.25e −2 3.12e −2 1.56e −2 7.81e −3 3.91e −3
+
+|N i| 13 41 145 545 2,113 8,321 33 ,025 131 ,585 525 ,313 
+
+|T hi | 16 64 256 1,024 4,096 16 ,384 65 ,536 262 ,144 1,048 ,576 
+
+Table 1: Mesh data for the triangulations {T hi }i=1 ,..., 9 obtained according to [ 8, Sec. 5] on Ω = K21 (0). S. Bartels and A. Kaltenbach 36 For the above experimental setup, Figures 8 and 9 compare the prox -based semi-smooth New-ton method ( cf . Algorithm 5.1 employing the representations (6.17) and (6.19) ) with the classical primal Newton method ( cf . Algorithm 7.3) under mesh-refinement. To enable a direct comparison, we again report the common prox -based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0,for both methods. Again, the convergent runs exhibit fast local residual decay for both methods. Therefore, the main difference is not the local decay rate, but the robustness of the iteration: for both values of p ∈ { 1.1, 100 } and both globalization strategies ( cf . Strategies 1 and 2), the prox -based semi-smooth Newton method remains effective for a larger range of refined triangulations. 1 2 3 4 5 6 7 8
+
+Iterations k
+
+> 10 −13
+> 10 −9
+> 10 −5
+> 10 −1
+> 10 3
+> ‖Fh(zkh, u kh)‖(L2(Ω)) d×L2(Ω)
+
+Algorithm 5.1 (Strategy 1)        
+
+> 36912 15 18 21 24
+
+Iterations k
+
+Algorithm 7.3 (Strategy 1)   
+
+> Th0
+> Th1
+> Th2
+> Th3
+> Th4
+> Th5
+> Th6
+> Th7
+> Th8
+> Th9
+> p= 1 .1
+> p= 100 .0
+
+Figure 8: Residual decay for the p-Dirichlet problem ( cf . Subsection 6.2) using Strategy 1, i.e. ,the L2-gradient-flow initialization described in Remark 5.5; each measured by the prox -based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0: left: prox -based semi-smooth Newton method ( cf . Algorithm 5.1 employing the representations (6.17) and (6.19) ); right: classical primal Newton method ( cf . Algorithm 7.3). The prox -based semi-smooth Newton method is less sensitive to mesh-refinement. For finer triangulations, the prox -based nonlinear residual of the primal Newton method reaches a numerical floor caused by the second equation (5.10b) in the discrete proximal optimality conditions (5.10) and its L2-Riesz representation; this is not observed when the flux is updated as an independent variable as in the prox -based semi-smooth Newton method. 1 2 3 4 5 6 7 8
+
+Iterations k
+
+> 10 −13
+> 10 −9
+> 10 −5
+> 10 −1
+> 10 3
+> ‖Fh(zkh, u kh)‖(L2(Ω)) d×L2(Ω)
+
+Algorithm 5.1 (Strategy 2)        
+
+> 246810 12 14 16
+
+Iterations k
+
+Algorithm 7.3 (Strategy 2)   
+
+> Th0
+> Th1
+> Th2
+> Th3
+> Th4
+> Th5
+> Th6
+> Th7
+> Th8
+> Th9
+> p= 1 .1
+> p= 100 .0line-search failure
+
+Figure 9: Residual decay for the p-Dirichlet problem (cf. Subsection 6.2) using Strategy 2, i.e. ,the residual-based Armijo–Goldstein line search; each measured by the prox -based nonlinear resid-ual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0: left: prox -based semi-smooth Newton method ( cf . Algo-rithm 5.1 employing the representations (6.17) and (6.19) ); right: classical primal Newton method (cf . Algorithm 7.3). For p = 100, the second L2-gradient-flow iterate is used as initial iterate .The prox-based semi-smooth Newton method is less sensitive to mesh-refinement. A prox -based Semi-Smooth Newton Method 37 
+
+7.4 Elasto-plastic torsion problem 
+
+In this test, we compare the prox -based semi-smooth Newton method ( cf . Algorithm 5.1) with a canonical dual semi-smooth Newton method applied directly to the first-order optimality system of the discrete dual functional (6.25) . More precisely, the variation Gh : Yh × Vh → (Yh × Vh)∗,for every ( zh, u h), (yh, v h) ∈ Yh × Vh defined by 
+
+⟨Gh(zh, u h), (yh, v h)⟩Yh×Vh := 
+
+ˆ
+
+> Ω
+
+Dφ∗ 
+
+> ε
+
+(zh) · yh dx
+
++
+
+ˆ
+
+> Ω
+
+IVh {uh div h yh} dx +
+
+ˆ
+
+> Ω
+
+IVh {(div h zh + fh)vh} dx , 
+
+is globally Newton differentiable with possible (global) Newton derivative selection JGh : Yh ×Vh →L(Yh × Vh; ( Yh × Vh)∗), for every ( zh, u h), (ξh, w h), (yh, v h) ∈ Yh × Vh defined by 
+
+⟨JGh (zh, u h)( ξh, w h), (yh, v h)⟩Yh×Vh := 
+
+ˆ
+
+> Ω
+
+JDφ∗ 
+
+> ε
+
+(zh)ξh · yh dx
+
++
+
+ˆ
+
+> Ω
+
+IVh {wh div h yh} dx +
+
+ˆ
+
+> Ω
+
+IVh {vh div h ξh} dx , 
+
+where JDφ∗ 
+
+> ε
+
+: Rd → Rd×d, for every t ∈ Rd defined by 
+
+JDφ∗ 
+
+> ε
+
+(t) := 
+
+®(1 + ε)1 if |t| < 1 ,ε1 + 1 
+
+> |t|
+
+Pt if |t| ≥ 1 ,
+
+denotes a possible (global) Newton derivative selection of D φ∗ 
+
+> ε
+
+: Rd → Rd.
+
+Algorithm 7.5 (Dual semi-smooth Newton method for discrete elasto-plastic torsion ). Let ε > 0
+
+be a regularization parameter, let εh 
+
+> abs
+
+> 0 be a stopping parameter, let (z0
+
+> h
+
+, u 0
+
+> h
+
+) ∈ Yh × Vh be an initial iterate, and let kh 
+
+> max
+
+∈ N∪{ +∞} be a maximal number of iterations. Then, for k = 0 , . . . , k h
+
+> max
+
+,perform the following iteration loop: (1) Compute the dual update direction (δz kh, δu kh) ∈ Yh × Vh such that 
+
+JGh (zkh, u kh)( δz kh, δu kh) = −Gh(zkh, u kh) in (Yh × Vh)∗ ,
+
+and the updated iterate (zk+1  
+
+> h
+
+, u k+1  
+
+> h
+
+) := ( zkh, u kh) + αk(δz kh, δu kh) ∈ Yh × Vh, where αk > 0 is a (possibly variable) step size; (2) If ∥Gh(zk+1  
+
+> h
+
+, u k+1  
+
+> h
+
+)∥(Yh×Vh)∗ < ε h
+
+> abs
+
+, then STOP ; otherwise, set k → k + 1 and continue with Step (1). 
+
+We consider the following benchmark example for the elasto-plastic torsion problem, which pro-vides a radially symmetric primal solution that exhibits an elastic-plastic transition for sufficiently large loads, together with an affine dual solution (see, e.g. , [21, Expl. 2.3.2, p. 122]). 
+
+Example 7.6. Let Ω := Bdr (0) , d ∈ N, r > 0, ΓD := ∂Ω, and f ≡ Cf ∈ L1(Ω) with Cf > 0. Then, the unique primal solution u ∈ W 1,∞ 
+
+> D
+
+(Ω) , i.e., the minimizer of (6.20) , and an absolutely continuous dual solution μ = z⊗dx ∈ ( ba (Ω)) d with z ∈ W 1 
+
+> N
+
+(div ; Ω) , i.e., a maximizer of (6.22) , are given via 
+
+u := 
+
+ 
+
+> Cf
+> 2d
+
+(r2 − | · | 2), if Cf ≤ dr ,
+
+®r − | · | if dCf ≤ | · | ≤ r , 
+
+− Cf 
+
+> 2d
+
+| · | 2 + r − d 
+
+> 2Cf
+
+if 0 ≤ | · | ≤ dCf
+
+´
+
+if Cf ≥ dr
+
+in Ω ,z := − Cf 
+
+> d
+
+id Rd in Ω .
+
+(7.3) More precisely, in the following, we consider the case d = 2, r = 1, Cf ∈ { 5, 10 }, the same sequence of triangulations {T hi }i=0 ,..., 9 of Ω = Kd 
+
+> 1
+
+(0) ( cf . Figure 7) constructed in Subsection 7.3, 
+
+γ1 = 110 , γ2 = 1, and ε = Cf h2 (which preserves the quasi-optimal error decay rates for element-wise affine approximations of the elasto-plastic torsion problem under uniform mesh-refinement , cf . [ 1]). S. Bartels and A. Kaltenbach 38 For the above experimental setup, Figures 10 and 11 compare the prox -based semi-smooth New-ton method ( cf . Algorithm 5.1 employing the representations (6.28) and (6.29) ) with the dual semi-smooth Newton method ( cf . Algorithm 7.5) under mesh-refinement. To enable a direct comparison ,we again report the common prox -based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0,for both methods. Again, the convergent runs exhibit fast local residual decay for both methods. Therefore, the main difference is not the local decay rate, but the robustness of the iteration: for both values of Cf ∈ { 5, 10 } and both globalization strategies ( cf . Strategies 1 and 2), the prox -based semi-smooth Newton method remains effective for a larger range of refined triangulations. 1 2 3 4 5 6 7 8
+
+Iterations k
+
+10 −13 
+
+10 −9
+
+10 −5
+
+10 −1
+
+> ‖Fh(zkh, u kh)‖(L2(Ω)) d×L2(Ω)
+
+Algorithm 5.1 (Strategy 1) 
+
+1 2 3 4 5 6 7 8
+
+Iterations k
+
+Algorithm 7.5 (Strategy 1)   
+
+> Th0
+> Th1
+> Th2
+> Th3
+> Th4
+> Th5
+> Th6
+> Th7
+> Th8
+> Th9
+> Cf= 5 .0
+> Cf= 10 .0
+
+Figure 10: Residual decay for the elasto-plastic torsion problem ( cf . Subsection 6.3) using Strategy 1, i.e. , the L2-gradient-flow initialization described in Remark 5.5; each measured by the prox-based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0: left: prox-based semi-smooth Newton method ( cf . Algorithm 5.1 employing the representations (6.28) and (6.29) ); right: dual semi-smooth Newton method ( cf . Algorithm 7.5). The prox -based semi-smooth Newton method is less sensitive to mesh-refinement. 2 4 6 8 10 12 14 
+
+Iterations k
+
+10 −13 
+
+10 −10 
+
+10 −7
+
+10 −4
+
+10 −1
+
+> ‖Fh(zkh, u kh)‖(L2(Ω)) d×L2(Ω)
+
+Algorithm 5.1 (Strategy 2) 
+
+2 4 6 8 10 12 14 
+
+Iterations k
+
+Algorithm 7.5 (Strategy 2)   
+
+> Th0
+> Th1
+> Th2
+> Th3
+> Th4
+> Th5
+> Th6
+> Th7
+> Th8
+> Th9
+> Cf= 5 .0
+> Cf= 10 .0
+
+Figure 11: Residual decay for the elasto-plastic torsion problem ( cf . Subsection 6.3) using Strategy 2, i.e. , the residual-based Armijo–Goldstein line search; each measured by the common prox-based nonlinear residual ∥Fh(zkh, u kh)∥(L2(Ω)) d×L2(Ω) , k ∈ N0: left: prox-based semi-smooth Newton method ( cf . Algorithm 5.1 employing the representations (6.28) and (6.29) ); right: dual semi-smooth Newton method ( cf . Algorithm 7.5). The prox -based semi-smooth Newton method is less sensitive to mesh-refinement. A prox -based Semi-Smooth Newton Method 39 
+
+References 
+
+[1] H. Antil , S. Bartels , A. Kaltenbach , and R. Khandelwal , Variational problems with gradient constraints: A priori and a posteriori error identities, Math. Comput. (2025). doi:10.1090/mcom/4146. [2] S. Bartels and A. Kaltenbach , A prox -Based Semi-Smooth Newton Method for TV-Minimization ,2026. doi:10.48550/arXiv.2605.22728. [3] S. Bartels , Numerical methods for nonlinear partial differential equations , Springer Ser. Comput. Math. 47 , Cham: Springer, 2015. doi:10.1007/978-3-319-13797-1 1. [4] S. Bartels , Nonconforming discretizations of convex minimization problems and precise relations to mixed methods, Comput. Math. Appl. 93 (2021), 214–229. doi:10.1016/j.camwa.2021.04.014. [5] S. Bartels , L. Diening , and R. H. Nochetto , Unconditional stability of semi-implicit discretiza-tions of singular flows, SIAM J. Numer. Anal. 56 no. 3 (2018), 1896–1914. doi:10.1137/17M1159166. [6] S. Bartels , T. Gudi , and A. Kaltenbach , A priori and a posteriori error identities for the scalar Signorini problem, SIAM J. Numer. Anal. 63 no. 5 (2025), 2155–2186. doi:10.1137/24M1677691. [7] S. Bartels and A. Kaltenbach , Error estimates for total-variation regularized minimization problems with singular dual solutions, Numer. Math. 152 no. 4 (2022), 881–906. doi:10.1007/s00211-022-01324-w. [8] S. Bartels and P. Tscherner , Necessary and sufficient conditions for avoiding Babuˇ ska’s paradox on simplicial meshes, IMA J. Numer. Anal. 45 no. 3 (2025), 1300–1319. doi:10.1093/imanum/drae050. [9] S. Bartels and A. Kaltenbach , Chapter seven - exact a posteriori error control for variational problems via convex duality and explicit flux reconstruction, in Error Control, Adaptive Discretiza-tions, and Applications, Part 1 (F. Chouly , S. P. Bordas , R. Becker , and P. Omnes , eds.), 
+
+Advances in Applied Mechanics 58 , Elsevier, 2024, pp. 295–375. doi:10.1016/bs.aams.2024.04.001. [10] H. H. Bauschke and P. L. Combettes , Convex analysis and monotone operator theory in Hilbert spaces , 2nd ed., CMS Books Math./Ouvrages Math. SMC , Cham: Springer, 2017. doi:10.1007/978-3-319-48311-5. [11] A. Beck , First-order methods in optimization , MOS-SIAM Ser. Optim. 25 , SIAM; Philadelphia, MOS, 2017. doi:10.1137/1.9781611974997. [12] A. Chambolle and T. Pock , A first-order primal-dual algorithm for convex problems with applications to imaging, J. Math. Imaging Vis. 40 no. 1 (2011), 120–145. doi:10.1007/s10851-010-0251-1. [13] A. Chambolle and T. Pock , Crouzeix–Raviart approximation of the total variation on simplicial meshes, J. Math. Imaging Vis. 62 no. 6-7 (2020), 872–899. doi:10.1007/s10851-019-00939-3. [14] X. Chen , Z. Nashed , and L. Qi , Smoothing methods and semismooth methods for nondifferentiable operator equations, SIAM J. Numer. Anal. 38 no. 4 (2000), 1200–1216. doi:10.1137/S0036142999356719. [15] Y. Chen , T. A. Davis , W. W. Hager , and S. Rajamanickam , Algorithm 887: Cholmod, supernodal sparse cholesky factorization and update/downdate, ACM Transactions on Mathematical Software 35 no. 3 (2008), 22:1–22:14. doi:10.1145/1391989.1391995. [16] L. Diening and J. Storn , Guaranteed upper bounds for iteration errors and modified Kaˇ canov schemes via discrete duality, Comput. Methods Appl. Math. 25 no. 3 (2025), 587–600. doi:10.1515/cmam-2025-0017. [17] G. Duvaut and J. L. Lions , Les in´ equations en m´ ecanique et en physique , Trav. Rech. Math. 21 ,Dunod, Paris, 1972. [18] I. Ekeland and R. T ´emam , Convex analysis and variational problems , Class. Appl. Math. 28 ,SIAM, 1999. doi:10.1137/1.9781611971088. [19] A. Ern and J.-L. Guermond , Finite elements I. Approximation and interpolation , Texts Appl. Math. 72 , Cham: Springer, 2020. doi:10.1007/978-3-030-56341-7. [20] A. Ern and J.-L. Guermond , Finite elements II. Galerkin approximation, elliptic and mixed PDEs , Texts Appl. Math. 73 , Cham: Springer, 2021. doi:10.1007/978-3-030-56923-5. [21] R. Glowinski , J.-L. Lions , and R. Tremolieres , Numerical analysis of variational inequalities. Transl. and rev. ed , Stud. Math. Appl. 8, Elsevier, Amsterdam, 1981. [22] R. Griesse and D. A. Lorenz , A semismooth Newton method for Tikhonov functionals with sparsity S. Bartels and A. Kaltenbach 40 
+
+constraints, Inverse Probl. 24 no. 3 (2008), 19, Id/No 035007. doi:10.1088/0266-5611/24/3/035007. [23] T. H. Hildebrandt and L. M. Graves , Implicit functions and their differentials in general analysis, 
+
+Trans. Am. Math. Soc. 29 (1927), 127–153. doi:10.2307/1989282. [24] M. Hinterm ¨uller , K. Ito , and K. Kunisch , The primal-dual active set strategy as a semismooth Newton method, SIAM J. Optim. 13 no. 3 (2003), 865–888. doi:10.1137/S1052623401383558. [25] M. Hinterm ¨uller and K. Kunisch , Total bounded variation regularization as a bilater-ally constrained optimization problem, SIAM J. Appl. Math. 64 no. 4 (2004), 1311–1333. doi:10.1137/S0036139903422784. [26] P. J. Huber , Robust estimation of a location parameter, Ann. Math. Stat. 35 (1964), 73–101. doi:10.1214/aoms/1177703732. [27] J. D. Hunter , Matplotlib: A 2D graphics environment, Computing in Science & Engineering 9
+
+no. 3 (2007), 90–95. doi:10.1109/MCSE.2007.55. [28] A. D. Ioffe , On lower semicontinuity of integral functionals. I, SIAM J. Control Optim. 15 (1977), 521–538. doi:10.1137/0315035. [29] B. Kawohl , On a family of torsional creep problems, J. Reine Angew. Math. 410 (1990), 1–22. doi:10.1515/crll.1990.410.1. [30] M. A. Krasnosel’ski ˘ı, Topological methods in the theory of nonlinear integral equations. Translated by A. H. Armstrong, International Series of Monographs on Pure and Applied Mathematics. 45. Oxford etc.: Pergamon Press. xi, 395 p., 1964. [31] H. W. Kuhn , Some combinatorial lemmas in topology, IBM J. Res. Dev. 4 (1960), 518–524. doi:10.1147/rd.45.0518. [32] O. A. Ladyzhenskaya and N. N. Ural’tseva , Linear and quasilinear elliptic equations , Math. Sci. Eng. 46 , Elsevier, Amsterdam, 1968. [33] J. D. Lee , Y. Sun , and M. A. Saunders , Proximal Newton-type methods for minimizing composite functions, SIAM J. Optim. 24 no. 3 (2014), 1420–1443. doi:10.1137/130921428. [34] P. Lindqvist , Notes on the stationary p-Laplace equation , SpringerBriefs Math. , Cham: Springer; Bilbao: BCAM – Basque Center for Applied Mathematics, 2019. doi:10.1007/978-3-030-14501-9. [35] A. Logg , K.-A. Mardal , and G. Wells (eds.), Automated solution of differential equations by the finite element method. The FEniCS book , Lect. Notes Comput. Sci. Eng. 84 , Berlin: Springer, 2012. doi:10.1007/978-3-642-23099-8. [36] T.-T. Lu and S.-H. Shiou , Inverses of 2 ×2 block matrices, Comput. Math. Appl. 43 no. 1-2 (2002), 119–129. doi:10.1016/S0898-1221(01)00278-4. [37] W. Ostwald , Ueber die Geschwindigkeitsfunktion der Viskosit¨ at disperser Systeme. I, Kolloid-Zeitschrift 36 no. 2 (1925), 99–117. doi:10.1007/BF01431449. [38] N. Parikh and S. Boyd , Proximal algorithms, Found. Trends Optim. 1 no. 3 (2014), 127–239. doi:10.1561/2400000003. [39] B. P ¨otzl , A. Schiela , and P. Jaap , Second order semi-smooth proximal Newton methods in Hilbert spaces, Comput. Optim. Appl. 82 no. 2 (2022), 465–498. doi:10.1007/s10589-022-00369-9. [40] B. P ¨otzl , A. Schiela , and P. Jaap , Inexact proximal Newton methods in Hilbert spaces, Comput. Optim. Appl. 87 no. 1 (2024), 1–37. doi:10.1007/s10589-023-00515-x. [41] L. Prandtl , Zur Torsion von prismatischen St¨ aben, Phys. Z. 4 (1903), 758–759. [42] R. T. Rockafellar , Integrals which are convex functionals, Pac. J. Math. 24 (1968), 525–539. doi:10.2140/pjm.1968.24.525. [43] R. T. Rockafellar , Convex integral functionals and duality, in Contributions to Nonlinear Functional Analysis , Academic Press, 1971, pp. 215–236. doi:10.1016/B978-0-12-775850-3.50012-1. [44] R. T. Rockafellar and R. J.-B. Wets , Variational analysis , Grundlehren Math. Wiss. 317 ,Berlin: Springer, 1998. doi:10.1007/978-3-642-02431-3. [45] L. I. Rudin , S. Osher , and E. Fatemi , Nonlinear total variation based noise removal algorithms, 
+
+Physica D 60 no. 1-4 (1992), 259–268. doi:10.1016/0167-2789(92)90242-F. [46] scikit-sparse developers , scikit-sparse : Sparse matrix tools extending scipy.sparse , 2026. Available at https://pypi.org/project/scikit-sparse/ .[47] J. Toland , The dual of L∞(X, L, λ ), finitely additive measures and weak convergence. A primer ,
+
+SpringerBriefs Math. , Cham: Springer, 2020. doi:10.1007/978-3-030-34732-1. [48] M. Ulbrich , Semismooth Newton methods for operator equations in function spaces, SIAM J. Optim. 13 no. 3 (2003), 805–841. doi:10.1137/S1052623400371569. A prox -based Semi-Smooth Newton Method 41 
+
+[49] D. Wachsmuth , A globalized inexact semismooth Newton method for strongly convex optimal control problems, J. Nonsmooth Anal. Optim. 6 (2026), 15574. doi:10.46298/jnsao-2026-15574. [50] A. de Waele , Viscometry and Plastometry , 6, Oil and Colour Chemists’ Association, 1923. [51] E. Zeidler , Nonlinear functional analysis and its applications. III: Variational methods and opti-mization. Transl. from the German by Leo F. Boron , Springer New York, NY, 1985. doi:10.1007/978-1-4612-5020-3.

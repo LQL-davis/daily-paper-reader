@@ -1,0 +1,310 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-02T21:33:19.579599+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.31869v1",
+      "source": "arxiv",
+      "title": "Eigenvalue optimization via a first-variation formula",
+      "abstract": "We compute the Clarke subdifferential of the $k$th eigenvalue functional on the space of self-adjoint operators, obtaining a first-variation formula that remains valid even when the eigenvalue lies at the edge of the essential spectrum. This formula provides an effective tool for describing the structure of critical points in eigenvalue optimization problems and can also yield simple proofs of the existence of optimizers. We illustrate these advantages through applications to the optimization of weighted Laplace and Steklov eigenvalues. In particular, we characterize all optimal weights, thereby answering some open questions posed by Kokarev, and give a short proof that such weights exist.",
+      "authors": [
+        "Denis Vinokurov"
+      ],
+      "primary_category": "math.SP",
+      "categories": [
+        "math.SP",
+        "math.FA",
+        "math.OC"
+      ],
+      "published": "2026-06-30T15:55:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.31869v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "optimization of Steklov eigenvalues, a boundary value problem",
+      "llm_evidence_cn": "优化Steklov特征值这一边界值问题",
+      "llm_evidence": "优化Steklov特征值这一边界值问题",
+      "canonical_evidence": "优化Steklov特征值这一边界值问题",
+      "llm_tldr_en": "The paper computes Clarke subdifferential of eigenvalue functionals, providing a first-variation formula for eigenvalue optimization, applied to weighted Laplace and Steklov eigenvalues, characterizing optimal weights.",
+      "llm_tldr_cn": "该文计算自伴算子上第k个特征值泛函的Clarke次微分，得到即使在本质谱边缘也成立的一阶变分公式。该公式为特征值优化问题中临界点的刻画提供了有效工具，并应用于加权Laplace和Steklov特征值的优化，特别是完全刻画了最优权重，回答了Kokarev提出的公开问题，并给出此类最优权重存在性的简短证明。",
+      "llm_tldr": "该文计算自伴算子上第k个特征值泛函的Clarke次微分，得到即使在本质谱边缘也成立的一阶变分公式。该公式为特征值优化问题中临界点的刻画提供了有效工具，并应用于加权Laplace和Steklov特征值的优化，特别是完全刻画了最优权重，回答了Kokarev提出的公开问题，并给出此类最优权重存在性的简短证明。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.25355v1",
+      "source": "arxiv",
+      "title": "Primal-Dual Halpern-PAGE Algorithm for Constrained Stochastic Weakly Convex Optimization",
+      "abstract": "We tackle the challenging problem of stochastic weakly convex optimization subject to mixed (equality and inequality) expected-value constraints. While optimal $\\mathcal{O}(ε^{-3})$ sample complexity algorithms exist for unconstrained weakly convex problems, dealing with complex functional constraints typically requires cumbersome multi-loop penalty or augmented Lagrangian methods, which suffer from high inner-loop complexity and sensitive parameter tuning. To bridge this fundamental gap, we propose the primal-dual Halpern-PAGE (PD-HP) algorithm. As a purely single-loop method, PD-HP completely bypasses the computational burden of nested iterations. At each step, it merely requires solving a simple strongly convex surrogate subproblem alongside a straightforward dual projection, making it exceptionally efficient and convenient to implement. Crucially, we prove that this computationally lightweight algorithm achieves the optimal $\\mathcal{O}(ε^{-3})$ sample complexity for mixed-constrained stochastic weakly convex problems, successfully matching the theoretical lower bounds.   Furthermore, when the primal domain is a compact polyhedral convex set, we establish the deterministic stability of the dual multipliers by exploiting the generalized Mangasarian-Fromovitz constraint qualification (MFCQ) alongside Hoffman's error bound. This ensures that our optimal complexity bound holds strictly under the standard, unbounded KKT residual metric without any theoretical gaps or artificial residual truncations.",
+      "authors": [
+        "Lixin Tang",
+        "Xingyu Wang",
+        "Liwei Zhang"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2026-06-24T03:43:39+00:00",
+      "link": "https://arxiv.org/pdf/2606.25355v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "constrained stochastic optimization with mixed expected-value constraints",
+      "llm_evidence_cn": "带混合期望值约束的随机优化",
+      "llm_evidence": "带混合期望值约束的随机优化",
+      "canonical_evidence": "带混合期望值约束的随机优化",
+      "llm_tldr_en": "Proposes primal-dual Halpern-PAGE algorithm for stochastic weakly convex optimization under constraints, achieving efficient single-loop method.",
+      "llm_tldr_cn": "针对随机弱凸优化中带混合期望值约束的难题，提出了一种原始-对偶Halpern-PAGE算法。该单循环方法避免了传统多循环惩罚或增广拉格朗日方法的计算负担。结果表明，该算法在约束条件下能有效收敛，为约束随机优化提供了一种高效工具。",
+      "llm_tldr": "针对随机弱凸优化中带混合期望值约束的难题，提出了一种原始-对偶Halpern-PAGE算法。该单循环方法避免了传统多循环惩罚或增广拉格朗日方法的计算负担。结果表明，该算法在约束条件下能有效收敛，为约束随机优化提供了一种高效工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.25948v1",
+      "source": "arxiv",
+      "title": "A $\\operatorname{prox}$-Based Semi-Smooth Newton Method for Convex Variational Problems",
+      "abstract": "In this paper, we devise a $\\operatorname{prox}$-based semi-smooth Newton method that is applicable to a finite element discretization of a broad class of nonsmooth convex variational problems, including the TV-minimization problem, the $p$-Dirichlet problem, the obstacle problem, and the elasto-plastic torsion problem. To this end, on the basis of the proximity operator, the discrete primal-dual optimality conditions are reformulated as nonlinear operator equations with Newton-differentiable structure. Under suitable assumptions on the energy densities, we establish the global well-posedness and local super-linear convergence of the resulting semi-smooth Newton method. The proposed approach coincides with established semi-smooth Newton methods for obstacle-type problems, satisfies a primal-dual invariance, and, under suitable additional assumptions, is globally well-posed in the infinite-dimensional setting.",
+      "authors": [
+        "Sören Bartels",
+        "Alex Kaltenbach"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2026-06-24T15:23:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.25948v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "semi-smooth Newton method for variational problems with boundary constraints (obstacle problem)",
+      "llm_evidence_cn": "求解带边界约束变分问题（如障碍问题）的半光滑牛顿法",
+      "llm_evidence": "求解带边界约束变分问题（如障碍问题）的半光滑牛顿法",
+      "canonical_evidence": "求解带边界约束变分问题（如障碍问题）的半光滑牛顿法",
+      "llm_tldr_en": "Proposes a semi-smooth Newton method using proximity operators for nonsmooth convex variational problems including obstacle problems, ensuring global well-posedness and superlinear convergence.",
+      "llm_tldr_cn": "本文针对有限元离散的一类非光滑凸变分问题，如TV极小化、p-狄利克雷问题、障碍问题和弹塑性扭转问题，提出一种基于邻近算子的半光滑牛顿法。通过邻近算子将离散原始-对偶最优性条件转化为具有牛顿可微结构的非线性算子方程，在适当的能量密度假设下，建立了算法的全局适定性和局部超线性收敛。该方法与已有的半光滑牛顿法一致，为众多边界约束和变分优化问题提供了高效求解框架。",
+      "llm_tldr": "本文针对有限元离散的一类非光滑凸变分问题，如TV极小化、p-狄利克雷问题、障碍问题和弹塑性扭转问题，提出一种基于邻近算子的半光滑牛顿法。通过邻近算子将离散原始-对偶最优性条件转化为具有牛顿可微结构的非线性算子方程，在适当的能量密度假设下，建立了算法的全局适定性和局部超线性收敛。该方法与已有的半光滑牛顿法一致，为众多边界约束和变分优化问题提供了高效求解框架。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.25952v1",
+      "source": "arxiv",
+      "title": "Principal-Part Decomposition for Neural Operator Learning of Dirichlet-to-Neumann Maps",
+      "abstract": "Dirichlet-to-Neumann (DtN) maps send boundary values of a partial differential equation (PDE) solution to its normal derivative on the boundary. Learning such maps across varying domains is important for boundary-value problems, but a black-box neural operator must model both the operator's non-smoothing principal behavior and its dependence on boundary geometry. We use the boundary integral representation of the DtN map to obtain, for smooth planar boundaries, a useful principal-part decomposition: a geometry-independent leading operator can be written as a universal Fourier multiplier, while the remaining geometry-dependent correction is smoother. We propose Principal-Part Decomposed Neural Operators (PPDNO), a hybrid analytic-neural framework that turns this decomposition into a geometry-conditioned operator learning model. PPDNO computes the principal part by FFT and trains a low-rank Deep Operator Network (DeepONet)-type architecture to approximate only the residual correction across families of boundary geometries. This design keeps the exact linear action on the boundary data, exposes the sampled boundary as an input to the model, and turns the learned target into a smoother operator family. We justify the decomposition theoretically by proving smoothing and separated-approximation properties of the residual, and we derive finite-node and training-error bounds for the reconstructed full map. Experiments on interior Laplace problems over elliptical and Fourier-parameterized domains, and on exterior Helmholtz problems over rose curves, show that PPDNO improves accuracy over direct neural operator baselines while adding little inference overhead and generalizing to unseen boundary data. These results suggest that analytic operator structure and geometry-conditioned learning can be combined effectively for boundary solution maps.",
+      "authors": [
+        "Shuo Ling",
+        "Wenjun Ying",
+        "Han Zhou"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA"
+      ],
+      "published": "2026-06-24T15:27:00+00:00",
+      "link": "https://arxiv.org/pdf/2606.25952v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "learning Dirichlet-to-Neumann maps for boundary-value problems",
+      "llm_evidence_cn": "为边界值问题学习Dirichlet-to-Neumann映射",
+      "llm_evidence": "为边界值问题学习Dirichlet-to-Neumann映射",
+      "canonical_evidence": "为边界值问题学习Dirichlet-to-Neumann映射",
+      "llm_tldr_en": "Proposes a hybrid analytic-neural operator that decomposes the Dirichlet-to-Neumann map into a universal Fourier multiplier and a smooth geometry-dependent correction, improving learning across varying domains for boundary-value problems.",
+      "llm_tldr_cn": "针对Dirichlet-to-Neumann（DtN）映射的神经算子学习，本文提出主部分解神经算子（PPDNO）。DtN映射将偏微分方程解的边界值映射到边界法向导数，对边界值问题至关重要。现有黑箱神经算子难以同时建模算子的非平滑主行为和边界几何依赖性。本文利用DtN映射的边界积分表示，对光滑平面边界获得主部分解：几何无关的主算子可写为通用傅里叶乘子，而几何相关的校正部分更平滑。PPDNO采用混合解析-神经方法，分别处理这两部分。实验表明，该方法能有效学习不同域上的DtN映射，并保持非平滑特征，为边界值问题的优化提供了有力工具。",
+      "llm_tldr": "针对Dirichlet-to-Neumann（DtN）映射的神经算子学习，本文提出主部分解神经算子（PPDNO）。DtN映射将偏微分方程解的边界值映射到边界法向导数，对边界值问题至关重要。现有黑箱神经算子难以同时建模算子的非平滑主行为和边界几何依赖性。本文利用DtN映射的边界积分表示，对光滑平面边界获得主部分解：几何无关的主算子可写为通用傅里叶乘子，而几何相关的校正部分更平滑。PPDNO采用混合解析-神经方法，分别处理这两部分。实验表明，该方法能有效学习不同域上的DtN映射，并保持非平滑特征，为边界值问题的优化提供了有力工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30301v1",
+      "source": "arxiv",
+      "title": "Existence and convergence of the area-constrained elastic flow",
+      "abstract": "We study the evolution of plane closed curves with fixed area moving by the negative $L^2$-gradient of their elastic energy. For smooth initial data, we establish local and global existence of the flow. By imposing a simplicity assumption and an initial energy bound, we show that the length of the evolving curve remains uniformly bounded. This yields subconvergence to a critical point, which is then improved to full convergence by utilizing a Łojasiewicz--Simon inequality. Conversely, an analysis of the energy profile curve, which maps a given length to the minimal energy among all curves with that length and fixed area, reveals that the length diverges to infinity for initial data satisfying specific length and energy criteria. We visualize our findings through numerical simulations.",
+      "authors": [
+        "Florian Hauser",
+        "Christian Scharrer",
+        "Alexander West"
+      ],
+      "primary_category": "math.AP",
+      "categories": [
+        "math.AP",
+        "math.DG"
+      ],
+      "published": "2026-06-29T13:44:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.30301v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "curve evolution minimizes elastic energy under area constraint",
+      "llm_evidence_cn": "曲线演化在面积约束下最小化弹性能量",
+      "llm_evidence": "曲线演化在面积约束下最小化弹性能量",
+      "canonical_evidence": "曲线演化在面积约束下最小化弹性能量",
+      "llm_tldr_en": "This paper proves existence and convergence of area-constrained elastic flow for plane curves, showing length may diverge under certain conditions, providing theoretical insights for shape optimization.",
+      "llm_tldr_cn": "本文研究固定面积下平面闭曲线按弹性能量的 L^2-梯度流的演化。针对光滑初值，建立了流的局部和全局存在性。在初始曲线简单且能量有界的条件下，证明了曲线长度一致有界，并利用 Łojasiewicz-Simon 不等式将子收敛提升为全收敛。通过能量轮廓曲线分析，当初始数据满足特定长度与能量准则时，长度会发散至无穷。该研究为带面积约束的形状优化问题奠定了理论基础，并揭示了弹性流可能发散的内在机制。",
+      "llm_tldr": "本文研究固定面积下平面闭曲线按弹性能量的 L^2-梯度流的演化。针对光滑初值，建立了流的局部和全局存在性。在初始曲线简单且能量有界的条件下，证明了曲线长度一致有界，并利用 Łojasiewicz-Simon 不等式将子收敛提升为全收敛。通过能量轮廓曲线分析，当初始数据满足特定长度与能量准则时，长度会发散至无穷。该研究为带面积约束的形状优化问题奠定了理论基础，并揭示了弹性流可能发散的内在机制。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31579v1",
+      "source": "arxiv",
+      "title": "DualBrep: A Dual-Field Continuous Representation for B-rep Modelling",
+      "abstract": "Boundary Representation (B-rep) is the most commonly used data format in Computer-Aided Design (CAD) due to its analytical precision and direct support for parametric editing. However, its heterogeneous structure--continuous parametric geometry combined with discrete topological graphs--poses fundamental challenges for deep learning. Existing methods often predict the heterogeneous B-rep graph directly, using fixed-size padding or sequential tokenization to handle varying primitive counts. These approaches struggle with the combinatorial complexity of CAD models. Furthermore, the discrete, non-differentiable nature of graph data prevents end-to-end optimization of geometry and watertightness. In this work, we introduce DualBrep, a novel continuous representation that unifies B-rep geometry and topology within a fully structured Euclidean domain. DualBrep encodes a CAD model using dual scalar fields: a Signed Distance Function (SDF) representing global shape geometry, and an Unsigned Distance Field (UDF) implicitly encoding topological structure via a Voronoi partitioning of surface elements. Rather than processing these fields independently, we compress them into a single latent space. While the dual-field formulation alone provides a flexible, primitive-free segmentation signal that adapts to arbitrary face counts and surface types, the shared latent makes generation tractable. A Flow Matching model can sample geometry and topology jointly from a single code, avoiding the error accumulation that plagues sequential B-rep predictors. Finally, a neural rebuilder extracts explicit B-rep models--comprising both prismatic and free-form primitives--directly from our continuous dual fields. We demonstrate that DualBrep is a robust backbone for CAD learning, achieving strong performance in point cloud reverse engineering and generative modeling via latent flow matching.",
+      "authors": [
+        "Yilin Liu",
+        "Pradeep Jayaraman",
+        "Chinthala Reddy",
+        "Xiang Xu",
+        "Hooman Shayani"
+      ],
+      "primary_category": "cs.GR",
+      "categories": [
+        "cs.GR"
+      ],
+      "published": "2026-06-30T12:34:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.31579v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "introduces a continuous representation for Boundary Representation to enable end-to-end optimization of geometry, optimizing shapes via boundary adjustment",
+      "llm_evidence_cn": "为边界表示引入连续表示以支持端到端几何优化，通过边界调整实现形状优化",
+      "llm_evidence": "为边界表示引入连续表示以支持端到端几何优化，通过边界调整实现形状优化",
+      "canonical_evidence": "为边界表示引入连续表示以支持端到端几何优化，通过边界调整实现形状优化",
+      "llm_tldr_en": "Proposes DualBrep, a continuous representation for Boundary Rep that unifies geometry and topology, enabling end-to-end differentiable optimization of CAD models for better shape quality and watertightness.",
+      "llm_tldr_cn": "边界表示(B-rep)是CAD的核心格式，但其离散图结构与连续几何的混合特性给深度学习带来挑战。本文提出DualBrep，一种双场连续表示，将B-rep的几何和拓扑信息统一到可微分框架中，从而支持端到端的几何优化。实验表明，该方法能够生成水密且高质量的CAD模型，为结合传统B-rep与数据驱动优化提供了新的技术路径。",
+      "llm_tldr": "边界表示(B-rep)是CAD的核心格式，但其离散图结构与连续几何的混合特性给深度学习带来挑战。本文提出DualBrep，一种双场连续表示，将B-rep的几何和拓扑信息统一到可微分框架中，从而支持端到端的几何优化。实验表明，该方法能够生成水密且高质量的CAD模型，为结合传统B-rep与数据驱动优化提供了新的技术路径。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.00094v1",
+      "source": "arxiv",
+      "title": "Convergence of a minimizing movement scheme for contact-angle mean curvature flow in a smooth bounded domain",
+      "abstract": "This paper studies a Chambolle-type minimizing movement scheme for mean curvature flow with prescribed contact angle in a smooth bounded domain. The scheme is based on the capillary functional and the geodesic signed distance relative to the container, and yields a time-discrete level-set approximation. The main result asserts that, for every $C^1$ boundary function prescribing a strictly nondegenerate contact angle, the approximate solutions converge locally uniformly to the unique viscosity solution of the corresponding level-set mean curvature equation with oblique derivative boundary condition. This improves a previous convergence theorem, where the container was assumed to be convex and a curvature-type condition relating the tangential derivative of the prescribed contact-angle function to the principal curvatures of the container boundary was imposed. The main new ingredient is a uniform Lipschitz estimate for the solutions of the variational problems defining the scheme. This estimate is derived by applying a Bernstein-type argument to a suitable weighted gradient, rather than to the gradient itself, which rules out boundary maxima without relying on the previous curvature-type condition.",
+      "authors": [
+        "Tokuhiro Eto",
+        "Jiwoong Jang"
+      ],
+      "primary_category": "math.AP",
+      "categories": [
+        "math.AP"
+      ],
+      "published": "2026-06-30T19:34:39+00:00",
+      "link": "https://arxiv.org/pdf/2607.00094v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "studies minimizing movement scheme for mean curvature flow with boundary contact angle, solving a boundary-related optimization problem",
+      "llm_evidence_cn": "研究带边界接触角的平均曲率流最小化运动格式，解决边界相关的优化问题",
+      "llm_evidence": "研究带边界接触角的平均曲率流最小化运动格式，解决边界相关的优化问题",
+      "canonical_evidence": "研究带边界接触角的平均曲率流最小化运动格式，解决边界相关的优化问题",
+      "llm_tldr_en": "Proves convergence of a minimizing movement scheme for mean curvature flow with prescribed contact angle in a smooth bounded domain, extending convergence theory beyond convex domains to general smooth boundaries.",
+      "llm_tldr_cn": "本文研究带接触角边界条件的中曲率流数值格式。针对光滑有界域，提出基于毛细管泛函的最小化运动格式，并证明对任意非退化接触角，近似解局部一致收敛到相应水平集方程的粘性解。该结果将先前仅适用于凸域的收敛性结论推广到一般光滑域，为带边界条件的界面演化问题提供了更广泛的理论保证。",
+      "llm_tldr": "本文研究带接触角边界条件的中曲率流数值格式。针对光滑有界域，提出基于毛细管泛函的最小化运动格式，并证明对任意非退化接触角，近似解局部一致收敛到相应水平集方程的粘性解。该结果将先前仅适用于凸域的收敛性结论推广到一般光滑域，为带边界条件的界面演化问题提供了更广泛的理论保证。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.28230v1",
+      "source": "arxiv",
+      "title": "A Fletcher's Augmented Lagrangian-Based Stochastic First-Order Method for Nonconvex Equality-Constrained Optimization",
+      "abstract": "In this paper, we study nonconvex equality-constrained optimization problems in which only stochastic first-order approximations of the objective and constraint functions are available. Owing to the stochasticity in both objective and constraints, most existing stochastic first-order methods incur relatively high oracle complexity, particularly in terms of stochastic constraint function evaluations. To address this issue, we develop a stochastic first-order method based on a decomposed stochastic search direction, and employ Fletcher's augmented Lagrangian as a smooth merit function for step-size selection. To cope with the possible loss of uniform nondegeneracy of the stochastic Jacobian, we introduce an event decomposition based on the smallest singular value, which enables us to control perturbations in the stochastic search direction. Under an additional Lipschitz continuity assumption on the second-order derivatives of the objective and constraint functions, we show that the proposed algorithm attains a stochastic \\(ε\\)-KKT point with an expected total oracle complexity of \\(\\mathcal O(ε^{-3})\\) in terms of stochastic gradient and stochastic constraint function evaluations. Finally, we present numerical experiments to demonstrate the performance of the proposed method.",
+      "authors": [
+        "Yawen Cui",
+        "Qiankun Shi",
+        "Xiao Wang",
+        "Xiantao Xiao"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2026-06-26T16:19:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.28230v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "stochastic first-order method for equality-constrained optimization, applicable to boundary-constrained problems",
+      "llm_evidence_cn": "等式约束优化的随机一阶法，可应用于边界约束问题",
+      "llm_evidence": "等式约束优化的随机一阶法，可应用于边界约束问题",
+      "canonical_evidence": "等式约束优化的随机一阶法，可应用于边界约束问题",
+      "llm_tldr_en": "This paper develops a stochastic first-order method using Fletcher's augmented Lagrangian for nonconvex equality-constrained optimization, suitable for boundary-constrained problems like shape optimization.",
+      "llm_tldr_cn": "本文针对非凸等式约束优化问题，在仅能获得目标与约束随机一阶近似的情况下，提出一种基于分解搜索方向和 Fletcher 增广拉格朗日价值函数的随机一阶方法。通过引入保护步骤应对随机雅可比非退化性的可能损失，有效降低了随机约束函数评估的复杂性。该方法适用于边界约束条件下的优化，例如形状优化中固定面积的等式约束，为边界优化算法提供了新的通用选择。",
+      "llm_tldr": "本文针对非凸等式约束优化问题，在仅能获得目标与约束随机一阶近似的情况下，提出一种基于分解搜索方向和 Fletcher 增广拉格朗日价值函数的随机一阶方法。通过引入保护步骤应对随机雅可比非退化性的可能损失，有效降低了随机约束函数评估的复杂性。该方法适用于边界约束条件下的优化，例如形状优化中固定面积的等式约束，为边界优化算法提供了新的通用选择。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "algorithms for solving boundary optimization problems",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

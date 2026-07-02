@@ -1,0 +1,1860 @@
+Title: Eigenvalue optimization via a first-variation formula
+
+URL Source: https://arxiv.org/pdf/2606.31869v1
+
+Published Time: Wed, 01 Jul 2026 01:37:20 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+# Eigenvalue optimization via a first-variation formula 
+
+# Denis Vinokurov 
+
+We compute the Clarke subdifferential of the kth eigenvalue functional on the space of self-adjoint operators, obtaining a first-variation formula that remains valid even when the eigenvalue lies at the edge of the essential spectrum. This formula provides an effective tool for describing the structure of critical points in eigenvalue optimization problems and can also yield simple proofs of the existence of optimizers. We illustrate these advantages through applications to the optimization of weighted Laplace and Steklov eigenvalues. In particular, we characterize all optimal weights, thereby answering some open questions posed by Kokarev, and give a short proof that such weights exist. 
+
+# Contents 
+
+1 Introduction and main results 2
+
+1.1 Weighted optimization of Laplace and Steklov eigenvalues . . . . . . . . . 21.2 Existence of λk-maximizing harmonic maps via the weak-∗ stability of maximizing measures . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 61.3 Abstract differentiation of variational eigenvalues . . . . . . . . . . . . . . 81.4 Discussion of an extension to p-harmonic map optimization . . . . . . . . 11 
+
+2 Preliminaries 12 
+
+2.1 Projective tensor product . . . . . . . . . . . . . . . . . . . . . . . . . . . 12 2.2 Clarke subdifferential . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14 2.3 Dual functionals on L[H] . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 2.4 Measures as bilinear forms . . . . . . . . . . . . . . . . . . . . . . . . . . . 17 
+
+3 Proofs of the main results 18 
+
+3.1 Abstract setting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 3.1.1 Theorem 1.14 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 3.1.2 Theorem 1.18 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19 3.1.3 Corollaries 1.16 and 1.20 . . . . . . . . . . . . . . . . . . . . . . . . 20 1
+
+> arXiv:2606.31869v1 [math.SP] 30 Jun 2026
+
+3.2 Eigenvalues of measures . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 3.2.1 Theorem 1.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 3.2.2 Theorem 1.6 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 3.2.3 Corollary 1.9 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 3.2.4 Corollary 1.11 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24 3.2.5 Corollary 1.13 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24 
+
+Acknowledgements 25 References 25 
+
+# 1 Introduction and main results 
+
+1.1 Weighted optimization of Laplace and Steklov eigenvalues 
+
+Let Ω ⊂ M be a bounded continuous domain in a connected Riemannian manifold (M, g )
+
+of dimension d ≥ 2. For convenience, we assume that all our domains are connected .Note that we also include the case of ∂Ω = ∅, that is, when Ω = M is itself a closed manifold. By a continuous domain, we mean a domain that can be locally represented as the epigraph of a continuous function. In particular, such a domain can be viewed as a topological manifold with boundary. Bounded continuous domains enjoy the following properties (see, for example, [Maz, Theorem 1.1.6/2] and [EE, Theorem V.4.17]): 
+
+• C∞(Ω) is dense in H1(Ω) ;
+
+• the embedding H1(Ω) → L2(Ω) is compact. Let μ ∈ M +(Ω) be a positive Radon measure. Following [GNY], we define λk(μ) ∈ [0 , ∞]
+
+by 
+
+λk(μ) = λk(Ω , μ ) := inf 
+
+> Vk+1 ⊂Lip(Ω)
+
+sup  
+
+> φ∈Vk+1 \{ 0}
+> ∫
+> Ω
+
+|dφ|2 
+
+> ∫
+> Ω
+
+φ2dμ .
+
+One may equivalently use C∞(Ω) or H1 ∩C0(Ω) in place of Lip (Ω) . Note that λk(μ) < ∞
+
+provided that L2(Ω , μ ) is at least (k + 1) -dimensional. In particular, λk(μ) < ∞ whenever 
+
+μ ∈ M c
+
+> +
+
+(Ω) is continuous (that is, nonatomic). Moreover, Proposition 2.9 implies 
+
+> ⋃
+> k≥1
+
+{ μ ∈ M c
+
+> +
+
+(Ω) \ { 0} | λk(μ) > 0 } ⊂ Bil [H1(Ω)]; (1.1) that is, if λk(μ) > 0 for some k ≥ 1, then μ induces a bounded bilinear form on H1(Ω) .The eigenvalues λk(μ) then constitute precisely the bottom part of the spectrum of the following weighted “Neumann” eigenvalue problem: 
+
+∆u = λuμ in H1(Ω) ∗,
+
+where ∆ = d ∗d denotes the Laplace–Beltrami operator on M .2We set 
+
+λk(μ) = μ(Ω) λk(μ)
+
+and λk(0) := 0 . Now, choose a smooth Ω′ such that Ω ⋐ Ω′ ⋐ M and extend μ to all of M by setting μ(S) = μ(Ω ∩ S). By definition, λk(Ω , μ ) ≤ λk(Ω ′, μ ). Viewing Ω as a subset of the double of Ω′ and varying the metric outside Ω, we obtain from [GNY, Remark 5.10] that 
+
+λk(Ω , μ ) ≤ C Vol g(Ω) 1−2/d k2/d ∀μ ∈ M c
+
+> +
+
+(Ω) ,
+
+where C = C(Ω ′, [g]) . This motivates the following definitions: 
+
+Λk(Ω , g ) = sup 
+
+> μ∈M c
+> +(Ω)
+
+λk(μ) and Λ∗
+
+> k
+
+(Ω , g ) = sup 
+
+> μ∈L1+(Ω)
+
+λk(μ).
+
+The motivation for considering Λ∗
+
+> k
+
+(Ω , g ) is that Λ∗
+
+> k
+
+(Ω , g ) = sup { λk(μ) | μ ∈ C∞ 
+
+> +
+
+(Ω) }
+
+when Ω is smooth (see [Vin2, Proposition 2.9]), and in dimension 2, it coincides with the conformal optimization problem: 
+
+Λ∗
+
+> k
+
+(Ω , g ) = Λ ∗
+
+> k
+
+(Ω , [g]) = sup 
+
+> ˜g∈[g]
+
+λk(˜ g).
+
+While it is not difficult to prove the existence of maximizing measures for Λk(Ω , g )
+
+(cf. [Kok, Theorem B1] for closed surfaces), very little is known about the regularity of such measures (cf. [Kok, Theorem Ck]). On the other hand, proving the existence of maximizers for Λ∗
+
+> k
+
+(Ω , g ) is considerably more involved [NS; Pet2; KNPP2; KS2; KS1; Pet4; Vin1; Vin2]. However, by [Vin3, Theorem 1.1], the regularity of maximizing measures (at least when ∂Ω = ∅) is well understood (see also [KS2; KS1] for complementary results for “admissible” measures). Namely, any maximizing μ ∈ L1(Ω) has the form μ = |du|2
+
+for a locally stable harmonic map u ∈ H1(Ω , S∞), and, in fact, u ∈ C∞(Ω , Sn) for some 
+
+Sn ⊂ S∞ in dimensions 2 ≤ d ≤ 6.We denote the unit sphere and unit ball of R∞ := ℓ2 by S∞ and B∞. We also identify functions with measures via the Riemannian volume form. As an application of Corollary 1.20, we can show that no new maximizers arise when passing from Λ∗
+
+> k
+
+(Ω , g )
+
+to Λk(Ω , g ):
+
+Theorem 1.1. Let Ω ⊂ M be a bounded continuous domain in a Riemannian manifold 
+
+(M, g ) of dimension d ≥ 2, and let μ ∈ M c
+
+> +
+
+(Ω) be such that λk(μ) = Λ k(Ω , g ) for some 
+
+k ≥ 1. Then there exists a harmonic map u ∈ H1(Ω , S∞) whose components are kth eigenfunctions ( ∆u = λkuμ ) such that λkμ = |du|2. Moreover, u ∈ C∞(Ω \ sing u, S∞),where sing u ⊂ Ω is a closed set of Hausdorff dimension at most d − 7.In particular, 
+
+• if 2 ≤ d ≤ 6 and ∂Ω = ∅, then u ∈ C∞(Ω , Sn) for some Sn ⊂ S∞;
+
+• if H1(Ω) → L2(μ) is compact, then u ∈ C∞(Ω , Sn) for some Sn ⊂ S∞, and moreover, u ∈ C∞(Ω , Sn) when Ω is smooth. 
+
+3However, an example of eigenvalue optimization on Sd (see [Vin2]) shows that the upper bound d − 7 is sharp and H1(Ω) → L2(μ) need not be compact for maximizing measures. It remains unclear whether there exist examples of genuine locally stable harmonic maps into S∞ whose images are linearly full in S∞; see [Vin2, Question 1.11]. 
+
+Remark 1.2. Inspecting the proof of Theorem 1.1, we see that the global maximizing assumption may be replaced by the following local condition: μ satisfies the condition in (1.1) , and 0 is a local maximizer of the functional ρ 7 → λk(μ + ρ) on L∞ 
+
+> +
+
+(Ω) . Thus, only compact perturbations of μ are needed. 
+
+Remark 1.3. If one could establish a similar partial regularity of u up to the boundary, it would follow that in low dimensions, im u ⊂ Sn for some Sn, since the spectrum of the Neumann problem ∆u = λkuμ is discrete if μ = |du|2 ∈ L∞(Ω) .Thus, Theorem 1.1 states that every maximizing Radon measure is induced by a harmonic map into a sphere. This strengthens several previously known results. Under the additional assumption that μ ∈ L1(Ω) , the corresponding statement was proved in [Vin3, Theorem 1.1]; see also [Vin3, Remark 1.3] for the case μ ∈ (H1,d/ (d−1) )∗ when 
+
+d ≥ 3. Moreover, [KS2; KS1] established the result for λ2 in dimension d = 2 and for λ1
+
+in dimensions 2 ≤ d ≤ 5 assuming that the canonical map H1 → L2(μ) is compact. 
+
+Remark 1.4. While this manuscript was in the final stage of preparation, Ambrosio and Siclari [AS] proved the corresponding regularity statement for every stationary Radon measure μ for which the canonical map H1(Ω) → L2(μ) is compact. As one can see from Remark 1.2, our result therefore extends theirs to arbitrary nonatomic Radon measures. Corollary 1.13 similarly extends [AS, Corollary 1.4]. From the theory of harmonic maps, the singular set of μ = |du|2 coincides with that of 
+
+u, which is given by sing u = { p ∈ Ω | lim inf r→0 r2−d ∫  
+
+> Br(p)
+
+|du|2 > 0 }; see [Vin2]. The theorem above immediately answers the first two questions in [Kok, Section 6.2]: 
+
+Corollary 1.5. In dimensions 2 ≤ d ≤ 6, every λk-maximizing measure μ ∈ M c
+
+> +
+
+(Ω) is regular in the interior, that is, μ ∈ C∞(Ω) . The Hausdorff dimension of the singular set 
+
+sing μ = { p ∈ Ω | lim inf r→0 r2−dμ(Br(p)) > 0 } is at most d − 7, and this upper bound is sharp. 
+
+If the continuous domain Ω has a rectifiable boundary (equivalently, Hd−1(∂Ω) < ∞), we define 
+
+σk(Ω) = λk(Ω , Hd−1|∂Ω) and σk(Ω) = σk(Ω) Hd−1(∂Ω) ,
+
+which is the usual variational definition of the Steklov eigenvalues. Note that in the continuous context, the Steklov spectrum need not be discrete (see, for example, [NT]). When Ω is Lipschitz and μ ∈ M +(∂Ω) , then the (weak) eigenvalue problem ∆u = λuμ is equivalent to {∆u|Ω = 0 ,∂nu |∂Ω = λuμ, 
+
+4where ∂n denotes differentiation in the direction of the outward-pointing unit normal vector n to ∂Ω, and ∂nu is defined in the weak sense ( ∆u|Ω = 0 ∈ H10 (Ω) ∗). This motivates the following weighted Steklov optimization problems: 
+
+Σk(Ω , g ) = sup 
+
+> μ∈M c
+> +(∂Ω)
+
+λk(μ) and Σ∗
+
+> k
+
+(Ω , g ) = sup 
+
+> μ∈L1+(∂Ω)
+
+λk(μ).
+
+As for Λ∗
+
+> k
+
+, when Ω is smooth, we have that Σ∗
+
+> k
+
+(Ω , g ) = sup { σk(μ) | μ ∈ C∞ 
+
+> +
+
+(∂Ω) }, and in dimension 2, 
+
+Σ∗
+
+> k
+
+(Ω , g ) = Σ ∗
+
+> k
+
+(Ω , [g]) = sup 
+
+> ˜g∈[g]
+
+σk(˜ g).
+
+The existence and regularity results for Σ∗ 
+
+> k
+
+are well-known in dimension 2 [FS1; Pet3; Pet4; Vin1], and the existence part extends to higher dimensions (see [Vin2]). However, the existing proofs are as involved as those for Λ∗
+
+> k
+
+.Restricting the admissible measures to those supported on ∂Ω yields the Steklov eigenvalue maximization problem. We obtain a result analogous to Theorem 1.1, which allows one to work with Σk instead of Σ∗
+
+> k
+
+.
+
+Theorem 1.6. Let Ω ⊂ M be a Lipschitz domain in a Riemannian manifold (M, g ) of dimension d ≥ 2, ∂Ω̸ = ∅, and let μ ∈ M c
+
+> +
+
+(∂Ω) be such that λk(μ) = Σ k(Ω , g ). Then there exists a free boundary harmonic map u ∈ H1(Ω , B∞) whose components are the kth eigenfunctions ( ∆u = λkuμ ) such that λkμ = |∂nu| ∈ L1(∂Ω) .If Ω is smooth and either d = 2 or H1(Ω) → L2(μ) is compact, we have u ∈ C∞(Ω , Bn)
+
+for some Bn ⊂ B∞.
+
+Here, by a (weakly) free boundary harmonic map into B∞, we mean a map u ∈
+
+H1(Ω , B∞) satisfying u(∂Ω) ⊂ S∞ and 
+
+> ∫
+> Ω
+
+⟨du, dv⟩ = 0 ∀v ∈ L∞ ∩ H1(Ω , ℓ 2) s.t. v(x) ∈ Tu(x)S∞ for a.e. x ∈ ∂Ω. (1.2) 
+
+Remark 1.7 (On the regularity of maximizing harmonic maps) . The regularity con-clusions of Theorems 1.1 and 1.6 can most likely be strengthened up to the boundary of Ω (at least when Ω is smooth), as the following reasoning suggests. For each pair of manifolds S ⊂ N , we can define (weakly) harmonic maps u ∈ H1(Ω , N ) with respect to the free boundary condition u(∂Ω) ⊂ S as critical points of the energy functional on the class of maps ˜u satisfying ˜u(∂Ω) ⊂ S (see, for example, [DS; Sch1]). One checks that maximizing maps in Theorems 1.1 and 1.6 are free boundary harmonic maps with 
+
+(S, N ) = ( S∞, S∞) and (S, N ) = ( S∞, R∞), respectively. In both cases, the maps are locally stable and therefore locally energy-minimizing (as in [Vin2, Lemma 5.5]). This suggests that the regularity theory for free boundary harmonic maps into S∞ and R∞ = ℓ2 should coincide with the corresponding theory for finite-dimensional targets Sn and Rn (by analogy with [Vin2, Section 5] for ∂Ω = ∅). On the other hand, we know (for example, from [DS]) that for energy-minimizing free boundary harmonic maps into finite-dimensional targets, the Hausdorff dimension of 
+
+sing u is at most d − 3. Furthermore (see [DS, Remark 4.3] and [HW]), even stronger regularity results may be obtained if one proves the nonexistence of nontrivial stable free boundary harmonic maps in C∞(Sm 
+
+> +
+
+, S∞) and C∞(Sm 
+
+> +
+
+, B∞), respectively. 5Remark 1.8. As in Remark 1.2, the global maximizing assumption in Theorem 1.6 may be weakened to local maximality. For the Steklov problem, we restrict our attention to Lipschitz domains rather than merely continuous ones, as we need to ensure the existence of at least one measure ν ∈ M c
+
+> +
+
+(∂Ω) such that supp ν = ∂Ω and the canonical map 
+
+H1(Ω) → L2(ν) is compact; for example, ν = Hd−1|∂Ω.We also use the Lipschitz condition to prove that ∂nu ∈ L1(∂Ω, ℓ 2). In fact, a similar argument can be used (see Remark 3.2) to show that ∂nu ∈ L1 for any weakly harmonic map u ∈ H1(Ω , N ) with respect to the free boundary condition u(∂Ω) ⊂ S.
+
+1.2 Existence of λk-maximizing harmonic maps via the weak-∗ stability of maximizing measures 
+
+In this section, we present a simple scheme for proving the existence of maximizers in appropriate eigenvalue optimization problems. In the context of Λ∗ 
+
+> k
+
+and Σ∗
+
+> k
+
+, it yields a substantially shorter proof than the existing approaches. To prove the existence of harmonic maps realizing Λ∗
+
+> k
+
+(Ω , g ), existing approaches [NS; Pet2; KNPP2; KS2; KS1; Pet4; Vin1; Vin2] begin with an appropriately chosen maximizing sequence and then establish convergence with sufficient regularity to ensure that the limit belongs to the desired class. Instead of analyzing maximizing subsequences, we follow the idea in Remark 1.17 and analyze their weak limits or, to be more precise, the maximizers for Λk(Ω , g ). We do so with the following two observations in mind: 
+
+• μ 7 → λk(μ) is upper semicontinuous with respect to the weak-∗ convergence of measures; 
+
+• under certain conditions on Λ∗
+
+> k
+
+(Ω , g ), a bubbling analysis along a maximizing sequence (see, for example, [Vin1; Vin2]) shows that if μn ∈ M c
+
+> +
+
+(Ω) , μn(Ω) = 1 ,and λk(μn) → Λ∗
+
+> k
+
+(Ω , g ), then, up to a subsequence, μn w∗
+
+→ μ ∈ M c
+
+> +
+
+(Ω) , that is, the limit μ is also continuous, and hence λk(μ) = Λ ∗
+
+> k
+
+(Ω , g ).Therefore, maximizing measures enjoy a weak-∗ stability property: every maximizing sequence admits a subsequence converging weak-∗ to a maximizer . More generally, the superlevel sets of λk are weak-∗ stable (see Remark 3.4). One then shows that μ ∈
+
+Bil [H1(Ω)] , so one can apply Corollary 1.20 to compute ∂cλk(μ + 0) and thereby obtain the existence of a harmonic map inducing μ (Theorems 1.1 and 1.6). Set E[u] = ∫ 
+
+> Ω
+
+|du|2.
+
+Corollary 1.9. Let Ω ⊂ M be a bounded continuous domain in a Riemannian manifold 
+
+(M, g ) of dimension d ≥ 2. Then Λk(Ω , g ) = Λ ∗
+
+> k
+
+(Ω , g ). Moreover, suppose that one of the following conditions is satisfied: 
+
+• d ≥ 3,
+
+• d = 2 and Λk(Ω , [g]) > Λk−1(Ω , [g]) + 8 π.If {μn} ⊂ M c
+
+> +
+
+(Ω) is a sequence of probability measures such that λk(μn) → Λk(Ω , g ),then there exists a probability measure μ = 1 
+
+> E[u]
+
+|du|2 ∈ L1+(Ω) , induced by a map u as in Theorem 1.1, such that λk(μ) = Λ k(Ω , g ) and, up to a subsequence, μn w∗
+
+→ μ.
+
+6See also [KNPS] for complementary stability results, including the case of S2.
+
+Remark 1.10. In dimension 2, Petrides [Pet1] proved that one always has Λ1(Ω , [g]) > 8π
+
+for a closed surface Ω that is not homeomorphic to S2. Therefore, Λ1(Ω , [g]) is always realized by a harmonic map to a sphere (even when Ω ≈ S2, in which case the realizing map may be taken to be id S2 ). 
+
+Corollary 1.11. Let Ω ⊂ M be a bounded Lipschitz domain in a Riemannian manifold 
+
+(M, g ) of dimension d ≥ 2 and ∂Ω̸ = ∅. Then Σk(Ω , g ) = Σ ∗
+
+> k
+
+(Ω , g ). Moreover, suppose that one of the following conditions is satisfied: 
+
+• d ≥ 3,
+
+• d = 2 and Σk(Ω , [g]) > Σk−1(Ω , [g]) + 2 π.If {μm} ⊂ M c
+
+> +
+
+(∂Ω) is a sequence of probability measures such that λk(μm) → Σk(Ω , g ),then there exists a probability measure μ = 1 
+
+> E[u]
+
+|∂nu| ∈ L1+(∂Ω) , induced by a map u as in Theorem 1.6, such that λk(μ) = Σ k(Ω , g ) and, up to a subsequence, μm w∗
+
+→ μ.
+
+Remark 1.12. Since Σk(Ω , g ) = Σ ∗
+
+> k
+
+(Ω , g ) and Λk(Ω , g ) = Λ ∗
+
+> k
+
+(Ω , g ), it follows from the known facts about Λ∗ 
+
+> k
+
+and Σ∗ 
+
+> k
+
+(see also the proofs of the corollaries) that for d = 2 ,
+
+Λk(S2) = 8 πk, Λk(Ω , [g]) ≥ Λk−1(Ω , [g]) + 8 π
+
+and 
+
+Σk(D2) = 2 πk, Σk(Ω , [g]) ≥ Σk−1(Ω , [g]) + 2 π
+
+for all k ≥ 1.In dimension 2, every bounded continuous domain Ω ⊂ M is conformal to Ω∗ \ ⋃si=1 D2
+
+> i
+
+for some closed surface Ω∗, obtained by smoothly gluing disks to a neighborhood of 
+
+∂Ω ⊂ Ω and uniquely determined up to homeomorphism. We can therefore always assume that the conformal class [g] on Ω is the restriction of a conformal class on Ω∗.Since Λk(Ω , g ) = Λ k(Ω , [g]) depends only on the conformal class [g]|Ω, it is natural to compare Λk(Ω , [g]) and Λk(Ω ∗, [g]) :
+
+Corollary 1.13. Let Ω be a bounded continuous domain in a compact connected Rie-mannian manifold (M, g ) and k ≥ 1.
+
+• Then λk(Ω , μ ) < Λk(Ω , g ) for all μ ∈ M c
+
+> +
+
+(Ω) with Ω \ supp μ̸ = ∅.
+
+• In particular, if Ω̸ = M , then λk(Ω , μ ) < Λk(M, g ) for all μ ∈ M c
+
+> +
+
+(Ω) .Furthermore, let dim Ω = 2 , ∂Ω̸ = ∅, and Ω ≈ Ω∗ \ ⋃si=1 D2 
+
+> i
+
+, where (Ω ∗, [g]) is a closed surface as above. 
+
+• If Ω∗ ≈ S2, then Λk(Ω , [g]) = Λ k(Ω ∗, [g]) = 8 πk .
+
+• If Ω∗̸ ≈ S2, then Λk(Ω , [g]) < Λk(Ω ∗, [g]) .
+
+Taking supp μ ⊂ ∂Ω, we obtain the strict inequality between weighted Steklov eigen-values and Λk(Ω , g ).71.3 Abstract differentiation of variational eigenvalues 
+
+The preceding results follow from the first-variation formula developed in this section. Let H be a Hilbert space and Lsa [H] be the space of bounded self-adjoint operators on 
+
+H. For an operator S ∈ Lsa [H], we define its kth variational eigenvalue as 
+
+λk(S) = sup   
+
+> dim V=k
+
+inf  
+
+> x∈V\{ 0}
+
+⟨Sx, x ⟩∥x∥2 ,
+
+where, by convention, λ0(S) := ∞. The eigenvalues {λk(S)}k≥1 constitute precisely the upper part of the spectrum σ(S), and one of the following two alternatives occurs: 
+
+{λk(S)}∞ 
+
+> k=1
+
+= σ(S) ∩ (σ∗, ∞) and λk(S) ↘ σ∗,
+
+where σ∗ = sup σess (S), or 
+
+{λk(S)}∞ 
+
+> k=1
+
+= σ(S) ∩ [σ∗, ∞) with λk0 (S) = λk0+1 (S) = · · · = σ∗
+
+for some k0.Recall that the dual of the space of (self-adjoint) compact operators Ksa [H] is the space of (self-adjoint) trace-class operators Nsa [H]. Furthermore, Nsa [H]∗ = Lsa [H].Trace-class operators are also known as nuclear operators in the theory of operator ideals on Banach spaces, and this viewpoint appears useful in eigenvalue optimization (see, for example, [Vin3]). Consider an abstract eigenvalue optimization problem on a bounded subset of positive compact operators (so that σ∗ ≡ 0): 
+
+λk(S) → min , S ∈ S ⊂ K+[H]. (1.3) The kth eigenvalue functional is Lipschitz on K+[H] (and even on Lsa [H]). Therefore, if S ∈ S is a local minimizer of λk, one can study its properties using the Clarke subdifferential and the method of Clarke multipliers; see, for example, [Cla, Theorem 1] and Section 2.2. Unfortunately, the minimum in problem (1.3) may not exist in the class of compact operators, since bounded subsets of K[H] are not necessarily compact (even in the weak topology). Eigenvalue optimization on high-dimensional spheres (see [Vin2, Theorem 1.8]) provides an example of this phenomenon. On the other hand, the functional S 7 → λk(S) is lower semicontinuous with respect to the weak operator topology. Thus, minimizers always exist in the weak-∗ closure 
+
+Sw∗
+
+⊂ Lsa [H] = Ksa [H]∗∗ . Therefore, the following theorem shows that the method of Clarke multipliers remains applicable, even when S ∈ Lsa [H] \ Ksa [H].
+
+Theorem 1.14. Let S ∈ Lsa [H], and let its kth variational eigenvalue satisfy λk(S) <λk−1(S). Then the Clarke subdifferential ∂cλk(S) ⊂ Lsa [H]∗ of the Lipschitz function 
+
+λk : Lsa [H] → R at S is given by 
+
+∂cλk(S) = 
+
+> {
+
+φ ∈ Lsa [H]∗ ∣∣∣ ∥φ∥ = 1 , φ ≥ 0, supp φ ⊂ E(λk −ε,λ k ](S) ∀ε > 0
+
+> }
+
+= ⋂
+
+> ε> 0
+
+co w∗ {
+
+x ⊗ x 
+
+> ∣∣∣
+
+x ∈ E(λk −ε,λ k ](S), ∥x∥ = 1 
+
+> }
+
+.
+
+8Here, E(λk −ε,λ k ](S) is the image of the spectral projection χ(λk −ε,λ k ](S), and co w∗
+
+A
+
+stands for the weak-∗ closure of the convex hull of A.Theorem 1.14 generalizes the well-known subdifferential formulas for eigenvalues of compact operators (see, for example, [BRLZ]) or for eigenvalues of finite multiplicity (see Proposition 2.4). Sometimes, we deal with a parametric eigenvalue optimization problem: for a function f : E → Lsa [H], one considers 
+
+(λk ◦ f )( p) → min , p ∈ P ⊂ E. 
+
+Combining the chain rule (Proposition 2.1) and Theorem 1.14 with standard properties of continuous maps, closures, and intersections, yields the following 
+
+Corollary 1.15. Let E be a Banach space, and let f : E → Lsa [H] be a C1 map defined on a neighborhood of p ∈ E. If λk(f (p)) < λ k−1(f (p)) , then ∂c(λk ◦ f )( p) ⊂ E∗ satisfies 
+
+∂c(λk ◦ f )( p) ⊂ ⋂
+
+> ε> 0
+
+co w∗ {
+
+dpf ∗(x ⊗ x) 
+
+> ∣∣∣
+
+x ∈ E(λk −ε,λ k ](f (p)) , ∥x∥ = 1 
+
+> }
+
+.
+
+See (1.7) , (3.4) , and (3.6) for some explicit computations of ∂c(λk ◦ f )( p). Observe that in these computations, we consider only compact perturbations of the original operator, which appear to be precisely what is needed in applications: 
+
+Corollary 1.16. In the context of Theorem 1.14, consider the function K 7 → λk(S + K),where K ∈ Ksa [H]. Then its Clarke subdifferential ∂cλk(S + 0) ⊂ Nsa [H] satisfies the inclusion 
+
+∂cλk(S + 0) ⊂ 
+
+> {∞∑
+> i=1
+
+xi ⊗ xi 
+
+> ∣∣∣∣∣
+
+xi ∈ Eλk (S), ∑
+
+> i
+
+∥xi∥2 ≤ 1
+
+> }
+
+.
+
+That is, ∂cλk(S + 0) is contained in the unit ball of positive trace-class operators supported on Eλk .
+
+Note that if λk(S) ∈ σess (S), then K = 0 is a local minimum for K 7 → λk(S + K) and 
+
+0 ∈ ∂cλk(S + 0) , since compact perturbations do not change the essential spectrum. 
+
+Remark 1.17 (On proving the existence of global minimizers) . The application of this corollary, presented in Section 1.2, can be described as follows. Suppose we are looking for minimizers of the problem (1.3) . As noted above, we know that there always exists a global minimizer of the relaxed problem 
+
+λk(S) → min , S ∈ S w∗
+
+⊂ L+[H].
+
+If S0 ∈ S w∗
+
+is such a minimizing operator, the Clarke multiplier rule implies that 
+
+0 ∈ ∂cλk(S0) + NK(S0), (1.4) where K = ( S0 + Ksa [H]) ∩ S w∗
+
+and NK(S0) is the Clarke normal cone of K at S0 (see [Cla]). If we are able to prove that (1.4) implies S0 ∈ S , then S0 is a global minimizer for the original problem (1.3) as well. 9Let Herm [H], Herm c [H] ⊂ Bil [H, H ] be the subspaces of bounded and compact Hermitian bilinear forms on H × H, respectively, where H denotes the conjugate Hilbert space of H. Note that 
+
+Herm [H] ≈ Lsa [H], Herm c [H] ≈ Ksa [H], and Bil [H, H ] ≈ L[H],
+
+although these isomorphisms depend on the choice of inner product on H. The canonical duality identities are 
+
+Bil c[H, H ]∗ = Ĥ ⊗πH, (Ĥ ⊗πH)∗ = Bil [H, H ]
+
+and 
+
+Herm c [H]∗ = ( Ĥ ⊗πH)sym , (Ĥ ⊗πH)∗ 
+
+> sym
+
+= Herm [H],
+
+where ̂ ⊗π denotes the projective tensor product (see Section 2.1) and the subscript sym 
+
+denotes the subspace of symmetric tensors. For a, b ∈ Herm [H] such that b ≥ 0 and ker b ∩ ker a = {0}, we define variational eigenvalues λk(a, b) ∈ [−∞ , ∞] as follows: 
+
+λk(a, b) = inf   
+
+> Vk⊂D
+
+sup  
+
+> x∈Vk\{ 0}
+
+a[x]
+
+b[x] , (1.5) where Vk ranges over all k-dimensional subspaces of a dense subspace D ⊂ H, and we identify each bilinear form with its associated quadratic form, writing a[x] := a[x, x ].Recall that bilinear forms on H × H may be identified with bounded linear operators 
+
+a, b : H → H∗ ≈ H, where the isomorphism is given by the inner product. In applications, we often deal with eigenvalues of two quadratic forms (1.5) , and the associated operator often has no convenient explicit representation. Hence, the following version of Theorem 1.14 for quadratic forms is also of independent interest. 
+
+Theorem 1.18. Let a, b ∈ Herm [H] be such that 
+
+• σess (a) ⊂ (0 , ∞),
+
+• b ≥ 0, and ker b ∩ { x ∈ H | a[x] ≤ 0 } = {0}.Then a + cb ≥ 1 
+
+> c
+
+∥·∥ 2 and (λk(a, b) + c)−1 = λk(T ) for T = ( a + cb)−1b ∈ Lsa [H]
+
+and some c > 0, where H is equipped with the inner product a + cb. Furthermore, if 
+
+λk−1(a, b) < λ k(a, b) and rk b ≥ k, then the function (a′, b′) 7 → − λk(a′, b′) has a Lipschitz extension to a neighborhood of (a, b) ∈ (Herm [H]) ×2, and its Clarke subdifferential 
+
+∂c(−λk)( a, b) ⊂ (Herm [H]∗)×2 satisfies the inclusion 
+
+∂c(−λk)( a, b) ⊂ ⋂
+
+> ε> 0
+
+co w∗ {
+
+(−x ⊗ x, λ kx ⊗ x) 
+
+> ∣∣∣
+
+x ∈ E[λk ,λ k +ε)(a, b), b[x] = 1 
+
+> }
+
+,
+
+where λk = λk(a, b).
+
+10 Remark 1.19. The condition σess (a) ⊂ (0 , ∞) is equivalent to the existence of a form 
+
+r ∈ Herm c [H] such that r + a ≥ ε ∥·∥ 2 for some ε > 0, as one can verify by using the spectral decomposition of a = a+ −a−. In particular, there is an orthogonal decomposition 
+
+H = Eσ(a)>0 ⊕ Eσ(a)≤0, and ker a+ = Eσ(a)≤0 is finite dimensional. Restricting to compact perturbations again yields 
+
+Corollary 1.20. In the context of Theorem 1.18, the function (s1, s2) 7 → − λk(a+s1, b+s2)
+
+has a Lipschitz extension to a neighborhood of (0 , 0) ∈ (Herm c [H]) ×2, and its Clarke subdifferential ∂c(−λk)( a + 0 , b + 0) ⊂ (Ĥ ⊗πH)×2 
+
+> sym
+
+satisfies the inclusion 
+
+∂c(−λk)( a + 0 , b + 0) ⊂
+
+{
+
+(−τ , λ kτ )
+
+∣∣∣∣∣ τ =
+
+> ∞
+
+∑
+
+> i=1
+
+xi ⊗ xi, x i ∈ Eλk (a, b), b[τ ] ≤ 1
+
+}
+
+,
+
+where b[x ⊗ y] := b[x, y ].Example 1.21 . Consider a bounded Lipschitz domain Ω in a Riemannian manifold (M, g ).Let μ be a positive measure and ν be a signed measure such that μ, ν ∈ Bil [H1(Ω)] ,
+
+supp μ ∪ supp ν+ = Ω , and H1(Ω) → L2(Ω , ν −) is compact, where ν = ν+ − ν−. Then Theorem 1.18 and Corollary 1.20 apply to the following variational eigenvalue problem: 
+
+λk(ν, μ ) = inf  
+
+> Vk⊂Lip(Ω)
+
+sup  
+
+> φ∈Vk\{ 0}
+
+∫ 
+
+> Ω
+
+|dφ|2 + ∫ 
+
+> Ω
+
+φ2dν
+
+∫ 
+
+> Ω
+
+φ2dμ .
+
+In particular, this includes a weighted Robin eigenvalue problem 
+
+{∆u|Ω = λuμ ∂nu |∂Ω + uν = 0 (1.6) if we require supp ν ⊂ ∂Ω and μ(∂Ω) = 0 . In that case, Corollary 1.20 and Proposition 2.1 imply that the subdifferential of the function (ρ, ϱ ) 7 → − λk(ν + ρ, μ + ϱ), where (ρ, ϱ ) ∈
+
+L∞(∂Ω) × L∞(Ω) , satisfies 
+
+∂c(−λk)( ν + 0 , μ + 0) 
+
+⊂
+
+{ (
+
+− | u|2 ∣∣∂Ω, λ k |u|2) ∣∣∣∣ u ∈ H1(Ω , ℓ 2) solving (1.6) with λ = λk,
+
+∫
+
+> Ω
+
+|u|2 dμ ≤ 1
+
+}
+
+.
+
+(1.7) See also Section 2.4 for a criterion ensuring that μ ∈ Bil [H1(Ω)] .
+
+1.4 Discussion of an extension to p-harmonic map optimization 
+
+As noted above, Theorem 1.1 is an improvement of [Vin3, Theorem 1.1] for λk(μ)-maximization; that theorem additionally assumes that μ ∈ L1+(Ω) . However, [Vin3, Theorem 1.1] also applies to the optimization of λk,p (ν, μ ), where ν ∈ Lp/ (p−2) + (Ω) ,
+
+p ∈ [2 , d ],
+
+λk(ν, μ ) = inf 
+
+> Vk+1 ⊂C∞(Ω)
+
+sup 
+
+> φ∈Vk+1 \{ 0}
+
+∫ |dφ |2 dν
+
+∫ φ2dμ ,
+
+11 and 
+
+λk,p (ν, μ ) = λk(ν, μ ) μ(Ω) 
+
+∥ν∥L
+
+> pp−2
+
+.
+
+The critical measures for λk,p (ν, μ ) correspond to p-harmonic maps into spheres. Moreover, the case p = d corresponds to optimization within the conformal class [g] (see [Vin3]): 
+
+λk,d (ρd−2, ρ d) = λk(ρ2g) Vol ρ2g(Ω) 2/d .
+
+Thus, it is tempting to extend Theorem 1.1 to the case of p-harmonic maps. To apply Corollaries 1.16 and 1.20 effectively, one needs sufficiently many compact perturbations that keep the operator within the constraint set. In particular, in the proof of Theorem 1.1, it is essential that we have enough compact perturbations of measures with respect to the underlying Hilbert space H1(Ω) . Indeed, every μ′ ∈ L∞(Ω) gives such a perturbation. The main difficulty with λk,p (ν, μ )-optimization is that one must now work with compact perturbations of μ on the Hilbert space 
+
+H1(Ω , μ, ν ) := 
+
+> {
+
+(φ, dφ ) 
+
+> ∣∣∣
+
+φ ∈ C∞(Ω)  
+
+> }L2(Ω ,μ )⊕L2(Ω ,ν,T ∗Ω)
+
+.
+
+Although H1(Ω , μ, 1) = H1(Ω) by Proposition 2.9 and Theorem 1.18 if λk(μ) > 0, the case of p-harmonic maps would require considering all the densities ν = |du|p−2 ∈ Lp/ (p−2) + (Ω) 
+
+induced by p-harmonic maps into spheres. For d ≥ 3, it remains open whether |du| can vanish on a set of positive Lebesgue measure, in which case we do not know whether the space H1(Ω , μ, ν ) admits sufficiently many compact perturbations. Another problem is that the variations of ν (that is, the variations of the Dirichlet energy) are never compact, so one cannot use Corollary 1.20 and must instead work directly with Theorem 1.18 and Corollary 1.15. 
+
+# 2 Preliminaries 
+
+Throughout the paper, all Hilbert spaces are assumed to be complex. The main results for real Hilbert spaces follow by complexification. 
+
+2.1 Projective tensor product 
+
+Let E and F be normed spaces. Let τ ∈ E ⊗ F be an element of the algebraic tensor product of E and F . Its projective norm is defined as 
+
+∥τ ∥π = inf  
+
+> { ∑
+
+∥xi∥ ∥ yi∥ 
+
+> ∣∣∣
+
+τ = ∑ xi ⊗ yi
+
+> }
+
+.
+
+The completion of E ⊗π F := ( E ⊗ F, ∥·∥ π) is denoted by Ê ⊗πF and is called the 
+
+projective tensor product of E and F . Note that Ê ⊗πF =̂ Ê ⊗π̂ F , where ̂ E and ̂ F are the corresponding completions. The projective tensor norm satisfies the universal property of the tensor product in the category of normed spaces: a bilinear map E × F → G is 12 continuous if and only if its linearization E ⊗π F → G is continuous and has the same norm. 
+
+E × F E ⊗π F
+
+G
+
+Taking G = K ∈ { R, C} gives the isometric identification 
+
+(Ê ⊗πF )∗ = Bil [E, F ].
+
+The algebraic tensor product E∗ ⊗ F is canonically identified with the space of finite-rank operators F[E, F ] ⊂ L[E, F ], where y∗ ⊗ x 7 → (v 7 → ⟨ v, y ∗⟩ x). This embedding extends continuously to a map E∗̂ ⊗πF → L[E, F ]; this extension is not injective in general. The image of this map, equipped with the corresponding quotient norm, is denoted by 
+
+N[E, F ], and the operators in N[E, F ] are called nuclear operators .Recall that for a complex vector space E, E denotes its complex conjugate; that is, scalar multiplication is defined by α · x := αx for x ∈ E. There is a canonical antilinear isometry E 7 → E. If E is the complexification of a real vector space, E = E1 ⊗R C, then the natural conjugation involution x 7 → x gives a canonical linear isometry E 7 → E.Let H be a complex Hilbert space. We identify H∗ with H via the Riesz representation theorem; namely, x corresponds to the functional y 7 → ⟨ y, x ⟩H . Under this identification, the inner product becomes a bilinear form ⟨· , ·⟩ : H × H → C, and we have the following isometries: 
+
+• Bil [H, H ] ∼= L[H] ∼= Bil [H, H ];
+
+• Ĥ ⊗πH ∼= N[H].The space of compact operators K[H] is a predual of N[H] (that is, K[H]∗ ≈ N[H])with duality pairing given by 
+
+(q, τ ) 7 → Tr qτ , q ∈ K[H], τ ∈ N[H],
+
+while L[H] = N[H]∗. Moreover, for τ ∈ N[H], the projective norm coincides with the trace norm: 
+
+∥τ ∥π = ∥τ ∥N = Tr √τ ∗τ .
+
+In particular, for a positive operator represented by a tensor τ = ∑ xi ⊗ xi, the norm is simply the trace: 
+
+∥τ ∥π = Tr τ = ∑ ∥xi∥2 .
+
+For a more detailed exposition of the projective tensor product, see, for example, [DF]. 13 2.2 Clarke subdifferential 
+
+Let E be a Banach space, R := R ∪ { +∞} , and let f : E → R be Lipschitz on a neighborhood of x ∈ E. Whenever f is originally defined only on a subset of E, we extend it by setting f (y) = + ∞ outside its domain. The Clarke directional derivative of f at x in the direction v ∈ E is defined by 
+
+f ◦(x; v) = lim sup  
+
+> ˜x→x,τ ↓0
+
+1
+
+τ [f (˜ x + τ v ) − f (˜ x)] .
+
+Since v 7 → f ◦(x; v) is sublinear and Lipschitz, it is the support function of a nonempty, convex, weak-∗ compact subset of E∗. The Clarke subdifferential ∂cf (x) is defined to be this subset. Namely, 
+
+∂cf (x) = { ξ ∈ E∗ | ⟨ ξ, v ⟩ ≤ f ◦(x; v) ∀v ∈ E }.
+
+The following properties of the Clarke subdifferential can be found, for example, in [Sch2, Sections 7.3, 7.4]: 
+
+• ∂cf (x)̸ = ∅ and ∂cf (x) ⊂ (Lip xf )BE∗ , where BE∗ ⊂ E∗ is the unit ball; 
+
+• ∂cf (x) is a convex and weak-∗ compact set; 
+
+• ∂c(αf )( x) = α∂ cf (x) for α ∈ R;
+
+• ∂c(f + g)( x) ⊂ ∂cf (x) + ∂cg(x);
+
+• ∂c(f g )( x) ⊂ g(x)∂cf (x) + f (x)∂cg(x) (follows from [Sch2, Theorem 7.4.5]); 
+
+• ∂cf (x) = {dxf } if f ∈ C1 on a neighborhood of x;
+
+• 0 ∈ ∂cf (x) if x is a local maximum or minimum. The Clarke subdifferential extends the notion of derivative to locally Lipschitz functions and retains many properties of derivatives that are useful in optimization. For applications of the Clarke subdifferential to critical metrics and eigenvalue optimization, see [PT; Vin2; Vin3]. The following chain rule can be found, for example, in [Vin1, Proposition 2.2]. 
+
+Proposition 2.1 (Chain rule) . Let G : F → E be a continuously Fréchet differentiable map between Banach spaces defined on a neighborhood of x ∈ F . If f : E → R is Lipschitz on a neighborhood of y = G(x) ∈ E, one has 
+
+∂c(f ◦ G)( x) ⊂ dxG∗[∂cf (y)] .
+
+In other words, the Clarke subdifferential commutes with pullbacks up to inclusion. 
+
+14 Proposition 2.2 ([Sch2, Propositions 4.6.2 and 7.3.9(d)]) . Let E be a Banach space, and ω(x) := ∥x∥. Then 
+
+∂cω(x) = 
+
+> {
+
+{ x∗ ∈ E∗ | ∥ x∗∥ = 1 , ⟨x, x ∗⟩ = ∥x∥ } if x̸ = 0 ,BE∗ x = 0 ,
+
+where BE∗ is the unit ball of E∗.
+
+The following proposition is a simplified version of [Sch2, Theorem 12.4.1] sufficient for our purposes (see also [Cla]). 
+
+Proposition 2.3 (Clarke’s Multiplier Rule) . Let E be a Banach space, and let f : E → R
+
+be a function that is Lipschitz on a neighborhood of x ∈ S, where S ⊂ E is a closed convex set. If x is a local minimum of f on S, then 
+
+∃x∗ ∈ ∂cf (x) : ⟨x − x, x ∗⟩ ≥ 0 ∀x ∈ S. 
+
+Note that for unbounded self-adjoint operators, eigenvalues are indexed in increasing order (from bottom to top). In contrast, for bounded operators, we will index the eigenvalues in decreasing order (from top to bottom), starting with k = 1 . The proof of the next proposition follows the arguments of [Vin2, Proposition 2.18] and [Vin1, Lemma 2.5] and uses only that λk(T ) is an isolated eigenvalue of finite multiplicity. 
+
+Proposition 2.4. If S ∈ Lsa [H] is a bounded operator with an isolated eigenvalue 
+
+λk(S) of finite multiplicity, then the Clarke subdifferential of λk : Lsa [H] → R at S,
+
+∂cλk(S) ⊂ Nsa [H] ⊂ Lsa [H]∗, is given by 
+
+∂cλk(S) = co { x ⊗ x | x ∈ Eλk (S), ∥x∥ = 1 },
+
+where co K denotes the convex hull of the set K.
+
+2.3 Dual functionals on L[H]
+
+In this section, we use T ∗ ∈ L[H] to denote the Hilbert-space adjoint of an operator 
+
+T ∈ L[H].We have Lsa [H] = { T ∈ L[H] | T ∗ = T }, and L[H] = Lsa [H] ⊗R C. Indeed, under the projection Re : L[H] → Lsa [H], T 7 → 12 (T + T ∗), every operator T ∈ L[H] admits a decomposition T = Re T + iRe (i−1T ); moreover, ∥T ∥ = sup |λ|=1 ∥Re( λT )∥. One readily checks that 
+
+Lsa [H]∗ = { φ ∈ L[H]∗ | φ∗ = φ }, (2.1) where φ∗(T ) := φ(T ∗) is the involution on L[H]∗ induced by the involution on L[H].Consequently, every ψ ∈ L[H]∗ can be written as ψ = Re ψ + iRe (i−1ψ), and Re ψ ∈
+
+Lsa [H]∗ is a self-adjoint functional (hence real-valued on Lsa [H]). Furthermore, every 
+
+φ ∈ Lsa [H]∗ can be decomposed uniquely as the difference of two positive functionals (a functional φ is positive if T ≥ 0 = ⇒ φ(T ) ≥ 0): 
+
+φ = φ+ − φ− such that ∥φ∥ = ∥φ+∥ + ∥φ−∥ ;
+
+15 see [KR, Theorem 4.3.6 and Remark 4.3.12]. For a self-adjoint functional φ ∈ Lsa [H]∗,we denote by |φ| ∈ Lsa [H]∗ the functional |φ| := φ+ + φ−. Hence φ ≤ | φ|.Recall that every Banach space E embeds isometrically into its bidual ιE : E ↪ → E∗∗ .By duality, there is also the canonical projection (ιE∗ ◦ ι∗ 
+
+> E
+
+) : E∗∗∗ ↠ E∗ ↪→ E∗∗∗ . It then follows that E∗∗∗ ≈ E∗ ⊕ E⊥, where E⊥ ⊂ E∗∗∗ is the subspace of functionals vanishing on E.
+
+Remark 2.5. If E∗∗∗ = E∗ ⊕1 E⊥, the subspace E ⊂ E∗∗ is called an M-ideal . This holds whenever E = K[H] is the space of compact operators on a Hilbert space H
+
+(with E∗∗ = L[H]); see [HWW, Example I.1.4(d)] or [Tak, Theorem III.2.14]. The same decomposition holds for self-adjoint operators by (2.1). A positive functional φ such that ∥φ∥ = 1 is called a state . Note that for a positive functional, φ(1) = ∥φ∥, since 1 ≥ T for every self-adjoint T with ∥T ∥ ≤ 1. Observe that for every state φ, the sesquilinear form (A, B ) 7 → φ(B∗A), where A, B ∈ L[H], is Hermitian and nonnegative definite. Consequently, the Cauchy–Schwarz inequality yields 
+
+|φ(A∗B)|2 ≤ φ(A∗A)φ(B∗B). (2.2) Let H1 ⊂ H be a closed linear subspace of H. We say that a functional ψ ∈ L[H]∗ is 
+
+supported on H1 and write supp ψ ⊂ H1 if 
+
+ψ(T ) = ψ(PH1 T P H1 ) ∀T ∈ L[H], (2.3) where PH1 is the orthogonal projection onto H1. Equivalently, ψ may be regarded as an element of L[H1]∗, extended to L[H] by (2.3). 
+
+Proposition 2.6. For a positive operator S ∈ L+[H]\{ 0}, consider the set of maximizing functionals 
+
+MS := { φ ∈ Lsa [H]∗ | ∥ φ∥ = 1 , φ (S) = ∥S∥ } .
+
+Let E(λ1−ε,λ 1] be the image of the spectral projection χ(λ1−ε,λ 1](S), where λ1 = ∥S∥. Then 
+
+MS =
+
+> {
+
+φ ∈ Lsa [H]∗ ∣∣∣ ∥φ∥ = 1 , φ ≥ 0, supp φ ⊂ E(λ1−ε,λ 1] ∀ε > 0
+
+> }
+
+. (2.4) 
+
+Proof. If φ ∈ MS , then ∥S∥ = φ(S) ≤ | φ| (S) ≤ ∥ φ∥ ∥ S∥ = ∥S∥. Therefore, φ−(S) = 0 .We then have that ∥S∥ = φ+(S) ≤ ∥ φ+∥ ∥ S∥ ≤ ∥ S∥. Thus, ∥φ+∥ = 1 , which yields 
+
+φ− = 0 . Thus MS lies in the set of states. Let P = χ(λ1−ε,λ 1](S) and Q = 1 − P ; then λ1 − S ≥ εQ . Hence, 0 ≤ εφ (Q) ≤
+
+λ1φ(1) −φ(S) = 0 , so φ(Q) = 0 . Given T ∈ L[H], write T = P T P + QT P + P T Q + QT Q 
+
+and use the Cauchy–Schwarz inequality (2.2) to conclude that φ vanishes on the last three terms. This proves the inclusion MS ⊂ · · · .To see that the opposite inclusion holds, take a state φ belonging to the right-hand side of (2.4) . Then, for every ε > 0, we have λ1 − ε ≤ P SP ≤ λ1, so φ(S) = φ(P SP ) ∈
+
+[λ1 − ε, λ 1].16 By [KR, Theorem 4.3.9(ii-iii)], the weak-∗ continuous states (that is, the positive nuclear operators of trace 1) are weak-∗ dense in the set of all states. In other words, 
+
+{ φ ∈ Lsa [H]∗ | ∥ φ∥ = 1 , φ ≥ 0 } = co w∗
+
+{ x ⊗ x | x ∈ H, ∥x∥ = 1 }.
+
+Applying this observation to H = E(λ1−ε,λ 1], we obtain 
+
+Corollary 2.7. In the context of Proposition 2.6, 
+
+MS = ⋂
+
+> ε> 0
+
+co w∗ {
+
+x ⊗ x
+
+∣∣∣ x ∈ E(λ1−ε,λ 1], ∥x∥ = 1 
+
+}
+
+.
+
+2.4 Measures as bilinear forms 
+
+Lemma 2.8. Let Ω ⊂ M be a domain in a Riemannian manifold (M, g ), and let 
+
+0̸ = μ ∈ M c
+
+> +
+
+(Ω) with λk(Ω , μ ) = 1 for some k > 0. Then, for every point p ∈ Ω, there exists a neighborhood U such that for all φ ∈ Lip(Ω) with supp φ ⊂ U ∩ Ω, one has 
+
+∫
+
+> Ω
+
+φ2dμ ≤
+
+∫
+
+> Ω
+
+|dφ|2 . (2.5) 
+
+Proof. Note that it suffices to prove (2.5) for supp φ ⊂ (U \ { p}) ∩ Ω, since discrete sets have zero capacity and μ({p}) = 0 .Arguing by contradiction, we can find a sequence of functions φi ∈ Lip (Ω) with disjoint supports supp φi ⊂ Ui ∩ Ω, where Ui := Bri (p) \ Bri+1 (p) and ri ↘ 0, such that 
+
+∫
+
+> Ω
+
+|dφi|2 −
+
+∫
+
+> Ω
+
+φ2 
+
+> i
+
+dμ < 0.
+
+This contradicts the variational characterization of λk(Ω , μ ) = 1 once k + 1 such functions have been constructed. Therefore, (2.5) holds if we take U := Brk+1 (p).
+
+Proposition 2.9. Let Ω ⊂ M be a bounded domain in a Riemannian manifold (M, g ),and let 0̸ = μ ∈ M c
+
+> +
+
+(Ω) . If Lip (Ω) is dense in H1(Ω) and λk(Ω , μ )̸ = 0 for some k > 0,then the measure μ induces a continuous bilinear form on H1(Ω) , that is, μ ∈ Bil [H1(Ω)] .Proof. By Lemma 2.8, every point p ∈ Ω has a neighborhood U such that for all 
+
+φ ∈ Lip(Ω) with supp φ ⊂ U ∩ Ω, one has 
+
+λk(Ω , μ )
+
+∫
+
+> Ω
+
+φ2dμ ≤
+
+∫
+
+> Ω
+
+|dφ|2 .
+
+A partition-of-unity argument with ∑ 
+
+> i
+
+η2 
+
+> i
+
+= 1 , supp ηi ⊂ Ui, and Ω ⊂ ⋃ 
+
+> i
+
+Ui, shows that for all φ ∈ Lip(Ω) ,
+
+λk(Ω , μ )
+
+∫
+
+> Ω
+
+φ2dμ ≤
+
+∫
+
+> Ω
+
+|dφ|2 + 12
+
+∑
+
+> i
+
+∫
+
+> Ω
+
+〈
+
+dη2 
+
+> i
+
+, dφ2〉
+
++ ∑
+
+> i
+
+∫
+
+> Ω
+
+φ2 |dηi|2 ,
+
+where the middle sum vanishes. Hence, there exists a constant C > 0 such that 
+
+λk(Ω , μ )
+
+∫
+
+> Ω
+
+φ2dμ ≤
+
+∫
+
+> Ω
+
+|dφ|2 + C
+
+∫
+
+> Ω
+
+φ2.
+
+17 Therefore, the canonical map Lip (Ω) → L2(Ω , μ ) extends uniquely to a continuous linear map H1(Ω) → L2(Ω , μ ). Integration with respect to μ will be understood via this map. 
+
+# 3 Proofs of the main results 
+
+3.1 Abstract setting 
+
+3.1.1 Theorem 1.14 
+
+By replacing S with S + c · 1 for sufficiently large c > 0, we may assume that S ≥ 0 and 
+
+λk(S) > 0.We begin with the case k = 1 . Then λ1(S′) = ∥S′∥ for any S′ ∈ Lsa [H] in a neighborhood of S. Combining Proposition 2.2 with Corollary 2.7, we prove the theorem for λ1. Namely, 
+
+∂cλ1(S) = 
+
+{
+
+φ ∈ Lsa [H]∗ ∣∣∣ ∥φ∥ = 1 , φ ≥ 0, supp φ ⊂ E(λ1−ε,λ 1](S) ∀ε > 0
+
+}
+
+= ⋂
+
+> ε> 0
+
+co w∗ {
+
+x ⊗ x
+
+∣∣∣ x ∈ E(λ1−ε,λ 1](S), ∥x∥ = 1 
+
+}
+
+.
+
+For k > 1, denote by PS the orthogonal projector onto the (finite-dimensional) space 
+
+⊕ 
+
+> λ>λ k
+
+Eλ, where Eλ = Eλ(S). Set QS := 1 − PS . Since PS is given by the contour integral of the resolvent over a curve enclosing all eigenvalues λ > λ k, we see that PS
+
+depends analytically on S. In particular, the map γ : S′ 7 → QS′ S′QS′ is of class C1 on a neighborhood of S ∈ Lsa [H]. Note that the differential of γ at S equals 
+
+(d S γ)( T ) = QS T Q S − (d S P )( T )SQ S − QS S(d S P )( T ), (3.1) and (d S P )( T ) satisfies QS (d S P )( T )QS = 0 , as follows from differentiating the identity 
+
+Q2 
+
+> S
+
+= QS and multiplying by QS on both sides. Then the condition 0 < λ k(S) < λ k−1(S) implies that 
+
+λk(S′) = λ1(QS′ S′QS′ ) = ∥∥QS′ S′QS′
+
+∥∥
+
+for S′ in a neighborhood of S. The inclusion ∂cλk(S) ⊂ · · · now follows from the case k = 1 , Proposition 2.1, and (3.1) , since E(λ1−ε,λ 1](QS SQ S ) = E(λk −ε,λ k ](S) and 
+
+dS γ∗(φ) = φ for φ supported on im Q S = E(−∞ ,λ k ](S):
+
+⟨T, dS γ∗(φ)⟩ = φ (d S γ(T )) = φ (QS (d S γ)( T )QS ) = φ (QS T Q S ) = φ(T ).
+
+To prove the reverse inclusion ∂cλk(S) ⊃ · · · , let H1 := E(−∞ ,λ k ](S) and consider the affine map ι : Lsa [H1] → Lsa [H], T 7 → QS T Q S + PS SP S . Then λ1(T ) = λk(ι(T )) for T
+
+in a neighborhood of QS SQ S ∈ Lsa [H1], and the chain rule (Proposition 2.1) implies 
+
+∂cλ1(QS SQ S ) ⊂ (d QS SQ S ι)∗[∂cλk(S)] = ∂cλk(S), since all the states φ ∈ ∂cλk(S) are supported on H1.18 3.1.2 Theorem 1.18 
+
+Let us prove that a + cb defines an equivalent inner product on H for some sufficiently large c > 0. Define an equivalent norm ∥x∥2 := a[x] + r[x], where r is as in Remark 1.19. If there is no such constant c > 0, we can find a sequence ∥xn∥ = 1 such that 
+
+a[xn] + nb[xn] < 1
+
+n . (3.2) Passing to a subsequence if necessary, we may assume that xnw
+
+→ x with ∥x∥ ≤ 1. Since 
+
+r is compact, one sees that 
+
+1/n > a[xn] = 1 − r[xn] → 1 − r[x] = a[x] + (1 − ∥ x∥2). (3.3) Hence a[x] ≤ 0. Then (3.2) also implies 
+
+nb[xn] ≤ ∥ xn∥2 + nb[xn] ≤ 1
+
+n + r[xn] ≤ C. 
+
+Hence 0 ≤ b[x] ≤ lim inf n b[xn] = 0 . By assumption, x ∈ ker b ∩ { x ∈ H | a[x] ≤ 0 }
+
+implies x = 0 , which contradicts (3.3). Therefore, there exists c > 0 such that a + cb ≥ 1 
+
+> c
+
+∥·∥ 2. We now equip H with the inner product a + cb, and for (a′, b′) in a neighborhood of (a, b) ∈ (Herm [H]) ×2, we obtain 
+
+1
+
+λk(a′, b′) + c = sup  
+
+> Vk⊂D
+
+inf 
+
+> x∈Vk
+
+b′[x](a′ + cb′)[ x] = λk
+
+(
+
+(A′ + cB ′)−1/2B′(A′ + cB ′)−1/2)
+
+,
+
+where A′, B ′ are the self-adjoint operators associated with the Hermitian forms a′, b′
+
+with respect to the inner product a + cb. In particular, B = ( a + cb)−1b and A + cB =1. Moreover, S := ( A′ − A) + c(B′ − B) lies in a neighborhood of 0 ∈ Lsa [H], so 
+
+(A′ + cB ′)−1/2 = (1 + S)−1/2 = 1 − 12 S + 38 S2 + · · · .The map f : ( a′, b′) 7 → (A′ + cB ′)−1/2B′(A′ + cB ′)−1/2 is analytic, and we have 
+
+d(a,b)f (ha, hb) = Hb − 12 (( Ha + cH b)B + B(Ha + cH b)) ,
+
+where ha and Ha are related via the inner product a+cb. Since λk−1(a, b) < λ k(a, b) < ∞,Corollary 1.15 yields 
+
+1(λk + c)2 ∂c(−λk) ( a, b)
+
+⊂ ⋂
+
+> ε> 0
+
+co w∗
+
+{ ( 
+
+− x ⊗ xλk + c , λkx ⊗ xλk + c
+
+) ∣ ∣∣∣ x ∈ E[λk ,λ k +ε)(a, b), b[x] = 1
+
+λk + c
+
+}
+
+.
+
+It remains to multiply both sides by (λk + c)2.
+
+Remark 3.1. In general, if we define the variational eigenvalues λk(a, b) as above and 
+
+a is an inner product, then there are two natural ways to construct an operator whose spectrum contains λ−1 
+
+> k
+
+(a, b). This can be done either by setting 
+
+T1 = a−1b = A−1B, or T2 = A−1/2BA −1/2,
+
+19 where A and B are the corresponding self-adjoint operators under the identification 
+
+H∗ ≈ H. The operator T1 appears to be the more canonical choice. However, T2 has the advantage of being self-adjoint. Indeed, T1 = A−1/2T2A1/2; hence σ(T1) = σ(T2).
+
+3.1.3 Corollaries 1.16 and 1.20 
+
+Let ι : Ksa [H] ↪→ Lsa [H] be the canonical embedding. Then the adjoint ι∗ : Lsa [H]∗ ≈
+
+Nsa [H] ⊕ Nsa [H]⊥ → Nsa [H] acts as the restriction map on Nsa [H]. Write E(λk −ε,λ k ] =
+
+E(λk −ε,λ k ](S), and use analogous notation for the remaining spectral subspaces. By applying Corollary 1.15 to K 7 → ι(K) + S, we obtain 
+
+∂cλk(S + 0) ⊂ ⋂
+
+> ε> 0
+
+co w∗ {
+
+x ⊗ x
+
+∣∣∣ x ∈ E(λk −ε,λ k ], ∥x∥ = 1 
+
+}
+
+⊂ ⋂
+
+> ε> 0
+
+{
+
+T ∈ N+[E(λk −ε,λ k ]]
+
+∣∣∣ ∥T ∥N ≤ 1
+
+}
+
+= { T ∈ N+[Eλk ] | ∥ T ∥N ≤ 1 },
+
+where the weak-∗ closures are taken in Nsa [H] and (d 0ι)∗(x⊗x) = x⊗x. The last equality follows from the fact that T ∈ ⋂ 
+
+> ε> 0
+
+N[E(λk −ε,λ k ]] =⇒ im T ⊂ ⋂ 
+
+> ε> 0
+
+E(λk −ε,λ k ] = Eλk .This completes the proof of Corollary 1.16. Corollary 1.20 is proved similarly, since we also have 
+
+τ ∈ ⋂
+
+> ε> 0
+
+E(λk −ε,λ k ]̂ ⊗πE(λk −ε,λ k ] =⇒ im τ ⊂ ⋂
+
+> ε> 0
+
+E(λk −ε,λ k ] = Eλk ,
+
+where we identify E(λk −ε,λ k ]̂ ⊗πE(λk −ε,λ k ] ≈ N[E(λk −ε,λ k ]] via the inner product on H.Hence, τ admits a spectral decomposition xi ∈ Eλk , τ = ∑ 
+
+> i
+
+xi ⊗ xi.
+
+3.2 Eigenvalues of measures 
+
+3.2.1 Theorem 1.1 
+
+Without loss of generality, we may assume that λk−1(μ) < λ k(μ). Indeed, if λk−1(μ) = 
+
+λk(μ) and ν ∈ M c
+
+> +
+
+(Ω) is arbitrary, then λk−1(ν) ≤ λk(ν) ≤ λk(μ) = λk−1(μ), which implies μ is also a maximizer for λk−1, so it suffices to replace k by k − 1.If λk(μ) = Λ k(Ω , g ) > 0, then μ ∈ Bil [H1(Ω)] by Proposition 2.9. In particular, there is a bounded linear map H1(Ω) → L2(μ) extending id : Lip (Ω) → L2(μ) and preserving the lattice structure. Let us rescale μ so that μ(Ω) = 1 . Consider the function L∞ 
+
+> +
+
+(Ω) ∋ ρ 7 → λk(μ + ρ) = 
+
+λk(μ + ρ)(1 + ∫ 
+
+> Ω
+
+ρ). If Ek(μ) ⊂ H1(Ω) denotes the kth eigenspace of ∆φ = λφμ , then the Leibniz rule, together with Corollary 1.20 and the chain rule, yields 
+
+∂c(−λk)( μ + 0) ⊂ λk ·
+
+{ ∑
+
+> i
+
+φ2 
+
+> i
+
+− 1
+
+∣∣∣∣∣ φi ∈ Ek(μ), ∑
+
+> i
+
+∫
+
+> Ω
+
+φ2 
+
+> i
+
+dμ ≤ 1
+
+}
+
+= λk ·
+
+{
+
+|u|2 − 1
+
+∣∣∣∣ u ∈ H1(Ω , ℓ 2), ∆u = λuμ, 
+
+∫
+
+> Ω
+
+|u|2 dμ ≤ 1
+
+}
+
+.
+
+(3.4) 20 Applying Proposition 2.3 with S = L∞ 
+
+> +
+
+(Ω) and x = 0 , we conclude that there exists 
+
+u ∈ H1(Ω , ℓ 2) such that ∆u = λkuμ , ∫ 
+
+> Ω
+
+|u|2 dμ ≤ 1, and 
+
+> ∫
+> Ω
+
+(|u|2 − 1) ρ ≥ 0 ∀ρ ∈ L∞ 
+
+> +
+
+(Ω) .
+
+Therefore, |u| ≥ 1 in H1(Ω) and L2(μ). Combining this with ∫ 
+
+> Ω
+
+|u|2 dμ ≤ 1, we see that 
+
+|u| = 1 in L2(μ). Since d |u| = u 
+
+> |u|
+
+· du and 
+
+⟨d |u| , dφ⟩ =
+
+> 〈
+
+du, u
+
+|u| dφ
+
+> 〉
+
+=
+
+> 〈
+
+du, d 
+
+> (
+
+u
+
+|u| φ
+
+> )〉
+
+− φ
+
+> 〈
+
+du, d 
+
+> (
+
+u
+
+|u|
+
+> )〉
+
+,
+
+we obtain the following form of the weak maximum principle: 
+
+> ∫
+> Ω
+
+⟨d |u| , dφ⟩ ≤ λk
+
+> ∫
+> Ω
+
+|u| φdμ ∀φ ∈ Lip +(Ω) . (3.5) This inequality extends to every φ ∈ H1+(Ω) ; testing it against |u| − 1 ≥ 0 gives 
+
+0 ≤
+
+> ∫
+> Ω
+
+|d |u|| 2 ≤ λk
+
+> ∫
+> Ω
+
+(|u| − 1) |u| dμ = 0 .
+
+Thus, |u| = 1 in H1(Ω) . Now, we can test the equation ∆u = λkuμ against φu , where 
+
+φ ∈ Lip(Ω) . Since u · du = 0 , we obtain 
+
+> ∫
+> Ω
+
+φ |du|2 = λk
+
+> ∫
+> Ω
+
+φdμ ∀φ ∈ Lip(Ω) .
+
+Hence, λkμ = |du|2 ∈ L1(Ω) and u is harmonic up to the boundary, that is, ∆u = |du|2 u
+
+in Lip(Ω) ∗.The interior regularity of u then follows from (2.5) and [Vin2, Lemma 5.5, Theo-rem 5.14, Corollary 1.3]. If we additionally assume that H1(Ω) → L2(μ) is compact, we automatically obtain im u ⊂ Sn because of the compactness of the operator T from Theorem 1.18 and, consequently, finite multiplicity of the eigenvalues. By considering w ∈ H1(U, S∞) such that supp (w − u|U ) ⊂ U ∪ ∂Ω, as in [Vin2, Lemma 5.5], and U is from Lemma 2.8, one checks that [Vin2, Lemma 5.5] generalizes up to the boundary. Hence, the harmonic map u is locally energy-minimizing with respect to the free boundary condition u(∂Ω) ⊂ Sn. By the compactness of H1(Ω) → L2(μ)
+
+(see [Maz, Section 11.9.1]), we have lim inf r→0 r2−dμ(Br(p)) = 0 (we assume d ≥ 2), and hence u is smooth in the interior of Ω by the standard regularity theory [HW] (cf. also [KS1, Proposition 4.7]). If ∂Ω is smooth, then lim inf r→0 r2−dμ(Br(p)) = 0 even for 
+
+p ∈ ∂Ω. As u is a stationary harmonic map into Sn with respect to the free boundary condition u(∂Ω) ⊂ Sn, the regularity theory from [Sch1] implies that u is smooth up to the boundary. 21 3.2.2 Theorem 1.6 
+
+The proof is very similar to that of Theorem 1.1 except that the analogous variational argument is carried out with measures supported on the boundary. Accordingly, consider the function L∞ 
+
+> +
+
+(∂Ω) ∋ ρ 7 → λk(μ + ρ) = λk(μ + ρ)(1 + ∫ 
+
+> ∂Ω
+
+ρ). The subdifferential similarly satisfies 
+
+∂c(−λk)( μ+0) ⊂ λk ·
+
+{
+
+|u|2 ∣∣∂Ω − 1
+
+∣∣∣∣ u ∈ H1(Ω , ℓ 2), ∆u = λuμ, 
+
+∫
+
+> ∂Ω
+
+|u|2 dμ ≤ 1
+
+}
+
+. (3.6) Then Proposition 2.3 with S = L∞ 
+
+> +
+
+(∂Ω) yields a map u ∈ H1(Ω , ℓ 2) such that ∆u = λkuμ ,
+
+∫ 
+
+> ∂Ω
+
+|u|2 dμ ≤ 1, and ∫
+
+> ∂Ω
+
+(|u|2 − 1) ρ ≥ 0 ∀ρ ∈ L∞ 
+
+> +
+
+(∂Ω) .
+
+Analogously, |u| ≥ 1 in L2(∂Ω) and |u| = 1 in L2(∂Ω, μ ). The maximum principle in the form of (3.5) can be deduced for any eigenmap ∆u = λkuμ by approximating u/ |u| with 
+
+vε := u/ (ε + |u|2)1/2 ∈ H1(Ω) . We may therefore test (3.5) against (|u| − 1) + to obtain 
+
+0 ≤
+
+∫
+
+> {| u|≥ 1}
+
+|d |u|| 2 ≤ λk
+
+∫
+
+> ∂Ω
+
+(|u| − 1) + |u| dμ = 0 .
+
+Hence, |u| ≤ 1 on Ω and |u| = 1 on ∂Ω.Let H : C0(∂Ω) → C0(Ω) ∩ C∞(Ω) be the harmonic extension operator, and let 
+
+φ ∈ Lip( ∂Ω) . Then H(φ) ∈ H1 ∩ C0(Ω) and 
+
+λk
+
+∫
+
+> ∂Ω
+
+φdμ =
+
+∫
+
+> ∂Ω
+
+⟨u, u H(φ)⟩ dμ =
+
+∫
+
+> Ω
+
+⟨du, d( uH(φ)) ⟩
+
+=
+
+∫
+
+> Ω
+
+H(φ) |du|2 + 12
+
+∫
+
+> Ω
+
+〈
+
+dH(φ), d |u|2〉
+
+,
+
+where the last integral vanishes, since |u|2 − 1 ∈ H10 (Ω) . Therefore, 
+
+λk
+
+∫
+
+> ∂Ω
+
+φdμ =
+
+∫
+
+> Ω
+
+H(φ) |du|2 ∀φ ∈ Lip( ∂Ω) = ⇒ λkμ = H∗(|du|2). (3.7) By Lemma 3.3, μ ∈ L1(∂Ω) . Recall that ∆u = λkuμ in H1(Ω) ∗ means that ∆u|Ω = 0 
+
+and ∂nu|∂Ω = λkuμ ∈ L1(∂Ω, ℓ 2), and we have |∂nu| = ⟨∂nu, u ⟩ = λkμ. Clearly, 
+
+u is free boundary harmonic in the sense of (1.2) , since ⟨u, v ⟩ = 0 a.e. on ∂Ω if 
+
+v(x) ∈ Tu(x)S∞ for a.e. x ∈ ∂Ω.The regularity in dimension 2 follows from [Vin4, Lemma 3.2]. When H1(Ω) → L2(μ)
+
+is compact and Ω is smooth, we obtain im u ⊂ Bn because of the compactness of the operator T from Theorem 1.18. We then proceed, as in the argument for Theorem 1.1, by showing that u is locally energy-minimizing map into Rn with respect to the free boundary condition u(∂Ω) ⊂ Sn−1. By (3.7) , we again have lim inf r→0 r2−d ∫  
+
+> Br(p)
+
+|du|2 ≤
+
+C lim inf r→0 r2−dμ(Br(p)) = 0 , and the regularity theory from [Sch1] completes the proof of Theorem 1.6. 22 Remark 3.2. For a harmonic map u ∈ H1(Ω , N ) with respect to the free boundary condition u(∂Ω) ⊂ S, one can choose a smooth vector-valued map F defined on a tubular neighborhood of S ⊂ N such that F |S = 0 and dF |S = P(T S )⊥ , where P(T S )⊥ is the orthogonal projection onto the normal bundle of S in N . Instead of |u|2 − 1, one considers 
+
+V := F ◦ u ∈ H10 . Computing ∆V |Ω = Hess N F (u)(d u, du) ∈ L1, one similarly proves that ∂nV = d F (∂nu) = ∂nu ∈ L1.
+
+Lemma 3.3. Let Ω be a bounded Lipschitz domain, and let H : C0(∂Ω) → C0(Ω) be the harmonic extension operator. Then its adjoint H∗ : M(Ω) → M (∂Ω) restricts to 
+
+H∗|L1 : L1(Ω) → L1(∂Ω) .Proof. Recall that H(φ)( x) = ∫ 
+
+> ∂Ω
+
+φdωx, where {ωx}x∈Ω is the family of harmonic measures. Since H : C0(∂Ω) → C0(Ω) and H(1) = 1 , the function x 7 → ωx(A) is Borel for every Borel subset A ⊂ ∂Ω and ωx(∂Ω) ≡ 1. Furthermore, Dahlberg’s theorem (see [Dah] and [MT, Proposition 5.9]) states that for Lipschitz Ω, the harmonic measures 
+
+{ωx}x∈Ω are absolutely continuous with respect to Hd−1∣∣∂Ω.For a function f ∈ L1(Ω) , the measure ν = H∗(f ) ∈ M (∂Ω) is given by 
+
+ν(A) = 
+
+> ∫
+> Ω
+
+f (x)ωx(A).
+
+If Hd−1(A) = 0 , Dahlberg’s theorem yields ωx(A) = 0 and |ν| (A) = 0 . Hence ν ∈ L1(∂Ω) 
+
+by the Radon–Nikodym theorem. 
+
+3.2.3 Corollary 1.9 
+
+Let {μn} be a maximizing sequence of continuous probability measures such that 
+
+λk(μn) → Λk(Ω , g ). After passing to a subsequence if necessary, we may assume 
+
+μn w∗
+
+→ μ ∈ M +(Ω) with μ(Ω) = 1 . Then 
+
+lim sup 
+
+> n
+
+λk(μn) ≤ λk(μ) (3.8) by [Kok, Proposition 1.1]. The limiting measure μ decomposes as the sum of its continuous and atomic parts: 
+
+μ = μc + ∑
+
+> p
+
+wpδp.
+
+We extend each measure to M (μ(A) := μ(A ∩ Ω )) and analyze their behavior near the atoms of μ. If d ≥ 3, [Vin2, Proposition 4.6] implies that μ = μc, and μ is a maximizing measure by (3.8). The equality Λk(Ω , g ) = Λ ∗
+
+> k
+
+(Ω , g ) follows from Theorem 1.1. If d = 2 , [Vin3, Proposition 4.10] implies that for any sufficiently small ε > 0, one has 
+
+(1 − εr )Λ k(Ω , g ) ≤ λk0 (Ω , μ c) + ∑
+
+> i≥1
+
+Λki (S2) (3.9) for some 0 ≤ r ≤ k, ∑ 
+
+> i≥0
+
+ki = k − r (here, r corresponds to the number of secondary bubbles at infinity). On the other hand, 
+
+max 
+
+> 1≤b≤k
+> {
+
+Λ∗
+
+> k−b
+
+(Ω , [g]) + 8 πb } ≤ Λ∗
+
+> k
+
+(Ω , [g]) ≤ Λk(Ω , [g]) , (3.10) 23 as follows from [CE], where 8πb = Λ ∗ 
+
+> b
+
+(S2) by [KNPP1, Theorem 1.2]. Applying (3.9) ,(3.10) to Ω = S2 and using Theorem 1.1, we obtain by induction on k that r = 0 and 
+
+Λk(S2) = Λ ∗
+
+> k
+
+(S2) = 8 πk (cf. [Vin3, (4.17) and below]). Therefore, Λk(Ω , g ) ≤ λk−b(Ω , μ c) + 8 πb for some b ≤ k. Combining this inequality with the assumption for d = 2 , we deduce that b = 0 , and μc is a maximizing measure. The equality Λk(Ω , g ) = Λ ∗
+
+> k
+
+(Ω , g ) then follows from Theorem 1.1 by induction on k. Thus, the proof is complete. 
+
+Remark 3.4. The upper semicontinuity of μ 7 → λk(μ) and the absence of atoms in weak-∗ limits for d ≥ 3 imply that the superlevel sets { μ ∈ P c(Ω) | λk(μ) ≥ c } are weak-∗ stable for every c > 0, where μ 7 → λk(μ) is regarded as a function on the space of continuous probability measures Pc(Ω) := { μ ∈ M c
+
+> +
+
+(Ω) | μ(Ω) = 1 }. In dimension 2,the weak-∗ stability holds at least for the superlevel sets { μ ∈ P c(Ω) | λk(μ) ≥ c } for every c > Λk−1(Ω , [g]) + 8 π.
+
+3.2.4 Corollary 1.11 
+
+We proceed as in the proof of Corollary 1.9. In dimensions d ≥ 3, Remark 3.4 shows that if λk(μn) → Σk(Ω , g ) for a sequence {μn} ⊂ P c(∂Ω) , then, up to a subsequence, 
+
+μn w∗
+
+→ μ ∈ P c(∂Ω) with λk(μ) = Σ k(Ω , g ). Note that the test functions constructed by [Vin2, Proposition 4.6] are, a priori, only Lipschitz, as permitted by the assumed regularity of Ω. Nevertheless, the argument still applies. The case d = 2 is handled in the same way as in the proof of Corollary 1.9. By [Vin3, Proposition 4.10] and [Vin1, Corollary A.8], for every sufficiently small ε > 0, we have 
+
+(1 − εr )Σ k(Ω , g ) ≤ λk0 (Ω , μ c) + ∑
+
+> i≥1
+
+Σki (D2),
+
+since R2+ ∪ {∞} , S2+, D2 are conformally equivalent. Now, 
+
+max 
+
+> 1≤b≤k
+> {
+
+Σ∗
+
+> k−b
+
+(Ω , [g]) + 2 πb } ≤ Σ∗
+
+> k
+
+(Ω , [g]) ≤ Σk(Ω , [g]) 
+
+by [FS2] (see also [Vin1, Section 3.3.1]), where 2πb = Σ ∗ 
+
+> b
+
+(D2) (see [Vin1, Remark 1.12]). The remainder of the argument is identical to that of Corollary 1.9. 
+
+3.2.5 Corollary 1.13 
+
+To prove λk(Ω , μ ) < Λk(Ω , g ) ≤ Λk(M, g ), extend the measure μ to all of M , ˜μ(A) := 
+
+μ(A ∩ Ω). From the definition of λk, we have λk(Ω , μ ) ≤ λk(M, ˜μ) ≤ Λk(M, g ). If 
+
+λk(Ω , μ ) = Λ k(Ω , g ), then Theorem 1.1 implies that 0̸ = λkμ = |du|2 for a harmonic map 
+
+u ∈ C∞(Ω \ sing u, S∞). The open set Ω \ sing u is connected and H1(Ω \ sing u) = H1(Ω) ,as the closed set sing u ⊂ Ω has vanishing (d − 2) -Hausdorff measure. The differential of u, λkμ = |du|2, vanishes on the nonempty open set U := Ω \
+
+(sing u ∪ supp μ), and hence ∆u = |du|2 u = 0 on U as well. Let u = c ∈ ℓ2 on 
+
+U . By the unique continuation principle applied to the functions ⟨u, b ⟩ with b ∈ ℓ2,
+
+b ⊥ c, we conclude that u is constant on Ω \ sing u and hence on Ω. This contradiction 24 implies that we must have λk(Ω , μ ) < Λk(Ω , g ). Taking Ω = M with ˜μ we obtain that 
+
+λk(Ω , μ ) ≤ λk(M, ˜μ) < Λk(M, g ) if Ω̸ = M .Now, suppose d = dim Ω = 2 and Ω∗ ≈ S2. From the argument above, we already have that Λk(Ω , [g]) ≤ Λk(Ω ∗, [g]) = 8 πk , and the lower bound follows from Remark 1.12. If Ω∗̸ ≈ S2, let k ≥ 1 be the smallest positive integer such that Λk(Ω , [g]) = Λ k(Ω ∗, [g]) .Then either k = 1 , or Λk−1(Ω , [g]) + 8 π < Λk(Ω , [g]) . Otherwise, we would have 
+
+Λk(Ω ∗, [g]) = Λ k(Ω , [g]) = Λ k−1(Ω , [g]) + 8 π ≤ Λk−1(Ω ∗, [g]) + 8 π ≤ Λk(Ω ∗, [g]); 
+
+hence Λk−1(Ω , [g]) = Λ k−1(Ω ∗, [g]) , contradicting the minimality of k. On the other hand, by Remark 1.10, one has 8π < Λ1(Ω ∗, [g]) = Λ 1(Ω , [g]) if k = 1 .Thus, we have established that Λk−1(Ω , [g]) + 8 π < Λk(Ω , [g]) regardless of whether 
+
+k = 1 . Then Corollary 1.9 applies, leading to the existence of a measure μ ∈ M c
+
+> +
+
+(Ω) 
+
+such that λk(Ω , μ ) = Λ k(Ω , [g]) = Λ k(Ω ∗, [g]) . Since this is impossible, as shown at the beginning of the proof, we must have Λk(Ω , [g]) < Λk(Ω ∗, [g]) for all k ≥ 1 when Ω∗̸ ≈ S2.
+
+# Acknowledgements 
+
+This work forms part of the author’s PhD thesis, written under the supervision of Mikhail Karpukhin and Iosif Polterovich. The author is grateful to them for their guidance and numerous fruitful discussions. The author would like to thank the Isaac Newton Institute for Mathematical Sciences, Cambridge, for its support and hospitality during the programme Geometric spectral theory and applications , where part of the work on this paper was undertaken. This work was supported by EPSRC grant EP/Z000580/1. The author acknowledges the support of the Natural Sciences and Engineering Re-search Council of Canada (NSERC) through the Canada Graduate Research Scholarship– Doctoral (CGRS D). 
+
+# References 
+
+[AS] L. Ambrosio and G. Siclari. A regularity theorem for stationary measures .2026. arXiv: 2606.28211 [math.AP] .[BRLZ] J. M. Borwein, J. Read, A. S. Lewis, and Q. Zhu. “Convex spectral functions of compact operators”. In: J. Nonlinear Convex Anal. 1.1 (2000), pp. 17–35. [Cla] F. H. Clarke. “A New Approach to Lagrange Multipliers”. In: Mathematics of Operations Research 1.2 (1976), pp. 165–174. [CE] B. Colbois and A. El Soufi. “Extremal Eigenvalues of the Laplacian in a Conformal Class of Metrics: The ‘Conformal Spectrum’”. In: Ann. Global Anal. Geom. 24.4 (2003), pp. 337–349. [Dah] B. E. J. Dahlberg. “Estimates of harmonic measure”. In: Archive for Rational Mechanics and Analysis 65.3 (Sept. 1, 1977), pp. 275–288. 25 [DF] A. Defant and K. Floret. Tensor norms and operator ideals . Vol. 176. North-Holland Mathematics Studies. North-Holland Publishing Co., Amsterdam, 1993, pp. xii+566. [DS] F. Duzaar and K. Steffen. “An optimal estimate for the singular set of a harmonic map in the free boundary”. In: J. Reine Angew. Math. 401 (1989), pp. 157–187. [EE] D. E. Edmunds and W. D. Evans. Spectral theory and differential opera-tors . Oxford Mathematical Monographs. Oxford Science Publications. The Clarendon Press, Oxford University Press, New York, 1987, pp. xviii+574. [FS1] A. Fraser and R. Schoen. “Sharp eigenvalue bounds and minimal surfaces in the ball”. In: Inventiones mathematicae 203.3 (Mar. 1, 2016), pp. 823–890. [FS2] A. Fraser and R. Schoen. “Some results on higher eigenvalue optimization”. In: Calc. Var. Partial Differential Equations 59.5 (2020), Paper No. 151, 22. [GNY] A. Grigor’yan, Y. Netrusov, and S. - T. Yau. “Eigenvalues of elliptic operators and geometric applications”. In: Surveys in differential geometry. Vol. IX .Vol. 9. Surv. Differ. Geom. Int. Press, Somerville, MA, 2004, pp. 147–217. [HWW] P. Harmand, D. Werner, and W. Werner. M -ideals in Banach spaces and Banach algebras . Vol. 1547. Lecture Notes in Mathematics. Springer-Verlag, Berlin, 1993, pp. viii+387. [HW] M. -C. Hong and C. - Y. Wang. “On the singular set of stable-stationary har-monic maps”. In: Calculus of Variations and Partial Differential Equations 
+
+9.2 (Sept. 1, 1999), pp. 141–156. [KR] R. V. Kadison and J. R. Ringrose. Fundamentals of the theory of operator algebras. Vol. I . Vol. 15. Graduate Studies in Mathematics. Elementary theory, Reprint of the 1983 original. American Mathematical Society, Providence, RI, 1997, pp. xvi+398. [KNPP1] M. Karpukhin, N. Nadirashvili, A. V. Penskoi, and I. Polterovich. “An isoperi-metric inequality for Laplace eigenvalues on the sphere”. In: J. Differential Geom. 118.2 (2021), pp. 313–333. [KNPP2] M. Karpukhin, N. Nadirashvili, A. V. Penskoi, and I. Polterovich. “Confor-mally maximal metrics for Laplace eigenvalues on surfaces”. In: Surveys in differential geometry 2019. Differential geometry, Calabi-Yau theory, and general relativity. Part 2 . Vol. 24. Surv. Differ. Geom. Int. Press, Boston, MA, 2022, pp. 205–256. [KNPS] M. Karpukhin, M. Nahon, I. Polterovich, and D. Stern. Stability of isoperimet-ric inequalities for Laplace eigenvalues on surfaces . 2021. arXiv: 2106.15043v1 [math.DG] .[KS1] M. Karpukhin and D. Stern. “Existence of harmonic maps and eigenvalue optimization in higher dimensions”. In: Invent. Math. 236.2 (2024), pp. 713– 778. 26 [KS2] M. Karpukhin and D. Stern. “Min-max harmonic maps and a new characteri-zation of conformal eigenvalues”. In: J. Eur. Math. Soc. (JEMS) 26.11 (2024), pp. 4071–4129. [Kok] G. Kokarev. “Variational aspects of Laplace eigenvalues on Riemannian surfaces”. In: Advances in Mathematics 258 (2014), pp. 191–239. [Maz] V. G. Maz’ja. Sobolev spaces . Springer Series in Soviet Mathematics. Trans-lated from the Russian by T. O. Shaposhnikova. Springer-Verlag, Berlin, 1985, pp. xix+486. [MT] M. Mitrea and M. Taylor. “Boundary Layer Methods for Lipschitz Domains in Riemannian Manifolds”. In: Journal of Functional Analysis 163.2 (1999), pp. 181–251. [NS] N. Nadirashvili and Y. Sire. “Conformal spectrum and harmonic maps”. In: 
+
+Mosc. Math. J. 15.1 (2015), pp. 123–140, 182. [NT] S. A. Nazarov and J. Taskinen. “‘Blinking eigenvalues’ of the Steklov problem generate the continuous spectrum in a cuspidal domain”. In: Journal of Differential Equations 269.4 (2020), pp. 2774–2797. [Pet1] R. Petrides. “Existence and regularity of maximal metrics for the first Laplace eigenvalue on surfaces”. In: Geometric and Functional Analysis 24.4 (Aug. 1, 2014), pp. 1336–1376. [Pet2] R. Petrides. “On the Existence of Metrics Which Maximize Laplace Eigen-values on Surfaces”. In: International Mathematics Research Notices 2018.14 (2018), pp. 4261–4355. [Pet3] R. Petrides. “Maximizing Steklov eigenvalues on surfaces”. In: Journal of Differential Geometry 113.1 (Sept. 1, 2019), pp. 95–188. [Pet4] R. Petrides. “A variational method for functionals depending on eigenvalues”. In: Journal of the London Mathematical Society 112.4 (2025), e70315. eprint: 
+
+https://londmathsoc.onlinelibrary.wiley.com/doi/pdf/10.1112/ jlms.70315 .[PT] R. Petrides and D. Tewodrose. Critical metrics of eigenvalue functionals via Clarke subdifferential . 2024. arXiv: 2403.07841v1 [math.DG] .[Sch1] C. Scheven. “Partial regularity for stationary harmonic maps at a free bound-ary”. In: Mathematische Zeitschrift 253.1 (May 1, 2006), pp. 135–157. [Sch2] W. Schirotzek. Nonsmooth analysis . Universitext. Springer, Berlin, 2007, pp. xii+373. [Tak] M. Takesaki. Theory of operator algebras. I . Vol. 124. Encyclopaedia of Mathematical Sciences. Reprint of the first (1979) edition, Operator Algebras and Non-commutative Geometry, 5. Springer-Verlag, Berlin, 2002, pp. xx+415. 27 [Vin1] D. Vinokurov. “Conformal optimization of eigenvalues on surfaces with sym-metries”. In: Journal of the London Mathematical Society 112.6 (2025), e70386. eprint: https://londmathsoc.onlinelibrary.wiley.com/doi/pdf/10. 1112/jlms.70386 .[Vin2] D. Vinokurov. “Maximizing higher eigenvalues in dimensions three and above”. 2025. arXiv: 2506.09328 [math.SP] . Submitted. [Vin3] D. Vinokurov. “Eigenvalue optimization in higher dimensions and p-harmonic maps”. 2026. arXiv: 2601.17896 [math.SP] . Submitted. [Vin4] D. Vinokurov. “Optimal bounds for the first two Steklov eigenvalues of Euclidean domains”. 2026. arXiv: 2604.03418 [math.SP] .28
