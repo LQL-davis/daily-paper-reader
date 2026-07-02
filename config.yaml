@@ -25,3 +25,57 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: boundary-opt
+      description: 边界优化相关文章
+      enabled: true
+      paper_sources:
+        - arxiv
+      keywords:
+        - keyword: boundary optimization
+          keyword_cn: 边界优化
+          query: optimization of boundaries in various fields
+        - keyword: boundary value optimization
+          keyword_cn: 边界值优化
+          query: optimization of boundary value problems
+        - keyword: constrained boundary optimization
+          keyword_cn: 约束边界优化
+          query: optimization under boundary constraints
+        - keyword: boundary optimization algorithms
+          keyword_cn: 边界优化算法
+          query: algorithms for solving boundary optimization problems
+        - keyword: boundary layer optimization
+          keyword_cn: 边界层优化
+          query: optimization of boundary layers in aerodynamics
+      intent_queries:
+        - query: how to optimize decision boundaries for classification
+          query_cn: 如何优化分类的决策边界
+          enabled: true
+          source: manual
+          note: ''
+        - query: boundary optimization algorithms and their applications
+          query_cn: 边界优化算法及其应用
+          enabled: true
+          source: manual
+          note: ''
+        - query: methods for optimizing shapes by adjusting boundaries
+          query_cn: 通过调整边界优化形状的方法
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-07-02T08:53:17.886Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
