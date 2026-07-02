@@ -1,0 +1,105 @@
+{
+  "version": 2,
+  "extractor": "papercropper",
+  "figures": [
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-001.webp",
+      "caption": "",
+      "page": 0,
+      "index": 1,
+      "width": 855,
+      "height": 645,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-002.webp",
+      "caption": "",
+      "page": 0,
+      "index": 2,
+      "width": 704,
+      "height": 378,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-003.webp",
+      "caption": "",
+      "page": 0,
+      "index": 3,
+      "width": 748,
+      "height": 374,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-004.webp",
+      "caption": "",
+      "page": 0,
+      "index": 4,
+      "width": 663,
+      "height": 449,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-005.webp",
+      "caption": "",
+      "page": 0,
+      "index": 5,
+      "width": 868,
+      "height": 521,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-006.webp",
+      "caption": "",
+      "page": 0,
+      "index": 6,
+      "width": 872,
+      "height": 648,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-007.webp",
+      "caption": "",
+      "page": 0,
+      "index": 7,
+      "width": 788,
+      "height": 366,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-008.webp",
+      "caption": "",
+      "page": 0,
+      "index": 8,
+      "width": 1814,
+      "height": 657,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-009.webp",
+      "caption": "",
+      "page": 0,
+      "index": 9,
+      "width": 862,
+      "height": 335,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-010.webp",
+      "caption": "",
+      "page": 0,
+      "index": 10,
+      "width": 811,
+      "height": 389,
+      "label": "Figure"
+    },
+    {
+      "url": "assets/figures/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/fig-011.webp",
+      "caption": "",
+      "page": 0,
+      "index": 11,
+      "width": 824,
+      "height": 443,
+      "label": "Figure"
+    }
+  ]
+}

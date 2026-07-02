@@ -1,0 +1,627 @@
+Title: Proactive Constrained Policy Optimization with Preemptive Penalty
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/39978/43939
+
+Number of Pages: 9
+
+Markdown Content:
+# Proactive Constrained Policy Optimization with Preemptive Penalty 
+
+# Ning Yang 1* , Pengyu Wang 1, 2 , Guoqing Liu 3, Haifeng Zhang 1, Pin Lyu 1, Jun Wang 4
+
+> 1
+
+Institute of Automation, Chinese Academy of Sciences 
+
+> 2
+
+School of Science and Engineering, The Chinese University of Hong Kong (Shenzhen), Longgang, Shenzhen, Guangdong, 518172, P.R. China 
+
+> 3
+
+Microsoft Research 
+
+> 4
+
+University College London ning.yang@ia.ac.cn 
+
+Abstract 
+
+Safe Reinforcement Learning (RL) often faces significant issues such as constraint violations and instability, neces-sitating the use of constrained policy optimization, which seeks optimal policies while ensuring adherence to spe-cific constraints like safety. Typically, constrained optimiza-tion problems are addressed by the Lagrangian method, a post-violation remedial approach that may result in oscilla-tions and overshoots. Motivated by this, we propose a novel method named Proactive Constrained Policy Optimization (PCPO) that incorporates a preemptive penalty mechanism. This mechanism integrates barrier items into the objective function as the policy nears the boundary, imposing a cost. Meanwhile, we introduce a constraint-aware intrinsic reward to guide boundary-aware exploration, which is activated only when the policy approaches the constraint boundary. We es-tablish theoretical upper and lower bounds for the duality gap and the performance of the PCPO update, shedding light on the method’s convergence characteristics. Additionally, to en-hance the optimization performance, we adopt a policy iter-ation approach. An interesting finding is that PCPO demon-strates significant stability in experiments. Experimental re-sults indicate that the PCPO framework provides a robust solution for policy optimization under constraints, with im-portant implications for future research and practical applica-tions. 
+
+Code — https://github.com/gracefulning/PCPO 
+
+Extended Appendix —https://github.com/gracefulning/PCPO 
+
+# Introduction 
+
+Security learning plays a crucial role in the field of com-puter science, as it is essential for ensuring data privacy, withstanding adversarial attacks, enhancing the security of intelligent systems, and meeting compliance requirements. Recently, this field has seen substantial advancements in tackling complex challenges such as safe exploration (Dalal et al. 2018), the application of Lyapunov methods (Chow et al. 2018b; Hao et al. 2024), and constrained optimization (Tessler, Mankowitz, and Mannor 2018; Gu et al. 2024b; 
+
+> *
+
+Correspondence to: Ning Yang Copyright © 2026, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. 
+
+Zhang et al. 2024). Despite these advancements, the dy-namic nature of network security threats, coupled with the vast scale and complexity of computer systems, continues to pose significant challenges. In the realm of safe Reinforcement Learning (RL), also known as constrained RL, the Lagrangian method has emerged as a predominant tool (Ghosh 2025). Its simplic-ity and effectiveness in achieving optimal constraint satis-faction (Chow et al. 2019; Tessler, Mankowitz, and Mannor 2018). Nonetheless, this approach faces several challenges that hinder its application in constrained optimization prob-lems. One issue is that the control of Lagrange multipliers exhibits hysteresis, implying that when the constraints are violated, the Lagrange multipliers cannot instantaneously transition to an expected value (Stooke, Achiam, and Abbeel 2020; Honari et al. 2024). Another challenge is that the La-grangian method cannot serve as a barrier near the boundary of the constraints. In other words, when a policy approaches the constraint boundary, there is no penalty or change in gradient. This limitation of the method is demonstrated in Figure 1, which illustrates the relationship between con-straint violation value g(x) and Lagrange multiplier or bar-rier items B(g(x)) . Figure 1(a) uses the Lagrange multiplier method to demonstrate that the penalty value B(g(x)) = 0 
+
+when g(x) ≤ 0 (constraint satisfied); when g(x) > 0 (con-straint violated), the penalty value B(g(x)) > 0. Figure 1(b) describes the extended barrier function method, where for 
+
+−1 < g (x) < 0, the barrier term B(g(x)) > 0, demon-strating the preemptive penalty mechanism adopted by the barrier function method. Considering the intricate nature of constraint management in optimization problems and the shortcomings of traditional Lagrangian methods, we introduce a preemptive penalty to mitigate constraint violations and enhance optimization per-formance. We propose the Proactive Constrained Policy Op-timization (PCPO) with a preemptive penalty. The advan-tages of our method are as follows: (1) It exhibits a strictly positive gradient, which increases as a satisfied constraint approaches violation during optimization. This pushes the constraint back towards the achievable range. (2) Another crucial advantage is that the derivatives of our method pro-vide the implicit dual variables, ensuring duality-gap guar-antees. Our contributions in this paper are outlined as fol-The Fortieth AAAI Conference on Artificial Intelligence (AAAI-26) 
+
+27583 0� �g x����B g x-10� �g x����B g x(a) Lagrange multiplier (b) Log-barrier extension Figure 1: Lagrange and barrier terms vs. constraint viola-tions. lows: • Methodology : Within the PCPO approach, we address constraint violations by integrating a preemptive penalty, embedding the barrier term directly into the objective function. This approach proactively penalizes potential constraint breaches, circumventing the issue of zero gra-dients. Additionally, we introduce a constraint-aware in-trinsic reward to guide boundary-aware exploration, cap-turing the potential impact degree of each sample on the strategy relative to the constraint boundary. • Theoretical Framework : Our analysis includes a deriva-tion of the approximate Kullback-Leibler (KL) diver-gence for the Gaussian model. We establish a theoretical upper bound on the duality gap, alongside a lower bound on the performance improvements following a PCPO up-date, ensuring a robust and stable theoretical foundation for our methodologies. • Experiment Results : Our results validate that the PCPO method effectively elevates the quality of solutions and markedly diminishes the incidence of constraint viola-tions. Furthermore, the proposed method has been veri-fied in terms of generalization and sensitivity analysis. 
+
+# Related Work 
+
+Safe RL is a crucial branch of RL aimed at addressing con-strained optimization or control problems, incorporating a variety of specialized methods to ensure safety during learn-ing (Gu et al. 2024b). Primal methods directly tackled the primal problem by alternating optimizing between the objec-tive function and constraints, which could lead to instability in network training (Wachi, Shen, and Sui 2024). The safe-guard/safety layer approach, which included the projection method (Yang et al. 2020), may face challenges in finding suitable projections. Penalty methods attempted to manage constraints through reward shaping or regularization, and choosing the right penalty factor remained difficult (Tessler, Mankowitz, and Mannor 2018). Barrier-based methods en-forced safety through barrier regularization, ensuring feasi-bility within the optimization process (Liu, Ding, and Liu 2020; Wang et al. 2023). Direct policy optimization lever-aged a surrogate function, but this approach was susceptible to approximation errors (Chow et al. 2019). Primal-dual methods, widely utilized in safe RL, are ex-tensively developed to approximate the primal problem by optimizing the dual problem. However, (Chow et al. 2018a) highlighted that updates to dual variables do not ensure im-mediate constraint satisfaction. Enhancing this approach, (Achiam et al. 2017) resets dual variables in each iteration to ensure consistent adherence to constraints. (Wagener, Boots, and Cheng 2021) adopted Lagrangian dual gradient ascent for updating Lagrange multipliers, thus enhancing model adaptability. (Ding and Lavaei 2023) proposed a periodically restarted optimistic primal-dual Proximal Policy Optimiza-tion (PPO) to effectively address time-varying constraints. (Ying et al. 2024) investigated scalable primal-dual methods in safe multi-agent RL, broadening the applicability of these techniques to more complex systems. Expanding the scope, (Chen et al. 2024) proposed an adaptive primal-dual method, attempting to solve the dual problem in safe RL by adjusting two adaptive learning processes to Lagrange multipliers. Meanwhile, constrained intrinsic rewards in safe RL have also garnered extensive research attention (Gu et al. 2024a). To address the issue of introducing safety con-straints, (Kwon et al. 2024) proposed a constrained reward framework to balance the performance objective of the total reward and the safety constraints. Furthermore, (Li, Zhu, and Grossklags 2025) uses the metric distance between the cur-rent optimal policy and the theoretically optimal policy as an intrinsic reward, and optimizes the safety strategy through reward shaping. However, despite these advancements, the typical application of penalties post-violation in these meth-ods could still lead to potential network instability (Ibrahim et al. 2024; Su et al. 2025), prompting further exploration into preemptive penalty mechanisms to enhance safety mea-sures. 
+
+# Constrained Markov Decision Process 
+
+A Constrained Markov Decision Process (CMDP) (Altman 2021) is denoted by a tuple ⟨S , A, P, ν, R, C ⟩, where S
+
+represents the state space and A denotes the action space, 
+
+P : S × A → S is a probabilistic transition process with components Pπ (s′|s) ∈ R, ν : S → [0 , 1] is a probability distribution over initial states, R : S × A × S → R is the reward function, and set C contains a set of cost functions 
+
+Ci : S × A × S → R, i = 1 , 2, ..., m . A policy π is a map-ping from states to distributions over actions S ×A → [0 , 1] ,and Π is a set of policies. Our goal is to discover a sta-tionary policy that maximizes the expected discounted re-ward J(π) := Eπ [P∞ 
+
+> t=0
+
+γtR(st, a t)] under constraints, where the agent’s actions dictate the subsequent rewards and states. Considering the initial state s0, the state-value function is V π (s) := Eπ [P∞ 
+
+> t=0
+
+γtR(st, a t)|s0 = s]. The action-value function (Silver 2015) can similarly be decom-posed Qπ (s, a ) := Eπ [P∞ 
+
+> t=0
+
+γtR(st, a t)|s0 = s, a 0 = a].The advantage function (Mnih et al. 2016) is Aπ (s, a ) := 
+
+Qπ (s, a ) − V π (s). The discounted probabilistic transition distribution (Achiam et al. 2017) is denoted by dπ (s) := (1 − γ) P∞ 
+
+> t=0
+
+γtptπ (s) where ptπ (s) = P (st = s|π) is a vec-tor with ptπ (s) ∈ R. The Ci-return, defined as the expected cumulative discounted cost for cost function i, is given by 
+
+JCi (π) := Eπ [P∞ 
+
+> t=0
+
+γtCi(st, a t)] where Ci(st, a t) repre-27584 sents the cost incurred at state st and action at under cost function i. The set of feasible policies is ΠC := {π ∈ Π : 
+
+JCi (π) ≤ di, i = 1 , 2, ...., m }. The optimal policy of the CMDP is given by π∗ = arg max π∈ΠC J(π).Similar to the value function V π , action-value function 
+
+Qπ , and advantage function Aπ for reward, we denote the cost value function, cost action-value function, and cost ad-vantage function as V πCi , QπCi , and AπCi .
+
+# Proactive Constrained Policy Optimization 
+
+Building on this foundation, the implementation of PCPO with a preemptive penalty can be summarized in two steps: 1. Design of Constraint-Aware Intrinsic Reward: Aconstraint-aware intrinsic reward is introduced to guide boundary-aware exploration, which is activated only when the policy approaches the constraint boundary and encourages behaviors that remain within the feasible re-gion. 2. Optimization with Preemptive Penalty: The PCPO finds the constrained updated policy with an extended barrier function method featuring a preemptive penalty mecha-nism that adopts a conservative policy iteration. 
+
+Problem Formulation 
+
+Initially, a constrained optimization problem is formulated. Samples are then drawn from the environment to update policies, considering a set of parameterized policy spaces Πθ
+
+with a fixed neural network. At the k-th iteration, the policy 
+
+πθk is updated to πθk+1 under constraints. The constrained objective function is defined as follows: 
+
+max  
+
+> πθ∈Πθ
+
+Es∼dπθk ,a ∼πθ [Aπθk (s, a )] (1a) 
+
+s.t. JCi (πθk ) + 11 − γ E
+
+> s∼dπθk
+> a∼πθ
+
+h
+
+Aπθk 
+
+> Ci
+
+(s, a )
+
+i
+
+≤ di,i = 1 , 2, . . . , m (1b) 
+
+E
+
+> s∼dπθk
+
+[DKL (πθ (.|s)|| πθk (.|s))] ≤ δ, (1c) where δ is a small constant. The objective function, as de-fined in (1a), incorporates the advantage function in its ex-pectation form, which provides a more accurate estimate of actions than the Q-function. Constraint (1b) ensures compli-ance with the necessary conditions, while Constraint (1c), a trust region constraint, guarantees monotonic performance improvements by ensuring a bounded policy update and a non-negative expected advantage at each state. 
+
+Optimization with Preemptive Penalty Method 
+
+A policy is employed in the previous subsection to enhance the quality of optimization. Building on this approach, this subsection focuses on reducing constraint violations through the use of constrained policy optimization, a type of pol-icy search algorithm designed for CMDP. This algorithm includes updates that approximately solve constrained opti-mization problems, effectively minimizing potential penal-ties. Further drawing from the concept of barrier functions, the preemptive penalty method is employed to ensure that solutions remain within the feasible region. We propose the PCPO with a preemptive penalty by embedding barrier terms into the objective function (Kervadec et al. 2022). As the policy nears the boundary of the constraints, the preemp-tive penalty mechanism automatically activates, effectively reducing violations by proactively preventing them before they occur. The mathematical formulations for the simplified objective function (1a) and Constraints (1b) are as follows: 
+
+f (πθ ) = Es∼dπθk , a ∼πθ
+
+Aπθk (s, a ) (2) 
+
+gCi (πθ ) = JCi (πθk ) + 11 − γ E
+
+> s∼dπθk
+> a∼πθ
+
+h
+
+Aπθk 
+
+> Ci
+
+(s, a )
+
+i
+
+− di
+
+≤ 0. (3) To solve this constrained problem, we use a barrier function approach. Though this is not the standard Lagrangian dual formulation, it can be interpreted as an approximation that implicitly defines dual variables. We formulate the barrier problem as follows: 
+
+max  
+
+> πθ∈Πθ
+
+¯G(πθ ) (4a) 
+
+s.t. E
+
+> s∼dπθk
+
+[DKL (πθ || πθk )] − δ ≤ 0, (4b) where ¯G(πθ ) = f (πθ ) − Pmi=1 φτ (gCi (πθ )) . Here, φτ (.) is an extended log-barrier function. Because the standard log barrier − log( −gCi (πθ )) has an unbounded gradient near the boundary, we use an affine extension that is matched at gCi (πθ ) = − 1  
+
+> τ2
+
+to obtain a bounded and stable barrier. Formally, the extended log-barrier is defined as: 
+
+φτ (gCi (πθ )) = 
+
+− 1 
+
+> τ
+
+log( −gCi (πθ )) gCi (πθ ) ≤ − 1  
+
+> τ2
+
+,τ g Ci (πθ ) − 1 
+
+> τ
+
+log( 1  
+
+> τ2
+
+) + 1 
+
+> τ
+
+otherwise. (5) where τ > 0 controls the curvature and smoothness of the barrier. This construction preserves the penalization effect of the standard log barrier in the interior region while avoid-ing the gradient singularity near active constraints. And the gradient of φτ (gCi (πθ )) is: 
+
+∇φτ (gCi (πθ )) = 1
+
+τ (γ − 1) · gCi
+
+E
+
+> s∼dπθk
+> a∼πθ
+
+"
+
+∇θ log π(a | s) · Aπθk 
+
+> Ci
+
+(s, a )(γ − 1) · φr (gCi )
+
+#
+
+(6) 
+
+Note that problem (4) can be viewed as an approximation to the dual problem of the primal problem (1). The implicit dual variables λ∗ 
+
+> i
+
+in this approximation are related to the barrier function derivatives, as will be shown in the duality gap theorem. While the initial formulation of ¯G(πθ ) in problem (4) in-tegrates the objective function and barrier terms to address constraint violations proactively, it lacks an explicit mecha-nism to guide exploration behaviors, particularly when the policy is near constraint boundaries. 27585 To mitigate this, we introduce the constraint-aware intrin-sic reward Iπθ in problem (4), which can be constructed as a cost-sensitive approximation of the per-sample gradient contribution to the logbarrier term. From an information-theoretic perspective, this term captures how much each sample potentially shifts the policy with respect to the con-straint boundary. The constraint-aware intrinsic reward Iπθ
+
+> Ci
+
+is formulated proportionally to the magnitude of the cost ad-vantage function normalized by the barrier term, reflecting the alignment between policy gradients and constraint vio-lation risks. Specifically, the reward Iπθ takes the following form: 
+
+Iπθ 
+
+> Ci
+
+∝ Aπθ 
+
+> Ci
+
+(s, a )(1 − γ) · gCi (πθ ) (7) Eq.(7) captures constraint sensitivity per unit slack, guid-ing exploration toward regions where actions strongly af-fect constraint satisfaction. To modulate the total exploration intensity during training, the intrinsic reward structure em-ploys a gating mechanism based on proximity to constraint values, i.e., we multiply the normalized intrinsic reward by a gating function σ(α1di − α2|gCi (πθ )|)) , which activates only when the policy approaches the constraint boundary. Meanwhile, a Softmax function is used to map the scale to 
+
+(0 , 1] for numerical stability: 
+
+Iπθ 
+
+> Ci
+
+= σ(α1di − α2|gCi (πθ )|)) 
+
+· Softmax 
+
+
+
+β · Aπθ 
+
+> Ci
+
+(s, a )(1 − γ) · max( |gCi (πθ )|, ϵ )
+
+
+
+(8) Here, σ is the sigmoid function. α1 and α2 shape the gate: they determine how wide and how sharply the intrinsic re-ward activates near the constraint boundary. This formula-tion resembles the “score × influence” structure of Fisher information, providing a theoretically grounded measure for boundary-level exploration value. The adjusted magnitude controls the relative incentive among eligible actions. This structure quantifies the sensitivity of model outputs to pa-rameter changes. It promotes behaviors that are more likely to remain within the feasible region and improve constraint satisfaction over time, without rewarding unsafe deviations. With this intrinsic reward, we can now reformulate the barrier problem to better balance reward maximization, con-straint satisfaction, and safe exploration. The barrier prob-lem is as follows: 
+
+max  
+
+> πθ∈Πθ
+
+G(πθ ) (9a) 
+
+s.t. E
+
+> s∼dπθk
+
+[DKL (πθ || πθk )] − δ ≤ 0, (9b) where G(πθ ) = f (πθ ) − Pmi=1 φτ (gCi (πθ )) + η Pmi=1 Iπθ 
+
+> Ci
+
+.Here, η = ω·Gmax   
+
+> Imax
+> Ci+ϵ
+
+> 0, and ϵ is an extremely small constant to avoid the denominator being zero. To further validate the effectiveness of this intrinsic reward in enhancing optimiza-tion performance, we establish the following proposition. Proposition 1 shows that intrinsic reward can provide an ad-ditional positive boost for policy optimization. The proof is provided in the Appendix. 
+
+Proposition 1 (Enhancement with Intrinsic Reward). Let 
+
+πk+1 and ¯πk+1 be the policies updated from the same πk
+
+under the PCPO objective with and without the constraint intrinsic reward Iπθ 
+
+> Ci
+
+, respectively. Define the objective func-tion without the intrinsic reward as ¯G(πk). Then, we have: 
+
+G(πk+1 ) − G(πk) ≥[ ¯G(πk+1 ) − ¯G(πk)] + η
+
+> m
+
+X
+
+> i=1
+
+ Iπk+1  
+
+> Ci
+
+− Iπk
+
+> Ci
+
+ . (10) 
+
+Theoretical Analysis of Preemptive Penalty 
+
+Next, our method is specifically designed to address CMDP problems using a conservative policy iteration scheme. Throughout the iteration optimization process, our proposed method adheres to the primal constraints. To enhance the optimization of dual problems (9), an upper bound of the duality gap and dual variables are derived as follows: 
+
+Theorem 1 (Duality Gap). An upper bound of the duality gap between the primal problem (1) and the dual problem 
+
+(9) is given by 
+
+G (λ∗) − J (π∗) ≤ mτ + η
+
+> m
+
+X
+
+> i=0
+
+Imax  
+
+> Ci
+
+, (11) 
+
+where π∗ is the optimal policy, m is the number of con-straints and Imax is the upper bound of the expected intrin-sic reward. The optimal implicit Lagrangian dual variables satisfy 
+
+λ∗ 
+
+> i
+
+=
+
+ − 1  
+
+> τ g Ci(π∗)
+
+gCi (π∗) ≤ − 1  
+
+> τ2
+
+,τ otherwise . (12) For convenience, to analyze the optimal implicit Lagrangian dual variables, we only rewrite G (π∗) as G (π∗, λ∗) in The-orem 1. Theorem 1 describes the relationship between the duality gap and the parameter τ . As τ increases that leads to the gap diminishes. This upper bound shows how dual variables are adjusted in response to violations. The proof process is elaborated in Appendix C. In the PCPO algorithm, we denote the policy at the k-th iteration as πθk , and the updated policy as πθk+1 . The up-date rule of the PCPO algorithm refers to the mathemati-cal mechanism for transitioning from πθk to πθk+1 , which is achieved by solving Eq.(9), maximizing G(πθ ) while satis-fying the KL-divergence constraint to obtain πθk+1 . This up-date rule ensures that the transition from πθk to πθk+1 both improves performance and maintains constraint satisfaction. An explicit lower bound is provided for performance im-provements between two adjacent iterations in PCPO, which provides a benchmark to evaluate the effectiveness of the PCPO method. The theoretical result is represented as fol-lows: 
+
+Theorem 2 (PCPO Update Performance). A lower bound for consecutive policies πk+1 and πk improvements is 
+
+G(πk+1 ) − G(πk) ≥
+
+ηk+1 − 1 
+
+> τ
+
+Ψk+1 − η S I , gCi (πk) ≤ − 1  
+
+> τ2
+
+,
+
+− md i + ηk+1 + P
+
+> i
+
+(ηkCi + ηk+1  
+
+> Ci
+
+) − η S I , otherwise. 
+
+(13) 27586 The quantities in Theorem 2 are defined as follows: 
+
+SI := Pmi=1 Imax  
+
+> Ci
+
+, Ψk+1 := Pmi=1 log(2 − di  
+
+> 2ηCi(πk+1 )
+
+),
+
+ηk+1 := η(πk+1 ), ηkCi := ηCi (πk), and ηk+1  
+
+> Ci
+
+:= 
+
+ηCi (πk+1 ). Moreover, ϵπk+1 := max s Ea∼πk+1 [Aπk ] ,
+
+ϵπk 
+
+> Ci
+
+:= max s Ea∼πk
+
+Aπk
+
+> Ci
+
+ , η(πk) := − 
+
+> √2δ γ
+> (1 −γ)2
+
+ϵπk , and 
+
+ηCi (πk) := − 
+
+> √2δγ
+> (1 −γ)2
+
+ϵπk 
+
+> Ci
+
+. Theorem 2 reflects the mini-mal improvement between two iterations, ensuring reward maximization and constraint satisfaction. This lower bound works as a crucial check that guides parameter tuning and enforces consistent policy evolution. The proof is provided in Appendix D. 
+
+Proposition 2 (Advantage in Cumulative Constraint Viola-tions). In a CMDP with the constraint set {JC (π) ≤ d},for any initial policy π0 and number of iterations T , the cu-mulative constraint violation of the PCPO method (denoted 
+
+VP(T )) and that of Lagrangian-based safe RL methods (de-noted VL(T )) satisfy: 
+
+VP(T ) ≤ VL(T ) − ∆( T ), (14) 
+
+where ∆( T ) > 0 is a gap term positively correlated with T ,and ∆( T ) → ∞ as T → ∞ .
+
+Based on Theorem 2, we further compare the improve-ment between adjacent iterations during the training pro-cesses of PCPO and Lagrangian-based safe RL methods in Proposition 4. Lagrangian-based safe RL methods effec-tively manage constraints using Lagrange multipliers to en-sure safety while maximizing rewards, as demonstrated in (Chow et al. 2019; Tessler, Mankowitz, and Mannor 2018; Stooke, Achiam, and Abbeel 2020). The proof of Proposi-tion 4 is provided in the Appendix. 
+
+# Practical Implementation 
+
+Parameterized Objectives and Constraints 
+
+This section delves into the practical implementation where the dual problem, as outlined in Eq.(9), is resolved directly despite its computational expense and inefficiency. The fo-cus shifts to exploring parameterized policies to develop a practical algorithm capable of managing finite sample counts and arbitrary initial parameters. The notation from the previous sections has been simplified using the parame-ter vector θ. Therefore, the parameterized objective function is subject to constraints and its gradients are 
+
+max  
+
+> θ
+
+G(θ) = max  
+
+> θ
+
+f (θ) −
+
+> m
+
+X
+
+> i=1
+
+φτ (gCi (θ)) + η
+
+> m
+
+X
+
+> i=1
+
+Iπθ 
+
+> Ci
+
+(θ),
+
+(15) 
+
+∇G(θ)=∇f (θ) −
+
+> m
+
+X
+
+> i=1
+
+∇φτ (gC i (θ)) ∇gC i (θ) + η∇
+
+> m
+
+X
+
+> i=1
+
+Iπθ 
+
+> Ci
+
+(θ).
+
+(16) In addition, the Fisher Information Matrix (FIM) is em-ployed, utilizing analytical computations of the Hessian ma-trix derived from the KL divergence. As parameterized poli-cies are considered, the previous notation will be extended to incorporate functions of θ instead of π.The parameter update for Eq.(16) is approximated em-ploying a linear approximation of the objective function and a quadratic approximation for the KL divergence constraint. 
+
+θk+1 = arg max  
+
+> θ
+
+[∇θ GT (θ) |θ=θk (θ − θk)] , (17a) s.t. 12 (θ − θk)T H (θ − θk) ≤ δ, (17b) where H is the Hessian matrix of the KL-divergence that is given by 
+
+H (θk)ij = ∂∂θ i
+
+∂∂θ j
+
+E
+
+> s∼dπθk
+
+[DKL (θ∥θk)] 
+
+> θ=θk
+
+. (18) It is important to note that in practice, the Fisher infor-mation matrix H may not always be invertible. To address this issue, we consider a regularized version of the Fisher information matrix ˆH = H + λI , where λ > 0 is a small regularization parameter and I is the identity matrix. This ensures ˆH is positive definite and invertible. We consider a transformation p = ˆH1/2(θ − θk) in Eq.(17), then Eq.(17) is equivalent to optimizing a linear function on a norm ball: 
+
+max  
+
+> p
+
+[∇θ GT (θ)|θ=θk
+
+ˆH−1/2p] (19a) s.t. 12 pT p ≤ δ (19b) With this reformulation, the desired result follows in a rel-atively straightforward manner. The solution is simply: 
+
+p∗ = √2δ · ˆH−1/2∇G
+
+∥ ˆH−1/2∇G∥2
+
+(20) Transforming back to the original variable in Eq.(17) is: 
+
+θ∗ = θk + √2δ · ˆH−1∇G
+
+p
+
+∇GT ˆH−1∇G
+
+(21) This approach does not require the strict feasible point assumption in Eq.(17) and effectively handles cases where the Fisher information matrix may be non-invertible. 
+
+Estimation of Objectives and Constraints 
+
+Generalized Advantage Estimation (GAE) is leveraged to accurately estimate the policy gradient, providing a robust foundation for subsequent policy updates. In this process, a sequence of states is gathered through sampling and policy simulation over a specified number of timesteps to produce a trajectory. At each state-action pair, the Q-value is calcu-lated by summing the future rewards discounted over the tra-jectory’s length. After estimating the policy gradient, we implement these calculations within a structured policy iteration framework. Algorithm 1 shows a policy iteration method based on the performance improvement bound in (13), employing the minimization-maximization algorithm (Hunter and Lange 2004). A detailed pseudocode of the supplementary mate-rials is available in the Appendix. 27587 0.0 0.5 1.0 1e7 250 500 750 1000 1250                                           
+
+> Reward (Hopper-v1)
+> 0.0 0.5 1.0 1e7 1000 2000 3000
+> Reward (Walker-v1)
+> 01231e7 01000 2000 3000 4000
+> Reward (Ant-v1)
+> 01231e7 01000 2000 3000 4000
+> Reward (HalfCheetah-v1)
+> 0.0 0.5 1.0 1e7 100 150 200 250 300
+> Cost (Hopper-v1)
+> 0.0 0.5 1.0 1e7 0100 200 300 400 500
+> Cost (Walker-v1)
+> 01231e7 0200 400 600
+> Cost (Ant-v1)
+> 01231e7 0200 400 600
+> Cost (HalfCheetah-v1)
+> IPO APPO CUP EPO FOCOPS TRPOLag PCPO (Ours) IPO APPO CUP EPO FOCOPS TRPOLag PCPO (Ours) IPO APPO CUP EPO FOCOPS TRPOLag PCPO (Ours) IPO APPO CUP EPO FOCOPS TRPOLag PCPO (Ours)
+
+Figure 2: The average performance for IPO, APPO, CUP, EPO, FOCOPS, TRPOLag and PCPO over 6 seeds (about 1000 bootstrap samples). The x-axis indicates the total number of samples, while the y-axis shows the mean total reward/cost return from the most recent 100 episodes. The shaded regions indicate the bootstrap normal 95% confidence interval. Algorithm 1: PCPO 
+
+1: Initialize policy network π0 = πθ0
+
+2: for k = 0 , 1, 2, ... do 
+
+3: Run πk = πθk and store trajectories in D
+
+4: Estimate ∇ ˆG(θ), ∇ ˆφτ (gC i (θ)) ∇gC i (θ), ∇Iπθ 
+
+> Ci
+
+(θ),with D
+
+5: Update θk+1 using Eq.(17) 
+
+6: Empty D
+
+7: end for 
+
+# Experiments 
+
+The efficacy of the PCPO algorithm is demonstrated with various robotic agents on both Safe Velocity and Safe Navigation tasks, which are integrated into the Safety-gymnasium (Ji et al. 2023) and executed using the Mu-JoCo physical simulator. Specifically, in the Safe Velocity tasks, four robotic agents are trained to move under strict speed limits. In Safe Navigation tasks, two agents perform circular-motion tasks within constrained environments. Seven distinct RL algorithms are employed for compara-tive analysis within these environments. IPO (Liu, Ding, and Liu 2020) applies a log-barrier to enforce constraints. CUP (Yang et al. 2022) and FOCOPS (Zhang, Vuong, and Ross 2020) represent constrained policy update methods that ex-plore the policy parameter space to satisfy constraints. TR-POLag (Schulman et al. 2015) combines TRPO’s trust re-gion with the Lagrangian optimization. APPO (Dai et al. 2023) reduces oscillation in Lagrangian-based learning. EPO (Gao et al. 2024), enhances safe exploration via adap-tive penalties. Further details are provided in the Appendix. 
+
+Evaluation on Safe Velocity Task 
+
+Four MuJoCo environments are selected for training a robotic agent to walk, subject to a speed limit. The cost thresholds are set at 50 percent of the cost required by an unconstrained TRPO agent, which is trained with 10 mil-lion samples. According to Figure 2, PCPO consistently out-performs most baseline algorithms across the Safe Velocity tasks while strictly adhering to the speed limits. In compar-ison with APPO, CUP, EPO, and FOCOPS, PCPO achieves superior overall performance and significantly lower con-straint violations. IPO shows competitive returns in certain environments, but this advantage is accompanied by sub-stantial constraint violations, indicating that its improve-ment largely comes from exploring unsafe regions. In con-trast, PCPO maintains constraint satisfaction. While TRPO-Lag performs comparably well in Ant-v1, PCPO achieves markedly lower violations and reduced oscillation, resulting in a more stable and safety-compliant learning process. In Hopper-v1, TRPOLag appears to continue improving with more iterations; however, this trend may be influenced by its broader exploration of unsafe regions before convergence. Overall, our analysis confirms that PCPO effectively exe-cutes all tasks. In Table 1, we summarize the performance of all seven algorithms. 27588 Environment IPO APPO CUP EPO FOCOPS TRPOLag PCPO Hopper Return 1096 ±27 1150 ± 58 1077 ± 175 1119 ± 106 1152 ± 28 1307 ± 164 1342 ± 59                                                                                                                               
+
+> (250.) Cost 247 ±10 249 ±4234 ±32 218 ±62 254 ±8259 ±40 239 ±3
+> Walker Return 3138 ±192 2798 ±155 2649 ±352 2672 ±789 3084 ±126 2785 ±543 3572 ±271
+> (333.) Cost 344 ±8336 ±8293 ±122 318 ±12 386 ±117 295 ±61 313 ±18
+> Ant Return 3966 ±193 3469 ±47 3569 ±218 2975 ±170 3388 ±611 3444 ±374 3752 ±228
+> (465.) Cost 505 ±25 460 ±4559 ±180 442 ±20 443 ±209 467 ±110 449 ±8
+> HalfCheetah Return 3835 ±427 3373 ±257 2494 ±524 2680 ±318 3111 ±669 3303 ±1634 3747 ±167
+> (450.) Cost 476 ±29 449 ±4369 ±128 429 ±18 518 ±188 515 ±294 432 ±16
+
+Table 1: Average episode return and cost for IPO, APPO, CUP, EPO, FOCOPS, TRPOLag and PCPO over 6 seeds. The results include the bootstrap mean and normal 95% confidence interval, derived from 1000 bootstrap samples. Cost thresholds are indicated in brackets beneath the environment names. 
+
+Evaluation on Safe Navigation Task 
+
+For these tasks, we examine the performance of the point and car agents within the Safe Navigation tasks, particu-larly focusing on the circular motion mode. The objective is to train a robotic agent that can navigate within a circular perimeter while avoiding the boundaries of the environment. Consistent with prior tasks, we display the learning curves and provide numerical summaries. Notably, our findings re-veal that PCPO effectively enforces the constraints in both experiments while achieving a commendable reward. As depicted in Figure A1 and Table A3 in the Appendix, similar to the results of the experiment on Safe Velocity tasks, IPO, CUP, EPO, FOCOPS, and TRPOLag exhibit considerable fluctuations in meeting the target constraints, whereas our method remains highly stable and consistently falls below the cost limitation thresholds throughout the learning process. APPO also achieves relatively stable con-straint satisfaction, but its final performance is noticeably lower than that of PCPO. The result indicates that PCPO not only minimizes constraint violations but also converges to a superior solution. 
+
+Generalization Analysis 
+
+RL algorithm relies heavily on interaction with the envi-ronment, adjusting decision-making processes based on re-wards and penalties. Traditional methods partition datasets into training, validation, and test sets to evaluate algorithm performance through simulated assessments, yet fail to ad-equately maintain consistency with RL training dynamics. Thus, such fixed dataset allocations are insufficient for ex-trapolating algorithm performance levels in actual tasks. In contrast, adaptation to complex tasks and dynamic changes can be more effectively achieved by interacting directly with the environment and learning through trial and error. This approach leads to more accurate solutions. To better assess the generalization of the PCPO algorithm, an approach utilizing fixed and unseen random seeds is im-plemented. This method evaluates performance under varied conditions, reflecting real-world scenarios more accurately. Experiments demonstrate that the PCPO algorithm outper-forms others by effectively adapting to different test environ-ments and consistently enhancing performance while main-taining lower costs. For specific experimental details and data, please refer to the Appendix. 
+
+Sensitivity Analysis 
+
+In this analysis, it is investigated the dependency of the PCPO algorithm’s performance on the hyperparameters τ .The experiment investigations demonstrate that the algo-rithm exhibits robustness to variations in this parameter. Ex-periments are conducted on robots operating under speed constraints to validate this observation. We conducted experiments with PCPO across 4 distinct 
+
+τ values, simultaneously maintaining all other parameters fixed. Finally, the experiment observes that environments presenting greater difficulty, exhibit heightened sensitivity to parameter selections. Nevertheless, PCPO demonstrates substantial insensitivity to hyperparameter choices overall. Additionally, we note that our methods gain a more signif-icant return and cost with a greater selection of τ . We also investigate the impact of the weighting parameter ω, which controls the relative contribution of the constraint-aware in-trinsic reward with respect to the environment reward. See Appendix for details and data of specific results 
+
+Ablation Study 
+
+The ablation studies highlight the effectiveness of preemp-tive penalties in the PCPO method, unlike the TRPOLag method, which does not utilize these penalties, as demon-strated in Figures 2 and A1 in the Appendix, and Tables 1 and A3 in the Appendix. The importance of intrinsic reward for dynamically shaping exploration and improving the ef-fectiveness of safe policy learning is emphasized. We also evaluate the effectiveness of our designed barrier function. The results of Safe Velocity tasks indicate significant per-formance improvements with the PCPO method. For further details, see Appendix. 
+
+# Conclusion 
+
+In this article, we present PCPO, which integrates preemp-tive penalties and a constraint-aware intrinsic reward to mit-igate oscillation, overshooting, and vanishing gradients. Ex-periments show that PCPO improves safety during learning and outperforms existing algorithms across standard bench-marks. This method effectively reduces constraint viola-tions, adapts to varying cost limits, and demonstrates strong generalization capabilities. The implementation of PCPO is straightforward, making it accessible to researchers in other fields, particularly in safety-critical applications. 27589 Acknowledgments 
+
+This work was supported by the National Natural Science Foundation of China under Grant 62301559. 
+
+# References 
+
+Achiam, J.; Held, D.; Tamar, A.; and Abbeel, P. 2017. Con-strained policy optimization. In International conference on machine learning , 22–31. PMLR. Altman, E. 2021. Constrained Markov decision processes .Routledge. Chen, W.; Onyejizu, J.; Vu, L.; Hoang, L.; Subramanian, D.; Kar, K.; Mishra, S.; and Paternain, S. 2024. Adap-tive Primal-Dual Method for Safe Reinforcement Learning. arXiv:2402.00355. Chow, Y.; Ghavamzadeh, M.; Janson, L.; and Pavone, M. 2018a. Risk-constrained reinforcement learning with per-centile risk criteria. Journal of Machine Learning Research ,18(167): 1–51. Chow, Y.; Nachum, O.; Duenez-Guzman, E.; and Ghavamzadeh, M. 2018b. A lyapunov-based approach to safe reinforcement learning. Advances in neural information processing systems , 31. Chow, Y.; Nachum, O.; Faust, A.; Duenez-Guzman, E.; and Ghavamzadeh, M. 2019. Lyapunov-based Safe Policy Opti-mization for Continuous Control. arXiv:1901.10031. Dai, J.; Ji, J.; Yang, L.; Zheng, Q.; and Pan, G. 2023. Aug-mented Proximal Policy Optimization for Safe Reinforce-ment Learning. Proceedings of the AAAI Conference on Ar-tificial Intelligence , 37(6): 7288–7295. Dalal, G.; Dvijotham, K.; Vecerik, M.; Hester, T.; Paduraru, C.; and Tassa, Y. 2018. Safe Exploration in Continuous Ac-tion Spaces. arXiv:1801.08757. Ding, Y.; and Lavaei, J. 2023. Provably efficient primal-dual reinforcement learning for cmdps with non-stationary objectives and constraints. In Proceedings of the AAAI Con-ference on Artificial Intelligence , 7396–7404. Gao, S.; Ding, J.; Fu, L.; Wang, X.; and Zhou, C. 2024. Ex-terior Penalty Policy Optimization with Penalty Metric Net-work under Constraints. In International Joint Conference on Artificial Intelligence .Ghosh, R. 2025. Safe Reinforcement Learning for Multi-Agent Systems with Risk Constraints. Gu, S.; Sel, B.; Ding, Y.; Wang, L.; Lin, Q.; Jin, M.; and Knoll, A. 2024a. Balance reward and safety optimization for safe reinforcement learning: A perspective of gradient manipulation. In Proceedings of the AAAI Conference on Artificial Intelligence , 21099–21106. Gu, S.; Yang, L.; Du, Y.; Chen, G.; Walter, F.; Wang, J.; and Knoll, A. 2024b. A review of safe reinforcement learning: Methods, theories and applications. IEEE Transactions on Pattern Analysis and Machine Intelligence .Hao, G.; Li, Y.; Li, Y.; Jiang, L.; and Zeng, Z. 2024. Lyapunov-based safe reinforcement learning for microgrid energy management. IEEE transactions on neural networks and learning systems .Honari, H.; Soufi Enayati, A. M.; Ghafarian Tamizi, M.; and Najjaran, H. 2024. Meta SAC-Lag: Towards Deployable Safe Reinforcement Learning via MetaGradient-based Hy-perparameter Tuning. In 2024 IEEE/RSJ International Con-ference on Intelligent Robots and Systems (IROS) , 619–626. Hunter, D. R.; and Lange, K. 2004. A tutorial on MM algo-rithms. The American Statistician , 58(1): 30–37. Ibrahim, S.; Mostafa, M.; Jnadi, A.; Salloum, H.; and Osi-nenko, P. 2024. Comprehensive Overview of Reward Engi-neering and Shaping in Advancing Reinforcement Learning Applications. IEEE Access , 12: 175473–175500. Ji, J.; Zhang, B.; Zhou, J.; Pan, X.; Huang, W.; Sun, R.; Geng, Y.; Zhong, Y.; Dai, J.; and Yang, Y. 2023. Safety gymnasium: A unified safe reinforcement learning bench-mark. Advances in Neural Information Processing Systems ,36. Kervadec, H.; Dolz, J.; Yuan, J.; Desrosiers, C.; Granger, E.; and Ayed, I. B. 2022. Constrained deep networks: La-grangian optimization via log-barrier extensions. In 2022 30th European Signal Processing Conference (EUSIPCO) ,962–966. IEEE. Kwon, H.; Lee, G.; Lee, J.; and Oh, S. 2024. Safe CoR: A Dual-Expert Approach to Integrating Imitation Learning and Safe Reinforcement Learning Using Constraint Rewards. In 2024 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , 2893–2898. IEEE. Li, Z.; Zhu, D.; and Grossklags, J. 2025. Safe Reinforcement Learning via Episodic Control. IEEE Access .Liu, Y.; Ding, J.; and Liu, X. 2020. IPO: Interior-point policy optimization under constraints. In Proceedings of the AAAI conference on artificial intelligence , 4940–4947. Mnih, V.; Badia, A. P.; Mirza, M.; Graves, A.; Lillicrap, T.; Harley, T.; Silver, D.; and Kavukcuoglu, K. 2016. Asyn-chronous methods for deep reinforcement learning. In In-ternational conference on machine learning , 1928–1937. PMLR. Schulman, J.; Levine, S.; Abbeel, P.; Jordan, M.; and Moritz, P. 2015. Trust region policy optimization. In International conference on machine learning , 1889–1897. PMLR. Silver, D. 2015. Reinforcement learning. Stooke, A.; Achiam, J.; and Abbeel, P. 2020. Responsive safety in reinforcement learning by pid lagrangian methods. In International Conference on Machine Learning , 9133– 9143. PMLR. Su, T.; Wu, T.; Zhao, J.; Scaglione, A.; and Xie, L. 2025. A review of safe reinforcement learning methods for modern power systems. Proceedings of the IEEE .Tessler, C.; Mankowitz, D. J.; and Mannor, S. 2018. Re-ward constrained policy optimization. arXiv preprint arXiv:1805.11074 .Wachi, A.; Shen, X.; and Sui, Y. 2024. A Survey of Constraint Formulations in Safe Reinforcement Learning. arXiv:2402.02025. Wagener, N. C.; Boots, B.; and Cheng, C.-A. 2021. Safe reinforcement learning using advantage-based intervention. 27590 In International Conference on Machine Learning , 10630– 10640. PMLR. Wang, Y.; Zhan, S. S.; Jiao, R.; Wang, Z.; Jin, W.; Yang, Z.; Wang, Z.; Huang, C.; and Zhu, Q. 2023. Enforcing Hard Constraints with Soft Barriers: Safe Reinforcement Learn-ing in Unknown Stochastic Environments. In International Conference on Machine Learning , 36593–36604. Yang, L.; Ji, J.; Dai, J.; Zhang, L.; Zhou, B.; Li, P.; Yang, Y.; and Pan, G. 2022. Constrained update projection approach to safe policy optimization. Advances in Neural Information Processing Systems , 35: 9111–9124. Yang, T.-Y.; Rosca, J.; Narasimhan, K.; and Ramadge, P. J. 2020. Projection-based constrained policy optimization. 
+
+arXiv preprint arXiv:2010.03152 .Ying, D.; Zhang, Y.; Ding, Y.; Koppel, A.; and Lavaei, J. 2024. Scalable primal-dual actor-critic method for safe multi-agent rl with general utilities. Advances in Neural In-formation Processing Systems , 36. Zhang, Q.; Leng, S.; Ma, X.; Liu, Q.; Wang, X.; Liang, B.; Liu, Y.; and Yang, J. 2024. CVaR-constrained policy opti-mization for safe reinforcement learning. IEEE transactions on neural networks and learning systems , 36(1): 830–841. Zhang, Y.; Vuong, Q.; and Ross, K. 2020. First order con-strained optimization in policy space. Advances in Neural Information Processing Systems , 33: 15338–15349. 27591

@@ -1,0 +1,421 @@
+Title: Ellipsoid-Based Decision Boundaries for Open Intent Classification
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/40837/44798
+
+Number of Pages: 9
+
+Markdown Content:
+# Ellipsoid-Based Decision Boundaries for Open Intent Classification 
+
+## Yuetian Zou 1* , Hanlei Zhang 1* , Hua Xu 1† , Songze Li 2, Long Xiao 2
+
+> 1
+
+Tsinghua University 
+
+> 2
+
+Hebei University of Science and Technology zouyt21@mails.tsinghua.edu.cn, zhang-hl20@mails.tsinghua.edu.cn, xuhua@mail.tsinghua.edu.cn 
+
+Abstract 
+
+Textual open intent classification is crucial for real-world di-alogue systems, enabling robust detection of unknown user intents without prior knowledge and contributing to the ro-bustness of the system. While adaptive decision boundary methods have shown great potential by eliminating manual threshold tuning, existing approaches assume isotropic distri-butions of known classes, restricting boundaries to balls and overlooking distributional variance along different directions. To address this limitation, we propose EliDecide, a novel method that learns ellipsoid decision boundaries with vary-ing scales along different feature directions. First, we employ supervised contrastive learning to obtain a discriminative fea-ture space for known samples. Second, we apply learnable matrices to parameterize ellipsoids as the boundaries of each known class, offering greater flexibility than spherical bound-aries defined solely by centers and radii. Third, we opti-mize the boundaries via a novelly designed dual loss func-tion that balances empirical and open-space risks: expand-ing boundaries to cover known samples while contracting them against synthesized pseudo-open samples. Our method achieves state-of-the-art performance on multiple text intent benchmarks and further on a question classification dataset. The flexibility of the ellipsoids demonstrates superior open intent detection capability and strong potential for general-ization to more text classification tasks in diverse complex open-world scenarios. 
+
+Code — https://github.com/thuiar/textoir 
+
+Extended version — https://arxiv.org/abs/2511.16685 
+
+## Introduction 
+
+Open world classification is critical for robust real-world systems, as it enables accurate recognition of known classes while simultaneously rejecting anomalies to reduce open-space risks (Yang et al. 2024b). This capability is essen-tial across diverse domains, including autonomous driv-ing (Geiger, Lenz, and Urtasun 2012) and medical image analysis (Zimmerer et al. 2022). In the realm of natural lan-guage understanding, dialogue systems specifically require 
+
+> *
+
+These authors contributed equally. 
+
+> †
+
+This is the corresponding author. Copyright © 2026, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. Declined card payment   
+
+> Open Intent
+> Passcode forgotten
+> …… ……
+> Order physical card
+> My payment was rejected. Check payment status
+> Exception Handling
+> Reset passcode
+> …… ……
+> Issue a physical card
+> User : Request Submitting
+> The passcode doesn't work.
+> …… ……
+> I would like a physical card.
+> I want to eat something.
+> Model : Open Intent Classfication System : Action Implementation
+
+Figure 1: Open Intent Classification in Banking: Model clas-sifies user requests into known intents (subsequently trigger-ing corresponding services), or detects unknown ( open ) in-tents (handled as exceptions). the ability to recognize the known user intents while detect-ing unknown ones, which is a significant capability for sys-tem robustness and continuous improvement (Lin and Xu 2019), as shown in Figure 1. Consequently, to develop ro-bust dialogue systems, extensive research (Lin and Xu 2019; Larson et al. 2019; Zhang, Xu, and Lin 2021; Zhang et al. 2023a; Zhou, Liu, and Qiu 2022; Zhou et al. 2023) has fo-cused on open world classification for user intents, known as Open Intent Classification . In this work, we formulate open world classification as a (K+1) -way classification task comprising K known classes and a single unknown ( open )class. This formulation aligns with the established paradigm of Open Set Recognition (OSR) (Scheirer et al. 2012). While the early open world classification methods (Ben-dale and Boult 2016; Hendrycks and Gimpel 2018; Liang, Li, and Srikant 2020) relied on class probability distribu-tions, recent approaches utilize deep representations from pretrained models, which primarily fall into two categories. Scoring-based approaches (Zhou, Liu, and Qiu 2022; Zhou et al. 2023; Zhang et al. 2023b; Yang et al. 2024a; Gautam et al. 2024) construct discriminative feature spaces and iden-tify unknown samples through statistic-based scoring func-tions like local density measures, but they require manual threshold tuning, limiting their practical use. In contrast, boundary-based methods (Zhang, Xu, and Lin 2021; Zhang et al. 2023a; Liu et al. 2023; Chen et al. 2024; Li et al. 2025) avoid thresholds by learning adaptive decision boundaries. The Fortieth AAAI Conference on Artificial Intelligence (AAAI-26) 
+
+35293 Known Samples Open Samples 
+
+> Predicted as Open Space
+
+Figure 2: An example of a known class’s anisotropic feature distribution. The ball boundary excludes a significant por-tion of known samples as the cost of avoiding open ones in-side, while the ellipsoid includes most of the known samples without many open ones inside due to geometric flexibility. However, current boundary-based approaches typically as-sume isotropic feature distributions, ignoring the directional variance inherent in real-world data. As illustrated in Fig-ure 2, ellipsoid boundaries offer a more flexible representa-tion than spherical ones, yielding lower open-space and em-pirical risks while producing more concise closed regions. In this paper, we propose EliDecide, an ellipsoid-based decision boundary learning method for open-world classi-fication. First, supervised contrastive learning is applied to a pre-trained model to obtain discriminative representations that serve as the basis for adaptive boundary construction. In the feature representation space, we construct ellipsoid-shaped boundaries for each known class and regard the out-side of all ellipsoids as the open space. Each ellipsoid is parameterized by a learnable nonsingular matrix encoding both the directions and the lengths of the ellipsoid’s axes. We optimize the boundaries using a dual loss mechanism. A positive loss expands the boundary when known samples (used as positive samples) fall outside it to encourage it to in-volve more known samples, while a negative loss contracts the boundary when pseudo-open samples (used as negative examples) lie too close or within it to prevent it from over-expanding and involving unknown samples. This integrated strategy enables EliDecide to adapt decision boundaries to the inherent directional variance in real-world data, repre-senting the distributions of known samples flexibly and pre-cisly and achieving robust open-world classification. We extensively evaluate EliDecide on benchmark intent datasets and demonstrate its superior performance and ro-bustness compared to state-of-the-art methods. Beyond in-tent, experiments on a question classification dataset show the generalization potential of our method in more diverse and complex open-world classification tasks. Additional ex-periments including comparisons among boundaries of dif-ferent shapes further validate the advantage of the ellipsoid formulation, highlighting its effectiveness and robustness across different open-world scenarios. We summarize our contributions as follows: • To overcome the limitation of spherical boundaries in ex-isting methods, we introduce the first ellipsoid bound-ary method for open world classification. We propose an effective parameterization that represents an ellipsoid via a learnable matrix capturing both axis directions and lengths. Novel and effective dual loss mechanism is de-signed to optimize the parameter matrices of boundaries. • We evaluate EliDecide on two benchmark intent datasets as well as a question classification dataset, achieving a new state-of-the-art performance across all tasks. This demonstrates its robust effectiveness and strong gener-alization capabilities. • Comprehensive additional experiments and analysis in-cluding geometric interpretation, ablation studies and performance comparisons with Large Language Models (LLMs) validate the theoretical foundations and practical superiority of our methodology. 
+
+## Related Works 
+
+Based on the primary detection criterion, existing methods fall into two categories: probability-based methods and deep representation-based methods. 
+
+Probability-Based Methods 
+
+Early-stage methods detect open samples using class prob-ability distributions. For example, OpenMax (Bendale and Boult 2016) modifies softmax networks by replacing the penultimate layer with activation vectors to obtain the probabilities of (K + 1) -way classification task. Softmax-MSP (Hendrycks and Gimpel 2018) demonstrates that soft-max probabilities can serve as a baseline for distinguish-ing between known and unknown data, while ODIN (Liang, Li, and Srikant 2020) improves this approach by applying temperature scaling and input perturbations. However, these methods rely solely on output probabilities and fail to lever-age the deep semantic features. 
+
+Deep Representation-Based Methods 
+
+Recent approaches overcome the limitations of softmax-based classifiers by exploiting deep semantic features ex-tracted by pre-trained models. These methods can be fur-ther categorized as scoring-based methods and adaptive boundary-based methods .
+
+Scoring-based methods learn discriminative feature rep-resentations to calculate confidence scores and discriminate between known and open samples by comparing the scores against a threshold. For example, DOC (Shu, Xu, and Liu 2017) employs a one-vs-rest sigmoid layer to detect open samples. Lin and Xu (2019) first explores open intent de-tection using bidirectional LSTMs with local outlier factor (LOF) techniques. KNNCL (Zhou, Liu, and Qiu 2022) uses contrastive learning to improve the discriminability of se-mantic features. DE (Zhou et al. 2023) addresses deep over-confidence by voting based-early exiting. SCOOS (Gautam et al. 2024) leverages the embeddings of the intent labels as semantic cues. Both KNNCL and DE adopt the density-based scoring functions like LOF for detecting open sam-ples while SCOOS uses statistic-based thresholds. However, manual threshold tuning hinders their practical deployment. 
+
+Adaptive boundary-based methods dynamically adjust decision boundaries instead of relying on manually tuned thresholds. Zhang, Xu, and Lin (2021) further formulates the open intent classification task and proposes ball-like adap-tive decision boundaries to reduce open-space risk. On this 35294 SCL Loss Stage 1: Representation Learning Ellipsoid’s Center           
+
+> Compare with Radius Known Intent Open Intent Stage 2: Ellipsoid Boundary Construction Interior Exterior
+> Pseudo Open Sample Generation
+> Dropout Augmentation Positive Samples Optimize Legend Input Sentence Input/Output BERT Learnable Module Normalization Operation SCL Loss Loss Function Forward Data Backward Data
+> BERT
+> Mean Pooling
+> Dense Layer
+> Normalization
+> Input Sentence
+> Discriminative Features on Known Classes Average
+> Negative Samples Rotate & Scale (Parameterized by Matrix)
+> Translate
+> Contraction Loss Expansion Loss Negative Sample Positive Sample Optimize
+
+Figure 3: The structure of our method. The first stage is to learn discriminative representations by SCL and then learn ellipsoid-based boundaries with expansion and contraction losses by using both positive and pseudo-negative samples. basis, to refine the feature representation for the boundaries, DA-ADB (Zhang et al. 2023a) introduces Distance-Aware Representation Learning and TCAB (Chen et al. 2024) applies a triplet-contrastive learning strategy. CLAB (Liu et al. 2023) designs a novel loss function with expanding and shrinking operations to learn more suitable boundaries. MOGB (Li et al. 2025) establishes multiple spherical bound-aries for individual classes. Different from the existing meth-ods with spherical boundaries, our proposed method intro-duces a more flexible and adaptive ellipsoidal boundaries that provide discriminative criteria for this challenging task. 
+
+## Proposed Method 
+
+Our proposed method aims to build an ellipsoid-shaped boundary to describe the distribution of each known class in the feature space. The complementary space to all the ellipsoids will be regarded as the open space. Our method can be separated into two stages as shown in Figure 3. In the first stage, we apply supervised contrastive learn-ing (Khosla et al. 2020) to learn discriminative representa-tions for boundary learning. Then, we construct ellipsoid-based boundaries and optimize them with novelly designed dual optimization objectives by using both positive and pseudo-negative samples. 
+
+Representation Learning 
+
+Following (Zhang, Xu, and Lin 2021; Zhou, Liu, and Qiu 2022; Zhou et al. 2023), we apply pre-trained BERT model (Devlin et al. 2019) as the backbone for feature ex-traction and use the average representations of the last layer of the encoder to yield the sentence-level representation: 
+
+xi = 1
+
+N + 1 ([CLS] +
+
+> N
+
+X
+
+> j=1
+
+Tj ), z i = W x i + b
+
+|| W x i + b|| 2
+
+, (1) where N is the number of tokens in the sentence, [CLS] and 
+
+{Ti}Ni=1 ∈ RH are token-level features, H is the hidden size. As suggested in (Zhang et al. 2023a), we add a linear layer with the weight matrix W ∈ RH×n and bias vector b ∈ Rn
+
+to enhance the vanilla representation xi, where n is the di-mension of the representation. Normalization is applied to ensure compactness of the representation space and harmo-nize the scales of the distributions among classes, yielding the final representation zi ∈ Rn.With the motivation of pushing intra-class compact and inter-class separation, we apply supervised contrastive learn-ing (Khosla et al. 2020) as below: 
+
+Lcon = − X
+
+> i∈I
+
+1
+
+|Pi|
+
+X
+
+> p∈Pi
+
+log exp( zi · zp/τ )
+
+P 
+
+> a∈Ai
+
+exp( zi · za/τ ) , (2) where I are the sample indices in a mini-batch, Ai =
+
+I \ { i} and Pi = {p ∈ A(i)|yp = yi}. Here we apply 
+
+dropout augmentation (Gao, Yao, and Chen 2021) to obtain the positive augmentation of each sample. By minimizing 
+
+Lcon , the representations of samples with the same label are encouraged to converge, whereas those of samples with dis-tinct labels are induced to diverge. 
+
+Ellipsoid Boundary Construction 
+
+For each known class k, we denote the region inside its el-lipsoid boundary as Ek ⊂ Rn. To construct this boundary, we first compute the centroid of the ellipsoid and then learn a matrix that encodes its shape , including both its size and orientation. Simultaneously, we construct an affine transfor-mation that maps the ellipsoid to a ball, which is useful for determining whether a point lies within the ellipsoid and for calculating the proposed loss function. 
+
+Centroid Computation For each known class k, we com-pute the ellipsoid centroid ck as the mean of the representa-35295 tions of samples belonging to class k:
+
+ck = 1
+
+|Sk|
+
+X
+
+> zi∈Sk
+
+zi, (3) where Sk = {zi | yi = k} denotes the representation set of class k.
+
+Shape Parameterization via Learnable Matrix In this section we parameterize an ellipsoid fEk with the center at the origin, namely a centralized ellipsoid , as a pattern of the shape (size and orientation) of Ek. Then Ek is defined by a simple translation: 
+
+Ek = fEk + ck := {ˆx ∈ Rn | ˆx = x + ck, x ∈ fEk}. (4) A centralized ellipsoid is commonly characterized by n or-thogonal unit vectors {di}ni=1 specifying its axis directions and corresponding positive axis lengths {ai}ni=1 ⊂ R+.However, directly optimizing the orthogonal vectors {di}
+
+using gradient descent is intractable due to the rigid orthog-onality constraints. To overcome this, we propose to learn a matrix Ak ∈ Rn×n that implicitly encodes both the axis directions and scales and define the centralized ellipsoid as 
+
+fEk = {x ∈ Rn | ∥ Akx∥2 ≤ ∆k} , (5) where ∆k = 1 
+
+> |Sk|
+
+P 
+
+> zi∈Sk
+
+|| zi − ck|| 2 is the average distance between the centroid ck and samples with label k to enhance the numerical stability among known classes with different scales. This formulation eliminates the need for explicit or-thogonality constraints while ensuring that fEk remains an ellipsoid. To demonstrate that fEk defined by Eq.5 is indeed an el-lipsoid, we start by expanding the quadratic form induced by 
+
+Ak to reveal the structure of the ellipsoid, which then leads naturally to the construction of a symmetric matrix and its spectral interpretation. 
+
+Quadratic Form Expansion: Let Ak = [ am,i ] ∈ Rn×n
+
+be the learnable matrix and x = ( x1, . . . , x n)⊤ ∈ Rn. Then the squared norm ∥Akx∥22 can be expanded as: 
+
+∥Akx∥22 =
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> k=1
+
+ak,i 
+
+!2
+
+x2
+
+> i
+
++ 2 X
+
+> 1≤i<j ≤n
+> n
+
+X
+
+> k=1
+
+ak,i ak,j 
+
+!
+
+xixj ,
+
+(6) which reveals both the quadratic and cross terms. 
+
+Symmetric Matrix Construction: We define a symmet-ric matrix cAk = [ bai,j ] by 
+
+bai,i =
+
+> n
+
+X
+
+> m=1
+
+a2 
+
+> m,i
+
+(diagonal terms ),
+
+bai,j = baj,i =
+
+> n
+
+X
+
+> m=1
+
+am,i am,j (i̸ = j),
+
+(7) which exactly captures the coefficients appearing in (6). Therefore, we can rewrite 
+
+∥Akx∥22 = x⊤ cAkx. (8) 
+
+Spectral Interpretation: The centralized ellipsoid can be equivalently expressed as 
+
+fEk = {x ∈ Rn | x⊤ cAkx ≤ ∆2
+
+> k
+
+}. (9) Since cAk is symmetric positive-definite, its spectral decom-position is given by cAk = Pni=1 λi did⊤ 
+
+> i
+
+, where {di}ni=1 are orthonormal eigenvectors and λi > 0 are the corresponding eigenvalues. This implies that the ellipsoid’s axes are aligned with the eigenvectors d1, . . . , d n and have lengths ai = ∆k√λi
+
+.It has been proved that fEk is a centralized ellipsoid whose axes are {di}ni=1 and their lengths are {ai}ni=1 correspond-ingly, and thereby Ek is also an ellipsoid parameterized as: 
+
+Ek = {x ∈ Rn | ∥ Ak(x − ck)∥2 ≤ ∆k} (10) by (4) and (5). Finally, we define the affine transformation 
+
+φk(z) = Ak(z − ck) (11) that map Ek to a centralized ball. In particular, 
+
+z ∈ Ek ⇐⇒ ∥ φk(z)∥2 ≤ ∆k. (12) This equivalence provides a convenient parametrization for points within the ellipsoid. 
+
+Boundary Optimization Objectives To establish dis-criminative class boundaries, we design dual-directional boundary adjustment mechanisms through complementary loss functions. For known samples, boundaries are opti-mized to expand and encompass their distribution, while synthesized pseudo-negative samples induce boundary con-traction in under-explored regions. 
+
+Expansion Loss: Given a labeled sample z from class k,we define the expansion loss as: 
+
+Lp,k (z) := max ( ∥φk(z)∥2 − ∆k, 0) (13) This loss activates when z resides outside the current class boundary ( ∥φk(z)∥2 > ∆k), creating gradient signals that 
+
+expand the boundary radially until it encloses the sample. Continuous application of this mechanism enables dynamic boundary adaptation to the inherent data distribution. 
+
+Contraction Loss: To mitigate over-generalization into regions without known samples, we generate pseudo-open samples as negative samples to encourage the boundaries to contract in those areas. The pseudo-open samples are synthesized by mixing P known samples with distinct la-bels (Zhang et al. 2024). Specifically, a pseudo-open sample is computed as 
+
+z′ =
+
+> P
+
+X
+
+> i=1
+
+λizi, with λ ∼ Dir( α), (14) where P and α are hyperparameters, and {zi}Pi=1 are known samples with P different labels. The coefficients {λi} are drawn from a Dirichlet distribution (ensuring PPi=1 λi = 1 
+
+and λi ∈ [0 , 1] ). Choosing α < 1 typically forces one coef-ficient to dominate, so that each pseudo-open sample tends to lie close to one known class while still exhibiting slight influences from the others. 35296 The motivation behind the contraction loss is to push the boundary inward when a negative sample lies too close to or inside the boundary. For a negative sample z′ with respect to class k, the negative loss is defined as: 
+
+Ln,k (z′) = 
+
+(∆ k − rk(z′)) + β, rk(z′) < ∆k
+
+βe∆k −rk (z′), rk(z′) ≥ ∆k
+
+(15) where rk(z′) = ∥φk(z′)∥2, β is a hyperparameter that con-trols the penalty strength. Specifically, when ∥φk(z′)∥2 <
+
+∆k, the loss increases linearly as the negative sample pen-etrates deeper into the boundary, thus exerting a direct con-traction force. When ∥φk(z′)∥2 ≥ ∆k, the exponential term applies a softer penalty, ensuring a gradual enforcement of the boundary’s inward contraction. The parameter β effec-tively balances these two regimes, with larger values of β
+
+inducing a stronger contraction effect on the boundary. The final optimization objective Ltot aggregates per-sample losses across all classes: 
+
+Ltot =
+
+> K
+
+X
+
+> k=1
+
+" X
+
+> z∈B∩ Sk
+
+Lp,k (z) + X
+
+> z′∈B ′
+
+Ln,k (z′)
+
+#
+
+(16) where B denotes a training batch and B′ is a correspond-ing set of negative samples of the same size, generated by 
+
+B. This formulation jointly coordinates boundary expansion and contraction through gradient signals from both positive and negative samples. 
+
+Inference 
+
+For a given sample z, we first assign it to the nearest class based on the Euclidean distance to class centroids: 
+
+j = arg min  
+
+> k∈{ 1,...,K }
+
+∥z − ck∥2. (17) Next, we check whether z falls within the ellipsoid boundary 
+
+Ej by verifying 
+
+∥φj (z)∥2 ≤ ∆j , (18) which implies z ∈ Ej . Otherwise, if 
+
+∥φj (z)∥2 > ∆j , (19) 
+
+z is rejected as an open sample based on the high-confidence inference that z / ∈ SKk=1 Ek.
+
+## Experiments 
+
+Experimental Settings 
+
+Datasets To validate the effectiveness of our method, we use three widely recognized datasets, including two intent datasets Banking (Casanueva et al. 2020) and OOS (Larson et al. 2019) and a question classification dataset StackOver-flow (Xu et al. 2015) . Details are provided in the appendix. 
+
+Baselines We compare our method with the following open-world classification approaches: OpenMax (Bendale and Boult 2016), Softmax-MSP (Hendrycks and Gimpel 2018), DOC (Shu, Xu, and Liu 2017), ADB (Zhang, Xu, and Lin 2021), DA-ADB (Zhang et al. 2023a), KNNCL (Zhou, Liu, and Qiu 2022), DE (Zhou et al. 2023), CLAB (Liu et al. 2023) and MOGB (Li et al. 2025). Detailed descriptions of these baselines are provided in the appendix. To ensure a fair comparison across different methods, we use BERT as the backbone model and conduct experiments on the open world classification platform TEXTOIR (Zhang et al. 2021) for all methods. We integrated the released im-plementations of DE, CLAB and MOGB into TEXTOIR. For other methods, the implementations included in TEX-TOIR are used. 
+
+Evaluation Metrics Following the metric adopted in pre-vious work (Zhang, Xu, and Lin 2021), we use the aver-age F1-score (F1) and the average accuracy (ACC) over all classes as metrics to evaluate the performance. 
+
+Implementation Details Following previous work DA-ADB (Zhang et al. 2023a), we randomly select 25%, 50%, and 75% of all classes as known classes with the remainder designated as unknown classes. The ratio of known classes selected is denoted as Known Class Ratio (KCR). Samples from unknown classes are excluded from the training and validation sets but retained in the test set, ensuring no un-known samples are present in the training and validation processes. For each setting, we conduct five rounds of ex-periments using random seeds 0,1,2,3 and 4 respectively and report the averages. Further implementation details of each method are provided in the appendix. 
+
+Main Results 
+
+Results are presented in Table 1. Our method achieves the top results in almost all settings, demonstrating its effective-ness in enhancing both known and open intent classification. To assess generalization, we calculated the average perfor-mances across three KCR settings for each dataset. Our ap-proach achieves 0.54%-2.66% improvement across all set-tings, highlighting the effectiveness and generalizability of the ellipsoid boundary and dual loss methodology in bal-ancing empirical and open-space risks. Notably, compared to existing boundary-based methods ADB, DA-ADB and CLAB, our method exhibits performance gains specifically under 25% and 50% KCR settings. This improvement can be attributed to the ellipsoid boundary, which more effec-tively adapts to the presence of numerous unknown classes, resulting in a more precise decision boundary. This obser-vation further suggests that our ellipsoid boundary design effectively improves the model’s detection performance. 
+
+## Discussions 
+
+To further validate the theory and demonstrate the effective-ness of our method, we conduct additional experiments and deep analysis from the following aspects: (1) the geometric advantage of ellipsoids comparing with balls, which is the primary novelty of our method; (2) ablation studies of major components; (3) the comparison with LLMs, showing the limitations of LLMs and supporting the value of our work. More discussions are stated in the appendix. 
+
+Geometric Advantages of Ellipsoid 
+
+To show the geometric advantages of ellipsoids, we com-pare them against balls with different radii. To avoid bias in-35297 Datasets Methods KCR=25% KCR=50% KCR=75% Average F1 ACC F1 ACC F1 ACC F1 ACC Banking Softmax-MSP 50.72 40.35 69.04 53.80 83.12 74.21 67.63 56.12 DOC 62.09 61.19 80.43 75.30 86.78 81.23 76.43 72.57 OpenMax 56.19 53.00 74.40 65.01 84.88 77.87 71.82 65.29 ADB 73.21 81.50 81.09 79.35 85.61 80.72 79.97 80.52 DA-ADB 74.75 81.06 82.22 80.76 85.69 80.89 80.89 80.90 KNNCL 77.30 85.72 81.10 82.61 82.22 77.35 80.21 81.89 DE 67.36 69.99 79.20 72.64 86.77 80.51 77.78 74.38 CLAB 72.85 79.04 83.17 81.36 86.70 81.92 80.91 80.77 MOGB 64.34 70.56 73.37 71.80 71.98 66.71 69.90 69.69                                                                                                                                                                         
+
+> EliDecide 77.75 85.81 83.74 82.90 86.80 81.97 82.76 83.56
+> OOS Softmax-MSP 51.36 53.05 77.99 74.30 84.29 76.91 71.21 68.09 DOC 72.32 81.32 84.51 84.18 89.56 86.90 82.13 84.13 OpenMax 64.89 72.33 80.03 80.99 74.58 77.06 73.17 76.79 ADB 79.18 89.03 85.77 87.21 88.83 86.85 84.59 87.70 DA-ADB 80.51 89.85 86.62 88.84 88.53 87.47 85.22 88.72 KNNCL 82.05 92.95 84.51 89.07 85.03 84.96 83.86 88.99 DE 72.54 80.85 83.51 82.91 88.93 85.67 81.66 83.14 CLAB 78.24 87.25 86.40 88.44 89.42 88.02 84.69 87.90 MOGB 72.34 82.15 75.31 77.86 71.52 71.47 73.06 77.16
+> EliDecide 84.48 92.57 88.57 90.56 90.21 88.98 87.75 90.70
+> StackOverflow Softmax-MSP 38.13 27.69 62.30 49.50 76.17 69.99 58.87 49.06 DOC 45.84 38.88 64.88 53.81 78.14 72.01 62.95 54.90 OpenMax 45.37 38.49 69.68 63.44 79.82 74.62 64.96 58.85 ADB 80.19 87.19 84.72 85.60 86.10 82.98 83.67 85.26 DA-ADB 83.44 90.02 86.77 87.82 87.14 84.05 85.78 87.30 KNNCL 77.47 83.26 84.70 84.84 87.10 83.87 83.09 83.99 DE 60.86 60.12 75.92 71.58 84.18 79.78 73.65 70.49 CLAB 73.61 78.07 85.79 86.19 87.64 84.48 82.35 82.91 MOGB 70.91 76.78 79.13 77.91 82.47 78.06 77.50 77.58
+> EliDecide 84.35 90.74 87.06 87.86 88.00 84.93 86.47 87.84
+
+Table 1: Results of the main experiments with different Known Class Ratio (KCR) settings on three datasets. To compare the generalization of methods, the average performances across three KCR settings are also reported in the last two columns for each dataset. The best performances are shown in bold , while the second-best are underlined. troduced by potentially suboptimal training procedures, we vary the radii by a hyperparameter called the Coverage Frac-tion (CF) instead of determining them through training. For each known class k, the ball’s radius is set as the distance from its centroid to the ⌊CF |Sk|⌋ -th nearest training sam-ple. Consequently, each ball boundary is designed to include a fraction CF of its class’s training samples. Results are presented in the top section of Table 2. Ball boundaries defined by CF fail to achieve optimal perfor-mance across different KCRs under the same hyperparam-eter, which highlights the necessity for adaptive training methods. Figure 4 illustrates the trade-off that a small CF causes excessive rejection of known samples as open. while a large CF fails to reject many open samples. Notably, even with KCR-specific CF tuning, balls underperform ellipsoids by 0.8%-1.9%. We attribute this gap to the inherent geo-metric constraint of balls, underscoring the advantage of the more flexible ellipsoidal shape. 
+
+Ablation Studies 
+
+In this section we validate the effectiveness of our represen-tation learning method and the negative loss function. The results on OOS are shown in Table 2. 
+
+Representation Learning To explore the effect of our representation learning method, we discuss the effects of supervised contrastive learning (SCL) and normalization. Replacing SCL with a linear classifier and Softmax loss function reduces performance by 0.46%-1.33%, as the Soft-max loss function solely focuses on distinguishing between different known classes but lacks intra-class compactness and inter-class separation. Removing feature normalization causes a 1.56%-2.89% drop at 25% and 50% known class ra-tios while flat at 75%. These results suggest discriminative gains are stronger when known samples are scarce, likely because compact known-class distributions are crucial with limited information and abundant unknowns. 
+
+Negative Loss Functions To validate the effectiveness of our proposed negative loss Eq. 15 which leverages gener-ated pseudo-open samples, we compare it with the existing spherical boundary loss LADB (Zhang, Xu, and Lin 2021) and two variants: CLAB loss (Liu et al. 2023) LCLAB and a variant ADB loss LADB −Gen employing pseudo-open sam-ples . LADB employs known samples inside the boundary as 35298 Figure 4: Coarse-grained confusion matrices with balls de-fined by different coverage fractions (CFs) and the ellipsoid (KCR=25%, seed=0). Methods 25% 50% 75% Ball (CF=0.8) 72.29 71.62 72.70 Ball (CF=0.9) 79.25 79.13 80.24 Ball (CF=0.95) 82.24 83.17 84.89 Ball (CF=0.975) 83.20 85.05 87.04 Ball (CF=0.9875) 82.49 86.00 88.25 Ball (CF=1) 80.07 86.64 89.28 Repre.: Softmax (w/o SCL) 83.78 87.25 89.67 Repre.: w/o Normalization 81.46 87.02 90.80 
+
+Loss: LADB 37.42 59.21 74.19 Loss: LCLAB 42.49 60.67 74.53 Loss: LADB −Gen 54.15 83.71 86.52 
+
+EliDecide 84.48 88.57 90.21 Table 2: Additional experimental results (F1) on OOS. negative samples and its variant LCLAB extends it by using extra known samples from other classes as negative samples. 
+
+LADB −Gen replaces known samples with generated pseudo open samples inside the boundary as negatives, which is equivalent to setting β = 0 in Eq. 15 to nullify the exponen-tial term. Formal definitions are provided in the appendix. Performance decreases sharply by 3%-47% particular-lly under low KCR settings. We attribute this reduction to 
+
+LADB ’s reliance solely on intra-class information of known samples in a single class, which neglects critical inter-class relationships. While LCLAB mitigates this by using sam-ples from other classes, improvements remain marginal. 
+
+LADB −Gen further incorporates the generated pseudo-open samples to model inter-class relationships but only activates those located inside the boundaries. In contrast, our method leverages the information across known classes to generate pseudo-open samples and activates all samples through the exponential term, better modeling the distribution of true open samples and leading to improved performance. 
+
+Comparison with LLMs 
+
+While LLMs have demonstrated strong capabilities across various natural language understanding tasks, the capabil-ities on open world classification has not been sufficiently investigated. In this section, we evaluate Llama 3 (AI@Meta 2024) on open intent classification using multiple ap-proaches and compare the results with our proposed method, highlighting the advantages of our approach using the rela-tively small-scaled pre-trained language model. Experiments are conducted on Banking (Casanueva et al. 2020) with KCR=25%. We evaluate combinations of dif-Detection Methods Base Finetuned F1 ACC F1 ACC End-to-End(zero-shot) 38.03 23.60 45.13 26.00 End-to-End(five-shot) 40.60 29.60 44.86 25.41 Boundary 24.84 54.24 73.76 83.70 Table 3: Results of the experiments on Llama 3 with dif-ferent backbones and detection methods on Banking with KCR=25%, where our proposed method’s performance is F1= 77.75 and ACC= 85.81 .ferent backbone models and detection methods. Regard-ing backbone models, we employ both the pre-trained model without modification and a finetuned variant adapted to training data for enhanced discriminability on known classes. For the detection methods, we implement two dis-tinct approaches. First, we utilize the LLM as a direct gen-erator through tailored prompts, requiring the model to ei-ther select one of K known classes or classify the input as unknown (i.e. a (K + 1) -way classification problem). This approach is evaluated under both zero-shot and five-shot set-tings. Second, we employ the LLM as a feature extractor analogous to BERT. The final token embeddings serve as sentence-level representations ( xi in Eq. 1), with subsequent predictions made by the ellipsoid boundaries. More imple-mentation details are stated in the appendix. As shown in Table 3, finetuning on the known-class data improves classification performance. However, compared to specialized open intent detection methods, the end-to-end detection capability remains limited due to the absence of open samples during finetuning, consistent with the harmful 
+
+finetuning-induced degradation of vocabulary phenomenon revealed in Zhou, Hong, and Qiu (2023). Notably, when substituting BERT with Llama 3 as the backbone, the re-sults drop despite its larger scale. We attribute this to over-thinking in deep transformer layers (Zhou et al. 2023), which may impair open-world discriminability. These results show the unique advantages of our proposed method using a com-pact encoder and a designed detection method. 
+
+## Conclusion 
+
+In this paper, we propose a novel ellipsoidal decision bound-ary framework EliDecide for open world classification. For each known class, we learn a nonsingular matrix that adap-tively encodes both the ellipsoid’s orientation and scale of its axes and optimize the boundaries via dual expansion and contraction losses. The geometric flexibility enables our method to jointly optimize empirical risk and open-space risk, achieving state-of-the-art performance across diverse benchmarks. Additional experiments validate each compo-nent, especially revealing the geometric advantage of el-lipsoids over balls and the efficacy of our adaptive bound-ary methodology with a compact backbone encoder versus LLMs. Our results demonstrate that the ellipsoid’s capacity to balance compactness and adaptability is critical for recon-ciling the dual challenges of preserving known-class fidelity while robustly rejecting unknown samples. 35299 Acknowledgments 
+
+This paper is founded by National Natural Science Founda-tion of China (Grant No. 62173195) . 
+
+## References 
+
+AI@Meta. 2024. Llama 3 Model Card. Bendale, A.; and Boult, T. E. 2016. Towards open set deep networks. In Proceedings of the IEEE conference on com-puter vision and pattern recognition , 1563–1572. Casanueva, I.; Temˇ cinas, T.; Gerz, D.; Henderson, M.; and Vuli´ c, I. 2020. Efficient Intent Detection with Dual Sentence Encoders. In Proceedings of the 2nd Workshop on Natural Language Processing for Conversational AI , 38–45. Asso-ciation for Computational Linguistics. Chen, G.; Xu, Q.; Zhan, C.; Wang, F. L.; Liu, K.; Liu, H.; and Hao, T. 2024. Improving Open Intent Detection via Triplet-Contrastive Learning and Adaptive Boundary. IEEE Transactions on Consumer Electronics , (1): 2806–2816. Devlin, J.; Chang, M.-W.; Lee, K.; and Toutanova, K. 2019. BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. In Proceedings of the 2019 Con-ference of the North American Chapter of the Association for Computational Linguistics: Human Language Technolo-gies, Volume 1 (Long and Short Papers) , 4171–4186. Asso-ciation for Computational Linguistics. Gao, T.; Yao, X.; and Chen, D. 2021. SimCSE: Simple Con-trastive Learning of Sentence Embeddings. In Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing , 6894–6910. Gautam, C.; Parameswaran, S.; Kane, A.; Fang, Y.; Ra-masamy, S.; Sundaram, S.; Sahu, S. K.; and Li, X. 2024. Class Name Guided Out-of-Scope Intent Classification. In 
+
+Findings of the Association for Computational Linguistics: EMNLP 2024 , 9100–9112. Association for Computational Linguistics. Geiger, A.; Lenz, P.; and Urtasun, R. 2012. Are we ready for autonomous driving? The KITTI vision benchmark suite. In 2012 IEEE Conference on Computer Vision and Pattern Recognition , 3354–3361. Hendrycks, D.; and Gimpel, K. 2018. A Baseline for De-tecting Misclassified and Out-of-Distribution Examples in Neural Networks. arXiv:1610.02136. Khosla, P.; Teterwak, P.; Wang, C.; Sarna, A.; Tian, Y.; Isola, P.; Maschinot, A.; Liu, C.; and Krishnan, D. 2020. Super-vised Contrastive Learning. In Advances in Neural Informa-tion Processing Systems , 18661–18673. Curran Associates, Inc. Larson, S.; Mahendran, A.; Peper, J. J.; Clarke, C.; Lee, A.; Hill, P.; Kummerfeld, J. K.; Leach, K.; Laurenzano, M. A.; Tang, L.; and Mars, J. 2019. An Evaluation Dataset for Intent Classification and Out-of-Scope Prediction. In 
+
+Proceedings of the 2019 Conference on Empirical Meth-ods in Natural Language Processing and the 9th Interna-tional Joint Conference on Natural Language Processing (EMNLP-IJCNLP) , 1311–1316. Association for Computa-tional Linguistics. Li, Y.; Ouyang, X.; Pan, C.; Zhang, J.; Zhao, S.; Xia, S.; Yang, X.; Wang, G.; and Li, T. 2025. Multi-Granularity Open Intent Classification via Adaptive Granular-Ball De-cision Boundary. Proceedings of the AAAI Conference on Artificial Intelligence , 39(23): 24512–24520. Liang, S.; Li, Y.; and Srikant, R. 2020. Enhancing The Relia-bility of Out-of-distribution Image Detection in Neural Net-works. arXiv:1706.02690. Lin, T.-E.; and Xu, H. 2019. Deep Unknown Intent Detec-tion with Margin Loss. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics ,5491–5496. Association for Computational Linguistics. Liu, X.; Li, J.; Mu, J.; Yang, M.; Xu, R.; and Wang, B. 2023. Effective Open Intent Classification with K-center Contrastive Learning and Adjustable Decision Boundary. 
+
+Proceedings of the AAAI Conference on Artificial Intelli-gence , (11): 13291–13299. Scheirer, W. J.; de Rezende Rocha, A.; Sapkota, A.; and Boult, T. E. 2012. Toward open set recognition. IEEE trans-actions on pattern analysis and machine intelligence , (7): 1757–1772. Shu, L.; Xu, H.; and Liu, B. 2017. DOC: Deep Open Classi-fication of Text Documents. In Proceedings of the 2017 Con-ference on Empirical Methods in Natural Language Pro-cessing , 2911–2916. Association for Computational Lin-guistics. Xu, J.; Wang, P.; Tian, G.; Xu, B.; Zhao, J.; Wang, F.; and Hao, H. 2015. Short text clustering via convolutional neural networks. In Proceedings of the 1st Workshop on Vector Space Modeling for Natural Language Processing , 62–69. Yang, C.; Cao, B.; Tao, C.; Yan, R.; and Wu, L. 2024a. JOSC: A Joint Model for Detecting Out-of-distribution Ser-vices based on Supervised Contrastive Learning. In 2024 IEEE International Conference on Web Services (ICWS) ,728–736. Yang, J.; Zhou, K.; Li, Y.; and Liu, Z. 2024b. Generalized out-of-distribution detection: A survey. International Jour-nal of Computer Vision , (12): 5635–5662. Zhang, H.; Li, X.; Xu, H.; Zhang, P.; Zhao, K.; and Gao, K. 2021. TEXTOIR: An Integrated and Visualized Plat-form for Text Open Intent Recognition. In Proceedings of the 59th Annual Meeting of the Association for Computa-tional Linguistics and the 11th International Joint Confer-ence on Natural Language Processing: System Demonstra-tions , 167–174. Association for Computational Linguistics. Zhang, H.; Xu, H.; and Lin, T.-E. 2021. Deep open in-tent classification with adaptive decision boundary. In Pro-ceedings of the AAAI Conference on Artificial Intelligence ,14374–14382. Zhang, H.; Xu, H.; Zhao, S.; and Zhou, Q. 2023a. Learning discriminative representations and decision boundaries for open intent detection. IEEE/ACM Transactions on Audio, Speech, and Language Processing , 1611–1623. Zhang, H.; Zhou, Q.; Xu, H.; Su, J.; Evans, R.; and Gao, K. 2024. Multimodal Classification and Out-of-distribution Detection for Multimodal Intent Understanding. arXiv:2412.12453. 35300 Zhang, S.; Bai, J.; Li, T.; Yan, Z.; and Li, Z. 2023b. Modeling Intra-class and Inter-class Constraints for Out-of-Domain Detection. In Wang, X.; Sapino, M. L.; Han, W.-S.; El Abbadi, A.; Dobbie, G.; Feng, Z.; Shao, Y.; and Yin, H., eds., Database Systems for Advanced Applications , 142– 158. Cham: Springer Nature Switzerland. ISBN 978-3-031-30678-5. Zhou, Y.; Hong, J.; and Qiu, X. 2023. Towards Open En-vironment Intent Prediction. In Rogers, A.; Boyd-Graber, J.; and Okazaki, N., eds., Findings of the Association for Computational Linguistics: ACL 2023 , 2226–2240. Toronto, Canada: Association for Computational Linguistics. Zhou, Y.; Liu, P.; and Qiu, X. 2022. KNN-contrastive learn-ing for out-of-domain intent classification. In Proceedings of the 60th Annual Meeting of the Association for Computa-tional Linguistics (Volume 1: Long Papers) , 5129–5141. Zhou, Y.; Yang, J.; Wang, P.; and Qiu, X. 2023. Two birds one stone: Dynamic ensemble for ood intent classification. In Proceedings of the 61st Annual Meeting of the Associa-tion for Computational Linguistics (Volume 1: Long Papers) ,10659–10673. Zimmerer, D.; Full, P. M.; Isensee, F.; J¨ ager, P.; Adler, T.; Petersen, J.; K¨ ohler, G.; Ross, T.; Reinke, A.; Kascenas, A.; Jensen, B. S.; O’Neil, A. Q.; Tan, J.; Hou, B.; Batten, J.; Qiu, H.; Kainz, B.; Shvetsova, N.; Fedulova, I.; Dylov, D. V.; Yu, B.; Zhai, J.; Hu, J.; Si, R.; Zhou, S.; Wang, S.; Li, X.; Chen, X.; Zhao, Y.; Marimont, S. N.; Tarroni, G.; Saase, V.; Maier-Hein, L.; and Maier-Hein, K. 2022. MOOD 2020: A Pub-lic Benchmark for Out-of-Distribution Detection and Local-ization on Medical Images. IEEE Transactions on Medical Imaging , 41(10): 2728–2738. 35301

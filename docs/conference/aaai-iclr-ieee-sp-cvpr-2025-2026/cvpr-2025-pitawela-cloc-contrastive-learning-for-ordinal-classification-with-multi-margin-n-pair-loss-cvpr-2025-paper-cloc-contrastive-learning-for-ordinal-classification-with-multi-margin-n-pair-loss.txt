@@ -1,0 +1,536 @@
+Title: CLOC: Contrastive Learning for Ordinal Classification with Multi-Margin N-pair Loss
+
+URL Source: https://openaccess.thecvf.com/content/CVPR2025/papers/Pitawela_CLOC_Contrastive_Learning_for_Ordinal_Classification_with_Multi-Margin_N-pair_Loss_CVPR_2025_paper.pdf
+
+Published Time: Mon, 19 May 2025 13:05:18 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+# CLOC: Contrastive Learning for Ordinal Classification with Multi-Margin N-pair Loss 
+
+## Dileepa Pitawela ⌥
+
+> dileepa.pitawela@adelaide.edu.au
+
+## Gustavo Carneiro N
+
+> g.carneiro@surrey.ac.uk
+
+## Hsiang-Ting Chen ⌥ 
+
+> tim.chen@adelaide.edu.au
+> ⌥
+
+## University of Adelaide, Australia N CVSSP, University of Surrey, UK 
+
+## Abstract 
+
+In ordinal classification, misclassifying neighboring ranks is common, yet the consequences of these errors are not the same. For example, misclassifying benign tumor cat-egories is less consequential, compared to an error at the pre-cancerous to cancerous threshold, which could pro-foundly influence treatment choices. Despite this, existing ordinal classification methods do not account for the vary-ing importance of these margins, treating all neighboring classes as equally significant. To address this limitation, we propose CLOC, a new margin-based contrastive learning method for ordinal classification that learns an ordered rep-resentation based on the optimization of multiple margins with a novel multi-margin n-pair loss (MMNP). CLOC en-ables flexible decision boundaries across key adjacent cat-egories, facilitating smooth transitions between classes and reducing the risk of overfitting to biases present in the train-ing data. We provide empirical discussion regarding the properties of MMNP and show experimental results on five real-world image datasets (Adience, Historical Colour Im-age Dating, Knee Osteoarthritis, Indian Diabetic Retinopa-thy Image, and Breast Carcinoma Subtyping) and one syn-thetic dataset simulating clinical decision bias. Our results demonstrate that CLOC outperforms existing ordinal clas-sification methods and show the interpretability and con-trollability of CLOC in learning meaningful, ordered rep-resentations that align with clinical and practical needs. 
+
+## 1. Introduction 
+
+Ordinal classification, the assignment of data to discrete, ordered categories, is essential across fields where ranking impacts key decisions. In healthcare, assessments such as TNM for cancer staging [22], APACHE for intensive care [28], and the Glasgow Coma Scale for brain injury [54] are essential for guiding treatment and predicting outcomes. This approach is also widely employed in psychology (e.g., Code is available at https://github.com/dpitawela/CLOC 
+
+Likert scales), education (grading proficiency levels), and finance (credit scoring), where maintaining ordinal relation-ships is key to deriving meaningful insights that inform ac-tionable decisions [24]. Figure 1 illustrates the impact of various types of classifi-cation errors in ordinal contexts. Unlike standard classifica-tion problems, in ordinal classification or ranking problems, 
+
+not all label mistakes are equal [8, 13, 58]; misclassifi-cations with larger rank differences carry more significant consequences. For example, they often represent greater discrepancies in disease severity or treatment needs. More-over, not all adjacent label mistakes are equally signifi-cant ; for instance, an error between two benign tumor cat-egories may have less impact compared to a misclassifica-tion at the boundary between pre-cancerous and cancerous stages, where the shift in diagnosis could significantly alter treatment and management [2, 52]. Similarly, a misclassi-fication between minors and adults would have a larger im-pact than other adjacent ordinal categories [19], as it could lead to more substantial legal or social implications. Existing methods have not been designed to address both of these challenges. Regression attempts to model ordered categories, but its single continuous output often loses the ordinal structure and lacks clear boundaries be-tween ranks [14, 35, 62]. Additionally, its error penalties are less flexible, as typical regression or models, such as those minimizing mean squared error, do not inherently ac-count for the ordinal relationships between classes nor al-low modification. Ordinal classification methods [8, 40] are well-suited for tasks involving ordered categories, as they preserve the ranking structure and focus on maintain-ing the correct order, rather than merely predicting label distributions. However, most existing approaches focus on preserving order and minimizing label overlap in adjacent ranks, without considering the varying significance of ad-jacent label errors or examining the impact of margins be-tween ranked labels. We propose the new Contrastive Learning for Ordinal Classification (CLOC) method that is based on an opti-mization that minimizes the novel Multi-Margin N-Pair (MMNP) loss. The new MMNP loss is a central contribu-This CVPR paper is the Open Access version, provided by the Computer Vision Foundation. Except for this watermark, it is identical to the accepted version; the final published version of the proceedings is available on IEEE Xplore. 15538 0-2 4-6 8-13 48 -53 60+ 15 -20 25 -32 38 -43                    
+
+> 0-24-68-13 48 -53 60+ 15 -20 25 -32 38 -43
+> 0-24-68-13 48 -53 60+ 15 -20 25 -32
+> Errors are equal
+> (Classification)
+> 38 -43
+> Not all errors are
+> equal (Ordinal
+> Classification)
+> Not all adjacent
+> errors are equal
+> (CLOC)
+> Grade 3 Grade 4 Grade 2 Grade 1 Grade 0
+> Grade 3 Grade 4 Grade 2 Grade 1 Grade 0
+> Grade 3 Grade 4 Grade 2 Grade 1 Grade 0
+> Malignant Benign Minor Threshold age of majority Adult
+> Cancer Grading Age Estimation
+
+Figure 1. An illustration of the impact of classification errors in ordinal contexts. Standard classification treats all errors equally, while or-dinal classification penalizes larger rank errors more heavily. CLOC further accounts for the varying impact of adjacent errors, particularly across critical boundaries like benign versus malignant categories or minor vs threshold age of majority. This figure shows samples from IDRID (cancer grading) [43] and Adience (age estimation) [16] datasets. Longer arrow indicates a greater impact from adjacent errors. tion of this paper that introduces multiple learnable margins that allow flexible decision boundaries between adjacent la-bels, while its cumulative property preserves class ordering. These multiple learnable margins improve generalization by preventing overfitting to specific biases or minor vari-ations in the training data, while also enabling more robust transitions between classes than previous ordinal classifiers that rely on fixed, hard decision boundaries. Additionally, CLOC enables nuanced ordinal classifications, making it particularly suited for challenging tasks like medical im-age analysis, where subtle distinctions between some cat-egories are crucial. Furthermore, these learnable margins also offer interpretability of the importance between ordinal categories and provide an option for manual adjustment, al-lowing flexible control over critical decision boundaries. To summarize, our key contributions are: • Novel Contrastive Learning for Ordinal Classification (CLOC) method that is based on an optimization that minimizes the novel Multi-Margin N-Pair (MMNP) loss, which provides learnable margins for flexible decision boundaries while preserving the ordinal structure. • A novel method allowing users to control the model behavior through controlled margins, with experiments showing its effectiveness and robustness to biases. • Enhanced interpretability via multi-margin learning, of-fering a new tool for interpretable AI and insights into class separability and decision boundaries in ordinal clas-sification tasks. We conducted experiments on five real-world image datasets (Adience, Historical Colour Image Dating, Knee Osteoarthritis, Indian Diabetic Retinopathy Image, and Breast Carcinoma Subtyping), as well as a synthetic dataset designed to simulate clinical decision biases. Our results show that CLOC outperforms existing ordinal classification methods. We also show empirical evidence of both CLOC’s interpretability and controllability in learning meaningful, ordered representations that align closely with clinical and practical needs. 
+
+## 2. Related Work Ordinal Classification: Early ordinal classification ap-proaches [4, 23] relied on standard classification or regres-sion, missing ordinal relationships and non-uniform label separations. More recent models like ORCNN [40] and RankingCNN [8] use multiple binary classifiers to predict rank order, while CNNPOR [37] introduced pairwise ordi-nal constraints to preserve structure. Methods like SORD [13] and POEs [34] use soft labels and probabilistic embed-dings, respectively, to better capture ordinal information. Unlike these, which assume fixed class-pair error distribu-tions that limit prioritization of critical boundaries, CLOC enables class-pair-specific distributions and allows direct, meaningful adjustments over critical decision boundaries. Order learning approaches such as pairwise comparators [36] and Deep Repulsive Clustering (DRC) [30] compare instances directly to infer rank but are sensitive to reference quality. Moving Window Regression (MWR) [49] refines ranks iteratively with global and local regressors, though it also depends on good reference selection. Vision-language models like OrdinalCLIP [35], Wang et al. [58], and NumCLIP [14] utilise CLIP for ordinal re-gression with rank-specific prompts and regularization, but these large models (190M+ parameters) are data-intensive. In contrast, our method efficiently captures ordinal rela-tionships using a smaller model with contrastive learning, enabling scalable rank learning without heavy reliance on probabilistic distributions or large architectures. 
+
+Representation learning: Representation learning has 15539 been widely explored in classification, with contrastive learning becoming a leading approach, particularly in self-supervised contexts. The supervised variant, SupCon [27], has shown superior performance over traditional cross-entropy loss in tasks such as image recognition [27], long-tailed classification [57], out-of-domain detection [61], and anomaly detection [29]. While adaptations for ordinal tasks exist, such as in gaze estimation [59] and medical imaging [10, 15], these methods often fail to account for the ordinal nature of classes. To address this, Xiao et al. [60] proposed using labeled distances to capture semantic similarities and maintain local structure. Li et al. [33] introduced rank-proportional dis-tance scaling, while Suarez et al. [53] aligned embedding distances with rank differences. The work by [31] encoded order and metric relations using sample direction and dis-tance. Further enhancements include Ordinal Log-Loss [6], which uses distance-aware weighting, and RankSim [21], which applies regularization for ordinal consistency. Rank-N-Contrast [62] introduced regression-aware embeddings to align distances with continuous targets. In contrast, our method inherently models ordinal rela-tionships through contrastive learning without relying on predefined metrics or additional regularization, leading to more flexible and robust feature representations. 
+
+Contrastive learning: CL focuses on maximizing simi-larity between positive pairs while separating negative ones, with temperature scaling and margin adjustments being critical parameters. Wang and Liu [56] shows that tem-perature tuning helps balance feature alignment and toler-ance for semantically similar samples, while Shah et al. [48] introduces SVM-like margins in CL, though extend-ing this to ordinal tasks is challenging. Rho et al. [45] explores single-margin adjustments for better generaliza-tion, but multi-margin strategies remain unexplored. Key CL frameworks like SimCLR [9] and DINO [5] focus on unsupervised learning through augmentations and self-distillation, respectively. SupCon [27] adapts CL for super-vised tasks by clustering same-class samples, and Rank-N-Contrast (RNC) [62] introduces a rank-based loss for ordi-nal representation. Our approach, CLOC, builds on these advances with a novel multi-margin loss tailored for ordinal classification, showing superior performance and introduc-ing better controllability and interpretability over decision boundaries across diverse datasets. 
+
+## 3. Methodology 
+
+Ordinal classification is a special case of multi-class classi-fication where the labels have a natural ordering or ranking among them. Let the training dataset be D = {(x i , y i )}Ni=1 ,where x i 2 X is a data sample and y i 2 Y =
+
+{r 1 , r 2 , ..., r C } is ground truth label from a C-class prob-lem that follow an ordered rank r 1   r 2   ...   r C                          
+
+> !!
+> !"
+> !#
+> !$
+> !%
+> !!
+> !"
+> !#
+> !$
+> !%
+> "",#
+> "#,%"%,$
+> Rank 1Rank 2Rank 3Rank 4≺≺≺
+> Figure 2. Set of data samples from different classes/ranks (indi-cated by colors), with their rank order relative to the anchor z1and its positive sample z+, where rank 1 rank 2 rank 3 rank 4.The MMNP loss pulls samples of the same rank closer to the an-chor while pushing those with larger rank differences farther apart, resulting in wider margins in the representation space. Addition-ally, we can control specific margin values (e.g., by applying con-straints) and use the learned margins to interpret class boundaries.
+
+with C denoting the number of ranks, and   indicating the ordering between different ranks. Similar to classifi-cation, ordinal classification seeks to predict ˆy i 2 Y from 
+
+x i . Data are passed through an encoder e   (·) to gener-ate feature embeddings, e   : X ! Z; Z 2 R d and followed by a classifier c   (·) to get output embeddings, 
+
+c   : Z ! V; V 2 R C . The embeddings are subsequently converted to ˆy = OneHot (softmax (v)) where v 2 V,
+
+softmax : R C !   C 1 and OneHot :   C 1 ! Y, return-ing a one-hot label representing the class with the largest prediction. In this context, the terms ‘class’, ‘label’ and ‘rank’ are used interchangeably to refer to the ordinal clas-sification label. 
+
+3.1. Contrastive Learning for Ordinal Classification (CLOC) 
+
+CLOC addresses ordinal classification by learning a rank-aware representation through contrastive learning with mul-tiple learnable classification margins. Unlike previous margin-based learning methods [51], which rely on a fixed, single margin, CLOC’s multiple learnable margins allow the model to better capture more nuanced separations be-tween ranks, offering added flexibility for various applica-tions. This approach not only provides finer control over specific margins but also enhances interpretability of the learned boundaries, addressing limitations in earlier fixed-margin methods. Formally, in a C-class classification setting, we define 
+
+C   1 pairs of consecutive ranks indexing the margins, rep-resented by the set H = {(r 1 , r 2 ), (r 2 , r 3 ), ..., (r C 1 , r C )}.The overall optimization of CLOC is based on minimizing 15540 the following objective function              
+
+>  ⇤, ⇤, m ⇤
+> H= arg min
+>  , ,m H
+> 1
+> N
+> X
+> (x,y )2D
+> `CE (y, ˆy) + `M M (z, y, m h)
+> subject to mh>⇢,8h2H
+
+(1) where m H = {mh }h2H with mh 2 R, z = e   (x), ˆy =
+
+c   (z), ` CE (y, ˆy) =  y > log(ˆ y) which is cross-entropy, and 
+
+` M M (z, y ) denotes the proposed MMNP loss defined be-low in Sec. 3.2. Overall, CLOC jointly optimizes  ,   and 
+
+mH to learn a representation for ordinal classification that allows flexible decision boundaries between adjacent ranks and preserve the ordinal relationship across ranks. 
+
+3.2. Multi Margin N-Pair (MMNP) Loss 
+
+As shown in Fig. 2, the MMNP loss, denoted by ` M M (·) in Eq.(1), follows a contrastive learning setup, where the set of positive and negative samples for the anchor (x, y ) 2 D,which produces the embedding z = e   (x), is defined re-spectively as S + = {(z j , y j ) | (x j , y j ) 2 D, z j =
+
+e   (x j ), z j 6 = z, y j = y}, and S   = {(z k , y k ) | (x k , y k ) 2
+
+D, z k = e   (x k ), y k 6 = y}. In its simplest form, as an opti-mization over all pairs jointly, MMNP is given by, 
+
+`M M (z, y, m h) = 
+
+X  
+
+> (zj,y j)2S+
+
+X  
+
+> (zk,y k)2S 
+
+max(0 , my,y k + (z, z k)   (z, z j )) 
+
+(2) where (·, ·) represents cosine similarity function, and 
+
+m y,y k = my,y +1 + ... + my k 1 ,y k (inverse the index if 
+
+y k   y). That is, m y,y k is the cumulative sum of the mar-gins between the anchor’s rank y and the rank y k of a nega-tive sample. In practice, instead of forming the positive and negative sets from the whole dataset, we form them within the mini-batches, as explained in Sec. 3.3. 
+
+Properties of the MMNP Loss: The MMNP loss en-hances contrastive learning by introducing cumulative mul-tiple margins m y,y k in the embedding space. Previous con-trastive loss based methods used for ordinal classification repels all negative samples in S   from the anchor z equally, regardless of rank differences. In contrast, MMNP loss repels the negative samples from more distant ranks more strongly than those from closer ranks and thus preserve the ordinal relationship in the embedding space. More specif-ically, minimizing the MMNP loss imposes the condition 
+
+(z, z k ) + m y,y k  (z, z j ). It means that given two nega-tive samples (z l , y l ) and (z m , y m ) with ranks y   y l   y m ,the similarity between the anchor z and z m is constrained to be lower than that with z l due to the cumulative margin 
+
+m y,y m = m y,y l + m y l ,y m . Additionally, the actual margin value between samples belonging to two consecutive ranked classes represents the learned distance to robustly separate samples from those two classes. Hence the learned margins can be used to interpret the difficulty in separating samples from consecutively ranked classes. Furthermore, note from Eq. (1), that it is possible to constrain m h to a minimum value ⇢, which is helpful when one wants to minimize mis-takes between critical classes. Discussions about controla-bility and intepretability are in sections 4.4 and 4.5. 
+
+3.3. Training 
+
+As shown in Figure 3, CLOC employs a 2-phase training process [47]. In the first phase, the encoder, classifier and margins are jointly optimized to determine the margins that best separate classes and allow rank-aware representation, establishing a structured guide for representation learning. In the second phase, these margins are frozen, allowing the model to refine the representation while adhering to the learned margins. The two-phase training strategy is em-ployed to prevent the margins from collapsing to a trivial so-lution during the co-optimization of the representation and multiple margins, which we discuss below in this section, with additional details in Appendix B. Following the batch construction approach in [51], dur-ing both training phases, every mini-batch has, at least, sam-ples from two distinct ranks, with a minimum of two sam-ples taken from each rank. This setup ensures that each contrast includes at least one anchor, one positive sample, and two negative samples. 
+
+Phase One: Joint Learning of Margins and Representa-tion 
+
+In this phase, we run the optimization in (1) to learn the margins m⇤ 
+
+> H
+
+, parameters of encoder   ⇤ and classifier   ⇤ for producing the embeddings. This phase seeks to optimize two objectives simultaneously: creating an ordered repre-sentation that is well-suited for classification, and learning margins that best separate ranks. However, this dual objec-tive introduces a potential risk of margin collapse, where      
+
+> Encoder
+> ("!)
+> Margins ℋ
+> Classifier
+> (%")
+> Multi Margin Contrastive
+> Loss (ℓ## )
+> Classification Loss
+> (ℓ$% )
+> '()
+> Training Backward Pass Frozen Forward Pass
+> ⋆
+> Figure 3. Two phase training for CLOC. In the first phase, the en-coder, classifier and the margins are trained with the multi-margin contrastive loss and classification loss. In the second phase, the margins are frozen allowing the training of the encoder and classi-fier with the losses. 15541
+
+all margins go to zero. Margins may converge toward zero to reduce the overall loss in Eq. (1), as setting margins to zero simplifies the optimization problem where the feature extractor is no longer incentivized to produce a nuanced ranked representation, potentially undermining the goal of learning structured, rank-separated embeddings. To reduce the rate of margin collapse and enable train-ing for a large number of epochs, we implement following “precautionary” measures: 1) the learnable margins are ac-tivated using the softplus function, that provides a smooth lower bound and approaches to zero gradually; 2) the mar-gins are initialized with random values drawn from a uni-form distribution in the interval [0 .5, 1.0) , ensuring a mod-erate start avoiding excessively small or large initial mar-gins; and 3) early stopping is applied to prevent collapse. 
+
+Phase Two: Margin-guided Representation Learning 
+
+In the second phase, we optimize (1) only with respect to  
+
+and   with the learned margins being frozen. This second phase ensures that the frozen margins that learned in phase one guide the feature extractor while continuing to improve the classification accuracy. The two-phase training allows integrating the precau-tionary mechanisms to phase one to address margin col-lapse. In phase two, with margins fixed, the model exclu-sively focuses on refining the feature representation for bet-ter convergence to an optimal solution. 
+
+## 4. Experiments 
+
+We conducted three experiments evaluating the controlla-bility, interpretability, and overall performance of CLOC. 
+
+4.1. Datasets 
+
+The Adience dataset [16] serves as a benchmark for age prediction from facial images. It contains 26,580 colour images of 2,284 subjects, with each image categorized into one of eight age groups. We use the in-plane aligned ver-sion and five-folds originally released. Each fold contains an average of 7,372 images, yeilding 7,372 test images and 29,490 training images per run. Per fold image count along with the average class distribution, is in appendix A.1. The Historical Colour Image Dating (HID) dataset [41] is a benchmark for evaluating algorithms that predict the decade a colour image was captured. The dataset spans five decades, from the 1930s to the 1970s, and consists of 1,325 images, with 265 images for each decade. Similar to [20, 41], we run standard five-fold cross-validation by ran-domly selecting 50 images for testing, with the remaining 215 images for training from each decade. Appendix A.2 visualizes samples from this dataset. The Knee Osteoarthritis (KOA) dataset [7] aims to as-sess severity by the Kellgren-Lawrence (KL) grading sys-tem, where grade 0 represents a healthy knee and grade 4 indicates severe KOA. The dataset consists of 8,260 X-ray images, left and right joints combined. We train with 6,604 images and evaluate with 1,656 images. The class distri-bution of splits is in appendix A.3. The Indian Diabetic Retinopathy Image Dataset (IDRiD) [43] is designed to classify retinal fundus images into diabetic retinopathy grades defined by international clinical Diabetic Retinopa-thy (DR) scale. This scale identifies 5 grades, from 0 be-ing no apparent DR to 4 being severe DR. The dataset con-tains 516 fundus images, split into 413 training images and 103 testing images, where each is assigned one of the 5 DR grades. The appendix A.4 details the class distribution of splits. The BReAst Carcinoma Subtyping (BRACS) 
+
+dataset [3] facilitates classification of breast tumors from histological images. The grading system identifies 7 differ-ent subtypes of lesions ranging from grade 0 being normal to grade 6 being invasive carcinoma. The dataset includes 4,539 regions of interests from 189 patients split into 3,969 training and 570 testing samples. The class distribution of the dataset is in appendix A.5. 
+
+4.2. Experimental Setting 
+
+For Adience, the in-plane aligned version of the dataset is used, following the standard five-fold, subject-exclusive cross-validation protocol outlined in [16, 32]. The image size is set to 224x224 pixels, with random horizontal and vertical flips, affine transformations, and color jittering ap-plied as data augmentations. For HID, as described in [20, 41], standard five-fold cross-validation is performed by randomly selecting 50 im-ages for testing and using the remaining 215 images for training from each decade. Training involves a random crop of 224x224 pixels, along with random horizontal and verti-cal flips, affine and perspective augmentations, and the Au-toAugment protocol from [12] with a probability of 0.01. For testing, a center crop of 224x224 pixels is used. For KOA, a center crop of the image at 120x200 pix-els is applied, followed by histogram equalization. During training, random affine transformations, Gaussian blur, and perspective augmentations are used. For both IDRID and BRACS, the image size is set to 224x224 pixels. During training, random horizontal and vertical flips, rotations, and Gaussian blur are applied. Ad-ditionally, random color jittering is used for IDRID, while random perspective augmentations are applied for BRACS. For all experiments, an ImageNet pre-trained ResNet-50 [26] encoder is utilized, followed by two linear layers as the classifier. Both training phases use Adam optimizer with a learning rate of 0.001, with ⇢ = 0 (as per eq.1) and trains for 500 epochs. Early stopping is applied in Phase One when training accuracy reaches 95% and in Phase Two after 10 unimproved epochs. All experiments are performed on an 15542 Method Accuracy " Mean Absolute Error #
+
+Adiance HID KOA IDRID BRACS Adiance HID KOA IDRID BRACS 
+
+Comparison with Ordinal Classification Methods 
+
+ORCNN [ 40 ] 0.5670 0.3870 0.4597 0.5833 0.4677 0.5400 0.9500 0.8335 0.5972 0.8732 
+
+POE [ 34 ] 0.6050 0.5468 0.6410 0.5730 0.5160 0.4700 0.7600 0.4440 0.6770 0.8280 
+
+GOL [ 31 ] 0.6250 0.5620 0.6439 0.6311 0.5754 0.4300 0.5500 0.4330 0.6890 0.7060 
+
+MWR [ 49 ] 0.6260 0.5780 0.6380 0.6408 0.5649 0.4500 0.5800 0.5800 0.6752 0.8121 
+
+RnC † [62 ] 0.4679 0.5664 0.5886 0.5825 0.4632 0.8600 0.7288 0.5396 0.6152 0.8491 
+
+Comparison with Contrastive Learning Methods 
+
+SimCLR [ 9] 0.3053 0.3988 0.5286 0.4563 0.3544 1.5303 1.0880 0.6964 1.0679 1.4859 
+
+SupCon [ 27 ] 0.5774 0.4812 0.5955 0.5243 0.5667 0.5131 0.8040 0.4896 0.7476 0.7877 
+
+DINO [ 5] 0.4691 0.5004 0.5069 0.5437 0.5263 0.8230 0.8564 0.7555 0.7476 1.0719 
+
+RnC † [62 ] 0.4679 0.5664 0.5886 0.5825 0.4632 0.8600 0.7288 0.5396 0.6152 0.8491 
+
+CLOC (Ours) 0.6302 0.6208 0.6673 0.7379 0.6035 0.4100 0.5534 0.4167 0.4078 0.7054 
+
+Table 1. Comparison of test set accuracy and mean absolute error of CLOC with contemporary ordinal classification methods (above) and contrastive learning methods (below) across five benchmark datasets. ( † RnC is both an ordinal classification and a contrastive method.) CLOC Margins Error rate between class boundaries # Overall Acc. "C1 - C2 C2 - C3 C3 - C4 C4 - C5 C5 - C6 C6 - C7 C7 - C8 IDRID Learned 0.1282 0.0270 0.0980 0.0937 0.7379 Controlled 0.1025 0.0000 0.1176 0.1562 0.6990 KOA Learned 0.2220 0.1700 0.0985 0.0620 0.6673 Controlled 0.2480 0.0900 0.1160 0.0620 0.6431 HID Learned 0.0300 0.1300 0.1500 0.2500 0.6280 Controlled 0.0200 0.1700 0.0800 0.2700 0.5640 Bracs Learned 0.1750 0.0931 0.0545 0.0555 0.1950 0.0602 0.6035 Controlled 0.2560 0.0740 0.0420 0.0490 0.0850 0.0180 0.4281 Adience Learned 0.8410 0.0955 0.1096 0.1899 0.2991 0.1522 0.2968 0.6134 Controlled 0.8600 0.1210 0.0640 0.2382 0.3247 0.1294 0.1718 0.5591 Table 2. Comparison of the overall accuracy and error rates for each pair of adjacent ranked classes between the original CLOC (Learned), where all mar-gins are learned, and a modified version with fixed margins at critical decision boundaries (Controlled). Critical decision boundaries are highlighted in table 2.  
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+
+Margin learning without precautions 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1
+> 66
+> 112
+> 152
+> 202
+> 245
+> 288
+> 326
+> 376
+> 434
+> 490
+> 534
+> 586
+> 638
+> 681
+> 733
+> 793
+> 845
+> 886
+> 939
+> 985
+> 1034
+> 1072
+> 1120
+> 1180
+> 1222
+> 1272
+> 1326
+> 1375
+
+Margin learning with precautions 
+
+> Margins start to go to zero
+> Epochs
+> Margin Value
+
+Figure 4. Training phase one with and without mar-gin collapse “precaution” measures. Notice that training continues for larger number of epochs without margin collapse when “precaution” measures are applied. RTX 4090 GPU. We quantitatively assess performance by measuring ac-curacy and mean absolute error (MAE) on samples belong-ing to the test set of the datasets introduced above. 
+
+4.3. Comparison with Related Methods 
+
+Our experimental results, summarized in Table 1, compare CLOC against both ordinal classification and contrastive learning baselines across five datasets. For ordinal classi-fication, we include ORCNN [40], POE [34], MWR [49], GOL [31], RnC [62] and for contrastive learning methods, we cover SimCLR [9], DINO [5], SupCon [27], and RNC [62]. Each contrastive learning method is evaluated using a ResNet-50 backbone pre-trained on ImageNet, with the full model re-trained on each respective training set and as-sessed on the corresponding test set. The results show that CLOC outperforms all other methods across every dataset. In particular, notice that for some datasets, such as HID and IDRID, CLOC is substantially better than competing meth-ods, with accuracy 0.6202 (compared to 0.5664 of the sec-ond best–RnC) on HID and 0.7379 (compared to 0.6408 of the second best–MWR) on IDRID. In addition, we provide an experiment with large num-ber of classes in Appendix C.1 and a computational time comparison with related methods in Appendix C.2. 
+
+4.4. Controllability and Robustness to Biases 
+
+As shown in Figure 1, there can be truly consequential clas-sification boundaries in a dataset, such as between cancer and non-cancer classification in a diagnostic medical imag-ing dataset, or at the age of majority in a face dataset. As explained in Sec. 3.2, our method allows the use of con-straints in the learning of such critical margins, which is empirically demonstrated in this section. 
+
+Controlling the learning of critical margins: This experi-ment examines the effectiveness of manually fixing the mar-gin to reduce errors between adjacent classes that intersect a key decision boundary. For the IDRID and KOA datasets, the key decision boundaries that influence treatment choices lie between grades 1 and 2 [39, 55]. BRACS has two critical boundaries to separate benign grade 2 from atypical grade 3, and atypical grade 4 from malignant grade 5. For the Adi-15543 BOOKM ARKS (0) 
+
+> BOOKM ARKS (0)
+> BOOKM ARKS (0)
+
+Cross Entropy (CE)  
+
+> BOOKM ARKS (0)
+> a
+> Isolate
+> selection
+> C
+> selec
+> Sear ch .*
+> By
+
+label 
+
+> BOOKM ARKS (0)
+
+SupCon 
+
+136 
+
+20 
+
+74 
+
+> efault/ metadata.tsv
+
+PCA CUST OM 
+
+2D 
+
+14 
+
+0.6 
+
+bout UM AP .
+
+Tag selection as 
+
+ownload Label 
+
+a
+
+3D 
+
+49 
+
+134 
+
+136 
+
+20 
+
+74 
+
+> 0.0/ default/ metadata.tsv
+
+T-SNE PCA CUST OM 
+
+on 2D 
+
+rs 14 
+
+t 0.6 
+
+> un
+
+Learn mor e about UM AP .
+
+> r b y
+
+el 
+
+Tag selection as 
+
+Download Label 
+
+data 
+
+3D 
+
+CLOC (Ours) 
+
+> 2.0  136
+> 0.0  134
+> 3.0  74
+> 4.0  49
+> 1.0  20
+> Checkpoint:
+> Metadata:  000.0/ default/ metadata.tsv
+> UM AP  T-SNE  PCA  CUST OM
+> Dimension  2D
+> Perplexity  61
+> Learning
+> rate  1
+> Super vise  67
+> Stop  Resume  Perturb
+> Iter ation:  48
+> How t o use t-SNE eff ectiv ely .
+> nsor found
+> default:000.0
+> Label b y
+> label
+> Color b y
+> label
+> Super vise with
+> label  No ignor ed label
+> Edit b y
+> label  Tag selection as
+> Load  Download  Label
+> Spher eiz e data
+> 3D
+> Points:  413  Dimension:  512
+> Show all
+> data
+> Isolate
+> selection
+> Clear
+> selection
+> Points:  413  Dimension:  1000
+> Sear ch  .*
+> By
+> label
+> BOOKM ARKS (0)
+> IN ACTIVE PROJEC TOR
+> 2.0  136
+> 0.0  134
+> 3.0  74
+> 4.0  49
+> 1.0  20
+> Checkpoint:
+> Metadata:  000.0/ default/ metadata.tsv
+> UM AP  T-SNE  PCA  CUST OM
+> Dimension  2D
+> Perplexity  61
+> Learning
+> rate  1
+> Super vise  67
+> Stop  Resume  Perturb
+> Iter ation:  48
+> How t o use t-SNE eff ectiv ely .
+> 00.0
+> Label b y
+> label
+> Color b y
+> label
+> Super vise with
+> label  No ignor ed label
+> Edit b y
+> label  Tag selection as
+> Load  Download  Label
+> Spher eiz e data
+> 3D
+> ts:  413  Dimension:  512
+
+RnC 
+
+Grade 0 Grade 1 Grade 2 Grade 3 Grade 4 
+
+136 
+
+20 
+
+74 
+
+> /default/ metadata.tsv
+
+E PCA CUST OM 
+
+2D 
+
+14 
+
+0.6 
+
+about UM AP .
+
+Tag selection as 
+
+Download Label 
+
+ata 
+
+3D 
+
+> Larger
+> Margin
+
+Figure 5. UMAP visualizations of learned representations for the IDRID dataset that focuses on cancer grade classification. Notice that proposed CLOC, effectively captures the inherent ordinal structure of cancer grades and maintains a larger margin at critical decision boundary, compared to other decision boundaries. Additional visualizations of GOL [31] and POE [34] are in Appendix C.4. ence dataset, a practical critical decision boundary would be between age groups 8-13 and 15-20 to separate minors from threshold age of majority. For completeness, we assume a hypothetical critical boundary between the era of 50s and 60s in the HID dataset. During the 2-phase optimization, we fix a larger value for the aforementioned critical decision margins and only optimize the remaining margins. The rest of the experiment settings were identical to Section 4.2. Table 2 presents a comparison of overall accuracy and in-dividual error rates between adjacent ranks for the learned margins approach (where all margins are optimized) and the controlled margin approach (where margin values are fixed at the critical decision boundary). Under the controlled mar-gin condition, we observe a reduction in classification errors between classes near the critical boundary, albeit at the cost of lower overall accuracy. 
+
+Robustness to Biases: This experiment simulates a sce-nario of diagnostic bias . Studies in the medical domain have shown that practitioners have different subjective as-sessments [1, 42] and often lean towards positive diagnoses in high-stake cases [11, 46], a tendency explained by Error Management Theory (EMT) [25] and risk aversion. EMT suggests that when errors have unequal costs, people tend to err on the side of the less costly mistake; in medicine, a false negative (missed diagnosis) is typically viewed as more severe than a false positive. This bias, combined with doctors’ inherent risk aversion to potentially missing a crit-ical diagnosis, drives them to favor caution, increasing the likelihood of positive diagnoses even at the expense of false positives. The experiment simulates diagnostic bias in the IDRID training set at a critical decision boundary between grades 1 and 2 by randomly relabeling 60% of the grade 1 samples as grade 2 and 30% of the grade 2 samples as grade 1. We report both the results of using learnable margins, where the model learns all margins automatically, and the results of a manually set margin that enforces a fixed, larger margin be-tween grades 1 and 2. Tab. 3 presents a comparison with related methods on simulated biased training data. The re-sults demonstrate that CLOC with a fixed critical decision margin is significantly more robust to label noise compared to CLOC with fully learnable margins. Compared to related methods, CLOC achieves accuracy gains exceeding 7.9% over the second best–GOL (Tab. 3). 
+
+4.5. Interpretability 
+
+The multi-margin property of CLOC offers a novel way to interpret data by the representation margins between or-dinal classes. First, users can quantitatively examine the margins to infer the relative separation between ranks. For instance, in the IDRID dataset, the margins between con-secutive grades are 0.35, 0.41, 0.23, and 0.30, where the largest margin (0.41) highlights the critical decision bound-ary—indicating the most challenging region for separation. A similar trend is observed in the Adience dataset, with margins of 0.11, 0.08, 0.20, 0.12, 0.13, 0.09, and 0.12, where the largest margin (0.20) occurs between age groups 8–13 and 15–20, again marking a critical boundary. In addition, we further assess the interpretability of CLOC by comparing its UMAP [38] visualizations to those of nominal classification (CE), SupCon, and RnC on the IDRID dataset. As shown in Fig. 5, CLOC effectively pre-serves the ordinal structure of the IDRID grades and estab-lishes a wider margin between grades 1 and 2, the dataset’s most critical decision boundary. In contrast, RnC maintains the correct grade order but lacks inter-class separability. CE and SupCon form distinct clusters but fail to capture the ordinal relationships, showing the advantage of CLOC in maintaining order while improving class separation. 15544 Method Accuracy " MAE #                    
+
+> SimCLR [ 9]0.4661 1.0583
+> SupCon [ 27 ]0.4660 0.9029
+> DINO [ 5]0.3883 1.1262
+> ORCNN [ 40 ]0.3786 1.0970
+> POE [ 34 ]0.5240 0.7210
+> GOL [ 31 ]0.6117 0.6700
+> MWR [ 49 ]0.4039 0.9420
+> RnC [ 62 ]0.5437 0.8544
+> CLOC (Learned) 0.6602 0.5340
+> CLOC (Fixed) 0.7087 0.4272
+
+Table 3. Comparison of CLOC (learned or fixed margin) vs. related methods on biased training sets at critical boundaries. At end of Training Accuracy " Mean Absolute Error #                                                                           
+
+> Adiance HID KOA IDRID BRACS Adiance HID KOA IDRID BRACS Ablation study 1: With C 1margins each set to 1 phase 2 0.6306 0.6492 0.6612 0.7184 0.5912 0.4000 0.5432 0.4257 0.4272 0.8228 Ablation study 2: With a single learnable value for C 1margins phase 1 0.5803 0.5916 0.6413 0.6893 0.5544 0.5500 0.6436 0.4644 0.5437 0.8649 phase 2 0.5939 0.5944 0.6594 0.7184 0.5860 0.5100 0.6396 0.4457 0.4078 0.7860 Ablation study 3: With C 1learnable values for C 1margins (CLOC) phase 1 0.5852 0.6028 0.6600 0.7282 0.5930 0.5500 0.6292 0.4426 0.4078 0.7333 phase 2 0.6302 0.6208 0.6673 0.7379 0.6035 0.4100 0.5534 0.4167 0.4078 0.7054
+
+Table 4. Ablation study: 1) fixing all margins to one, 2) learning a single value for C   1
+
+margins, and 3) learning C   1 margins (CLOC). 
+
+4.6. Ablation Studies 
+
+We experiment with three variations of CLOC, by manip-ulating margin parameters in different ways: 1) setting a fixed value of 1 to all margins, 2) learning a single value for all C   1 margins, and 3) learning every C   1 margin. All experiments follow the same setup described in Sec. 4.2. Table 4 reports results for these ablation studies. It is evident that learning all C   1 margins results in higher ac-curacy and lower MAE compared to learning a single value for all margins. When all margins are set to 1, two out of the five datasets perform better, with a significant improvement only in the HID dataset. Overall, the results indicate that learnable multiple margins improves performance, indicat-ing that fixed, uniform margins between consecutive classes may not effectively capture the nuanced differences among them. This finding highlights the advantage of learnable, class-specific margins to better model these distinctions. We also observe that introducing a second training phase focused on learning representation using margins learned in phase one consistently improves accuracy compared to jointly optimising representation and margins. Figure 4 shows margin learning in Phase One on IDRID with and without precautions introduced in Sec. 3.3, demonstrating that with “precautionary” measures, training can continue for more epochs without margin collapse. Ap-pendix C.3 shows CLOC’s accuracy increases as the num-ber of parameters in different base models increases. 
+
+## 5. Discussion Beyond overall accuracy: our result highlights a crucial insight: overall accuracy, while commonly used, may not adequately reflect the true importance of different outcomes in practical applications. By allowing flexible error pri-oritization, CLOC proves especially valuable in contexts where critical decision thresholds influence high-stakes out-comes, such as in medical applications. This finding opens a promising research direction focused on developing more refined metrics for classification, tailored to reflect the vary-ing weights of errors in real-world contexts where some mistakes carry more serious consequences than others. 
+
+Connection between margins and decision boundaries: 
+
+The coincidence of the largest learned margins with crit-ical decision boundaries is intriguing (Section 4.5). One possible explanation is that the initial decision guidelines were defined based on distinct visual differences, which aligned the decisions with the most prominent visual fea-tures, making it easier to achieve separation in the repre-sentation space. Additionally, expert annotators may exer-cise greater caution near key boundaries, leading to more precise labeling and clearer representations. It is impor-tant to emphasize that the margin value alone does not of-fer a definitive explanation, as the confounding factors like visual distinctiveness and annotator caution are difficult to disentangle. Instead, much like other interpretable AI meth-ods [18, 44], the margin value acts as an additional tool for understanding model behavior, providing valuable in-sights, particularly in high-stakes applications where deci-sion boundaries are crucial. 
+
+Limitation: CLOC’s performance decreases on datasets with a large number of classes, potentially due to the com-plexity of optimizing numerous margins (Appendix C.1). However, CLOC excels in ordinal classification, especially in medical applications, which typically feature moderate class numbers and decision boundaries. 
+
+## 6. Conclusion 
+
+We introduced CLOC, a new contrastive learning method for ordinal classification that learns an ordered representa-tion based on the optimization of multiple margins with a novel multi-margin n-pair loss. CLOC learns flexible mar-gins that adapt to the varying importance of adjacent la-bel errors while maintaining ordinal relationships. Exper-iments on five real-world and one synthetic dataset show that our approach outperforms others. Beyond improved overall accuracy, CLOC offers enhanced controllability and interpretability, enabling practitioners to prioritize error re-duction between specific ranks and set decision boundaries based on application needs, making it effective for complex tasks like medical image analysis. 15545 Acknowledgments 
+
+G.C. acknowledges support from the Engineering and Phys-ical Sciences Research Council (EPSRC) through grant EP/Y018036/1. 
+
+## References 
+
+[1] Jodie C Avery, Alison Deslandes, Shay M Freger, Mathew Leonardi, Glen Lo, Gustavo Carneiro, G Condous, Mary Louise Hull, Louise Hull, Jodie Avery, et al. Noninva-sive diagnostic imaging for endometriosis part 1: a system-atic review of recent developments in ultrasound, combina-tion imaging, and artificial intelligence. Fertility and steril-ity , 121(2):164–188, 2024. 7 [2] Jonathan Birch, Kathleen A Creel, Abhinav K Jha, and Anya Plutynski. Clinical decisions using ai must consider patient values. Nature medicine , 28(2):229–232, 2022. 1 [3] Nadia Brancati, Anna Maria Anniciello, Pushpak Pati, Daniel Riccio, Giosu` e Scognamiglio, Guillaume Jaume, Giuseppe De Pietro, Maurizio Di Bonito, Antonio Foncu-bierta, Gerardo Botti, et al. Bracs: A dataset for breast carci-noma subtyping in h&e histology images. Database , 2022: baac093, 2022. 5 [4] Refik Can Malli, Mehmet Aygun, and Hazim Kemal Ekenel. Apparent age estimation using ensemble of deep learning models. In Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition Workshops , pages 9– 16, 2016. 2 [5] Mathilde Caron, Hugo Touvron, Ishan Misra, Herv´ e J´ egou, Julien Mairal, Piotr Bojanowski, and Armand Joulin. Emerg-ing properties in self-supervised vision transformers. In Pro-ceedings of the IEEE/CVF international conference on com-puter vision , pages 9650–9660, 2021. 3, 6, 8 [6] Franc ¸ois Castagnos, Martin Mihelich, and Charles Dognin. A simple log-based loss function for ordinal text classifica-tion. In Proceedings of the 29th International Conference on Computational Linguistics , pages 4604–4609, 2022. 3 [7] Pingjun Chen, Linlin Gao, Xiaoshuang Shi, Kyle Allen, and Yang Lin. Fully automatic knee osteoarthritis severity grad-ing using deep neural networks with a novel ordinal loss. 
+
+Computerized Medical Imaging and Graphics , 75:84–92, 2019. 5 [8] Shixing Chen, Caojin Zhang, Ming Dong, Jialiang Le, and Mike Rao. Using ranking-cnn for age estimation. In Pro-ceedings of the IEEE conference on computer vision and pat-tern recognition , pages 5183–5192, 2017. 1, 2 [9] Ting Chen, Simon Kornblith, Mohammad Norouzi, and Ge-offrey Hinton. A simple framework for contrastive learning of visual representations. In International conference on ma-chine learning , pages 1597–1607. PMLR, 2020. 3, 6, 8 [10] Xuxin Chen, Ximin Wang, Ke Zhang, Kar-Ming Fung, Theresa C Thai, Kathleen Moore, Robert S Mannel, Hong Liu, Bin Zheng, and Yuchen Qiu. Recent advances and clin-ical applications of deep learning in medical image analysis. 
+
+Medical image analysis , 79:102444, 2022. 3 [11] Marie Crowe, Maree Inder, and Richard Porter. Conducting qualitative research in mental health: Thematic and content analyses. Australian & New Zealand Journal of Psychiatry ,49(7):616–623, 2015. 7 [12] Ekin D. Cubuk, Barret Zoph, Dandelion Man´ e, Vijay Va-sudevan, and Quoc V. Le. Autoaugment: Learning augmen-tation strategies from data. In 2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 113–123, 2019. 5 [13] Raul Diaz and Amit Marathe. Soft labels for ordinal re-gression. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 4738–4747, 2019. 1, 2 [14] Yao Du, Qiang Zhai, Weihang Dai, and Xiaomeng Li. Teach clip to develop a number sense for ordinal regression. arXiv preprint arXiv:2408.03574 , 2024. 1, 2 [15] Benoit Dufumier, Pietro Gori, Julie Victor, Antoine Grigis, Michele Wessa, Paolo Brambilla, Pauline Favre, Mircea Polosan, Colm Mcdonald, Camille Marie Piguet, et al. Con-trastive learning with continuous proxy meta-data for 3d mri classification. In Medical Image Computing and Computer Assisted Intervention–MICCAI 2021: 24th International Conference, Strasbourg, France, September 27–October 1, 2021, Proceedings, Part II 24 , pages 58–68. Springer, 2021. 3[16] Eran Eidinger, Roee Enbar, and Tal Hassner. Age and gender estimation of unfiltered faces. IEEE Transactions on Infor-mation Forensics and Security , 9(12):2170–2179, 2014. 2, 5[17] Sergio Escalera, Junior Fabian, Pablo Pardo, Xavier Bar´ o, Jordi Gonz` alez, Hugo J. Escalante, Dusan Misevic, Ulrich Steiner, and Isabelle Guyon. Chalearn looking at people 2015: Apparent age and cultural event recognition datasets and results. In 2015 IEEE International Conference on Com-puter Vision Workshop (ICCVW) , pages 243–251, 2015. 2 [18] Jordan D Fuhrman, Naveena Gorre, Qiyuan Hu, Hui Li, Is-sam El Naqa, and Maryellen L Giger. A review of explain-able and interpretable ai with applications in covid-19 imag-ing. Medical Physics , 49(1):1–14, 2022. 8 [19] Xin Geng, Chao Yin, and Zhi-Hua Zhou. Facial age estima-tion by learning from label distributions. IEEE transactions on pattern analysis and machine intelligence , 35(10):2401– 2412, 2013. 1 [20] Chi Keong Goh, Yanzhu Liu, and Adams Wai Kin Kong. A constrained deep neural network for ordinal regression. In 
+
+2018 IEEE/CVF Conference on Computer Vision and Pat-tern Recognition , pages 831–839, 2018. 5 [21] Yu Gong, Greg Mori, and Frederick Tung. Ranksim: Rank-ing similarity regularization for deep imbalanced regression. 
+
+arXiv preprint arXiv:2205.15236 , 2022. 3 [22] Frederick L Greene, Charles M Balch, Irvin D Fleming, April Fritz, Daniel G Haller, Monica Morrow, and David L Page. AJCC cancer staging handbook: TNM classification of malignant tumors . Springer Science & Business Media, 2002. 1 [23] Guodong Guo, Yun Fu, Charles R Dyer, and Thomas S Huang. Image-based human age estimation by manifold learning and locally adjusted robust regression. IEEE Trans-actions on Image Processing , 17(7):1178–1188, 2008. 2 15546 [24] Pedro Antonio Guti´ errez, Maria Perez-Ortiz, Javier Sanchez-Monedero, Francisco Fernandez-Navarro, and Cesar Hervas-Martinez. Ordinal regression methods: survey and experi-mental study. IEEE Transactions on Knowledge and Data Engineering , 28(1):127–146, 2015. 1 [25] Martie G Haselton and David M Buss. Error management theory: a new perspective on biases in cross-sex mind read-ing. Journal of personality and social psychology , 78(1):81, 2000. 7 [26] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In Proceed-ings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , 2016. 5 [27] Prannay Khosla, Piotr Teterwak, Chen Wang, Aaron Sarna, Yonglong Tian, Phillip Isola, Aaron Maschinot, Ce Liu, and Dilip Krishnan. Supervised contrastive learning. Advances in neural information processing systems , 33:18661–18673, 2020. 3, 6, 8 [28] William A Knaus, Jack E Zimmerman, Douglas P Wagner, Elizabeth A Draper, and Diane E Lawrence. Apache—acute physiology and chronic health evaluation: a physiologically based classification system. Critical care medicine , 9(8): 591–597, 1981. 1 [29] Okan Kopuklu, Jiapeng Zheng, Hang Xu, and Gerhard Rigoll. Driver anomaly detection: A dataset and contrastive learning approach. In Proceedings of the IEEE/CVF Win-ter Conference on Applications of Computer Vision (WACV) ,pages 91–100, 2021. 3 [30] Seon-Ho Lee and Chang-Su Kim. Deep repulsive clustering of ordered data based on order-identity decomposition. In In-ternational Conference on Learning Representations , 2020. 2[31] Seon-Ho Lee, Nyeong Ho Shin, and Chang-Su Kim. Ge-ometric order learning for rank estimation. In Advances in Neural Information Processing Systems , 2022. 3, 6, 7, 8, 2 [32] Gil Levi and Tal Hassncer. Age and gender classification using convolutional neural networks. In 2015 IEEE Con-ference on Computer Vision and Pattern Recognition Work-shops (CVPRW) , pages 34–42, 2015. 5 [33] Changsheng Li, Qingshan Liu, Jing Liu, and Hanqing Lu. Learning distance metric regression for facial age estimation. In Proceedings of the 21st International Conference on Pat-tern Recognition (ICPR2012) , pages 2327–2330, 2012. 3 [34] Wanhua Li, Xiaoke Huang, Jiwen Lu, Jianjiang Feng, and Jie Zhou. Learning probabilistic ordinal embed-dings for uncertainty-aware regression. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 13896–13905, 2021. 2, 6, 7, 8, 3 [35] Wanhua Li, Xiaoke Huang, Zheng Zhu, Yansong Tang, Xiu Li, Jie Zhou, and Jiwen Lu. Ordinalclip: Learning rank prompts for language-guided ordinal regression. Advances in Neural Information Processing Systems , 35:35313–35325, 2022. 1, 2 [36] Kyungsun Lim, Nyeong-Ho Shin, Young-Yoon Lee, and Chang-Su Kim. Order learning and its application to age estimation. In International Conference on Learning Repre-sentations , 2019. 2 [37] Yanzhu Liu, Adams Wai Kin Kong, and Chi Keong Goh. A constrained deep neural network for ordinal regression. In 
+
+Proceedings of the IEEE conference on computer vision and pattern recognition , pages 831–839, 2018. 2 [38] Leland McInnes, John Healy, and James Melville. Umap: Uniform manifold approximation and projection for dimen-sion reduction. arXiv preprint arXiv:1802.03426 , 2018. 7 [39] Abdul Sami Mohammed, Ahmed Abul Hasanaath, Ghazan-far Latif, and Abul Bashar. Knee osteoarthritis detection and severity classification using residual neural networks on pre-processed x-ray images. Diagnostics (Basel) , 13(8):1380, 2023. 6 [40] Zhenxing Niu, Mo Zhou, Le Wang, Xinbo Gao, and Gang Hua. Ordinal regression with multiple output cnn for age estimation. In Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition (CVPR) , 2016. 1, 2, 6, 8[41] Frank Palermo, James Hays, and Alexei A. Efros. Dating historical color images. In ECCV (6) , pages 499–512, 2012. 5[42] Daniel Petashvili, Hu Wang, Alison Deslandes, Jodie Av-ery, George Condous, Gustavo Carneiro, Louise Hull, and Hsiang-Ting Chen. Learning subjective image quality assessment for transvaginal ultrasound scans from multi-annotator labels. In 2024 IEEE International Symposium on Biomedical Imaging (ISBI) , pages 1–5. IEEE, 2024. 7 [43] Prasanna Porwal, Samiksha Pachade, Ravi Kamble, Manesh Kokare, Girish Deshmukh, Vivek Sahasrabuddhe, and Fab-rice Meriaudeau. Indian diabetic retinopathy image dataset (idrid): A database for diabetic retinopathy screening re-search. Data , 3(3), 2018. 2, 5 [44] Mauricio Reyes, Raphael Meier, S´ ergio Pereira, Car-los A Silva, Fried-Michael Dahlweid, Hendrik von Tengg-Kobligk, Ronald M Summers, and Roland Wiest. On the interpretability of artificial intelligence in radiology: chal-lenges and opportunities. Radiology: artificial intelligence ,2(3):e190043, 2020. 8 [45] Daniel Rho, Taesoo Kim, Sooill Park, Jaehyun Park, and Jae-han Park. Understanding contrastive learning through the lens of margins. arXiv [cs.LG] , 2023. 3 [46] Sophie Roborgh. From risk aversion to risk management. 
+
+The Companion to Peace and Conflict Fieldwork , pages 115– 129, 2021. 7 [47] Lukas Ruff, Robert Vandermeulen, Nico Goernitz, Lucas Deecke, Shoaib Ahmed Siddiqui, Alexander Binder, Em-manuel M¨ uller, and Marius Kloft. Deep one-class classifi-cation. In Proceedings of the 35th International Conference on Machine Learning , pages 4393–4402. PMLR, 2018. 4 [48] Anshul Shah, Suvrit Sra, Rama Chellappa, and Anoop Cherian. Max-margin contrastive learning. Proc. Conf. AAAI Artif. Intell. , 36(8):8220–8230, 2022. 3 [49] Nyeong-Ho Shin, Seon-Ho Lee, and Chang-Su Kim. Moving window regression: A novel approach to ordinal regression. In Proceedings of the IEEE/CVF conference on computer vi-sion and pattern recognition , pages 18760–18769, 2022. 2, 6, 8 [50] Karen Simonyan and Andrew Zisserman. Very deep con-volutional networks for large-scale image recognition. In 15547 3rd International Conference on Learning Representations, ICLR 2015, San Diego, CA, USA, May 7-9, 2015, Confer-ence Track Proceedings , 2015. 2 [51] Kihyuk Sohn. Improved deep metric learning with multi-class n-pair loss objective. In Advances in Neural Informa-tion Processing Systems . Curran Associates, Inc., 2016. 3, 4[52] Harold C Sox, Michael C Higgins, Douglas K Owens, and Gillian Sanders Schmidler. Medical decision making . John Wiley & Sons, 2024. 1 [53] Juan Luis Su´ arez, Salvador Garc´ ıa, and Francisco Herrera. Ordinal regression with explainable distance metric learn-ing based on ordered sequences. Mach. Learn. , 110(10): 2729–2762, 2021. 3 [54] Graham Teasdale, Andrew Maas, Fiona Lecky, Geoffrey Manley, Nino Stocchetti, and Gordon Murray. The glasgow coma scale at 40 years: standing the test of time. The Lancet Neurology , 13(8):844–854, 2014. 1 [55] Nikos Tsiknakis, Dimitris Theodoropoulos, Georgios Manikis, Emmanouil Ktistakis, Ourania Boutsora, Alexa Berto, Fabio Scarpa, Alberto Scarpa, Dimitrios I. Fotiadis, and Kostas Marias. Deep learning for diabetic retinopa-thy detection and classification based on fundus images: A review. Computers in Biology and Medicine , 135:104599, 2021. 6 [56] Feng Wang and Huaping Liu. Understanding the behaviour of contrastive loss. In 2021 IEEE/CVF Conference on Com-puter Vision and Pattern Recognition (CVPR) , pages 2495– 2504. IEEE, 2021. 3 [57] Peng Wang, Kai Han, Xiu-Shen Wei, Lei Zhang, and Lei Wang. Contrastive learning based hybrid networks for long-tailed image classification. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pages 943–952, 2021. 3 [58] Rui Wang, Peipei Li, Huaibo Huang, Chunshui Cao, Ran He, and Zhaofeng He. Learning-to-rank meets language: Boost-ing language-driven ordering alignment for ordinal classifi-cation. Advances in Neural Information Processing Systems ,36, 2023. 1, 2 [59] Yaoming Wang, Yangzhou Jiang, Jin Li, Bingbing Ni, Wen-rui Dai, Chenglin Li, Hongkai Xiong, and Teng Li. Con-trastive regression for domain adaptation on gaze estimation. In Proceedings of the IEEE/CVF conference on computer vi-sion and pattern recognition , pages 19376–19385, 2022. 3 [60] Bo Xiao, Xiaokang Yang, Yi Xu, and Hongyuan Zha. Learn-ing distance metric for regression by semidefinite program-ming with application to human age estimation. In Proceed-ings of the 17th ACM International Conference on Multime-dia , page 451–460, New York, NY, USA, 2009. Association for Computing Machinery. 3 [61] Zhiyuan Zeng, Keqing He, Yuanmeng Yan, Zijun Liu, Yanan Wu, Hong Xu, Huixing Jiang, and Weiran Xu. Model-ing discriminative representations for out-of-domain detec-tion with supervised contrastive learning. arXiv preprint arXiv:2105.14289 , 2021. 3 [62] Kaiwen Zha, Peng Cao, Jeany Son, Yuzhe Yang, and Dina Katabi. Rank-n-contrast: Learning continuous representa-tions for regression. In Thirty-seventh Conference on Neural Information Processing Systems , 2023. 1, 3, 6, 8 [63] Kaipeng Zhang, Zhanpeng Zhang, Zhifeng Li, and Yu Qiao. Joint face detection and alignment using multitask cascaded convolutional networks. IEEE signal processing letters , 23 (10):1499–1503, 2016. 2 15548

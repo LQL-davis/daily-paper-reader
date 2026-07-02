@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "extractor": "papercropper",
+  "tables": [
+    {
+      "url": "assets/tables/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/table-001.webp",
+      "caption": "",
+      "page": 0,
+      "index": 1,
+      "width": 789,
+      "height": 593,
+      "label": "Table"
+    },
+    {
+      "url": "assets/tables/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/table-002.webp",
+      "caption": "",
+      "page": 0,
+      "index": 2,
+      "width": 734,
+      "height": 696,
+      "label": "Table"
+    },
+    {
+      "url": "assets/tables/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/table-003.webp",
+      "caption": "",
+      "page": 0,
+      "index": 3,
+      "width": 750,
+      "height": 246,
+      "label": "Table"
+    },
+    {
+      "url": "assets/tables/cvpr-2025-accepted/cvpr-2025-park-shape-abstraction-via-marching-differentiable-support-functions-cvpr-2025-paper/table-004.webp",
+      "caption": "",
+      "page": 0,
+      "index": 4,
+      "width": 1813,
+      "height": 338,
+      "label": "Table"
+    }
+  ]
+}

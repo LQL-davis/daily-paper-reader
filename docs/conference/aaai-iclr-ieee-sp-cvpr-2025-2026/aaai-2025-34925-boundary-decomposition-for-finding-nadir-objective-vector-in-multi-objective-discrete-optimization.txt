@@ -1,0 +1,565 @@
+Title: Boundary Decomposition for Finding Nadir Objective Vector in Multi-Objective Discrete Optimization
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/34925/37080
+
+Number of Pages: 8
+
+Markdown Content:
+# Boundary Decomposition for Finding Nadir Objective Vector in Multi-Objective Discrete Optimization 
+
+# Ruihao Zheng, Zhenkun Wang *
+
+School of System Design and Intelligent Manufacturing, Southern University of Science and Technology, Shenzhen, China 12132686@mail.sustech.edu.cn, wangzhenkun90@gmail.com 
+
+Abstract 
+
+The exact nadir objective vector of a multi-objective dis-crete optimization problem (MODOP) is crucial for decision-making but remains challenging to find. Existing methods for tackling this issue have limitations in theoretical guaran-tees or high computational costs. This paper applies bound-ary decomposition to the MODOP and proposes an exact algorithm called BDNC. BDNC is designed to address a bilevel optimization problem for each objective with finite-time convergence guarantees. The lower-level optimization problem, termed the boundary subproblem, is a scalarization of the MODOP. It can be solved using any suitable single-objective exact solver. According to the theoretical founda-tions of boundary decomposition, some specific settings of the boundary subproblem can ensure alignment with the nadir objective vector under mild conditions. The upper-level opti-mization problem evaluates a potential setting using the opti-mal solution to the lower-level one. It employs our proposed novel pruning method to efficiently identify the specific set-tings. Moreover, BDNC can leverage a trade-off provided by the decision-makers, potentially facilitating the decision-making process. Experiments on various MODOPs demon-strate that BDNC exhibits superior and reliable performance in terms of runtime compared to existing exact methods. 
+
+# Introduction 
+
+Multi-objective optimization involves an optimization sce-nario where several conflicting objectives must be consid-ered simultaneously, often occurring in real-world appli-cations. There is no single optimal solution to a multi-objective optimization problem (MOP). Instead, there is a set of Pareto-optimal solutions, representing different trade-offs between these objectives. The component-wise worst objective function values of Pareto-optimal solutions de-fine the nadir objective vector. Obtaining the nadir objective vector is crucial for solving MOPs in various applications, such as engineering design (Weerasuriya et al. 2021; Mena et al. 2023) and multi-objective learning (Momma, Dong, and Liu 2022; Zhang et al. 2023). Specifically, the nadir objective vector provides a promising region in the objec-tive space. This serves as a prerequisite for decision-makers 
+
+> *
+
+Corresponding author Copyright © 2025, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. 
+
+to apply preference-based algorithms ( e.g. , interactive algo-rithms) (Branke et al. 2008; Wang, Olhofer, and Jin 2017; Mena et al. 2023). Moreover, the nadir objective vector is frequently utilized to guide the search of algorithms in both continuous and discrete optimization (Vodopija, Tuˇ sar, and Filipiˇ c 2024; Mesquita-Cunha, Figueira, and Barbosa-P´ ovoa 2023). In addition, the nadir objective vector, along with the ideal objective vector, is widely used for the normalization of the objective space (Miettinen 1998; He et al. 2021). In this paper, we investigate the computation of the nadir objective vector for the multi-objective discrete optimization problem (MODOP). The MODOP can be written as min. f (x) = ( f1(x), . . . , f m(x)) ⊺,
+
+s.t. x ∈ X, (1) where x = ( x1, . . . , x n)⊺ is the decision vector (also called solution), and X ⊂ Zn denotes the feasible set. f : Zn →
+
+Zm is composed of m objective functions, and f (x) is the objective vector corresponding to x.
+
+Definition 1. Given two vectors u, v ∈ Rm, u is said to 
+
+dominate v (denoted as u ≺ v), if and only if ui ≤ vi for every i ∈ { 1, . . . , m } and uj < v j for at least one j ∈{1, . . . , m }.
+
+Definition 2. A decision vector x∗ ∈ X and the correspond-ing objective vector f (x∗) are Pareto-optimal , if there is no 
+
+x ∈ X such that f (x) dominates f (x∗).
+
+Definition 3. The set of all Pareto-optimal solutions is called the Pareto set (P S ), and the set of all Pareto-optimal objective vectors is called the Pareto front (P F ). 
+
+Definition 4. The ideal objective vector zide is composed of the lower bounds of the P F , i.e., zide i = min x∈P S fi(x)
+
+for i = 1 , . . . , m . The nadir objective vector znad consists of the upper bounds of the P F , i.e. , znad i = max x∈P S fi(x)
+
+for i = 1 , . . . , m .
+
+Definition 5. For the i-th objective function fi with i ∈{1, . . . , m }, an objective vector z(i)c
+
+is called the critical point of fi if it is Pareto-optimal and has the worst fi value, 
+
+i.e. , z(i)c
+
+∈ { f (x)|x = arg max x∈P S fi(x)}.
+
+The nadir objective vector is often determined by ob-taining the critical point on each objective, since znad i =
+
+z(i)c 
+
+> i
+
+for each i ∈ {1, . . . , m }. We propose a novel ex-act algorithm utilizing boundary decomposition (Zheng and The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25) 
+
+27170 Symbol Description                                        
+
+> m(n)The number of objectives (or variables).
+> znad (zide )The nadir (or ideal) objective vector.
+> z(i)c
+> The critical point for the i-th objective.
+> z(˜z)A (transformed) objective vector; z=f(x).
+> w(wi)A boundary weight vector (of the i-th objective).
+> α, zrThe parameter and the reference point in Eq. (4).
+> MA finite trade-off in Definition 8.
+> μThe user-defined trade-off between objectives.
+> zr1,zr2Lower and upper bounds for normalization.
+> y(˜y)A (transformed) normalized objective vector; y=
+> f′(x)is obtained by Eq. (8).
+> ϕThe projection of ˜yonto Rm−1with some ele-ment removed; ϕ= ( ϕ1, . . . , ϕ m−1)⊺.
+> RA rectangle; R={p,q}.
+> LThe tuple of rectangles.
+
+Table 1: Notation used in the paper. Wang 2024) to find critical points for the MODOP with any number of objective functions. We term this algo-rithm as boundary decomposition for nadir objective vector computation (BDNC). The critical point of each objective can be found by optimizing a particular boundary subprob-lem under mild conditions (see the appendix for details). BDNC aims to solve m bilevel optimization problems to find these particular boundary subproblems. In our experi-mental studies, BDNC is tested on 4 MODOPs comprising a total of 720 instances. The results demonstrate that BDNC exhibits an overall lower and more stable runtime than base-line methods. Our contributions are listed as follows: • Bilevel optimization problem based on boundary decom-position. We formulate a suitable bilevel optimization problem for each MODOP’s objective, aiming to iden-tify the particular boundary subproblem by comparing the optimal solutions of boundary subproblems. • Exact algorithm for solving proposed bilevel optimiza-tion problems. The upper-level optimization performs a novel and effective pruning method for an exhaustive search in the (m − 1) -dimensional space. The pruning method repeatedly subdivides the search space into rect-angles and discards the invalid ones until all are classified as invalid. The lower-level optimization can adopt any suitable existing exact solver. BDNC guarantees conver-gence within a finite number of iterations. A summary of symbols in this paper is listed in Table 1 for ease of reference. The appendix and the source code are available at https://github.com/EricZheng1024/BDNE. 
+
+# Preliminaries 
+
+This section begins with introducing boundary decomposi-tion (Zheng and Wang 2024). Subsequently, m boundary-decomposition-based bilevel optimization problems are con-structed in a similar manner to align with the nadir objective vector. 
+
+Definition 6 (From (Ramirez-Atencia, Mostaghim, and Ca-macho 2017)) . Let ˜z be the image of an objective vector z
+
+(denote ˜z as the transformed objective vector ), where 
+
+˜zi = (1 − α)zi + αm
+
+> m
+
+X
+
+> j=1
+
+zj for i = 1 , . . . , m. (2) 
+
+Given a value of α (0 < α < 1) and two objective vectors u
+
+and v, u is said to cone-dominate v (denoted as u ≺c v) if and only if ˜u ≺ ˜v.
+
+Definition 7. Given a value of α, an objective vector is cone-optimal if no objective vector can cone-dominate it. 
+
+Definition 8 (From (Geoffrion 1968)) . A decision vector x∗
+
+and the corresponding objective vector f (x∗) are properly Pareto-optimal if they are Pareto-optimal and if there exists a finite number M > 0 such that, for each i and any x ∈ Ω,we have fi(x∗) − fi(x)
+
+fj (x) − fj (x∗) ≤ M, (3) 
+
+where j satisfies fj (x∗) < f j (x).
+
+Boundary Subproblem 
+
+The boundary subproblem for the i-th objective is defined as 
+
+gbd i (x|wi, zr , α ) = max 
+
+> 1≤j≤m
+
+(
+
+wij (1 −α)fj (x)+ αm
+
+> m
+
+X
+
+> k=1
+
+fk(x) − zrj
+
+!) 
+
+, (4) where wi is called the boundary weight vector of the i-th objective, zr is a reference point, and 0 < α < 1. wi sat-isfies three conditions: wii = 0 ; ∀j ∈ { 1, . . . , m }, w ij ≥ 0;
+
+∃ j ∈ { 1, . . . , m }, w ij > 0. The boundary subproblem in-volves two steps: 1) transforming the objective vector as shown in Eq. (2) and 2) scalarizing the transformed objective vector with the boundary weight vector. The boundary sub-problem possesses some properties (see the appendix for de-tails) that facilitate the search for the nadir objective vector. 
+
+z(i)c
+
+can be determined by solving the boundary subproblem with a particular setting of wi when α ≤ m  
+
+> (m−1) M+m
+
+where 
+
+M is associated with the critical point. This is trivial as α
+
+can be a sufficiently small value. Besides, the optimal solu-tion of the boundary subproblem must be Pareto-optimal. 
+
+Formulation of Bilevel Optimization Problem 
+
+We can search the critical points over the P F via the bound-ary subproblem. A previous proposed bilevel optimization problem (BLOP) is presented in the appendix . The upper-level optimization problem (ULOP) aims to determine the particular boundary weight vector, while the lower-level op-timization problem (LLOP) seeks the optimal solution of a potential boundary subproblem for the ULOP. To facilitate the design of the algorithm for the MODOP, we formulate an equivalent BLOP with Rm−1 as the search space of its ULOP. According to Theorems 4 and 6 of the appendix , the equivalent BLOP with respect to the i-th objective can be derived as max. f bi (u, x∗) = fi(x∗),
+
+s.t. ui = 0 , ∀j̸ = i, z rj < u j ≤ umax j ,
+
+x∗ = arg min 
+
+> x∈X
+
+gbd i (x|wi, zr , α ),
+
+(5) 27171 where umax is the objective vector dominated by ˜znad (i.e. ,the transformed nadir objective vector), which can be set to 
+
+umax j = (1 − α) max  
+
+> x∈X
+
+fj (x) + αm
+
+> m
+
+X
+
+> k=1
+
+max  
+
+> x∈X
+
+fk(x), (6) and 
+
+wii = 0 , ∀j̸ = i, w ij = βuj − zrj
+
+. (7) It indicates that the search for the ULOP is conducted in the projection of transformed objective vectors onto Rm−1 with the i-th component removed. Moreover, let α = m 
+
+> (m−1) μ+m
+
+, where μ > 0 represents the upper bound of the trade-off between the k-th and l-th objectives, where k = arg max 1≤j≤m fj (x∗) − fj (x) and 
+
+l = arg max 1≤j≤m fj (x) − fj (x∗). In other words, μ is the amount of increment in the value of one objective function that the decision-maker is willing to tolerate in exchange for a one-unit decrement in another objective function. If the preference of decision-makers about μ is available, Corol-lary 3 of the appendix can guarantee to obtain a satisfactory nadir objective vector. When the preference is not provided, 
+
+μ can take a sufficiently large value. 
+
+# Exact Algorithm 
+
+We propose an exact algorithm called BDNC to solve the 
+
+m BLOPs ( i.e. , Problem (5)) sequentially or in parallel. The main procedure of BDNC is given in Algorithm 1. The main contribution of BDNC is its search method for the ULOP. Each LLOP is a scalarized problem, which can be solved by any suitable single-objective exact optimizer. All proofs in this section are presented in the appendix .
+
+Initialization 
+
+Firstly, an exact solver is selected and configured, which can match the properties of the concrete LLOP. zr1 and 
+
+zr2 are two reference points for normalization, defined as 
+
+zide and zmax respectively in this paper, where zmax j =max x∈X fj (x) for j = 1 , . . . , m . ze is a temporary nadir objective vector, initialized to the smallest values. There-after, α of the BLOP is calculated according to μ. L repre-sents the potential region of the search space. The potential region is initially set to the entire search space. 
+
+Normalization. M in the Definition 8 is affected by differ-ent value ranges of objective functions. The objective space should be normalized properly. Therefore, we introduce two reference points, namely zr1 and zr2, to normalize the ob-jective space as 
+
+yk = f ′
+
+> k
+
+(x) = fk(x) − zr1
+
+> k
+
+zr2 
+
+> k
+
+− zr1
+
+> k
+
+for k = 1 , . . . , m, (8) where zr2 
+
+> j
+
+> zr1 
+
+> j
+
+for j = 1, . . . , m and y or f ′(x) is a normalized objective vector. We let zrj = 0 for j =1, . . . , m in Eq. (4). Then zr1 should be set according to Theorem 3 and Corollary 2. For example, it is rea-sonable to set zr1 to zide since zide j ≤ fj (x) for j =1, . . . , m such that (1 − α)f ′ 
+
+> j
+
+(x) + αm
+
+Pmk=1 f ′
+
+> k
+
+(x) ≥ 0.Algorithm 1: BDNC 
+
+Input : An MODOP, μ; Output : ze. 
+
+> 1:
+
+Configure the exact solver of the LLOP.  
+
+> 2:
+
+Determine zr1 and zr2; ze ← zr1. 
+
+> 3:
+
+α ← m 
+
+> (m−1) μ+m
+
+; L ← ({0, 1}). 
+
+> 4:
+
+for i = 1 , . . . , m do  
+
+> 5:
+
+while L̸ = ∅ do  
+
+> 6:
+
+Prune the rectangles in L sequentially until a suit-able rectangle Rs is selected.  
+
+> 7:
+
+Solve the LLOP with the boundary weight vector associated with the maximal vertex of Rs. 
+
+> 8:
+
+Determine the invalid region according to whether a new Pareto-optimal objective vector is generated.  
+
+> 9:
+
+Remove rectangles in L within the invalid region.  
+
+> 10:
+
+end while  
+
+> 11:
+
+end for 
+
+We consider that the search space of the ULOP is within an (m − 1) -dimensional unit hypercube ( i.e. , (0 , 1] m−1). The settings of zr2 should ensure that all ˜z(i)c
+
+are in-cluded in the rectangle defined by ˜zr1 and ˜zr2. We can easily deduce that: z′ ∈ z|zr1 
+
+> j
+
+< z j ≤ zr2 
+
+> j
+
+, j = 1 , . . . , m 
+
+is a sufficient but unnecessary condition for ˜z′ ∈˜z|˜zr1 
+
+> j
+
+< ˜zj ≤ ˜zr2 
+
+> j
+
+, j = 1 , . . . , m . Therefore, zr2 should satisfy zr2 
+
+> j
+
+> z nad j for j = 1 , . . . , m . For example, zr2 
+
+> j
+
+=max x∈X fj (x) for j = 1 , . . . , m . Furthermore, some addi-tional suggestions can be found in (He, Ishibuchi, and Srini-vasan 2021). For convenience, we introduce the rest of the algorithm, assuming a normalized objective space. 
+
+Invalid and Potential Regions. Solving the i-th BLOP yields the cone-optimal objective vector with the highest value of the i-th element according to Corollary 3. We con-sider that a region of the ULOP’s search space is invalid if the transformed and projected result of this objective vector lies outside this region. Otherwise, it is considered potential. The main idea of optimizing the ULOP is to prune potential regions until no regions in the search space remain poten-tial. In other words, eliminate the invalid regions until the removed regions collectively cover the entire search space. Let wi be the boundary weight vector obtained by Eq. (7), 
+
+y∗ be the optimal objective vector to the boundary subprob-lem with wi, and ϕ∗ be the projection of ˜y∗. Propositions 1 and 2 are derived to determine the invalid and potential re-gions. The invalid regions in the two propositions are two 
+
+(m − 1) -dimensional axis-aligned rectangles. When there are numerous optimal objective vector to boundary subprob-lems, using the (m − 1) -dimensional search space allows for a series of non-overlapping rectangles to represent potential or invalid regions rather than complex shapes, as shown in Figure 1. We use a tuple of rectangles, namely L, to rep-resent the potential region. No optimal objective vector is available at the outset. As a result, L initially includes only the rectangle representing the entire search space. 
+
+Proposition 1. ϕ|ϕ∗ 
+
+> j
+
+≤ ϕj ≤ 1, j = 1 , . . . , m −1 is invalid. 
+
+Proposition 2. Let w′ be the result of removing the i-th element from wi and then l = arg max 1≤j≤m−1
+
+w′ 
+
+> j
+
+ϕ∗ 
+
+> j
+
+.27172 Invalid (Prop. 1)      
+
+> Potential
+> 0
+> 1
+> 𝝓 in Prop. 1
+> 𝝓 in Prop. 2
+> Invalid (Prop. 2)
+
+Figure 1: Illustration of potential and invalid regions. 
+
+ϕ|0 < ϕ j < (ϕ∗ 
+
+> l
+
+w′
+
+> l
+
+)/w ′ 
+
+> j
+
+, j = 1 , . . . , m − 1 is invalid. 
+
+Search Procedure 
+
+Lines 5 to 10 in Algorithm 1 are the search steps for each objective. The steps are the same, except for the operating objective. A rectangle can be determined by two representa-tive vertices. Then we can denote a rectangle as R = {p, q}
+
+where p, q ∈ Rm−1 are minimal and maximal vertices of R
+
+respectively. The boundary weight vector wi corresponding to R is defined as 
+
+wil = 1
+
+qj
+
+for j = 1 , . . . , m − 1, (9) where l = j if j < i and l = j + 1 otherwise. The selection of q ensures that the nonzero elements in wi are finite. In line 6, each rectangle in L is associated with at least one pruning step. A pruning step refers to employing its cor-responding invalid region to subdivide the rectangle(s) into many smaller rectangles and discarding those within the in-valid region. On the one hand, the complexity of this proce-dure increases with the number of rectangles. On the other hand, a rectangle with many pruning steps can exhibit high complexity in its subdivision. Some rectangles in L may be invalid, but we cannot identify them before solving their corresponding boundary subproblems. Pruning these invalid rectangles and solving their associated boundary subprob-lems leads to a waste of computational resources. To reduce the overall complexity, we propose a lazy method to prune the search space in line 6, as detailed below: 
+
+Step 1 Select the last rectangle from the rectangles with most pruning steps in L and denote this rectangle as Rt={pt, qt} and the index of Rt in L as t.
+
+Step 2 Let l = j if j < i and l = j + 1 otherwise. If there exists a decision vector x ∈ X such that 
+
+fi(x) > z ei and 
+
+ptj ≤ (1 − α)f ′ 
+
+> l
+
+(x) + αm
+
+> m
+
+X
+
+> k=1
+
+f ′
+
+> k
+
+(x) ≤ qtj
+
+for j = 1 , . . . , m − 1,
+
+(10) 
+
+L′ stores the rectangles obtained by conducting all pruning steps in the step list of Rt sequentially. Oth-erwise, L′ ← ∅ .
+
+Step 3 L ← (L[1 : t − 1] , L ′, L [t + 1 : end ]) and then 
+
+Rs ← L′[end ].
+
+Step 4 If L′ = ∅ and L̸ = ∅, go to Step 1. If L′ = ∅ and 
+
+L = ∅, the search procedure for the i-th objective is finished. Otherwise, return Rs = {ps, qs}.In Step 1, we prioritize pruning the rectangles with the most steps to prevent them from accumulating too many steps. This prioritization rule can also be replaced by any other rule. The feasibility check in Step 2 aims to determine whether a solution belonging to the rectangle has a higher value for the i-th objective function. The negative result sig-nifies the rectangle is invalid or one of the optimal solutions to the BLOP is found. In Step 3, L′ is placed at the original position of Rt. This is because the rectangles in L are ar-ranged in lexicographic order, prioritizing the first objective, then the second, and so forth. This lexicographic ordering can be completed automatically during the rectangle subdi-vision procedure without incurring additional computational costs. Besides, we improve the rectangle subdivision proce-dure described in (Kirlik and Sayın 2015) by subdividing only the rectangles that intersect with the invalid region. Subsequently, a Pareto-optimal solution is obtained in line 7 and a new invalid region can be determined based on the obtained solution in line 8. If its corresponding objective vector is not obtained previously, a new invalid region can be identified based on Proposition 1. We can always determine a new invalid region according to Proposition 2 after solv-ing the LLOP. However, it increases the complexity since two pruning steps may be added in an iteration. Therefore, we establish Proposition 3 upon the foundation of Proposi-tion 2. The invalid region is given by Proposition 3 only in the absence of a new Pareto-optimal objective vector. In this way, only one invalid region is determined in each iteration. After that, the pruning step associated with this new invalid region is appended to the step lists of existing rectangles in 
+
+L. In line 9, some invalid rectangles can be removed based on the recently determined invalid region. 
+
+Proposition 3. ϕ|0 < ϕ j < q sj , j = 1 , . . . , m − 1 is in-valid if solving the boundary subproblem corresponding to the selected rectangle Rs = {ps, qs} generates a previously obtained objective vector. 
+
+An exhaustive search is achieved for the i-th objective when L is empty. BDNC terminates eventually as given by Theorem 1 and then outputs the nadir objective vector or the preferred one stated in Corollary 3. 
+
+Theorem 1. BDNC converges in a finite number of itera-tions if the P F is finite. 
+
+# Example of Search Procedure 
+
+To better understand the behavior of BDNC, we illustrate the search procedure for the i-th objective using a straightfor-ward example problem in Figure 2. The example problem is an MODOP with 3 objectives and 4 feasible solutions. The transformed and projected results of the feasible objective vectors are shown in the right part of the figure.“1”, “3”, and “4” correspond to the Pareto-optimal solutions. “1” corre-sponds to the critical point of the i-th objective. “2” > “1” 
+
+> “4” > “3” in terms of the i-th objective function value. The first row of the figure highlights the selected rectangle 27173 3                   
+
+> 3
+> 3
+> 4
+> 4
+> 3
+> 4
+> 1
+> 1
+> 3
+> 4
+> 1
+> 1
+> 1
+> The 1 -st iteration The 2 -nd iteration The 3 -rd iteration The 4 -th iteration The 5 -th iteration
+> 3
+> 3
+> 3
+> 3
+> 33
+> 4
+> 3
+> 4
+> 1
+> 3
+> 4
+> 4
+> 1
+> 3
+> 4
+> 1
+> 3
+> 4
+> 1
+> 1
+> 1
+> 3
+> 4
+> 4
+> 3
+> 4
+> 1
+> 1
+> 3
+> 4
+> 1
+> 1
+> 1
+> Select 𝑅 𝑡
+> Subdivide 𝑅 𝑡 and remove
+> the invalid rectangles
+> Solve the boundary sub -
+> problem associated with 𝑅 𝑠
+> Remove the invalid
+> rectangles
+> Potential
+> Invalid
+> ?
+> ?
+> See Prop. 1
+> See Prop. 3
+> 𝐿
+> Pruning steps
+> 1
+> 0
+> Search
+> space
+> 1
+> 3
+> 4
+> 0
+> 1
+> 2
+
+Figure 2: Example of the search procedure. The orange and green highlights denote the selected rectangles in their respective steps. The blue arrow indicates the rectangle to which the displayed pruning steps correspond. in the first loop of line 6. The second row exhibits the final rectangles in line 6. The third row represents lines 7 and 8 and the last row shows line 9. 
+
+1-st Iteration. L is the whole search space initially. After the 1-st iteration, a new solution is obtained, and its corre-sponding pruning step is added to the step list of the sole rectangle Rs. The rectangle is not pruned immediately due to BDNC’s lazy mechanism for handling the pruning steps. 
+
+2-nd Iteration. The only rectangle in L is subdivided at the 
+
+2-nd iteration, and four rectangles are present. The top right rectangle is removed since the invalid region defined by Dot “3” ( i.e. , the upper right region of “3”) covers this rectan-gle. A new solution is also obtained. Then, its corresponding pruning step is added to three step lists, as three rectangles are in L.
+
+3-rd Iteration. All the rectangles have the same number of pruning steps, and the three rectangles are arranged in lexi-cographic order. Then, the bottom right one is examined first at the beginning of the 3-rd iteration. However, this rectan-gle does not contain the solution satisfying Constraints (10). This rectangle is discarded and the top left one containing “1” and “2” is pruned. The selected rectangle remains un-changed after pruning because the invalid region defined by Dot “4” ( i.e. , the upper right region of “4”) does not inter-sect with it. At the end of the 3-rd iteration, the critical point is achieved. But L is not empty and BDNC should examine the remaining rectangles. 
+
+4-th Iteration. The bottom rectangle has 2 pruning steps, including Dots “4” and “1”. The top rectangle has 1 pruning step but contains “2”. As a result, the bottom rectangle is dis-carded directly and the top one is pruned. Since no new solu-tion is obtained, the invalid region is determined according to Proposition 3. Two rectangles within the invalid region (i.e. , the lower left region of Rhombus “1”) are removed. 
+
+5-th Iteration. Since the only remaining rectangle does not contain a solution with a higher value of the i-th objective function, the rectangle is removed, leaving L empty at this point. Therefore, the search for this objective is complete. 
+
+# Related Works 
+
+To contextualize our work, we review the most relevant lit-erature on identifying the nadir objective vector. 
+
+Heuristic Method. Heuristic methods can provide an (ini-tial) estimate of the nadir objective vector. Although heuris-tic methods are simple, they lack theoretical guarantees and may produce significant errors for certain problems. More details of heuristic methods can be found in the appendix .
+
+Exact Method. The exact method formulates a series of optimization problems based on the original MOP. Solv-ing the defined optimization problems guarantees to find the nadir objective vector. When the exact solver is avail-able, these methods converge within a finite number of itera-tions. Ehrgott and Tenfelde-Podehl (2003) propose to obtain the Pareto-optimal solutions of the original m-dimensional MOP from the set of Pareto-optimal solutions of the m
+
+(m − 1) -dimensional MOPs. However, this method is ex-ceedingly computationally inefficient. After that, Kirlik and Sayın (2015) formulate m BLOPs, where each ULOP in-volves an (m − 2) -dimensional search space and the LLOP uses the ϵ-constraint scalarization method. Compared with 27174 Problem m n                                                                                                                                                                                                                                                                                                                     
+
+> KS KL FD&IS BDNC median ∆nT O median ∆nT O median ∆nT O median nT O
+> MOAP 320 ×20 118.9(3)-95.6 0107(2)-83.8 0123.5(4)-100.3 023.2(1) 0410 ×10 250.3(3)-227.4 021.2(1)= -1.7 04445(4)-4422.1 122.9(2) 0510 ×10 TO(4)-TO 30 214.1(1)= -51.7 0TO(4)-TO 30 265.7(2) 0330 ×30 357.9(3)-165.6 01518.4(4)-1326.2 3342.3(2)-150 0192.3(1) 0415 ×15 4637.3(3)-4473.9 0627.8(2)-464.4 0TO(4)-TO 30 163.4(1) 0515 ×15 TO(4)-TO 30 TO(4)-TO 30 TO(4)-TO 30 5095.5(1) 3MOKP 3200 1759.8(4)-1663.2 0142.4(2)-45.8 0294.2(3)-197.6 096.6(1) 0450 1525(3)-1487.9 039.7(2)= 2.6 0TO(4)-TO 19 37.1(1) 0550 TO(4)-TO 30 TO(4)-TO 24 TO(4)-TO 30 542.3(1) 03240 3999.7(4)-3842 0244.7(2)-87 0391.9(3)-234.2 0157.7(1) 0460 3651.3(3)-3590.2 589.8(2)-28.7 0TO(4)-TO 29 61.1(1) 0560 TO(4)-TO 30 TO(4)-TO 30 TO(4)-TO 30 1264.2(1) 0MOILP 380 37.3(3)-18.7 013.9(1)= -4.6 042.4(4)-23.9 018.6(2) 0440 291.3(3)-271.6 122(2)= 2.3 02970.1(4)-2950.4 819.7(1) 0540 TO(4)-TO 28 928.7(2)-670.4 5TO(4)-TO 30 258.4(1) 03100 120.8(4)-74.8 034.3(1)+ -11.8 097.6(3)-51.5 046.1(2) 0450 1063.1(3)-1030.1 464.1(2)-31 07126.7(4)-7093.6 11 33.1(1) 0550 TO(4)-TO 30 TO(4)-TO 16 TO(4)-TO 30 469.9(1) 0MOSPP 350 ×50 37.9(2)-11.1 052.4(3)-25.5 074.8(4)-48 026.8(1) 0425 ×25 71.8(3)-50.9 016.6(1)+ -4.3 0742.5(4)-721.6 020.9(2) 0525 ×25 2253.9(3)-2118.6 0586.6(2)-451.3 5TO(4)-TO 30 135.3(1) 0360 ×60 115.1(2)-57.4 0157.3(3)-99.5 0172.7(4)-115 057.7(1) 0430 ×30 216(3)-163.1 058.8(2)= 601961.4(4)-1908.5 052.8(1) 0530 ×30 TO(4)-TO 17 TO(4)-TO 28 TO(4)-TO 30 412.4(1) 0Total +/=/-0/0/24 2/6/16 0/0/24 NA Average rank 2.8 2.2 3.8 1.2
+
+Table 2: Median runtimes in seconds. “ ∆” denotes the gap of median runtimes between the baseline and NDNC. “ nT O ” denotes the number of instances where the algorithm exceeds the time limit. “TO” represents timeout. The rank of each problem is shown after the median runtime. “+”, “=” or “-” denotes that the performance of the corresponding algorithm is statistically better than, similar to, or worse than that of BDNC based on Wilcoxon’s rank sum test at 0.05 significant level. BDNC, this method has a more time-consuming rectangle subdivision procedure, and its LLOP involves two sequen-tial ϵ-constraint-based optimization problems. K¨ oksalan and Lokman (2015) propose two sequential optimization prob-lems. The method eliminates the need for bilevel optimiza-tion and instead involves solving these problems multiple times. Each time after solving the first problem, the opti-mal solution of the second problem determines the addi-tional variables and constraints for the first one. The effi-ciency of this method is significantly affected by an increas-ing number of variables and constraints. ¨ Ozpeynirci (2017) introduces a two-stage framework to reduce the iteration number of K¨ oksalan and Lokman’s method. Firstly, many facets, defining convex hulls, are detected. Then, K¨ oksalan and Lokman’s method is applied to search the critical points inside each convex hull. Nevertheless, the improvement of the framework is not well studied in the experiments of ( ¨ Ozpeynirci 2017). Moreover, some exact methods are specifically designed for a subset of the MODOP, such as the multi-objective integer linear program (Boland, Charkhgard, and Savelsbergh 2017). An additional advantage of BDNC over existing exact methods is its capability to accommodate flexible trade-off settings specified by the decision-maker. A comparison of our methods to existing methods is summa-rized in the appendix .
+
+# Experiments 
+
+Experimental Setup 
+
+The multi-objective assignment problem (MOAP), the multi-objective knapsack problem (MOKP), the general multi-objective integer linear programming (MOILP), and the multi-objective shortest path problem (MOSPP) are uti-lized in the experimental studies. 24 test problems with dif-ferent numbers of objectives and variables are considered as shown in Table 2. 30 instances are randomly generated for each problem. The random instance generation schemes for the MOKP, the MOAP, and the MOILP are the same as those in (Kirlik and Sayın 2015). The generation scheme for the MOSPP follows (Lokman 2007). BDNC with μ = 10 6 is compared with 3 state-of-the-art algorithms: Kirlik and Sayın (2015)’s method denoted as KS, K¨ oksalan and Lokman (2015)’s method denoted as KL, and FD&IS ( ¨ Ozpeynirci 2017). Algorithms are implemented on MATLAB R2022a. The scalarized problem is solved by the built-in function “intlinprog”. Experiments are executed on a computer equipped with two 3.00-GHz Intel Xeon Gold 27175 Problem m n KS KL FD&IS BDNC best worst best worst best worst best worst MOAP 3 20 ×20 75.6(4) 177(2) 45.5(2) 214.5(4) 62.2(3) 194.4(3) 14.3(1) 29.4(1) 4 10 ×10 103.7(3) 445.9(3) 11.2(1) 51.9(2) 1680.1(4) TO(4) 12(2) 39.3(1) 5 10 ×10 TO(4) TO(4) 79.7(1) 1730.2(2) TO(4) TO(4) 124.5(2) 525.7(1) 3 30 ×30 284.3(4) 432.3(2) 162.8(2) TO(4) 166(3) 727.1(3) 125.9(1) 263.1(1) 4 15 ×15 2231.5(3) 8027.9(3) 320.4(2) 1603.8(2) TO(4) TO(4) 90.2(1) 298.4(1) 5 15 ×15 TO(4) TO(4) TO(4) TO(4) TO(4) TO(4) 1523.8(1) TO(4) MOKP 3 200 1058.4(4) 3078.5(4) 76.6(2) 436.9(2) 163.4(3) 597.2(3) 50.8(1) 199.2(1) 4 50 411.5(3) 4094(3) 20.7(2) 162.2(2) 4043.3(4) TO(4) 15.3(1) 80.2(1) 5 50 TO(4) TO(4) 1527.7(2) TO(4) TO(4) TO(4) 112.8(1) 3892.3(1) 3 240 2840.5(4) 5680.3(4) 96.8(2) 794.9(2) 237.5(3) 796(3) 86.4(1) 286.6(1) 4 60 833.8(3) TO(4) 24.4(2) 256.1(2) 9899.5(4) TO(4) 17.9(1) 117.9(1) 5 60 TO(4) TO(4) TO(4) TO(4) TO(4) TO(4) 465.7(1) 3533.2(1) MOILP 3 80 11.8(3) 102.2(4) 4.9(1) 48.5(1) 20.4(4) 93.4(3) 6.7(2) 61.9(2) 4 40 29.5(3) TO(4) 3.7(1) 679.8(2) 856(4) TO(4) 5.4(2) 77.6(1) 5 40 152.8(3) TO(4) 4(1) TO(4) TO(4) TO(4) 14.1(2) 977.7(1) 3 100 14.6(3) 372.3(4) 8.4(1) 248(1) 35.8(4) 346.8(3) 9.2(2) 262.3(2) 4 50 56.1(3) TO(4) 7.1(2) 824.1(2) 521.8(4) TO(4) 7(1) 149.7(1) 5 50 TO(4) TO(4) 42.3(1) TO(4) TO(4) TO(4) 82.7(2) 3221.6(1) MOSPP 3 50 ×50 15.8(3) 92.6(2) 15.4(2) 119.3(3) 40.9(4) 171.4(4) 14.1(1) 50.5(1) 4 25 ×25 7.7(1) 183.4(3) 8.7(2) 45.7(2) 263(4) 2870.3(4) 9.9(3) 35.8(1) 5 25 ×25 739.9(3) 5649(2) 62.7(1) TO(4) TO(4) TO(4) 68.4(2) 265.6(1) 3 60 ×60 49.4(2) 205.9(2) 73.3(3) 273.4(3) 87.5(4) 299.7(4) 34.6(1) 96.8(1) 4 30 ×30 64.8(3) 626.9(3) 22.2(2) 115.5(2) 592(4) 8853.9(4) 17.6(1) 84.8(1) 5 30 ×30 2536.6(2) TO(4) 5400.9(3) TO(4) TO(4) TO(4) 211.5(1) 907.9(1) 
+
+Table 3: Best and worst runtimes in seconds. “TO” represents timeout. The rank on each problem is shown after the runtime. 6248R CPUs and 128GB of RAM. The maximum runtime for an algorithm on each objective is 3600 seconds. The run-time in seconds is recorded as the performance metric. 
+
+Experimental Results 
+
+Table 2 reports the statistical results of BNDC on each prob-lem. BDNC has the best average rank. BDNC significantly outperforms KS and FD&IS on all problems and surpasses KL across most cases. KL is the second-best algorithm. KL only has better performance than BDNC on the 3-objective MOILP and the 4-objective small-scale MOSPP, and the per-formance gaps are relatively small. The comparison algo-rithms are highly inefficient on the 5-objective problems. They exceed the time limit on most instances of the 5-objective large-scale problem. In contrast, BDNC encoun-ters timeouts on only 3 instances of the large-scale MOAP with 5 objectives. Furthermore, we utilize Table 3 to demon-strate the stability of BDNC. The best runtimes of BDNC rank the first on 15 out of 24 problems, while those of KL rank the first on 8 problems. KL has a competitive perfor-mance in terms of the best runtime. Nevertheless, when ex-amining the worst runtimes, BDNC demonstrates superior performance across most problems, indicating strong robust-ness. In addition, the performance of KS deteriorates re-markably as the number of objectives increases, due to the increasing number of Pareto-optimal solutions and the high complexity of its rectangle subdivision procedure. FD&IS achieves the worst performance as a variant of KL. It only shows a more stable performance than KL on the 3-objective MOAP. In general, Tables 2 and 3 validate the superior per-formance and stability of BDNC, respectively. More experimental analyses are provided in the appendix ,including ablation studies, evaluations on other test prob-lems, and investigations of the parameter μ.
+
+# Conclusion 
+
+This paper has proposed BDNC for the MODOP, having the-oretical guarantees on identifying the nadir objective vector, ensuring finite-time convergence, and supporting the trade-off of decision-makers. BDNC adopts bilevel optimization based on boundary decomposition. The LLOP aims to de-termine the optimal solution to the boundary subproblem, solved by any appropriate single-objective exact solver. The ULOP seeks the boundary weight vector aligned with the critical point, addressed by our proposed method. The search space of the ULOP is represented by an (m−1) -dimensional rectangle. The search procedure utilizes a lazy pruning method, which subdivides the search space into many small rectangles and eliminates the invalid ones in each iteration. Experimental studies on various test instances have demon-strated that BDNC achieves superior overall performance and low runtime variance. In future work, we will further investigate the prun-ing method to refine the overall and anytime performance of BDNC. Additionally, we plan to develop a robust ver-sion with parallel implementation and then connect it with decision-making systems. 27176 Acknowledgments 
+
+This work was supported by the National Natural Sci-ence Foundation of China (Grant No. 62106096 and Grant No. 62476118), the Natural Science Foundation of Guang-dong Province (Grant No. 2024A1515011759), the Na-tional Natural Science Foundation of Shenzhen (Grant No. JCYJ20220530113013031). 
+
+# References 
+
+Boland, N.; Charkhgard, H.; and Savelsbergh, M. 2017. A new method for optimizing a linear function over the ef-ficient set of a multiobjective integer program. European Journal of Operational Research , 260(3): 904–919. Branke, J.; Branke, J.; Deb, K.; Miettinen, K.; and Slowi´ nski, R. 2008. Multiobjective optimization: Interac-tive and evolutionary approaches , volume 5252. Springer. Ehrgott, M.; and Tenfelde-Podehl, D. 2003. Computation of ideal and nadir values and implications for their use in MCDM methods. European Journal of Operational Re-search , 151(1): 119–139. Geoffrion, A. M. 1968. Proper efficiency and the theory of vector maximization. Journal of Mathematical Analysis and Applications , 22(3): 618–630. He, L.; Ishibuchi, H.; and Srinivasan, D. 2021. Metric for evaluating normalization methods in multiobjective op-timization. In Proceedings of the Genetic and Evolutionary Computation Conference (GECCO) , 403–411. He, L.; Ishibuchi, H.; Trivedi, A.; Wang, H.; Nan, Y.; and Srinivasan, D. 2021. A survey of normalization methods in multiobjective evolutionary algorithms. IEEE Transactions on Evolutionary Computation , 25(6): 1028–1048. Kirlik, G.; and Sayın, S. 2015. Computing the nadir point for multiobjective discrete optimization problems. Journal of Global Optimization , 62: 79–99. K¨ oksalan, M.; and Lokman, B. 2015. Finding nadir points in multi-objective integer programs. Journal of Global Op-timization , 62: 55–77. Lokman, B. 2007. Approaches for multi-objective combina-torial optimization problems . Master’s thesis, Middle East Technical University. Mena, R.; Godoy, M.; Catal´ an, C.; Viveros, P.; and Zio, E. 2023. Multi-objective two-stage stochastic unit commitment model for wind-integrated power systems: A compromise programming approach. International Journal of Electrical Power & Energy Systems , 152: 109214. Mesquita-Cunha, M.; Figueira, J. R.; and Barbosa-P´ ovoa, A. P. 2023. New ϵ-constraint methods for multi-objective in-teger linear programming: A Pareto front representation ap-proach. European Journal of Operational Research , 306(1): 286–307. Miettinen, K. 1998. Nonlinear multiobjective optimization .Springer. Momma, M.; Dong, C.; and Liu, J. 2022. A multi-objective/multi-task learning framework induced by Pareto stationarity. In International Conference on Machine Learn-ing (ICML) , 15895–15907. PMLR. ¨Ozpeynirci, ¨ O. 2017. On nadir points of multiobjective in-teger programming problems. Journal of Global Optimiza-tion , 69: 699–712. Ramirez-Atencia, C.; Mostaghim, S.; and Camacho, D. 2017. A knee point based evolutionary multi-objective op-timization for mission planning problems. In Proceedings of the Genetic and Evolutionary Computation Conference (GECCO) , 1216–1223. Vodopija, A.; Tuˇ sar, T.; and Filipiˇ c, B. 2024. Characteriza-tion of constrained continuous multiobjective optimization problems: A performance space perspective. IEEE Transac-tions on Evolutionary Computation .Wang, H.; Olhofer, M.; and Jin, Y. 2017. A mini-review on preference modeling and articulation in multi-objective optimization: current status and challenges. Complex & In-telligent Systems , 3: 233–245. Weerasuriya, A. U.; Zhang, X.; Wang, J.; Lu, B.; Tse, K. T.; and Liu, C.-H. 2021. Performance evaluation of population-based metaheuristic algorithms and decision-making for multi-objective optimization of building design. Building and Environment , 198: 107855. Zhang, X.; Lin, X.; Xue, B.; Chen, Y.; and Zhang, Q. 2023. Hypervolume maximization: A geometric view of Pareto set learning. Advances in Neural Information Processing Sys-tems (NeurIPS) , 36. Zheng, R.; and Wang, Z. 2024. Boundary Decomposition for Nadir Objective Vector Estimation. Advances in Neural Information Processing Systems (NeurIPS) .27177

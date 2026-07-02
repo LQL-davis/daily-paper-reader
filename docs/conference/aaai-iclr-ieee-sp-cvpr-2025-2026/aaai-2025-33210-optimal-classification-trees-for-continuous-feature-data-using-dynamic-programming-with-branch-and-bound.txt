@@ -1,0 +1,479 @@
+Title: Optimal Classification Trees for Continuous Feature Data Using Dynamic Programming with Branch-and-Bound
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/33210/35365
+
+Number of Pages: 9
+
+Markdown Content:
+# Optimal Classification Trees for Continuous Feature Data Using Dynamic Programming with Branch-and-Bound 
+
+# Catalin E. Brita 1, 2 , Jacobus G. M. van der Linden 2* , Emir Demirovi´ c2 
+
+> 1
+
+University of Amsterdam, The Netherlands,  
+
+> 2
+
+Delft University of Technology, The Netherlands Catalin.Brita@student.uva.nl, {J.G.M.vanderLinden, E.Demirovic}@tudelft.nl 
+
+Abstract 
+
+> Computing an optimal classification tree that provably max-imizes training performance within a given size limit, is NP-hard, and in practice, most state-of-the-art methods do not scale beyond computing optimal trees of depth three. There-fore, most methods rely on a coarse binarization of continu-ous features to maintain scalability. We propose a novel algo-rithm that optimizes trees directly on the continuous feature data using dynamic programming with branch-and-bound. We develop new pruning techniques that eliminate many sub-optimal splits in the search when similar to previously com-puted splits and we provide an efficient subroutine for com-puting optimal depth-two trees. Our experiments demonstrate that these techniques improve runtime by one or more orders of magnitude over state-of-the-art optimal methods and im-prove test accuracy by 5% over greedy heuristics.
+
+# 1 Introduction 
+
+Decision trees combine human comprehensibility and accu-racy and can capture complex non-linear relationships. As such, decision trees are well-suited models for explainable AI (Rudin 2019; Arrieta et al. 2020). Despite their straight-forwardness, constructing an optimal decision tree (ODT, a tree with the smallest training error) of limited size is NP-hard (Hyafil and Rivest 1976). Therefore, greedy heuristics, such as CART (Breiman et al. 1984) and C4.5 (Quinlan 1993), have been widely used. These methods attain scal-ability by locally optimizing an information gain metric at each decision node, but yield on average less accurate and larger trees than optimal (Van der Linden et al. 2024). To compute ODTs, some employ general-purpose solvers such as mixed-integer programming (MIP) (Bertsimas and Dunn 2017), constraint programming (Verhaeghe et al. 2020), or Boolean satisfiability (SAT) solvers (Narodytska et al. 2018). However, these approaches struggle to scale with the number of observations and features. Better scalability is obtained by specialized algorithms using dynamic programming (DP) and branch and bound (BnB) (Aglin, Nijssen, and Schaus 2020a; Demirovi´ c et al. 2022). However, most of these algorithms cannot directly deal with numeric data which are frequently present in 
+
+> *Corresponding author Copyright © 2025, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved.
+
+real-world datasets. Therefore, these algorithms either use a coarse binarization resulting in loss of optimality; or require a binary feature for every possible threshold on the numeric data, which drastically hurts scalability, because their run-time scales exponentially with the number of such features. To the best of our knowledge, Quant-BnB (Mazumder, Meng, and Wang 2022) is the only specialized optimal algo-rithm that processes continuous features directly. This BnB algorithm considers splits at certain quantiles of the feature distribution. Obtained solutions are used as bounds for prun-ing, whereas other parts are further explored with splits on quantiles of subregions of the feature distribution. Though Quant-BnB outperforms other algorithms by a large margin on numeric data, scalability is still an issue: it requires sev-eral hours to find trees of depth three for some datasets and the authors recommend against using it beyond depth three. In this work, we present ConTree, which combines exist-ing DP and BnB techniques with new bounding techniques to improve the scalability of computing optimal classifica-tion trees for numeric data. Our new lower-bounding tech-niques prune large parts of the search space while adding negligible computational overhead. Furthermore, for depth-two trees, we propose a specialized subroutine that exploits the fact that we can sort numeric data. Our experiments show that these algorithmic improve-ments boost scalability by one or more orders of magni-tude over Quant-BnB and three previous MIP and SAT ap-proaches by an ever larger margin. This makes ConTree the first approach to compute depth-four ODTs beyond small or binarized datasets within a reasonable time. When trained with the same size limit, ConTree’s test accuracy is on av-erage 5% higher than CART and 0.7% higher than ODTs trained with a coarse binarization. 
+
+# 2 Related Work 
+
+Heuristics Traditionally, decision trees are trained using top-down induction heuristics such as CART (Breiman et al. 1984) and C4.5 (Quinlan 1993) because of their scalability. These heuristics recursively divide the data based on local criteria such as information gain or Gini impurity. On av-erage this yields trees that are larger than the optimal tree (Murthy and Salzberg 1995) or, if constrained by a fixed depth, have lower out-of-sample accuracy than optimal trees under the same size limit (Van der Linden et al. 2024). The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25) 
+
+> 11131
+
+Optimal Optimal decision trees globally optimize an ob-jective (e.g., minimize the number of misclassifications) within a given size limit on the training data. Computing ODTs, however, is NP-hard (Hyafil and Rivest 1976), and thus scalability is challenging. To address this challenge, many different approaches have been proposed. 
+
+General-purpose solvers The first MIP approaches were proposed by Bertsimas and Dunn (2017) and Verwer and Zhang (2017). Many other formulations followed, typically using binarization of the continuous feature data to improve the scalability (Verwer and Zhang 2019; Günlük et al. 2021; Aghaei, Gómez, and Vayanos 2024; Liu et al. 2024). Hua, Ren, and Cao (2022) instead use a multi-stage MIP model with novel lower bounds. Alès, Huré, and Lambert (2024) obtain stronger linear relaxations from a novel quadratic formulation. Narodytska et al. (2018), Janota and Morgado (2020), Avellaneda (2020), Hu et al. (2020) and Alòs, An-sótegui, and Torres (2023) propose SAT models that also re-quire binarization of continuous feature data. As far as we know, Shati, Cohen, and McIlraith (2021, 2023) propose the only SAT-based algorithm that can directly process continu-ous and categorical features. Finally, Verhaeghe et al. (2020) propose a constraint programming approach that also re-quires binary data. However, despite improvements, these MIP, SAT, and CP methods still face problems scaling be-yond a few thousand data instances and trees of depth three. 
+
+Specialized algorithms Nijssen and Fromont (2007, 2010) introduced DL8, an early DP approach. Aglin, Nijs-sen, and Schaus (2020a,b) improved it to DL8.5 with branch-and-bound and extended caching techniques. Hu, Rudin, and Seltzer (2019) and Lin et al. (2020) contribute new lower bounds including a subproblem similarity bound. Demirovi´ c et al. (2022) introduce a specialized subroutine for trees of depth two and constraints for limiting the number of branching nodes. Kiossou et al. (2022) and Demirovi´ c, Hebrard, and Jean (2023) improve the anytime performance of the search. Van der Linden, De Weerdt, and Demirovi´ c(2023) generalize previous DP approaches beyond classifi-cation. Because of all these algorithmic advances, a recent survey considers the DP approach currently the best in terms of scalability (Costa and Pedreira 2023). However, all of these methods require binarized input data. 
+
+Continuous features Quant-BnB (Mazumder, Meng, and Wang 2022) is the only specialized algorithm for ODTs that directly optimizes datasets with continuous features. It employs branch-and-bound by splitting on quantiles of the feature distribution. Although Quant-BnB can handle much larger datasets than the MIP and SAT approaches, it also struggles to scale beyond trees of depth three. 
+
+Summary Scalability advances for ODT search mostly re-quire binarization. When operating directly on the numeric data, scalability is still challenging. 
+
+# 3 Preliminaries 
+
+In this section, we introduce notation, formally define the problem, and describe the lower-bounding technique that provides the basis for ConTree’s pruning. 
+
+Notation Let D describe a dataset with n = |D| observa-tions (x, y ) with x ∈ Rp and y ∈ Y describing respectively the feature vector and label of an observation. Here p is the number of features and Y the set of class labels. The set of all features is denoted as F = {f1, . . . , f p}. Each observa-tion x contains the values of these p features such that xf
+
+is the value of feature f in observation x. Let Df denote the sorted values xf for (x, y ) ∈ D and let U f describe all unique sorted values in Df (with D determined by context) and similarly 
+
+Sf =
+
+(
+
+U f 
+
+> 1
+
++ U f
+
+> 2
+
+2 , ..., U f   
+
+> |Uf|− 1
+
++ U f  
+
+> |Uf|
+
+2
+
+)
+
+(1) the set of possible thresholds on feature f for D: the mid-points between the unique feature values. Let m = |Sf |
+
+be the number of possible thresholds. Given a threshold 
+
+τ ∈ Sf , let z(τ ) represent the index of the observation in Df
+
+with the largest value for f smaller than τ . Similarly, let u(τ )
+
+represent the index of τ in U f . Finally, let D(f ≤ τ ) de-scribe the subset of observations (x, y ) ∈ D where xf ≤ τ .
+
+Problem definition A decision tree is a function t :
+
+Rp → Y that recursively splits the feature space Rp into sub-regions and predicts the label of each sub-region. Let 
+
+T (D, d ) describe the set of all decision trees for the dataset 
+
+D with a maximum depth of d. Then the ODT topt is the tree within that set that minimizes the misclassification score: 
+
+topt = argmin  
+
+> t∈T (D,d )
+
+X
+
+> (x,y )∈D
+
+1(t(x)̸ = y) . (2) This work is limited to binary axis-aligned trees: every branching node splits on precisely one feature f ∈ F based on a threshold τ such that every observation with xf ≤ τ
+
+goes left in the tree while the rest goes to the right. 
+
+Similarity lower bounding Hu, Rudin, and Seltzer (2019), Lin et al. (2020), and Demirovi´ c et al. (2022) pro-pose a similarity-based lower-bounding (SLB) technique that compares a new dataset Dnew with a previously ana-lyzed dataset Dold to derive a lower bound on the misclassi-fication score of the new dataset. SLB assumes that all new observations in the new dataset will be classified correctly and all removed observations from the old dataset were clas-sified incorrectly, yielding the following lower bound: 
+
+θDnew ≥ θDold − |D old \ D new | , (3) where θ is the misclassification score a decision tree with the same depth limit can achieve on the dataset. From this property, we derive three novel pruning techniques below. 
+
+# 4 The ConTree Algorithm 
+
+We present the ConTree algorithm (CT) which constructs an ODT by recursively performing splits on every branching node within a full tree of pre-defined depth. Subproblems are identified by the dataset D and the remaining depth limit d.This results in the following recursive DP formulation: 
+
+CT( D, d ) = 
+
+
+
+min 
+
+> ˆy∈Y
+
+X
+
+> (x,y )∈D
+
+1(ˆ y̸ = y) if d = 0 min   
+
+> f∈F
+
+Branch( D, d, f ) if d > 0
+
+(4) 11132 (a) Neighborhood pruning (b) Interval shrinking 
+
+Figure 1: The split points u and v for which the score θu and θv are calculated are yellow. The newly pruned values are shown in red. Green indicates the remaining split points for further search. Blue indicates unaffected values outside of [i..j ].Leaf nodes assign the label with the least misclassifications. Branching nodes find the feature f with the best misclassi-fication score from the subtrees by calling the subprocedure 
+
+Branch which iterates over all possible split thresholds τ :
+
+Branch( D, d, f ) = min  
+
+> τ∈Sf
+
+Split( D, d, f, τ ) . (5) Every split results in two subproblems: 
+
+Split( D, d, f, τ ) = CT ( D(f ≤ τ ), d − 1) + CT ( D(f > τ ), d − 1) . (6) Given a splitting feature f , computing the misclassifica-tion score θτ for all possible split points τ ∈ Sf is computa-tionally expensive since each split point considered requires solving two (potentially large) subproblems. Therefore, we provide the following runtime improvements (each of which preserves optimality): 
+
+Lower-bound pruning three novel pruning techniques specifically designed for continuous features to speed up the computation without losing optimality; 
+
+Depth-two subroutine a subroutine for depth-two trees that iterates over sorted feature data to update class oc-currences and efficiently solves the two depth-one sub-problems in Eq. (6) simultaneously; 
+
+Caching the same dataset caching technique as Demirovi´ cet al. (2022): ConTree reuses cached solutions to sub-problems (defined by D and d). To control the trade-off between training time and accuracy, we also provide a max-gap parameter to set the maximum permissible gap to the optimal solution. 
+
+## Pruning Techniques 
+
+Based on the similarity-based lower bound presented in Eq. (3), we present three novel pruning techniques to re-duce the number of split points that need to be considered in Eq. (5) without losing optimality. The key idea is that if the feature data is sorted, the solution of any Split call with threshold τ provides a lower bound for all next calls with a different threshold τ ′ since we can easily count how many observations shifted from the left to the right subtree by sub-tracting their indices in the sorted data: |z(τ ) − z(τ ′)|.
+
+Theorem 1. Let UB be the best solution so far or the score needed to obtain a better solution. Let θτ =Split( D, d, f, τ ) be the optimal misclassification score for the subtree when branching on f with threshold τ . Then any other threshold τ ′ with |z(τ ) − z(τ ′)| ≤ θτ − UB cannot yield an improving solution. Proof. This follows directly from Eq. (3). If τ ′ > τ , then 
+
+|D (f ≤ τ ′) \ D (f ≤ τ )| = z(τ ′) − z(τ ) and if τ ′ < τ , then 
+
+|D (f > τ ′)\D (f > τ )| = z(τ )−z(τ ′). Therefore, the SLB for a split at τ ′ is: θτ ′ ≥ θτ − | z(τ ) − z(τ ′)| ≥ UB .
+
+Corollary 1. Let u be a split index with its correspond-ing solution value θu and index z(u) within Df . Let ∆
+
+be the difference between θu and UB and at least one: 
+
+∆ = max(1 , θ u − UB ). Any improving split must have a threshold smaller than the value in Df at index z(u) − ∆ or larger than the value at index z(u) + ∆ .
+
+Per Branch call, ConTree keeps track of the set of thresh-old indices that may yield a split that improves the cur-rent best tree. This set is represented as a set of index in-tervals Q. Initially, Q contains one interval of all indices: 
+
+Q = {[1 ..m ]}. After each Split call, ConTree updates the set Q by using three pruning functions P that return a list of pruned intervals from the current interval [i..j ], the cur-rent UB , and one or more subproblem solutions θ. Next, we explain these three pruning functions: neighborhood prun-ing, interval shrinking, and sub-interval pruning. 
+
+Neighborhood pruning (NB) After the misclassification score θu for a split point u ∈ [i..j ] is computed, neighbor-hood pruning uses the SLB to remove similar split points from consideration. A simplified illustration of this pruning technique can be seen in Fig. 1a. Using Cor. 1, we define two functions ¯
+
+A and ¯A that return the closest thresholds from u
+
+that could still improve on UB .
+
+¯
+
+A(u, ∆) = max 
+
+n
+
+u′ ∈ [m] | U fu′ < Dfz(u)−∆
+
+o
+
+(7) 
+
+¯A(u, ∆) = min 
+
+n
+
+u′ ∈ [m] | U fu′+1 > Dfz(u)+∆ 
+
+o
+
+(8) The functions ¯
+
+A and ¯A can be implemented using binary search with time complexity O(log( m)) . Using these, we define PNB which yields two new intervals: 
+
+PNB ([ i..j ], u, ∆) = {[i.. ¯
+
+A(u, ∆)] , [ ¯A(u, ∆) ..j ]} (9) 
+
+Example. Consider a continuous feature vector with values 
+
+[0 .4, 0.5, 0.5, 0.7, 0.8, 0.10] with split points [0 .45 , 0.6, 0.75 ,
+
+0.9] , where we have computed an optimal tree for the split on 
+
+τ = 0 .75 with two more misclassifications than the current best solution UB , that is, ∆ = 2 . Therefore, any possibly improving split needs to move at least two instances from the left to the right (or vice versa), which means that only the split point τ = 0 .45 can yield an improving solution. 11133 Interval shrinking (IS) Interval shrinking is an extension of neighborhood pruning and acts whenever UB is updated. Given an interval [i..j ] ∈ Q, IS searches for the largest threshold index u ∈ V smaller than i and the smallest thresh-old index v ∈ V larger than j, with V the set of split indices for which the misclassification score θu and θv are already computed. Using Cor. 1, IS then prunes the interval [i..j ] as illustrated in Fig. 1b. To search for these indices u and v, we define the function B that uses binary search over V with time complexity O(log( m)) :
+
+B([ i..j ], V) = 
+
+D
+
+max  
+
+> u∈V :u<i
+
+u, min  
+
+> v∈V :v>j
+
+v
+
+E
+
+. (10) Additionally, IS uses the following theorem: 
+
+Theorem 2. Let w by any split point with a solution θw
+
+with a left subtree misclassification score θw,L of zero. Then any split point u < w will yield θu ≥ θw. Similarly, if the right subtree misclassification score θw,R is zero, then for all v > w also θv ≥ θw.Proof. W.l.o.g., consider the left case. Since u < w , it holds that D(f ≤ Sfu ) ⊂ D (f ≤ Sfw) and D(f > S fu ) ⊃ D (f > Sfw). Eq. (3) then implies that θu,L ≤ θw,L = 0 and θu,R ≥
+
+θw,R . Thus θu = θu,R , θw = θw,R , and θu ≥ θw.Let ML and MR represent the right-most (left-most) in-dex with a zero left (right) misclassification score found so far, incremented (decremented) by one. By combining Cor. 1 and Theorem 2, we define: 
+
+PIS ([ i..j ], u, v, ∆u, ∆v , M L, M R) = [max( i, M L, ¯A(u, ∆u)) , min( j, M R, ¯
+
+A(v, ∆v ))] , (11) where ∆u = θu − UB and ∆v = θv − UB .
+
+Sub-interval pruning (SP) Sub-interval pruning can prune an entire interval [i..j ] using the following theorem: 
+
+Theorem 3. Let [i..j ] be any threshold index interval. Let 
+
+θu and θv be optimal solutions for previously computed split points u < i and v > j , with the corresponding left and right misclassification scores θu,L , θu,R , θv,L , and θv,R .Then, if θu,L + θv,R > UB , any split point w ∈ [i..j ] cannot improve on UB .Proof. w ≥ i > u and w ≤ j < v and thus θw,L ≥ θu,L 
+
+and θw,R ≥ θv,R . Therefore, θw = θw,L + θw,R > UB .From Theorem 3, we define: 
+
+PSP ([ i..j ], UB , θ u,L , θ v,R ) = 
+
+∅, if θu,L + θv,R > UB ∧ u < i ∧ v > j 
+
+[i..j ], otherwise . (12) 
+
+## General Recursive Case 
+
+To eliminate the exploration of unnecessary splits in the re-cursion of Eq. (4), we use the pruning mechanisms presented above and keep track of upper bounds. 
+
+Algorithm 1: Branch( D, d, f, UB ) uses the pruning techniques to find the optimal threshold for feature f .
+
+θopt ← min ˆy∈Y 
+
+P 
+
+> (x,y )∈D
+
+1(ˆ y̸ = y)
+
+ML ← 0, M R ← m + 1 
+
+Q ← { [1 ..m ]}, V ← ∅ 
+
+while |Q| > 0 do 
+
+[i..j ] ← Q. pop() 
+
+u, v ← B([ i..j ], V)∆u ← θu − UB , ∆v ← θv − UB 
+
+[i..j ] ← P IS ([ i..j ], u, v, ∆u, ∆v , M L, M R)[i..j ] ← P SP ([ i..j ], UB , θ u,L , θ v,R )
+
+if |[i..j ]| = 0 then continue 
+
+w ← ⌊ i+j 
+
+> 2
+
+⌋
+
+if d = 2 then θw,L , θ w,R ← D2Split( D, f, w )
+
+else 
+
+DL ← D (f ≤ Sfw), DR ← D (f > S fw)
+
+θw,L ← CT( DL, d − 1, UB )
+
+η ← min( z(w) − z(i), z (j) − z(w)) 
+
+UB R ← max( UB − θw,L , η )
+
+if UB R ≤ 0 then θw,R ← θopt − θw,L 
+
+else θw,R ← CT( DR, d − 1, UB R)
+
+θw ← θw,L + θw,R 
+
+if θw,L = 0 then ML ← w + 1 
+
+if θw,R = 0 ∧ UB R > 0 then MR ← w − 1
+
+if θw < θ opt then 
+
+UB ← min( UB , θ w), θ opt ← θw
+
+if θopt = 0 then break 
+
+Q. push ( PNB ([ i..j ], w, max(1 , θ w − UB ))) 
+
+V ← V ∪ { w}
+
+return θopt 
+
+Interval pruning In each Branch call, described in Eq. (5), for each feature, we keep track of a set of intervals Q
+
+that may still contain the optimal split. We then choose a split point from one of these intervals, compute an opti-mal solution for this split, and then prune the search space according to the techniques mentioned above. When Q is empty, we have arrived at the optimal solution. The pseudo-code of this procedure is shown in Alg. 1. It loops over the set of intervals [i..j ] ∈ Q. Using Eq. (10), it finds u, v ∈ V , the closest indices outside of [i..j ] for which the misclassification score is already computed. First, it at-tempts to reduce the interval using SP and IS. Then we need to select any point w ∈ [i..j ]. If w is close to previously com-puted splits, only a little new information is gained. There-fore, we choose the midpoint w = ⌊ i+j 
+
+> 2
+
+⌋.Then, if the remaining tree depth budget is two, we use a special subroutine which is explained in the subsection be-low. Otherwise, the dataset is split and a recursive CT call is made to get the optimal left subtree. This left solution is used to compute an upper bound for the right subtree. Only if the right upper bound indicates that an improving solution can still be found, is another recursive call made to get the right optimal subtree. If either the left or right subtree has zero misclassifications, the ML or MR indices are updated accordingly. If a better solution is found, the upper bound is 11134 Algorithm 2: D2Split( D, f 1, w ) finds splits of depth two more efficiently than the normal recursion. 
+
+θL ← |D| , θ R ← |D| 
+
+F Q yL ← 0 ∀y ∈ Y 
+
+for (x, y ) ∈ D (f ≤ Sf1 
+
+> w
+
+) do F Q yL ← F Q yL + 1 
+
+F Q yR ← F Q y − F Q yL ∀y ∈ Y 
+
+for f2 ∈ F do 
+
+CyL ← 0, C yR ← 0 ∀y ∈ Y 
+
+for (x, y ) ∈ D sorted by f2 do if xf1 ≤ Sf1 
+
+> w
+
+then 
+
+θLL ← min ˆy (C ˆyL)
+
+θLR ← min ˆy (F Q ˆyL − C ˆyL)
+
+if θLL + θLR ≤ θL then 
+
+θL ← θLL + θLR 
+
+CyL ← CyL + 1 
+
+else 
+
+Same logic for instances going right 
+
+if θL + θR = 0 then break return θL, θ R
+
+updated. If a tree with zero misclassifications is found, the search is done. Finally, the remaining interval is divided into two using NB, both of which are added to Q, and the search continues with the next interval in Q.
+
+Upper bounds If we set the upper bound for the right sub-tree tightly to the bound of what right solution can improve the current solution ( UB R ← UB − θw,L ), the right sub-problem can be terminated early if no such solution exists. However, when doing so, we do not gain any information for pruning and we observed that this therefore typically de-creases performance. On the other hand, no upper-bound-based pruning at all results in many unnecessary recursive calls. In this trade-off, we settled on a hybrid approach that in practice works well: the right upper bound UB R is set to the maximum of UB − θw,L and the length η of the longest side of the interval edges z(i) and z(j) to the midpoint z(w).
+
+## Depth-Two Subroutine 
+
+To improve runtime, Demirovi´ c et al. (2022) introduced a specialized subroutine for trees of depth-two that is more efficient than doing recursive calls. However, it requires a quadratic amount of memory in terms of the number of bi-nary features, which is problematic if we consider a binary feature for every possible threshold on continuous data. Instead, we provide a specialized subroutine that simulta-neously finds an optimal left and right subtree of a depth-two split and does not have this quadratic memory consumption by exploiting the fact that we can sort the observations by their feature values. Since splitting the data preserves the order, we sort the dataset once in the beginning. Then for the sorted data, Alg. 2 shows how an optimal depth-two tree can be found in O(|D||F| ) for a given split point w on fea-ture f1 for the root node of the subtree. The core idea is that we first count with the variables F Q yL and F Q yR how many observations of class y go to the left and right by splitting at point w. Then, when deciding on the second splitting fea-ture f2 (of either the left or right subtree), we traverse all observations sorted by f2 and incrementally keep track of the current counts per label CyL and CyR. Based on these two label counts, the label counts for all splitting thresholds on 
+
+f2 for all four leaf nodes of a depth-two tree can be deter-mined as the dataset is traversed: 
+
+CyLL = CyL , CyLR = F Q yL − CyL ,CyRL = CyR , CyRR = F Q yR − CyR . (13) Alg. 2 shows how the minimal misclassifications in the sub-trees θLL and θRR can be computed based on these values. 
+
+## Optimality Gap 
+
+We add a max-gap parameter that determines how far from optimal the final solution is allowed to be. This increases the pruning strength at the expense of optimality. For example, for NB, the distance ∆ to a possibly improving split is now computed as ∆ = max(1 , θ u −(UB− max-gap)) . To use the gap parameter across multiple depths of the search, we set the max-gap for the current depth to half of the total. The other half is distributed evenly over the two subproblems. This allows a trade-off between training time and accuracy. 
+
+## Comparison to Previous Bounding Methods 
+
+Mazumder, Meng, and Wang (2022) propose three lower bounds that require splitting the data into quantiles for a given feature. Their first lower bound is similar to our sub-interval pruning, but our definition is independent of the re-maining depth budget. Their other lower bounds are tighter, but also more expensive to compute. Future work could in-vestigate using such or similar lower bounds in ConTree. The similarity-based lower bound (SLB) was proposed in previous work (Hu, Rudin, and Seltzer 2019; Lin et al. 2020; Demirovi´ c et al. 2022), but our application of the bound is more efficient. Lin et al. (2020) point out that the similar support bound in OSDT (Hu, Rudin, and Seltzer 2019) is too expensive to compute frequently. Therefore, they propose to use hash trees to identify similar subtrees but provide no fur-ther details. The implementation of their method, GOSDT, computes the difference between two subproblems by com-puting the xor of bit-vectors that represent the dataset corre-sponding to the subproblems. Demirovi´ c et al. (2022) loop once over the two sorted lists of identifiers of the datasets to count the differences. Both of these approaches require 
+
+O(n) operations to compute the difference. ConTree, on the other hand, exploits the properties of sorted numeric feature data and computes the bound in O(1) by computing the dif-ference between the two split indices. It applies the bound using the novel pruning techniques in O(log( m)) .
+
+# 5 Experiments 
+
+Our experiments aim to answer the following questions: 1) what is the effect of the pruning techniques and the depth-two subroutine; 2) how does ConTree’s runtime compare to state-of-the-art ODT algorithms; and 3) what is ConTree’s anytime performance? In the appendices B, C, and D, we additionally answer the following questions: 4) how does 11135 Dataset |D| |F| |Y| OCT RS-OCT SAT-Shati Quant-BnB ConTree (No D2) ConTree Avila 10430 10 12 (100%) (46%) > 4h 2 63 0.1 
+
+Bank 1097 4 2 (31%) 177 62 0.5 0.1 < 0.1 
+
+Bean 10888 16 7 (100%) (24%) > 4h 4 199 0.2 
+
+Bidding 5056 9 2 (100%) (67%) 672 0.9 1 0.1 
+
+Eeg 11984 14 2 OoM (165%) > 4h 4 178 0.2 
+
+Fault 1552 27 7 (100%) (126%) > 4h 2 240 0.1 
+
+Htru 14318 8 2 OoM (301%) > 4h 2 929 0.2 
+
+Magic 15216 10 2 (100%) (88%) > 4h 2 42 0.3 
+
+Occupancy 8143 5 2 (100%) (9%) 355 0.9 2 < 0.1 
+
+Page 4378 10 5 (100%) (136%) 2836 1 3 < 0.1 
+
+Raisin 720 7 2 (99%) (15%) 485 0.7 1 < 0.1 
+
+Rice 3048 7 2 (100%) (54%) > 4h 1 24 0.1 
+
+Room 8103 16 4 (100%) (88%) 4327 2 10 < 0.1 
+
+Segment 1848 18 7 (100%) 2896 442 2 54 0.1 
+
+Skin 196045 3 3 - (43%) > 4h 3 63 0.1 
+
+Wilt 4339 5 5 (100%) (35%) 68 0.9 2 < 0.1 
+
+Table 1: Runtime (s) for optimizing depth-two trees of OCT, RS-OCT, SAT-Shati, Quant-BnB, and ConTree (with and without the depth-two subroutine). Runtimes are averaged over twenty runs. Values in parentheses show the optimality gap at time out. OoM means out of memory. ‘-’ means the linear relaxation was unsolved at the time limit. Best results are in bold. ConTree’s memory usage compare to previous methods; 5) how well does ConTree scale to larger depth limits; and 6) how does ConTree’s out-of-sample performance compare to CART and ODTs on binarized data? The results show that our pruning techniques and depth-two subroutine make ConTree one or more orders of magni-tude faster than the state-of-the-art optimal methods while using significantly less memory. Additionally, its out-of-sample performance is better than both CART and ODTs on binarized data. Finally, good solutions are often found early but much time is spent proving optimality. 
+
+Setup We have implemented ConTree in C++ and provide it as a Python package. 1 All computations were performed on an Intel Xeon E5-6448Y 32C 2.1GHz processor with 25GB RAM running Linux Red Hat Enterprise 8.10. We set a timeout of four hours. We evaluate on 16 datasets from the UCI repository (Dua and Graff 2017, see Appendix A). Un-less specified otherwise, we run ConTree with its max-gap 
+
+set to zero, thus yielding optimal solutions. 
+
+Pruning techniques Fig. 2 shows the impact of the neigh-borhood pruning (NB), interval shrinking (IS), and sub-interval pruning (SP) techniques in comparison to the base-line with no pruning for trees of depth two. On average, all pruning techniques significantly prune the search space, with NB, IS, and SP respectively pruning on average 91.1%, 97.5%, and 99.6% of all D2Split calls, while retaining the optimal solution. SP generally provides the best results since it efficiently prunes entire intervals. Combining all three methods (NB+IS+SP) on average yields a 10% reduction of 
+
+D2Split calls in comparison to only using SP. 
+
+Depth-two subroutine The last two columns of Table 1 show the performance of ConTree with the depth-two sub-
+
+> 1https://github.com/ConSol-Lab/contree. Avila Bank Bean Bidding EEG Fault HTRU Magic Occupancy Page Raisin Rice Room Segment Skin Wilt
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> Depth-two split calls  No pruning NB IS SP NB + IS + SP
+
+Figure 2: The number of D2Split calls for no pruning, the three pruning techniques, and all three combined. routine D2Split versus without (ConTree with “No D2”) for computing depth-two trees. Both methods use all the prun-ing techniques. Averaged over twenty runs, the depth-two solver improves the computation time by a factor of 320 compared to the baseline (geometric mean). 
+
+Runtime Mazumder, Meng, and Wang (2022) compared Quant-BnB with BinOCT (Verwer and Zhang 2019), DL8.5 (Aglin, Nijssen, and Schaus 2020a), and MurTree (Demirovi´ c et al. 2022), each of which requires explicit bi-narization. Quant-BnB scales one or more orders of magni-tude better than all of these methods when those are trained with binary features for every possible threshold. Addition-ally, they report that the optimal methods OCT (Bertsimas and Dunn 2017), GOSDT (Lin et al. 2020), FlowOCT, and BendersOCT (Aghaei, Gómez, and Vayanos 2024) cannot solve any of their datasets within a four-hour time limit. 11136 10 1 10 2 10 3 10 4   
+
+> Time (s)
+> 0
+> 2
+> 4
+> 6
+> Gap to optimal (%)
+> Avila Fault Page Rice
+
+Figure 3: The distance to the optimal solution for ConTree’s best depth-four solution over time for three datasets. The op-timal solution is typically found significantly earlier than the end of the search (the final cross). We compare ConTree to the MIP methods OCT and RS-OCT (Hua, Ren, and Cao 2022), the SAT method by Shati, Cohen, and McIlraith (2023), and Quant-BnB (Mazumder, Meng, and Wang 2022). 2 Each of these meth-ods optimizes ODTs directly on the numeric feature data. We initialize both OCT and RS-OCT with a warm start from CART and set the node cost to zero. Both OCT and RS-OCT could use up to eight threads. OCT is solved with Gurobi 9.5.2. Each method is run twenty times on each dataset, ex-cept when it exceeds the four-hour time-out. For the MIP methods, we report the optimality gap at time-out. Table 1 shows the runtime results for optimizing trees of depth two. Even after four hours, the MIP methods typically have a large optimality gap remaining. OCT ran out of mem-ory twice and once did not solve the linear relaxation before the time out. The SAT approach performs better but also hits the time-out for seven datasets. Quant-BnB and ConTree, on the other hand, run in the (sub-)second range. Therefore, we further compare Quant-BnB and ConTree. Table 2 shows that for depth three, ConTree outper-forms Quant-BnB on average by a factor 63 (geometric mean), ranging from 7 times faster for Bidding up to 266 times faster for Fault. The comparisons of Quant-BnB with BinOCT, DL8.5, MurTree, GOSDT, OCT, FlowOCT, and BendersOCT by Mazumder, Meng, and Wang (2022) com-bined with our new runtime results show that ConTree out-performs state-of-the-art optimal methods by one or more orders of magnitude. Quant-BnB’s implementation only permits training trees up to depth three, so for depth four, we report only Con-Tree’s performance. For all but four datasets, ConTree finds the optimal depth-four tree within the time limit. Ap-pendix B further shows that for depth five and six, ConTree finds and proves optimal solutions within the time limit for eight and seven datasets respectively. The last column in Table 2 shows the runtime ConTree requires to find a depth-four tree that is provably within 1% of the optimal solution (with max-gap = ⌊0.01 |D|⌋ ). This  
+
+> 2https://github.com/LucasBoTang/Optimal_Classification_ Trees, https://github.com/YankaiGroup/optimal_decision_tree, https://github.com/HarisRasul12/ESC499-Thesis-SAT-Trees, https://github.com/mengxianglgal/Quant-BnB.
+
+Depth = 3 Depth = 4 Dataset Quant-BnB ConTree ConTree ≤ 1% Gap Avila 4451 24 4195 3237 Bank 2 < 0.1 < 0.1 < 0.1 Bean 583 61 > 4h 3640 Bidding 15 2 5 < 0.1 Eeg 8535 136 > 4h > 4h Fault > 4h 55 12331 8592 Htru 13147 74 > 4h 191 Magic 1419 60 > 4h 5719 Occupancy 76 0.4 17 0.1 Page 388 2 499 63 Raisin 65 0.5 65 27 Rice 817 12 2215 231 Room 92 1 44 0.1 Segment 64 2 191 75 Skin 218 10 211 5Wilt 26 0.1 0.3 < 0.1 Table 2: Runtime (s) comparison between Quant-BnB and ConTree. Averaged over twenty runs. For depth three, Con-Tree is on average one or two orders of magnitude faster than Quant-BnB. ConTree’s runtime can be significantly reduced by setting a permissible optimality gap. significantly reduces ConTree’s runtime and allows a user to make a trade-off between training accuracy and runtime. 
+
+Anytime performance Fig. 3 shows the best solution found by ConTree at any time during a depth-four search, expressed as the distance to the optimal solution for the Avila, Fault, Page, and Rice datasets. For the Fault dataset, a final improving solution is found late after the start of the search. In the other three cases, a good solution is found early and most of the time is spent on proving optimality. 
+
+# 6 Conclusion 
+
+We introduce ConTree, a dynamic programming and branch-and-bound algorithm that outperforms state-of-the-art algorithms for training optimal classification trees with continuous features by one or more orders of magnitude. This result is obtained through three novel pruning tech-niques that on average prune 99.6% of recursive calls, and a depth-two subroutine that computes splits 320 times faster than a naive approach. Moreover, ConTree obtains an out-of-sample accuracy for depth-three trees 5% higher than CART and 0.7% higher than optimal decision trees trained with a coarse binarization. These results enable the application of optimal decision trees for real-world scenarios. Future work could add a node cost or node limit to fur-ther encourage sparsity and extend ConTree to regression by using bounds from Zhang et al. (2023) and Van den Bos, Van der Linden, and Demirovi´ c (2024). Finally, branching on the power set of categorical variables as done by Shati, Cohen, and McIlraith (2023), could be explored. 11137 References 
+
+Aghaei, S.; Gómez, A.; and Vayanos, P. 2024. Strong Opti-mal Classification Trees. Operations Research .Aglin, G.; Nijssen, S.; and Schaus, P. 2020a. Learning Optimal Decision Trees Using Caching Branch-and-Bound Search. In Proceedings of AAAI-20 , 3146–3153. Aglin, G.; Nijssen, S.; and Schaus, P. 2020b. PyDL8.5: a Li-brary for Learning Optimal Decision Trees. In Proceedings of IJCAI-20 , 5222–5224. Alès, Z.; Huré, V.; and Lambert, A. 2024. New optimiza-tion models for optimal classification trees. Computers & Operations Research , 164: 106515. Alòs, J.; Ansótegui, C.; and Torres, E. 2023. Interpretable decision trees through MaxSAT. Artificial Intelligence Re-view , 56(8): 8303–8323. Arrieta, A. B.; Díaz-Rodríguez, N.; Del Ser, J.; Bennetot, A.; Tabik, S.; Barbado, A.; García, S.; Gil-López, S.; Molina, D.; Benjamins, R.; Chatila, R.; and Herrera, F. 2020. Explainable Artificial Intelligence (XAI): Concepts, taxonomies, opportunities and challenges toward responsi-ble AI. Information Fusion , 58: 82–115. Avellaneda, F. 2020. Efficient Inference of Optimal Decision Trees. In Proceedings of AAAI-20 , 3195–3202. Bertsimas, D.; and Dunn, J. 2017. Optimal classification trees. Machine Learning , 106(7): 1039–1082. Bhatt, R.; and Dhall, A. 2012. Skin Segmentation Dataset. UCI Machine Learning Repository. Bock, R. 2007. MAGIC Gamma Telescope Dataset. UCI Machine Learning Repository. Breiman, L.; Friedman, J. H.; Olshen, R. A.; and Stone, C. J. 1984. Classification and Regression Trees . Monterey, CA: Wadsworth and Brooks. Brodley, C. 1990. Image Segmentation Dataset. UCI Ma-chine Learning Repository. Buscema, M.; Terzi, S.; and Tastle, W. 2010. Steel Plates Faults Dataset. UCI Machine Learning Repository. Candanedo, L. M. I.; and Feldheim, V. 2016. Accurate oc-cupancy detection of an office room from light, temperature, humidity and CO2 measurements using statistical learning models. Energy and Buildings , 112: 28–39. Cinar, I.; and Koklu, M. 2019. Classification of rice varieties using artificial intelligence methods. International Journal of Intelligent Systems and Applications in Engineering , 7(3): 188–194. Çınar, ˙ I.; Koklu, M.; and Ta¸ sdemir, ¸ S. 2020. Classification of raisin grains using machine vision and artificial intelligence methods. Gazi Journal of Engineering Sciences , 6(3): 200– 209. Costa, V. G.; and Pedreira, C. E. 2023. Recent Advances in Decision Trees: An Updated Survey. Artificial Intelligence Review , 56: 4765–4800. Demirovi´ c, E.; Hebrard, E.; and Jean, L. 2023. Blossom: an Anytime Algorithm for Computing Optimal Decision Trees. In Proceedings of ICML-23 , 7533–7562. Demirovi´ c, E.; Lukina, A.; Hebrard, E.; Chan, J.; Bailey, J.; Leckie, C.; Ramamohanarao, K.; and Stuckey, P. J. 2022. MurTree: Optimal Classification Trees via Dynamic Pro-gramming and Search. Journal of Machine Learning Re-search , 23(26): 1–47. Dua, D.; and Graff, C. 2017. UCI Machine Learning Repos-itory. eBay. 2020. Shill Bidding Dataset. UCI Machine Learning Repository. Günlük, O.; Kalagnanam, J.; Li, M.; Menickelly, M.; and Scheinberg, K. 2021. Optimal Decision Trees for Categori-cal Data via Integer Programming. Journal of Global Opti-mization , 81: 233–260. Hu, H.; Siala, M.; Hebrard, E.; and Huguet, M.-J. 2020. Learning Optimal Decision Trees with MaxSAT and its In-tegration in AdaBoost. In IJCAI-PRICAI 2020 , 1170–1176. Hu, X.; Rudin, C.; and Seltzer, M. 2019. Optimal Sparse Decision Trees. In Advances in NeurIPS-19 , 7267–7275. Hua, K.; Ren, J.; and Cao, Y. 2022. A Scalable Determin-istic Global Optimization Algorithm for Training Optimal Decision Tree. In Advances in NeurIPS-22 , 8347–8359. Hyafil, L.; and Rivest, R. L. 1976. Constructing optimal bi-nary decision trees is NP-complete. Information processing letters , 5(1): 15–17. Janota, M.; and Morgado, A. 2020. SAT-Based Encodings for Optimal Decision Trees with Explicit Paths. In Proceed-ings of the International Conference on Theory and Appli-cations of Satisfiability Testing (SAT 2020) , 501–518. Johnson, B. 2014. Wilt Dataset. UCI Machine Learning Repository. Kiossou, H.; Schaus, P.; Nijssen, S.; and Houndji, V. R. 2022. Time constrained DL8.5 using Limited Discrepancy Search. In Proceedings of ECML-PKDD-22 , 443–459. Koklu, M.; and Ozkan, I. A. 2020. Multiclass classification of dry beans using computer vision and machine learning techniques. Computers and Electronics in Agriculture , 174: 105507. Lin, J.; Zhong, C.; Hu, D.; Rudin, C.; and Seltzer, M. 2020. Generalized and Scalable Optimal Sparse Decision Trees. In 
+
+Proceedings of ICML-20 , 6150–6160. Liu, E.; Hu, T.; Allen, T. T.; and Hermes, C. 2024. Optimal classification trees with leaf-branch and binary constraints. 
+
+Computers & Operations Research , 166: 106629. Lohweg, V. 2013. Banknote Authentication Dataset. UCI Machine Learning Repository. Lyon, R. J.; Stappers, B. W.; Cooper, S.; Brooke, J. M.; and Knowles, J. D. 2016. Fifty years of pulsar candidate selec-tion: from simple filters to a new principled real-time classi-fication approach. Monthly Notices of the Royal Astronomi-cal Society , 459(1): 1104–1123. Malerba, D. 1995. Page Blocks Classification Dataset. UCI Machine Learning Repository. Mazumder, R.; Meng, X.; and Wang, H. 2022. Quant-BnB: A Scalable Branch-and-Bound Method for Optimal Deci-sion Trees with Continuous Features. In Proceedings of ICML-22 , 15255–15277. 11138 Murthy, S. K.; and Salzberg, S. 1995. Decision Tree Induc-tion: How Effective Is the Greedy Heuristic? In Proceedings of KDD-95 , 222–227. Narodytska, N.; Ignatiev, A.; Pereira, F.; and Marques-Silva, J. 2018. Learning Optimal Decision Trees with SAT. In 
+
+Proceedings of IJCAI-18 , 1362–1368. Nijssen, S.; and Fromont, E. 2007. Mining Optimal Decision Trees from Itemset Lattices. In Proceedings of SIGKDD-07 ,530–539. Nijssen, S.; and Fromont, E. 2010. Optimal constraint-based decision tree induction from itemset lattices. Data Mining and Knowledge Discovery , 21(1): 9–51. Quinlan, J. R. 1993. C4.5: Programs for Machine Learning .San Francisco, CA: Morgan Kaufmann Publishers Inc. Roesler, O. 2013. EEG Eye State Dataset. UCI Machine Learning Repository. Rudin, C. 2019. Stop explaining black box machine learning models for high stakes decisions and use interpretable mod-els instead. Nature Machine Intelligence , 1(5): 206–215. Shati, P.; Cohen, E.; and McIlraith, S. 2021. SAT-Based Approach for Learning Optimal Decision Trees with Non-Binary Features. In Proceedings of the International Confer-ence on Principles and Practice of Constraint Programming (CP-2021) , 50:1–50:16. Shati, P.; Cohen, E.; and McIlraith, S. A. 2023. SAT-based optimal classification trees for non-binary data. Constraints ,28(2): 166–202. Singh, A. P.; Jain, V.; Chaudhari, S.; Kraemer, F. A.; Werner, S.; and Garg, V. 2018. Machine learning-based occupancy estimation using multivariate sensor nodes. In 2018 IEEE Globecom Workshops , 1–6. Stefano, C.; Fontanella, F.; Maniaci, M.; and Freca, A. 2018. Avila Dataset. UCI Machine Learning Repository. Van den Bos, M.; Van der Linden, J. G. M.; and Demirovi´ c, E. 2024. Piecewise Constant and Linear Regression Trees: An Optimal Dynamic Programming Approach. In Proceed-ings of ICML-24 .Van der Linden, J. G. M.; De Weerdt, M. M.; and Demirovi´ c, E. 2023. Necessary and Sufficient Conditions for Optimal Decision Trees using Dynamic Programming. In Advances in NeurIPS-23 , 9173–9212. Van der Linden, J. G. M.; Vos, D.; De Weerdt, M. M.; Ver-wer, S.; and Demirovi´ c, E. 2024. Optimal or Greedy Deci-sion Trees? Revisiting their Objectives, Tuning, and Perfor-mance. arXiv preprint arXiv:2409.12788 .Verhaeghe, H.; Nijssen, S.; Pesant, G.; Quimper, C.-G.; and Schaus, P. 2020. Learning Optimal Decision Trees using Constraint Programming. Constraints , 25(3): 226–250. Verwer, S.; and Zhang, Y. 2017. Learning decision trees with flexible constraints and objectives using integer opti-mization. In Proceedings of CPAIOR-17 , 94–103. Verwer, S.; and Zhang, Y. 2019. Learning Optimal Classi-fication Trees Using a Binary Linear Program Formulation. In Proceedings of AAAI-19 , 1625–1632. Zhang, R.; Xin, R.; Seltzer, M.; and Rudin, C. 2023. Opti-mal Sparse Regression Trees. In Proceedings of AAAI-23 ,11270–11279. 11139

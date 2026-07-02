@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "extractor": "papercropper",
+  "tables": [
+    {
+      "url": "assets/tables/cvpr-2025-accepted/cvpr-2025-stekovic-pytorchgeonodes-enabling-differentiable-shape-programs-for-3d-shape-reconstruction-cvpr-2025-paper/table-001.webp",
+      "caption": "",
+      "page": 0,
+      "index": 1,
+      "width": 1670,
+      "height": 1043,
+      "label": "Table"
+    }
+  ]
+}
