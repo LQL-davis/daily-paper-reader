@@ -6,46 +6,46 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-02
-- 运行时间：2026-07-02 21:44:22 UTC
+- 最新运行日期：2026-07-03
+- 运行时间：2026-07-03 21:19:47 UTC
 - 运行状态：成功
 - 本次总论文数：8
-- 精读区：6
-- 速读区：2
+- 精读区：4
+- 速读区：4
 
 ### 今日简报（AI）
-特征值优化与约束弱凸优化算法双双突破，今日精读聚焦一阶变分新公式和实用随机算法  
-最值得跟进的亮点是：利用一阶变分公式简化特征值优化的梯度计算，以及为带约束弱凸问题设计的普适性 Halpern-PAGE 算法  
-普通读者若想入门，可从这两篇的动机与数值实验部分切入，感受几何优化与随机算法如何解决现实中的非凸难题
-- 详情：[/202607/02/README](/202607/02/README)
+今日精读8篇前沿研究，聚焦机器学习理论与科学计算新解法。  
+高分亮点：ReLU网络在o-minimal结构中的二分类快速逼近夺得满分，CutPINNs方法实现曲面域上对流扩散方程的稳定求解。  
+建议关注这两大突破——要么探索神经网络的理论边界，要么解锁复杂几何的物理仿真新工具。
+- 详情：[/202607/03/README](/202607/03/README)
 
 ### 精读区论文标签
-1. [Eigenvalue optimization via a first-variation formula](/202607/02/2606.31869v1-eigenvalue-optimization-via-a-first-variation-formula)  
+1. [Fast approximation and learning of binary classification tasks in o-minimal structures using ReLU neural networks](/202607/03/2607.01266v1-fast-approximation-and-learning-of-binary-classification-tasks-in-o-minimal-structures-using-relu-neural-networks)  
+   标签：评分：10.0/10、query:boundary-opt
+   evidence：使用ReLU网络逼近二分类决策边界
+2. [Consistent CutPINNs for Convection-Diffusion Equations on Curved Level-Set Domains](/202607/03/2606.29147v1-consistent-cutpinns-for-convection-diffusion-equations-on-curved-level-set-domains)  
    标签：评分：9.0/10、query:boundary-opt
-   evidence：优化Steklov特征值这一边界值问题
-2. [Primal-Dual Halpern-PAGE Algorithm for Constrained Stochastic Weakly Convex Optimization](/202607/02/2606.25355v1-primal-dual-halpern-page-algorithm-for-constrained-stochastic-weakly-convex-optimization)  
-   标签：评分：8.0/10、query:boundary-opt
-   evidence：带混合期望值约束的随机优化
-3. [A $\operatorname{prox}$-Based Semi-Smooth Newton Method for Convex Variational Problems](/202607/02/2606.25948v1-a-operatornameprox-based-semi-smooth-newton-method-for-convex-variational-problems)  
-   标签：评分：8.0/10、query:boundary-opt
-   evidence：求解带边界约束变分问题（如障碍问题）的半光滑牛顿法
-4. [Principal-Part Decomposition for Neural Operator Learning of Dirichlet-to-Neumann Maps](/202607/02/2606.25952v1-principal-part-decomposition-for-neural-operator-learning-of-dirichlet-to-neumann-maps)  
-   标签：评分：8.0/10、query:boundary-opt
-   evidence：为边界值问题学习Dirichlet-to-Neumann映射
-5. [Existence and convergence of the area-constrained elastic flow](/202607/02/2606.30301v1-existence-and-convergence-of-the-area-constrained-elastic-flow)  
-   标签：评分：8.0/10、query:boundary-opt
-   evidence：曲线演化在面积约束下最小化弹性能量
-6. [DualBrep: A Dual-Field Continuous Representation for B-rep Modelling](/202607/02/2606.31579v1-dualbrep-a-dual-field-continuous-representation-for-b-rep-modelling)  
-   标签：评分：8.0/10、query:boundary-opt
-   evidence：为边界表示引入连续表示以支持端到端几何优化，通过边界调整实现形状优化
+   evidence：用PINNs处理对流占优对流扩散方程中的边界层
+3. [Fourier Neural Operators with Least-Squares Readout Refit for Learning Random Obstacle-to-Solution Maps](/202607/03/2606.29436v1-fourier-neural-operators-with-least-squares-readout-refit-for-learning-random-obstacle-to-solution-maps)  
+   标签：评分：9.0/10、query:boundary-opt
+   evidence：学习具有自由边界几何的随机障碍物到解的映射
+4. [A novel time-domain iterative method for a three-dimensional inverse acoustic obstacle scattering problem](/202607/03/2607.02286v1-a-novel-time-domain-iterative-method-for-a-three-dimensional-inverse-acoustic-obstacle-scattering-problem)  
+   标签：评分：9.0/10、query:boundary-opt
+   evidence：通过迭代方法重建刚性障碍物的形状和位置
 
 ### 速读区论文标签
-1. [Convergence of a minimizing movement scheme for contact-angle mean curvature flow in a smooth bounded domain](/202607/02/2607.00094v1-convergence-of-a-minimizing-movement-scheme-for-contact-angle-mean-curvature-flow-in-a-smooth-bounded-domain)  
+1. [Constrained Online Convex Optimization without Slater's Condition](/202607/03/2606.31480v1-constrained-online-convex-optimization-without-slaters-condition)  
    标签：评分：7.0/10、query:boundary-opt
-   evidence：研究带边界接触角的平均曲率流最小化运动格式，解决边界相关的优化问题
-2. [A Fletcher's Augmented Lagrangian-Based Stochastic First-Order Method for Nonconvex Equality-Constrained Optimization](/202607/02/2606.28230v1-a-fletchers-augmented-lagrangian-based-stochastic-first-order-method-for-nonconvex-equality-constrained-optimization)  
-   标签：评分：6.0/10、query:boundary-opt
-   evidence：等式约束优化的随机一阶法，可应用于边界约束问题
+   evidence：提出无需Slater条件的约束在线凸优化原对偶框架，直接处理边界约束
+2. [A multilevel stochastic-gradient neural solver for boundary integral equations](/202607/03/2607.00560v1-a-multilevel-stochastic-gradient-neural-solver-for-boundary-integral-equations)  
+   标签：评分：7.0/10、query:boundary-opt
+   evidence：用神经网络求解边界积分方程，通过优化网络满足边界条件
+3. [GAIA: Geometry-Adaptive Operator Learning for Forward and Inverse Problems](/202607/03/2607.01128v1-gaia-geometry-adaptive-operator-learning-for-forward-and-inverse-problems)  
+   标签：评分：7.0/10、query:boundary-opt
+   evidence：提出几何自适应算子学习模型GAIA，用于边界值问题和输入输出域不同的逆问题。
+4. [Block Preconditioning for Shifted Boundary Method Discretisations of the Stokes Problem](/202607/03/2607.02336v1-block-preconditioning-for-shifted-boundary-method-discretisations-of-the-stokes-problem)  
+   标签：评分：7.0/10、query:boundary-opt
+   evidence：为移动边界法开发预条件子，该方法是Stokes流边界值问题的算法
 
 
 <div class="dpr-home-promo-card">

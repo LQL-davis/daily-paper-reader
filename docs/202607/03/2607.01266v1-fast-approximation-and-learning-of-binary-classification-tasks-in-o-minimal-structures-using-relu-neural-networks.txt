@@ -1,0 +1,2553 @@
+Title: Fast approximation and learning of binary classification tasks in o-minimal structures using ReLU neural networks
+
+URL Source: https://arxiv.org/pdf/2607.01266v1
+
+Published Time: Fri, 03 Jul 2026 00:02:45 GMT
+
+Number of Pages: 39
+
+Markdown Content:
+# Fast approximation and learning of binary classification tasks in o-minimal structures using ReLU neural networks 
+
+Clemens Kinn ∗ Philipp Petersen ∗
+
+July 3, 2026 
+
+Abstract 
+
+We study binary classification problems whose decision sets are given by definable sets in o-minimal expansions of the real field. Motivated by cell decomposition of definable sets, we introduce traceable sets as a classical proxy for definable decision regions and analyze their approximation by ReLU neural networks. Under uniform bounds on the number of connected components and suitable Cm extensions for the boundary functions, we prove that characteristic functions of traceable subsets of [−1/2, 1/2] n can be approximated in Lp to accuracy ε > 0 by ReLU neural networks of size O(ε−p(n−1) /m ), with depth independent of ε
+
+and polynomially bounded weights. This establishes quantitative approximation rates for certain definable collections in o-minimal structures using ReLU neural networks. The same approach also yields the stated approximation rates for a subclass of definable maps [−1/2, 1/2] n → R. We then combine the approximation capabilities with entropy estimates for ReLU neural network classes to obtain statistical learning rates for empirical risk minimization with hinge loss. For N
+
+uniformly distributed samples, the resulting classifiers achieve expected misclassification error of order N −m/ (m+pn −p) up to an arbitrarily small polynomial loss. 
+
+Keywords: ReLU neural networks, binary classification, o-minimal structures, approximation rates, learning rates. 
+
+AMS subject classification: 41A25, 03C64, 68T07. 
+
+# 1 Introduction 
+
+Deep neural networks have become one of the most successful paradigms in modern data analysis, outperforming traditional methods in a wide range of tasks, from image recognition and speech processing to natural language understanding [LBH15]. Motivated by their empirical success, the mathematical principles governing their approximation power and statistical learnability remain an active area of research. In particular, machine learning can be applied successfully to study binary classification problems. In a binary classification task, each data point is assigned one of two classes. Mathematically, we assume that the data vectors are contained in the box [−1/2, 1/2] n for some n ∈ N which gets partitioned into two sets A and Ac := [ −1/2, 1/2] n \ A. The classifier χA : [ −1/2, 1/2] n → { 0, 1}
+
+assigns to each data vector v ∈ [−1/2, 1/2] n its label, 0 if v ∈ A and 1 if v ∈ Ac. Classification 
+
+> ∗
+
+Faculty of Mathematics, University of Vienna, 1090 Vienna, Austria, (clemens.kinn@univie.ac.at, philipp.petersen@univie.ac.at) 
+
+1
+
+> arXiv:2607.01266v1 [math.LO] 29 Jun 2026
+
+problems are ubiquitous in applications, and their theoretical study using neural networks has led to work connecting approximation theory, statistical learning theory, and geometric regularity of decision boundaries [PV18; PV21; KOK21; Mey23; CPV23; GP25]. Any quantitative result on approximation or learnability relies on a structural assumption on the target set A. Some approaches rely on smoothness conditions on the boundary of A, as studied in [PV18]. Also, boundaries given by Barron-type function classes are well-adapted to approximation and learning by ReLU neural networks [CPV23; PV21; GP25]. In these cases, optimal approximation and estimation rates are known. In general, the larger the hypothesis class becomes, the weaker the achievable rates. In this paper, we propose a different framework to study classification based on tame geometry and mathematical model theory. More precisely, we study binary classification tasks where A
+
+is definable in an o-minimal expansion of the real field and isolate properties allowing for fast approximation and learning. Definable sets in an o-minimal structure form a distinguished set system containing all semi-algebraic subsets of Euclidean space, allowing for cell decomposition theorems and a well behaved notion of dimension [Dri98]. In particular, definable collections admit uniform finiteness properties, such as a uniform bound on the number of connected components and finite VC dimension [Las92], which makes them a natural candidate class for learning-theoretic analysis. Another key feature of o-minimal structures is that the composition of two definable maps is again definable. This property is not guaranteed in a Barron-type setting, leading to a workaround via the introduction of compositional function spaces [MW+22]. But deep neural networks are built by repeatedly composing affine maps with nonlinear activation functions. Consequently, many neural network architectures fit naturally into the o-minimality framework [Kra+26]. 
+
+1.1 Our contribution 
+
+Inspired by the cell decomposition theory in o-minimal structures, we isolate the analytic features needed for fast approximation with ReLU neural networks, leading to the introduction of the class of traceable sets .Under certain technical assumptions, our first main result establishes quantitative approximation rates for characteristic functions of traceable sets using ReLU neural networks. More precisely, given a uniform bound on the number of connected components and a suitable boundary regularity condition depending on a smoothness parameter m, for any 0 < ε < 1/2 and 1 ≤ p < ∞, the indicator function χA of a definable set A ⊆ [−1/2, 1/2] n can be approximated in Lp([ −1/2, 1/2] n)
+
+up to error ε by ReLU neural networks of size O(ε−p(n−1) /m ), with depth bounded independently of 
+
+ε and weights growing at most polynomially in 1/ε . The main result also enables approximation of certain definable maps f : [ −1/2, 1/2] n → R by ReLU neural networks. Definable functions are piecewise smooth and we show that under technical assumptions on the smoothness domains, the same rate as above can be achieved for the Lp approximation of f using ReLU neural networks, see section 7.2. The second main result concerns recovering the decision region A for which the approximation theorem holds from randomly sampled points in [−1/2, 1/2] n. We derive learning rates for empirical risk minimization over the corresponding ReLU neural network approximation classes. For N
+
+independent samples drawn from the uniform distribution on [−1/2, 1/2] n, we obtain an upper bound of order N −m/ (m+pn −p) up to an arbitrarily small polynomial loss N κ. The proof combines the approximation theorem with entropy-based estimation arguments in the spirit of [PV21], thereby 2providing a unified approximation-and-learning theory for classification problems with suitable definable decision boundaries. Taken together, these results suggest that definability in o-minimal structures over the real field provides a mathematically robust notion of regularity for classification theory. It captures a wide range of decision sets encountered in practice while still enabling strong approximation and estimation rates for ReLU neural networks. 
+
+1.2 Related work 
+
+We briefly outline some historical development and the interaction between machine learning and model theory that motivates the present work. An early conceptual bridge between the two areas was established by the observation that definable collections in model-theoretic structures with the non-independence property (NIP) admit uniform combinatorial bounds. In particular, definable collections in NIP structures have finite VC dimension and are therefore PAC learnable [Las92]. Since o-minimal expansions of the real field satisfy NIP, this result implies PAC learnability for definable collections arising in o-minimal structures. Recently, the fundamental theorem of agnostic PAC learnability has been revisited from a model theoretic perspective studying minimal measurability requirements and giving qualitative learning guarantees for binary classification in o-minimal structures and more generally for NIP structures [KW25]. Following this foundational connection, further interactions between machine learning and model theory have been explored. For example, stability-theoretic ideas have been used to study online learning [CF19]. These developments suggest that the classical combinatorial parameters governing generalization in machine learning can often be interpreted through model-theoretic regularity properties. Model-theoretic methods have also appeared in the study of the complexity of neural network hypothesis classes. Early work by Karpinski and Macintyre derived polynomial bounds on the VC dimension of sigmoidal neural networks and neural networks with Pfaffian activation functions [KM97]. This provides an explicit example where tame geometry and definability yield quantitative complexity estimates for classes of neural networks. Recently, these results have been revisited in the modern setting of machine learning for many other model classes, showing definability and PAC learnability of most practically used neural networks [Kra+26]. On the geometric side, o-minimal structures form a promising framework for tame mathematics, providing strong structural results for definable sets and functions. These include the classical cell decomposition theorems [Dri98], but also Lipschitz cell decompositions, triangulations, and stratifications of definable sets [Paw08; Dri98; Loi98; Fis07]. Such tools provide a rich geometric and analytic language for describing non-pathological subsets of Euclidean space, and suggest that definability can serve as a flexible regularity assumption for decision boundaries in classification problems. More recently, o-minimality has also been proposed as a rigorous setting for studying aspects of deep learning such as optimization problems arising in training procedures of neural networks [Bar+25]. This further supports the perspective that o-minimal structures provide a natural unifying framework in which approximation theory, statistical learning, and optimization may be studied simultaneously under a common notion of tameness. 3Before we state our main results, we begin by fixing notation and terminology. 
+
+# 2 Notation and conventions... 
+
+Throughout this paper, n ranges over N := {0, 1, . . . }, m ranges over N∗ := N \ { 0}, and p ranges over the real interval [1 , ∞) and Qn := [ −1/2, 1/2] n. Further, let [n] := {1, . . . , n } where [0] := ∅.For a real number r ≥ 0, denote its integer part by ⌊r⌋.
+
+2.1 ... concerning sets and maps 
+
+Suppose A, B , and C are sets with C ⊆ A. Denote the graph of a map f : A → B by Γ( f ) ⊆ A × B
+
+and the restriction of f to C by f |C . The map with the empty graph is the empty map A → B.Further, let χA be the characteristic function of A given by χA(x) := 1 if x ∈ A, and χA(x) := 0 if 
+
+x / ∈ A. The power set of A is denoted as P(A).We consider Rn as the usual Euclidean vector space with standard basis {ei}i∈[n] and use the convention that R0 := {∗} is a singleton set. Any map f : {∗} → A is identified with its value 
+
+f ({∗} ) ∈ A. Further, the open and closed balls of radius ε > 0 around x ∈ Rn are denoted by Bε(x)
+
+and Bε(x). For A ⊆ Rn, we distinguish between the boundary ∂A := cl (A) \ int (A) of A and the frontier fr( A) := cl( A) \ A of A.We let R∞ := R ∪ {±∞} be the ordered set extending R by −∞ < R < ∞ and view R∞ as a topological space equipped with the order topology. 
+
+2.2 ... concerning projections and fibers 
+
+Let i ∈ [n]. Denote the projection of Rn onto the first i coordinates by π≤in : Rn → Ri, (x1, . . . , x n) 7 →
+
+(x1, . . . , x i) and π≤0 
+
+> n
+
+: Rn → R0. We also use π<i n := π≤i−1 
+
+> n
+
+and πn+1 := π≤nn+1 . For the fiber of a set 
+
+A ⊆ Rn above x = ( x1, . . . , x i) ∈ Ri, we write A(x) := {y ∈ Rn−i : ( x, y ) ∈ A} ⊆ Rn−i. So the fiber of A above x is non-empty if and only if x ∈ π≤in (A). Similarly, for a map f : A → R, we denote the map A(x) → R, y 7 → f (x, y ) by f (x), so that f (x)( y) = f (x, y ). This notation causes no confusion since x / ∈ dom (f ) and is consistent with the usual meaning of f (x) if i = n, using the convention about maps R0 → R. Also, set A() := A and f () := f for the empty tuple. 
+
+2.3 ... concerning smoothness and measurability 
+
+For a Cm function f : U → R, U ⊆ Rn open, α ∈ Nn, |α| := α1 + · · · + αn ≤ m, let ∂αf : U → R be the continuous α-th derivative of f . In case α = ei, we also use ∂if instead of ∂ei f . More generally, a function g : A → R for arbitrary A ⊆ Rn is Cm if there is some open U ⊆ Rn with A ⊆ U and a 
+
+Cm map f : U → R with g = f |A. Any function f : R0 → R is Cm using ∂αf = f for α = () . The empty map is Cm.As usual, the Lp norm of an Lp function f : Ω → R, Ω ⊆ Rn measurable, is 
+
+∥f ∥Lp(Ω) := 
+
+Z 
+
+> Ω
+
+|f |pdλ n
+
+ 1
+
+> p
+
+4where λn is the Lebesgue measure on Rn. The L∞ norm of f is given by ∥f ∥L∞ := esssup x∈Ω|f (x)| ∈ 
+
+R∞. If f is Cm on Ω and F : U → R is a Cm extension of f where Ω ⊆ U ⊆ Rn open, then the Sobolev norm of F is ∥F ∥W m, ∞(U ) := max |α|≤ m∥∂αF ∥L∞(U ). We set ∥F ∥W m, ∞(Ω) := max |α|≤ m∥∂αF ∥L∞(Ω) 
+
+and ∥f ∥W m, ∞(Ω) := inf F ∥F ∥W m, ∞(Ω) where the infimum runs over all Cm extensions F of f to some open neighborhood of Ω. The empty map has norm zero. 
+
+2.4 ... concerning generalized intervals 
+
+For functions f, g : A → R, A ⊆ Rn, such that f (x) < g (x) for all x ∈ A, abbreviated as f < g ,define 
+
+(f, g )A := {(x, y ) ∈ Rn+1 : x ∈ A, f (x) < y < g (x)} ⊆ Rn+1 ,
+
+(−∞ , g )A := {(x, y ) ∈ Rn+1 : x ∈ A, y < g (x)} ⊆ Rn+1 ,
+
+(f, ∞)A := {(x, y ) ∈ Rn+1 : x ∈ A, f (x) < y } ⊆ Rn+1 ,
+
+(−∞ , ∞)A := A × R ⊆ Rn+1 ,
+
+(f, f )A :=Γ( f ) ⊆ Rn+1 ,
+
+(g, f )A :=( ∞, f )A := ( g, −∞ )A := ( ∞, −∞ )A := ∅.
+
+Here, the symbols ±∞ ∈ R∞ are also interpreted as constant functions ±∞ : A → R∞.
+
+2.5 ... concerning neural networks 
+
+For notions regarding feedforward neural networks we follow [PZ26]. A ReLU neural network Φ is a tuple (( W (0) , b (0) ), . . . , (W (L), b (L))) of matrix-vector pairs where L ∈ N∗, W (i) ∈ Rdi+1 ×di , b (i) ∈
+
+Rdi+1 for 0 ≤ i ≤ L and d0, . . . , d L+1 ∈ N∗. We identify Φ with its associated realization 
+
+Φ : Rn → R, x 7 → Φ( x),
+
+where the output is recursively calculated by 
+
+• x(0) := x,
+
+• x(i) := ρ(W (i−1) x(i−1) + b(i−1) ) for i = 1 , . . . , L ,
+
+• Φ( x) := W (L)x(L) + b(L).Here, 
+
+ρ : R → R, x 7 → max {0, x }
+
+denotes the ReLU activation function . Note that we use the same letter for the realization of 
+
+Φ and typically identify the matrix-vector tuple (( W (0) , b (0) ), . . . , (W (L), b (L))) as an element θ ∈
+
+RPLi=0 di+1 (di+1) , called the weights of Φ. Let size (Φ) := |θ̸ =0 | be the number of non-zero weights of Φ, width (Φ) := max i∈[L] di the maximal number of neurons occurring in some layer of Φ and 
+
+depth (Φ) := L the number of layers of Φ. Further let ∥Φ∥max := ∥θ∥max denote the maximal absolute value of the weights of Φ.For not necessarily integer valued L, W, B > 0, the class of ReLU neural networks Φ : Rn → [0 , 1] 
+
+where 5• ∥Φ∥max ≤ B,
+
+• size(Φ) ≤ W ,
+
+• depth(Φ) ≤ L,is denoted by N N (n, L, W, B ). Note that the weights of Φ ∈ N N (n, L, W, B ) satisfy θ ∈ [−B, B ]j
+
+for some j ≤ 2⌈W ⌉(⌈L⌉⌈ W ⌉ + n).
+
+# 3 Main results 
+
+We first state the definition of the decision sets considered in the main approximation and estimation theorems. The purpose of the so called traceable sets is isolating the properties of definable sets in o-minimal structures that enable fast approximation of their characteristic functions in Lp by ReLU neural networks. 
+
+Definition 3.1. Call a set A ⊆ Rn m-traceable if there exist sets A0, . . . , A n and bounded Cm maps 
+
+fi, g i : Ai−1 → R such that for each i ∈ [n]:
+
+• Ai ⊆ Ri, An = A and A0 = {∗} ,
+
+• fi < g i or fi = gi,
+
+• πi(Ai) = Ai−1 and Ai = ( fi, g i)Ai−1 .The sequence 
+
+({f1, g 1}, . . . , {fn, g n})
+
+is called the signature datum of A and A0, . . . , A n is the fundament of A.Let A ⊆ Qn be m-traceable. If for each i ∈ [n], there are Cm functions Fi, G i : Ri−1 → R with 
+
+Fi|Ai−1 = fi and Gi|Ai−1 = gi so that ∥Fi∥W m, ∞(Qi−1) ≤ B and ∥Gi∥W m, ∞(Qi−1) ≤ B, we say that A
+
+has the (m, B )-extension property . For B > 0, let KBm,n be the set of all m-traceable subsets of Qn
+
+with the (m, B )-extension property. Next, we consider finite disjoint unions of m-traceable sets. 
+
+Definition 3.2. Let ℓ ∈ N. Call a set Ω ⊆ Rn (m, ℓ )-traceable if there are pairwise disjoint 
+
+m-traceable sets A1, . . . , A l ⊆ Rn for some l ≤ ℓ such that Ω = A1 ∪ · · · ∪ Al.Let Ω ⊆ Qn be (m, ℓ )-traceable. Then Ω is said to have the (m, B, ℓ )-extension property if there are pairwise disjoint A1, . . . , A l ∈ K Bm,n for some l ≤ ℓ such that Ω = A1 ∪ · · · ∪ Al. Define KB,ℓ m,n to be the set of all (m, ℓ )-traceable subsets of Qn which have the (m, B, ℓ )-extension property. The first result concerns approximation of sets in KB,ℓ m,n by ReLU neural networks. 
+
+Theorem 3.3. For n ≥ 2, B > 0 and ℓ ∈ N, there exist constants c = c(m, n, B, ℓ, p ) > 0 and 
+
+s = s(m, n, B, ℓ, p ) > 0 so that for every Ω ∈ K B,ℓ m,n and 0 < ε < 1/2, there is a ReLU neural network 
+
+ΦΩ 
+
+> ε
+
+: Rn → [0 , 1] with 
+
+• ∥ΦΩ 
+
+> ε
+
+∥max ≤ ε−s,
+
+6• depth(Φ Ω 
+
+> ε
+
+) ≤ ⌈ log 2(( ℓ + 1) n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• size(Φ Ω 
+
+> ε
+
+) ≤ c · ε−p(n−1) /m ,such that 
+
+∥ΦΩ 
+
+> ε
+
+− χΩ∥Lp(Qn) < ε. 
+
+The same rate can be achieved for a certain class of piecewise smooth functions on smoothness domains given by traceable sets, see Subsection 7.2. By Lemma 6.13, natural subclasses of KB,ℓ m,n 
+
+come from fibers of sets contained in KB,ℓ m,k +n for k ≥ 1. Applying Theorem 3.3 in such a setting yields the following result. 
+
+Corollary 3.4. For n ≥ 2, k ≥ 1, B > 0, ℓ ∈ N, there exist constants c = c(m, n, B, ℓ, p ) > 0 and 
+
+s = s(m, n, B, ℓ, p ) > 0 so that for every Ω ∈ K B,ℓ m,k +n and 0 < ε < 1/2 and every a ∈ Rk, there is a ReLU neural network Φaε : Rn → [0 , 1] with 
+
+• ∥Φaε ∥max ≤ ε−s,
+
+• depth(Φ aε ) ≤ ⌈ log 2(( ℓ + 1) n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• size(Φ aε ) ≤ c · ε−p(n−1) /m ,such that 
+
+∥Φaε − χΩ( a)∥Lp(Qn) < ε. 
+
+With the approximation capabilities established, we get learning rates for the class KB,ℓ m,n via empirical risk minimization over the Lp approximating ReLU neural networks. 
+
+Theorem 3.5. Let B > 0, ℓ ∈ N, n ≥ 2, and Ω ∈ K B,ℓ m,n . For N ∈ N∗, let X1, . . . , X N be independently sampled from the uniform distribution λn on Qn and S := ( Xi, χ Ω(Xi)) Ni=1 . Then an empirical risk minimizer ΦS with respect to the hinge loss over 
+
+N N (n, L, cN p(n−1) /(m+pn −p), N sm/ (m+pn −p))
+
+with L := ⌈log 2(( ℓ+1) n)⌉+(3+ ⌈log 2(m)⌉)(14+2 m/n ) satisfies for every 0 < κ < p (n−1) /(m+pn −p),that 
+
+ES EX∼λn |χΩ(X) − χ[1 /2,∞) ◦ ΦS (X)|2 ≲ N κ−m/ (m+pn −p)
+
+where the implicit constant is independent of N . Hence the minimax error can be bounded by 
+
+sup 
+
+> Ω∈K B,ℓ m,n
+
+E(X1,...,X N )∼(λn)N ∥χΩ − χ[1 /2,∞) ◦ ΦS ∥2 
+
+> L2
+
+≲ N κ−m/ (m+pn −p).
+
+We now explain how the results above can be applied to definable collections in o-minimal structures. 
+
+Definition 3.6. An o-minimal structure on R is a sequence S := ( Sn)n∈N such that for all n:(i) Rn ∈ S n ⊆ P (Rn),(ii) A, B ∈ S n =⇒ A ∩ B, A ∪ B, Rn \ A ∈ S n,7(iii) S1 consists of exactly the finite unions of points and open intervals in R,(iv) {(x1, x 2) ∈ R2 : x1 < x 2} ∈ S 2,(v) {(x1, x 2, x 3) ∈ R3 : x1 + x2 = x3}, {(x1, x 2, x 3) ∈ R3 : x1 · x2 = x3} ∈ S 3,(vi) A ∈ S n =⇒ R × A, A × R ∈ S n+1 ,(vii) {(x1, . . . , x n) ∈ Rn : x1 = xn} ∈ S n,(viii) A ∈ S n+1 =⇒ πn+1 (A) ∈ S n.A set A ⊆ Rn is definable (in S) if A ∈ S n. A map f : A → R is definable (in S) if its graph 
+
+Γ( f ) ⊆ Rn+1 is definable. Call H ⊆ P (Rn) a definable collection if there is some definable set 
+
+A ⊆ Rk × Rn, k ≥ 1, such that H = {A(a) : a ∈ Rk}. Let H ⊆ P (Rn) be a definable collection. If 
+
+H = {A(a) : a ∈ Rk} for some k ≥ 1 and A ∈ S 
+
+> B> 0,ℓ ≥0
+
+KB,ℓ m,k +n, we call H m -admissible .Corollary 3.4 allows the approximation of m-admissible definable collections in o-minimal struc-tures by ReLU neural networks. 
+
+Corollary 3.7. Let S be an o-minimal structure on R and let H ⊆ P (Rn) be a definable collection for 
+
+n ≥ 2. If H is m-admissible, then there exist constants c = c(H, m, n, p ) > 0, s = s(H, m, n, p ) > 0
+
+and t = t(H, m, n, p ) > 0 such that for every 0 < ε < 1/2 and every H ∈ H , there is a ReLU neural network ΦHε : Rn → [0 , 1] with 
+
+• ∥ΦHε ∥max ≤ ε−s,
+
+• depth(Φ Hε ) ≤ t,
+
+• size(Φ Hε ) ≤ c · ε−p(n−1) /m ,
+
+• ∥ΦHε − χH ∥Lp(Qn) < ε .
+
+The paper is organized as follows. After the preliminaries in Section 4 on extensions of maps, Section 5 discusses fundamental results about o-minimal structures including the smooth cell decomposition theorem and definable collections. The properties of definable sets are then generalized in Section 6, studying traceable sets and their boundaries. Afterwards, in Subsection 7, the approximating ReLU neural network class is constructed and the proof of Theorem 3.3 is given. To complete the chapter, certain piecewise smooth functions on traceable domains are approximated by ReLU neural networks. Lastly, Section 8 is devoted to the proof of Theorem 3.5. 
+
+# 4 Preliminaries 
+
+First, we give a useful lemma concerning smoothness of fibers of functions. 
+
+Lemma 4.1. Let i < n , A ⊆ Rn, and f : A → R be a Cm map. Then for each a ∈ Ri, the map 
+
+f (a) : A(a) → R is Cm. Further, ∥f (a)∥W m, ∞(A(a)) ≤ ∥ f ∥W m, ∞(A).
+
+8Proof. As f is Cm, there is some open U ⊇ A and a Cm map F : U → R such that F |A = f .Let a ∈ Ri. Then F (a)|A(a) = f (a) and we claim that U (a) ⊇ A(a) is open in Rn−i and that 
+
+F (a) : U (a) → R witnesses that f (a) is Cm. To this end, we distinguish two cases. In case 
+
+a ∈ Ri \ π≤in (U ), U (a) = ∅ is open and F (a) = f (a) : ∅ → R is the empty map. If a ∈ π≤in (U ), then for each b = ( bi+1 , . . . , b n) ∈ Rn−i such that (a, b ) ∈ U , there is some δ = δ(b) > 0 such that 
+
+(a, b ) ∈
+
+> i
+
+# ×j=1 
+
+(aj − δ, a j + δ) ×
+
+> n
+
+# ×j=i+1 
+
+(bj − δ, b j + δ) ⊆ U. 
+
+Hence b ∈ ×nj=i+1 (bj − δ, b j + δ) ⊆ U (a), so U (a) is open. In all cases, F (a) : U (a) → R satisfies 
+
+∂ ˜α(F (a)) = ( ∂αF )( a) for α ∈ { 0}i × Nn−i, |α| ≤ m, ˜α = ( αi+1 , . . . , α n), so F (a) is Cm.For each such α and every Cm map F as above, we get 
+
+∥∂ ˜α(f (a)) ∥L∞(A(a)) = ∥(∂αf )( a)∥L∞(A(a)) ≤ ∥ ∂αf ∥L∞(A) ≤ ∥ f ∥W m, ∞(A),
+
+so the second part follows by taking the infimum over all such F .We continue with a useful notion from variational analysis to extend real valued functions [RW98], Chapter 1. 
+
+Definition 4.2. Let f : Rn → R∞. Then f is lower semi-continuous (lsc) at x ∈ Rn if f (x) = lim inf z→x f (z) and upper semi-continuous (usc) at x ∈ Rn if f (x) = lim sup z→x f (z). Here, 
+
+lim inf  
+
+> z→x
+
+f (z) := sup 
+
+> δ> 0
+
+inf   
+
+> z∈Bδ(x)
+
+f (z), lim sup 
+
+> z→x
+
+f (z) := inf  
+
+> δ> 0
+
+sup  
+
+> z∈Bδ(x)
+
+f (z).
+
+We say that f is lsc (resp. usc ) if f is lsc (resp. usc) at every x ∈ Rn.We let Γ↑(f ) := {(x, y ) ∈ Rn × R : f (x) ≤ y} be the epigraph of f and Γ↓(f ) := {(x, y ) ∈ Rn × R :
+
+f (x) ≥ y} be the hypograph of f . The domain of f is defined as dom( f ) := f −1(R).
+
+Remark 4.3 . Let f : Rn → R∞. If lim inf z→x f (z) = lim sup z→x f (z) for every x ∈ Rn, then f is continuous. Also, f is lsc if and only if −f is usc as lim inf z→x −f (z) = − lim sup z→x f (z). We have 
+
+Γ↓(−f ) = {(x, −y) : ( x, y ) ∈ Γ↑(f )}, Γ↑(−f ) = {(x, −y) : ( x, y ) ∈ Γ↓(f )}.
+
+Proposition 4.4. Let f : Rn → R∞.(i) If f is lsc, then Γ↑(f ) is closed, (ii) If f is usc, then Γ↓(f ) is closed. Proof. (i) Follows from [RW98], Theorem 1.6. (ii) Follows from (i) and Remark 4.3 replacing f by −f .
+
+Lemma 4.5. Let A ⊆ Rn. If f : A → R is continuous, then f : Rn → R∞, where 
+
+f (x) := 
+
+(sup δ> 0 inf z∈Bδ (x)∩A f (z), x ∈ cl( A)
+
+∞, x ∈ Rn \ cl( A)
+
+9is the unique lsc extension of f such that every lsc map g : Rn → R∞ with g|A ≤ f satisfies g ≤ f .Also, f : Rn → R∞,
+
+f (x) := 
+
+(inf δ> 0 sup z∈Bδ (x)∩A f (z), x ∈ cl( A)
+
+−∞ , x ∈ Rn \ cl( A)
+
+is the unique usc extension of f such that every usc map h : Rn → R∞ with h|A ≥ f satisfies h ≥ f .Moreover, Γ↑(f ) ⊆ cl( A) × R and Γ↓(f ) ⊆ cl( A) × R.Proof. For each x ∈ A, the continuity of f yields 
+
+sup 
+
+> δ> 0
+
+inf   
+
+> z∈Bδ(x)∩A
+
+f (z) = inf  
+
+> δ> 0
+
+sup  
+
+> z∈Bδ(x)∩A
+
+f (z) = f (x)
+
+and hence f and f extend f . By definition, f is lsc and f is usc. Let g and h be as claimed. Then 
+
+f ≥ g and f ≤ h on Rn \ cl( A). For every x ∈ cl( A) and δ > 0, Bδ(x) ∩ A̸ = ∅ and so 
+
+g(x) = lim inf  
+
+> z→x
+
+g(z) ≤ sup 
+
+> δ> 0
+
+inf   
+
+> z∈Bδ(x)∩A
+
+f (z) = f (x)
+
+and 
+
+h(x) = lim sup 
+
+> z→x
+
+h(z) ≥ inf  
+
+> δ> 0
+
+sup  
+
+> z∈Bδ(x)∩A
+
+f (z) = f (x).
+
+Uniqueness follows from the properties just shown. We have that Γ↑(f ) ⊆ cl (A) × R and Γ↓(f ) ⊆
+
+cl( A) × R, so the second part follows. 
+
+Definition 4.6. For a continuous function f : A → R where A ⊆ Rn, call f the lsc envelope of f
+
+and f the usc envelope of f where f and f as in Lemma 4.5. 
+
+# 5 O-minimal structures 
+
+Many areas of mathematics are built around distinguished classes of sets, e.g. the open sets in topology, or the measurable sets in measure theory. They are chosen to ground a rich theory and represent an interesting part of mathematics, motivated by very different reasons. In Euclidean space, o-minimal structures on the real field sit among these set systems, capturing a wide range of well-behaved sets, including all semi-algebraic sets. The core property of these rather large set systems is that each member admits a decomposition into finitely many cells . These building blocks forbid the emergence of pathological behavior of functions and exclude the construction of complicated sets: no oscillations, no space filling curves, and no infinitely complex constructions via repeated application of basic set operations. In fact, not even the integers are definable in any o-minimal structure because they have infinitely many connected components. Nonetheless, rather interesting and flexible o-minimal structures exist, as described in the examples below. Functions and sets contained in o-minimal structures not only have many regularity properties on bounded regions, but also behave controllably on unbounded domains. For the interested reader, we mention that the one-variable definable functions in an o-minimal structure give rise to a Hardy field [Mil12; AHV17]. This chapter heavily relies on [Dri98], a source for most fundamental results of o-minimality. For the convenience of the reader, we repeat the definition 3.6 of an o-minimal structure on the ordered field of real numbers. 10 Definition 5.1. An o-minimal structure on R is a sequence S := ( Sn)n∈N such that for all n:(i) Rn ∈ S n ⊆ P (Rn),(ii) A, B ∈ S n =⇒ A ∩ B, A ∪ B, Rn \ A ∈ S n,(iii) S1 consists of exactly the finite unions of points and open intervals in R,(iv) {(x1, x 2) ∈ R2 : x1 < x 2} ∈ S 2,(v) {(x1, x 2, x 3) ∈ R3 : x1 + x2 = x3}, {(x1, x 2, x 3) ∈ R3 : x1 · x2 = x3} ∈ S 3,(vi) A ∈ S n =⇒ R × A, A × R ∈ S n+1 ,(vii) {(x1, . . . , x n) ∈ Rn : x1 = xn} ∈ S n,(viii) A ∈ S n+1 =⇒ πn+1 (A) ∈ S n.A set A ⊆ Rn is definable (in S) if A ∈ S n. A map f : A → R is definable (in S) if its graph 
+
+Γ( f ) ⊆ Rn+1 is definable. 
+
+Remark 5.2 . The o-minimality refers to the constraint that the only definable subsets of R are finite unions of intervals and points. The classical definition of an o-minimal structure [Dri98] does not include axiom (v). However, the field structure enables to define an intrinsic notion of smoothness which is essential for this paper. 
+
+Example 5.3. If σ : Rn → Rn is a bijective linear map, then σ is definable using the formula for matrix vector multiplication. So for each A ∈ S n it follows that σ(A) ∈ S n as the image of a definable set under a definable map is definable. We briefly treat an alternative way of viewing o-minimal structures through the lens of model theory. Originally, sets contained in an o-minimal structure are defined by some first order formula in the underlying language of a certain model theoretic structure interpreting a total ordering. In our own words, we sketch the formalism of first order logic, but also refer to [Dri98], Chapter 1. For other introductory notes on mathematical logic, see for example [HL19]. Take sets of symbols X = {xn}n (variables), F ⊇ R ∪ { +, ·} (function symbols) and R ⊇ { =, < }
+
+(relation symbols) and assign to each f ∈ F , R ∈ R an arity nf , n R ∈ N which is thought of as the number of inputs of f and R respectively. For example, n= = n< = n+ = n· = 2 and nr = 0 for all 
+
+r ∈ R (strictly speaking, we distinguish between ’names’ of real numbers as function symbols and their interpretation as a real number). The symbols in F ∪R are interpreted as functions f : Rnf → R, and relations R ⊆ Rnr respectively. 
+
+Terms are built inductively by successively plugging in simpler terms in functions: each variable 
+
+x ∈ X and every constant r ∈ R is a term and if f ∈ F and t1, . . . , t nf are terms, then f (t1, . . . , t nf )
+
+is a term. A basic formula is a statement about certain terms being in some relation. More precisely, if 
+
+R ∈ R and t1, . . . , t nr are terms, then R(t1, . . . , t nr ) is a basic formula. The formulas consist of basic formulas and are closed under boolean combination and quantification: for formulas ϕ and ψ, also 
+
+ϕ ∨ ψ, ϕ ∧ ψ, ¬ϕ, ∀xϕ and ∃xϕ are formulas for every x ∈ X with their usual interpretation. If a 11 formula has free variables not under the scope of quantifiers, then one can consider the set defined by the formula. More precisely, if ϕ(¯ x) is a formula with free variables ¯x ∈ Xn for suitable n, then 
+
+A := {a ∈ Rn : ϕ(a) holds }
+
+is the set defined by ϕ. Here, ϕ(a) is a sentence with no free variables which has a binary truth value. A set that is defined by a formula is called a definable set. If the definable sets in R defined by formulas in F ∪ R are finite unions of points and intervals, then the definable sets in F ∪ R form an o-minimal structure on R. The connection between the axioms from Definition 3.6 and the logical operations combine syntax and semantics as follows. 
+
+• Unions, intersections and complements of sets correspond to boolean connectives ∨, ∧ and ¬
+
+applied to their defining formulas, 
+
+• Projections onto certain coordinates correspond to existential quantification over corresponding variables, 
+
+• Diagonals correspond to equalities among variables. On the other hand, for a given o-minimal structure S, viewing every element of S as the interpretation of a relation symbol in the language having for each A ∈ S n a distinguished relation symbol RA with arity n interpreted as A ⊆ Rn yields a model theoretic structure. This follows from the closure properties of o-minimal structures which ensure that no new definable sets arise from S,hence S consists of exactly the definable sets of the described model theoretic structure. We continue with some examples of well known o-minimal structures. 
+
+Example 5.4. The semi-algebraic sets of R are described by the definable sets using the symbols 
+
+F ∪ R = R ∪ { +, ·, =, < }, an o-minimal structure S = ( Sn)n∈N where Sn consists of finite unions of sets of the form {x ∈ Rn : p1(x) > 0, . . . , p ℓ(x) > 0, p (x) = 0 } for polynomials p, p 1, . . . , p ℓ ∈
+
+R[X1, . . . , X n], ℓ ∈ N [Dri98]. A function is semi-algebraic if its graph is semi-algebraic. Any ReLU neural network is semi-algebraic [Kra+26]. Other interesting examples include Rexp , where F ∪ R = R ∪ { exp , +, ·, =, < }, interpreting 
+
+exp : R → R as the usual exponential function, and Ran , containing for each n all restricted analytic functions Rn → R given by real analytic functions in [−1, 1] n extended by zero. Also the amalgamation Ran ,exp of Rexp and Ran is an o-minimal structure [DMM94]. A more general source of o-minimal structures are quasi-analytic Denjoy-Carleman classes whose functions are locally given by their Taylor series [RSW03]. Although classical Weierstrass preparation fails for quasi-analytic Denjoy-Carleman classes, other resolutions of singularities apply to control the number of connected components of definable sets using a normalization algorithm as shown in [RSW03]. Also, Pfaffian functions form an o-minimal structure [Wil99]. A Pfaffian function f : Rn → R is constructed via a sequence f1, . . . , f k = f , k ∈ N of C1 functions such that 
+
+∂j fi ∈ R[x1, . . . , x n, f 1, . . . , f i]
+
+for all i ∈ [k], j ∈ [n]. For example, arctan is a Pfaffian function which is witnessed by the sequence f1(x) = 1 /(x2 + 1) , f 2(x) = arctan (x) as f ′
+
+> 1
+
+(x) = −2x/ (x2 + 1) 2 = −2xf 1(x)2 and 
+
+f ′
+
+> 2
+
+(x) = 1 /(x2 + 1) = f1(x).For many other examples of definability of practically relevant functions in o-minimal structures, see [Kra+26]. 12 5.1 Cells in o-minimal structures 
+
+Let S = ( Sn)n∈N be an o-minimal structure on R. First, we are interested in concrete descriptions of definable sets in higher dimensions. The axioms of o-minimal structures on R give exhaustive information for definable sets contained in R and the cell decomposition theorem shows that a similar flavor is reflected in higher dimensions. In fact, every definable set has finitely many connected components and is built up from sets of a special shape. We are particularly interested in bounded definable sets A ⊆ Qn, leading to the definition of bounded Cm-cells. To state the inductive definition of a Cm-cell, we refine the notion of smoothness. 
+
+Definition 5.5. Let A ⊆ Rn be definable and f : A → R definable. Then f is said to be definably 
+
+Cm if there is some definable open set U ⊇ A and a definable map F : U → R such that F |A = f
+
+and F is Cm, i.e. for each α ∈ Nn, |α| ≤ m, the map ∂αF : U → R exists and is continuous. 
+
+Remark 5.6 . Every definable map f : A → R for A ⊆ Rn which is definably Cm is also Cm in the usual sense, witnessed by the same (definable) open U and (definable) map F .
+
+Definition 5.7. Let (i1, . . . , i n) ∈ { 0, 1}n. We define inductively when C ⊆ Rn is an (i1, . . . , i n)-
+
+Cm-cell .(i) The only () -Cm-cell is R0 := {∗} ,(ii) Suppose that C ⊆ Rn is a (i1, . . . , i n)-Cm-cell and f, g : C → R are bounded maps which are definably Cm with f = g or f < g . Then (f, g )C ⊆ Rn+1 is a 
+
+• (i1, . . . , i n, 0) -Cm-cell if f = g,
+
+• (i1, . . . , i n, 1) -Cm-cell if f < g .The Cm-cells of S are all (i1, . . . , i n)-Cm-cells for every n and (i1, . . . , i n) ∈ { 0, 1}n. The signature 
+
+of a Cm-cell C ⊆ Rn is the unique sequence (i1, . . . , i n) ∈ { 0, 1}n so that C is an (i1, . . . , i n)-Cm-cell. Further, the dimension dim( C) ∈ { 0, . . . , n } of C is defined as dim( C) := i1 + · · · + in.
+
+Let A ⊆ Rn be a bounded definable set . We consider partitions of A into Cm-cells. 
+
+Definition 5.8. A Cm-cell decomposition C ⊆ P (A) of A is a partition of A into finitely many 
+
+Cm-cells such that Ci := {π≤in (C) : C ∈ C} is a Cm-cell decomposition of π≤in (A) for all i ∈ [n]. A 
+
+Cm-cell decomposition of π≤1 
+
+> n
+
+(A) is a partition of π≤1 
+
+> n
+
+(A) into finitely many intervals and points. We say that C is compatible with a definable set B ⊆ A if B is a union of Cm-cells in C.We state a bounded version of the Cm-cell decomposition theorem, the main structural result about definable functions and sets [Dri98], (3.3), or [Cos99], Theorem 6.6. 
+
+Theorem 5.9. For definable sets A1, . . . , A ℓ ⊆ A, ℓ ∈ N, and any definable function f : A → R,there is a Cm-cell decomposition C of A compatible with Ai for each i ∈ [ℓ] and such that f |C is Cm
+
+for every Cm-cell C ∈ C .Remark 5.10 . For an infinite collection B of definable sets, the number of Cm-cells needed to decompose a member of B might be arbitrarily large, but there are certain natural classes of definable sets, called definable collections, which admit uniform upper bounds on the number of Cm-cells needed to decompose each individual member, see Subsection 5.2. 13 Lemma 5.11. Let C ⊆ Rn be a Cm-cell and f : C → R definably Cm and i < n . Then for each 
+
+a ∈ π≤in (C), the map f (a) : C(a) → R is definably Cm.Proof. As f is definably Cm, there is some definable open U ⊇ C and a definable function F : U → R
+
+such that F |C = f and for all α ∈ Nn, |α| ≤ m, the map ∂αF : U → R exists and is continuous. Let 
+
+a ∈ Ri. Then U (a) ⊇ C(a) is definable and as in the classical case in Lemma 4.1, U (a) is open in 
+
+Rn−i and F (a) : U (a) → R witnesses that f (a) is Cm. As F (a) and U (a) are definable, this gives that f (a) is definably Cm.
+
+5.2 Definable collections 
+
+Natural potentially infinite classes of definable sets are given by definable collections that consist of fibers of high dimensional definable sets. The advantage of definable collections is that the number of Cm-cells needed to decompose an individual fiber is uniformly bounded. This also reflects the fact that o-minimal structures have NIP, making definable collections PAC learnable [Las92]. Another instance of this result is finite sample complexity for most modern architectures of neural networks [Kra+26]. 
+
+Definition 5.12. Let A ⊆ Rn and D ⊆ Ri, i < n be both definable. Call 
+
+Ai,D := {A(a) ⊆ Rn−i : a ∈ D} ⊆ P (Rn−i)
+
+the definable collection coming from A with parameter space D ⊆ Ri. Then a collection H ⊆ P (Rn−i)
+
+is definable if there is some definable set A ⊆ Rn such that H = Ai, Ri .
+
+Remark 5.13 . Suppose Ai,D is the definable collection coming from A with parameter space D ⊆
+
+Ri, i < n . For a definable injective map h : Ri → Qi, there is some definable A′ ⊆ Rn with 
+
+A′ 
+
+> i,h (D)
+
+= Ai,D . Hence the parameter space of a definable collection can be augmented to Qi by setting a default value on Qi \ h(D). Such a map always exists as scaling down coordinates via the map x 7 → x/ √4 + 4 x2 is definable. 
+
+Let A ⊆ Rn be definable . The next statement illustrates that Cm-cell decompositions of high dimensional definable sets yield Cm-cell decompositions of fibers thereof, and thus give a uniform bound on the number of Cm-cells needed to decompose each fiber [Dri98]. 
+
+Lemma 5.14. Every Cm-cell decomposition C of A gives rise to a Cm-cell decomposition C(a) := 
+
+{C(a) : C ∈ C , C (a)̸ = ∅} of A(a) for each a ∈ Ri. In particular, |C (a)| ≤ |C| for every a ∈ Ri.Proof. By Lemma 5.11 and the inductive definition of a Cm-cell, it follows that if C ⊆ Rn is a 
+
+Cm-cell and a ∈ Ri, then C(a) ⊆ Rn−i is a Cm-cell. 
+
+Example 5.15. Consider the semi-algebraic set A := {(a, b, c, d, e, f, x, y ) ∈ R6+2 : ax 2 + bxy +
+
+cy 2 + dx + ey + f = 0 } and the definable collection A6,R6 coming from A. The fibers A(a, b, c, d, e, f )
+
+for (a, b, c, d, e, f ) ∈ R6 describe all conic sections and degenerate cases thereof. 
+
+Example 5.16. The set N N (n, L, W, B ) of ReLU neural networks Rn → [0 , 1] as defined in the introduction can be viewed as a definable collection with parameter space 
+
+Θ := {θ ∈ [−B, B ]j : θ has at most W non-zero entries },
+
+14 for some j ≤ 2⌈W ⌉(⌈L⌉⌈ W ⌉ + n) that encodes all weights and biases of the most general architecture 
+
+(n, ⌈W ⌉, . . . , ⌈W ⌉, 1) ∈ N⌈L⌉+2 of such networks ([GV24], proof of Lemma 6.1). Let A ⊆ Θ × Rn × R
+
+be defined by 
+
+(θ, x, y ) ∈ A : ⇐⇒ Φ( θ)( x) = y. 
+
+Then H = {A(θ) : θ ∈ Θ} is a definable collection containing all possible graphs of realizations of neural networks parametrized by Θ. Moreover, the hypothesis class {χ2Φ( θ)≥1 : θ ∈ Θ} of classifiers for a binary classification task coming from the ReLU neural network class N N (n, L, W, B ) can be viewed as a definable collection. Also, more general classes of neural networks with fixed architecture and definable activations can be described by definable collections [Kra+26]. 
+
+# 6 Traceable sets 
+
+In this section, we study Cm-cells and finite disjoint unions thereof from a more general perspective. Instead of relying on definability, we only work with smoothness assumptions which in particular hold for Cm-cells. This separates the application within o-minimal structures from the more general approximation theory for sets of a cellular shape, making the required properties for our approach explicit. Recall the definition of traceable sets. 
+
+Definition 6.1. Call a set A ⊆ Rn m-traceable if there exist sets A0, . . . , A n and bounded Cm maps 
+
+fi, g i : Ai−1 → R such that for each i ∈ [n]:
+
+• Ai ⊆ Ri and A = An, A0 = {∗} ,
+
+• fi < g i or fi = gi,
+
+• πi(Ai) = Ai−1 and Ai = ( fi, g i)Ai−1 .We call the sequence ({fi, g i}i∈[n]) the signature datum of A and A0, . . . , A n is the fundament of A.
+
+Example 6.2. Every singleton set {a} for a ∈ Rn is m-traceable with signature datum satisfying 
+
+fi(x1, . . . , x i−1) = gi(x1, . . . , x i−1) = ai and fundament Ai = {(a1, . . . , a i)} ⊆ Ri.Also any open cube ×ni=1 (ai, b i) for ai < b i, i ∈ [n] is m-traceable with signature datum satisfying fi(x1, . . . , x i−1) = ai, g i(x1, . . . , x i−1) = bi and fundament Ai = ×ij=1 (aj , b j ) ⊆ Ri. So for any Cm function F : ( −1/2, 1/2) n → (−1/2, 1/2) , the sets (−1/2, F )(−1/2,1/2) n , (F, F )(−1/2,1/2) n
+
+(F, 1/2) (−1/2,1/2) n are m-traceable by definition. 
+
+Example 6.3. Let 
+
+A := {(x1, x 2, x 3) ∈ R3 : 0 < x 1 < 1, −1 < x 2 < 1, 0 < x 3 < arctan( x2/x 1)/π + 1 /2} ⊆ R3.
+
+Then A is m-traceable with fundament A0 = {∗} , A 1 = (0 , 1) , A 2 = (0 , 1) × (−1, 1) , A 3 = A and signature datum satisfying 
+
+• f1 = 0 , g1 = 1 ,
+
+• f2(x1) = −1, g2(x1) = 1 ,15 • f3(x1, x 2) = 0 , g3(x1, x 2) = arctan( x2/x 1)/π + 1 /2.The function g3 is depicted in Figure 1. 
+
+Example 6.4. The set 
+
+A := {(x, y, z ) ∈ R3 : 0 < x < 1, y = sin(1 /x ), z = cos(1 /x )} ⊆ R3
+
+depicted in Figure 2 is m-traceable with fundament A0 = {∗} , A 1 = (0 , 1) , A 2 = {(x1, x 2) ∈ R2 : 0 <x1 < 1, x 2 = sin(1 /x 1)}, A 3 = A and signature datum satisfying 
+
+• f1 = 0 , g1 = 1 ,
+
+• f2(x1) = g2(x1) = sin(1 /x 1),
+
+• f3(x1, x 2) = g3(x1, x 2) = cos(1 /x 1).
+
+Let A be m-traceable with fundament A0, . . . , A n and signature datum ({fi, g i}i∈[n]). Then A is also m′-traceable for m′ ≤ m and each Ai is m′-traceable with signature datum ({f1, g 1}, . . . , {fi, g i})
+
+and fundament A0, . . . , A i for i ∈ [n].Now fix i ∈ [n]. Then Ai is bounded and 
+
+(x1, . . . , x i) ∈ Ai ⇐⇒ 
+
+> i
+
+^
+
+> j=1
+
+xj ∈ ( ˜fj (x1, . . . , x j−1), ˜gj (x1, . . . , x j−1)) R0
+
+where ˜fj , ˜gj : Rj−1 → R∞ extend fj , g j by ˜fj (x1, . . . , x j−1) := ∞ and ˜gj (x1, . . . , x j−1) := −∞ for 
+
+(x1, . . . , x j−1) ∈ Rj−1 \ Aj−1, j ∈ [i].For j ∈ [i], this yields that Aj = π≤ji (Ai) and for a ∈ Aj ,
+
+(xj+1 , . . . , x i) ∈ Ai(a) ⇐⇒ 
+
+> i
+
+^
+
+> k=j+1
+
+xk ∈ ( ˜fk(a, x j+1 , . . . , x k−1), ˜gk(a, x j+1 , . . . , x k−1)) R0 .
+
+So Ai(a) is also m-traceable with signature datum ({fj+1 (a), g j+1 (a)}, . . . , {fi(a), g i(a)}) and fun-dament Aj (a), . . . , A i(a). The fundament and the signature datum of A are unique. The next lemma provides a bound on the Lebesgue measure of Ai.
+
+Lemma 6.5. For each i ∈ [n], Ai is measurable and 
+
+λi(Ai) ≤
+
+> i
+
+Y
+
+> j=1
+
+∥gj − fj ∥L∞(Aj−1)
+
+holds. In particular, if fj = gj for some j ∈ [n], then λi(A) = 0 for i ≥ j.Proof. First, A1 is measurable and λ1(A1) = λ1(( f1, g 1)A0 ) = g1 − f1 = ∥g1 − f1∥L∞(R0). Suppose that the claim holds for A1, . . . , A i, i < n . The measurability of Ai+1 follows from (the proof of)[KW25], Lemma A.9. Since Ai+1 = ( fi+1 , g i+1 )Ai , Fubini’s theorem gives 
+
+λi+1 (Ai+1 ) = 
+
+Z
+
+> Ai
+
+gi+1 (x) − fi+1 (x)dx ≤ λi(Ai)∥gi+1 − fi+1 ∥L∞(Ai) ≤
+
+> i+1
+
+Y
+
+> j=1
+
+∥gj − fj ∥L∞(Aj−1).
+
+The second claim follows. 16 Corollary 6.6. For each i ∈ [n], a ∈ Aj , j < i , we have that 
+
+λi−j (Ai(a)) ≤
+
+> i
+
+Y
+
+> k=j+1
+
+∥gk(a) − fk(a)∥L∞(Ak−1(a)) .
+
+Furthermore, if fk(a) = gk(a) for some j < k ≤ i, then λi−j (Ai(a)) = 0 .Proof. Follows from Lemma 6.5 applied to the m-traceable set Ai(a) with signature datum 
+
+({fj+1 (a), g j+1 (a)}, . . . , {fi(a), g i(a)}).
+
+Definition 6.7. Define the extended signature datum of A by ({f i, g i}i∈[n]) where f i is the lsc envelope of fi and gi is the usc envelope of gi for each i ∈ [n]. For m′ ≤ m, we say that A is 
+
+m′-extendable if for every i ∈ [n], f i|cl( Ai−1) and gi|cl( Ai−1) are Cm′
+
+. If A ⊆ Qn and each fi, g i is the restriction of Cm functions Fi, G i : Qi−1 → R with ∥Fi∥W m, ∞(Qi−1) ≤ B and ∥Gi∥W m, ∞(Qi−1) ≤ B
+
+for each i ∈ [n], we say that A has the (m, B )-extension property .With the extended signature datum of A, an explicit description of its topological closure cl (A)
+
+is possible. 
+
+Lemma 6.8. For each i ∈ [n], we have 
+
+cl( Ai) ⊆ { (x1, . . . , x i) ∈ Ri : f 1 ≤ x1 ≤ g1, . . . , f i(x1, . . . , x i−1) ≤ xi ≤ gi(x1, . . . , x i−1)}.
+
+Moreover, if A is 1-extendable, then equality holds. Proof. Considering A1 = ( f1, g 1)A0 , we see that cl (A1) = {x1 ∈ R : f1 ≤ x1 ≤ g1} = {x1 ∈ R : f 1 ≤
+
+x1 ≤ g1}.Suppose the statement holds for A1, . . . , A i, i < n . It is enough to show that cl (Ai+1 ) ⊆
+
+Γ↑(f i+1 ) ∩ Γ↓(gi+1 ) since by assumption 
+
+dom( f i+1 ) = dom( gi+1 ) = cl( Ai) ⊆ { (x1, . . . , x i) ∈ Ri : f 1 ≤ x1 ≤ g1, . . . , f i(x1, . . . , x i−1) ≤ xi ≤ gi(x1, . . . , x i−1)}
+
+and Γ↑(f i+1 ), Γ↓(gi+1 ) ⊆ cl (Ai) × R by Lemma 4.5. Since Ai+1 ⊆ Γ↑(f i+1 ) ∩ Γ↓(gi+1 ) and Γ↑(f i+1 ) ∩
+
+Γ↓(gi+1 ) is closed by Proposition 4.4, we get that cl( Ai+1 ) ⊆ Γ↑(f i+1 ) ∩ Γ↓(gi+1 ).For the second part, assume that A is 1-extendable and that equality holds for A1, . . . , A i, i < n .Suppose that (x1, . . . , x i+1 ) ∈ Ri+1 satisfies 
+
+f 1 ≤ x1 ≤ g1, . . . , f i+1 (x1, . . . , x i) ≤ xi+1 ≤ gi+1 (x1, . . . , x i).
+
+Then (x1, . . . , x i) ∈ cl (Ai) and it remains to show that Uδ ∩ Ai+1 ̸ = ∅ for every open box Uδ := 
+
+# ×i+1 
+
+> j=1
+
+(xj − δ, x j + δ) around (x1, . . . , x i+1 ). Note that πi+1 (Uδ) = ×ij=1 (xj − δ, x j + δ) and πi+1 (Uδ) ∩
+
+Ai̸ = ∅. Since A is 1-extendable, f i+1 |cl( Ai) and gi+1 |cl( Ai) are continuous. So for any ε > 0, there is 
+
+δ > 0 with 
+
+fi+1 (πi+1 (Uδ) ∩ Ai) ⊆ (f i+1 (x1, . . . , x i) − ε, f i+1 (x1, . . . , x i) + ε)
+
+17 and 
+
+gi+1 (πi+1 (Uδ) ∩ Ai) ⊆ (gi+1 (x1, . . . , x i) − ε, g i+1 (x1, . . . , x i) + ε).
+
+We distinguish three cases. 
+
+Case 1 . ε1 := xi+1 − f i+1 (x1, . . . , x i) > 0 and ε2 := gi+1 (x1, . . . , x i) − xi+1 > 0.Here, there is some δ > 0 such that 
+
+fi+1 (πi+1 (Uδ) ∩ Ai) ⊆ (f i+1 (x1, . . . , x i) − ε1, f i+1 (x1, . . . , x i) + ε1) ⊆ (−∞ , x i+1 )
+
+and 
+
+gi+1 (πi+1 (Uδ) ∩ Ai) ⊆ (gi+1 (x1, . . . , x i) − ε2, g i+1 (x1, . . . , x i) + ε2) ⊆ (xi+1 , ∞).
+
+In particular, if (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) ∈ πi+1 (Uδ) ∩ Ai, then fi+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) < x i+1 < g i+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+), so 
+
+(x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+, x i+1 ) ∈ Uδ ∩ Ai+1 .
+
+Case 2 . ε1 = 0 .Take any (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) ∈ πi+1 (Uδ) ∩ Ai such that fi+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) ∈ (xi+1 − δ/ 2, x i+1 + δ/ 2) and define 
+
+x′ 
+
+> i+1
+
+:= fi+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) + min {δ, g i+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) − fi+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+)}/2.
+
+Then (x′
+
+> 1
+
+, . . . , x ′
+
+> i+1
+
+) ∈ Uδ ∩ Ai+1 .
+
+Case 3 . ε2 = 0 ̸ = ε1.Take any (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) ∈ πi+1 (Uδ) ∩ Ai such that gi+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) ∈ (xi+1 − δ/ 2, x i+1 + δ/ 2) and define 
+
+x′ 
+
+> i+1
+
+:= gi+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) − min {δ, g i+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+) − fi+1 (x′
+
+> 1
+
+, . . . , x ′
+
+> i
+
+)}/2.
+
+Then (x′
+
+> 1
+
+, . . . , x ′
+
+> i+1
+
+) ∈ Uδ ∩ Ai+1 .If A is not m-extendable, then the second conclusion of Lemma 6.8 might or might not fail as the revisited examples show. 
+
+Example 6.9. Let A be as in example 6.3. Then A is not m-extendable since at x1 = x2 = 0 , there is no continuous extension of g3 to the closure of its domain, as depicted in Figure 1. 
+
+Example 6.10. The set A as in example 6.4 is not m-extendable. The lsc extension of f2 and the usc extension of g2 are given by f (0) = −1 and g(0) = 1 . The lsc extension of f3 and the usc extension of g3 are given by f 3(0 , x 2) = −p1 − x22 and g3(0 , x 2) = p1 − x22 for x2 ∈ [−1, 1] .Since cl (A) = A ∪ { (0 , x 2, x 3) : x22 + x23 = 1 } ∪ { (1 , sin (1) , cos (1)) } does not include the filled circle 
+
+{(0 , x 2, x 3) : x22 + x23 ≤ 1}, the second conclusion of Lemma 6.8 fails, see Figure 2. Using the description of cl( A) from Lemma 6.8 allows to explicitly analyze the frontier of A.
+
+Corollary 6.11. The frontier of A is contained in a union of 2n (not necessarily distinct or non-empty) sets 
+
+fr( A) ⊆ { f 1 = x1 ≤ g1, . . . , f n(x1, . . . , x n−1) ≤ xn ≤ gn(x1, . . . , x n−1)}∪ { f 1 ≤ x1 = g1, . . . , f n(x1, . . . , x n−1) ≤ xn ≤ gn(x1, . . . , x n−1)}∪ . . . 
+
+∪ { f 1 ≤ x1 ≤ g1, . . . , f n(x1, . . . , x n−1) = xn ≤ gn(x1, . . . , x n−1)}∪ { f 1 ≤ x1 ≤ g1, . . . , f n(x1, . . . , x n−1) ≤ xn = gn(x1, . . . , x n−1)}
+
+where in each of the 2n sets exactly one equality occurs. If A is 1-extendable, then λn(fr( A)) = 0 .
+
+18 0.5
+
+## 1
+
+## −1 −0.5
+
+## 0.5 1
+
+## 0.2
+
+## 0.4
+
+## 0.6
+
+## 0.8
+
+## 1
+
+## x
+
+Figure 1: The upper boundary of A approaches any x3 ∈ (0 , 1) as (x1, x 2) → (0 , 0) 
+
+x
+
+y
+
+z
+
+Figure 2: The set A approaches {(0 , x 2, x 3) : x22 + x23 = 1 }, rather than {(0 , x 2, x 3) : x22 + x23 ≤ 1}.19 Proof. For x ∈ fr( A), let i ∈ [n] be minimal such that 
+
+fi(x1, . . . , x i−1) < x i < g i(x1, . . . , x i−1)
+
+does not hold. By minimality of i, (x1, . . . , x i−1) ∈ dom (fi) = dom (gi). As f i(x1, . . . , x i−1) ≤ xi ≤
+
+gi(x1, . . . , x i−1) and π<i n (x) ∈ Ai−1, f i(x1, . . . , x i−1) = xi or xi = gi(x1, . . . , x i−1) must be true. For the second part, we show that the right hand side is a null-set. Assume that A is 1-extendable. Applying the Whitney extension theorem [Whi92] to f i|cl( Ai−1) and gi|cl( Ai−1) yields the existence of global Cm extensions Fi : Ri−1 → R of f i|cl( Ai−1) and Gi : Ri−1 → R of gi|cl( Ai−1) for each 
+
+i ∈ [n]. Then Γ( Fi) × Rn−i and Γ( Gi) × Rn−i, whose union over i ∈ [n] contains fr (A), are Cm
+
+submanifolds of Rn of dimension n − 1, given as the zero sets of the global Cm submersions Rn → R,
+
+x 7 → xi − Fi(x1, . . . , x i−1) and x 7 → Gi(x1, . . . , x i−1) − xi. As finite unions of Cm submanifolds of 
+
+Rn of dimension less than n are null-sets [Hir12], the statement follows. 
+
+Assume that A ⊆ Qn is m-extendable . We associate to A the constant 
+
+BmA := inf max 
+
+> j∈[n]
+
+{ max 
+
+> |α|≤ m
+
+∥∂αFj ∥L∞Qj−1 , max 
+
+> |α|≤ m
+
+∥∂αGj ∥L∞Qj−1 }
+
+where for i ∈ [n], Fi and Gi range over all Cm functions Qi−1 → R extending fi and gi respectively. Recall that KBm,n is the set of all m-traceable subsets of Qn with the (m, B )-extension property and that KB,ℓ m,n is the set of all (m, ℓ )-traceable subsets of Qn with the (m, B, ℓ )-extension property. Note that KB,ℓ ′ 
+
+> m,n
+
+⊆ K B,ℓ m,n for ℓ′ ≤ ℓ. Let Ω ⊆ Rn be (m, ℓ )-traceable . Then Ω = A1 ∪ · · · ∪ Al for some l ≤ ℓ
+
+and pairwise disjoint m-traceable Aj for j ∈ [l]. If l and Aj can be chosen so that Aj is m-extendable for every j ∈ [l], then Ω is said to be (m, ℓ )-extendable . Assume that Ω ⊆ Qn is (m, ℓ )-extendable .Associate to Ω the constant 
+
+Bm 
+
+> Ω
+
+:= inf {max  
+
+> j∈[l]
+
+BmAj : Ω = A1 ∪ · · · ∪ Al, l ≤ ℓ, A j ∈ [
+
+> B> 0
+
+KBm,n pairwise disjoint }.
+
+This definition is consistent with KBm,n ⊆ K B,ℓ m,n for ℓ ≥ 1.
+
+Lemma 6.12. The following statements hold. (i) For every B > B mA , we have that A ∈ K Bm,n .(ii) For every B > B m 
+
+> Ω
+
+, we have that Ω ∈ K B,ℓ m,n .Proof. (i) Since A is m-extendable, it follows for each i ∈ [n], that f i|cl( Ai−1) and gi|cl( Ai−1) are Cm
+
+and by the Whitney extension theorem [Whi92], there are global Cm extensions Fi : Ri−1 → R of 
+
+f i|cl( Ai−1) and Gi : Ri−1 → R of gi|cl( Ai−1). Restricting Fi and Gi to Qi−1 yields a bound on their Sobolev norms since the continuous functions |∂αFi|, |∂αGi| : Qi−1 → R attain their maximal values on their compact domains. By definition of BmA , it is possible to choose Fi and Gi in a way such that 
+
+BmA < max {∥ Fi∥W m, ∞(Qi−1), ∥Gi∥W m, ∞(Qi−1)} < B. 
+
+So A has the (m, B )-extension property. (ii) By (i) and the definition of Bm 
+
+> Ω
+
+, we get that for any B > B m 
+
+> Ω
+
+, there are A1, . . . , A l ∈ K Bm,n 
+
+such that Ω = A1 ∪ · · · ∪ Al, so Ω ∈ K B,ℓ m,n .20 We study parametric collections coming from fibers of elements of KB,ℓ m,k +n.
+
+Lemma 6.13. Let Ω ∈ K B,ℓ m,k +n. Then Ω( a) ∈ K B,ℓ m,n for each a ∈ Qk.Proof. By assumption, there are pairwise disjoint A1, . . . , A l ∈ K Bm,k +n, l ≤ ℓ, such that Ω = 
+
+A1 ∪ · · · ∪ Al. Then Ω( a) = A1(a) ∪ · · · ∪ Al(a). For i ∈ [l], let ({f ij , g ij }j∈[k+n]) be the signature datum of Ai. For each j ∈ [k + n], there are Cm maps F ij , G ij : Qj−1 → R extending f ij and gij
+
+respectively such that 
+
+max  
+
+> j∈[k+n]
+
+max {∥ F ij ∥W m, ∞(Qj−1), ∥Gij ∥W m, ∞(Qj−1)} ≤ B. 
+
+Then, for j > k , the maps F ij (a) and Gij (a) extending f ij (a) and gij (a) satisfy 
+
+max  
+
+> j>k
+
+max {∥ F ij (a)∥W m, ∞(Qj−1−k ), ∥Gij (a)∥W m, ∞(Qj−1−k )} ≤ B, 
+
+invoking Lemma 4.1. Since ({f ij (a), g ij (a)}j>k ) is the signature datum of Ai(a), we get Ai(a) ∈ K Bm,n .Hence Ai(a) ∈ K Bm,n for every i ∈ [l], so Ω( a) ∈ K B,ℓ m,n .
+
+6.1 The property of being extendable 
+
+In general, derivatives of bounded functions on open domains can be uncontrollable towards the boundary, hence not every (m, ℓ )-traceable subset of Qn is (m, ℓ )-extendable. But we expect that every (m, ℓ )-traceable subset of Qn is relatively close to being (m, ℓ )-extendable by infinitesimal shrinking. 
+
+Lemma 6.14. Let ℓ ∈ N and Ω ⊆ Qn be an (m, ℓ )-traceable set. For every ε > 0, there is an 
+
+(m, ℓ )-traceable set Ω′ ⊆ Ω with the (m, B, ℓ )-extension property for some B = B(ε) > 0 such that 
+
+λn(Ω \ Ω′) ≤ ε. 
+
+Proof. Let ε > 0 and pairwise disjoint m-traceable sets A1, . . . , A l, l ≤ ℓ with fundaments Aj
+
+> 0
+
+, . . . , A jn
+
+and signature data ({f ji , g ji }i∈[n]) for j ∈ [l] be given such that Ω = A1 ∪ · · · ∪ Al. We show that there is some B > 0 and m-traceable sets (Aj )′ ⊆ Aj , j ∈ [l] such that (Aj )′ is (m, B )-extendable and Ω′ = ( A1)′ ∪ · · · ∪ (Al)′ satisfies the conclusion of the Lemma. Fix j ∈ [l]. If there is some i ∈ [n] such that f ji = gji , then Lemma 6.5 yields that λn(Aj ) = 0 
+
+and we can take (Aj )′ := {x} for any x ∈ Aj . Then the extended signature datum of (Aj )′ is equal to the signature datum of {x} as in Example 6.2. For notational convenience, we set fi := f ji and gi := gji for i ∈ [n], and A := Aj . Suppose that 
+
+fi < g i for all i ∈ [n]. For 0 < δ < 1/2 and i ∈ [n], define f δi , g δi : Ai−1 → R by 
+
+f δi (x) := (1 − δ)fi(x) + δg i(x)
+
+and 
+
+gδi (x) := δf i(x) + (1 − δ)gi(x).
+
+Then fi < f δi < g δi < g i and recursively setting Aδi := ( f δi |Aδi−1 , g δi |Aδi−1 )Aδi−1 for i ∈ [n] with Aδ 
+
+> 0
+
+= A0
+
+yields the m-traceable set Aδ := Aδn with signature datum ({f δ 
+
+> 1
+
+|R0 , g δ
+
+> 1
+
+|R0 }, . . . , {f δn|Aδn−1 , g δn|Aδn−1 }).21 Since cl (Aδi ) is a compact subset of Ai for each i ∈ [n], the functions f δi |cl( Aδi ) and gδi |cl( Aδi ) are Cm,witnessed by their Cm extensions f δi and gδi to an open neighborhood of cl (Aδi ) contained in Ai. Thus 
+
+Aδ is m-extendable and by the Whitney extension theorem, there exist Cm maps F δi , G δi : Qi−1 → R
+
+such that F δi |cl( Aδi ) = f δi |cl( Aδi ) and Gδi |cl( Aδi ) = gδi |cl( Aδi ). It follows from Lemma 6.12 that Aδ has the 
+
+(m, B )-extension property for 
+
+B := max 
+
+> j∈[n]
+
+{∥ F δj ∥W m, ∞Qj−1 , ∥Gδj ∥W m, ∞Qj−1 }.
+
+Note that 
+
+∥f δi − fi∥L∞(Ai−1) = ∥gi − gδi ∥L∞(Ai−1) = δ∥gi − fi∥L∞(Ai−1).
+
+Applying Lemma 6.5 to Aδi yields 
+
+λi(Aδi ) ≤
+
+> i
+
+Y
+
+> j=1
+
+∥gδj − f δj ∥L∞(Aδj−1) ≤
+
+> i
+
+Y
+
+> j=1
+
+∥gj − fj ∥L∞(Aδj−1)
+
+For A1 = ( f1, g 1)A0 we explicitly have 
+
+λ1(A1 \ Aδ
+
+> 1
+
+) = λ1(( f1, (1 − δ)f1 + δg 1)A0 ∪ (δf 1 + (1 − δ)g1, g 1)A0 ) = 2 δ(g1 − f1).
+
+Next, if (x1, . . . , x i+1 ) ∈ Ai+1 \ Aδi+1 for i ∈ [n], then (x1, . . . , x i) ∈ Ai \ Aδi and 
+
+fi+1 (x1, . . . , x i) < x i+1 < g i+1 (x1, . . . , x i),
+
+or (x1, . . . , x i) ∈ Aδi and xi+1 ∈ (fi+1 , f δi+1 ) ∪ (gδi+1 , g i+1 ). So 
+
+λi+1 (Ai+1 \ Aδi+1 ) ≤ λi(Ai \ Aδi )∥gi+1 − fi+1 ∥L∞(Ai\Aδi )
+
++ λi(Aδi )∥gi+1 − gδi+1 ∥L∞(Aδi )
+
++ λi(Aδi )∥f δi+1 − fi+1 ∥L∞(Aδi )
+
+≤ λi(Ai \ Aδi )∥gi+1 − fi+1 ∥L∞(Ai)
+
++ 2 λi(Aδi )δ∥gi+1 − fi+1 ∥L∞(Ai)
+
+≤ λi(Ai \ Aδi )∥gi+1 − fi+1 ∥L∞(Ai)
+
++ 2 δ
+
+> i+1
+
+Y
+
+> j=1
+
+∥gj − fj ∥L∞(Aj−1),
+
+using Lemma 6.5 for the last inequality. A discrete version of Grönwall’s inequality implies that 
+
+λn(A \ Aδ) ≤ 2nδ 
+
+> n
+
+Y
+
+> j=1
+
+∥gj − fj ∥L∞(Aj−1) ≤ ε/ℓ 
+
+by recursively plugging in bounds for λi(Ai \ Aδi ) and taking δ ≤ ε/ 2nℓ Qnj=1 ∥gj − fj ∥L∞(Aj−1).Setting (Aj )′ := Aδ yields 
+
+λn(Ω \ Ω′) = 
+
+> l
+
+X
+
+> j=1
+
+λ(Aj \ (Aj )′) ≤ ℓ max  
+
+> j
+
+λ(Aj \ (Aj )′) ≤ ℓε/ℓ = ε, 
+
+showing the claim. 22 6.2 Connection between traceable and definable sets 
+
+The next lemma connects traceable sets with definable sets. 
+
+Lemma 6.15. Every (bounded) (i1, . . . , i n)-Cm-cell C ⊆ Rn is m-traceable with fundament Ci =
+
+π≤in (C). Moreover, every bounded definable set A ⊆ Rn is (m, ℓ )-traceable for some ℓ ≥ 0 and for every definable collection {A(a) : a ∈ Ri} ⊆ P (Rn−i) there is some ℓ ≥ 0 such that A(a) is 
+
+(m, ℓ )-traceable for all a ∈ Ri.Proof. By induction on n. For n = 0 and n = 1 , this is clear. Let C be an (i1, . . . , i n)-Cm-cell and assume bounded, definably Cm functions f, g : C → R with either f = g or f < g are given. Then 
+
+f and g are in particular Cm. Inductively, C is m-traceable with signature datum ({fi, g i}i∈[n])
+
+and fundament C0, . . . , C n. Then (f, g )C has signature datum ({fi, g i}i∈[n], {f, g }) and fundament 
+
+C0, . . . , C n, (f, g )C . By Theorem 5.9, every definable set is the disjoint union of finitely many 
+
+Cm-cells. Lemma 5.14 yields that the number of Cm-cells needed to decompose fibers of definable sets is uniformly bounded. The following corollary collects the properties of the rectangular shape of Cm-cells that were derived for m-traceable sets in Section 6. 
+
+Corollary 6.16. Let C ⊆ Rn be a Cm-cell viewed as an m-traceable set with fundament C0, . . . , C n
+
+and signature datum ({f1, g 1}, . . . , {fn, g n}). Then for each i < n ,(i) Ci is a Cm-cell with fundament C0, . . . , C i and signature datum ({f1, g 1}, . . . , {fi, g i}),(ii) Cj = π≤ji (Ci) and Cj (x) = π≤ji (Ci(x)) for j < i ,(iii) For x ∈ Ci, the fiber C(x) above x is a Cm-cell with signature datum 
+
+({fi+1 (x), g i+1 (x)}, . . . , {fn(x), g n(x)}),
+
+Further, suppose that C is 1-extendable. Then (iv) The closure of C can be described by 
+
+cl( C) = {(x1, . . . , x n) ∈ Rn : f 1 ≤ x1 ≤ g1, . . . , f n(x1, . . . , x n−1) ≤ xn ≤ gn(x1, . . . , x n−1)},
+
+(v) The frontier of C is 
+
+fr( C) ⊆{ f 1 = x1 ≤ g1, . . . , f n(x1, . . . , x n−1) ≤ xn ≤ gn(x1, . . . , x n−1)}∪ { f 1 ≤ x1 = g1, . . . , f n(x1, . . . , x n−1) ≤ xn ≤ gn(x1, . . . , x n−1)}∪ . . . 
+
+∪ { f 1 ≤ x1 ≤ g1, . . . , f n(x1, . . . , x n−1) = xn ≤ gn(x1, . . . , x n−1)}∪ { f 1 ≤ x1 ≤ g1, . . . , f n(x1, . . . , x n−1) ≤ xn = gn(x1, . . . , x n−1)}
+
+where equality holds if fi < g i for all i ∈ [n].
+
+23 (vi) If C ⊆ Qn, then C ∈ K Bm,n for each B > B mC .
+
+Lemma 6.14 implies that sets with the extension property are ’dense’ among definable subsets of 
+
+Qn:
+
+Corollary 6.17. Let A ⊆ Qn be a definable set. For every ε > 0, there is some definable set A′ ⊆ A
+
+such that A′ ∈ K B,ℓ m,n for some B > 0, ℓ ∈ N with 
+
+λn(A \ A′) ≤ ε. 
+
+Proof. By Lemma 6.15, every definable set is (m, ℓ )-traceable for some ℓ ∈ N. Applying Lemma 6.14 and following the definable construction of A′ in its proof yields the claim. Call a definable set Ω ⊆ Qn m-admissible if Ω has a Cm-cell decomposition C ⊆ K m,n viewing each C ∈ C as an m-traceable set. 
+
+Assume that Ω is (m, ℓ )-traceable and m-admissible . By Lemma 6.12, Ω ∈ K B,ℓ m,n for B > B m
+
+> Ω
+
+viewing Ω as an (m, ℓ )-traceable set. The next corollary ensures that all fibers of Ω have the 
+
+(m, B )-extension property, giving a useful generation procedure of subclasses of KB,ℓ m,n −i via definable collections. 
+
+Lemma 6.18. Let i < n and Ai,D be the definable collection coming from Ω with parameter space 
+
+D = Qi and B > B m 
+
+> Ω
+
+. Then Ω( a) ∈ K B,ℓ m,n −i for all a ∈ D.Proof. Analogous to the proof of Lemma 6.13, using that Ω ∈ K B,ℓ m,n for B > B m 
+
+> Ω
+
+.
+
+# 7 ReLU neural network approximation of traceable sets 
+
+Most of this section is based on [PV18] and [PZ26]. We first adapt the function classes from [PV18] to our setting and ensure they can still be approximated by controllable classes of ReLU neural networks. With these function classes, we build approximating ReLU neural networks for characteristic functions of traceable sets, keeping track of the architecture and the approximation error. We let Hi : Rn → R, Hi := χRi−1×[0 ,∞)×Rn−i for i ∈ [n].
+
+Definition 7.1. For B > 0, define the set of functions 
+
+FBm,n := {f ∈ Cm(Qn) : ∥f ∥W m, ∞(Qn) ≤ B}.
+
+Further, for n ≥ 2, let the horizon functions with respect to FBm,n be given by 
+
+HF Bm,n := HF B, + 
+
+> m,n
+
+∪ HF B, −
+
+> m,n
+
+where 
+
+HF B, + 
+
+> m,n
+
+:= 
+
+> n
+
+[
+
+> i=1
+
+{f ∈ L∞(Qn) : f (x) = Hi(x − eiγ(x<i )) : γ ∈ F Bm,i −1}
+
+and 
+
+HF B, − 
+
+> m,n
+
+:= 
+
+> n
+
+[
+
+> i=1
+
+{f ∈ L∞(Qn) : f (x) = Hi(eiγ(x<i ) − x) : γ ∈ F Bm,i −1}
+
+abbreviating x<i := ( x1, . . . , x i−1).24 For every f ∈ F Bm,n , we have that −f ∈ F Bm,n and ∥∂αf ∥L∞(Qn) ≤ B for α ∈ Nn, |α| ≤ m. So for 
+
+|α| = m − 1 we get 
+
+|∂αf (x) − ∂αf (y)| ≤ ∥ 
+
+vuut nX
+
+> i=1
+
+(∂α+ei f )2∥L∞(Qn)∥x − y∥ ≤ √nB ∥x − y∥.
+
+Hence FBm,n ⊆ F β,n, √nB for β = ( m − 1) + σ with σ = 1 , where Fβ,n, √nB is defined in [PV18], (3.1). Thus all approximation results concerning Fβ,n, √nB apply to FBm,n . Identifying every f ∈ F Bm,i −1 with a function γf : Qn−1 → R, (x1, . . . , x n−1) 7 → f (x1, . . . , x i−1) yields the inclusion FBm,i −1 ⊆ F Bm,n −1
+
+for each i ∈ [n]. This follows because ∥∂αγf ∥L∞(Qn−1) = 0 if αj > 0 for some j ≥ i.Using FBm,i −1 ⊆ F Bm,n −1 ⊆ F β,n −1,√nB for i ≤ n yields that HF B, + 
+
+> m,n
+
+⊆ HF β,n, √nB for β =(m − 1) + σ and σ = 1 , where HF β,n, √nB is defined in [PV18], (3.3). But HF β,n, √nB does not include HF B, − 
+
+> m,n
+
+since the group Π( n, R) of permutation matrices of Rn does not include mirroring of coordinates. However, for every i ∈ [n] and γ ∈ F Bm,i −1, there holds 
+
+Hi(eiγ(x<i ) − x) − (1 − Hi(x − eiγ(x<i ))) = χ{xi=γ(x<i )}(x),
+
+so x 7 → Hi(eiγ(x<i ) − x) and x 7 → 1 − Hi(x − eiγ(x<i )) agree in Lp because {x ∈ Rn : xi = γ(x<i )}
+
+is a null-set. The Lp-approximation capabilities of HF B, + 
+
+> m,n
+
+by ReLU neural networks directly translate to 1 − HF B, + 
+
+> m,n
+
+and hence to HF B, − 
+
+> m,n
+
+, as for a ReLU neural network Φ, the function 1 − Φ
+
+is again a ReLU neural network with the same architecture as Φ. Also, depth (1 − Φ) = depth (Φ) ,
+
+size (1 − Φ) ≤ size (Φ) + n, and ∥1 − Φ∥max ≤ ∥ Φ∥max + 1 . Indeed, the ReLU neural network 1 − Φ
+
+emerges from Φ by multiplying all weights of the output layer with −1 and afterwards adding +1 to the entries of the output layer bias. So the bound on the absolute value of the weights of Φ grows at most by 1 and the number of non-zero weights of Φ at most by n. Furthermore, all dependencies on 
+
+B, which only affect constants, include dependencies on n, so Theorem 7.2 also holds for bounds B
+
+instead of √nB in the function classes discussed. Hence [PV18], Theorem 3.4, also applies to HF Bm,n 
+
+instead of HF β,n,B and we get the following adapted version with different constants, absorbing the changes stated above. 
+
+Theorem 7.2. For B > 0, n ≥ 2, there exist constants c = c(n, m, B, p ) > 0 and s = s(n, m, B, p ) >
+
+0 such that for every 0 < ε < 1/2 and every h ∈ HF Bm,n , there is a ReLU neural network 
+
+Φhε : Rn → [0 , 1] with 
+
+• ∥Φhε ∥max ≤ ε−s,
+
+• depth(Φ hε ) ≤ (2 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• size(Φ hε ) ≤ c · ε−p(n−1) /m ,such that 
+
+∥Φhε − h∥Lp(Qn) < ε. 
+
+7.1 Approximating traceable sets by ReLU neural networks 
+
+First, we consider horizon functions of traceable sets. Let A ∈ K Bm,n with signature datum 
+
+({fi, g i}i∈[n]). For each i ∈ [n], take Cm maps Fi, G i : Qi−1 → R such that Fi|Ai−1 = fi and 25 Gi|Ai−1 = gi with ∥Fi∥W m, ∞(Qi−1), ∥Gi∥W m, ∞(Qi−1) ≤ B so that Fi, G i ∈ F Bm,i −1. Then the horizon functions ({Fi, Gi}i∈[n]) of A with respect to ({Fi, G i}i∈[n]) are defined as Fi, Gi : Qn → { 0, 1} where 
+
+Fi(x) := Hi(x1, . . . , x i−1, x i − Fi(x1, . . . , x i−1), x i+1 , . . . , x n)
+
+and 
+
+Gi(x) := Hi(x1, . . . , x i−1, G i(x1, . . . , x i−1) − xi, x i+1 , . . . , x n)
+
+for i ∈ [n]. We have that Fi ∈ HF B, + 
+
+> m,n
+
+and Gi ∈ HF B, − 
+
+> m,n
+
+for each i ∈ [n].Note that cl (A) = Tni=1 
+
+ F−1 
+
+> i
+
+(1) ∩ G−1 
+
+> i
+
+(1)  by Lemma 6.8 and hence χcl( A) = min i∈[n]{Fi, Gi},independent of the choice of Fi and Gi. Corollary 6.11 implies that ∥χcl( A) − χA∥Lp(Qn) =
+
+∥χfr( A)∥Lp(Qn) = 0 .Further, let Ω ∈ K B,ℓ m,n . Then Ω = A1 ∪ · · · ∪ Al for some l ≤ ℓ, where Aj ∈ K Bm,n has signature datum ({f ji , g ji }i∈[n]). For Cm maps F ji , G ji : Qi−1 → R such that F ji |Aji−1
+
+= f ji and Gji |Aji−1
+
+= gji
+
+with ∥F ji ∥W m, ∞(Qi−1), ∥Gji ∥W m, ∞(Qi−1) ≤ B, we get horizon functions ({Fji , Gji }i∈[n]) of Aj with respect to ({F ji , G ji }i∈[n]) and we can express 
+
+cl(Ω) = cl( A1) ∪ · · · ∪ cl( Al) = 
+
+> l
+
+[
+
+> j=1
+> n
+
+\
+
+> i=1
+
+
+
+(F ji )−1(1) ∩ (G ji )−1(1) 
+
+
+
+,
+
+so χcl(Ω) = max j∈[l] χcl( Aj ) = max j∈[l] min i∈[n]{Fji , Gji }. Here, max j∈∅ χAj := 0 . We again have 
+
+∥χcl(Ω) − χΩ∥Lp(Qn) ≤
+
+> l
+
+X
+
+> j=1
+
+∥χcl( Aj ) − χAj ∥Lp(Qn) = 0 .
+
+The next part is devoted to the construction of ReLU neural networks approximating the characteristic functions of elements of KBm,n and KB,ℓ m,n in the Lp norm. First, we approximate horizon functions of traceable sets. By Theorem 7.2 and the discussion above, there are constants c = c(n, m, B, p ) > 0
+
+and s = s(n, m, B, p ) > 0 such that every A ∈ K Bm,n has horizon functions ({Fi, Gi}i∈[n]) so that there are ReLU neural networks ΦFi 
+
+> ε
+
+, ΦGi 
+
+> ε
+
+: Qn → [0 , 1] satisfying 
+
+• ∥ΦFi 
+
+> ε
+
+∥max , ∥ΦGi 
+
+> ε
+
+∥max ≤ ε−s,
+
+• size (Φ Fi 
+
+> ε
+
+), size(Φ Gi 
+
+> ε
+
+) ≤ c · ε−p(n−1) /m ,
+
+• depth (Φ Fi 
+
+> ε
+
+), depth(Φ Gi 
+
+> ε
+
+) ≤ (2 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• ∥ΦFi 
+
+> ε
+
+− Fi∥Lp(Qn), ∥ΦGi 
+
+> ε
+
+− Gi∥Lp(Qn) < ε .We demonstrate the ReLU neural network template for a fixed A ∈ K Bm,n , but any choice of A
+
+yields horizon functions of A satisfying these conditions. Fix horizon functions Fi and Gi of A as well as ReLU neural networks ΦFi 
+
+> ε
+
+and ΦGi 
+
+> ε
+
+with the properties above. In order to approximate 
+
+χcl( A) = min i∈[n]{Fi, Gi} by ReLU neural networks, we need a few ReLU neural network building lemmas from [PZ26]. The first result concerns parallelization with shared input [PZ26], Section 5.1.3. 26 Lemma 7.3. Let Φ1, . . . , Φℓ : Rn → R, ℓ ∈ N∗, be ReLU neural networks. Then there is a ReLU neural network (Φ 1, . . . , Φℓ) : Rn → Rℓ satisfying 
+
+(Φ 1, . . . , Φℓ)( x) = (Φ 1(x), . . . , Φℓ(x)) 
+
+such that 
+
+• depth((Φ 1, . . . , Φℓ)) = max i∈[ℓ] depth(Φ i),
+
+• width((Φ 1, . . . , Φℓ)) ≤ 2ℓ max i∈[ℓ] width(Φ i),
+
+• size((Φ 1, . . . , Φℓ)) ≤ 2ℓ max i∈[ℓ] size(Φ i) + 2 ℓ max i∈[ℓ] depth(Φ i).
+
+Secondly, we recall the representation of maxima and minima of ReLU neural networks [PZ26], Lemma 5.11. 
+
+Lemma 7.4. Let n ≥ 2. Then there exist Φmin  
+
+> n
+
+, Φmax  
+
+> n
+
+: Rn → R with 
+
+• depth(Φ min  
+
+> n
+
+), depth(Φ max  
+
+> n
+
+) ≤ ⌈ log 2(n)⌉,
+
+• width(Φ min  
+
+> n
+
+), width(Φ max  
+
+> n
+
+) ≤ 3n,
+
+• size(Φ min  
+
+> n
+
+), size(Φ max  
+
+> n
+
+) ≤ 16 n,such that Φmin  
+
+> n
+
+(x1, . . . , x n) = min {x1, . . . , x n} and Φmax  
+
+> n
+
+(x1, . . . , x n) = max {x1, . . . , x n}.
+
+Lastly, we consider compositions of ReLU neural networks [PZ26], Lemma 5.2. 
+
+Lemma 7.5. Let Φ1 : Rn → Rℓ, Φ2 : Rℓ → R, ℓ ∈ N, be ReLU neural networks. Then there is a ReLU neural network Φ2 • Φ1 : Rn → R such that Φ2 • Φ1(x) = Φ 2(Φ 1(x)) and 
+
+• depth(Φ 2 • Φ1) = depth(Φ 1) + depth(Φ 2) + 1 ,
+
+• width(Φ 2 • Φ1) ≤ 2 max {width(Φ 1), width(Φ 2)},
+
+• size(Φ 2 • Φ1) ≤ 2 size(Φ 1) + 2 size(Φ 2).
+
+Using Lemmas 7.3, 7.4 and 7.5, we analyze the ReLU neural network 
+
+ΦAε := Φ min 2n • (Φ F1 
+
+> ε
+
+, . . . , ΦFn 
+
+> ε
+
+, ΦG1 
+
+> ε
+
+, . . . , ΦGn 
+
+> ε
+
+),
+
+which is our candidate for approximating χcl( A). Observe that ΦAε (x) = min j∈[n]{ΦFj 
+
+> ε
+
+(x), ΦGj 
+
+> ε
+
+(x)}
+
+and 
+
+depth(Φ Aε ) = 1 + depth(Φ min 2n ) + depth((Φ F1 
+
+> ε
+
+, . . . , ΦFn 
+
+> ε
+
+, ΦG1 
+
+> ε
+
+, . . . , ΦGn 
+
+> ε
+
+)) 
+
+≤ 1 + ⌈log 2(2 n)⌉ + max  
+
+> i∈[n]
+
+{depth(Φ Fi 
+
+> ε
+
+), depth(Φ Gi 
+
+> ε
+
+)}≤ 1 + ⌈log 2(2 n)⌉ + (2 + ⌈log 2(m)⌉)(14 + 2 m/n )
+
+≤ ⌈ log 2(n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n )
+
+27 is independent from ε. Moreover, 
+
+size(Φ Aε ) ≤ 2 size(Φ min 2n ) + 2 size((Φ F1 
+
+> ε
+
+, . . . , ΦFn 
+
+> ε
+
+, ΦG1 
+
+> ε
+
+, . . . , ΦGn 
+
+> ε
+
+)) 
+
+≤ 32 n + 8 n max  
+
+> i∈[n]
+
+{size(Φ Fi 
+
+> ε
+
+), size(Φ Gi 
+
+> ε
+
+)} + 8 n max  
+
+> i∈[n]
+
+{depth(Φ Fi 
+
+> ε
+
+), depth(Φ Gi 
+
+> ε
+
+)}≤ 32 n + 8 ncε −p(n−1) /m + 8 n(2 + ⌈log 2(m)⌉)(14 + 2 m/n ) = ˜ c · ε−p(n−1) /m 
+
+where the constant ˜c = ˜ c(n, m, B, p ) > 0 is again independent of ε.Also, ∥ΦAε ∥max ≤ ε−˜s where ˜s = ˜s(n, m, B, p ) > 0 is a constant independent from ε as ∥Φmin 2n ∥max 
+
+is fixed and the ReLU neural networks for parallelization and composition only depend on the weights of the ReLU neural networks they connect in a predetermined way. For the error estimation between χcl( A) and ΦAε in Lp, we use the following lemma. 
+
+Lemma 7.6. For Lp functions αi, β i : Ω → R, Ω ⊆ Rn, i ∈ [ℓ], we have that 
+
+∥min  
+
+> j∈[ℓ]
+
+αj − min  
+
+> j∈[ℓ]
+
+βj ∥Lp(Ω) , ∥max  
+
+> j∈[ℓ]
+
+αj − max  
+
+> j∈[ℓ]
+
+βj ∥Lp(Ω) ≤
+
+> ℓ
+
+X
+
+> i=1
+
+∥αi − βi∥Lp(Ω) .
+
+Proof. Let x ∈ Ω and i, k ∈ [ℓ] such that αi(x) = min j∈[ℓ] αj (x) and βk(x) = min j∈[ℓ] βj (x). Then 
+
+min  
+
+> j∈[ℓ]
+
+αj (x) − min  
+
+> j∈[ℓ]
+
+βj (x) = αi(x) − βk(x) ≤ αk(x) − βk(x) ≤ max  
+
+> j∈[ℓ]
+
+|αj (x) − βj (x)|
+
+and 
+
+min  
+
+> j∈[ℓ]
+
+βj (x) − min  
+
+> j∈[ℓ]
+
+αj (x) = βk(x) − αi(x) ≤ βi(x) − αi(x) ≤ max  
+
+> j∈[ℓ]
+
+|βj (x) − αj (x)|,
+
+so |min j∈[ℓ] αj (x) − min j∈[ℓ] βj (x)| ≤ max j∈[ℓ]|αj (x) − βj (x)|. With the estimate 
+
+∥max  
+
+> j∈[ℓ]
+
+|βj (x) − αj (x)|∥ Lp(Ω) ≤ ∥ 
+
+> ℓ
+
+X
+
+> j=1
+
+|βj − αj |∥ Lp(Ω) 
+
+we get 
+
+∥min  
+
+> j∈[ℓ]
+
+αj − min  
+
+> j∈[ℓ]
+
+βj ∥Lp(Ω) ≤ ∥ 
+
+> ℓ
+
+X
+
+> j=1
+
+|βj − αj |∥ Lp(Ω) ≤
+
+> ℓ
+
+X
+
+> j=1
+
+∥βj − αj ∥Lp(Ω) 
+
+using Minkowski’s inequality. Similarly, taking i, k ∈ [ℓ] such that αi(x) = max j∈[ℓ] αj (x) and 
+
+βk(x) = max j∈[ℓ] βj (x) yields that 
+
+max  
+
+> j∈[ℓ]
+
+αj (x) − max  
+
+> j∈[ℓ]
+
+βj (x) = αi(x) − βk(x) ≤ αi(x) − βi(x) ≤ max  
+
+> j∈[ℓ]
+
+|αj (x) − βj (x)|
+
+and 
+
+max  
+
+> j∈[ℓ]
+
+βj (x) − max  
+
+> j∈[ℓ]
+
+αj (x) = βk(x) − αi(x) ≤ βk(x) − αk(x) ≤ max  
+
+> j∈[ℓ]
+
+|βj (x) − αj (x)|,
+
+and the same reasoning as above shows the lemma. 28 Letting αj vary over Fi and Gi, βj over ΦFi 
+
+> ε
+
+and ΦGi 
+
+> ε
+
+in Lemma 7.6 and applying Theorem 7.2 gives 
+
+∥χcl( A) − ΦAε ∥Lp(Qn) ≤
+
+> n
+
+X
+
+> i=1
+
+∥ΦFi 
+
+> ε
+
+− Fi∥Lp(Qn) + ∥ΦGi 
+
+> ε
+
+− Gi∥Lp(Qn) < 2nε. 
+
+This concludes the approximation of the class KBm,n by ReLU neural networks when replacing ε by 
+
+ε/ 2n. This does not change the rates, only the constants, and 
+
+∥χA − ΦAε/ 4n∥Lp(Qn) ≤ ∥ χcl( A) − ΦAε/ 4n∥Lp(Qn) + ∥χA − χcl( A)∥Lp(Qn)
+
+= ∥χcl( A) − ΦAε/ 4n∥Lp(Qn) + 0 < ε. 
+
+The following theorem summarizes our findings. 
+
+Theorem 7.7. For B > 0, n ≥ 2, there are constants c = c(n, m, B, p ) > 0 and s = s(n, m, B, p ) > 0
+
+such that for every A ∈ K Bm,n and 0 < ε < 1/2, there is a ReLU neural network ΦAε : Rn → [0 , 1] 
+
+satisfying 
+
+• ∥ΦAε ∥max ≤ ε−s,
+
+• depth(Φ Aε ) ≤ ⌈ log 2(n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• size(Φ Aε ) ≤ c · ε−p(n−1) /m ,with 
+
+∥χA − ΦAε ∥Lp(Qn) < ε. 
+
+Next, we approximate the more general class KB,ℓ m,n by ReLU neural networks. Again, we showcase the general ReLU neural network template on a particular Ω ∈ K B,ℓ m,n , say Ω = A1 ∪ · · · ∪ Al for some 
+
+l ≤ ℓ, where Aj ∈ K Bm,n . Applying Theorem 7.7 to each Aj for j ∈ [l] yields ReLU neural networks 
+
+Φjε : Rn → [0 , 1] satisfying 
+
+• ∥Φjε∥max ≤ ε−s,
+
+• depth(Φ jε) ≤ ⌈ log 2(n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• size(Φ jε) ≤ c · ε−p(n−1) /m ,
+
+• ∥χAj − Φjε∥Lp(Qn) < ε. 
+
+For simplicity, we take placeholder ReLU neural networks Φjε : Rn → [0 , 1] for j ∈ { l + 1 , . . . , ℓ }
+
+satisfying the same bounds as Φjε for j ∈ [l] which have all weights set to zero, so that Φjε(x) = 0 for all x ∈ Rn.To approximate χcl(Ω) = max j∈l χcl( Aj ), we define the ReLU neural network 
+
+ΦΩ 
+
+> ε
+
+:= 
+
+
+
+Φmax  
+
+> ℓ
+
+• (Φ 1 
+
+> ε
+
+, . . . , Φℓε), ℓ ≥ 2Φ1 
+
+> ε
+
+, ℓ = 1 0, ℓ = 0 .
+
+29 If ℓ = 0 , the approximation is trivial. In case ℓ = 1 and Ω̸ = ∅, we get Ω ∈ K Bm,n , which is covered by Theorem 7.7. So we assume ℓ ≥ 2. Then ΦΩ 
+
+> ε
+
+(x) = max {Φ1 
+
+> ε
+
+(x), . . . , Φlε(x)} using that 
+
+Φl+1 = · · · = Φ ℓ = 0 and that max j∈∅ Φjε = 0 . Lemma 7.6 yields 
+
+∥χcl(Ω) − ΦΩ 
+
+> ε
+
+∥Lp(Qn) ≤
+
+> ℓ
+
+X
+
+> j=1
+
+∥χcl( Aj ) − Φjε∥Lp(Qn) ≤ ℓε. 
+
+It remains to study the architecture of ΦΩ 
+
+> ε
+
+. We observe that 
+
+depth(Φ Ω 
+
+> ε
+
+) = 1 + depth(Φ max  
+
+> ℓ
+
+) + depth((Φ 1 
+
+> ε
+
+, . . . , Φℓε)) 
+
+≤ 1 + ⌈log 2(ℓ)⌉ + max  
+
+> j
+
+depth(Φ jε)
+
+≤ 1 + ⌈log 2(ℓ)⌉ + ⌈log 2(n)⌉ + (2 + ⌈log 2(m)⌉)(14 + 2 m/n )
+
+≤ ⌈ log 2(ℓn )⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n )
+
+is independent from ε and 
+
+size(Φ Ω 
+
+> ε
+
+) ≤ 2 size(Φ max  
+
+> ℓ
+
+) + 2 size((Φ 1 
+
+> ε
+
+, . . . , Φℓε)) 
+
+≤ 32 ℓ + 4 ℓ max  
+
+> j
+
+size(Φ jε) + 4 ℓ max  
+
+> j
+
+depth(Φ jε)
+
+≤ 32 ℓ + 4 ℓcε −p(n−1) /m + 4 ℓ⌈log 2(n)⌉ + 4 ℓ(3 + ⌈log 2(m)⌉)(14 + 2 m/n )) = ˜ c · ε−p(n−1) /m 
+
+where the constant ˜c = ˜ c(ℓ, m, n, B, p ) is again independent of ε.Also, ∥ΦΩ 
+
+> ε
+
+∥max ≤ ε−˜s where ˜s(ℓ, m, n, B, p ) is independent of ε as ∥Φmax  
+
+> ℓ
+
+∥max is fixed and the ReLU neural networks for parallelization and composition only depend on the weights of the ReLU neural networks they connect in a predetermined way. Replacing ε with ε/ℓ only changes the constants, but not the rate. Thus we have shown Theorem 3.3, restated here for the convenience of the reader. Note that the depth bound also holds for ℓ = 1 by Theorem 7.7. However, for ℓ = 0 , the bound is not well defined, hence we replace ℓ by ℓ + 1 .
+
+Theorem 7.8. For ℓ ∈ N, B > 0, n ≥ 2, there exist constants c = c(ℓ, m, n, B, p ) > 0 and 
+
+s = s(ℓ, m, n, B, p ) > 0 so that for every Ω ∈ K B,ℓ m,n and 0 < ε < 1/2, there is a ReLU neural network 
+
+ΦΩ 
+
+> ε
+
+: Rn → [0 , 1] with 
+
+• ∥ΦΩ 
+
+> ε
+
+∥max ≤ ε−s,
+
+• depth(Φ Ω 
+
+> ε
+
+) ≤ ⌈ log 2(( ℓ + 1) n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• size(Φ Ω 
+
+> ε
+
+) ≤ c · ε−p(n−1) /m ,such that 
+
+∥ΦΩ 
+
+> ε
+
+− χΩ∥Lp(Qn) < ε. 
+
+In the sense of [PV18], the lower bound Ω( ε−p(n−1) /(m+1) / log 2(1 /ε )) on the achievable ap-proximation rate for HF m+1 ,n,B also transfers to KB,ℓ m,n ⊇ HF Bm,n as Fm+1 ,n,B ⊆ F Bm,n and so 
+
+HF m+1 ,n,B ⊆ HF Bm,n modulo coordinate permutations to the last coordinate. 30 7.2 Approximating definable functions 
+
+By Theorem 5.9, for every definable map f : Qn → R, there is a Cm-cell decomposition C of Qn so that f |C is Cm for every C ∈ C . Motivated by this fact and in the spirit of [PV18], we establish ReLU neural network approximation of piecewise smooth functions whose smoothness domains are given by finitely many pairwise disjoint sets contained in KBm,n for some B > 0, expanding the approximation theory of definable sets to a subclass of definable functions. An important tool to achieve approximation results in this setting is the approximation of the function class FBm,n ⊆ F m,n, √nB , which can be inferred from [PV18] , Theorem 3.1. Here we use again that the constants depending on B also depend on n, ignoring the factor of √n.
+
+Theorem 7.9. For B > 0, there exist constants c = c(n, m, B ) > 0 and s = s(n, m, B, p ) > 0 such that for every f ∈ F Bm,n and 0 < ε < 1/2, there is a ReLU neural network Φfε : Rn → R with 
+
+• ∥Φfε ∥L∞(Qn) ≤ ⌈ B⌉,
+
+• ∥Φfε ∥max ≤ ε−s,
+
+• size(Φ fε ) ≤ c · ε−n/m ,
+
+• depth(Φ fε ) ≤ (2 + ⌈log 2(m)⌉)(11 + m/n ),and 
+
+∥f − Φfε ∥Lp(Qn) < ε. 
+
+In order to balance the asymptotic rates for the number of non-zero weights of ReLU neural networks approximating the class KBm,n , i.e. ε−p(n−1) /m and the function class FBm,n , i.e. ε−n/m , we assume smoothness of degree at least ⌈nm/p (n − 1) ⌉, introducing the class of functions 
+
+GB,ℓ m,n,p := {
+
+> ℓ
+
+X
+
+> i=1
+
+gi · χAi : gi ∈ F B
+
+> ⌈mn/p (n−1) ⌉,n
+
+, A i ∈ K Bm,n , Q n =
+
+> ℓ
+
+G
+
+> i=1
+
+Ai}.
+
+Here, F denotes a disjoint union of sets. Since 0 ∈ F B
+
+> ⌈mn/p (n−1) ⌉,n
+
+, we have that GB,ℓ ′ 
+
+> m,n,p
+
+⊆ G B,ℓ m,n,p for 
+
+ℓ′ ≤ ℓ. First, we replicate the multiplication operator on bounded domains by ReLU neural networks with a fixed number of layers as in [PV18], Lemma A.3. 
+
+Lemma 7.10. Let θ > 0. For every L > (2 θ)−1 and M ≥ 1, there are constants c = c(L, M, θ ), s =
+
+s(M ) ∈ N such that for every 0 < ε < 1/2, there is a ReLU neural network ˜×ε : R2 → R such that for all (x, y ) ∈ [−M, M ]2,
+
+| ˜×ε(x, y ) − x · y| ≤ ε
+
+with ˜×ε(0 , y ) = ˜ ×ε(x, 0) = 0 which satisfies 
+
+• ∥ ˜×ε∥max ≤ ε−s,
+
+• size( ˜ ×ε) ≤ c · ε−θ,
+
+• depth( ˜ ×ε) = 2 L + 7 .
+
+31 With Lemma 7.10, we are ready to establish the approximation result for the function class 
+
+GB, 1
+
+> m,n,p
+
+.
+
+Theorem 7.11. For B > 0, n ≥ 2, there exist constants c = c(n, m, B, p ) > 0 and s =
+
+s(n, m, B, p ) > 0 such that for every f ∈ G B, 1 
+
+> m,n,p
+
+and 0 < ε < 1/2, there is a ReLU neural network 
+
+Φfε : Rn → R with 
+
+• ∥Φfε ∥max ≤ ε−s,
+
+• size(Φ fε ) ≤ c · ε−p(n−1) /m ,
+
+• depth(Φ fε ) ≤ (5 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) ,and 
+
+∥f − Φfε ∥Lp(Qn) < ε. 
+
+Proof. Let f = g · χA for g ∈ F B 
+
+> ⌈mn/p (n−1) ⌉,n
+
+and A ∈ K Bm,n . Applying Theorem 3.3 to A and Theorem 7.9 to g yields constants c, s > 0 independent of ε and ReLU neural networks ΦAε and Φgε
+
+such that 
+
+• ∥Φgε ∥L∞(Qn) ≤ ⌈ B⌉, ∥ΦAε ∥L∞(Qn) ≤ 1,
+
+• ∥Φgε ∥max , ∥ΦAε ∥max ≤ ε−s,
+
+• size(Φ gε ), size(Φ Aε ) ≤ c · ε−p(n−1) /m ,
+
+• depth(Φ gε ) ≤ (2 + ⌈log 2(⌈mn/p (n − 1) ⌉)⌉)(11 + m/p (n − 1)) ,
+
+• depth(Φ Aε ) ≤ ⌈ log 2(n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n ),
+
+• ∥g − Φgε ∥Lp(Qn), ∥χA − ΦAε ∥Lp(Qn) < ε. 
+
+So depth (Φ gε ), depth (Φ Aε ) ≤ (3 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) . Since |Φgε | ≤ ⌈ B⌉,multiplying ΦAε and Φgε can be approximated by ˜×ε : [ −⌈ B⌉, ⌈B⌉] → R where ˜×ε as in Lemma 7.10 with θ = p(n − 1) /m and L = ⌊(2 θ)−1⌋ + 1 so that the size of ˜×ε does not exceed the sizes of ΦAε
+
+and Φgε , which are all bounded by c · ε−p(n−1) /m . We claim that 
+
+Φfε := ˜ ×ε • (Φ gε , ΦAε )
+
+does the job. To estimate ∥f − Φfε ∥Lp(Qn), we calculate 
+
+∥f − Φfε ∥Lp(Qn) = ∥g · χA − ˜×ε • (Φ gε , ΦAε )∥Lp(Qn)
+
+≤ ∥ g · χA − Φgε · ΦAε ∥Lp(Qn)
+
++ ∥Φgε · ΦAε − ˜×ε • (Φ gε , ΦAε )∥Lp(Qn)
+
+≤ ∥ g · χA − Φgε · χA∥Lp(Qn)
+
++ ∥Φgε · χA − Φgε · ΦAε ∥Lp(Qn) + ε
+
+≤ ∥ g − Φgε ∥Lp(Qn)
+
++ ⌈B⌉∥ χA − ΦAε ∥Lp(Qn) + ε< (2 + ⌈B⌉)ε
+
+32 so replacing ε by ε/ (2 + ⌈B⌉) yields the claim considering Φfε/ (2+ ⌈B⌉) instead of Φfε in the statement of the theorem. For convenience, we give bounds on the architecture of Φfε , and the same asymptotic bounds hold for Φfε/ (2+ ⌈B⌉) at the price of adjusting the constants. First, 
+
+depth(Φ fε ) ≤ depth( ˜ ×ε) + depth((Φ gε , ΦAε )) + 1 
+
+≤ 2L + 8 + (3 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) 
+
+≤ m/p (n − 1) + (4 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) 
+
+≤ (5 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) 
+
+Furthermore, 
+
+size(Φ fε ) ≤ 2 size( ˜ ×ε) + 2 size((Φ gε , ΦAε )) 
+
+≤ 2cε −θ + 4 cε −p(n−1) /m + (12 + 4 ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) 
+
+≤ 6cε −p(n−1) /m + (12 + 4 ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) 
+
+≤ ˜cε −p(n−1) /m 
+
+for some constant ˜c = ˜c(n, m, B, p ) > 0. Also, ∥Φfε ∥max ≤ ε−˜s for some ˜s = ˜s(n, m, B, p ) > 0
+
+as ∥ ˜×ε∥max ≤ ε−ˆs for some ˆs > 0 and the ReLU neural networks for parallelization as well as composition do not depend on ε.For approximations of elements in GB,ℓ m,n,p for general ℓ ∈ N, it remains to sum over the approxi-mating ReLU neural networks of each single region. The ReLU neural network expressing a sum of 
+
+ℓ many ReLU neural networks is a special case of taking linear combinations [PZ26], Lemma 5.4. 
+
+Lemma 7.12. Let Φ1, . . . , Φℓ : Rn → R be ReLU neural networks. Then there is a ReLU neural network P(Φ 1, . . . , Φℓ) : Rn → R such that 
+
+• depth( P(Φ 1, . . . , Φℓ)) = max i∈[ℓ] depth(Φ i),
+
+• width( P(Φ 1, . . . , Φℓ)) ≤ 2ℓ max i∈[ℓ] width(Φ i),
+
+• size( P(Φ 1, . . . , Φℓ)) ≤ 2ℓ max i∈[ℓ] size(Φ i) + 2 ℓ max i∈[ℓ] depth(Φ i),with P(Φ 1, . . . , Φℓ)( x) = Φ 1(x) + · · · + Φ ℓ(x).
+
+Our candidate for the approximation of f := Pℓi=1 giχAi ∈ G B,ℓ m,n,p is given by 
+
+Φfε := X( ˜ × • (Φ g1 
+
+> ε
+
+, ΦA1 
+
+> ε
+
+), . . . , ˜× • (Φ gℓ 
+
+> ε
+
+, ΦAℓ 
+
+> ε
+
+)) .
+
+Estimating yields 
+
+∥f − Φfε ∥Lp(Qn) ≤
+
+> ℓ
+
+X
+
+> i=1
+
+∥fi − Φiε∥Lp(Qn)
+
+≤ ℓ max  
+
+> i∈[ℓ]
+
+∥fi − Φiε∥Lp(Qn) < ℓε 
+
+33 where fi := giχAi ∈ G B, 1 
+
+> m,n,p
+
+and Φiε is the ReLU approximation of fi from Theorem 7.11. Replacing ε
+
+by ε/ℓ yields the statement. Although studying the architecture of Φfε instead of Φfε/ℓ , a substitution of ε by ε/ℓ only changes the constants and the asymptotic rates stay the same. 
+
+depth(Φ fε ) = max  
+
+> i∈[ℓ]
+
+depth(Φ iε)
+
+≤ (5 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) 
+
+and 
+
+size(Φ fε ) ≤ 2ℓ max  
+
+> i∈[ℓ]
+
+size(Φ iε) + 2 ℓ max  
+
+> i∈[ℓ]
+
+depth(Φ iε)
+
+≤ 2ℓcε −p(n−1) /m + 2 ℓ(5 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) 
+
+≤ ˜c · ε−p(n−1) /m 
+
+for some constant ˜c = ˜c(n, m, B, p, ℓ ) > 0. Also, we get that ∥Φfε ∥max ≤ ε−˜s for some constant 
+
+˜s = ˜ s(n, m, B, p, ℓ ) > 0 as the summation ReLU neural network does not depend on ε.Thus we proved the following approximation result. 
+
+Theorem 7.13. For B > 0, ℓ ∈ N, there exist constants c = c(n, m, B, p, ℓ ) > 0 and s =
+
+s(n, m, B, p, ℓ ) > 0 such that for every f ∈ G B,ℓ m,n,p and 0 < ε < 1/2, there is a ReLU neural network 
+
+Φfε : Rn → R with 
+
+• ∥Φfε ∥max ≤ ε−s,
+
+• size(Φ fε ) ≤ c · ε−p(n−1) /m ,
+
+• depth(Φ fε ) ≤ (5 + ⌈log 2(mn )⌉)(25 + 2 m/n + m/p (n − 1)) ,and 
+
+∥f − Φfε ∥Lp(Qn) ≤ ε. 
+
+# 8 Convergence rates for statistical learning of traceable sets 
+
+Lastly, we want to describe upper bounds for the minimax error when learning sets from KB,ℓ m,n via empirical risk minimization on finitely many samples over the ReLU neural network class from Theorem 3.3 where the hinge loss measures the empirical risk. Following the setting considered in [PV21], we use their results stated on the domain [0 , 1] n translated to Qn.For our binary classification task, suppose that we are given a sample of N data points S := (xi, y i)Ni=1 where xi are generated by the uniform Lebesgue measure λn on Qn and yi = χΩ(xi) for some given unknown Ω ∈ K B,ℓ m,n where ℓ ∈ N, B > 0 are fixed. Based on the sample S, we want to predict χΩ and unravel the connection between sample size and prediction error. Formally, we consider measurable algorithms Alg mapping each labeled sample S ∈ ΛN =(Qn × { 0, 1})N to a prediction Alg (S) ∈ L2(Qn) only taking values in {0, 1}. The minimax error for 34 sample size N is then given by the smallest average worst prediction error over all possible algorithms predicting any Ω ∈ K B,ℓ m,n , defined as 
+
+εN (KB,ℓ m,n ) := inf   
+
+> Alg :Λ N→L2(Qn)
+
+sup 
+
+> Ω∈K B,ℓ m,n
+
+E(X1,...,X N )∼(λn)N ∥Alg (( Xi, χ Ω(Xi)) Ni=1 ) − χΩ∥2
+
+> L2
+
+where (λn)N is the product measure. For an upper bound, we let the algorithm choose measurably in a predetermined way for each sample S an empirical risk minimizer with respect to the hinge loss t 7 → max {0, 1 − t} over the compact Lp approximating class of ReLU neural networks coming from Theorem 3.3. Since an element Φ ∈ N N (n, L, W, B ) takes values in [0 , 1] and not only {0, 1}, we need a decision rule for the prediction of the label. The most convenient choice would be to take yi = 0 if Φ( xi) < 1/2 and yi = 1 
+
+if Φ( xi) ≥ 1/2. Formally, associate to each such Φ the measurable function χ[1 /2,∞) ◦ Φ ∈ L2(Qn),taking values in {0, 1} as expected for the algorithm. The hinge risk of Φ with respect to Ω is obtained by the average of taking the product of the 
+
+[−1, 1] -valued functions 2χΩ − 1 and 2Φ − 1 and applying the hinge loss, i.e. 
+
+EΩ(Φ) = EX∼λn [1 − (2 χΩ(X) − 1)(2Φ( X) − 1)] .
+
+Explicitly, the prediction χ[1 /2,∞) ◦ ΦS given by the algorithm minimizing the hinge risk satisfies 
+
+ΦS = argmin Φ∈F N 1 − 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+(2 yi − 1)(2Φ( xi) − 1) 
+
+for the sample S ∈ ΛN over the class FN of ReLU neural networks we describe below. The following lemma bounds the hinge risk of the misclassification of the algorithm. 
+
+Lemma 8.1. Let B > 0, ℓ ∈ N, p ≥ 1, and 0 < ε < 1/2. For Ω ∈ K B,ℓ m,n and ΦΩ 
+
+> ε
+
+as in Theorem 3.3, we have 
+
+EΩ(Φ Ω 
+
+> ε
+
+) ≤ 2ε. 
+
+Proof. Abbreviating Ωc := Qn \ Ω and Φ := Φ Ω 
+
+> ε
+
+yields 
+
+EΩ(Φ) = EX∼λn [1 − (2 χΩ(X) − 1)(2Φ( X) − 1)] =
+
+Z
+
+> Qn
+
+(1 − (2 χΩ − 1)(2Φ − 1)) dλ n
+
+=
+
+Z
+
+> Ω
+
+(1 − (2Φ − 1)) dλ n +
+
+Z
+
+> Ωc
+
+(1 − (1 − 2Φ)) dλ n
+
+= 2 
+
+Z
+
+> Ω
+
+(1 − Φ) dλ n + 2 
+
+Z
+
+> Ωc
+
+Φdλ n
+
+= 2 
+
+Z
+
+> Qn
+
+|χΩ − Φ|dλ n
+
+= 2 ∥χΩ − Φ∥L1(Qn) ≤ 2∥χΩ − Φ∥Lp(Qn) ≤ 2ε, 
+
+The last line invokes Hölder’s inequality for q = p/ (p − 1) and λn(Qn) = 1 .35 In what follows, the main ingredient is [PV21], Theorem 5.6. Before we recall the central result, a reformulation of Theorem 3.3 in terms of sample size is needed. Rephrasing the Lp approximating ReLU neural networks up to error 0 < ε < 1/2 from Theorem 3.3 in terms of the sample size 
+
+N := ⌈ε−(m+pn −p)/m ⌉ yields constants c = c(n, m, ℓ, B, p ) > 0 and s = s(n, m, ℓ, B, p ) > 0 such that for every Ω ∈ K B,ℓ m,n and N ∈ N∗, there is some ΦN ∈ N N (n, L, cN p(n−1) /(m+pn −p), N sm/ (m+pn −p))
+
+with L := ⌈log 2(( ℓ + 1) n)⌉ + (3 + ⌈log 2(m)⌉)(14 + 2 m/n ) and 
+
+∥χΩ − ΦN ∥Lp(Qn) < N −m/ (m+pn −p).
+
+For each N ∈ N∗, we define the function class 
+
+FN := N N (n, L N , W N , B N ) := N N (n, L, cN p(n−1) /(m+pn −p), N sm/ (m+pn −p)).
+
+To appreciate the forthcoming learning result, we recall that a δ-net of FN is some finite GN ⊆ F N
+
+such that FN ⊆ G N + {f ∈ F N : ∥f ∥∞ < δ } and the covering number of FN is the minimal size of a δ-net of FN . The covering entropy VFN ,∥.∥L∞ (δ) is the logarithm of the covering number of FN .The following theorem summarizes the remaining checklist from [PV21], Theorem 5.6, adapted to 
+
+FN , giving the learning result. 
+
+Theorem 8.2. Let Ω ∈ K B,ℓ m,n . If (i) there exists a positive sequence (aN )N ∈N with aN = O(N −a0 ) as N → ∞ for some a0 > 0 such that 
+
+∀ N ∈ N∗ : ∃ ΦN ∈ F N : EΩ(Φ N ) ≤ aN ,
+
+(ii) there exists C > 0 and (δN )N ∈N ⊆ (0 , ∞) such that 
+
+VFN ,∥·∥ L∞ (δN ) ≤ C · N · δN ∀ N ∈ N∗,
+
+(iii) there exists ι > 0 such that the sequence (εN )N ∈N ⊆ R with εN := max {aN , δ N }, N ∈ N∗,satisfies 
+
+N 1−ι · εN ≳ 1 ∀ N ∈ N∗, (1) 
+
+then 
+
+ES
+
+λn  x ∈ Qn : χΩ(x)̸ = χ[1 /2,∞) ◦ ΦS (x)  ≲ εN ,
+
+where the implied constant is independent of Ω and only depends on the implied constants from Conditions (i), (ii), and (iii). 
+
+We verify the different items of Theorem 8.2 to infer its conclusion. (i) By Lemma 8.1, 
+
+EΩ(Φ Ω 
+
+> ε
+
+) ≤ 2ε = 2 N −m/ (m+pn −p) =: aN .
+
+showing the first assumption with aN = O(N −m/ (m+pn −p)).(ii) By [GV24], Lemma 6.1, for each 0 < δ ≤ 1 the δ-covering number of FN is bounded by 
+
+(44 /δ · L4 · (⌈BN ⌉ max {n, W N })L+1 )WN ,
+
+so the covering entropy satisfies 
+
+VFN ,∥.∥L∞ (δ) ≤ WN · (log(44 L4) + log(1 /δ ) + ( L + 1) log( ⌈BN ⌉) + ( L + 1) log(max {n, W N })) .
+
+36 Hence for every 0 < κ < p (n − 1) /(m + pn − p), the following estimate can be carried out for 
+
+0 < δ N := N κ−m/ (m+pn −p) ≤ 1 :
+
+VFN ,∥.∥L∞ (δN ) ≤ cN p(n−1) /(m+pn −p)(log(44 L4) + m/ (m + pn − p) log N − κ log N
+
++ ( L + 1) sm/ (m + pn − p) log N
+
++ ( L + 1) max {log n, log( c) + p(n − 1) /(m + pn − p) log N })
+
+≤ ˜cN p(n−1) /(m+pn −p) log N ≤ ˜cN δ N
+
+for some constant ˜c = ˜c(n, m, p, s, c, κ ) > 0 independent from N . Here we tacitly used that covering numbers are translation invariant as [GV24] considers [0 , 1] n instead of Qn.(iii) The number εN := max {aN , δ N } = max {2N −m/ (m+pn −p), N κ−m/ (m+pn −p)} satisfies for 
+
+ι := p(n − 1) /(m + pn − p) − κ > 0 that 
+
+εN · N 1−ι ≳ 1.
+
+Hence Theorem 8.2 yields 
+
+ES λn({x ∈ Qn : χΩ(x)̸ = χ[1 /2,∞) ◦ ΦS (x)}) ≲ N κ−m/ (m+pn −p),
+
+which proves Theorem 3.5. 
+
+Final remarks 
+
+To conclude, we give a brief informal treatment of a possible extension of our theorems. In the (excluded) case m = 0 of Theorem 3.3, it also makes sense to consider Lipschitz extensions of the signature datum instead of assuming extendability of traceable sets. By [Paw08], any open definable set A ⊆ Qn can be partitioned into finitely many sets S1, . . . , S k, D ⊆ Qn such that D is a null-set and each Sj has the following property, stated in our terminology: There exists a permutation of coordinates λj (x) = ( xσj (1) , . . . , x σj (n)) where σj : [ n] → [n]
+
+is a bijection such that λj (Sj ) is 1-traceable with fundament Sj
+
+> 0
+
+, . . . , S jn and signature datum ({f ji , g ji }i∈[n]) satisfying ∥f ji ∥W 1,∞(Sji−1), ∥gji ∥W 1,∞(Sji−1) < ∞.By [Fed14] (5.1.4), the maps f ji and gji can be extended to Lipschitz maps on Qi−1, which allows to consider horizon functions Fji and Gji of λj (Sj ), following Section 7.1. For large enough B > 0,the original class HF 1,n,B in [PV18] contains Fji and Gji , so we can further follow Section 7.1 and construct the same ReLU neural networks, replacing m by 1. By multiplying the first layer of the resulting ReLU neural network which approximates χλj (Sj ) with a suitable permutation matrix, we get that χSj can be approximated up to Lp error ϵ with O(ε−n(p−1) ) many weights, all bounded by a polynomial in 1/ϵ and a fixed number of layers. The construction of a ReLU neural network approximating χA is analogous to the last part of Section 7.1. This approximating class could then be used to derive the learning rate N −1/(1+ pn −p) up to an arbitrarily small polynomial factor N κ.
+
+# Acknowledgements 
+
+We want to thank Allen Gehret for useful discussions and helpful insights. 37 References 
+
+[AHV17] Matthias Aschenbrenner, Joris van der Hoeven, and Lou Van den Dries. “Asymptotic Differential Algebra and Model Theory of Transseries:(AMS-195)”. In: (2017). [Bar+25] Gilles Bareilles, Allen Gehret, Johannes Aspman, Jana Lepšová, and Jakub Mareček. “Deep Learning as the Disciplined Construction of Tame Objects”. In: arXiv preprint arXiv:2509.18025 (2025). [CPV23] Andrei Caragea, Philipp Petersen, and Felix Voigtlaender. “Neural network approximation and estimation of classifiers with classification boundary in a Barron class”. In: The Annals of Applied Probability 33.4 (2023), pp. 3039–3079. [CF19] Hunter Chase and James Freitag. “Model theory and machine learning”. In: Bulletin of Symbolic Logic 25.3 (2019), pp. 319–332. [Cos99] Michel Coste. An introduction to o-minimal geometry . 1999. [Dri98] L. P. D. van den Dries. Tame Topology and O-minimal Structures . London Mathematical Society Lecture Note Series. Cambridge University Press, 1998. [DMM94] Lou van den Dries, Angus Macintyre, and David Marker. “The elementary theory of restricted analytic fields with exponentiation”. In: Annals of Mathematics 140.1 (1994), pp. 183–205. [Fed14] Herbert Federer. Geometric measure theory . Springer, 2014. [Fis07] Andreas Fischer. “O-minimal Λm-regular stratification”. In: Annals of Pure and Applied Logic 147.1-2 (2007), pp. 101–112. [GP25] Jonathan García and Philipp Petersen. “High-dimensional classification problems with Barron regular boundaries under margin conditions”. In: Neural Networks (2025), p. 107898. [GV24] Philipp Grohs and Felix Voigtlaender. “Proof of the theory-to-practice gap in deep learning via sampling complexity bounds for neural network approximation spaces”. In: 
+
+Foundations of Computational Mathematics 24.4 (2024), pp. 1085–1143. [HL19] Martin Hils and François Loeser. A first journey through logic . Vol. 89. American Mathematical Soc., 2019. [Hir12] Morris W Hirsch. Differential topology . Vol. 33. Springer Science & Business Media, 2012. [KM97] Marek Karpinski and Angus Macintyre. “Polynomial bounds for VC dimension of sigmoidal and general Pfaffian neural networks”. In: Journal of Computer and System Sciences 54.1 (1997), pp. 169–176. [KOK21] Yongdai Kim, Ilsang Ohn, and Dongha Kim. “Fast convergence rates of deep neural networks for classification”. In: Neural Networks 138 (2021), pp. 179–197. [KW25] Lothar Sebastian Krapp and Laura Wirth. Measurability in the Fundamental Theorem of Statistical Learning . 2025. arXiv: 2410.10243 [cs.LG] . url : https://arxiv.org/ abs/2410.10243 .38 [Kra+26] Anastasis Kratsios, Gregory Cousins, Haitz Sáez de Ocáriz Borde, Bum Jun Kim, and Simone Brugiapaglia. Every Feedforward Neural Network Definable in an o-Minimal Structure Has Finite Sample Complexity . 2026. arXiv: 2605.07097 [stat.ML] . url :
+
+https://arxiv.org/abs/2605.07097 .[Las92] Michael C Laskowski. “Vapnik-Chervonenkis classes of definable sets”. In: Journal of the London Mathematical Society 2.2 (1992), pp. 377–384. [LBH15] Yann LeCun, Yoshua Bengio, and Geoffrey Hinton. “Deep learning”. In: nature 521.7553 (2015), pp. 436–444. [Loi98] Ta Loi. “Verdier and strict Thom stratifications in o-minimal structures”. In: Illinois Journal of Mathematics - ILL J MATH 42 (June 1998). doi : 10.1215/ijm/1256045049 .[MW+22] Chao Ma, Lei Wu, et al. “The Barron space and the flow-induced function spaces for neural network models”. In: Constructive Approximation 55.1 (2022), pp. 369–406. [Mey23] Joseph T Meyer. “Optimal convergence rates of deep neural networks in a classification setting”. In: Electronic Journal of Statistics 17.2 (2023), pp. 3613–3659. [Mil12] Chris Miller. “Basics of o-minimality and Hardy fields”. In: Lecture notes on o-minimal structures and real analytic geometry . Springer, 2012, pp. 43–69. [Paw08] Wiesław Pawłucki. “Lipschitz cell decomposition in o-minimal structures I”. In: Illinois Journal of Mathematics 52.3 (2008), pp. 1045–1063. [PV18] Philipp Petersen and Felix Voigtlaender. “Optimal approximation of piecewise smooth functions using deep ReLU neural networks”. In: Neural Networks 108 (2018), pp. 296– 330. [PV21] Philipp Petersen and Felix Voigtlaender. “Optimal learning of high-dimensional clas-sification problems using deep neural networks”. In: arXiv preprint arXiv:2112.12555 
+
+(2021). [PZ26] Philipp Petersen and Jakob Zech. Mathematical theory of deep learning . 2026. arXiv: 
+
+2407.18384 [cs.LG] . url : https://arxiv.org/abs/2407.18384 .[RW98] Ralph Tyrrell Rockafellar and Roger JB Wets. Variational analysis . Springer, 1998. [RSW03] J-P Rolin, Patrick Speissegger, and Alex Wilkie. “Quasianalytic Denjoy-Carleman classes and o-minimality”. In: Journal of the American Mathematical Society 16.4 (2003), pp. 751–777. [Whi92] Hassler Whitney. “Analytic extensions of differentiable functions defined in closed sets”. In: Hassler Whitney Collected Papers . Springer, 1992, pp. 228–254. [Wil99] Alex J Wilkie. “A theorem of the complement and some new o-minimal structures”. In: 
+
+Selecta Mathematica 5.4 (1999), pp. 397–421. 39

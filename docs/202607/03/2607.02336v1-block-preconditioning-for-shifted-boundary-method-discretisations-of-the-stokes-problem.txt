@@ -1,0 +1,1320 @@
+Title: Block Preconditioning for Shifted Boundary Method Discretisations of the Stokes Problem
+
+URL Source: https://arxiv.org/pdf/2607.02336v1
+
+Published Time: Fri, 03 Jul 2026 01:17:52 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# Block Preconditioning for Shifted Boundary Method Discretisations of the Stokes Problem 
+
+Michał Wichrowski a, ∗, Ajay Ajith a
+
+> aInterdisciplinary Center for Scientific Computing, Heidelberg University, Germany
+
+Abstract 
+
+The Shifted Boundary Method (SBM) sidesteps body-fitted meshing by shifting boundary conditions onto a surrogate boundary and correcting for the displacement through Taylor expansions. Despite its broad analysis and application, scalable iterative solvers for the incompressible Stokes equations remain under-developed. We present a block preconditioner for SBM–Stokes discretisations that uses the velocity block together with a pressure mass matrix as a Schur complement approximation. Because the SBM system is non-symmetric, classical operator preconditioning does not apply directly; a field-of-values analysis instead shows that the non-symmetric SBM contributions act as asymptotically small perturbations of a standard saddle-point operator, yielding mesh-independent GMRES convergence on sufficiently fine meshes. Numer-ical experiments demonstrate iteration counts under refinement across geometries of increasing complexity. We expose a coarse-mesh regime in which an under-resolved grid produces elevated iteration counts, an artefact of insufficient resolution that vanishes once the mesh captures the geometry. 
+
+Keywords: immersed boundary methods, finite element methods, Shifted Boundary Method, Stokes equations, block preconditioning, saddle-point systems 
+
+1. Introduction 
+
+Capturing the intricate detail of real-world geometries within a computational grid is a persistent chal-lenge in the simulation of incompressible flow. The traditional finite element route demands a body-fitted mesh whose cells conform to the domain boundary. While effective, this bespoke mesh generation is computa-tionally expensive and frequently becomes the bottleneck of the entire pipeline for intricate three-dimensional shapes [32], requiring manual intervention to keep elements near curved or narrow boundaries from degen-erating into ill-shaped slivers. Unfitted finite element methods offer an alternative by employing a fixed background mesh that remains independent of the physical boundary, trading bespoke meshing for a more complex algebraic structure. Among these unfitted approaches, the Shifted Boundary Method (SBM) [32] shifts the location where boundary conditions are applied to meet the mesh. By defining the problem on a surrogate domain and extrapolating boundary conditions onto it (typically via Taylor expansions or more general extension opera-tors [50], enforced in a Nitsche-like manner [36]), SBM avoids the complex geometric intersections of methods such as CutFEM [15] and the associated cut-cell quadrature. However, SBM shifts part of the computational challenge from the mesh generator to the linear solver: the extrapolation terms introduce non-symmetry and potential indefiniteness, so a simple mesh no longer guarantees a simple matrix. While the conditioning of SBM scales like O(h−2) [7], comparably to body-fitted methods [16], the efficient solution of the algebraic systems arising from high-order SBM formulations remains largely unexplored. The SBM has matured rapidly since its first formulation [32, 33]. The original construction used cells strictly within the domain, whereas more recent approaches [48] also admit intersected cells based on a volume-fraction threshold. A complete stability and convergence theory now covers the Stokes problem [9], the Poisson problem on domains with corners [6], and high-order discretisations of arbitrary polynomial degree [10]. The method has been extended to Isogeometric Analysis [1], to a broad range of physics  
+
+> ∗Corresponding author. mwichro@mimuw.edu.pl
+
+1
+
+> arXiv:2607.02336v1 [math.NA] 2 Jul 2026
+
+including solid mechanics [7, 8], and to problems with embedded interfaces [29, 46], where the formulation is modified to impose jump conditions across internal boundaries. Further innovations include penalty-free variants [16] and integration with level-set methods [28, 47], which facilitate operations such as the closest-point projection that SBM relies on to relate the surrogate boundary ˜Γ to the true boundary Γ.The main geometric task in SBM is to determine accurately the relationship between points on ˜Γ and 
+
+Γ, which avoids integration over the arbitrarily shaped domains that arise from cell-boundary intersections. In the broader unfitted landscape, CutFEM [15] discretises directly on the physical domain by cutting background cells, ensuring conditioning through geometry-adapted quadrature and stabilisation such as the ghost penalty [14]. This comes at the cost of specialised quadrature in every term of the bilinear form on every cut cell, an overhead incurred at each operator evaluation in a matrix-free setting. SBM, by contrast, retains the efficiency of standard tensor-product quadrature, confining the geometric work to a one-time preprocessing step. The algebraic challenges of SBM are therefore worth confronting directly. The geometric flexibility of SBM introduces algebraic challenges. The extrapolation of boundary condi-tions yields linear systems that are non-symmetric and potentially indefinite [41], particularly for higher-order polynomial approximations, demanding specialised preconditioning. Multigrid methods [22] are the natural candidates for the large systems arising from such discretisations, yet their use as preconditioners for SBM remains largely unexplored. Algebraic Multigrid (AMG) has been applied to SBM for continuous linear elements [5], but it generally struggles with high-order discretisations even on body-fitted meshes, and is less effective still for unfitted methods with p > 1; it also fails to exploit the geometric regularity of structured background grids. Recent work has addressed this through geometric multigrid with subspace-correction patch smoothers tailored to the SBM boundary coupling [41, 44], with efficient matrix-free realisations in view [42, 43]. Every one of these solver advances targets symmetric positive-definite (SPD) problems for which multi-grid smoothers and subspace corrections are well understood. The Stokes problem lacks this structure entirely. The incompressibility constraint ∇ · u = 0 produces a saddle-point system with a zero diagonal block, rendering it indefinite, so the solvers developed for SBM in [41, 44] do not apply without substantial modification. For body-fitted Stokes discretisations, a well-established theory governs the solution of the resulting saddle-point systems. Two broad families dominate. The first treats the system through block preconditioners 
+
+acting on the 2×2 structure: operator-compatible preconditioners [34] exploit the spectral equivalence of the pressure mass matrix with the Schur complement S = BA −1BT to deliver mesh-independent convergence of Krylov solvers such as MinRes and GMRES [26, 27, 19], provided the discretisation is inf-sup stable. The convergence of these block-diagonal and block-triangular preconditioners is characterised through eigenvalue and field-of-values bounds [35, 30, 25, 39, 18], the field-of-values arguments being particularly relevant for the non-symmetric, GMRES-driven setting considered here. The second family applies multigrid directly to the coupled system, relying on smoothers that respect the saddle-point structure: the Braess–Sarazin smoother [13], the closely related inexact smoothers of Zulehner [51], and the local Vanka-type relaxations [40] that solve small coupled subproblems cell by cell. A unified analysis of such smoothers and of multigrid for indefinite Stokes systems was given by Schöberl and Zulehner [38]. One successful approach within this family combines divergence-conforming discretisations ( H(div) elements such as Raviart–Thomas or BDM, which yield pointwise divergence-free velocities) with overlapping Schwarz (vertex-patch) smoothers, for which multigrid convergence has been established by Arnold, Falk, and Winther [4] and developed into highly efficient, p- and Reynolds-robust solvers by Kanschat, Mao, and Schöberl and co-workers [24, 20]. A complementary line of work builds constrained smoothers that enforce the divergence constraint within the relaxation; while not central to the present block-preconditioning approach, these strategies (developed for Stokes and related constrained problems [45, 23]) illustrate the alternative of building the saddle-point structure into the smoother rather than into an outer block preconditioner. For unfitted methods the picture is far less settled. Tailored preconditioners have been demonstrated for immersed isogeometric Stokes [17] and for the Stokes–immersed-boundary saddle point [49, 11], while optimal subspace decompositions have been analysed for CutFEM elliptic problems, with the CutFEM Stokes case left explicitly open [21]. Each construction, however, is bound to the algebraic structure of its own immersed method. The SBM extrapolation modifies the velocity block A and the divergence block B
+
+in ways distinct from cut-cell and immersed-boundary methods, and to the best of our knowledge no block preconditioning strategy has been analysed for the saddle-point systems arising from SBM discretisations of 
+
+2the Stokes equations .This work addresses this problem. We show that high-order SBM–Stokes systems can be solved with mesh-independent efficiency using a block upper-triangular preconditioner built from the velocity block and a pressure-mass-matrix Schur complement approximation [34, 19]. Numerical experiments investigate Krylov iteration counts for the inf-sup stable Q3/QDG 1 and Q2/QDG 0 element pairs across a range of embedded geometries. We additionally investigate the minimum resolution required to resolve surrogate-boundary features: on coarse grids, where surrogate evaluations may conflict, iteration counts degrade, but the ideal mesh-independent performance is recovered once the grid resolves the geometry. The implementation is built on the deal.II finite element library [3, 2]. The remainder of the paper is organised as follows. Section 2 formulates the Shifted Boundary Method for the Poisson and Stokes problems, establishing the variational framework, the choice of finite element spaces, and the block preconditioner. Section 3 describes the implementation within deal.II , focusing on the assembly of the SBM terms and the construction of the block preconditioner. Section 4 presents numerical experiments validating the mesh-independence of the solver for the Q3/QDG 1 , Q2/QDG 0 , and Taylor–Hood discretisations across different geometric arrangements. Section 5 provides concluding remarks. 
+
+2. Method formulation 
+
+We first introduce the Shifted Boundary Method (SBM) for the Poisson equation, which provides a simple setting in which to present its key ingredients before extending them to the Stokes equations. We follow [44, 41] for the Poisson problem and [9] for the Stokes problem. 
+
+2.1. Poisson equation 
+
+Consider the Poisson problem 
+
+−∆u = f in Ω, (1) 
+
+u = ud on Γ, (2) where Ω ⊂ Rd is a domain with boundary Γ = ∂Ω, f is a given source term, and ud is the prescribed Dirichlet datum on Γ.Seeking the solution u ∈ H1(Ω) , multiplying (1) by a test function v, and integrating by parts yields 
+
+Z
+
+> Ω
+
+∇u · ∇ v dx −
+
+Z
+
+> Γ
+
+(∇u · n) v ds =
+
+Z
+
+> Ω
+
+f v dx, (3) where n denotes the outward unit normal to Γ.We next introduce a triangulation Th consisting of quadrilateral (2D) or hexahedral (3D) elements of size 
+
+h, and define a finite element space Vh ⊂ H1(Ω) of continuous Lagrange elements of degree p. In classical finite element methods the mesh conforms to the boundary (unlike the background-mesh approach illustrated in Figure 1), and the Dirichlet condition is enforced strongly by constraining the degrees of freedom on Γ.When the function space does not satisfy the essential boundary conditions by construction, they must instead be enforced weakly through additional integral terms on Γ.Nitsche’s method [36] imposes Dirichlet boundary conditions weakly by augmenting the bilinear form with consistency and penalty terms on Γ. The standard Nitsche formulation for the Poisson problem seeks 
+
+uh ∈ Vh such that for all vh ∈ Vh:
+
+Z
+
+> Ω
+
+∇uh · ∇ vh dx −
+
+Z
+
+> Γ
+
+(∇uh · n)vh ds −σ
+
+Z
+
+> Γ
+
+(∇vh · n)uh ds +
+
+Z
+
+> Γ
+
+αu hvh ds 
+
+=
+
+Z
+
+> Ω
+
+f v h dx − σ
+
+Z
+
+> Γ
+
+(∇vh · n)ud ds +
+
+Z
+
+> Γ
+
+αu dvh ds. 
+
+(4) Here, α is a penalty parameter, typically chosen as α = O(p2h−1). The choice σ = 1 yields a symmet-ric formulation, while σ = −1 results in a non-symmetric formulation in which the penalty term can be omitted [12]. 32.2. Shifted boundary method 
+
+The SBM is an approximate-domain method for boundary value problems: the location at which bound-ary conditions are imposed is shifted from the true boundary to a nearby surrogate boundary made up of mesh faces. The boundary data are defined on Γ, whereas the discrete solution lives only on the surrogate domain 
+
+Ω′ with boundary Γ′ (see Figure 1). To reconcile the two, the solution is extended from Ω′ towards Γ by a Taylor expansion of the same order as the finite element basis functions [31, 10]. For every point on the surrogate boundary Γ′, we denote by up the Taylor extension of u evaluated at the corresponding projected point on the true boundary Γ. The boundary conditions are then imposed via Nitsche’s method, comparing 
+
+up with the boundary datum ud.
+
+Γ
+
+# d
+
+# n
+
+# n′
+
+Γ′
+
+Ω′
+
+Ω     
+
+> Figure 1: Schematic illustrating the background mesh, interior cells (green), the surrogate boundary Γ′(thick blue line) along the upper boundary of the interior cells, and the true boundary Γ = ∂Ω(red). Figure adapted from [44, 41].
+
+Applying the symmetric Nitsche formulation (4) (with σ = 1 ) on the surrogate boundary, with the extended values up in place of the trace of uh, yields the SBM formulation of the Poisson problem: 
+
+Z
+
+> Ω′
+
+∇u · ∇ v dx −
+
+Z
+
+> Γ′
+
+∂n′ u v ds −
+
+Z
+
+> Γ′
+
+up ∂n′ v ds + α
+
+Z
+
+> Γ′
+
+upv ds 
+
+=
+
+Z
+
+> Ω′
+
+f v dx −
+
+Z
+
+> Γ′
+
+ud ∂n′ v ds + α
+
+Z
+
+> Γ′
+
+udv ds, 
+
+(5) where ∂n′ denotes the derivative in the direction of the surrogate normal n′.
+
+2.3. SBM for the Stokes equations 
+
+The Stokes problem considered in this work reads: find the velocity u and the pressure p such that 
+
+−∇ · (2 ∇su) + ∇p = f in Ω, (6) 
+
+−∇ · u = 0 in Ω, (7) 
+
+u = ud on ΓD , (8) 
+
+(2 ∇su − pI) n = 0 on ΓN , (9) where the boundary splits into a Dirichlet part ΓD and a Neumann part ΓN with Γ = Γ D ∪ ΓN , and ∇su
+
+denotes either the symmetric gradient ε(u) = 12
+
+ ∇u + ∇uT  or the regular gradient 12 ∇u; both choices are carried through the analysis below (see (10)). Here f is a given body force, ud is the prescribed Dirichlet datum on ΓD , and (9) is the homogeneous “do-nothing” natural condition imposed on ΓN .We adopt a high-order mixed discretisation that pairs a continuous velocity space with a discontinuous pressure space. The velocity space Vh ⊂ [H1(Ω)] d consists of continuous Lagrange elements of degree k = 3 ,with local space 
+
+Vh(K) = [ Q3(K)] d
+
+on each element K, where Q3 denotes polynomials of degree at most 3 in each coordinate direction. The pressure space Qh ⊂ L2(Ω) consists of discontinuous elements of degree k = 1 , with local space 
+
+Qh(K) = P1(K),
+
+4where P1 denotes the space of linear polynomials; the discontinuous pressure space allows jumps across element interfaces. This pair, denoted Q3/QDG 1 , is inf-sup stable [9]. We also consider the Q2/QDG 0 pair, with velocity of degree k = 2 and piecewise-constant pressure, which is likewise inf-sup stable [9]. To simplify the variational formulation, we introduce the combined stress tensor 
+
+σ(u, p ) = 2 ∇su − pI, ∇su ∈ { ε(u), 12 ∇u }, (10) where the operator ∇s may be taken either as the symmetric gradient ε(u) = 12 (∇u + ∇uT ), recovering the physical stress σ = 2 ε(u) − pI, or as 12 ∇u, giving the regular-gradient (pseudo-stress) form σ = ∇u − pI.For the divergence-free velocity field of (7) both choices yield the same strong-form momentum balance, the vector Laplacian −μ∆u + ∇p, and differ only in the natural (traction) boundary condition (9). The two formulations coincide as discretisations on the Dirichlet boundary ΓD , where the trace of u is prescribed and enters the weak form only through the data ud; they differ on ΓN , where each leaves its own do-nothing condition: (2 ε(u) − pI)n = 0 for the symmetric gradient and (∇u − pI)n = 0 for the regular gradient. The do-nothing condition is enforced weakly and consistently in both cases by omitting the boundary integral on 
+
+ΓN in the weak form below, so no explicit traction term distinguishes the two formulations in the assembled system. The SBM and Nitsche machinery, and the entire stability analysis of Section 2.5, act only on the embedded Dirichlet boundary ΓD (and its surrogate Γ′), where the two choices agree; the analysis applies verbatim to both. We carry ∇s through the derivation below; unless stated otherwise, identities written with ε(·) hold verbatim for 12 ∇(·).Multiplying (6) and (7) by test functions v and q, respectively, summing, integrating over the domain, and integrating the stress term by parts, we obtain 
+
+Z
+
+> Ω
+
+∇v : σ(u, p ) dx −
+
+Z
+
+> ∂Ω
+
+n · σ(u, p ) · v ds −
+
+Z
+
+> Ω
+
+q ∇ · u dx =
+
+Z
+
+> Ω
+
+v · f dx. (11) On ΓN the boundary integrand n · σ(u, p ) · v vanishes by the do-nothing condition (9) and is dropped; only the contribution on ΓD remains. To impose the Dirichlet condition u = ud weakly there, we apply Nitsche’s method, adding symmetric consistency and penalty terms on the Dirichlet boundary ΓD :
+
+Z
+
+> Ω
+
+∇v : σ(u, p ) dx −
+
+Z
+
+> Ω
+
+q ∇ · u dx −
+
+Z
+
+> ΓD
+
+n · σ(u, p ) · v ds 
+
+−
+
+Z
+
+> ΓD
+
+n · σ(v, q ) · u ds + α
+
+Z
+
+> ΓD
+
+u · v ds 
+
+=
+
+Z
+
+> Ω
+
+v · f dx −
+
+Z
+
+> ΓD
+
+n · σ(v, q ) · ud ds + α
+
+Z
+
+> ΓD
+
+ud · v ds. 
+
+(12) Finally, we apply the SBM shift: the volume integrals are evaluated on the surrogate domain Ω′, and the boundary integrals on the surrogate boundary Γ′ with its normal n′. To impose the boundary conditions consistently from the surrogate boundary, the traces of u and v in the Nitsche terms are replaced by their extensions up and vp evaluated at the projected points on the true boundary. This yields: 
+
+Z
+
+> Ω′
+
+∇v : σ(u, p ) dx −
+
+Z
+
+> Ω′
+
+q ∇ · u dx −
+
+Z
+
+> Γ′
+
+n′ · σ(u, p ) · v ds 
+
+−
+
+Z
+
+> Γ′
+
+n′ · σ(v, q ) · up ds + α
+
+Z
+
+> Γ′
+
+up · vp ds 
+
+=
+
+Z
+
+> Ω′
+
+v · f dx −
+
+Z
+
+> Γ′
+
+n′ · σ(v, q ) · ud ds + α
+
+Z
+
+> Γ′
+
+ud · vp ds. 
+
+(13) Note that up and vp need not be extended in the same manner; the specific choices made in our implementa-tion are discussed in Section 3.2, and the asymptotic-symmetry analysis of Section 2.5 (Lemma 1) is carried 5out for that specific extension pair. Expanding σ into its definition recovers the full discretisation of [9]: 
+
+Z
+
+> Ω′
+
+∇v : 2 ε(u) dx −
+
+Z
+
+> Ω′
+
+(∇ · v) p dx −
+
+Z
+
+> Ω′
+
+q ∇ · u dx −
+
+Z
+
+> Γ′
+
+n′ · (2 ε(u)v) ds +
+
+Z
+
+> Γ′
+
+(n′ · v) p ds 
+
+−
+
+Z
+
+> Γ′
+
+n′ · (2 ε(v)up) ds +
+
+Z
+
+> Γ′
+
+(n′ · up) q ds + α
+
+Z
+
+> Γ′
+
+up · vp ds 
+
+=
+
+Z
+
+> Ω′
+
+v · f dx −
+
+Z
+
+> Γ′
+
+n′ · (2 ε(v)ud) ds +
+
+Z
+
+> Γ′
+
+(n′ · ud) q ds + α
+
+Z
+
+> Γ′
+
+ud · vp ds. 
+
+(14) For the continuous-pressure formulation with the pressure-gradient stabilisation of [9], this formulation is coercive, continuous, and satisfies the LBB inf-sup condition. For the inf-sup stable pairs employed in this work (the discontinuous-pressure Q3/QDG 1 and Q2/QDG 0 pairs and the continuous-pressure Taylor–Hood pairs), we assume that the corresponding well-posedness result of [9] continues to hold; a proof for these specific pairs is beyond the scope of the present work. We make this precise as Assumption 1 below and verify the resulting solver behaviour experimentally in Section 4. 
+
+Algebraic stability and the inf-sup condition 
+
+The numerical solution of the incompressible Stokes equations poses challenges absent from symmetric positive-definite problems such as the Poisson equation. The coupling of velocity and pressure through the incompressibility constraint leads to a saddle-point system of the form 
+
+A BT
+
+B 0
+
+  up
+
+
+
+=
+
+fg
+
+
+
+, (15) where A is the discrete viscous operator, B is the discrete divergence operator, and u, p denote the coefficient vectors of the discrete velocity and pressure. The zero diagonal block renders the system indefinite, ruling out standard iterative methods designed for elliptic problems, such as the Conjugate Gradient method. A fundamental requirement for the well-posedness of such systems is the inf-sup condition , also known as the Ladyzhenskaya–Babuška–Brezzi (LBB) condition [19]. For a mixed discretisation with velocity space Vh
+
+and pressure space Qh, the discrete inf-sup condition requires the existence of a constant β > 0, independent of the mesh size h, such that 
+
+inf 
+
+> qh∈Qh
+
+sup 
+
+> vh∈Vh
+
+b(vh, q h)
+
+∥vh∥V ∥qh∥Q
+
+≥ β > 0, (16) where b(vh, q h) = − R 
+
+> Ω
+
+qh∇ · vh dx is the bilinear form associated with the incompressibility constraint. The inf-sup condition ensures that the pressure space Qh is not “too large” relative to the velocity space 
+
+Vh: every pressure mode must be “seen” by some velocity field through the divergence operator. When the condition is violated, BT has a non-trivial kernel within Qh, leading to spurious pressure modes and a rank-deficient saddle-point system. The condition restricts the admissible velocity–pressure pairings; the classical Taylor–Hood element ( Qk/Qk−1, k ≥ 2) is a well-known inf-sup stable pair on quadrilateral meshes [19]. In the SBM setting, verifying the inf-sup condition requires additional care, because the boundary terms introduced by the Taylor expansion at the surrogate boundary modify both A and B relative to their body-fitted counterparts. Atallah, Canuto, and Scovazzi [9] proved that the SBM-Stokes formulation satisfies a discrete inf-sup condition for appropriate element pairs, including the Q3/QDG 1 and Q2/QDG 0 pairs used in this work. High-order pairs are particularly attractive for SBM, since the accuracy of the boundary shift relies on the order of the Taylor expansion; however, they also increase the number of degrees of freedom and the density of the system matrix [10], motivating the robust preconditioning strategies discussed next. 
+
+Preconditioning and scalability 
+
+The high-order discretisation of the SBM-Stokes system leads to large, sparse linear systems. As the mesh is refined to capture geometric detail, the memory and time requirements of direct solvers such as sparse LU factorisation scale poorly, making them impractical for large-scale applications. Krylov subspace methods such as GMRES or MINRES are then the methods of choice; their convergence, however, depends on the conditioning of the system matrix, which deteriorates as the mesh size h decreases. 6Preconditioning is essential. According to the operator-preconditioning framework of Mardal and Winther [34], an effective preconditioner should reflect the Hilbert-space structure of the underlying partial differential equation, yielding preconditioned operators with h-independent spectral bounds. For the Stokes problem, this is commonly realised through block preconditioning [26, 27]. The principal difficulty is approximating the Schur complement, which encodes the pressure–velocity coupling. A well-established remedy is to use the pressure mass matrix as a Schur complement approximation, which yields mesh-independent convergence for standard Stokes discretisations [19]. While geometric multigrid techniques for SBM have recently been developed [41, 44], the application of block-diagonal and block-triangular precon-ditioners to high-order SBM-Stokes discretisations has remained largely unexplored. This work demonstrates that iteration counts remain low and stable under mesh refinement, preserving the efficiency of the SBM approach as the geometric complexity increases. 
+
+2.4. Block preconditioners 
+
+The SBM discretisation of the Stokes equations yields large, ill-conditioned saddle-point systems, par-ticularly under mesh refinement. The well-posedness of the formulation and the LBB inf-sup condition provide the algebraic structure that allows block preconditioners to achieve mesh-independent convergence, as established by the theory of Mardal and Winther [34]. For a saddle-point system A BT
+
+B 0
+
+  up
+
+
+
+=
+
+fg
+
+
+
+, (17) with A invertible on the kernel of B, a family of block preconditioners can be defined [27] as 
+
+P =
+
+ IcBA −10 I
+
+  A0
+
+−S0
+
+  I dA −10 BT
+
+I
+
+
+
+, (18) where A0 and S0 are symmetric positive-definite matrices and c, d are prescribed real numbers. For mesh-independent convergence, A0 and S0 should be spectrally equivalent to A and to the Schur complement 
+
+S = BA −1BT , respectively [34]; under these conditions, such preconditioners guarantee h-independent convergence rates for inf-sup stable discretisations [26]. Setting c = 0 and d = 1 yields the block upper-triangular preconditioner 
+
+P =
+
+A0 BT
+
+−S0
+
+
+
+. (19) Efficient approximate inverses are available for both blocks. In this work we use the exact velocity block, 
+
+A0 = A; the framework is nevertheless compatible with the geometric multigrid (GMG) strategies and Shy Patch smoothers introduced in [41, 44], which could replace the exact solve. For S0 we use the pressure mass matrix M , which is inexpensive to assemble and to invert. The preconditioner employed in this work is 
+
+P =
+
+A BT
+
+−M
+
+
+
+. (20) 
+
+2.5. Field-of-values analysis of the preconditioned system 
+
+The classical operator-preconditioning theory [34] and the spectral analysis of block preconditioners [26] are formulated for symmetric saddle-point problems. The SBM-Stokes system is non-symmetric: the Taylor corrections act on trial and test functions differently, so the discrete divergence blocks are not transposes of each other and the velocity block has a non-trivial skew-symmetric part. The full coupled bilinear form is 
+
+not coercive (numerical evaluation of the eigenvalues of its symmetric part shows that they may be negative [9]), so a naive energy-norm argument on the whole system is not available. The appropriate tool for non-symmetric problems is the field-of-values (FOV) analysis of the preconditioned operator [39, 25, 30], which we develop here. The key structural observation is that every non-symmetric term in the SBM formulation carries at least one factor of the distance vector d between the surrogate and true boundaries, and is asymptotically small under mesh refinement. We write the discrete problem abstractly as: find [uh, p h] ∈ Vh × Qh such that 
+
+B([ uh, p h]; [ vh, q h]) = a(uh, vh) + b1(vh, p h) + b2(uh, q h) = ℓ(vh, q h) ∀[vh, q h] ∈ Vh × Qh, (21) 7where a collects the viscous volume term and all velocity boundary terms, and b1, b2 collect the pressure– velocity couplings, including their SBM boundary corrections. We equip Vh with the energy norm ∥ · ∥ a of [9], which is equivalent to the H1-norm on Vh, and Qh with the scaled L2-norm ∥q∥Q = ∥q/ √2μ∥0, ˜Ω, whose Gram matrix is the pressure mass matrix M .Rather than tying the analysis to a particular element pair, we make the following general assumption. 
+
+Assumption 1 (well-posed pair) . There exist constants Ca, C A, β, C b > 0, independent of h, such that 
+
+a(vh, vh) ≥ Ca∥vh∥2
+
+> a
+
+, |a(uh, vh)| ≤ CA∥uh∥a∥vh∥a, (22) 
+
+inf 
+
+> qh∈Qh
+
+sup 
+
+> vh∈Vh
+
+b2(vh, q h)
+
+∥vh∥a ∥qh∥Q
+
+≥ β, |bi(vh, q h)| ≤ Cb∥vh∥a∥qh∥Q, i = 1 , 2. (23) For the SBM-Stokes formulation with continuous pressure (and the pressure-gradient stabilisation of [9]), Assumption 1 is verified in [9]: coercivity and continuity of a are established in their Theorem on coercivity (for Nitsche, tangential, and divergence penalty parameters α, β, γ 2 large enough), and the uniform inf-sup follows from their LBB theorem, whose proof constructs the supremising velocity via a Scott–Zhang quasi-interpolant vanishing on the surrogate Dirichlet boundary. For the inf-sup stable pairs employed in this work (the discontinuous-pressure Q3/QDG 1 and Q2/QDG 0 pairs and the continuous-pressure Taylor–Hood pairs), a proof of Assumption 1 is beyond the present scope; we take it as a hypothesis, on the expectation that the argument of [9] extends to these pairs, and verify the resulting solver behaviour experimentally in Section 4. The second ingredient is the geometric resolution assumption of [9] (their Assumption 4): there exist 
+
+cd > 0 and ζ > 0 such that 
+
+∥d(˜ x)∥ ≤ cd hT ˆhζT , ˆhT = hT /l ( ˜Ω) , (24) for all points ˜x on the surrogate boundary. This expresses that the distance between the surrogate and true boundaries decays marginally faster than h, and is the natural quantification of the mesh being “fine enough to resolve the geometry”. 
+
+Lemma 1 (asymptotic symmetry) . Let (24) hold, let the trial and test functions be extended by the elemen-twise polynomial extrapolation uF and the first-order Taylor extension vT of Section 3.2, and let the Nitsche penalty scale as α ≤ cα 2μ h −1 
+
+> T
+
+. In the symmetric-gradient case ∇s = ε assume in addition the smallness condition ˆh˜ΓD ≤ ˆh0; in the regular-gradient case ∇s = 12 ∇ no such restriction is required (see Step 1 of the proof ). Set εh = Cˆhζ
+
+> ˜ΓD
+
+for a constant C independent of h. Then 
+
+|a(uh, vh) − a(vh, uh)| ≤ εh ∥uh∥a∥vh∥a, (25) 
+
+|b1(vh, q h) − b2(vh, q h)| ≤ εh ∥vh∥a∥qh∥Q. (26) 
+
+Proof. Throughout, T denotes a generic element with a face on the surrogate boundary, C a generic positive constant depending only on the shape regularity of the mesh, the polynomial degrees, and the constants 
+
+cd, ζ, cα introduced below (but never on h), and ˆh := ˆh˜ΓD = max {ˆhT : ∂T ∩ Γ′̸ = ∅} . We abbreviate 
+
+⟨· , ·⟩ := ⟨· , ·⟩ Γ′ .Recall from Section 3.2 the two extensions in use: trial functions are extended by elementwise polynomial extrapolation, uF (¯ x) := u ¯x+d(¯ x), and test functions by the first-order Taylor expansion vT := v+( ∇v) d.We write δu := uF − u for the extension increment and ru := uF − uT for the first-order Taylor remainder. Since u is an elementwise polynomial, on the segment S(¯ x) := [¯ x, ¯x + d] we have the pointwise bounds 
+
+|δu(¯ x)| ≤ ∥ d∥ max  
+
+> S(¯ x)
+
+|∇ u|, |ru(¯ x)| ≤ 12 ∥d∥2 max  
+
+> S(¯ x)
+
+|D2u|. (27) We use the following standard facts: (i) the elementwise discrete trace inequality ∥φ∥20; ∂T ∩Γ′ ≤ Ch −1 
+
+> T
+
+∥φ∥20; T for elementwise polynomials φ;(ii) by (24) and shape regularity, the segment S(¯ x) is contained in a uniformly bounded enlargement of T ,on which the equivalence of norms on finite-dimensional polynomial spaces and inverse estimates give 
+
+max S |φ| ≤ Ch −d/ 2 
+
+> T
+
+∥φ∥0; T and max S |∇ φ| ≤ Ch −1−d/ 2 
+
+> T
+
+∥φ∥0; T ;8(iii) the resolution assumption ∥d∥L∞(∂T ∩Γ′) ≤ cdhT ˆhζ ;(iv) the properties of the energy norm of [9] (their Eq. (21)): √2μ ∥ε(v)∥0; ˜Ω ≤ ∥ v∥a and the Taylor-extended trace term p2μ/h ∥vT ∥0;Γ ′ ≤ ∥ v∥a are constituents of the norm, so that α1/2∥vT ∥0;Γ ′ ≤ √cα ∥v∥a for a penalty parameter scaling as α ≤ cα 2μ h −1 
+
+> T
+
+.We will also use the uniform gradient bound 
+
+p2μ ∥∇ v∥0; ˜Ω ≤ CK ∥v∥a, (28) with CK independent of h, established in Step 1 below. We stress that (28) does not follow from the equivalence of ∥ · ∥ a with the full H1-norm proved in [9] (their Proposition 2), since that equivalence is not uniform with respect to the mesh size; it is only the gradient seminorm that admits a uniform bound. This is the sole point in the analysis where the symmetric structure of ∇s = ε is used. For the regular-gradient choice ∇s = 12 ∇ of (10), the energy norm controls ∥∇ v∥ directly, so (28) holds trivially with CK = 1 , Step 1 below is vacuous, and the associated smallness restriction ˆh ≤ ˆh0 is not needed; all remaining estimates are unchanged. 
+
+Step 1: weighted boundary estimates. For any elementwise polynomial φ, (i) and (iii) give the weighted trace estimate 
+
+∥d∥1/2φ 20;Γ ′ ≤ X
+
+> T
+
+cdhT ˆhζ · Ch −1 
+
+> T
+
+∥φ∥20; T ≤ Cˆhζ ∥φ∥20; ˜Ω. (29) For the extension increment, (27), (ii), (iii) and |∂T ∩ Γ′| ≤ Ch d−1 
+
+> T
+
+yield 
+
+∥d∥−1/2δu 20; ∂T ∩Γ′ ≤ ∥ d∥L∞ max  
+
+> S
+
+|∇ u|2 |∂T ∩ Γ′| ≤ cdhT ˆhζ · Ch −dT ∥∇ u∥20; T · Ch d−1 
+
+> T
+
+,
+
+and summation over the boundary elements gives 
+
+∥d∥−1/2δu 20;Γ ′ ≤ Cˆhζ ∥∇ u∥20; ˜Ω; (30) the same bound holds for the Taylor increment (∇u)d, directly from (29). Analogously, for the second-order remainder, (27) together with 
+
+max  
+
+> S
+
+|D2u| ≤ Ch −1−d/ 2 
+
+> T
+
+∥∇ u∥0; T
+
+gives ∥ru∥20; ∂T ∩Γ′ ≤ C(cdhT ˆhζ )4h−2−dT ∥∇ u∥20; T hd−1 
+
+> T
+
+= Cˆh4ζ hT ∥∇ u∥20; T , whence, by the scaling of α,
+
+α ∥ru∥20;Γ ′ ≤ Cˆh4ζ 2μ ∥∇ u∥20; ˜Ω. (31) We can now prove (28). Korn’s inequality with boundary control [9] (their Eq. (A.11a)) gives ∥∇ v∥20; ˜Ω ≤
+
+C ∥ε(v)∥20; ˜Ω + l( ˜Ω) −1∥v∥20;Γ ′
+
+. Splitting the trace as v = vT − (∇v)d, the first part is controlled by the penalty constituent of the norm, l( ˜Ω) −1∥vT ∥20;Γ ′ ≤ ˆh h −1∥vT ∥20;Γ ′ ≤ ˆh (2 μ)−1∥v∥2
+
+> a
+
+, while (29) and (iii) bound the second part by l( ˜Ω) −1∥(∇v)d∥20;Γ ′ ≤ Cˆh1+2 ζ ∥∇ v∥20; ˜Ω. Hence 
+
+2μ ∥∇ v∥20; ˜Ω ≤ C∥v∥2 
+
+> a
+
++ Cˆh 2μ ∥∇ v∥20; ˜Ω,
+
+and the last term can be absorbed into the left-hand side once ˆh ≤ ˆh0, with ˆh0 depending only on the constants in (i)–(iv); this is no restriction, since the conclusions of the lemma are only invoked in the asymptotic regime of Theorem 1. 
+
+Step 2: the divergence mismatch (26) . From (14), 
+
+b1(v, q ) = −
+
+Z
+
+> Ω′
+
+(∇ · v) q dx + ⟨n′ · v, q ⟩, b2(v, q ) = −
+
+Z
+
+> Ω′
+
+(∇ · v) q dx + ⟨n′ · vF , q ⟩,
+
+so that b1(v, q ) − b2(v, q ) = −⟨ n′ · δv, q ⟩. The Cauchy–Schwarz inequality with the weights (2 μ/ ∥d∥)1/2 and 
+
+(∥d∥/2μ)1/2, followed by (30), (29) and (28), gives 
+
+|⟨ n′ · δv, q ⟩| ≤ (2 μ/ ∥d∥)1/2 δv 0;Γ ′ (∥d∥/2μ)1/2 q 0;Γ ′ ≤ Cˆhζ p2μ ∥∇ v∥0; ˜Ω ∥q∥Q ≤ Cˆhζ ∥v∥a∥q∥Q,
+
+9which is (26). 
+
+Step 3: the skew part of a, (25) . From (14), 
+
+a(u, v) = 
+
+Z
+
+> Ω′
+
+2μ ε (u) : ε(v) dx − ⟨ 2μ n′ · ε(u), v⟩ − ⟨ 2μ n′ · ε(v), uF ⟩ + α⟨uF , vT ⟩,
+
+where the volume term is symmetric since ∇v : ε(u) = ε(v) : ε(u). Hence 
+
+a(u, v) − a(v, u) = ⟨2μ n′ · ε(u), δ v⟩ − ⟨ 2μ n′ · ε(v), δ u⟩ + α ⟨uF , vT ⟩ − ⟨ vF , uT ⟩.
+
+The consistency mismatches are estimated as in Step 2, with the roles of the weights exchanged: 
+
+|⟨ 2μ n′ · ε(u), δ v⟩| ≤ (2 μ∥d∥)1/2ε(u) n′ 
+
+> 0;Γ ′
+
+(2 μ/ ∥d∥)1/2δv 0;Γ ′ ≤ Cˆhζ ∥u∥a∥v∥a,
+
+by (29) applied to ε(u), (30), and (iv). For the penalty mismatch, substituting uF = uT +ru and vF = vT +rv
+
+and using the symmetry of ⟨uT , vT ⟩,
+
+α ⟨uF , vT ⟩ − ⟨ vF , uT ⟩ = α⟨ru, vT ⟩ − α⟨rv , uT ⟩,
+
+and by the Cauchy–Schwarz inequality, (31), (iv) and (28), 
+
+α |⟨ ru, vT ⟩| ≤  α1/2∥ru∥0;Γ ′
+
+  α1/2∥vT ∥0;Γ ′
+
+ ≤ Cˆh2ζ p2μ ∥∇ u∥0; ˜Ω ∥v∥a ≤ Cˆh2ζ ∥u∥a∥v∥a.
+
+Since ˆh ≤ 1 we have ˆh2ζ ≤ ˆhζ , and collecting the estimates proves (25) with εh = Cˆhζ . We remark that if trial and test functions are extended in the same manner, the penalty mismatch vanishes identically and the same proof applies with δ replaced by the corresponding increment; on a body-fitted mesh ( d ≡ 0) all mismatch terms vanish and the formulation is symmetric. Lemma 1 states that the discrete system matrix admits the splitting 
+
+A =
+
+ A BT
+
+> 1
+
+B2 0
+
+
+
+=
+
+As BT
+
+B 0
+
+| {z }
+
+As
+
++ Eh, (32) where As is the symmetric part of A, B = 12 (B1 + B2), and the perturbation Eh has norm O(εh) with respect to the norms of Assumption 1. The symmetric leading part As satisfies the classical Brezzi conditions with constants Ca, CA, β − εh/2, Cb, so for h small enough it is a standard, uniformly stable Stokes-type saddle-point matrix. (The velocity coercivity constant is unchanged, since vT Asv = vT Av = a(v, v) ≥ Ca∥v∥2
+
+> a
+
+;only the inf-sup constant of the symmetrised coupling b = 12 (b1 + b2) is reduced, by at most εh/2, as a consequence of (26).) 
+
+Theorem 1 (mesh-independent FOV bounds) . Let Assumption 1, (24) , and the extension and penalty assumptions of Lemma 1 hold, and let 
+
+P =
+
+A BT
+
+> 1
+
+−M
+
+
+
+be the block upper-triangular preconditioner with exact velocity block. Then there exist h0 > 0 and constants 
+
+0 < γ ≤ Γ, depending only on Ca, C A, β, C b, such that for all h ≤ h0 the matrix P is invertible and the field of values of the right-preconditioned operator AP −1 satisfies, in the inner product induced by the block-diagonal matrix H = diag( A−1 
+
+> s
+
+, M −1),
+
+γ ≤ ⟨AP −1y, y ⟩H
+
+⟨y, y ⟩H
+
+and ∥AP −1y∥H ≤ Γ∥y∥H ∀y̸ = 0 . (33) 
+
+GMRES applied to the right-preconditioned system in the H-inner product reduces the residual by a factor of at least  1 − γ2/Γ21/2 per iteration, independently of the mesh size [39, 18]. 
+
+10 Proof. Set D := diag( A1/2 
+
+> s
+
+, M 1/2), so that H = D−2. For any matrix T and y = Dz we have ⟨T y, y ⟩H =
+
+⟨D−1T D z, z ⟩ and ∥y∥H = ∥z∥: the H-field of values of T is the Euclidean field of values of D−1T D , and we work with the transformed matrices throughout. We record the norm equivalences implied by (22), 
+
+Ca∥v∥2 
+
+> a
+
+≤ ∥ v∥2 
+
+> As
+
+= a(v, v) ≤ CA∥v∥2
+
+> a
+
+, ∥q∥M = ∥q∥Q, (34) and fix h1 such that εh ≤ β for h ≤ h1, so that the inf-sup constant below does not degenerate. 
+
+Step 1: the symmetrised pressure–velocity coupling. Let B = 12 (B1 + B2) as in (32), with associated form 
+
+b = 12 (b1 + b2), and set K := M −1/2BA −1/2 
+
+> s
+
+. By Lemma 1, |b(v, q ) − b2(v, q )| ≤ 12 εh∥v∥a∥q∥Q, so b inherits from (23) the continuity constant Cb and, for h ≤ h1, the inf-sup constant βh := β − εh/2 ≥ β/ 2. For any q
+
+with ˆq = M 1/2q,
+
+∥KT ˆq∥ = sup 
+
+> v
+
+qT Bv
+
+∥v∥As
+
+= sup 
+
+> v
+
+b(v, q )
+
+∥v∥As
+
+,
+
+so (34) gives σ−∥ˆq∥ ≤ ∥ KT ˆq∥ ≤ σ+∥ˆq∥ with 
+
+σ− := β
+
+2√CA
+
+, σ+ := Cb
+
+√Ca
+
+.
+
+Equivalently, the symmetrised Schur complement Ss := BA −1 
+
+> s
+
+BT = M 1/2KK T M 1/2 satisfies 
+
+σ2 
+
+> −
+
+∥q∥2 
+
+> M
+
+≤ qT Ss q ≤ σ2+ ∥q∥2 
+
+> M
+
+, (35) i.e. the pressure mass matrix is spectrally equivalent to the Schur complement with h-independent constants. 
+
+Step 2: the symmetric core. Let As be the symmetric part from (32) and Ps := 
+
+As BT
+
+−M
+
+
+
+. Block back-substitution for Ps[ˆ u; ˆ p] = [ ru; rp] gives ˆp = −M −1rp and ˆu = A−1 
+
+> s
+
+(ru + BT M −1rp), whence 
+
+AsP−1 
+
+> s
+
+=
+
+ I 0
+
+BA −1 
+
+> s
+
+SsM −1
+
+
+
+, X := D−1AsP−1 
+
+> s
+
+D =
+
+ I 0
+
+K KK T
+
+
+
+.
+
+The negative sign on the Schur block of P is essential here: it produces the positive-semidefinite block KK T ,which is in fact positive definite by (35); with +M in place of −M the lower diagonal block would be −KK T ,the field of values would contain the origin, and no bound of the form (33) could hold. For z = [ z1; z2] set 
+
+w := KT z2. Then, by the Young inequality |⟨ z1, w ⟩| ≤ 12 (∥z1∥2 + ∥w∥2) and ∥w∥ ≥ σ−∥z2∥,
+
+⟨Xz, z ⟩ = ∥z1∥2 + ⟨z1, w ⟩ + ∥w∥2 ≥ 12
+
+ ∥z1∥2 + ∥w∥2 ≥ γs∥z∥2, γs := 12 min {1, σ 2
+
+> −
+
+},
+
+while splitting X into its three non-zero blocks gives ∥X∥ ≤ 1 + σ+ + σ2+ =: Γ s. Thus (33) holds for the symmetric core AsP−1 
+
+> s
+
+with constants (γs, Γs).
+
+Step 3: perturbation. Let 
+
+E := A − A s =
+
+A − As BT 
+
+> 1
+
+− BT
+
+B2 − B 0
+
+
+
+, F := P − P s =
+
+A − As BT 
+
+> 1
+
+− BT
+
+0 0
+
+
+
+.
+
+By Lemma 1, wT (A−As)v = 12
+
+ a(v, w)−a(w, v) ≤ 12 εh∥v∥a∥w∥a, and B1 −B = −(B2 −B) = 12 (B1 −B2)
+
+is bounded by 12 εh in the same pair of norms, so (34) yields a constant c1 = c1(Ca) with 
+
+∥D−1ED−1∥ ≤ c1εh, ∥D−1FD−1∥ ≤ c1εh.
+
+The matrix Π := D−1PsD−1 =
+
+I KT
+
+−I
+
+
+
+satisfies Π2 = I, hence ∥Π−1∥ = ∥Π∥ ≤ 1+ σ+. Since D−1PD−1 =Π + D−1FD−1, a Neumann series shows that whenever c1(1 + σ+)εh ≤ 12 , the preconditioner P is invertible with ∥DP−1D∥ ≤ 2(1 + σ+). From the identity AP −1 − A sP−1 
+
+> s
+
+= EP −1 − A sP−1 
+
+> s
+
+FP −1 we obtain, in the transformed variables, 
+
+∆ := D−1 AP −1 − A sP−1
+
+> s
+
+D =  D−1ED−1  DP−1D − X D−1FD−1  DP−1D,
+
+11 whence ∥∆∥ ≤ c1(1+Γ s) 2(1+ σ+) εh =: c2εh. The Euclidean field of values is stable under such perturbations: 
+
+⟨(X + ∆) z, z ⟩ ≥ (γs − ∥ ∆∥)∥z∥2, ∥(X + ∆) z∥ ≤ (Γ s + ∥∆∥)∥z∥.
+
+Since εh = Cˆhζ
+
+> ˜ΓD
+
+→ 0 as h → 0, we may choose h0 ≤ h1 such that c1(1 + σ+)εh ≤ 12 and c2εh ≤ γs/2 for all h ≤ h0; then (33) holds with γ := γs/2 and Γ := Γ s + γs/2, which depend only on Ca, C A, β, C b. Finally, the residual reduction factor of GMRES follows from the bound of Eisenstat, Elman and Schultz [18], which holds verbatim in any inner product [39]. 
+
+Remark 1 (choice of inner product) . Theorem 1 bounds the convergence of GMRES implemented with right preconditioning in the H-inner product, which measures residuals in the natural dual norm ∥ru∥2
+
+> A−1
+> s
+
++
+
+∥rp∥2  
+
+> M−1
+
+. Evaluating this inner product requires one solve with As and one with M per orthogonalisation step; since the preconditioner already performs exact solves with A and M , this is realisable at comparable cost. If, as is common in practice, GMRES is run in the Euclidean inner product instead, the residual bound transfers with a norm-equivalence factor: 
+
+∥rk∥2 ≤ κ(H)1/2  1 − γ2/Γ2k/ 2 ∥r0∥2,
+
+since the Euclidean-optimal GMRES polynomial is at least as good as the H-optimal one, up to the equiv-alence of the two norms. The factor κ(H)1/2 = O(h−1) is not mesh-independent, but it enters only as a multiplicative constant, not in the contraction rate: the number of iterations needed to reach a fixed relative tolerance grows at most by an additive O(log(1 /h )) term. 
+
+Corollary 1 (inexact velocity block) . Let the assumptions of Theorem 1 hold, and let A0 be an invertible, possibly non-symmetric, approximation of A whose error propagation operator is a uniform contraction in the energy norm: there exists an h-independent ρ < 12 such that 
+
+∥v − A−10 A v ∥As ≤ ρ ∥v∥As ∀v. (36) 
+
+Then the conclusions of Theorem 1 hold for the preconditioner 
+
+P0 =
+
+A0 BT
+
+> 1
+
+−M
+
+
+
+,
+
+with constants γ, Γ depending additionally only on ρ. In particular, a multigrid V-cycle for the SBM velocity block whose energy-norm contraction number is bounded by ρ < 12 uniformly in h preserves mesh-independent GMRES convergence of the outer solver. Proof. We follow the proof of Theorem 1, indicating only the changes; all notation is as introduced there. By Lemma 1 and (34), ˆH := A−1/2 
+
+> s
+
+AA −1/2 
+
+> s
+
+= I + NA with ∥NA∥ ≤ εh/C a. Set G := A1/2 
+
+> s
+
+A−10 A1/2 
+
+> s
+
+; assumption (36) states exactly ∥I − G ˆH∥ ≤ ρ, whence ∥G∥ ≤ (1 + ρ)∥ ˆH−1∥ ≤ (1 + ρ)(1 − εh/C a)−1 and 
+
+∥I − G∥ ≤ ∥ I − G ˆH∥ + ∥G∥ ∥ ˆH − I∥ ≤ ρ + Cε h =: ˜ ρ. 
+
+Decreasing h0 if necessary, ˜ρ < 12 for all h ≤ h0; in particular G is invertible with ∥G−1∥ ≤ (1 − ˜ρ)−1 ≤ 2.Define the symmetric-core preconditioner P0,s := 
+
+A0 BT
+
+−M
+
+
+
+(only the coupling block is symmetrised). Back-substitution as in Step 2 of Theorem 1 gives 
+
+X0 := D−1AsP−10,s D =
+
+ G (G − I)KT
+
+KG KGK T
+
+
+
+.
+
+For z = [ z1; z2] set w := KT z2 and s := z1 + w, so that X0z = [ Gs − w; KGs ]. Writing G = I + N with 
+
+∥N ∥ ≤ ˜ρ and using the Young inequality, 
+
+⟨X0z, z ⟩ = ⟨Gs, s ⟩ − ⟨ w, z 1⟩ = ∥s∥2 + ⟨N s, s ⟩ − ⟨ w, s ⟩ + ∥w∥2 ≥   12 − ˜ρ∥s∥2 + 12 ∥w∥2 ≥   12 − ˜ρ  ∥s∥2 + ∥w∥2.
+
+12 Since ∥z1∥2 ≤ 2( ∥s∥2 + ∥w∥2) and ∥z2∥2 ≤ σ−2 
+
+> −
+
+∥w∥2, we conclude 
+
+⟨X0z, z ⟩ ≥ γ0∥z∥2, γ0 :=  
+
+> 12
+
+− ˜ρ
+
+2 + σ−2
+
+> −
+
+> 0,
+
+while the blockwise bound gives ∥X0∥ ≤ ∥ G∥(1 + σ+ + σ2+) + ˜ ρ σ + ≤ (1 + ˜ ρ)(1 + σ+ + σ2+) + ˜ ρ σ + =: Γ 0.Step 3 of the proof of Theorem 1 carries over verbatim with (P, Ps) replaced by (P0, P0,s ): the pertur-bation 
+
+F0 := P0 − P 0,s =
+
+0 BT 
+
+> 1
+
+− BT
+
+0 0
+
+
+
+satisfies ∥D−1F0D−1∥ ≤ c1εh, and 
+
+Π0 := D−1P0,s D−1 =
+
+G−1 KT
+
+−I
+
+
+
+is invertible with 
+
+Π−10 =
+
+G GK T
+
+−I
+
+
+
+,
+
+so that ∥Π−10 ∥ ≤ (1 + ˜ ρ)(1 + σ+) + 1 . The same Neumann-series and perturbation arguments then yield, after a further decrease of h0 if necessary, the bounds (33) for AP −10 with γ := γ0/2 and Γ := Γ 0 + γ0/2,depending only on Ca, C A, β, C b and ρ.
+
+Remark 2 (pre-asymptotic regime) . Theorem 1 is conditional on h ≤ h0, i.e. on the mesh resolving the geometry in the sense of (24). On meshes that are too coarse relative to the embedded geometry (in particular when the surrogate normal is nearly orthogonal to the true normal, so that inf( n · ˜n) degrades and 
+
+∥d∥/h = O(1) ), both the coercivity constants of [9] and the perturbation bound of Lemma 1 deteriorate, and the theory gives no mesh-independent bound. The theory thus only guarantees uniform convergence once the mesh resolves the embedded geometry; it makes no prediction about solver behaviour in the under-resolved regime. 
+
+3. Implementation details 
+
+The numerical implementation is based on the open-source finite element library deal.II [2]. It provides a comprehensive framework for the implementation of finite element methods, including mesh handling, finite element spaces, assembly of linear systems, and interfaces to various linear algebra solvers and pre-conditioners. The treatment of the embedded geometry and the assembly of the SBM bilinear form follow the implementation developed for the geometric multigrid solver of [41, 44]; we summarise the components relevant to the Stokes saddle-point system below. While in this work the velocity block A is solved using a direct solver, the geometric multigrid precon-ditioner introduced in [41] and extended in [44] can be used to invert the velocity block efficiently, and is expected to deliver h-independent convergence rates for higher-degree polynomials. 
+
+3.1. Background mesh and geometry handling 
+
+When implementing SBM on a non-body-fitted mesh, we need to handle cells intersected by the true boundary Γ. We use a level set function ϕ(x) to implicitly define the domain Ω = {x | ϕ(x) < 0}, with 
+
+Γ = {x | ϕ(x) = 0 }. Cells of the background mesh are classified based on their intersection with the zero level set: cells entirely inside Ω (interior), cells entirely outside Ω (exterior), and cells intersected by Γ. Of these, only the interior cells are classified as active. In this specific implementation of the Stokes problem, all the geometric complexity lies in the interior of the domain: the outer boundary is fitted to the mesh, while the embedded inner boundary is handled by SBM. In our approach, degrees of freedom are formally assigned to all cells of the background mesh, including those classified as non-active. This strategy simplifies the implementation by maintaining a consistent sparsity pattern and avoiding the need to frequently re-compute the global matrix graph, which is particularly advantageous for problems with moving boundaries. While it introduces zero rows and columns into the 13 global system matrix for degrees of freedom associated only with inactive cells, this does not adversely affect the convergence of the iterative GMRES solver, as the corresponding entries in both the matrix and the right-hand side vanish. To ensure invertibility for the direct solver applied to the velocity block, these inactive degrees of freedom are constrained, effectively placing 1 on the diagonal of each such row. In an optimised production implementation, the computational overhead of these inactive regions could be minimised by restricting mesh refinement strictly to the vicinity of the active domain. 
+
+3.2. Processing surrogate boundary and matrix assembly 
+
+The SBM requires computing the closest-point projection from points on the surrogate boundary Γ′ to the true boundary Γ. In the geometries considered here the inner boundary is a circle or a composition of circles, so the projection reduces to a radial projection onto the closest circle for a given point. For general geometries this projection is found by solving a local nonlinear optimisation problem for each quadrature point on Γ′, minimising the distance to the zero level set of ϕ(x) via a Lagrange-multiplier formulation solved with a Newton–Raphson method, as described in [41]; since this closest-point search on a level set is natively supported in deal.II , generalising the present implementation to more complex geometries is straightforward. The search for the closest point is performed only on the faces of active cells adjacent to intersected cells. While this does not guarantee that the closest point is found inside the cell, the extrapolation is expected to yield a good approximation of the boundary condition even when it lies slightly outside. The extension of the function values from the surrogate boundary to the true boundary is implemented by evaluating the shape functions of the active elements at the projected points on Γ. Since the finite element basis functions are polynomials over each element, this evaluation is performed by mapping the physical coordinates of the points on Γ to the reference unit cell of the respective element. This effectively evaluates the shape functions at points that may lie slightly outside the standard [0 , 1] d range of the unit cell, naturally providing the necessary extrapolation up of the velocity values without requiring the explicit computation of high-order derivatives. For the extrapolation vp of the test functions we use a first-order Taylor expansion, as it provides a better error estimate [10]. The assembly of the cell contributions and interior faces to the system matrix and right-hand side vector is then performed using the standard finite element assembly process provided by deal.II .
+
+3.3. Block preconditioner 
+
+The application of the block upper-triangular preconditioner (20) amounts to computing 
+
+up
+
+
+
+=
+
+A BT
+
+−M
+
+−1 ru
+
+rp
+
+
+
+, (37) where A is the velocity block of the system matrix, BT is the transpose of the divergence block, M is the pressure mass matrix approximating the Schur complement (with the negative sign required by the field-of-values analysis of Section 2.5), and ru, rp are the velocity and pressure components of the residual. By block back-substitution, this is realised as 
+
+p = −M −1rp, (38) 
+
+u = A−1(ru − BT p). (39) The preconditioner is applied within each GMRES iteration; both A−1 and M −1 are realised by direct solvers in the present implementation. The effectiveness of the preconditioner is assessed by the number of iterations required for convergence, reported in Section 4. 
+
+4. Numerical results 
+
+In this section, we examine the performance of the block upper-triangular preconditioner (20) applied to the SBM discretisation of the Stokes problem. We investigate if the mesh-independent convergence established in Section 2.5 is realised in practice. Theorem 1 predicts that, once the mesh resolves the embedded geometry, preconditioned GMRES converges at a rate bounded independently of the mesh size. However, the theory is silent about the under-resolved regime (Remark 2), and configurations with closely 14 spaced embedded boundaries are likely to enter this regime on coarse meshes. Our experiments are designed to probe both aspects: we measure iteration counts under uniform mesh refinement for two embedded geometries of increasing difficulty, comparing discontinuous- and continuous-pressure discretisations and the non-symmetric and symmetric formulations of the velocity gradient introduced in Section 2.3. The remainder of this section is organised as follows. Section 4.1 describes the test geometries, boundary conditions, and solver settings. Section 4.2 presents the iteration counts under mesh refinement and discusses their dependence on the pressure space, the gradient formulation, and the geometry. Section 4.3 examines the effect of replacing the exact velocity solve with an approximate multigrid preconditioner. 
+
+4.1. Experimental setup 
+
+We assess the solver on a family of test problems of increasing geometric complexity. The computational domain is the unit square with body-fitted outer walls; the embedded inner boundaries are handled by the SBM. We consider two geometric configurations, referred to as arrangements :
+
+• Arrangement 1 : a single embedded circular boundary; 
+
+• Arrangement 2 : three closely spaced circular boundaries separated by narrow gaps. The two arrangements are shown in Figure 2. In both cases the top and bottom walls carry Dirichlet conditions, the left and right walls carry homogeneous natural (Neumann) conditions so that the pressure is not over-constrained, and the embedded SBM boundaries carry homogeneous Dirichlet (no-slip) conditions, 
+
+u = 0. Each arrangement is solved on a sequence of uniformly refined meshes with the block upper-triangular preconditioner (20). For each velocity degree we compare a discontinuous-pressure pair (denoted DG) with a continuous-pressure, Taylor–Hood–type pair (denoted Q), and for each pair we report results for both the non-symmetric and the symmetric formulation of the velocity gradient. The Nitsche penalty multiplier is fixed at 5. GMRES is run without restarts to a fixed relative residual tolerance, applying the velocity block exactly and the pressure Schur complement through the mass matrix −M as in (20).   
+
+> Figure 2: The two arrangements and the solution obtained with Q2/QDG 0. Colour indicates the velocity magnitude and white lines are stream tracers, both taken from the finest refinement level; the mesh drawn on top is the coarsest grid used ( 2
+> refinements), shown for clarity, as overlaying the finest grid would obscure the flow field. Arrangement 2 exhibits the most intricate flow pattern owing to the narrow channels between the embedded boundaries.
+
+The arrangements are ordered by the geometric difficulty they pose: Arrangement 1 is a single obstacle, whereas Arrangement 2 is more demanding, as the narrow gaps between its boundaries stress the geometric resolution assumption (24) on coarse meshes. Table 1 reports the number of Stokes degrees of freedom at each refinement level for the two arrangements and both discretisation pairs ( k = 2 velocity). 
+
+4.2. Iteration counts under mesh refinement 
+
+We now turn to the main quantity of interest: the number of preconditioned GMRES iterations required to reach the prescribed tolerance as the mesh is refined. Tables 2 and 3 report the iteration counts at each refinement level for the Q2/QDG 0 and Q3/QDG 1 element pairs, respectively. 15 pair 2 3 4 5 6 7 8 9Arr. 1 Q2/QDG 0 156 592 2,292 9,068 35,948 142,960 570,456 2,278,892 
+
+Q2/Q1 168 614 2,334 9,148 36,106 143,276 571,086 2,280,148 Arr. 2 Q2/QDG 0 142 558 2,250 8,886 35,368 141,080 563,034 2,250,036 
+
+Q2/Q1 156 585 2,303 8,987 35,560 141,456 563,783 2,251,529    
+
+> Table 1: Number of Stokes degrees of freedom for k= 2 at each refinement level.
+
+regular gradient 
+
+Qh 3 4 5 6 7 8 9Arr. 1 QDG 0 13 14 15 16 16 17 16 
+
+Q1 14 17 17 20 23 23 24 Arr. 2 QDG 0 23 47 26 26 28 28 31 
+
+Q1 30 113 49 74 57 70 49 
+
+symmetric gradient 
+
+Qh 3 4 5 6 7 8 9Arr. 1 QDG 0 14 15 16 16 16 16 16 
+
+Q1 15 18 16 19 22 23 21 Arr. 2 QDG 0 25 32 24 24 24 23 23 
+
+Q1 30 42 47 54 43 34 30   
+
+> Table 2: GMRES iterations for Q2/QDG 0elements across arrangement configurations and discretisation choices. NC = failed to reach the tolerance within the iteration cap.
+
+Q2/QDG 0 results.. For the lower-order pair the clearest trend is the contrast between the two pressure spaces. For the discontinuous-pressure ( QDG 0 ) pairs the iteration counts are low and flat across all refinement levels. On Arrangement 1 they remain in the range 13 –17 (non-symmetric) and 14 –16 (symmetric), confirming the mesh-independent behaviour predicted by Theorem 1 and the effectiveness of the pressure mass matrix as a Schur complement approximation. On the more challenging Arrangement 2 there is an iteration spike on the coarsest mesh (up to 47 non-symmetric, 32 symmetric) caused by the unresolved narrow gaps, after which the counts return to the range 26 –31 (non-symmetric) and 23 –25 (symmetric) as the geometry is resolved. The continuous-pressure ( Q1) pairs are more sensitive to the geometry. On Arrangement 1 the counts grow only mildly with refinement, from 14 to 24 (non-symmetric) and from 15 to a peak of 23 (symmetric). On Arrangement 2 they are substantially higher and depend non-monotonically on the mesh: the non-symmetric formulation reaches 113 at refinement level 4 and remains variable ( 49 –74 ) at finer levels, whereas the symmetric formulation peaks at 54 and decreases steadily, returning to 30 on the finest mesh. The symmetric-gradient formulation thus provides a meaningful practical benefit for the continuous-pressure pair in the under-resolved regime, which we attribute to the better-conditioned velocity block it produces. A tangential-derivative penalisation has been proposed in the literature to further stabilise the SBM in under-resolved regimes [31]; it is not included in our implementation. 
+
+Q3/QDG 1 results.. The higher-order pair ( Q3/QDG 1 ) reveals a different behaviour. On Arrangement 1 both pressure spaces still converge, but the iteration counts are less uniform across refinement levels: the DG pair oscillates between 15 and 30 (non-symmetric) and 16 and 24 (symmetric), while the continuous-pressure pair reaches up to 53 (non-symmetric) and 56 (symmetric). On Arrangement 2 the situation deteriorates. The DG pair reaches counts as high as 296 (non-symmetric) and 279 (symmetric) before recovering to 72 and 111 
+
+respectively at the finest level, indicating that the geometric resolution assumption is stressed over a much wider range of mesh sizes at higher polynomial degree. The continuous-pressure pair fails to converge (NC) at almost all refinement levels for Arrangement 2; the symmetric formulation recovers only at intermediate levels (with counts as high as 323 ) before failing again on the two finest meshes. These results suggest that the block preconditioner, while effective for k = 2 , requires finer meshes to reach the resolved regime for 
+
+k = 3 , and that additional stabilisation may be necessary for high-order discretisations in geometrically demanding configurations. 
+
+4.3. Inexact preconditioners 
+
+All results in Section 4.2 rely on exact solves with the velocity block A. In practice, large three-dimensional problems demand an approximate inverse. A natural candidate is the geometric multigrid preconditioner of [41, 44]: at its core lies the Full-Residual Shy Patch smoother, a subspace correction strategy that forms overlapping vertex patches. The shy patch smoother was shown in [44] to deliver low and mesh-stable iteration counts for the SBM–Poisson problem up to polynomial degree p = 3 in three dimensions. 16 regular gradient 
+
+Qh 2 3 4 5 6 7Arr. 1 QDG 1 15 19 19 30 18 23 
+
+Q2 21 21 19 53 30 53 Arr. 2 QDG 1 20 296 116 204 164 72 
+
+Q2 26 NC NC NC NC NC 
+
+symmetric gradient 
+
+Qh 2 3 4 5 6 7Arr. 1 QDG 1 20 16 18 23 18 24 
+
+Q2 20 17 21 27 22 56 Arr. 2 QDG 1 21 NC 89 208 279 111 
+
+Q2 30 NC 207 323 NC NC   
+
+> Table 3: GMRES iterations for Q3/QDG 1elements across arrangement configurations and discretisation choices. NC = failed to reach the tolerance within the iteration cap.
+
+Table 4 reports outer iteration counts for Q2/QDG 0 elements on Arrangement 1 when A−1 is replaced by an inexact solve: Ninner steps of GMRES preconditioned by one V-cycle of the shy-patch multigrid preconditioner are applied to the velocity block, with Ninner ∈ { 2, 5}. Because this inner solver is itself iterative, the block preconditioner becomes non-linear , and the outer Krylov method must be switched from GMRES to FGMRES [37] to accommodate the variable preconditioner. We use restarted FGMRES with a restart length of 30 .
+
+regular gradient 
+
+Qh 5 6 7 8 9
+
+Ninner = 2 QDG 0 16 NC NC - -
+
+Q1 19 NC NC - -
+
+Ninner = 5 QDG 0 16 17 18 19 NC 
+
+Q1 18 21 26 26 NC 
+
+symmetric gradient 
+
+Qh 5 6 7 8 9
+
+Ninner = 2 QDG 0 NC 69 NC NC -
+
+Q1 NC NC NC - -
+
+Ninner = 5 QDG 0 17 17 22 18 NC 
+
+Q1 18 21 30 25 NC       
+
+> Table 4: FGMRES iterations for Q2/QDG 0elements with shy-patch multigrid preconditioning of the velocity block (Arrange-ment 1 only). Ninner denotes the number of inner GMRES steps applied to the velocity block. NC = failed, −= not run.
+
+The results reveal a strong sensitivity to the number of inner iterations. With only Ninner = 2 inner steps the method frequently fails to converge (NC), indicating that the approximate velocity solve is too inaccurate to keep the outer iteration bounded. Increasing to Ninner = 5 restores convergence at most refinement levels; the outer iteration counts are then close to those of the exact-solve experiments. The counts grow by a small but approximately fixed increment per refinement level (e.g. 16 → 17 → 18 → 19 for the QDG 0 pair with non-symmetric gradient), but this mild growth is not introduced by the inexact inner solve: the exact-solver counts show the same pattern in the same refinement range (cf. Table 2). It is a property of the problem itself (most likely the gradual resolution of the embedded geometry) rather than a sign that the multigrid preconditioner degrades with mesh refinement. The symmetric-gradient formulation with Ninner = 5 shows the same trend. The contrast between Ninner = 2 and Ninner = 5 is consistent with the analysis, though it should be read with care. Corollary 1 provides a sufficient condition: if the inner solve contracts the velocity error in the energy norm with a factor ρ < 12 , the field-of-values bounds hold and the outer iteration is mesh-independent. The bound itself degrades gradually as ρ increases towards 12 (the coercivity constant γ0 = ( 12 − ˜ρ)/(2 + σ−2 
+
+> −
+
+)
+
+vanishes continuously at the threshold), and the value 12 is an artefact of the proof technique rather than a physical limit. Once this sufficient condition is violated the corollary offers no guarantee; it does not predict failure. Two further caveats apply. First, (36) assumes a fixed, linear approximate inverse A0, whereas Ninner 
+
+steps of GMRES form a variable, non-linear preconditioner, so the corollary is suggestive here rather than directly applicable. Second, the non-convergence (NC) entries denote failure to reach the tolerance within the iteration cap, not divergence. We emphasise that this sensitivity has no counterpart in body-fitted Stokes solvers, where block-triangular preconditioning with a few inner multigrid sweeps on the velocity block is routinely robust. The distinguishing feature of the SBM system is the non-normality of the velocity block: as observed in Section 2.5, every non-symmetric term carries a factor of the distance vector d and is concentrated on the surrogate boundary. This matters for the inexact solve in a specific way. The inner GMRES iteration monitors and reduces the residual 
+
+of the velocity system, whereas the hypothesis of Corollary 1 concerns the contraction of the error in the energy norm . For a nearly symmetric block these two quantities are equivalent with moderate constants, but 17 for a non-normal block the equivalence degrades, and a few inner steps may achieve a respectable residual reduction while contracting the energy error only weakly. We therefore read the contrast between the two row groups of Table 4 as follows: with Ninner = 2 the effective contraction ρ remains too large for the field-of-values argument to apply, whereas with Ninner = 5 it falls into the regime covered by Corollary 1 and near-mesh-independent convergence is restored. A quantitative study of the inner contraction in the energy norm is left for future work. The behaviour under restarting supports this reading. Restarting discards the accumulated Krylov subspace, and for a slowly converging problem this loss is severe. In additional experiments with a restart length of 100 , several of the failing Ninner = 2 configurations made steady progress up to the first restart, after which convergence visibly deteriorated. The NC entries should therefore be understood as slow, restart-limited convergence rather than divergence: a sufficiently accurate inner solve lets the outer iteration converge well within a single restart cycle, whereas a marginal one pushes it into a regime where restarted FGMRES is no longer effective. In summary, the block upper-triangular preconditioner (20) with an inexact velocity solve is highly sen-sitive to the quality of that solve , in a way not seen for body-fitted discretisations. A sufficient number of inner iterations, combined with a restart length long enough for the outer iteration to converge within one cycle, is essential to preserve the mesh-independent convergence established by the exact-solve theory. 
+
+5. Conclusion 
+
+We investigated the performance of a block upper-triangular preconditioner for the Stokes problem dis-cretised with the Shifted Boundary Method (SBM). Our experiments across two geometric arrangements demonstrated that the preconditioner provides stable iteration counts for discontinuous-pressure discreti-sations, in line with the field-of-values analysis of Section 2.5. Continuous-pressure pairs are more sensi-tive in the presence of closely spaced embedded boundaries (Arrangement 2): for the lower-order pair the symmetric-gradient formulation markedly improves convergence on resolved meshes, whereas at higher poly-nomial degree the continuous-pressure pair remains unreliable on the demanding geometry, indicating that additional stabilisation is needed in the under-resolved regime. To the best of our knowledge, this is the first demonstration of scalable block preconditioning for saddle-point systems arising from SBM discretisations of the Stokes equations. An important extension of the method presented here is to replace the exact velocity block solve with a high-quality approximate inverse. Our experiments with the shy-patch geometric multigrid precondi-tioner [41, 44] (Section 4.3) confirm that the block preconditioner is highly sensitive to the accuracy of this inner solve: iteration counts increase substantially when only a small number of V-cycles is used. Achieving mesh-independent outer iteration counts requires either more multigrid smoothing sweeps or a more powerful smoother, and is an important target for future work. A fully scalable solver of this form would make the method practical for large-scale 3D simulations. 
+
+Declarations 
+
+Language models (Claude, Gemini) were used in the drafting process to accelerate convergence toward a readable manuscript. The authors retain full accountability for all scientific content. 
+
+References 
+
+[1] N. Antonelli, R. Aristio, A. Gorgi, R. Zorrilla, R. Rossi, G. Scovazzi, and R. Wüchner ,
+
+The Shifted Boundary Method in Isogeometric Analysis , Computer Methods in Applied Mechanics and Engineering, 430 (2024), p. 117228. [2] D. Arndt, W. Bangerth, M. Bergbauer, B. Blais, M. Fehling, R. Gassmöller, T. Heister, L. Heltai, M. Kronbichler, M. Maier, et al. , Thedeal. ii library, version 9.7 , Journal of Numerical Mathematics, (2025). 18 [3] D. Arndt, W. Bangerth, D. Davydov, T. Heister, L. Heltai, M. Kronbichler, M. Maier, J.-P. Pelteret, B. Turcksin, and D. Wells , The deal.II finite element library: Design, features, and insights , Computers & Mathematics with Applications, 81 (2021), pp. 407–422. [4] D. N. Arnold, R. S. Falk, and R. Winther , Multigrid in h (div) and h (curl) , Numerische Math-ematik, 85 (2000), pp. 197–217. [5] N. Atallah, C. Canuto, and G. Scovazzi , The second-generation shifted boundary method and its numerical analysis , Computer Methods in Applied Mechanics and Engineering, 372 (2020), p. 113341. [6] N. Atallah, C. Canuto, and G. Scovazzi , Analysis of the shifted boundary method for the Poisson problem in domains with corners , Mathematics of Computation, 90 (2021), pp. 2041–2069. [7] N. Atallah, C. Canuto, and G. Scovazzi , The shifted boundary method for solid mechanics , Inter-national Journal for Numerical Methods in Engineering, 122 (2021), pp. 5935–5970. [8] N. Atallah and G. Scovazzi , Nonlinear elasticity with the shifted boundary method , Computer Meth-ods in Applied Mechanics and Engineering, 426 (2024), p. 116988. [9] N. M. Atallah, C. Canuto, and G. Scovazzi , Analysis of the shifted boundary method for the stokes problem , Computer Methods in Applied Mechanics and Engineering, 358 (2020), p. 112609. [10] , The high-order shifted boundary method and its analysis , Computer Methods in Applied Mechan-ics and Engineering, 394 (2022), p. 114885. [11] I. Baño et al. , A SIMPLE-based preconditioned solver for the direct-forcing immersed boundary method , 2025. arXiv:2501.15314. [12] C. E. Baumann and J. T. Oden , A discontinuous hp finite element method for convection—diffusion problems , Computer Methods in Applied Mechanics and Engineering, 175 (1999), pp. 311–341. [13] D. Braess and R. Sarazin , An efficient smoother for the stokes problem , Applied Numerical Math-ematics, 23 (1997), pp. 3–19. [14] E. Burman , Ghost penalty , Comptes Rendus. Mathématique, 348 (2010), pp. 1217–1220. [15] E. Burman, S. Claus, P. Hansbo, M. G. Larson, and A. Massing , CutFEM: discretizing geom-etry and partial differential equations , International Journal for Numerical Methods in Engineering, 104 (2015), pp. 472–501. [16] J. H. Collins, A. Lozinski, and G. Scovazzi , A penalty-free shifted boundary method of arbitrary order , Computer Methods in Applied Mechanics and Engineering, 417 (2023), p. 116301. [17] F. de Prenter, C. V. Verhoosel, and E. H. van Brummelen , Preconditioning immersed iso-geometric finite element methods with application to flow problems , Computer Methods in Applied Mechanics and Engineering, 348 (2019), pp. 604–631. [18] S. C. Eisenstat, H. C. Elman, and M. H. Schultz , Variational iterative methods for nonsymmetric systems of linear equations , SIAM Journal on Numerical Analysis, 20 (1983), pp. 345–357. [19] H. C. Elman, D. J. Silvester, and A. Wathen , Finite elements and fast iterative solvers: With applications in incompressible fluid dynamics , Oxford University Press, London, England, 2 ed., 2014. [20] P. E. Farrell, L. Mitchell, and F. Wechsung , An augmented lagrangian preconditioner for the 3d stationary incompressible navier–stokes equations at high reynolds number , SIAM Journal on Scientific Computing, 41 (2019), pp. A3073–A3096. [21] S. Gross and A. Reusken , Analysis of optimal preconditioners for CutFEM , Numerical Linear Alge-bra with Applications, 30 (2023), p. e2486. 19 [22] W. Hackbusch , The Multi-Grid Method of the Second Kind , Multi-Grid Methods and Applications, (1985), pp. 305–353. [23] D. Jodlbauer, U. Langer, T. Wick, and W. Zulehner , Matrix-free monolithic multigrid methods for stokes and generalized stokes problems , SIAM Journal on Scientific Computing, 46 (2024), pp. A1599– A1627. [24] G. Kanschat and Y. Mao , Multigrid methods for hdiv-conforming discontinuous galerkin methods for the stokes equations , arXiv preprint arXiv:1501.06021, (2015). [25] A. Klawonn and G. Starke , Block triangular preconditioners for nonsymmetric saddle point prob-lems: field-of-values analysis , Numerische Mathematik, 81 (1999), pp. 577–594. [26] P. Krzyzanowski , On block preconditioners for nonsymmetric saddle point problems , SIAM Journal on Scientific Computing, 23 (2001), pp. 157–169. [27] P. Krzyżanowski , On block preconditioners for saddle point problems with singular or indefinite (1, 1) block , Numerical Linear Algebra with Applications, 18 (2011), pp. 123–140. [28] D. Kuzmin and J.-P. Bäcker , An unfitted finite element method using level set functions for extrap-olation into deformable diffuse interfaces , Journal of Computational Physics, 461 (2022), p. 111218. [29] K. Li, N. Atallah, A. Main, and G. Scovazzi , The shifted interface method: a flexible approach to embedded interface computations , International Journal for Numerical Methods in Engineering, 121 (2020), pp. 492–518. [30] D. Loghin and A. J. Wathen , Analysis of preconditioners for saddle-point problems , SIAM Journal on Scientific Computing, 25 (2004), pp. 2029–2049. [31] A. Main and G. Scovazzi , The shifted boundary method for embedded domain computations. part i: Poisson and stokes problems , Journal of Computational Physics, 372 (2018), pp. 972–995. [32] A. Main and G. Scovazzi , The shifted boundary method for embedded domain computations. Part I: Poisson and Stokes problems , Journal of Computational Physics, 372 (2018), pp. 972–995. [33] A. Main and G. Scovazzi , The shifted boundary method for embedded domain computations. Part II: Linear advection–diffusion and incompressible Navier–Stokes equations , Journal of Computational Physics, 372 (2018), pp. 996–1026. [34] K.-A. Mardal and R. Winther , Preconditioning discretizations of systems of partial differential equations , Numerical Linear Algebra with Applications, 18 (2011), pp. 1–40. [35] M. F. Murphy, G. H. Golub, and A. J. Wathen , A note on preconditioning for indefinite linear systems , SIAM Journal on Scientific Computing, 21 (2000), pp. 1969–1972. [36] J. A. Nitsche , Über ein Variationsprinzip zur Lösung von Dirichlet-Problemen bei Verwendung von Teilräumen, die keinen Randbedingungen unterworfen sind , Abhandlungen aus dem Mathematischen Seminar der Universität Hamburg, 36 (1971), pp. 9–15. [37] Y. Saad , A flexible inner-outer preconditioned GMRES algorithm , SIAM Journal on Scientific Com-puting, 14 (1993), pp. 461–469. [38] J. Schöberl and W. Zulehner , On schwarz-type smoothers for saddle point problems , Numerische Mathematik, 95 (2003), pp. 377–399. [39] G. Starke , Field-of-values analysis of preconditioned iterative methods for nonsymmetric elliptic prob-lems , Numerische Mathematik, 78 (1997), pp. 103–117. [40] S. P. Vanka , Block-implicit multigrid solution of navier-stokes equations in primitive variables , Journal of Computational Physics, 65 (1986), pp. 138–158. 20 [41] M. Wichrowski , A geometric multigrid preconditioner for discontinuous galerkin shifted boundary method , arXiv preprint arXiv:2506.12899, (2025). [42] M. Wichrowski , Local solvers for high-order patch smoothers via p-multigrid , arXiv preprint arXiv:2510.17785, (2025). [43] , Multigrid p-robustness at Jacobi speeds: Efficient matrix-free implementation of local p-multigrid solvers , arXiv preprint arXiv:2512.02577, (2025). [44] M. Wichrowski and A. Ajith , A geometric multigrid preconditioner for shifted boundary method ,(2026). Accepted into CMAME. [45] M. Wichrowski and P. Krzyżanowski , A matrix-free multilevel preconditioner for the generalized stokes problem with discontinuous viscosity , Journal of Computational Science, 63 (2022), p. 101804. [46] D. Xu, O. Colomés, A. Main, K. Li, N. Atallah, N. Abboud, and G. Scovazzi , A weighted shifted boundary method for immersed moving boundary simulations of Stokes’ flow , Journal of Compu-tational Physics, 510 (2024), p. 113095. [47] T. Xue, W. Sun, S. Adriaenssens, Y. Wei, and C. Liu , A new finite element level set reinitial-ization method based on the shifted boundary method , Journal of Computational Physics, 438 (2021), p. 110360. [48] C.-H. Yang, K. Saurabh, G. Scovazzi, C. Canuto, A. Krishnamurthy, and B. Ganapa-thysubramanian , Optimal surrogate boundary selection and scalability studies for the shifted bound-ary method on octree meshes , Computer Methods in Applied Mechanics and Engineering, 419 (2024), p. 116686. [49] Q. Zhang, R. D. Guy, and B. Philip , A projection preconditioner for solving the implicit immersed boundary equations , Numerical Mathematics: Theory, Methods and Applications, 7 (2014), pp. 473–498. [50] R. Zorrilla, R. Rossi, G. Scovazzi, C. Canuto, and A. Rodríguez-Ferran , A shifted boundary method based on extension operators , Computer Methods in Applied Mechanics and Engineering, 421 (2024), p. 116782. [51] W. Zulehner , A class of smoothers for saddle point problems , Computing, 65 (2000), pp. 227–246. 21

@@ -1,0 +1,977 @@
+Title: Consistent CutPINNs for Convection-Diffusion Equations on Curved Level-Set Domains
+
+URL Source: https://arxiv.org/pdf/2606.29147v1
+
+Published Time: Tue, 30 Jun 2026 01:03:57 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION EQUATIONS ON CURVED LEVEL-SET DOMAINS 
+
+MANEESH KUMAR SINGH 
+
+Abstract. We present an a priori error analysis of consistent-loss PINNs for stationary convection-diffusion equations on curved level-set domains. The standard mean-squared interior loss fails in the convection-dominated regime: the solution develops an O(ε) boundary layer in which the pointwise residual grows like ε−1, so the loss is dominated by the few collocation points inside the layer and leaves the smooth bulk unresolved. We remove this mismatch by penalising the interior residual in a discrete Lγ norm with γ = 1 + 1 / log ˜ m, a computable surrogate for the 
+
+H−1 stability term, and imposing the boundary condition through a discrete H1/2(∂Ω) trace norm, which treats flat and curved geometries uniformly. Under Besov regularity assumptions we prove a single a priori H1 error bound, valid for all interior exponents γ ∈ (1 , 2] , with an optimal recovery rate governed by a cut-cell floor 1/(2 γ) specific to the curved geometry. Nu-merical experiments on a rectangle and a disk at ε = 2 −s, s ∈ { 2, 4, 6}, confirm the analysis: as the layer sharpens, the L2 interior loss becomes seed-fragile while the Lγ interior trains reliably, the interior norm being the decisive factor in convergence. 
+
+1. Introduction 
+
+1.1. Background and motivation. The stationary convection-diffusion equation (1) −ε∆u + b · ∇ u + c u = f in Ω, u = g on ∂Ω,
+
+on a bounded domain Ω ⊂ R2 underlies the modelling of many transport phenomena, from the spread of a pollutant and charge transport in semiconductors to the Oseen system obtained by linearising incompressible flow. How the solution behaves is set by the ratio of the diffusion coefficient ε to the convection magnitude ∥b∥∞. When that ratio becomes small, the regime we call convection-dominated, u develops thin layers near the boundary or in the interior, and approximating it accurately has long been difficult for classical discretisations [30, 33, 34] and for neural-network solvers [14, 18] alike. Among neural-network approaches, physics-informed neural networks (PINNs) [29] hold par-ticular appeal here: because the governing equation is enforced at scattered points rather than over a triangulation, no mesh is required, which spares the cost of building and repeatedly refin-ing a conforming grid on a geometrically intricate domain. The standard formulation nonetheless meets two separate obstacles in the present setting. The first is a question of norms. On a gen-eral bounded domain the L2(∂Ω) boundary penalty fails to control the H1/2(∂Ω) trace norm that governs well-posedness in H1(Ω) , so a loss built on it is not consistent with the functional-analytic structure of the problem. The second is specific to convection dominance. Writing the pointwise residual as R(v)( x) := −ε∆v +b·∇ v +cv −f , its values reach order ε−1 throughout the 
+
+O(ε)-wide layer, so the few collocation points of X that land there dominate the squared-residual sum. Minimising such a loss drives the network to resolve the layer while neglecting the smooth bulk, which is exactly where the H1 error is concentrated. The idea of training a network to satisfy a differential equation predates the modern formula-tion [20], but it is the collocation-based variant of [29] that has driven the recent activity, surveyed in [8, 27]. A substantial theory has since accumulated. Convergence for linear second-order el-liptic and parabolic equations was established in [31], generalisation and approximation error 
+
+Date : June 30, 2026. 2020 Mathematics Subject Classification. 65N15, 65N75, 68T07, 35J25. 
+
+Key words and phrases. physics-informed neural networks; convection-diffusion; cut domains; level-set methods; optimal recovery; Lγ interior norm.  
+
+> 1
+> arXiv:2606.29147v1 [math.NA] 28 Jun 2026 2MANEESH KUMAR SINGH
+
+were quantified in [9, 24], and a unified error-analysis framework was given in [39]; the numerical-analysis perspective is reviewed in [10]. This analysis draws on approximation theory for neural networks [11] and on optimal recovery and nonlinear approximation in Besov classes [7, 12, 25], the same machinery that underlies the consistent-loss approach we adopt below. Methodological variants are numerous: variational and Deep Ritz formulations [13], domain-decomposition and extended PINNs [16], and adaptive collocation strategies [36]. Even so, controlled comparisons with finite element solvers [15] show that a standard PINN is frequently less accurate per degree of freedom, most visibly when the solution carries boundary layers or sharp gradients, which is the regime of concern here. 1.2. Prior work and the open intersection. Now, we discussed the previous work related to Consistent PINN and the motivation behind this research. 
+
+Consistent PINN losses on flat domains: The norm mismatch on the boundary was first resolved by Bonito, DeVore, Petrova, and Siegel [4] for the unit cube. In place of the L2(∂Ω) 
+
+penalty they introduced a discrete Gagliardo double sum over the boundary collocation points, and they showed this discrete functional to be equivalent to the continuous H1/2(∂Ω) norm over suitable Besov model classes. A loss assembled from it inherits provable H1 recovery rates. Their treatment was confined to elliptic problems on flat geometry, and the interior residual was always measured in L2.
+
+Consistent losses on curved cut domains: Carrying the consistent framework onto curved geometry, Singh [32] treated bounded domains given as the negative level set of a C2 function. The technical heart of that work is a chord-arc lemma establishing that the discrete Gagliardo seminorm, evaluated on m points spaced equally in arc length along a C2 Jordan curve, stays equivalent to the continuous H1/2(∂Ω) trace norm; the resulting H1 rates match those of [4] up to constants set by the curvature and the chord-arc parameter. Two interior penalties were in fact defined there, one using Lγ with γ = 1 + 1 / log ˜ m and one using L2, but on the smooth elliptic benchmarks of that paper the two choices returned all but identical H1 error, and the theory and the experiments of that paper were both developed for the L2 penalty. What was an immaterial modelling choice in the elliptic case is, as we show below, the deciding factor once convection dominates. 
+
+PINNs for convection-dominated problems: The instability of standard PINNs on convection-dominated PDEs was documented by Krishnapriyan et al. [18], who linked it to pathologies of the optimisation landscape near the layer. The responses in the literature pull in different directions: coupling a PINN to an SUPG-stabilised finite element reference [6]; neural prediction of stabilisation parameters for convection-dominated problems [37, 38]; hp -variational PINNs in one dimension or on rectangles [1, 2, 19]; direct PINN treatment of boundary-layer problems [28]; reweighting the loss and adapting the sample distribution [14]; and unfitted finite-element neural schemes carrying a CutFEM-type test space [21], built on aggregated unfitted finite element technology [3]. Individually these target convection, geometry, or loss design, yet none unites a consistent-loss formulation with a curved cut domain and a convection-dominated regime while remaining a pure PINN. 
+
+Consistent PINN for convective operators: The consistent-loss programme has by now been carried to higher-order elliptic operators [22] and to obstacle problems in mixed form [17], but its only treatment of a convective operator to date is the consistent-PINN study of the stationary Oseen system by Mishra and Khan [23], which derives its loss from the stability structure of a convective problem and proves optimal recovery in H1 for the velocity together with L2 for the pressure. We share its premise, a loss read off the continuous stability estimate of a problem carrying a first-order term, and it confirms that the optimal-recovery apparatus of [4] survives the passage to such operators. Two features separate it from the layer-dominated setting we study. Its analysis and numerics sit in the balanced regime, with unit viscosity ν = 1 on the unit square, giving a Péclet number of order one, smooth layer-free solutions, and an L2 interior penalty throughout; the overweighting mechanism we are concerned with simply does not occur there, and nothing forces a departure from L2. Its geometry is moreover a flat box, so cut cells CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 3
+
+and curved-boundary trace equivalence never enter. Pushing the consistent loss into convection dominance forces the interior norm to change, and pushing it onto curved cut domains brings in the trace machinery of [32]; the Lγ handling of a convective residual that [23] carries out at the 
+
+L2 level is, here, precisely the part that must be reworked rather than reused. 
+
+The open intersection. Two bodies of work thus stop short of meeting. On the consistent-loss side, [4] covers only Poisson on flat geometry and [32] only Poisson on cut domains; on the convection-diffusion PINN side, [2, 6, 14, 19] remain on flat or rectangular domains and out-side the consistent-loss paradigm, relying instead on FEM coupling, Petrov–Galerkin variational forms, or hand-tuned reweighting. A consistent-PINN account of convection-diffusion appears not to have been given even on a rectangle, and the curved cut-domain case is open as well. The present paper supplies both at once. 1.3. Contributions. The main contribution of our work is listed below. (1) First consistent-loss treatment of convection-diffusion. We are not aware of any prior study that places the stationary convection-diffusion equation inside the consistent-PINN framework, on either flat or curved geometry. Existing consistent-loss work treats Poisson-type problems only [4, 32], while the convection-diffusion PINN literature [2, 6, 14, 19] operates outside the consistent-loss paradigm, using SUPG-stabilised hybrids, Petrov–Galerkin variational PINNs, or empirical loss reweighting. The present work occupies this intersection. (2) A norm comparison identifying the interior norm as the governing choice. We compare three losses on a common ansatz: standard PINN ( L2 interior, L2 boundary); the consistent loss ( L2 interior, discrete H1/2(∂Ω) boundary); and the Lγ loss ( Lγ interior with γ = 1 + 1 / log ˜ m, discrete H1/2(∂Ω) boundary), across a rectangle and a disk at ε =2−s, s ∈ { 2, 4, 6}. The comparison shows that, in the convection-dominated regime, the consistent boundary norm alone is not enough, and that the correction that matters is in the interior norm. The exponent γ = 1+1 / log ˜ m is the H−1-side recovery exponent of [4], which we find transfers to the convection-dominated setting; since it is fixed a priori by the interior budget ˜m, it leaves the method with no interior-norm tuning parameter. On seeds that converge, the three losses are comparable in H1 accuracy, and the separation between them is in reliability . As the layer sharpens, the L2-interior losses become seed-fragile and diverge on a growing fraction of initialisations, whereas Lγ remains dependable across every seed on both domains. The interior norm governs whether convection-dominated training converges at all, not only the accuracy of a converged run. (3) An a priori H1 error bound. We prove an a priori bound for the consistent CutPINN approximation of (1) of the form 
+
+∥u − v∥H1(Ω) ≤ C(ε−1, κ max , ∥b∥∞ , c ) (log ˜ m)
+
+h
+
+L∗ 
+
+> γ
+
+(v)1/2 + (1 + ∥v∥U )R( ˜ m, m )
+
+i
+
+,
+
+where R( ˜ m, m ) = ˜ m−αγ + m−¯s+1 and αγ is the recovery rate of the Lγ interior discreti-sation on Ω. This extends the consistent-PINN analysis to convection-diffusion, carrying the standard ε−1 stability constant and the Lγ interior step; it specialises to the rectangle when κmax = 0 and recovers [32, Theorem 7] in the elliptic limit b = 0 , ε = 1 , γ → 2.1.4. Outline. Section 2 states the problem and the discrete trace norm used throughout. Sec-tion 3 presents the three loss variants ( Lpinn , L∗ 
+
+> c
+
+, L∗ 
+
+> γ
+
+) and the practical training schedule. Sec-tion 4 develops the a priori bound on flat and curved domains, drawing on results of [4, 32] as black boxes. Section 5 reports three numerical experiments: convergence in ε on the rectangle (Section 5.2) and on the disk (Section 5.3); and spatial error distributions on both domains (Section 5.4). Section 6 closes with future directions, including the parabolic extension. 2. Problem Formulation 
+
+In this section, we establish the continuous problem and the discrete approximation, on which the training pipeline is built from. Section 2.1 states the convection-diffusion boundary-value problem on a curved cut domain and the coefficient assumptions under which it is well posed, 4 MANEESH KUMAR SINGH 
+
+and records the precise sense in which we work in the convection-dominated regime. Section 2.2 introduces the interior and boundary collocation sets that replace the continuous data, and Section 2.3 defines the discrete trace norm through which the boundary condition is later enforced. Together these supply the ingredients used throughout the loss construction of Section 3 and the analysis of Section 4. 2.1. The convection-diffusion equation on a cut domain. We begin with the continuous problem. Let Ω ⊂ R2 be a bounded domain defined implicitly by a C2 level-set function φ :
+
+R2 → R,(2) Ω = {x ∈ R2 : φ(x) < 0}, ∂Ω = {x ∈ R2 : φ(x) = 0 },
+
+with |∇ φ| > 0 on ∂Ω. The boundary is then a C2 simple closed curve with finite length L and bounded maximum curvature κmax . Consider the stationary convection-diffusion problem (3) 
+
+−ε∆u + b · ∇ u + c u = f in Ω,u = g on ∂Ω,
+
+with ε > 0, convection field b ∈ C1( ¯Ω; R2), reaction coefficient c ∈ L∞(Ω) satisfying c ≥ 0 and 
+
+c − 12 ∇ · b ≥ κ0 > 0, source f ∈ L2(Ω) , and Dirichlet data g ∈ H1/2(∂Ω) . With these hypotheses in force, (3) is well posed and possesses a unique weak solution u ∈ H1(Ω) .Throughout, C denotes a generic positive constant whose value may change from line to line. It may depend on the domain Ω, its boundary length L and maximum curvature κmax , the coefficients of (3) through ∥b∥∞, ∥c∥∞ and the coercivity parameter κ0, the smoothness and integrability indices ¯s, γ , the polynomial degree r, and the Stein extension constant, but never on the collocation budgets ˜m, m , the exact solution u, or the trial function v. We write a ≲ b for 
+
+a ≤ Cb with such a constant, and a ≍ b when a ≲ b and b ≲ a. The dependence on ε is tracked explicitly and not absorbed into C, since the ε−1 factor in the stability constant is central to the convection-dominated analysis. 
+
+Remark 2.1. The regime of interest in this work is convection-dominated but not singularly perturbed in the asymptotic sense. Here ε ranges over 2−s for s ∈ { 2, 4, 6}, giving a global Péclet number |b|L/ε of order ∼ 4 to ∼ 60 , which is solidly convection-dominated. At the budget used in the experiments the mesh Péclet |b|h/ε with h ∼ ˜m−1/2 stays O(1) , so the O(ε)-wide layer is 
+
+marginally resolved by the collocation set, with on the order of ˜mε points falling in it. In this regime the failure of the L2 interior loss is one of overweighting a layer that is resolved, not of failing to see an unresolved one, and it is this overweighting that the Lγ correction addresses; see Remark 3.3. The constant in the main a priori bound scales as ε−1, which is exactly the 
+
+H1 stability constant classical convection-diffusion theory assigns to this regime [30], so the bound is the natural one for the norm and the regime studied here; ε-uniformity in the singular-perturbation sense concerns a different asymptotic regime and is taken up as an extension in Section 6. 2.2. Collocation data. In the PINN formulation the data f and g are accessed only at finite collocation sets, 
+
+X = {x1, . . . , x ˜m} ⊂ Ω, Z = {z1, . . . , zm} ⊂ ∂Ω,
+
+with m = ⌊√ ˜m⌋, the d = 2 scaling of [4]. The interior set X is drawn by rejection: candidate points are taken uniformly over the bounding box of Ω and kept when φ(x) < 0. The boundary set Z is laid down at equal arc-length spacing along ∂Ω under a parametrisation χ : [0 , L ] → ∂Ω.2.3. Discrete boundary norm. Write rj := ( g − v)( zj ) for the boundary residual sampled at the collocation site zj ∈ Z. From these m values we form a discrete counterpart of the H1/2(∂Ω) CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 5
+
+trace norm in two pieces, an L2 part and a Gagliardo seminorm part: 
+
+∥g − v∥∗2 
+
+> L2(∂Ω)
+
+= Lm
+
+> m
+
+X
+
+> j=1
+
+r2 
+
+> j
+
+,(4) 
+
+|g − v|∗2 
+
+> H1/2(∂Ω)
+
+= 1
+
+m2
+
+> m
+
+X
+
+> i,j =1
+> i̸=j
+
+(ri − rj )2
+
+|zi − zj |2 ,(5) their sum ∥g − v∥∗2 
+
+> H1/2(∂Ω)
+
+= ∥g − v∥∗2 
+
+> L2(∂Ω)
+
++ |g − v|∗2 
+
+> H1/2(∂Ω)
+
+being the full discrete trace norm. When the zj are equispaced in arc length along a C2 Jordan curve, this functional stays norm-equivalent to the continuous H1/2(∂Ω) norm over the relevant Besov model classes; Theorem 4.1 states the equivalence we rely on. 3. The Consistent CutPINN Loss Hierarchy 
+
+We compare three loss functionals on a common neural network ansatz v = vθ. All three share the discrete pointwise PDE residual (6) R(v; x) := −ε∆v(x) + b(x) · ∇ v(x) + c(x)v(x) − f (x).
+
+3.1. Three loss functionals. The three losses below differ only in the norms used to penalise the interior and boundary residuals, and form a hierarchy: each replaces one L2 penalty of its predecessor by the norm in which the corresponding residual is actually controlled. 
+
+Definition 3.1 (Loss hierarchy) . For a test function v ∈ C2( ¯Ω) , define 
+
+Lpinn (v) = 1˜m
+
+> ˜m
+
+X
+
+> i=1
+
+R(v; xi)2 + 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+(g − v)( zj )2,(7) 
+
+L∗ 
+
+> c
+
+(v) = 1˜m
+
+> ˜m
+
+X
+
+> i=1
+
+R(v; xi)2 + ∥g − v∥∗2 
+
+> H1/2(∂Ω)
+
+,(8) 
+
+L∗ 
+
+> γ
+
+(v) = 1˜m
+
+> ˜m
+
+X
+
+> i=1
+
+|R (v; xi)|γ
+
+!2/γ 
+
++ ∥g − v∥∗2 
+
+> H1/2(∂Ω)
+
+,(9) where γ := 1 + 1 / log ˜ m.The three losses correspond to three points on a methodological hierarchy. Lpinn is the standard PINN loss adapted to (3): L2 interior, L2 boundary. L∗ 
+
+> c
+
+replaces the boundary term by the discrete H1/2(∂Ω) norm of Section 2.3, applied to the convection-diffusion residual. L∗ 
+
+> γ
+
+further replaces the interior term by a discrete Lγ norm with γ a logarithmic perturbation of L1 governed by the interior budget ˜m.
+
+Remark 3.2 (Why γ = 1 + 1 / log ˜ m). The choice of γ is dictated by the optimal recovery theory of [4], where it arises as the boundary between two regimes in the recovery exponent on Besov model classes. Concretely, the Lγ norm interpolates between L1 and L2 in such a way that the discrete Lγ functional remains equivalent to the continuous Lγ norm on the model class 
+
+U (Bsγ (Lγ (Ω))) , with s matching the smoothness of the source f , while the Lγ norm in turn controls the H−1 residual through the Sobolev embedding used in the analysis below. In our numerical setting γ is only slightly above 1: at ˜m = 1600 we have γ = 1 + 1 / log(1600) ≈ 1.136 .The practical effect is to dampen the layer overweighting of L2 without collapsing entirely to L1,which would be too insensitive to the bulk. 
+
+Remark 3.3 (Why L2 fails on convection-dominated problems) . The pointwise residual at a layer point xlayer scales as R(v) ∼ ε−1. The L2 functional therefore amplifies a single layer residual by ε−2 relative to a bulk residual of order 1. With ˜m uniform interior points and an 
+
+O(ε)-wide layer, the expected number of layer points in X is O( ˜ mε ), and the L2 loss is dominated by the contribution ε−2 · ˜mε/ ˜m = ε−1 from these few points. The optimisation therefore fits the 6 MANEESH KUMAR SINGH 
+
+Algorithm 1 Consistent CutPINN training for (3) 
+
+Require: level-set φ, data f, g , budgets ˜m, m , interior exponent γ = 1 + 1 / log ˜ m 
+
+> 1:
+
+sample interior points X by rejection on the bounding box of Ω (φ < 0); place m arc-length-equispaced boundary points Z 
+
+> 2:
+
+initialise network vθ (5 layers, width 50, tanh , Xavier)  
+
+> 3:
+
+assemble the loss L∗ 
+
+> γ
+
+(vθ) of Definition 3.1: discrete Lγ interior residual and discrete H1/2(∂Ω) 
+
+boundary term  
+
+> 4:
+
+for 2000 iterations do ▷ phase 1: exploration  
+
+> 5:
+
+AdamW step on L∗ 
+
+> γ
+
+(lr 8 × 10 −5, grad-clip 0.8, ReduceLROnPlateau)  
+
+> 6:
+
+end for  
+
+> 7:
+
+for up to 2000 iterations do ▷ phase 2: refinement  
+
+> 8:
+
+L-BFGS step on L∗ 
+
+> γ
+> 9:
+
+end for  
+
+> 10:
+
+return trained network vθ
+
+layer at the expense of the smooth bulk. The Lγ functional with γ slightly above 1 amplifies the layer residual by ε−γ , a factor of ε2−γ smaller; the bulk regains its appropriate weight in the loss. 3.2. Network architecture and training. We use a fully-connected MLP vθ : R2 → R with five hidden layers of width 50 , tanh activations, and Xavier initialisation, identical to the archi-tecture used in [32]. No Fourier feature embedding [35] and no layer-aware ansatz are used in the proposed framework. Training proceeds in two phases. First, the AdamW optimiser is run for 2,000 iterations with learning rate 8 × 10 −5, gradient clipping at norm 0.8, and ReduceLROnPlateau scheduling. Second, L-BFGS is run for up to 2,000 iterations as a final polish. We observe that pure L-BFGS, the training schedule used in [32], fails on an appreciable fraction of seeds at s ≥ 6. The AdamW phase first navigates the flat directions of the Lγ /H 1/2(∂Ω) loss landscape, after which L-BFGS converges quickly. The pipeline is summarised schematically in Figure 1. 4. Error Analysis 
+
+The goal of this section is the a priori H1 bound of Theorem 4.5, controlling the error of any trial network by its computable loss together with discretisation terms that vanish as the collocation budgets grow. The argument proceeds in four steps, and the section is organised around them. Section 4.1 records the continuous stability estimate that reduces the H1 error to an H−1 interior residual and an H1/2(∂Ω) boundary residual. Section 4.2 recalls the discrete trace-norm equivalence that handles the boundary residual, which we take from [32] as a black box. Section 4.3 proves the new ingredient, a discrete Lγ comparison on the cut domain, where the curved geometry enters through a cut-cell floor on the recovery rate. Section 4.4 assembles these into the main bound. 4.1. Continuous stability. We first isolate the stability of the continuous problem, which con-verts the H1 error into residuals the discrete losses can measure. The continuous problem (3) admits an a priori bound in the H1 norm of the form (10) ∥u − v∥H1(Ω) ≤ Cstab (ε−1)
+
+h
+
+∥f − L v∥H−1(Ω) + ∥g − v∥H1/2(∂Ω) 
+
+i
+
+for every v ∈ H1(Ω) , where Lv := −ε∆v + b · ∇ v + cv and the stability constant Cstab depends on ε−1, the bounded coefficients, and the coercivity parameter κ0 of Section 2.1. The factor ε−1
+
+arises because coercivity controls the ε-weighted energy norm, and recovering the full H1 norm from it costs a factor ε−1/2 in each of two places: in the duality pairing of the residual against the error, and in passing from the energy norm of the error to its H1 norm. The resulting ε−1 is the standard convection-diffusion H1 stability constant; see [30]. CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 7
+
+Level-set domain 
+
+Ω = {φ < 0}
+
+Interior points 
+
+X = {xi} ˜mi=1 
+
+Boundary points 
+
+Z = {zj }mj=1 
+
+Interior Lγ :  1˜m
+
+P 
+
+> i
+
+|R (xi)|γ 2/γ Boundary: 
+
+∥g − v∥∗2
+
+> H1/2(∂Ω)
+
+L∗
+
+> γ
+
+Phase 1 AdamW (explore) 
+
+Phase 2 L–BFGS (refine) 
+
+Trained vθ
+
+> setup
+> loss
+> training
+
+Figure 1. The consistent CutPINN pipeline of Algorithm 1. The level-set geom-etry fixes the interior and boundary collocation sets; the loss L∗ 
+
+> γ
+
+pairs a discrete 
+
+Lγ interior residual with a discrete H1/2(∂Ω) boundary term; and training runs an AdamW exploration phase followed by an L-BFGS refinement phase. The interior exponent γ = 1 + 1 / log ˜ m is the only departure from a standard PINN loss. 4.2. Discrete boundary norm equivalence. The boundary residual in the stability estimate is measured in the continuous H1/2(∂Ω) trace norm, whereas the loss only has access to the discrete norm of Section 2.3. The following theorem, established in [32] for the level-set cut geometry, certifies that the two are equivalent up to a term controlled by the boundary budget; we use it without reproving it. 
+
+Theorem 4.1 (Discrete H1/2(∂Ω) norm equivalence, [32, Theorem 3]) . Let Ω ⊂ R2 be a bounded domain whose boundary ∂Ω is a C2 simple closed curve of length L and maximum curvature 
+
+κmax , and let Z = {z1, . . . , zm} ⊂ ∂Ω be m arc-length-equispaced points. For the trace model class G = Tr U (B¯s
+
+> ∞
+
+(L2(Ω))) with ¯s > 1,
+
+(11) ∥g∥H1/2(∂Ω) ≲ ∥g∥∗ 
+
+> H1/2(∂Ω)
+
++ ∥g∥Tr( B) m−¯s+1 
+
+∥g∥∗ 
+
+> H1/2(∂Ω)
+
+≲ ∥g∥H1/2(∂Ω) + ∥g∥Tr( B) m−¯s+1 ,
+
+with constants depending on κmax , L, ¯s, and the polynomial degree r > max(¯ s, 1) .
+
+We invoke Theorem 4.1 as a black box; it supplies the boundary half of the a priori bound below. The equispacing hypothesis is moreover not essential: for boundary points drawn i.i.d. 
+
+uniformly with respect to arc length, the discrete H1/2(∂Ω) seminorm concentrates around its continuous counterpart at the Monte Carlo rate (mδ )−1/2, with constants again controlled by 8 MANEESH KUMAR SINGH 
+
+the chord-arc parameter [32, Proposition 4]. This is the boundary counterpart of Proposition 4.4 below, so neither half of the analysis is tied to a particular collocation layout. 4.3. Discrete interior Lγ comparison. We now turn to the interior residual, which is the part of the analysis specific to the present work. The stability estimate controls it in H−1, and through the embedding Lγ (Ω) ,→ H−1(Ω) it suffices to bound the continuous Lγ norm of the residual; the loss, however, only evaluates the residual at the interior collocation points. The following proposition closes this gap on a cut domain, showing that the discrete Lγ functional approximates the continuous Lγ norm up to a rate ˜m−αγ in which the curved boundary enters through a cut-cell floor. 
+
+Proposition 4.2 (Discrete Lγ -comparison on a cut domain ). Let Ω be a bounded C2 level-set domain, let Q ⊃ Ω be an axis-aligned bounding box, and let X = Gk,r ∩ Ω be the interior points of the tensor-product grid Gk,r of Q, with ˜m := |X| and r > max( s, 1) . Let γ ∈ (1 , 2] . For every w ∈ Bsγ (Lγ (Ω)) with s > 2/γ ,
+
+(12) ∥w∥Lγ (Ω) − ∥ w∥∗  
+
+> Lγ(Ω)
+
+≤ Cint ∥w∥Bsγ (Ω) ˜m−αγ , αγ = min 
+
+ s 
+
+> 2
+
+−   1 
+
+> γ
+
+− 12
+
+
+
+> +
+
+, 12γ
+
+
+
+,
+
+where ∥w∥∗γLγ (Ω) := |Ω| ˜m−1 P ˜mi=1 |w(xi)|γ and Cint depends on Ω, s, γ, r, and the Stein extension constant. Proof. The argument extends [32, Proposition 5] from the L2 interior norm to Lγ , isolating the cut-cell contribution as there. The exponent γ enters in two places: the optimal-recovery rate 
+
+α of the box interpolant, and the γ-th-root passage from the Lγ -power bound to the Lγ norm, which sets the cut floor. 
+
+Setup. Let ˆw = Ew be the Stein extension, with ∥ ˆw∥Bsγ (R2) ≲ ∥w∥Bsγ (Ω) and ∥ ˆw∥C( ¯Q) ≲ ∥w∥B
+
+via the embedding Bsγ ,→ C, valid since s > 2/γ . Let P := S∗ 
+
+> k
+
+( ˆ w) ∈ V r(Tk) be the piecewise-polynomial interpolant of [4, Theorem 2.1] on the N = ( r · 2k)2 nodes of Gk,r ; their hypotheses 
+
+0 < p ≤ ∞ , s > d/p hold here at p = γ, d = 2 , so by the Lγ optimal-recovery estimate (case 
+
+p = γ), (13) ∥ ˆw − P ∥Lγ (Q) ≲ ∥w∥B N −α, α = s 
+
+> 2
+
+−   1 
+
+> γ
+
+− 12
+
+ 
+
+> +
+
+= s−2/γ +1 2 ,
+
+the last equality because 1/γ ≥ 1/2 for γ ≤ 2, and ∥P ∥C( ¯Q) ≲ ∥w∥B by the stability of S∗
+
+> k
+
+(Lebesgue constant Λr). The node and interior-point counts are comparable, N = |Q| h−2r2 and 
+
+˜m = |X| = |Ω| h−2(1 + O( ˜ m−1/2)) with h the grid spacing, so N ≃ ˜m with constant |Q| r2/|Ω|;we write N −α ≃ ˜m−α and absorb the constant into Cint .
+
+Cut-cell isolation. Partition the cells meeting ¯Ω into interior cells (contained in Ω), with union 
+
+Ωint , and cut cells (meeting ∂Ω). Since ∂Ω ∈ C2,(14) |Ω \ Ωint | = O( ˜ m−1/2), #{cut nodes } = O( ˜ m1/2).
+
+Both follow from the grid geometry: h ≃ | Ω|1/2 ˜m−1/2, and a C2 boundary of length L and bounded curvature κmax meets O(L/h ) = O( ˜ m1/2) cells, so the cut region, a tube of width 
+
+O(h) about ∂Ω, has area O(L h ) = O( ˜ m−1/2). On the interior cells the discrete sum runs over 
+
+Xint := X ∩Ωint ; writing ∥w∥∗γLγ (Ω int ) := |Ω| ˜m−1 P 
+
+> xi∈Xint
+
+|w(xi)|γ for its contribution, the BDPS norm-equivalence in Lγ gives, with P (xi) = w(xi) on Xint ,(15) ∥P ∥γLγ (Ω int ) ≤ ∥ w∥∗γLγ (Ω int )
+
+ 1 + O( ˜ m−1/2) + C ∥w∥γB ˜m−γα .
+
+On the cut region, Hölder with ∥P ∥C( ¯Q) ≲ ∥w∥B and (14) gives (16) ∥P ∥γLγ (Ω \Ωint ) ≤ ∥ P ∥γC( ¯Q) |Ω \ Ωint | ≲ ∥w∥γB ˜m−1/2.
+
+Adding (15) and (16), and noting ∥w∥∗γLγ (Ω int ) ≤ ∥ w∥∗γLγ (Ω) , gives the Lγ -power bound over all of 
+
+Ω,(17) ∥P ∥γLγ (Ω) ≤ ∥ w∥∗γLγ (Ω) 
+
+ 1 + O( ˜ m−1/2) + C ∥w∥γB ˜m− min( γα, 1/2) ,CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 9
+
+the analogue of [32, Eq. (39)] with the power 2 replaced by γ. The area factor ˜m−1/2 in the cut term of (16) is purely geometric: it is the measure of the cut tube in (14), independent of γ.What depends on γ is the conversion of (17) into a bound on the norm, and this sets the floor. For γ ≥ 1 the map t 7 → t1/γ is concave on [0 , ∞), vanishes at the origin, and is there-fore subadditive: (a + b)1/γ ≤ a1/γ + b1/γ for a, b ≥ 0. Applying this to (17) and using 
+
+(1 + O( ˜ m−1/2)) 1/γ = 1 + O( ˜ m−1/2) for γ ≥ 1,(18) ∥P ∥Lγ (Ω) ≤ ∥ w∥∗ 
+
+> Lγ(Ω)
+
+ 1 + O( ˜ m−1/2) + C ∥w∥B ˜m− min( α, 1/(2 γ)) ,
+
+since ( ˜ m−1/2)1/γ = ˜m−1/(2 γ) and ( ˜ m−γα )1/γ = ˜m−α, the minimum being preserved by the monotone root. Two consequences are worth isolating. At γ = 2 the floor is 1/(2 γ) = 1 /4, the cut-cell ceiling 
+
+min( α, 1/4) of [32, Proposition 5]: the L2 case is the present one with the γ-th root specialised to a square root. For γ < 2 one has 1/(2 γ) > 1/4, so the cut region degrades the recovery rate 
+
+less in Lγ than in L2; the same choice of γ near 1 that down-weights the boundary layer also relaxes the geometric penalty. As γ → 1+ the floor tends to 1/2, the cut-free Monte Carlo rate of [32, Proposition 6]; the interpolation rate α governs once α ≤ 1/(2 γ), i.e. s ≤ 3/γ − 1, and the floor governs above it. The floor 1/(2 γ) is sharp. Let w be a unit-height C∞ bump supported in Ω \ Ωint away from every interior node, a region of area ≃ ˜m−1/2 by (14), with ∥w∥B ≃ 1. Then ∥w∥γLγ (Ω) ≃ ˜m−1/2
+
+while ∥w∥∗γLγ (Ω) = o( ˜ m−1/2), whence ∥w∥Lγ (Ω) −∥ w∥∗  
+
+> Lγ(Ω)
+
+≃ ˜m−1/(2 γ), so no exponent exceeding 
+
+1/(2 γ) holds uniformly over the model class. A bump on a single cut cell, of area ≃ ˜m−1, gives only ˜m−1/γ and does not realise the floor. 
+
+Assembly. The uniform bound ∥w∥∗  
+
+> Lγ(Ω)
+
+≤ | Ω|1/γ ∥w∥C( ¯Ω) ≲ ∥w∥B absorbs the ratio correction in (18): the factor (1 + O( ˜ m−1/2)) contributes ≲ ∥w∥B ˜m−1/2, dominated by the existing error term since 1/(2 γ) ≤ 1/2. Thus (19) ∥P ∥Lγ (Ω) − ∥ w∥∗  
+
+> Lγ(Ω)
+
+≤ C ∥w∥B ˜m−αγ , αγ := min  α, 1/(2 γ),
+
+the lower bound on ∥P ∥Lγ (Ω) coming from the same estimates (15)–(16) read in reverse over 
+
+X = Xint ∪ (X \ Xint ), where the cut sum carries O( ˜ m1/2) nodes of weight |Ω|/ ˜m and so contributes the same ˜m−1/2 in the γ-power. Finally, the interpolant approximates w itself at the faster rate: by (13) and w = ˆ w on Ω ⊂ Q,(20) ∥w − P ∥Lγ (Ω) ≤ ∥ ˆw − P ∥Lγ (Q) ≲ ∥w∥B ˜m−α ≤ ∥ w∥B ˜m−αγ
+
+since α ≥ αγ . Next, we have 
+
+∥w∥Lγ (Ω) − ∥ w∥∗  
+
+> Lγ(Ω)
+
+≤ ∥ w − P ∥Lγ (Ω) + ∥P ∥Lγ (Ω) − ∥ w∥∗  
+
+> Lγ(Ω)
+
+.
+
+Combining (20) with (19), we obtain (12), which completes the proof. □
+
+Remark 4.3 (Inherited rate, new floor, and the sampled interior set) . Of the two exponents in 
+
+αγ = min( α, 1/(2 γ)) , the interpolation rate α = ( s − 2/γ + 1) /2 is the Lγ instance ( p = γ) of the optimal-recovery estimate [4, Theorem 2.1], used as a black box; the cut floor 1/(2 γ) has no flat-domain precedent, entering only through the γ-th-root passage of the proof and relaxing toward 1/2 as γ → 1, so the exponent improves precisely in the regime where Lγ is used to suppress the layer. At γ = 2 the floor is 1/4, recovering [32, Proposition 5]. The proposition is stated for the deterministic grid X = Gk,r ∩Ω, on which the cut-cell partition is defined; the i.i.d. 
+
+rejection sampling used in Section 5 is covered by the companion Proposition 4.4, which gives the same comparison at the Monte Carlo rate ˜m−1/2, no slower than the floor and independent of the curvature, and reduces at γ = 2 to the L2 estimate [32, Proposition 6]; like that result it is not invoked in Theorem 4.5. 
+
+Proposition 4.4 (Probabilistic Lγ comparison under i.i.d. uniform sampling ). Let 
+
+Ω ⊂ R2 be a bounded domain and let X = {x1, . . . , x ˜m} ⊂ Ω be drawn i.i.d. uniformly on 10 MANEESH KUMAR SINGH 
+
+Ω. Set ∥w∥∗γLγ (Ω) := |Ω| ˜m−1 P ˜mi=1 |w(xi)|γ as in Proposition 4.2. For every w ∈ L∞(Ω) with 
+
+∥w∥Lγ (Ω) > 0, every γ ≥ 1, and every δ ∈ (0 , 1) , with probability at least 1 − δ,
+
+(21) ∥w∥Lγ (Ω) − ∥ w∥∗  
+
+> Lγ(Ω)
+
+≤ 2γ−1 |Ω|1/2 ∥w∥γ/ 2
+
+> L∞(Ω)
+
+γ ∥w∥γ/ 2−1 
+
+> Lγ(Ω)
+
+( ˜ m δ )−1/2.
+
+For w ∈ U (Bsγ (Lγ (Ω))) with s > 2/γ , the embedding Bsγ ,→ C( ¯Ω) bounds ∥w∥L∞ by C(Ω , s, γ ) ∥w∥B ,yielding the Monte Carlo rate ˜m−1/2 uniformly over the model class. Proof. The argument mirrors [32, Proposition 6], with the square replaced by the γ-th power. Let Yi := |w(xi)|γ and S ˜m := ˜ m−1 P ˜mi=1 Yi. Since the xi are i.i.d. uniform on Ω,
+
+E[Y1] = 1
+
+|Ω|
+
+Z
+
+> Ω
+
+|w|γ = ∥w∥γLγ (Ω) 
+
+|Ω| , Var( Y1) ≤ E[Y 21 ] ≤ ∥w∥γL∞(Ω) ∥w∥γLγ (Ω) 
+
+|Ω| ,
+
+the second bound using R 
+
+> Ω
+
+|w|2γ ≤ ∥ w∥γL∞
+
+R 
+
+> Ω
+
+|w|γ . Hence, we get 
+
+Var( S ˜m) = Var( Y1)/ ˜m ≤ ∥ w∥γL∞ ∥w∥γLγ (Ω) /(|Ω| ˜m).
+
+Therefore, Chebyshev’s inequality yields, with probability at least 1 − δ,
+
+|S ˜m − E[Y1]| ≤ pVar( S ˜m)/δ ≤ ∥ w∥γ/ 2 
+
+> L∞
+
+∥w∥γ/ 2  
+
+> Lγ(Ω)
+
+/p|Ω| ˜m δ. 
+
+Multiplying through by |Ω|,(22) ∥w∥∗γLγ (Ω) − ∥ w∥γLγ (Ω) ≤ | Ω|1/2 ∥w∥γ/ 2 
+
+> L∞(Ω)
+
+∥w∥γ/ 2  
+
+> Lγ(Ω)
+
+( ˜ m δ )−1/2 =: K ( ˜ m δ )−1/2,
+
+which holds unconditionally on the probability-(1 − δ) event. To pass from the γ-power to the norm, write a := ∥w∥∗  
+
+> Lγ(Ω)
+
+and b := ∥w∥Lγ (Ω) > 0. Two consequences of (22) are used in turn. First, since aγ ≥ bγ − K( ˜ mδ )−1/2, the budget threshold ˜m ≥ K2 δ−1(1 − 2−γ )−2 b−2γ forces 
+
+aγ ≥ 2−γ bγ , that is a ≥ b/ 2; this is a deterministic consequence of the bound, not a further probabilistic assumption. Second, on this range the mean value theorem applied to t 7 → tγ gives 
+
+|aγ − bγ | ≥ γ min( a, b )γ−1|a − b| ≥ γ (b/ 2) γ−1|a − b|, so 
+
+|a − b| ≤ 2γ−1
+
+γ b γ−1 |aγ − bγ |.
+
+Substituting (22) gives (21). At γ = 2 the threshold is unnecessary: the identity |a − b|(a + b) = 
+
+|a2 −b2| gives |a−b| ≤ | a2 −b2|/b for all a ≥ 0, b > 0, recovering [32, Proposition 6] with the ∥w∥Lγ
+
+factors cancelling completely. The Besov special case follows from ∥w∥L∞(Ω) ≤ C(Ω , s, γ ) ∥w∥B
+
+via the embedding for s > 2/γ , yielding the Monte Carlo rate ˜m−1/2. □
+
+4.4. Main a priori bound. Combining the continuous stability of Section 4.1 with the two discrete comparisons gives the main result. The following theorem bounds the H1 error of an arbitrary trial network by the computable loss L∗ 
+
+> γ
+
+(v) and a discretisation remainder that decays in both collocation budgets. 
+
+Theorem 4.5 (A priori bound for the Lγ consistent CutPINN ). Let Ω ⊂ R2 be a bounded 
+
+C2 level-set domain and let the coefficients of (3) satisfy the assumptions of Section 2.1. Let X
+
+and Z be interior and boundary collocation sets as in Section 2.2 with |X| = ˜ m and |Z| = m. Let 
+
+v ∈ H1(Ω) with ∆v continuous on ¯Ω and suppose v ∈ U (B¯sγ (Lγ (Ω))) with ¯s > 2/γ and γ ∈ (1 , 2] ,and write ∥v∥U := max {∥L v∥B , ∥Tr( v)∥Tr( B)}. Then for every ε > 0,
+
+(23) ∥u − v∥H1(Ω) ≤ C(ε−1, κ max , L, ∥b∥∞ , c ) γγ−1
+
+h
+
+L∗ 
+
+> γ
+
+(v)1/2 +  1 + ∥v∥U
+
+R( ˜ m, m )
+
+i
+
+,
+
+where R( ˜ m, m ) = ˜ m−αγ + m−¯s+1 and αγ = min   ¯s 
+
+> 2
+
+−   1 
+
+> γ
+
+− 12
+
+
+
+> +
+
+, 1/(2 γ).CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 11 
+
+Remark 4.6 (The prescribed γ and the L2 case) . The bound holds for every γ ∈ (1 , 2] , with the prefactor γ/ (γ −1) measuring the cost of the Lγ ,→ H−1 embedding. The proposed method takes 
+
+γ = 1 + 1 / log ˜ m, at which γ/ (γ − 1) = 1 + log ˜ m and the interior norm carries no free parameter; the consistent L2 loss is the endpoint γ = 2 , where the prefactor is the constant 2 and the embedding is non-degenerate. The intermediate γ trades a mild log ˜ m growth in the constant for the layer suppression established in Remark 3.3, which is the exchange the convection-dominated regime rewards. 
+
+Proof. The argument follows the four-step template of [4, Theorem 7.2], [32, Theorem 7], with the operator and the interior norm adapted to the convection-diffusion setting. 
+
+Step 1: Continuous stability. The coercivity assumption c − 12 ∇· b ≥ κ0 > 0 makes the weak form of (3) coercive in the energy norm ||| w||| 2 := ε ∥∇ w∥2 
+
+> L2
+
++ κ0 ∥w∥2 
+
+> L2
+
+, and converting to H1
+
+through ∥∇ w∥L2 ≤ ε−1/2||| w||| gives the stability estimate (10). The two conversions compound: the duality pairing ⟨L w, w ⟩ ≤ ∥L w∥H−1 ∥w∥H1 and the energy-to-H1 passage each contribute 
+
+ε−1/2, so Cstab ∼ ε−1; see [30]. Applied to w = u − v, this reduces the H1 error to an H−1
+
+interior residual ∥f − L v∥H−1(Ω) and an H1/2(∂Ω) boundary residual ∥g − v∥H1/2(∂Ω) .
+
+Step 2: Interior embedding. The interior residual is controlled in H−1 by its Lγ norm through the Sobolev embedding Lγ (Ω) ,→ H−1(Ω) , applied to w = f − L v. In d = 2 this embedding holds for every γ > 1; the endpoint γ = 1 fails, since H1(Ω) does not embed into 
+
+L∞(Ω) , and correspondingly the embedding constant degenerates as γ → 1+, bounded by a multiple of γ/ (γ − 1) , which is the logarithmic factor identified for p ≤ 1 in the d = 2 analysis of [4]. For any γ ∈ (1 , 2] the embedding contributes a constant factor of order γ/ (γ − 1) , finite and independent of ε; at the prescribed γ = 1 + 1 / log ˜ m, which approaches the endpoint as the interior budget grows, this equals 1 + log ˜ m, the O(log ˜ m) factor. The same optimal-recovery treatment of a convective residual is used at the L2 level by [23]; the Lγ exponent and the resulting γ/ (γ − 1) factor are what the convection-dominated regime adds here. 
+
+Step 3: Discrete interior and boundary comparison. Proposition 4.2 with w = f − L v
+
+and ∥f ∥B ≤ 1 replaces the continuous Lγ residual norm by its discrete counterpart, with error 
+
+(1 + ∥v∥U ) ˜ m−αγ . Theorem 4.1 replaces the continuous H1/2(∂Ω) boundary residual norm by its discrete counterpart, with error (1 + ∥v∥U ) m−¯s+1 ; this is where the geometry, through κmax and the chord-arc constant, enters. 
+
+Assembly. Combining Steps 1–3, applying the elementary inequality a + b ≤ √2 ( a2 + b2)1/2
+
+to the two discrete residual terms and identifying the sum of their squares with L∗ 
+
+> γ
+
+(v), whose interior term carries the matching outer power 2/γ of Definition 3.1, yields (23). The γ/ (γ − 1) 
+
+embedding constant of Step 2 multiplies the entire interior contribution, both the computable loss L∗ 
+
+> γ
+
+(v)1/2 and its recovery remainder ˜m−αγ ; we display it as a single prefactor on the whole bracket, which only weakens the boundary term m−¯s+1 by the same harmless γ/ (γ − 1) factor (logarithmic at the prescribed γ). □
+
+Remark 4.7 (Reading the bound: ε-dependence and the predicted rate) . The constant C
+
+in (23) depends on ε−1, matching the H1 stability constant of the continuous problem [30], so the discretisation introduces no loss in ε beyond what the continuous theory itself carries; the route to an ε-uniform version, through a streamline-diffusion stability analysis on the cut domain, is outlined in Section 6. The bound is designed to be read at fixed ε: the model-class norm ∥v∥U
+
+involves ∥L v∥B and hence the term ε∆v, which grows as the network resolves the O(ε) layer, and the experiments accordingly fix ε and vary the initialisation, which is precisely the comparison the bound supports. At the budget ˜m = 1600 one has γ ≈ 1.136 , so for the smooth data of Section 5.1 the interior exponent is governed by the cut floor, αγ = 1 /(2 γ) ≈ 0.44 , rather than the interpolation rate, and the boundary term contributes m−¯s+1 . The experiments below fix 
+
+( ˜ m, m ) and vary ε, so they probe the robustness of training as the layer sharpens, not the decay of the bound in the budget; a direct measurement of the ˜m−αγ rate would require a separate budget-refinement study at fixed ε.12 MANEESH KUMAR SINGH 
+
+5. Numerical Experiments 
+
+All experiments use a PyTorch [26] implementation running on a single Intel Core Ultra 7 155H CPU, with each training run completing in well under a minute. Code, data, and scripts to reproduce every figure and table are available at https://github.com/maneeshkrsingh/ consistent-cutpinn .5.1. Setup. Manufactured solution. The exact solution is constructed to carry an explicit boundary layer aligned with the streamline direction. Fixing α = π/ 3, b = (cos α, sin α), c = 1 ,and the streamline and cross-streamline coordinates sc = x1 cos α + x2 sin α, tc = −x1 sin α +
+
+x2 cos α normalised to [0 , 1] , define (24) u(x1, x 2) = sin  πt c,norm 
+
+ · ψε
+
+ sc,norm 
+
+, ψε(σ) = σ − e(σ−1) /ε − e−1/ε 
+
+1 − e−1/ε .
+
+The factor ψε is the classical 1D convection-diffusion layer profile, smooth on [0 , 1 − O(ε)] with an O(ε)-wide boundary layer at σ = 1 . The data f and g follow from inserting (24) into (3). 
+
+Domains: We use two test domains, one flat and one curved domain: 
+
+• Rectangle. Ω = (0 , 1) 2. Flat boundary. 
+
+• Disk. φ(x) = ∥x − (0 .5, 0.5) ∥ − 0.4, embedded in [0 , 1] 2. Constant curvature κ = 2 .5;the curved test geometry. 
+
+Computational budget: Interior budget ˜m = 1600 , boundary budget m = 40 , fixed through-out the experiments. At this budget, γ = 1 + 1 / log(1600) ≈ 1.136 .
+
+Error measurement: We estimate the H1 error norm by Monte Carlo quadrature over 
+
+10 ,000 points drawn independently by rejection sampling, evaluating ∇vθ by automatic differen-tiation of the trained network. The comparison at s = 6 is run over 20 independent seeds; at 
+
+s = 2 and s = 4 , where every run is stable, five seeds suffice. We report the median over non-diverged seeds together with the divergence count and a Wilson score interval (SI) on the rate. A run is counted diverged if its H1 error exceeds 2 × 10 −2; this threshold sits cleanly above the converged-run band (typical H1 at s = 6 is ∼ 10 −3) and below the failure cluster ( ∼ 10 −1), and the reported rates are insensitive to varying the threshold across 
+
+[2 × 10 −2, 10 −1]. The median statistic is used because in the convection-dominated regime the seed distribution is bimodal and the mean is dominated by occasional diverged runs. Figure 2 illustrates the experimental setup on the two domains. 5.2. Experiment 1: Convergence in ε on the rectangle. Table 1 reports the H1 error on the rectangle for the three losses across ε = 2 −s, s ∈ { 2, 4, 6}.For runs that converge, the three losses deliver comparable accuracy on the rectangle: at s = 2 
+
+and s = 4 all sit near 10 −3 in median H1. The separation appears in reliability as ε decreases. At 
+
+s = 6 the contrast is sharp. Standard PINN diverges on every seed (20/20 above the threshold), the consistent loss with L2 interior diverges on two of twenty seeds, and the Lγ interior never diverges (0/20). The 20/20 versus 0/20 contrast is robust across any threshold between 2 × 10 −2
+
+and 10 −1, so it reflects a training instability of standard PINN rather than a threshold artefact. Most standard-PINN seeds settle near H1 ≈ 4 × 10 −2, a qualitatively wrong solution, and none reaches an accurate fit. On the seeds where L∗ 
+
+> c
+
+converges, its accuracy is close to that of L∗ 
+
+> γ
+
+; it is the Lγ interior that makes training dependable as the layer sharpens. 5.3. Experiment 2: Convergence in ε on the disk. Table 2 reports the same experiment on the disk, the curved geometry. The disk shows a less clear-cut separation than the rectangle. For seeds that converge, the three losses reach comparable median H1 error across s ∈ { 2, 4, 6}: L∗ 
+
+> γ
+
+and L∗ 
+
+> c
+
+both lie near 
+
+5 × 10 −4 at s = 6 , and Lpinn is within a factor of three on its surviving seeds. The divergence rates at s = 6 follow the same ordering as on the rectangle ( L∗ 
+
+> γ
+
+1/20, L∗ 
+
+> c
+
+2/20, Lpinn 2/20), but they are uniformly low and their Wilson 95% intervals overlap heavily. The disk result is CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 13 
+
+Figure 2. Experimental setup. Left: rectangle Ω = (0 , 1) 2; right: disk Ω = 
+
+{∥ x − (0 .5, 0.5) ∥ < 0.4}. Teal: ˜m = 1600 interior points X; orange: m = 40 
+
+boundary points Z. Red arrow: convection b = (cos α, sin α), α = π/ 3.
+
+Table 1. H1 error on the rectangle (0 , 1) 2 across ε = 2 −s, reported as the median over non-diverged seeds (diverged: H1 > 2 × 10 −2; the count d/n is listed in the lower block, with the Wilson SI on the rate at s = 6 ). Five seeds at s = 2 , 4
+
+(where training is uniformly stable); 20 seeds at s = 6 . All three losses use the identical AdamW →L-BFGS schedule of Section 3.2, so the comparison isolates the effect of the loss. The rectangle gives a complete threshold-robust separation at s = 6 : standard PINN fails on every seed while L∗ 
+
+> γ
+
+never diverges. Bold marks the proposed L∗ 
+
+> γ
+
+method; “–” denotes all seeds diverged. Loss ε = 2 −2 ε = 2 −4 ε = 2 −6
+
+median H1 error (non-diverged seeds) 
+
+Lpinn (standard PINN) 5.10 × 10 −3 6.21 × 10 −3 –
+
+L∗ 
+
+> c
+
+(L2 + H1/2) 6.61 × 10 −4 8.65 × 10 −4 8.67 × 10 −3
+
+L∗ 
+
+> γ
+
+(Lγ + H1/2) 7.86 × 10 −4 6.62 × 10 −4 4.96 × 10 −3
+
+divergence count and rate (Wilson SI at s = 6 )
+
+Lpinn 0/5 2/5 20 /20 = 100% [84 , 100] 
+
+L∗ 
+
+> c
+
+0/5 0/5 2/20 = 10% [3 , 30] 
+
+L∗ 
+
+> γ
+
+0/5 0/5 0/20 = 0% [ 0, 16 ]
+
+therefore consistent with the rectangle finding and supports it, but is not statistically resolved at the present seed count. We report it as suggestive corroboration, with the rectangle carrying the threshold-robust reliability claim. Figure 3 visualises the per-seed spread on both domains. 5.4. Experiment 3: Spatial error distribution. To complement the integrated error norms of Tables 1 and 2, Figures 4 and 5 show the pointwise absolute error of Lpinn and L∗ 
+
+> γ
+
+at s = 6 
+
+on the rectangle and the disk (single representative converged seed). On both domains the L∗
+
+> γ
+
+error is confined to a thin sliver along the outflow arc, while the Lpinn error is delocalised across the bulk, consistent with the layer-overweighting picture of Remark 3.3. 14 MANEESH KUMAR SINGH 
+
+Table 2. H1 error on the disk across ε = 2 −s, reported as the median over non-diverged seeds (diverged: H1 > 2 × 10 −2; the count d/n is in the lower block, with Wilson SI on the rate at s = 6 ). Five seeds at s = 2 , 4 (uniformly stable); 20 seeds at s = 6 . On the disk the divergence ordering L∗ 
+
+> γ
+
+≤ L∗ 
+
+> c
+
+≤ Lpinn holds across the range, but the rates are low for all three losses and the 95% intervals overlap at s = 6 ; the separation is suggestive on the disk but not statistically resolved by 20 seeds. Bold marks the proposed L∗ 
+
+> γ
+
+method. Loss ε = 2 −2 ε = 2 −4 ε = 2 −6
+
+median H1 error (non-diverged seeds) 
+
+Lpinn 3.30 × 10 −3 2.11 × 10 −3 1.21 × 10 −3
+
+L∗ 
+
+> c
+
+6.28 × 10 −4 3.12 × 10 −4 7.26 × 10 −4
+
+L∗ 
+
+> γ
+
+6.39 × 10 −4 2.86 × 10 −4 5.02 × 10 −4
+
+divergence count and rate (Wilson SI at s = 6 )
+
+Lpinn 0/5 1/5 2/20 = 10% [3 , 30] 
+
+L∗ 
+
+> c
+
+0/5 0/5 2/20 = 10% [3 , 30] 
+
+L∗ 
+
+> γ
+
+0/5 0/5 1/20 = 5% [ 1, 24 ]
+
+Figure 3. Per-seed H1 relative error on the rectangle (left) and the disk (right) at ε = 2 −s, s ∈ { 2, 4, 6}. Five seeds at s = 2 , 4; 20 seeds at s = 6 . Filled markers are converged seeds, open markers diverged ( H1 > 2 × 10 −2); thin lines pass through the median of converged seeds at each ε. On the rectangle at ε = 2 −6,standard PINN ( Lpinn ) diverges on every one of 20 seeds while L∗ 
+
+> γ
+
+converges on all 20, a complete threshold-robust separation. On the disk the same ordering (L∗ 
+
+> γ
+
+≤ L∗ 
+
+> c
+
+≤ Lpinn in divergence rate) holds but the rates are uniformly low and the 95% confidence intervals overlap. On seeds that converge, the three losses are comparable in accuracy across the range; the separation is in training reliability, not in the accuracy of a converged run. 6. Concluding Remarks 
+
+This work carries the consistent CutPINN framework of [32] from the elliptic setting into stationary convection-diffusion on curved level-set domains, and shows that a single change to the interior norm is what the new regime demands. Measuring the pointwise residual in an Lγ
+
+norm with γ = 1 + 1 / log ˜ m, in place of L2, removes the layer-overweighting that destabilises CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 15 Lpinn pointwise |u − v| L ∗ 
+
+> γ
+
+pointwise |u − v|    
+
+> 10 4
+> 10 3
+> 10 2
+> 10 1
+> |u − v|
+
+Rectangle (0 , 1) 2: spatial error at s = 6 (ε = 2 −6 ≈ 0.016 )
+
+Figure 4. Pointwise absolute error on the rectangle (0 , 1) 2 at ε = 2 −6, single representative seed. Left: standard PINN Lpinn . Right: consistent Lγ loss L∗ 
+
+> γ
+
+.Same colour scale across both panels. The Lpinn error is delocalised across the bulk, while the L∗ 
+
+> γ
+
+error is concentrated in the outflow boundary layer at the top-right edge. Lpinn pointwise |u − v| L ∗ 
+
+> γ
+
+pointwise |u − v|    
+
+> 10 4
+> 10 3
+> 10 2
+> 10 1
+> |u − v|
+
+Disk: spatial error at s = 6 (ε = 2 −6 ≈ 0.016 )
+
+Figure 5. Pointwise absolute error on the disk at ε = 2 −6, single representative seed. Left: standard PINN Lpinn . Right: consistent Lγ loss L∗ 
+
+> γ
+
+. Same colour scale across both panels. The L∗ 
+
+> γ
+
+error is concentrated in a thin arc near the outflow region. standard training once convection dominates, while the boundary trace machinery transfers unchanged. The method stays a pure PINN throughout: no finite-element reference solution, no adaptive mesh, and no problem-specific stabilisation. Across the rectangle and the disk down to 
+
+ε = 2 −6, the Lγ interior trains reliably on every seed, while the L2 interiors grow seed-fragile and diverge on an increasing share of initialisations as the layer sharpens; where they do converge, 16 MANEESH KUMAR SINGH 
+
+all three losses deliver comparable accuracy, so the gain the new norm buys is reliability. An a priori H1 bound (Theorem 4.5), built on the discrete boundary norm equivalence as a black box, accompanies and explains these observations. Together these results identify the interior norm as the lever that governs whether convection-dominated PINN training succeeds, and give a single formulation that operates across flat and curved geometry alike. 
+
+Ongoing and Future Work. Several directions extend naturally from here. The a priori bound (23) carries the convection-diffusion stability constant ε−1, and sharpening it to an ε-uniform estimate in the singular-perturbation sense is within reach through a streamline-diffusion stability analysis on the cut domain, together with a finer treatment of the boundary chord-arc constants near the outflow arc. It would also be interesting to study the singularly perturbed regime, where the layer sharpens further and adaptive collocation, complementary to the interior-norm correction studied here, becomes relevant. The Lγ interior already matches or surpasses several established enhancements in our experiments, including SUPG-style residual reweight-ing [5], anisotropic outflow collocation, and Fourier-feature embeddings; mapping out the prob-lem classes on which each of these could reinforce, rather than compete with, the consistent loss is a worthwhile direction in its own right. The framework also points beyond the stationary problem. The spatial discretisation devel-oped here transfers directly to the parabolic convection-diffusion equation 
+
+ut − ε∆u + b · ∇ u + c u = f in Ω × (0 , T ],
+
+under a backward-Euler discretisation in time, in which each step is a stationary problem of the form (3) with reaction coefficient c + (∆ t)−1, precisely the setting analysed here. This time-dependent extension is the subject of ongoing work. 
+
+References 
+
+[1] T. Anandh, D. Ghose, H. Jain, and S. Ganesan. FastVPINNs: Tensor-driven acceleration of VPINNs for complex geometries. SIAM J. Sci. Comput. , 47(3):C578–C600, 2025. [2] T. Anandh, D. Ghose, H. Jain, P. Sunkad, S. Ganesan, and V. John. Improving hp-variational physics-informed neural networks for steady-state convection-dominated prob-lems. Comput. Methods Appl. Mech. Eng. , 438:117797, 2025. [3] S. Badia, F. Verdugo, and A. F. Martín. The aggregated unfitted finite element method for elliptic problems. Comput. Methods Appl. Mech. Eng. , 336:533–553, 2018. [4] A. Bonito, R. DeVore, G. Petrova, and J. W. Siegel. Convergence and error control of consistent PINNs for elliptic PDEs. IMA J. Numer. Anal. , 2025. doi: 10.1093/imanum/ draf008. [5] A. N. Brooks and T. J. Hughes. Streamline upwind/petrov-galerkin formulations for convec-tion dominated flows with particular emphasis on the incompressible navier-stokes equations. 
+
+Computer methods in applied mechanics and engineering , 32(1-3):199–259, 1982. [6] S. Cengizci, Ö. Uğur, and S. Natesan. A PINN-enhanced SUPG-stabilized hybrid finite element framework with shock-capturing for computing steady convection-dominated flows. 
+
+Adv. Eng. Softw. , 216:104135, 2026. [7] A. Cohen, R. DeVore, G. Petrova, and P. Wojtaszczyk. Optimal stable nonlinear approxi-mation. Found. Comput. Math. , 22(3):607–648, 2022. [8] S. Cuomo, V. S. Di Cola, F. Giampaolo, G. Rozza, M. Raissi, and F. Piccialli. Scientific machine learning through physics–informed neural networks: Where we are and what’s next. 
+
+J. Sci. Comput. , 92(3):88, 2022. [9] T. De Ryck and S. Mishra. Generic bounds on the approximation error for physics-informed (and) operator learning. Advances in Neural Information Processing Systems , 35:10945– 10958, 2022. [10] T. De Ryck and S. Mishra. Numerical analysis of physics-informed neural networks and related models in physics-informed machine learning. Acta Numer. , 33:633–713, 2024. [11] R. DeVore, B. Hanin, and G. Petrova. Neural network approximation. Acta Numer. , 30: 327–444, 2021. CONSISTENT CUTPINNS FOR CONVECTION-DIFFUSION 17 
+
+[12] R. A. DeVore and R. C. Sharpley. Besov spaces on domains in Rd. Trans. Amer. Math. Soc. ,335(2):843–864, 1993. [13] C. Duan, Y. Jiao, Y. Lai, D. Li, X. Lu, and J. Z. Yang. Convergence rate analysis for deep ritz method. Comm. Comput. Phys. , 31(4):1020–1048, 2022. [14] D. Frerichs-Mihov, L. Henning, and V. John. On loss functionals for physics-informed neural networks for steady-state convection-dominated convection-diffusion problems. Commun. Appl. Math. Comput. , 8(1):287–308, 2026. [15] T. G. Grossmann, U. J. Komorowska, J. Latz, and C.-B. Schönlieb. Can physics-informed neural networks beat the finite element method? IMA J. Numer. Anal. , 89(1):143–174, 2024. [16] Z. Hu, A. D. Jagtap, G. E. Karniadakis, and K. Kawaguchi. When do extended physics-informed neural networks (xPINNs) improve generalization? SIAM J. Sci. Comput. , 44(5): A3158–A3182, 2022. [17] A. Khan, K.-A. Mardal, and S. Mishra. Mixed consistent PINNs for elliptic obstacle prob-lems with stability analysis. arXiv preprint arXiv:2604.01719 , 2026. [18] A. Krishnapriyan, A. Gholami, S. Zhe, R. Kirby, and M. Mahoney. Characterizing pos-sible failure modes in physics-informed neural networks. Advances in neural information processing systems , 34:26548–26560, 2021. [19] V. Kumar and G. Singh. A variational physics-informed neural network framework using petrov-galerkin method for solving singularly perturbed boundary value problems. arXiv preprint arXiv:2509.12271 , 2025. [20] I. E. Lagaris, A. Likas, and D. I. Fotiadis. Artificial neural networks for solving ordinary and partial differential equations. IEEE Trans. Neural Netw. , 9(5):987–1000, 1998. [21] W. Li, A. F. Martín, and S. Badia. Unfitted finite element interpolated neural networks. J. Comput. Phys. , page 114547, 2026. [22] S. Mishra and A. Khan. Consistent PINNs for higher-order elliptic PDEs. Int. J. Numer. Methods Eng. , 127(7):e70320, 2026. [23] S. Mishra and A. Khan. Structure-preserving and pressure-robust PINNs for incompressible oseen problems. arXiv preprint arXiv:2605.04427 , 2026. [24] S. Mishra and R. Molinaro. Estimates on the generalization error of physics-informed neural networks for approximating PDEs. IMA J. Numer. Anal. , 43(1):1–43, 2023. [25] E. Novak and H. Triebel. Function spaces in lipschitz domains and optimal rates of conver-gence for sampling. Constr. Approx. , 23(3):325–350, 2006. [26] A. Paszke et. al. PyTorch: An imperative style, high-performance deep learning library. 
+
+Advances in neural information processing systems , 32, 2019. [27] S. Plankovskyy, Y. Tsegelnyk, N. Shyshko, I. Litvinchev, T. Romanova, C. Velarde, and J. M. José. Review of physics-informed neural networks: Challenges in loss function design and geometric integration. Mathematics , 13(20):3289, 2025. [28] A. Raina, S. Badireddi, and S. Natesan. Application of PINN to obtain solution of boundary layer problems arising in fluid dynamics. Math. Found. Comput. , 10:89–108, 2026. [29] M. Raissi, P. Perdikaris, and G. E. Karniadakis. Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations. J. Comput. Phys. , 378:686–707, 2019. doi: 10.1016/j.jcp.2018.10.045. [30] H.-G. Roos, M. Stynes, and L. Tobiska. Robust numerical methods for singularly perturbed differential equations: convection-diffusion-reaction and flow problems . Springer, 2008. [31] Y. Shin, J. Darbon, and G. E. Karniadakis. On the convergence of physics informed neural networks for linear second-order elliptic and parabolic type pdes. Comm. Comput. Phys. ,28(5):2042–2074, 2020. [32] M. K. Singh. Consistent CutPINNs for elliptic PDEs on curved level-set domains. arXiv preprint arXiv:2605.25562 , 2026. [33] M. K. Singh and S. Natesan. Numerical solution of 2D singularly perturbed reaction– diffusion system with multiple scales. Computers & Mathematics with Applications , 80(4): 36–53, 2020. 18 MANEESH KUMAR SINGH 
+
+[34] M. K. Singh, G. Singh, and S. Natesan. A unified study on superconvergence analysis of Galerkin FEM for singularly perturbed systems of multiscale nature. Journal of Applied Mathematics and Computing , 66(1):221–243, 2021. [35] M. Tancik et. al. Fourier features let networks learn high frequency functions in low dimen-sional domains. Advances in neural information processing systems , 33:7537–7547, 2020. [36] C. Visser, A. Heinlein, and B. Giovanardi. PACMANN: Point adaptive collocation method for artificial neural networks. Comput. Methods Appl. Mech. Eng. , 452:118723, 2026. [37] S. Yadav and S. Ganesan. Artificial neural network-augmented stabilized finite element method. Journal of Computational Physics , 499:112702, 2024. [38] S. Yadav and S. Ganesan. ConvStabNet: a CNN-based approach for the prediction of local stabilization parameter for supg scheme. Calcolo , 61(3):52, 2024. [39] M. Zeinhofer, R. Masri, and K.-A. Mardal. A unified framework for the error analysis of physics-informed neural networks. IMA J. Numer. Anal. , 45(5):2988–3025, 2025.

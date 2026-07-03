@@ -1,0 +1,6374 @@
+Title: Constrained Online Convex Optimization without Slater's Condition
+
+URL Source: https://arxiv.org/pdf/2606.31480v1
+
+Published Time: Wed, 01 Jul 2026 00:57:32 GMT
+
+Number of Pages: 47
+
+Markdown Content:
+# Constrained Online Convex Optimization without Slater’s Condition 
+
+Kihyun Yu 1 Junehee Lee 2 Dabeen Lee 21KAIST 2Seoul National University 
+
+khyu99@kaist.ac.kr, {leo0402,dabeenl }@snu.ac.kr 
+
+Abstract 
+
+We study constrained online convex optimization with adversarial losses and stochastic or adversarial constraints. For stochastic constraints, existing algo-rithms that achieve nearly optimal regret and constraint violation bounds typi-cally rely on regularity assumptions such as Slater’s condition, while adversarial-constraint algorithms avoid these assumptions by using a rather restrictive round-wise feasible comparator. We bridge this gap with an anytime primal-dual framework that incorporates an adaptive regularizer into the dual update. The regularizer stabilizes the dual process without relying on the negative drift induced by Slater’s condition. For stochastic constraints and convex losses, our algorithm achieves O(√T ) expected regret and O(√T log T ) expected cumula-tive constraint violation. Furthermore, we show that our algorithm also admits high-probability bounds of the same order on regret and constraint violation. For strongly convex losses, the regret bound improves to O(log T ) with a viola-tion bound of the same order. With a minor modification, the framework also applies to adversarial constraints and provides guarantees for hard constraint violation. 
+
+1 Introduction 
+
+Constrained Online Convex Optimization (COCO) is a sequential decision-making prob-lem under uncertainty in which, at each round, a decision maker selects an action with-out prior knowledge of the convex loss function, while feasibility requirements restrict the decision-making process. The goal is to minimize the cumulative loss while satisfying these requirements over time. COCO arises naturally in a wide variety of real-world applica-tions, including online advertising with budget constraints (Mehta et al., 2007), portfolio optimization with risk constraints (Cover, 1991; Rockafellar et al., 2000), wireless network resource management under power constraints (Tse and Viswanath, 2005), and online rec-ommendation systems with fairness constraints (Singh and Joachims, 2018). 1
+
+> arXiv:2606.31480v1 [cs.LG] 30 Jun 2026
+
+The COCO problem is typically formulated as follows (a detailed formulation is provided in Section 2). In each round t, the decision maker selects an action xt ∈ X . Then, the loss function ft and the constraint function gt are revealed to the decision maker, where feasibility is characterized by the functional constraint gt(x) ≤ 0. Given a comparator 
+
+x⋆ ∈ X , the performance of the decision maker is measured by the regret and cumulative constraint violation over T rounds, denoted by Regret( T ) and Violation( T ), respectively: Regret( T ) = 
+
+> T
+
+X
+
+> t=1
+
+(ft(xt) − ft(x⋆)) , Violation( T ) = 
+
+> T
+
+X
+
+> t=1
+
+gt(xt).
+
+COCO has been studied under various settings. One line of work considers COCO with 
+
+stochastic constraints (Yu et al., 2017; Wei et al., 2020). In this setting, the constraint functions are sampled i.i.d. from an underlying distribution, whereas the loss functions may vary arbitrarily over time. Yu et al. (2017) proposed a drift-plus-penalty algorithm that achieves O(√T ) bounds on regret and cumulative constraint violation. However, their analysis relies on Slater’s condition, which assumes the existence of a strictly feasible deci-sion in expectation, i.e., there exist ˆ x and ε > 0 such that E[g1(ˆ x)] = · · · = E[gT (ˆ x)] ≤ − ε,where the expectation is taken over the randomness of the constraint functions. More im-portantly, their bound on cumulative constraint violation is O(ε−1√T ), which deteriorates as ε approaches zero. This motivates us to investigate whether this condition can be relaxed while maintaining regret and constraint violation guarantees. Wei et al. (2020) made some progress in this direction for the same setting by replac-ing Slater’s condition with what they call the sequential existence of Lagrange multipliers (SELM) condition, which assumes the existence of uniformly bounded Lagrange multipliers. Since Slater’s condition implies SELM, the latter is a weaker assumption. Nevertheless, their analysis still relies on the boundedness of the Lagrange multipliers, with the hidden constant in the constraint violation bound depending on the corresponding multiplier bound. Con-sequently, whether these guarantees can be achieved without such regularity assumptions has remained unresolved for COCO with stochastic constraints. In contrast to the stochastic constraint setting, one can remove the necessity of a regularity assumption in another line of settings, called COCO with adversarial constraints against a restrictive comparator, where the constraint functions as well as the loss functions can vary arbitrarily over time (Yi et al., 2020; Sinha and Vaze, 2024). Here, the comparator is restrictive in that it is defined to be round-wise feasible : gt(x⋆) ≤ 0, ∀t = 1 , . . . , T . For this setting, Yi et al. (2020) proposed an algorithm without assuming Slater’s condition or bounded Lagrange multipliers, but its guarantees are suboptimal. Later, Sinha and Vaze (2024) proposed an algorithm that does not rely on these conditions but achieves nearly optimal regret and constraint violation bounds of O(√T ) and eO(√T )1, respectively. The bounds are independent of any Slater constant or Lagrange multiplier bound. Addition-ally, Sarkar and Sinha (2026b) developed an anytime extension that does not require prior knowledge of the horizon T .Given the success in the adversarial constraint setting, one may ask whether the same guarantees carry over to the stochastic constraint setting, since any realized stochastic      
+
+> 1Notation eO(·) is used to hide polylogarithmic factors, and the precise bound of Sinha and Vaze (2024) on constraint violation is O(√Tlog T).
+
+2constraint sequence can be viewed as a special case of adversarial constraint sequences. Unfortunately, the answer is no. The key distinction between the two settings lies in the definition of the comparator x⋆, which plays a central role in the performance metrics. As mentioned above, the previous work for the adversarial setting takes a round-wise feasible comparator, but in the stochastic constraint setting, the comparator is defined to be feasible in expectation : E[g1(x⋆)] = · · · = E[gT (x⋆)] ≤ 0. This distinction implies that directly applying the algorithm of Sinha and Vaze (2024) to the stochastic constraint setting can provide guarantees only under the stronger assumption that x⋆ is feasible almost surely, i.e., gt(x⋆) ≤ 0 with probability 1. This yields a weaker notion of regret, which is not satisfactory for the stochastic constraint setting. 
+
+1.1 Our Contributions 
+
+Prior guarantees for COCO with stochastic constraints can be achieved only under addi-tional assumptions or with respect to a weaker notion of regret. Motivated by this gap, this paper develops an algorithm for this setting that achieves nearly optimal guarantees 2
+
+without these limitations. We summarize the main contributions below and provide a com-parison with recent works in Table 1. 
+
+• We propose a novel algorithm (Algorithm 1) for COCO with stochastic constraints that does not rely on additional assumptions, including Slater’s condition and bounded Lagrange multipliers. For the stochastic constraint setting, we show that our algo-rithm achieves expected regret and constraint violation bounds of O(√T ) and eO(√T ), respectively (Theorem 1). The novelty of our algorithm stems from incorporating an adaptive regularizer into the dual update. In principle, this step stabilizes the dual process without relying on the negative drift induced by Slater’s condition. More tech-nically, our regularizer is carefully designed to offset an accumulated term involving the derivative of a Lyapunov function that arises in the regret analysis. 
+
+• Beyond expected guarantees, we also provide high-probability guarantees. In partic-ular, given a confidence parameter δ, with probability at least 1 − δ, our algorithm achieves regret and violation bounds of order O(√T ) and eO(√T ), respectively (The-orem 2). The key step is to obtain an upper bound on the Lyapunov-weighted sum of comparator constraints by applying a concentration inequality for supermartingales. We then modify the regularizer appropriately so that it can offset this bound as well. 
+
+• We further extend the guarantees to strongly convex losses and adversarial con-straints. Under stochastic constraints, when losses are strongly convex, our algo-rithm improves the expected and high-probability regret bounds to O(log T ) and 
+
+O(log T + plog(1 /δ )), respectively, while the constraint violation bounds remain the same as in the convex loss case (Theorems 3 and 4). 
+
+• Moreover, under adversarial constraints, a slightly modified version of our algorithm achieves regret and hard constraint violation bounds of O(√T ) and eO(√T ), respec-tively, for convex losses (Theorem 5), and improves the regret bound to O(log T )  
+
+> 2By nearly optimal guarantees, we mean regret and violation bounds of order eO(√T).
+
+3Table 1: Comparison of COCO algorithms with optimal guarantees up to logarithmic fac-tors. The columns represent the following. Stochastic : the stochastic constraint setting is considered; Exp. , H.P. : expected and high-probability guarantees are provided, respec-tively; Adversarial : the adversarial constraint setting is considered; w/o Slater : the algorithm does not require Slater’s condition, where △ denotes that another regularity as-sumption, weaker than Slater’s condition, is required; S.C. : improved guarantees can be achieved when losses are strongly convex; Anytime : the algorithm does not require T as an input parameter. †: Yu et al. (2017) considered only stochastic constraints, but the same algorithm also works for adversarial constraints (Neely and Yu, 2017). Algorithm Stochastic Adversarial w/o Slater S.C. Anytime Exp. H.P. Yu et al. (2017) ✓ ✓ ✓†
+
+Wei et al. (2020) ✓ △
+
+Sinha and Vaze (2024) ✓ ✓ ✓
+
+Sarkar and Sinha (2026b) ✓ ✓ ✓
+
+Ours ✓ ✓ ✓ ✓ ✓ ✓
+
+for strongly convex losses (Theorem 6). Here, hard constraint violation is a stronger notion of constraint violation that does not allow cancellation across rounds. 
+
+• Our algorithm is unified and anytime. The same algorithmic framework, based on the dual update with a regularizer, applies to both stochastic and adversarial constraint settings, as well as to both convex and strongly convex losses. Moreover, the parameter choices of our algorithm do not require prior knowledge of the horizon T , and hence the algorithm runs in an anytime manner without using the doubling trick. The rest of the paper is organized as follows. Section 1.2 reviews additional related work. Section 2 presents the problem formulations and assumptions. Section 3 introduces our anytime primal-dual algorithm, and Section 4 explains the intuition for how the regularizer stabilizes the dual process. Section 5 presents the main theoretical results for stochastic and adversarial constraints under convex and strongly convex losses, together with an overview of the proofs. Sections 6 and 7 provide the analyses for expected and high-probability guarantees under stochastic constraints, respectively, and Section 8 extends the analysis to strongly convex losses. Section 9 concludes the paper, and the appendix contains the deferred proofs, the analysis for adversarial constraints, and auxiliary lemmas. 
+
+1.2 Related Work 
+
+Online Convex Optimization (OCO) provides a general framework for sequential decision-making with convex losses over a fixed feasible set. In the classical OCO setting, a decision maker selects an action in each round and then observes a convex loss function, with the goal of minimizing regret against a fixed comparator in hindsight. Since the foundational work of 4Zinkevich (2003), OCO has been extensively studied in the online learning literature (Cesa-Bianchi et al., 1996; Cesa-Bianchi and Lugosi, 2006; Shalev-Shwartz, 2012; Hazan, 2016; Orabona, 2019). In contrast to the classical OCO setting, COCO captures more complex feasible regions char-acterized by functional constraints and additionally requires the decision maker to control constraint violations over time. A line of work studies COCO with fixed or known con-straint functions. A common formulation in this line is OCO with long-term constraints, where the constraints may be violated at individual rounds but their cumulative violation should be controlled over the entire horizon. This formulation was initiated by Mahdavi et al. (2012). Subsequent works developed adaptive algorithms (Jenatton et al., 2016), established guarantees for cumulative squared constraint violations (Yuan and Lamperski, 2018), and improved guarantees (Yu and Neely, 2020; Yi et al., 2021). Another line of work studies COCO with stochastic constraints, where the constraint func-tions are sampled i.i.d. from an underlying distribution while the loss functions may vary adversarially. In this literature, Yu et al. (2017) established expected and high-probability regret and constraint violation bounds, but their analysis relies on Slater’s condition. Later, Wei et al. (2020) relaxed this requirement by assuming the existence of bounded Lagrange multipliers. In contrast, our work requires none of these assumptions but still achieves nearly optimal guarantees for stochastic constraints. Recently, COCO has also been extensively studied under adversarial constraints, where the loss and constraint functions may vary adversarially over time. The early work of Mannor et al. (2009) considered online learning with a comparator that satisfies a sample path constraint PTt=1 gt(x) ≤ 0. They proved that for their setting, no online algorithm can achieve sublinear bounds on both regret and constraint violation at the same time. Subsequent works then studied adversarial constraints under restrictive comparators with round-wise feasibility requirements (Neely and Yu, 2017; Guo et al., 2022; Sinha and Vaze, 2024; Lekeufack and Jordan, 2024). This line of research has since been extended to broader settings (Wang et al., 2025a; Sinha and Vaze, 2026; Zhang, 2026; Supantha and Sinha, 2026). In particular, Garber and Kretzu (2024); Wang et al. (2025b); Sarkar et al. (2026) proposed projection-free algorithms, Yi et al. (2020, 2022); Pan et al. (2026) studied distributed settings, Vaze and Sinha (2026) proposed instance-dependent guarantees, Sarkar and Sinha (2026a) improved guarantees, and Sarkar and Sinha (2026b) proposed anytime algorithms. Although these results provide strong guarantees in the adversarial constraint setting, they do not directly apply to the stochastic constraint setting, where the comparator is required to be feasible only in expectation. 
+
+2 Preliminaries 
+
+This section presents the formulations of COCO studied in this paper and the required as-sumptions. Before introducing them, we first establish some basic notation used throughout the paper. Let E denote the expectation taken over randomness of the constraint functions, let R+ denote the set of nonnegative real numbers, let ∥ · ∥ denote the Euclidean norm, and let [ ·]+ = max {0, ·} . Moreover, for a subdifferentiable function f : Rd → R, let ∇f (x)denote a subgradient of f at x. For a positive integer T , let [ T ] = {1, 2, . . . , T }.5Let X ⊆ Rd be a compact convex set for some positive integer d. Let {ft}t≥1 and {gt}t≥1
+
+denote sequences of convex loss and constraint functions, respectively, that are subdifferen-tiable on X . Additionally, we impose the following assumptions throughout the paper. 
+
+Assumption 1. There exists a constant D > 0 such that ∥x − y∥ ≤ D for all x, y ∈ X .
+
+Assumption 2. There exist constants L, G > 0 such that ∥∇ ft(x)∥ ≤ L, ∥∇ gt(x)∥ ≤ L,and |gt(x)| ≤ G for all x ∈ X and t ≥ 1. The first assumption ensures that X is bounded, while the second assumes that the subgra-dients and constraint functions are bounded. Both assumptions are common in the COCO literature (Yu et al., 2017). We now formulate an online learning problem for COCO. In each round t, the decision maker selects an action xt ∈ X , after which the loss function ft and the constraint function 
+
+gt are revealed. We consider two settings that differ in how the constraint functions are given: the stochastic constraint setting (Yu et al., 2017) and the adversarial constraint setting (Sinha and Vaze, 2024). 
+
+• Stochastic Constraint Setting: In each round t, gt is sampled i.i.d. from an unknown distribution D, while ft is chosen arbitrarily and independently of the sam-ples of the constraint functions. In this case, we consider the following performance metrics, which are regret and constraint violation over T rounds: Regret( T ) = 
+
+> T
+
+X
+
+> t=1
+
+(ft(xt) − ft(x⋆)) , Violation( T ) = 
+
+> T
+
+X
+
+> t=1
+
+gt(xt), (1) where the comparator x⋆ ∈ X is independent of {gt}Tt=1 and is defined to be feasible in expectation, i.e., 
+
+x⋆ ∈ arg min 
+
+> x∈X
+> T
+
+X
+
+> t=1
+
+ft(x) s.t. E[g1(x)] = · · · = E[gT (x)] ≤ 0. (2) 
+
+• Adversarial Constraint Setting: In each round t, gt is chosen adversarially, just as ft is. In this case, we consider the regret measure defined in the same way as in (1), while the notion of hard constraint violation is considered, which is defined as Violation +(T ) = 
+
+> T
+
+X
+
+> t=1
+
+[gt(xt)] +.
+
+Here, under the assumption that {x ∈ X : gt(x) ≤ 0, ∀t ∈ [T ]} is nonempty (Sinha and Vaze, 2024), x⋆ is defined as round-wise feasible, i.e., 
+
+x⋆ ∈ arg min 
+
+> x∈X
+> T
+
+X
+
+> t=1
+
+ft(x) s.t. gt(x) ≤ 0, ∀t ∈ [T ]. (3) 6Algorithm 1 COCO without Slater’s condition 
+
+Input: Lipschitz constant L; boundedness constant for constraints G; diameter D; confi-dence parameter δ ∈ (0 , 1); strong convexity constant μ; auxiliary function Ψ : R+ → R;Lyapunov parameters {γt}t≥1.
+
+Initialize: Set x1 ∈ X , Q1 = 0, and Φ t(x) = eγtx − 1 for all t ≥ 1. 
+
+for t = 1 , 2, . . . do 
+
+Take xt and observe ft, g t
+
+Update the primal step size ηt
+
+Update xt+1 = proj X (xt − ηt(∇ft(xt) + Φ ′
+
+> t
+
+(Qt)∇gt(xt))) Update Rt:
+
+Rt = 12 γtG2 +Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt)Update Qt+1 = Qt + gt(xt) − Rt
+
+end for 
+
+Again, it is worth comparing the definitions of x⋆ in the two settings: feasible in expecta-tion (2) versus round-wise feasible (3). In particular, for the adversarial constraint setting, 
+
+x⋆ is defined to be round-wise feasible, since no online algorithm can achieve sublinear bounds on both regret and constraint violation at the same time if x⋆ is instead defined as arg min x∈X 
+
+PTt=1 ft(x) s .t. PTt=1 gt(x) ≤ 0 (Mannor et al., 2009). Moreover, under the restrictive definition of x⋆ given in (3), we may obtain guarantees for the hard constraint violation. On the other hand, under the stochastic constraint setting, x⋆ is only needed to satisfy the constraint in expectation rather than for all rounds. Therefore, the difference between two choices of x⋆ suggests that algorithms for the adversarial constraint setting do not directly translate to the stochastic constraint setting, requiring additional techniques. 
+
+3 Unified Algorithm for COCO 
+
+In this section, we present Algorithm 1, an anytime algorithm for solving COCO. We em-phasize that it is a unified algorithm that does not rely on Slater’s condition and achieves nearly optimal guarantees in both stochastic and adversarial constraint settings under both convex and strongly convex losses. The key principle is to incorporate an adaptive regular-izer into the dual update that stabilizes the dual process without relying on the negative drift induced by Slater’s condition. A more detailed discussion of the regularizer is provided in Section 4. Our algorithm proceeds as follows; the choices of Ψ , γ t, and ηt will be given in the subsequent paragraph. Initially, the decision maker selects an arbitrary point x1 ∈ X and sets the initial dual variable Q1 = 0. In each round t ≥ 1, the decision maker first plays xt and then observes the loss function ft and the constraint function gt. Using the current dual variable Qt, inspired by the works of Sinha and Vaze (2024); Sarkar and Sinha (2026b), the algorithm constructs an exponential Lyapunov function given by Φ t(x) = eγtx − 1 and performs a primal update based on the surrogate subgradient ∇ft(xt) + Φ ′
+
+> t
+
+(Qt)∇gt(xt). The exponential Lyapunov function is particularly useful compared to quadratic Lyapunov 7functions because its derivative is strictly positive for all Qt when γt > 0, implying that the surrogate function ft + Φ ′
+
+> t
+
+(Qt)gt always remains convex. The dual variable is then updated according to the observed constraint violation together with the regularizer term Rt, which adaptively controls its growth. The key parameters of Algorithm 1 are Ψ , γ t, and ηt. Indeed, these parameters do not require knowledge of T , hence our algorithm is anytime. The choices of Ψ , γ t, and ηt are given as follows, depending on the setting under consideration. 
+
+• The parameter γt defines the exponential Lyapunov function Φ t, while Ψ is an aux-iliary function used to define Rt. Under the stochastic constraint setting, both Ψ and γt are chosen according to the type of guarantee desired, namely, expected or high-probability guarantees. The precise choices of Ψ and γt are given as follows: if the expected guarantees are desired, then we take Ψ( x) = 4 DL √x, γt = min 
+
+ 112 G√t , 124 DL , 1
+
+
+
+. (4) To obtain high-probability guarantees with confidence δ ∈ (0 , 1), we instead take Ψ( x) = 4 DL √x + 4 G
+
+r
+
+(1 + x) log (π2/6)(1 + log 2(1 + x)) 2
+
+δ ,γt = min 
+
+
+
+112 G√t , 124 
+
+
+
+DL + 8 Gplog(12 t2/δ )
+
+ , 1
+
+ .
+
+(5) For the adversarial constraint setting, we use the same choices of Ψ and γt as in the expected bound setting with stochastic constraints. Moreover, with a minor modifi-cation, the algorithm can also provide guarantees for hard constraint violation. The modified algorithm is given in Algorithm 2, and the corresponding results are pre-sented in Section 5.3. 
+
+• The primal step size ηt is used in the projected subgradient descent update and is chosen according to the properties of the loss functions. Specifically, when the loss functions are convex, we employ an AdaGrad-type step size for ηt (Duchi et al., 2011). In contrast, to deduce improved performance when the loss functions are strongly convex, we use a step size based on that of Bartlett et al. (2007), with appropriate modifications to accommodate our setting. The precise choice of ηt is summarized as follows: if losses are convex, then we take 
+
+ηt =
+
+√2D
+
+2
+
+q
+
+1 + Ptτ =1 ∥∇ fτ (xτ ) + Φ ′ 
+
+> τ
+
+(Qτ )∇gτ (xτ )∥2
+
+. (6) If losses are μ-strongly convex, then we take 
+
+ηt = 1
+
+μt + (2 L/D )
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2
+
+. (7) 84 The Role of the Regularizer 
+
+This section explains the role of the regularizer Rt. In the stochastic constraint setting, the main challenge arises from the less restrictive definition of comparator x⋆, that is, a solu-tion satisfying the expected constraint E[gt(x⋆)] ≤ 0. Specifically, although the algorithm proposed by Sinha and Vaze (2024) attained nearly optimal guarantees in the adversarial constraint setting, its analysis heavily relies on the fact that gt(x⋆) ≤ 0 for all t ≥ 1, which no longer holds in our setting. To address this issue, our technique is to incorporate an adaptive regularizer into the dual update. 
+
+4.1 Key Mechanism 
+
+Before explaining how the regularizer works, we first introduce the main direction of the analysis. Inspired by Sinha and Vaze (2024), we aim to show the following key relation, which simultaneously guarantees small regret and stability of the dual process. Letting ≲
+
+denote an informal notation used only to convey intuition, Regret( T ) + Φ T +1 (QT +1 ) ≲ O(√T ). (8) To derive this relation in the stochastic constraint setting, we then explain why the regular-izer is essential. For this purpose, we first observe that the regularizer enables us to control the Lyapunov drift more carefully, which is defined as Φ t+1 (Qt+1 ) − Φt(Qt). Intuitively, since this quantity represents the change in the dual variable, it is desirable for it to remain small in order to stabilize the dual process. Roughly, the Lyapunov drift satisfies the fol-lowing relation, suggesting that Rt helps control the Lyapunov drift and thereby stabilizes the dual process. Φt+1 (Qt+1 ) − Φt(Qt) ≲ Φ′
+
+> t
+
+(Qt) gt(xt) − Rt
+
+. (9) Combining this drift analysis with the regret analysis for the surrogate loss ft + Φ ′
+
+> t
+
+(Qt)gt
+
+gives us Regret( T ) + Φ T +1 (QT +1 )
+
+≲ O
+
+√T
+
+
+
++
+
+vuut TX
+
+> t=1
+
+Φ′
+
+> t
+
+(Qt)2
+
+| {z }
+
+> (I)
+
+−
+
+> T
+
+X
+
+> t=1
+
+Φ′
+
+> t
+
+(Qt)Rt
+
+| {z }
+
+> (II)
+
++
+
+> T
+
+X
+
+> t=1
+
+Φ′
+
+> t
+
+(Qt)gt(x⋆)
+
+| {z }
+
+> (III)
+
+. (10) This relation clarifies how Rt works. In particular, to deduce (8) from the above relation, the most problematic term is (I), whereas (III)—Lyapunov-weighted sum of comparator constraints—is nonpositive in expectation from the feasibility of x⋆. We emphasize that, by adopting a carefully designed regularizer, (II) can offset this problematic term (I), resulting in (8). This observation motivates us to choose Rt as 
+
+Rt ≈
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 −
+
+qPt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+Φ′
+
+> t
+
+(Qt) ,
+
+9which justifies the choice of Rt. Without the regularizer, it is nontrivial to bound (I), which highlights that our regularizer is essential for deriving small regret and stability of the dual process. So far, we have demonstrated the mechanism of Rt in the dual update. Although adopting 
+
+Rt is useful for achieving small regret and stability of the dual process, there is another caveat in the choice of Rt. That is, when Rt is too large, the constraint violation cannot be bounded, based on the observation that Violation( T ) = QT +1 + PTt=1 Rt. Hence, there is a trade-off in the choice of Rt in the sense that it is helpful to stabilize the dual process but, at the same time, it could harm the violation of the constraint. Nevertheless, under our choice of Rt, we prove that its cumulative sums are sublinear, e.g., Lemma 11. Consequently, our choice of Rt yields the desired nearly optimal guarantees without Slater’s condition. 
+
+4.2 Comparison with the Existing Dual Updates 
+
+In this subsection, we compare our algorithm with the algorithms of Sinha and Vaze (2024) and Yu et al. (2017). We first discuss the relation to Sinha and Vaze (2024), which studied the adversarial constraint setting without Slater’s condition. In particular, we focus on addressing the following question: why is Rt unnecessary in the adversarial setting, whose dual update is Qt = Qt−1 + [ gt(xt)] +? To see this, we provide the analogue of (10), which can be written as Regret( T ) + Φ( QT ) ≲ O
+
+√T
+
+
+
++
+
+vuut TX
+
+> t=1
+
+Φ′(Qt)2
+
+| {z }
+
+> (I ′)
+
++
+
+> T
+
+X
+
+> t=1
+
+Φ′(Qt)[ gt(x⋆)] +
+
+| {z }
+
+> (III ′)
+
+. (11) Since their dual update ensures that {Qt}t≥1 is an increasing sequence, choosing Φ( x) = 
+
+eγx − 1 with γ = 1 /(2 √T ) yields (I ′) ≤ Φ( QT )/2. Hence, (I ′) can be absorbed into Φ( QT )on the left-hand side, without relying on a regularizer. Moreover, (III ′) is 0 under their choice of x⋆, since gt(x⋆) ≤ 0 for all t. These observations explain why the algorithm of Sinha and Vaze (2024) works without a regularizer. However, this approach no longer holds in our setting. The main reason is that since we only have E[gt(x⋆)] ≤ 0 in the stochastic constraint setting, (III ′) does not coincide with 0, even after taking expectations. In summary, in the adversarial constraint setting, (8) is attained without a regularizer, and this is possible due to the restrictive definition of x⋆. This highlights both the challenge in the stochastic constraint setting and the importance of adopting Rt.We conclude the section by comparing our approach with Yu et al. (2017), which studies the same setting as ours but requires Slater’s condition. This comparison explains why our approach does not require Slater’s condition. To see this, under the quadratic Lyapunov function Φ( x) = x2/2 and the dual update Qt+1 = [ Qt + gt(xt) + ∇gt(xt)⊤(xt+1 − xt)] +,their analysis shows that the conditional expected Lyapunov drift can be bounded as follows (see the proof of Lemma 7 in Yu et al. (2017)): 
+
+E[Φ( Qt+t0 ) − Φ( Qt)|F t−1] ≲ −εt 0Φ′(Qt) + C (12) where ε is a Slater constant, t0 is a window parameter, Ft−1 is the σ-algebra generated by the history up to round t − 1, and C collects the remaining positive terms. This shows that 10 the stability of their dual process stems from −εt 0Φ′(Qt), as it is the only negative term on the right-hand side. Therefore, their analysis necessitates Slater’s condition. In contrast, our analysis relies on the regularizer as in (9). This is the key reason why our algorithm is free from Slater’s condition. 
+
+5 Main Results 
+
+In this section, we present the theoretical guarantees of our algorithm. In particular, we establish guarantees for both convex and strongly convex loss functions under stochastic and adversarial constraints. For the stochastic constraint setting, we further provide both expected and high-probability guarantees. An overview of the analysis is presented in Section 5.4. 
+
+5.1 Stochastic Constraints 
+
+We first consider the stochastic constraint setting, where the loss functions may vary adver-sarially over time while the constraint functions are stochastic. Throughout this subsection, both the loss and constraint functions are assumed to be convex. To attain expected guaran-tees in this setting, recall that we choose the auxiliary function Ψ, the Lyapunov parameter 
+
+γt as in (4), and the primal step size ηt as in (6). We are now ready to present our first theoretical guarantee, where the corresponding analysis is provided in Section 6. 
+
+Theorem 1. Consider convex losses and stochastic constraints. For any T ≥ 1, suppose that we run Algorithm 1 for T rounds with Ψ, γ t given by (4) and ηt given by (6) . Then, we have 
+
+E[Regret( T )] = O
+
+√T
+
+
+
+, E[Violation( T )] = O
+
+√T log T
+
+
+
+,
+
+where the expectation is taken with respect to the randomness of {gt}t≥1.
+
+We note that this theorem demonstrates that our algorithm achieves nearly optimal ex-pected guarantees in T , without relying on Slater’s condition. While Theorem 1 attains guarantees in expectation, it is often desirable to obtain realized guarantees that hold with high confidence. Thus, given a confidence parameter δ ∈ (0 , 1), we establish high-probability guarantees under the same setting as in Theorem 1. To this end, we modify Ψ, γt as in (5), while retaining the same primal step size ηt as in (6). Under these modified algorithmic parameters, the algorithm enjoys the following high-probability guarantees. The analysis of the following theorem is presented in Section 7. 
+
+Theorem 2. Consider convex losses and stochastic constraints. For any T ≥ 1 and δ ∈
+
+(0 , 1) , suppose that we run Algorithm 1 for T rounds with Ψ, γ t given by (5) and ηt given by (6) . Then, with probability at least 1 − δ, we have 
+
+Regret( T ) = O
+
+√T + plog(1 /δ )
+
+
+
+, Violation( T ) = O
+
+√T log( T /δ ) + log 3/2(T /δ )
+
+
+
+.
+
+5.2 Extension to Strongly Convex Losses 
+
+We next extend the preceding results to the setting with μ-strongly convex losses, while the remaining assumptions are identical to those in Section 5.1. To obtain improved guarantees, 11 it is sufficient to modify the primal step size ηt as in (7), which more properly exploits strong convexity (Lemma 17). We then obtain the following expected and high-probability guarantees. 
+
+Theorem 3. Consider μ-strongly convex losses for μ > 0 and stochastic constraints. For any T ≥ 1, suppose that we run Algorithm 1 for T rounds with Ψ, γ t given by (4) and ηt
+
+given by (7) . Then, we have 
+
+E[Regret( T )] = O (log T ) , E[Violation( T )] = O
+
+√T log T
+
+
+
+,
+
+where the expectation is taken with respect to the randomness of {gt}t≥1.
+
+Theorem 4. Consider μ-strongly convex losses for μ > 0 and stochastic constraints. For all T ≥ 1 and δ ∈ (0 , 1) , suppose that we run Algorithm 1 for T rounds with Ψ, γ t given by 
+
+(5) and ηt given by (7) . Then, with probability at least 1 − δ, we have 
+
+Regret( T ) = O
+
+
+
+log T + plog(1 /δ )
+
+
+
+, Violation( T ) = O
+
+√T log( T /δ ) + log 3/2(T /δ )
+
+
+
+.
+
+Both theorems demonstrate that our algorithm can achieve improved expected and high-probability regret bounds that scale as log T when the losses are strongly convex. The analyses of Theorems 3 and 4 are presented in Section 8. 
+
+5.3 Adversarial Constraints 
+
+Finally, we consider the adversarial constraint setting. Although Sinha and Vaze (2024) already established nearly optimal guarantees in this setting, the following results demon-strate that our framework is unified in the sense that it achieves nearly optimal guarantees under both stochastic and adversarial constraints. 3
+
+Although we may directly apply Algorithm 1 to the adversarial constraint setting, the result-ing guarantees are on cumulative constraint violation, given by Violation( T ) = PTt=1 gt(xt). Since this quantity allows cancellation between positive and negative violations across time, it is weaker than the notion of hard constraint violation, given by Violation +(T ) = PTt=1 [gt(xt)] +, which is often the performance metric adopted by adversarial-constraint algorithms. To obtain guarantees with respect to Violation +(T ), we introduce several mod-ifications to Algorithm 1. The only difference is that Algorithm 2 uses ˜ gt in place of gt, where ˜ gt : x 7 → [gt(x)] +,and ∇˜gt(xt) denotes a subgradient of ˜ gt. Note that this modification yields hard constraint violation guarantees, since ˜ gt(xt) is accumulated in the dual variable update and PTt=1 ˜gt(xt)coincides with Violation +(T ). Hence, with Algorithm 2, we can obtain guarantees for Violation +(T ) by applying the same analysis strategy used for the stochastic constraint setting. This is possible because the comparator x⋆ in the adversarial constraint setting is feasible in every round, i.e., gt(x⋆) ≤ 0 for all t ≥ 1, which is stronger than feasibility 
+
+> 3Recently, this line of work has been extended to various settings (Sinha and Vaze, 2026; Sarkar et al., 2026; Sarkar and Sinha, 2026a; Vaze and Sinha, 2026; Supantha and Sinha, 2026). In contrast, our focus is to demonstrate that the proposed algorithm applies to both stochastic and adversarial constraint settings. We leave extensions of our algorithm to these broader settings for future work.
+
+12 Algorithm 2 COCO for Hard Constraint Violation without Slater’s condition 
+
+Input: Lipschitz constant L; boundedness constant for constraints G; diameter D; confi-dence parameter δ ∈ (0 , 1); strong convexity constant μ; auxiliary function Ψ : R+ → R;Lyapunov parameters {γt}t≥1.
+
+Initialize: Set x1 ∈ X , Q1 = 0, and Φ t(x) = eγtx − 1 for all t ≥ 1. 
+
+for t = 1 , 2, . . . do 
+
+Take xt and observe ft, g t
+
+Set ˜ gt ← [gt]+ and ∇˜gt(xt) = ∇gt(xt) if gt(xt) > 0, and 0 otherwise Update the primal step size ηt
+
+Update xt+1 = proj X (xt − ηt(∇ft(xt) + Φ ′
+
+> t
+
+(Qt)∇˜gt(xt))) Update Rt:
+
+Rt = 12 γtG2 +Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt)Update Qt+1 = Qt + ˜ gt(xt) − Rt
+
+end for 
+
+in expectation used in the stochastic constraint setting. Finally, we obtain the following results, whose analyses are deferred to Appendix B, as they follow from straightforward modifications of the previous analysis. 
+
+Theorem 5. Consider convex losses and adversarial constraints. For all T ≥ 1, suppose that we run Algorithm 2 for T rounds with Ψ, γ t given by (4) and ηt given by (6) . Then, we have 
+
+Regret( T ) = O
+
+√T
+
+
+
+, Violation +(T ) = O
+
+√T log T
+
+
+
+.
+
+Theorem 6. Consider μ-strongly convex losses for μ > 0 and adversarial constraints. For all T ≥ 1, suppose that we run Algorithm 2 for T rounds with Ψ, γ t given by (4) and ηt
+
+given by (7) . Then, we have 
+
+Regret( T ) = O (log T ) , Violation +(T ) = O
+
+√T log T
+
+
+
+.
+
+5.4 Overview of Proofs 
+
+The analyses of all theorems follow the same template, while additional techniques are required for handling high-probability guarantees and strongly convex losses. First, we establish a drift bound for the time-varying exponential Lyapunov function. Second, we combine this drift bound with a surrogate regret guarantee with respect to ft + Φ ′
+
+> t
+
+(Qt)gt.Third, the regularizer cancels the accumulated term involving PTt=1 Φ′
+
+> t
+
+(Qt)2. The remaining work is to control the Lyapunov-weighted comparator constraint term, which is nonposi-tive in expectation and controlled by a supermartingale concentration inequality with high probability, and then to bound the cumulative sum of regularizers PTt=1 Rt.13 6 Analysis under Stochastic Constraints: Expected Bounds 
+
+In this section, we present the analysis of Theorem 1, which establishes expected guarantees under convex losses and stochastic constraints. Throughout, E denotes the expectation taken with respect to the randomness of {gt}t≥1, and Ft denotes the σ-algebra generated by {fτ }τ ≥1 and {gτ }tτ =1 .
+
+Lemma 7. Suppose that we run Algorithm 1 with γt, Ψ as given by (4). Then, for all 
+
+t ≥ 1, we have Φt+1 (Qt+1 ) − Φt(Qt) ≤ Φ′
+
+> t
+
+(Qt)
+
+
+
+gt(xt) − Rt
+
+2
+
+
+
++ γt − γt+1 
+
+eγ t+1 
+
+.
+
+Proof. Note that the Lyapunov drift can be decomposed as Φt+1 (Qt+1 ) − Φt(Qt) = Φ t(Qt+1 ) − Φt(Qt)
+
+| {z }
+
+> (I)
+
++ Φ t+1 (Qt+1 ) − Φt(Qt+1 )
+
+| {z }
+
+> (II)
+
+. (13) Now, we first bound (I). Recall that Φ t(x) = eγtx − 1 and Φ ′
+
+> t
+
+(x) = γteγtx. It follows that Φt(Qt+1 ) − Φt(Qt) = eγtQt+1 − eγtQt
+
+= eγtQt (eγt(Qt+1 −Qt) − 1) = eγtQt (eγt(gt(xt)−Rt) − 1) = 1
+
+γt
+
+Φ′
+
+> t
+
+(Qt)( eγt(gt(xt)−Rt) − 1) .
+
+Note that ex ≤ 1 + x + x2 for all x ≤ 1, γt(gt(xt) − Rt) ≤ γtG ≤ 1, and Φ ′
+
+> t
+
+(Qt)/γ t > 0. Then it follows that Φt(Qt+1 ) − Φt(Qt)
+
+≤ 1
+
+γt
+
+Φ′
+
+> t
+
+(Qt)  γt(gt(xt) − Rt) + γ2 
+
+> t
+
+(gt(xt) − Rt)2 (14) 
+
+≤ Φ′
+
+> t
+
+(Qt)
+
+gt(xt) − Rt + 3 γtG2 + 432 γ3 
+
+> t
+
+G4 + 3 γt
+
+ Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt)
+
+
+
+> 2
+
+
+
+where the second inequality is due to the fact that ( x + y + z)2 ≤ 3( x2 + y2 + z2) for any 
+
+x, y, z ∈ R. Since γt ≤ 1/(12 G), we have 3γtG2 + 432 γ3 
+
+> t
+
+G4 ≤ 3γtG2 + 432 γtG4 · 1144 G2 = 6 γtG2. (15) 14 Moreover, we have 3γt
+
+Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt)= 12 γtDL 
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 −
+
+qPt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+Φ′
+
+> t
+
+(Qt)= 12 γtDL Φ′
+
+> t
+
+(Qt)
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 +
+
+qPt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+≤ 12 γtDL 
+
+≤ 12(16) where the first inequality follows from Φ ′
+
+> t
+
+(Qt) ≤
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 +
+
+qPt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2, and the second inequality is due to γt ≤ 1/(24 DL ). Note that Ψ is an increasing function, implying that Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+is nonnegative. Then, by applying (15) and (16) to (14), (I) is bounded as (I) = Φ t(Qt+1 ) − Φt(Qt)
+
+≤ Φ′
+
+> t
+
+(Qt)
+
+gt(xt) − Rt + 6 γtG2 +Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+2Φ ′
+
+> t
+
+(Qt)
+
+
+
+= Φ ′
+
+> t
+
+(Qt)
+
+
+
+gt(xt) − 12 Rt
+
+
+
+.
+
+Next, we bound (II). Since γt+1 ≤ γt, by Lemma 29, we have (II) = Φ t+1 (Qt+1 ) − Φt(Qt+1 ) ≤ γt − γt+1 
+
+eγ t+1 
+
+.
+
+By applying bounds on (I) and (II) to (13), we conclude the proof. From the right-hand side of the inequality in Lemma 7, we observe that the cost of employ-ing time-varying Lyapunov functions is ( γt − γt+1 )/(eγ t+1 ). Indeed, the following lemma demonstrates that this cost is not significant by showing that its summation over τ = 1 , . . . , t 
+
+grows only logarithmically with t.
+
+Lemma 8. Consider γt given by (4). Then, we have 
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+γτ +1 
+
+≤ 1 + log t
+
+2 .
+
+Proof. Recall that 1 /γ τ = max {12 G√τ , 24 DL, 1}. Then it follows that 
+
+γτ − γτ +1 
+
+γτ +1 
+
+=  
+
+> 1
+> γτ+1
+
+− 1
+
+> γτ
+> 1
+> γτ
+
+≤√τ + 1 − √τ
+
+√τ = 1(√τ + 1 + √τ )√τ ≤ 12τ
+
+15 where the first inequality follows from max {x, y, z } − max {x′, y, z } ≤ x − x′ for any x > x ′
+
+and 1 /γ τ ≥ 12 G√τ . Thus, we have 
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+γτ +1 
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+12τ ≤ 1 + log t
+
+2 ,
+
+as required. Next, we introduce Lemma 9, which provides an AdaGrad-type guarantee for the surrogate loss ft + Φ ′
+
+> t
+
+(Qt)gt.
+
+Lemma 9. Consider the setting of Theorem 1. Suppose that we run Algorithm 1 with ηt
+
+given by (6). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + 2 DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D. 
+
+Proof. For simplicity, let ˆfτ = fτ + Φ ′ 
+
+> τ
+
+(Qτ )gτ for each τ ∈ [t]. Note that since Φ ′ 
+
+> τ
+
+(Qτ ) > 0, ˆfτ is convex. Since projection onto X is a contraction mapping, we have for any x⋆ ∈ X ,
+
+∥xτ +1 − x⋆∥2 ≤ ∥ xτ − ητ ∇ ˆfτ (xτ ) − x⋆∥2
+
+≤ ∥ xτ − x⋆∥2 + η2 
+
+> τ
+
+∥∇ ˆfτ (xτ )∥2 − 2ητ ∇ ˆfτ (xτ )⊤(xτ − x⋆).
+
+By convexity, we have ˆfτ (xτ ) − ˆfτ (x⋆) ≤ ∇ ˆfτ (xτ )⊤(xτ − x⋆). It follows that ˆfτ (xτ ) − ˆfτ (x⋆) ≤ ∥xτ − x⋆∥2 − ∥ xτ +1 − x⋆∥2
+
+2ητ
+
++ ητ ∥∇ ˆfτ (xτ )∥2
+
+2 .
+
+Summing over τ = 1 , . . . , t yields 
+
+> t
+
+X 
+
+> τ=1
+
+( ˆfτ (xτ ) − ˆfτ (x⋆)) ≤
+
+> t
+
+X 
+
+> τ=1
+
+∥xτ − x⋆∥2 − ∥ xτ +1 − x⋆∥2
+
+2ητ
+
++
+
+> t
+
+X 
+
+> τ=1
+
+ητ ∥∇ ˆfτ (xτ )∥2
+
+2 .
+
+Note that 
+
+> t
+
+X 
+
+> τ=1
+
+∥xτ − x⋆∥2 − ∥ xτ +1 − x⋆∥2
+
+2ητ
+
+≤
+
+> t−1
+
+X 
+
+> τ=1
+
+∥xτ +1 − x⋆∥2
+
+2
+
+ 1
+
+ητ +1 
+
+− 1
+
+ητ
+
+
+
++ D2
+
+2η1
+
+≤ D2
+
+2ηt
+
+= D
+
+√2
+
+vuut1 + 
+
+> t
+
+X 
+
+> τ=1
+
+∥∇ ˆfτ (xτ )∥2
+
+≤ D
+
+√2
+
+vuut tX 
+
+> τ=1
+
+∥∇ ˆfτ (xτ )∥2 + D
+
+√216 where the second inequality follows from 1 /η τ +1 − 1/η τ ≥ 0 and ∥xτ +1 − x⋆∥2 ≤ D2, and the last inequality follows from √a + b ≤ √a + √b for any a, b ≥ 0. Moreover, 
+
+> t
+
+X 
+
+> τ=1
+
+ητ ∥∇ ˆfτ (xτ )∥2
+
+2 = D
+
+2√2
+
+> t
+
+X 
+
+> τ=1
+
+∥∇ ˆfτ (xτ )∥2
+
+q
+
+1 + Pτs=1 ∥∇ ˆfs(xs)∥2
+
+≤ D
+
+2√2 · 2
+
+vuut1 + 
+
+> t
+
+X 
+
+> τ=1
+
+∥∇ ˆfτ (xτ )∥2 − 1
+
+
+
+≤ D
+
+√2
+
+vuut tX 
+
+> τ=1
+
+∥∇ ˆfτ (xτ )∥2
+
+where the second inequality follows from Ptτ =1 yτ /p1 + Pτs=1 ys ≤ 2( 
+
+q
+
+1 + Ptτ =1 yτ −1) for any nonnegative sequence {yτ }τ ≥1, and the last inequality follows from √a + b ≤ √a + √b
+
+for any a, b ≥ 0. Since 1 /√2 ≤ 1, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+( ˆfτ (xτ ) − ˆfτ (x⋆)) ≤ √2D
+
+vuut tX 
+
+> τ=1
+
+∥∇ ˆfτ (xτ )∥2 + D. 
+
+Recall that ˆfτ = fτ + Φ ′ 
+
+> τ
+
+(Qτ )gτ and ∥∇ fτ (xτ )∥2, ∥∇ gτ (xτ )∥2 ≤ L2. It follows that 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )( gτ (xτ ) − gτ (x⋆)) 
+
+≤ 2DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D. 
+
+By rearranging the above inequality, we conclude the proof. We now combine Lemmas 7 and 9. This yields the following lemma, which establishes both a small regret bound and the stability of the dual process in expectation. 
+
+Lemma 10. Consider the setting of Theorem 1. Suppose that we run Algorithm 1 with 
+
+γt, Ψ given by (4) and ηt given by (6). Then, for all t ≥ 1, we have 
+
+E
+
+" tX 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) 
+
+#
+
++ E [Φ t+1 (Qt+1 )] ≤ 2DL √t + log t + 1 + D. 
+
+Proof. By Lemma 9, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + 2 DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D. 
+
+17 By summing the inequality in Lemma 7 over τ = 1 , . . . , t , since Φ 1(Q1) = 0, we have Φt+1 (Qt+1 ) − Φ1(Q1) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+gτ (xτ ) − Rτ
+
+2
+
+
+
++
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+.
+
+Since Φ 1(Q1) = 0, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + 2 DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D +
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+− 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )Rτ .
+
+Note that 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )Rτ ≥ 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ ) · Ψ( Pτs=1 Φ′
+
+> s
+
+(Qs)2) − Ψ( Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2)Φ′ 
+
+> τ
+
+(Qτ )= 12 Ψ
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+− 12 Ψ (0) = 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+Thus, we deduce that 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + 2 DL √t +
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
++ D
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + 2 DL √t + log t + 1 + D. 
+
+where the second inequality follows from Lemma 8 and 1 /(2 e) ≤ 1. Now, taking expecta-tions on both sides yields 
+
+E
+
+" tX 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) 
+
+#
+
++ E [Φ t+1 (Qt+1 )] 
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+E Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + 2 DL √t + log t + 1 + D
+
+=
+
+> t
+
+X 
+
+> τ=1
+
+E Φ′ 
+
+> τ
+
+(Qτ )E[gτ (x⋆)|F τ −1] + 2 DL √t + log t + 1 + D
+
+≤ 2DL √t + log t + 1 + D
+
+where the equality follows from the tower rule and Φ ′ 
+
+> τ
+
+(Qτ ) is Fτ −1-measurable, and the second inequality follows from the feasibility assumption that E[gτ (x⋆)] ≤ 0 for fixed x⋆
+
+and that {gτ }τ ≥1 are i.i.d. samples. This concludes the proof. 18 Next, we introduce Lemma 11, which shows that the cumulative sum of Rτ up to round t
+
+scales as √t log t in expectation. 
+
+Lemma 11. Consider the setting of Theorem 1. Suppose that we run Algorithm 1 with 
+
+γt, Ψ given by (4), and ηt given by (6). Then, for all t ≥ 1, we have 
+
+E
+
+" tX 
+
+> τ=1
+
+Rτ
+
+#
+
+= O
+
+p t log t
+
+
+
+.
+
+Proof. We first bound E[Φ ′
+
+> t+1
+
+(Qt+1 )], which is frequently used throughout the proof. By Lipschitzness, we have fτ (xτ ) − fτ (x⋆) ≥ − LD . Then it leads to Ptτ =1 (fτ (xτ ) − fτ (x⋆)) ≥−LDt almost surely. By Lemma 10, we have 
+
+E[Φ t+1 (Qt+1 )] ≤ 3DLt + log t + 1 + D. 
+
+This leads to 
+
+E[Φ ′
+
+> t+1
+
+(Qt+1 )] ≤ γt+1 (3 DLt + log t + D + 2) ≤ 3DLt + log t + D + 2 . (17) Now, we bound Ptτ =1 Rτ . Since γτ ≤ 1/(12 G√τ ), we have 
+
+E
+
+" tX 
+
+> τ=1
+
+Rτ
+
+#
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+G
+
+√τ +
+
+> t
+
+X 
+
+> τ=1
+
+E
+
+ Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+ .
+
+It is clear that Ptτ =1 G/ √τ ≤ 2G√t. Moreover, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )= 4 DL 
+
+> t
+
+X 
+
+> τ=1
+
+pP τs=1 Φ′
+
+> s
+
+(Qs)2 −
+
+qPτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+Φ′ 
+
+> τ
+
+(Qτ )= 4 DL 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+pP τs=1 Φ′
+
+> s
+
+(Qs)2 +
+
+qPτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+≤ 4DL 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+pP τs=1 Φ′
+
+> s
+
+(Qs)2
+
+≤ 4DL √t
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+Pτs=1 Φ′
+
+> s
+
+(Qs)2
+
+= 4 DL √t
+
+vuut tX 
+
+> τ=2
+
+Pτs=1 Φ′
+
+> s
+
+(Qs)2 − Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+Pτs=1 Φ′
+
+> s
+
+(Qs)2 + 1 
+
+≤ 4DL √t
+
+s
+
+log 
+
+Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2
+
+Φ′
+
+> 1
+
+(Q1)2 + 1 
+
+≤ 4DL √t
+
+s
+
+2 log 
+
+Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )Φ′
+
+> 1
+
+(Q1) + 1 .
+
+19 where the second inequality follows from the Cauchy-Schwarz inequality, the third inequality is due to Lemma 31, and the last inequality follows from Ptτ =1 a2 
+
+> τ
+
+≤ (Ptτ =1 aτ )2 for any nonnegative sequence {aτ }tτ =1 . Now, by taking E on both sides, since √x and log x are concave functions, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+E
+
+ Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+≤ E
+
+4DL √t
+
+s
+
+2 log 
+
+Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )Φ′
+
+> 1
+
+(Q1) + 1 
+
+
+
+≤ 4DL √t
+
+s
+
+2 log 
+
+Ptτ =1 E[Φ ′ 
+
+> τ
+
+(Qτ )] Φ′
+
+> 1
+
+(Q1) + 1 
+
+≤ 4DL √t
+
+s
+
+2 log t(3 DLt + log t + D + 2) 
+
+γ1
+
++ 1 where the second inequality follows from Jensen’s inequality, and the last inequality follows from (17). Consequently, we deduce that 
+
+E
+
+" tX 
+
+> τ=1
+
+Rτ
+
+#
+
+≤ 2G√t + 4 DL √t
+
+s
+
+2 log t(3 DLt + log t + D + 2) 
+
+γ1
+
++ 1 .
+
+It can be written as E P tτ =1 Rτ
+
+ = O  √t log t.
+
+6.1 Proof of Theorem 1 
+
+Now, we are ready to prove Theorem 1. 
+
+Proof. By Lemma 10, since Φ t+1 (Qt+1 ) ≥ − 1, we have 
+
+E[Regret( t)] = E
+
+" tX 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) 
+
+#
+
+≤ 2DL √t + log t + 2 + D. 
+
+Next, to bound E[Violation( t)], we observe that E P tτ =1 gτ (xτ ) = E[Qt+1 ] + Ptτ =1 E[Rτ ]. Thus, we first bound E[Qt+1 ]. As done in the proof of Lemma 11, we have 
+
+E[Φ t+1 (Qt+1 )] ≤ 3DLt + log t + 1 + D. 
+
+By Jensen’s inequality, we have eγt+1 E[Qt+1 ] − 1 ≤ E[eγt+1 Qt+1 − 1] = E[Φ t+1 (Qt+1 )]. Thus, we have 
+
+E[Qt+1 ] ≤ 1
+
+γt+1 
+
+log (3 DLt + log t + 2 + D)
+
+≤  12 G√t + 1 + 24 DL + 1  log (3 DLt + log t + 2 + D)It can be written as 
+
+E[Qt+1 ] = O
+
+√t log t
+
+
+
+.
+
+20 Moreover, by Lemma 11, we have E P tτ =1 Rτ
+
+ = O(√t log t). Consequently, we have 
+
+E[Regret( t)] = O
+
+√t
+
+
+
+, E[Violation( t)] = O
+
+√t log t
+
+
+
+,
+
+as required. 
+
+7 Analysis under Stochastic Constraints: High-Probability Bounds 
+
+In this section, we present the analysis of Theorem 2, which establishes high-probability guarantees under convex losses and stochastic constraints. The key challenge is to obtain a high-probability bound on tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆),
+
+which is required to derive a high-probability analogue of Lemma 10. In contrast, in the expected bound setting, the above summation is nonpositive in expectation as a conse-quence of feasibility, i.e., E[gt(x⋆)] ≤ 0. Therefore, we must derive a high-probability upper bound on this summation under the sole assumption that E[gt(x⋆)] ≤ 0. To this end, we introduce the following lemma, which provides an anytime concentration inequality for supermartingales. 
+
+Lemma 12. Let {Xt}t≥1 be a random process adapted to a filtration {F t}t≥0, satisfying 
+
+E[Xt|F t−1] ≤ 0 for all t ≥ 1. Let {wt}t≥1 be a random process such that wt is positive and 
+
+Ft−1-measurable for all t ≥ 1. For some constant G, suppose that |Xt| ≤ G almost surely for all t ≥ 1. Define {St}t≥1 such that 
+
+St =
+
+> t
+
+X 
+
+> τ=1
+
+wτ Xτ , ∀t ≥ 1.
+
+Let δ ∈ (0 , 1). With probability at least 1 − δ, for all t ≥ 1, 
+
+St ≤ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 w2 
+
+> τ
+
+)) 2
+
+δ .
+
+Proof. Since |Xt| ≤ G, we have |wtXt| ≤ Gw t almost surely. Fix λ > 0. By Lemma 33, we have for each t ≥ 1, 
+
+E [exp ( λw tXt) |F t−1] ≤ exp 
+
+ λ2G2w2
+
+> t
+
+2
+
+
+
+Since wt is Ft−1-measurable, it can be rewritten as 
+
+E
+
+
+
+exp 
+
+
+
+λw tXt − λ2G2w2
+
+> t
+
+2
+
+
+
+|F t−1
+
+
+
+≤ 1. (18) Define {Mt}t≥0 such that M0 = 1 and 
+
+Mt = Mt−1 exp 
+
+
+
+λw tXt − λ2G2w2
+
+> t
+
+2
+
+
+
+, ∀t ≥ 1.
+
+21 Note that {Mt}t≥0 is adapted to {F t}t≥0. Moreover, it is a supermartingale, since 
+
+E[Mt|F t−1] ≤ Mt−1E
+
+
+
+exp 
+
+
+
+λw tXt − λ2G2w2
+
+> t
+
+2
+
+
+
+|F t−1
+
+
+
+≤ Mt−1.
+
+By Lemma 32, it follows that for any ϵ > 0, 
+
+P
+
+
+
+sup 
+
+> t≥0
+
+Mt ≥ ϵ
+
+
+
+≤ E[M0]
+
+ϵ = 1
+
+ϵ .
+
+Note that P(sup t≥1 Mt ≥ ϵ) ≤ P(sup t≥0 Mt ≥ ϵ). Moreover, Mt = exp  λS t − (λ2G2/2) Ptτ =1 w2
+
+> τ
+
+
+
+for every t ≥ 1. By taking ϵ = 1 /δ , it follows that 
+
+P ∃t ≥ 1 : exp λS t − λ2G2
+
+2
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+≥ 1
+
+δ
+
+!
+
+≤ δ
+
+⇔ P ∃t ≥ 1 : St ≥ λG 2
+
+2
+
+> t
+
+X 
+
+> τ=1
+
+w2 
+
+> τ
+
++ 1
+
+λ log 1
+
+δ
+
+!
+
+≤ δ. 
+
+Note that this implies that for any δ ∈ (0 , 1), 
+
+P ∃t ≥ 1 : St ≥ λG 2
+
+2 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
++ 1
+
+λ log 1
+
+δ
+
+!
+
+≤ δ. 
+
+To conclude the proof, we apply the peeling argument. In particular, let the index set Ik
+
+be defined as for k ≥ 0, 
+
+Ik =
+
+(
+
+t ≥ 1 : 2 k ≤ 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2 
+
+> τ
+
+< 2k+1 
+
+)
+
+.
+
+Furthermore, for each t ∈ I k, we have 
+
+λG 2
+
+2 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
++ 1
+
+λ log 1
+
+δ < λG 22k + 1
+
+λ log 1
+
+δ
+
+= 2 G
+
+r
+
+2k log 1
+
+δ
+
+≤ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log 1
+
+δ
+
+where the equality follows from taking λ = plog(1 /δ )/G 22k, and the inequalities follow from the definition of Ik. Then it follows that for any δ ∈ (0 , 1), 
+
+P
+
+∃t ∈ I k : St ≥ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log 1
+
+δ
+
+ ≤ δ. 
+
+22 Moreover, given δ ∈ (0 , 1), define δk = δ 
+
+> (π2/6)( k+1) 2
+
+, hence we have P∞ 
+
+> k=0
+
+δk = δ, as 
+
+P∞  
+
+> k=0 1(k+1) 2
+
+= π2 
+
+> 6
+
+. By taking δ ← δk, it follows that 
+
+P
+
+∃t ∈ I k : St ≥ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log 1
+
+δk
+
+ ≤ δk
+
+⇔ P
+
+∃t ∈ I k : St ≥ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log (π2/6)( k + 1) 2
+
+δ
+
+ ≤ δk.
+
+For each t ∈ I k, we know that k ≤ log 2(1 + Ptτ =1 w2 
+
+> τ
+
+). This implies that 
+
+P
+
+∃t ∈ I k : St ≥ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 w2 
+
+> τ
+
+)) 2
+
+δ
+
+ ≤ δk.
+
+Since {t ≥ 1} = S∞ 
+
+> k=0
+
+Ik, by taking union bound over k = 0 , 1, 2, . . . , we have 
+
+P
+
+∃t ≥ 1 : St ≥ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 w2 
+
+> τ
+
+)) 2
+
+δ
+
+ ≤
+
+> ∞
+
+X
+
+> k=0
+
+δk = δ. 
+
+Thus, with probability at least 1 − δ, for all t ≥ 1, we have 
+
+St ≤ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+w2
+
+> τ
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 w2 
+
+> τ
+
+)) 2
+
+δ .
+
+Note that Lemma 12 suggests that 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) ≤ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ .
+
+This observation motivates us to modify the definition of Ψ compared to the expected bound setting. Specifically, since 
+
+E
+
+" tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆)
+
+#
+
+≤ 0in the expected bound setting, the only term that needs to be canceled is 2DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2,
+
+which leads to the choice Ψ( x) = 4 DL √x. In contrast, under the high-probability setting, the term that must be canceled becomes 2DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + 2 G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ .
+
+23 This leads to the modified choice of Ψ in (5). While the overall structure of the algorithm remains unchanged, the high-probability setting requires a more sophisticated choice of both Ψ and γt. We now proceed to establish high-probability analogues of the previous lemmas under these updated parameter choices. 
+
+Lemma 13. Suppose that we run Algorithm 1 with γt, Ψ given by (5). Then, for all t ≥ 1, we have Φt+1 (Qt+1 ) − Φt(Qt) ≤ Φ′
+
+> t
+
+(Qt)
+
+
+
+gt(xt) − Rt
+
+2
+
+
+
++ γt − γt+1 
+
+eγ t+1 
+
+. (19) 
+
+Proof. Note that the left-hand side of (19) can be decomposed as Φt+1 (Qt+1 ) − Φt(Qt) = Φ t(Qt+1 ) − Φt(Qt)
+
+| {z }
+
+> (I)
+
++ Φ t+1 (Qt+1 ) − Φt(Qt+1 )
+
+| {z }
+
+> (II)
+
+. (20) Now, we first bound (I). Recall that Φ t(x) = eγtx − 1 and Φ ′
+
+> t
+
+(x) = γteγtx. It follows that Φt(Qt+1 ) − Φt(Qt) = eγtQt+1 − eγtQt
+
+= eγtQt (eγt(Qt+1 −Qt) − 1) = eγtQt (eγt(gt(xt)−Rt) − 1) = 1
+
+γt
+
+Φ′
+
+> t
+
+(Qt)( eγt(gt(xt)−Rt) − 1) .
+
+Note that ex ≤ 1 + x + x2 for all x ≤ 1, γt(gt(xt) − Rt) ≤ γtG ≤ 1, and Φ ′
+
+> t
+
+(Qt)/γ t > 0. Then it follows that Φt(Qt+1 ) − Φt(Qt)
+
+≤ 1
+
+γt
+
+Φ′
+
+> t
+
+(Qt)  γt(gt(xt) − Rt) + γ2 
+
+> t
+
+(gt(xt) − Rt)2 (21) 
+
+≤ Φ′
+
+> t
+
+(Qt)
+
+gt(xt) − Rt + 3 γtG2 + 432 γ3 
+
+> t
+
+G4 + 3 γt
+
+ Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt)
+
+
+
+> 2
+
+
+
+where the second inequality is due to the Cauchy-Schwarz inequality. Since γt ≤ 1/(12 G), we have 3γtG2 + 432 γ3 
+
+> t
+
+G4 ≤ 3γtG2 + 432 γtG4 · 1144 G2 = 6 γtG2. (22) 24 Moreover, we have 3γt
+
+Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt)= 12 γtDL 
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 −
+
+qPt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+Φ′
+
+> t
+
+(Qt)
+
+| {z }
+
+> (I-a)
+
++ 12 γtG
+
+q
+
+ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 −
+
+r
+
+ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt)
+
+| {z }
+
+> (I-b)
+
+(23) where ψ(x) = (1 + x) log (π2/6)(1+log 2(1+ x)) 2 
+
+> δ
+
+. For (I-a), we have (I-a) = 12 γtDL Φ′
+
+> t
+
+(Qt)
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 +
+
+qPt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+≤ 12 γtDL 
+
+(24) where the inequality follows from Φ ′
+
+> t
+
+(Qt) ≤
+
+qPtτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 +
+
+qPt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2. To bound (I-b), we observe that Φ ′
+
+> t
+
+(Qt) = 
+
+q
+
+(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2) − (1 + Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2). Then, by Lemma 30, we have (I-b) ≤ 96 γtG
+
+s
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ .
+
+To further bound, we observe that Qt+1 ≤ Ptτ =1 gτ (xτ ) ≤ Gt for all t ≥ 1 and Q1 = 0, implying that Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 ≤ Ptτ =1 γ2 
+
+> τ
+
+e2γτ Gτ . Note that γτ ≤ 1/(12 G√τ ) and γτ ≤ 1. Then it follows that tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 ≤ te 
+
+> √t/ 6
+
+.
+
+Since log(1 + t) ≤ t, it leads to log 2 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+=log 
+
+
+
+1 + te √t/ 6
+
+
+
+log 2 ≤ log(1 + t) + t/ 6log 2 ≤ t + t/ 6log 2 = 7t
+
+6 log 2 .
+
+Hence, it follows that log π2
+
+6δ 1 + log 2 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!! 2
+
+≤ log π2
+
+6δ
+
+
+
+t + 7t
+
+6 log 2 
+
+2
+
+≤ log 12 t2
+
+δ .
+
+Finally, we deduce that (I-b) ≤ 96 γtG
+
+r
+
+log 12 t2
+
+δ . (25) 25 By substituting (24) and (25) into (23), we have 3γt
+
+Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+Φ′
+
+> t
+
+(Qt) ≤ γt 12 DL + 96 G
+
+r
+
+log 12 t2
+
+δ
+
+!
+
+≤ 12(26) where the second inequality follows from γt ≤ 1/(24( DL + 8 Gplog(12 t2/δ ))). Note that Ψ is an increasing function, implying that Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+is non-negative. Then, by applying (22) and (26) to (21), (I) is bounded as (I) = Φ t(Qt+1 ) − Φt(Qt)
+
+≤ Φ′
+
+> t
+
+(Qt)
+
+gt(xt) − Rt + 6 γtG2 +Ψ  P tτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 − Ψ
+
+Pt−1  
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+
+
+2Φ ′
+
+> t
+
+(Qt)
+
+
+
+= Φ ′
+
+> t
+
+(Qt)
+
+
+
+gt(xt) − 12 Rt
+
+
+
+.
+
+Next, we bound (II). Since γt+1 ≤ γt, by Lemma 29, we have (II) = Φ t+1 (Qt+1 ) − Φt(Qt+1 ) ≤ γt − γt+1 
+
+eγ t+1 
+
+.
+
+By applying bounds on (I) and (II) to (20), we conclude the proof. The following lemma shows that the cost incurred by using time-varying Lyapunov functions with the modified γt defined in (5) is negligible in the sense that its summation scales as log t.
+
+Lemma 14. Consider γt given by (5). Then, we have 
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+γτ +1 
+
+≤ 3(1 + log t)2 .
+
+Proof. Recall that 1 /γ τ = max {12 G√τ , 24( DL +8 Gplog(12 τ 2/δ )) , 1}. Note that max {x, y, z }− 
+
+max {x′, y ′, z } ≤ x − x′ + y − y′ for any x > x ′ and y > y ′. Moreover, we know that 1/γ τ ≥ 12 G√τ and 1 /γ τ ≥ 192 Gplog(12 τ 2/δ ). Then we have 
+
+γτ − γτ +1 
+
+γτ +1 
+
+=  
+
+> 1
+> γτ+1
+
+− 1
+
+> γτ
+> 1
+> γτ
+
+≤√τ + 1 − √τ
+
+√τ +
+
+plog(12( τ + 1) 2/δ ) − plog(12 τ 2/δ )
+
+plog(12 τ 2/δ )
+
+≤ 12τ + log(1 + 1 /τ )log(12 τ 2/δ )
+
+≤ 12τ + 1
+
+τ log(12 τ 2/δ )
+
+≤ 32τ
+
+26 where the last two inequality follow from log(1 + x) ≤ x for any x ≥ 0 and log(12 τ 2/δ ) ≥ 1, respectively. Hence, we have 
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+γτ +1 
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+32τ ≤ 3(1 + log t)2 .
+
+Lemma 15. Consider the setting of Theorem 2. Suppose that we run Algorithm 1 with 
+
+γt, Ψ given by (5), and ηt given by (6). Then, with probability at least 1 − δ, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤ 2DL √t + log t + 1 + D + 2 G
+
+r
+
+log π2
+
+6δ .
+
+Proof. By Lemma 9, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + 2 DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D. 
+
+(27) Moreover, the first term on the right-hand side can be bounded using Lemma 12. In particular, since Φ ′ 
+
+> τ
+
+(Qτ ) is Fτ −1-measurable and positive, gτ (x⋆) is Fτ -measurable satisfying 
+
+|gτ (x⋆)| ≤ G, and E[gτ (x⋆)|F τ −1] = E[gτ (x⋆)] ≤ 0, it leads to the following: with probability at least 1 − δ, for all t ≥ 1, 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆)
+
+≤ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ .
+
+(28) Moreover, by summing the inequality in Lemma 13 over τ = 1 , . . . , t , since Φ 1(Q1) = 0, we have Φt+1 (Qt+1 ) − Φ1(Q1) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+gτ (xτ ) − Rτ
+
+2
+
+
+
++
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+. (29) By applying (28) and (29) to (27), we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 )
+
+≤ 2G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ
+
++ 2 DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D +
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+− 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )Rτ .
+
+27 Note that 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )Rτ ≥ 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ ) · Ψ( Pτs=1 Φ′
+
+> s
+
+(Qs)2) − Ψ( Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2)Φ′ 
+
+> τ
+
+(Qτ )= 12 Ψ
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+− 12 Ψ (0) = 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 − 2G
+
+r
+
+log π2
+
+6δ
+
++ 2 G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ .
+
+Thus, we deduce that 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤ 2DL √t +
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
++ D + 2 G
+
+r
+
+log π2
+
+6δ
+
+≤ 2DL √t + log t + 1 + D + 2 G
+
+r
+
+log π2
+
+6δ
+
+where the second inequality follows from Lemma 14 and 3 /(2 e) ≤ 1. This concludes the proof. 
+
+Lemma 16. Consider the setting of Theorem 2. Suppose that we run Algorithm 1 with 
+
+γt, Ψ given by (5), and ηt given by (6). Suppose that Lemma 15 holds. Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ = O
+
+√t log( t/δ )
+
+
+
+.
+
+Proof. We first bound Φ ′
+
+> t+1
+
+(Qt+1 ), which is frequently used throughout the proof. By Lipschitzness, we have fτ (xτ ) − fτ (x⋆) ≥ − LD . Then it leads to Ptτ =1 (fτ (xτ ) − fτ (x⋆)) ≥−LDt . By Lemma 15, we have Φt+1 (Qt+1 ) ≤ 3DLt + log t + 1 + D + 2 G
+
+r
+
+log π2
+
+6δ .
+
+This leads to Φ′
+
+> t+1
+
+(Qt+1 ) ≤ γt+1 3DLt + log t + 2 + D + 2 G
+
+r
+
+log π2
+
+6δ
+
+!
+
+≤ 3DLt + log t + 2 + D + 2 G
+
+r
+
+log π2
+
+6δ .
+
+(30) Now, we bound Ptτ =1 Rτ . Since γτ ≤ 1/(12 G√τ ), we have 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ ≤
+
+> t
+
+X 
+
+> τ=1
+
+G
+
+√τ +
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ ) .
+
+28 It is clear that Ptτ =1 G/ √τ ≤ 2G√t. Moreover, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )= 4 DL 
+
+> t
+
+X 
+
+> τ=1
+
+pP τs=1 Φ′
+
+> s
+
+(Qs)2 −
+
+qPτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+| {z }
+
+> (I)
+
++ 4 G
+
+> t
+
+X 
+
+> τ=1
+
+pψ(Pτs=1 Φ′
+
+> s
+
+(Qs)2) −
+
+q
+
+ψ(Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2)Φ′ 
+
+> τ
+
+(Qτ )
+
+| {z }
+
+> (II)
+
+.
+
+We bound (I) as follows. (I) = 4 DL 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+pP τs=1 Φ′
+
+> s
+
+(Qs)2 +
+
+qPτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+≤ 4DL 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+pP τs=1 Φ′
+
+> s
+
+(Qs)2
+
+≤ 4DL √t
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+Pτs=1 Φ′
+
+> s
+
+(Qs)2
+
+= 4 DL √t
+
+vuut tX 
+
+> τ=2
+
+Pτs=1 Φ′
+
+> s
+
+(Qs)2 − Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+Pτs=1 Φ′
+
+> s
+
+(Qs)2 + 1 
+
+≤ 4DL √t
+
+s
+
+log 
+
+Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2
+
+Φ′
+
+> 1
+
+(Q1)2 + 1 
+
+≤ 4DL √t
+
+s
+
+log t(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2
+
+γ21
+
++ 1 .
+
+where the second inequality follows from the Cauchy-Schwarz inequality, the third inequality is due to Lemma 31, and the last inequality follows from (30), i.e., since Φ ′
+
+> 1
+
+(Q1)2 = γ21 ≤ 1, 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 =
+
+> t−1
+
+X 
+
+> τ=0
+
+Φ′ 
+
+> τ+1
+
+(Qτ +1 )2 ≤ 1 + ( t − 1)(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2
+
+≤ t(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2.
+
+29 To bound (II), by Lemma 30, (II) ≤ 32 G
+
+> t
+
+X 
+
+> τ=1
+
+r
+
+log (π2/6)(1 + log 2(1 + Pτs=1 Φ′
+
+> s
+
+(Qs)2)) 2
+
+δ
+
+×
+
+p1 + Pτs=1 Φ′
+
+> s
+
+(Qs)2 −
+
+q
+
+1 + Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+≤ 32 G
+
+s
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ
+
+×
+
+> t
+
+X 
+
+> τ=1
+
+p1 + Pτs=1 Φ′
+
+> s
+
+(Qs)2 −
+
+q
+
+1 + Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+≤ 32 G√t
+
+s
+
+log (π2/6)(1 + log 2(1 + t(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2)) 2
+
+δ
+
+×
+
+s
+
+log t(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2
+
+γ21
+
++ 1 .
+
+where the first inequality follows from Lemma 30, and the third inequality follows from the same argument used for bounding (I). Hence, we deduce that 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ ≤ 2G√t + 4 DL √t
+
+s
+
+log t(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2
+
+γ21
+
++ 1 + 32 G√t
+
+s
+
+log (π2/6)(1 + log 2(1 + t(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2)) 2
+
+δ
+
+×
+
+s
+
+log t(3 DLt + log t + 2 + D + 2 Gplog( π2/(6 δ))) 2
+
+γ21
+
++ 1 .
+
+It can be written as Ptτ =1 Rτ = O  √t log( t/δ ).
+
+7.1 Proof of Theorem 2 
+
+Proof. We assume that Lemma 15 holds, which occurs with probability at least 1 − δ. Since Φt+1 (Qt+1 ) ≥ − 1, we have Regret( t) = 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) ≤ 2DL √t + log t + D + 2 G
+
+r
+
+log π2
+
+6δ + 2 Next, to bound Violation( t), we observe that Ptτ =1 gτ (xτ ) = Qt+1 + Ptτ =1 Rτ . Thus, we first bound Qt+1 . As done in the proof of Lemma 16, we have Φt+1 (Qt+1 ) ≤ 3DLt + log t + 1 + D + 2 G
+
+r
+
+log π2
+
+6δ .
+
+30 By the definition of Φ t+1 , since Qt+1 = (1 /γ t+1 ) log(Φ t+1 (Qt+1 ) + 1), we have 
+
+Qt+1 ≤ 1
+
+γt+1 
+
+log 3DLt + log t + 2 + D + 2 G
+
+r
+
+log π2
+
+6δ
+
+!
+
+≤
+
+
+
+12 G√t + 1 + 24 
+
+
+
+DL + 8 Gplog(12( t + 1) 2/δ )
+
+
+
++ 1 
+
+
+
+× log 3DLt + log t + 2 + D + 2 G
+
+r
+
+log π2
+
+6δ
+
+!
+
+.
+
+It can be written as 
+
+Qt+1 = O
+
+√t log( t/δ ) + log 3/2(t/δ )
+
+
+
+Moreover, by Lemma 16, we have Ptτ =1 Rτ = O(√t log( t/δ )). Consequently, we have Regret( t) = O
+
+√t + plog(1 /δ )
+
+
+
+, Violation( t) = O
+
+√t log( t/δ ) + log 3/2(t/δ )
+
+
+
+.
+
+8 Analysis under Strongly Convex Losses 
+
+In this section, we present the analysis of Theorems 3 and 4. The key difference in the analysis is to derive an analogue of Lemma 9 with an improved guarantee under the modified primal step size defined in (7). 
+
+Lemma 17. Consider μ-strongly convex losses for some μ > 0. Suppose that we run Algorithm 1 with ητ given by (7). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + L2(1 + log t)
+
+μ + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+Proof. For simplicity, let ˆfτ = fτ + Φ ′ 
+
+> τ
+
+(Qτ )gτ for each τ ∈ [t]. Note that since Φ ′ 
+
+> τ
+
+(Qτ ) > 0, Φ′ 
+
+> τ
+
+(Qτ )gτ is convex, and thus ˆfτ is μ-strongly convex by Lemma 34. Since projection onto 
+
+X is a contraction mapping, we have for any x⋆ ∈ X ,
+
+∥xτ +1 − x⋆∥2 ≤ ∥ xτ − x⋆∥2 + η2 
+
+> τ
+
+∥∇ ˆfτ (xτ )∥2 − 2ητ ∇ ˆfτ (xτ )⊤(xτ − x⋆).
+
+By strong convexity (Lemma 34), we have ˆfτ (xτ ) − ˆfτ (x⋆) + μ
+
+2 ∥xτ − x⋆∥2 ≤ ∇ ˆfτ (xτ )⊤(xτ − x⋆).
+
+Recall that 
+
+ητ = 1
+
+μτ + (2 L/D )pP τs=1 Φ′
+
+> s
+
+(Qs)2 .
+
+31 Then it follows that ˆfτ (xτ ) − ˆfτ (x⋆)
+
+≤
+
+ 12ητ
+
+− μ
+
+2
+
+
+
+∥xτ − x⋆∥2 − 12ητ
+
+∥xτ +1 − x⋆∥2 + ητ
+
+2 ∥∇ ˆfτ (xτ )∥2
+
+= μ(τ − 1) 2 ∥xτ − x⋆∥2 − μτ 
+
+2 ∥xτ +1 − x⋆∥2
+
++ LD
+
+vuut τX
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2(∥xτ − x⋆∥2 − ∥ xτ +1 − x⋆∥2) + ητ
+
+2 ∥∇ ˆfτ (xτ )∥2
+
+≤ μ(τ − 1) 2 ∥xτ − x⋆∥2 − μτ 
+
+2 ∥xτ +1 − x⋆∥2
+
++ LD
+
+vuut τX
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2(∥xτ − x⋆∥2 − ∥ xτ +1 − x⋆∥2) + ητ L2 + ητ L2Φ′ 
+
+> τ
+
+(Qτ )2
+
+where the last inequality follows from that ∥∇ ˆfτ (xτ )∥2 ≤ 2∥∇ fτ (xτ )∥2+2Φ ′ 
+
+> τ
+
+(Qτ )2∥∇ gτ (xτ )∥2 ≤
+
+2L2(1 + Φ ′ 
+
+> τ
+
+(Qτ )2). By summing over τ = 1 , . . . , t , we have 
+
+> t
+
+X 
+
+> τ=1
+
+( ˆfτ (xτ ) − ˆfτ (x⋆)) ≤ LD
+
+> t
+
+X 
+
+> τ=1
+
+vuut τX
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2(∥xτ − x⋆∥2 − ∥ xτ +1 − x⋆∥2)+ L2
+
+> t
+
+X 
+
+> τ=1
+
+ητ + L2
+
+> t
+
+X 
+
+> τ=1
+
+ητ Φ′ 
+
+> τ
+
+(Qτ )2.
+
+Note that 
+
+> t
+
+X 
+
+> τ=1
+
+vuut τX
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2(∥xτ − x⋆∥2 − ∥ xτ +1 − x⋆∥2) ≤ D2
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+Moreover, since Ptτ =1 (1 /τ ) ≤ 1 + log t, we have 
+
+> t
+
+X 
+
+> τ=1
+
+ητ ≤
+
+> t
+
+X 
+
+> τ=1
+
+1
+
+μτ ≤ 1 + log tμ .
+
+Similarly, since Ptτ =1 yτ /pP τs=1 ys ≤ 2
+
+qPtτ =1 yτ for any positive sequence {yτ }τ ≥1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+ητ Φ′ 
+
+> τ
+
+(Qτ )2 ≤ D
+
+2L
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+pP τs=1 Φ′
+
+> s
+
+(Qs)2 ≤ DL
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+Combining these yields 
+
+> t
+
+X 
+
+> τ=1
+
+( ˆfτ (xτ ) − ˆfτ (x⋆)) ≤ L2(1 + log t)
+
+μ + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+32 Recall that ˆfτ = fτ + Φ ′ 
+
+> τ
+
+(Qτ )gτ . Therefore, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + L2(1 + log t)
+
+μ + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+8.1 Expected Bounds 
+
+The proofs of the following lemmas are deferred to Appendix A. 
+
+Lemma 18. Consider the setting of Theorem 3. Suppose that we run Algorithm 1 with 
+
+γt, Ψ given by (4), and ηt given by (7). Then, for all t ≥ 1, we have 
+
+E
+
+" tX 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) 
+
+#
+
++ E [Φ t+1 (Qt+1 )] ≤ L2(1 + log t)
+
+μ + log t + 1 .
+
+Lemma 19. Consider the setting of Theorem 3. Suppose that we run Algorithm 1 with 
+
+γt, Ψ given by (4), and ηt given by (7). Then, for all t ≥ 1, we have 
+
+E
+
+" tX 
+
+> τ=1
+
+Rτ
+
+#
+
+= O
+
+p t log t
+
+
+
+.
+
+8.1.1 Proof of Theorem 3 
+
+Proof. We closely follow the proof of Theorem 1, where the only difference is that we use Lemma 18 and Lemma 19. By Lemma 18, 
+
+E[Regret( t)] = E
+
+" tX 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) 
+
+#
+
+≤ L2(1 + log t)
+
+μ + log t + 2 .
+
+By applying the same argument in the proof of Theorem 1, we have 
+
+E[Qt+1 ] ≤ 1
+
+γt+1 
+
+log 
+
+
+
+DLt + L2(1 + log t)
+
+μ + log t + 1 
+
+
+
+≤  12 G√t + 1 + 24 DL + 1  log 
+
+
+
+DLt + L2(1 + log t)
+
+μ + log t + 1 
+
+
+
+which can be written as E[Qt+1 ] = O  √t log t. Moreover, by Lemma 19, we have E P tτ =1 Rτ
+
+ =
+
+O(√t log t). Since E[Violation( t)] = E[Qt+1 ] + E P tτ =1 Rτ
+
+, we have 
+
+E[Violation( t)] = O
+
+√t log t
+
+
+
+.
+
+33 8.2 High-Probability Bounds 
+
+The proofs of the following lemmas are deferred to Appendix A. 
+
+Lemma 20. Consider the setting of Theorem 4. Suppose that we run Algorithm 1 with 
+
+γt, Ψ as given by (5), and ηt as given by (7). Then, with probability at least 1 − δ, for all 
+
+t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤ L2(1 + log t)
+
+μ + log t + 1 + 2 G
+
+r
+
+log π2
+
+6δ .
+
+Lemma 21. Consider the setting of Theorem 4. Suppose that we run Algorithm 1 with 
+
+γt, Ψ as given by (5), and ηt as given by (7). Suppose that Lemma 20 holds. Then, for all 
+
+t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ = O
+
+√t log( t/δ )
+
+
+
+.
+
+8.2.1 Proof of Theorem 4 
+
+Proof. We closely follow the proof of Theorem 2, where the only difference is that we use Lemma 20 and Lemma 21. We assume that Lemma 20 holds, which occurs with probability at least 1 − δ. By Lemma 20, Regret( t) = 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) ≤ L2(1 + log t)
+
+μ + log t + 2 + 2 G
+
+r
+
+log π2
+
+6δ .
+
+By applying the same argument in the proof of Theorem 2, we have 
+
+Qt+1 ≤ 1
+
+γt+1 
+
+log DLt + L2(1 + log t)
+
+μ + log t + 2 + 2 G
+
+r
+
+log π2
+
+6δ
+
+!
+
+≤
+
+
+
+12 G√t + 1 + 24 
+
+
+
+DL + 8 Gplog(12( t + 1) 2/δ )
+
+
+
++ 1 
+
+
+
+× log DLt + L2(1 + log t)
+
+μ + log t + 2 + 2 G
+
+r
+
+log π2
+
+6δ
+
+!
+
+which can be written as Qt+1 = O
+
+√t log t + log 3/2(t/δ )
+
+
+
+. Moreover, by Lemma 21, we have Ptτ =1 Rτ = O(√t log( t/δ )). Since Violation( t) = Qt+1 + Ptτ =1 Rτ , we have Violation( t) = O
+
+√t log( t/δ ) + log 3/2(t/δ )
+
+
+
+,
+
+as required. 
+
+9 Conclusion 
+
+In this paper, we study COCO with stochastic constraints without Slater’s condition. We propose a unified primal-dual algorithm with an anytime regularizer and show that it 34 achieves nearly optimal regret and constraint violation guarantees under stochastic con-straints. The key insight is that the regularizer stabilizes the dual process by offset-ting an accumulated term involving the derivative of an exponential Lyapunov function. We also establish high-probability guarantees and extend the analysis to strongly con-vex losses and adversarial constraints. Several directions are worth further investiga-tion. One direction is to obtain dynamic regret bounds under stochastic constraints, where dynamic regret is defined with respect to a comparator sequence {x⋆t }Tt=1 satisfy-ing {x⋆t }Tt=1 ∈ arg min {xt}Tt=1 
+
+PTt=1 ft(xt) s .t. E[gt(xt)] ≤ 0 for all t ∈ [T ], while this paper considers a fixed comparator over time. Another direction is to develop projection-free algorithms, as the proposed algorithm requires a projection oracle onto X .35 A Deferred Proofs of Section 8 
+
+Proof of Lemma 18. We closely follow the proof of Lemma 10, where the only difference is that we use Lemma 17 instead of Lemma 9. Since we take ηt as (7) and γt, Ψ as (4), Lemmas 17 and 7 hold. By Lemma 17, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + L2(1 + log t)
+
+μ + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+By Lemma 7, Φt+1 (Qt+1 ) − Φ1(Q1) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+gτ (xτ ) − Rτ
+
+2
+
+
+
++
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+.
+
+Note that 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )Rτ ≥ 2DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+Then it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + L2(1 + log t)
+
+μ +
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + L2(1 + log t)
+
+μ + log t + 1 where the second inequality follows from Lemma 8 and 1 /(2 e) ≤ 1. By taking E on both sides, since Ptτ =1 E[Φ ′ 
+
+> τ
+
+(Qτ )gτ (x⋆)] ≤ 0 by applying the same argument in the proof of Lemma 10, we conclude the proof. 
+
+Proof of Lemma 19. We closely follow the proof of Lemma 11, where the only difference is that we use Lemma 18 instead of Lemma 10. By Lipschitzness and Lemma 18, 
+
+E[Φ ′
+
+> t+1
+
+(Qt+1 )] ≤ DLt + L2(1 + log t)
+
+μ + log t + 1 .
+
+Note that 
+
+E
+
+" tX 
+
+> τ=1
+
+Rτ
+
+#
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+G
+
+√τ +
+
+> t
+
+X 
+
+> τ=1
+
+E
+
+ Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+ .
+
+36 It is clear that Ptτ =1 G/ √τ ≤ 2G√t. Moreover, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+E
+
+ Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+≤ 4DL √t
+
+s
+
+2 log 
+
+Ptτ =1 E[Φ ′ 
+
+> τ
+
+(Qτ )] Φ′
+
+> 1
+
+(Q1) + 1 
+
+≤ 4DL √t
+
+s
+
+2 log t(DLt + L2(1 + log t)/μ + log t + 1) Φ′
+
+> 1
+
+(Q1) + 1 .
+
+Finally, we have E P tτ =1 Rτ
+
+ = O  √t log t .
+
+Proof of Lemma 20. We closely follow the proof of Lemma 15, where the only difference is that we use Lemma 17 instead of Lemma 9. Since we take ηt as (7) and γt, Ψ as (5), Lemmas 17 and 13 hold. By Lemma 17, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )gτ (x⋆) + L2(1 + log t)
+
+μ + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+By Lemma 13, Φt+1 (Qt+1 ) − Φ1(Q1) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+gτ (xτ ) − Rτ
+
+2
+
+
+
++
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+.
+
+Note that 12
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )Rτ ≥ 2DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 − 2G
+
+r
+
+log π2
+
+6δ
+
++ 2 G
+
+vuut 1 + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2
+
+!
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ .
+
+Then it follows that with probability at least 1 − δ,
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤ L2(1 + log t)
+
+μ +
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
++ 2 G
+
+r
+
+log π2
+
+6δ
+
+≤ L2(1 + log t)
+
+μ + log t + 1 + 2 G
+
+r
+
+log π2
+
+6δ
+
+where the second inequality follows from Lemma 14 and 3 /(2 e) ≤ 1. 37 Proof of Lemma 21. We closely follow the proof of Lemma 16, where the only difference is that we use Lemma 20 instead of Lemma 15. By Lipschitzness and Lemma 20, Φ′
+
+> t+1
+
+(Qt+1 ) ≤ DLt + L2(1 + log t)
+
+μ + log t + 2 + 2 G
+
+r
+
+log π2
+
+6δ .
+
+Note that 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ ≤
+
+> t
+
+X 
+
+> τ=1
+
+G
+
+√τ +
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ ) .
+
+It is clear that Ptτ =1 G/ √τ ≤ 2G√t. Moreover, by applying the same argument in the proof of Lemma 16, 
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+≤
+
+4DL + 32 G
+
+s
+
+log (π2/6)(1 + log 2(1 + Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2)) 2
+
+δ
+
+ √t
+
+s
+
+log 
+
+Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2
+
+Φ′
+
+> 1
+
+(Q1)2 + 1 .
+
+Note that since Φ ′
+
+> t+1
+
+(Qt+1 ) = O
+
+
+
+t + plog(1 /δ )
+
+
+
+, we have Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )2 = O  t3 + t log(1 /δ ).Therefore, we have 
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ ) = O
+
+√t log( t/δ )
+
+
+
+.
+
+Consequently, we have Ptτ =1 Rτ = O  √t log( t/δ ).
+
+B Analysis under Adversarial Constraints 
+
+B.1 Convex Losses Lemma 22. Suppose that we run Algorithm 2 with γt, Ψ as given by (4). Then, for all 
+
+t ≥ 1, we have Φt+1 (Qt+1 ) − Φt(Qt) ≤ Φ′
+
+> t
+
+(Qt)
+
+
+
+˜gt(xt) − Rt
+
+2
+
+
+
++ γt − γt+1 
+
+eγ t+1 
+
+.
+
+Proof. Note that |˜gt(xt)| ≤ | gt(xt)| ≤ G. Therefore, by applying the same argument as in the proof of Lemma 7, we conclude the proof. 
+
+Lemma 23. Consider the setting of Theorem 5. Suppose that we run Algorithm 2 with ηt
+
+given by (6). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) + 2 DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D. 
+
+38 Proof. Recall that ∇˜gt(xt) = ∇gt(xt) if gt(xt) > 0, and 0 otherwise. It follows that 
+
+∥∇ ˜gt(xt)∥ ≤ L. Moreover, we have that ∇ft(xt) + Φ ′
+
+> t
+
+(Qt)∇˜gt(xt) is a subgradient of 
+
+ft + Φ ′
+
+> t
+
+(Qt)˜ gt. Then, by applying the same argument as in Lemma 9, we conclude the proof. 
+
+Lemma 24. Consider the setting of Theorem 5. Suppose that we run Algorithm 2 with 
+
+γt, Ψ given by (4), and ηt given by (6). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤ 2DL √t + log t + 1 + D. 
+
+Proof. We closely follow the proof of Lemma 10. By Lemma 23, 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) + 2 DL √t + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2 + D. 
+
+By Lemma 22, Φt+1 (Qt+1 ) − Φ1(Q1) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+˜gτ (xτ ) − Rτ
+
+2
+
+
+
++
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+.
+
+By Lemma 8, 
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+≤ 1 + log t
+
+2Combining these results yields 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) + 2 DL √t + log t + 1 + D. 
+
+Since we have gt(x⋆) ≤ 0 for all t ≥ 1 in the adversarial constraint setting, we know that Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) = 0. This concludes the proof. 
+
+Lemma 25. Consider the setting of Theorem 5. Suppose that we run Algorithm 2 with 
+
+γt, Ψ given by (4), and ηt given by (6). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ = O
+
+p t log t
+
+
+
+.
+
+Proof. We closely follow the proof of Lemma 11, where the only difference is that we use Lemma 24 instead of Lemma 10. By Lipschitzness and Lemma 24, Φ′
+
+> t+1
+
+(Qt+1 ) ≤ 3DLt + log t + 2 + D. 
+
+39 Note that 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ ≤
+
+> t
+
+X 
+
+> τ=1
+
+G
+
+√τ +
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ ) .
+
+It is clear that Ptτ =1 G/ √τ ≤ 2G√t. Moreover, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+≤ 4DL √t
+
+s
+
+2 log 
+
+Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )Φ′
+
+> 1
+
+(Q1) + 1 
+
+≤ 4DL √t
+
+s
+
+2 log t(3 DLt + log t + 1 + D)Φ′
+
+> 1
+
+(Q1) + 1 .
+
+Finally, we have Ptτ =1 Rτ = O  √t log t .
+
+B.1.1 Proof of Theorem 5 
+
+Proof. Under Algorithm 2, we observe that Violation +(t) = Ptτ =1 [gτ (xτ )] + = Qt+1 +Ptτ =1 Rτ . By Lemma 24, Regret( t) = 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) ≤ 2DL √t + log t + 2 + D. 
+
+By applying the same argument in the proof of Theorem 1, we have 
+
+Qt+1 ≤ 1
+
+γt+1 
+
+log (3 DLt + log t + 1 + D)
+
+≤  12 G√t + 1 + 24 DL + 1  log (3 DLt + log t + 1 + D)which can be written as Qt+1 = O  √t log t. Moreover, by Lemma 25, we have Ptτ =1 Rτ =
+
+O(√t log t). Since Violation +(t) = Qt+1 + Ptτ =1 Rτ , we have Violation +(t) = O
+
+√t log t
+
+
+
+.
+
+B.2 Strongly Convex Losses Lemma 26. Consider the setting of Theorem 6. Suppose that we run Algorithm 2 with ητ
+
+given by (7). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) + L2(1 + log t)
+
+μ + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+40 Proof. Recall that ∇˜gt(xt) = ∇gt(xt) if gt(xt) > 0, and 0 otherwise. It follows that 
+
+∥∇ ˜gt(xt)∥ ≤ L. Moreover, we have that ∇ft(xt) + Φ ′
+
+> t
+
+(Qt)∇˜gt(xt) is a subgradient of 
+
+ft + Φ ′
+
+> t
+
+(Qt)˜ gt. Then, by applying the same argument as in Lemma 17, we conclude the proof. 
+
+Lemma 27. Consider the setting of Theorem 6. Suppose that we run Algorithm 2 with 
+
+γt, Ψ as given by (4), and ηt as given by (7). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤ L2(1 + log t)
+
+μ + log t + 1 .
+
+Proof. We closely follow the proof of Lemma 10. By Lemma 26, 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + 
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (xτ )
+
+≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) + L2(1 + log t)
+
+μ + 2 DL 
+
+vuut tX 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )2.
+
+By Lemma 22, Φt+1 (Qt+1 ) − Φ1(Q1) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+
+
+˜gτ (xτ ) − Rτ
+
+2
+
+
+
++
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+.
+
+By Lemma 8, 
+
+> t
+
+X 
+
+> τ=1
+
+γτ − γτ +1 
+
+eγ τ +1 
+
+≤ 1 + log t
+
+2Combining these results yields 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) + Φ t+1 (Qt+1 ) ≤
+
+> t
+
+X 
+
+> τ=1
+
+Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) + L2(1 + log t)
+
+μ + log t + 1 .
+
+Since we have gt(x⋆) ≤ 0 for all t ≥ 1 in the adversarial constraint setting, we know that Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )˜ gτ (x⋆) = 0. This concludes the proof. 
+
+Lemma 28. Consider the setting of Theorem 6. Suppose that we run Algorithm 2 with 
+
+γt, Ψ as given by (4), and ηt as given by (7). Then, for all t ≥ 1, we have 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ = O
+
+p t log t
+
+
+
+.
+
+Proof. We closely follow the proof of Lemma 19, where the only difference is that we use Lemma 27 instead of Lemma 10. By Lipschitzness and Lemma 27, Φ′
+
+> t+1
+
+(Qt+1 ) ≤ DLt + L2(1 + log t)
+
+μ + log t + 2 .
+
+41 Note that 
+
+> t
+
+X 
+
+> τ=1
+
+Rτ ≤
+
+> t
+
+X 
+
+> τ=1
+
+G
+
+√τ +
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ ) .
+
+It is clear that Ptτ =1 G/ √τ ≤ 2G√t. Moreover, it follows that 
+
+> t
+
+X 
+
+> τ=1
+
+Ψ  P τs=1 Φ′
+
+> s
+
+(Qs)2 − Ψ
+
+Pτ −1 
+
+> s=1
+
+Φ′
+
+> s
+
+(Qs)2
+
+
+
+Φ′ 
+
+> τ
+
+(Qτ )
+
+≤ 4DL √t
+
+s
+
+2 log 
+
+Ptτ =1 Φ′ 
+
+> τ
+
+(Qτ )Φ′
+
+> 1
+
+(Q1) + 1 
+
+≤ 4DL √t
+
+s
+
+2 log t(DLt + L2(1 + log t)/μ + log t + 1) Φ′
+
+> 1
+
+(Q1) + 1 .
+
+Finally, we have Ptτ =1 Rτ = O  √t log t .
+
+B.2.1 Proof of Theorem 6 
+
+Proof. Under Algorithm 2, we observe that Violation +(t) = Ptτ =1 [gτ (xτ )] + = Qt+1 +Ptτ =1 Rτ . By Lemma 27, Regret( t) = 
+
+> t
+
+X 
+
+> τ=1
+
+(fτ (xτ ) − fτ (x⋆)) ≤ L2(1 + log t)
+
+μ + log t + 2 .
+
+By applying the same argument in the proof of Theorem 3, we have 
+
+Qt+1 ≤ 1
+
+γt+1 
+
+log 
+
+
+
+DLt + L2(1 + log t)
+
+μ + log t + 1 
+
+
+
+≤  12 G√t + 1 + 24 DL + 1  log 
+
+
+
+DLt + L2(1 + log t)
+
+μ + log t + 1 
+
+
+
+which can be written as Qt+1 = O  √t log t. Moreover, by Lemma 28, we have Ptτ =1 Rτ =
+
+O(√t log t). Since Violation( t) = Qt+1 + Ptτ =1 Rτ , we have Violation +(t) = O
+
+√t log t
+
+
+
+.
+
+C Auxiliary Lemmas 
+
+Lemma 29. For γ1, γ 2 > 0, define Φ 1, Φ2 : R → R as Φ 1(x) = eγ1x − 1 and Φ 2(x) = eγ2x − 1for each x ∈ R. Suppose that γ2 ≤ γ1. Then we have Φ 2(x) − Φ1(x) ≤ (γ1 − γ2)/(γ2e) for all x ∈ R.
+
+42 Proof. Note that Φ2(x) − Φ1(x) = eγ2x − eγ1x
+
+= eγ2x(1 − e(γ1−γ2)x)
+
+≤ eγ2x(γ2 − γ1)x
+
+= eγ2x(−γ2x) · γ1 − γ2
+
+γ2
+
+≤ γ1 − γ2
+
+eγ 2
+
+where the first inequality follows from 1 − e−y ≤ y for all y ∈ R, and the second inequality follows from the fact that e−yy ≤ 1/e for all y ∈ R and that ( γ1 − γ2)/γ 2 ≥ 0. 
+
+Lemma 30. Let δ ∈ (0 , 1). Define ψ : R+ → R as ψ(x) = (1 + x) log (π2/6)(1+log 2(1+ x)) 2 
+
+> δ
+
+for each x ∈ R+. Suppose that 0 ≤ x1 < x 2. Then we have 
+
+pψ(x2) − pψ(x1) ≤ 8
+
+r
+
+log (π2/6)(1 + log 2(1 + x2)) 2
+
+δ
+
+ √1 + x2 − √1 + x1
+
+ .
+
+Moreover, we have 
+
+pψ(x2) − pψ(x1)
+
+√x2 − x1
+
+≤ 8
+
+r
+
+log (π2/6)(1 + log 2(1 + x2)) 2
+
+δ .
+
+Proof. For x ∈ [x1, x 2], we observe that 
+
+ddx 
+
+pψ(x)= 12√x + 1 
+
+r
+
+log (π2/6)(1 + log 2(1 + x)) 2
+
+δ
+
++ 1log 2 · √1 + x(1 + log 2(1 + x)) 
+
+q
+
+log (π2/6)(1+log 2(1+ x)) 2
+
+> δ
+
+≤ 12√x + 1 
+
+r
+
+log (π2/6)(1 + log 2(1 + x)) 2
+
+δ + 1log 2 · plog( π2/6) √x + 1 
+
+≤ 4
+
+√x + 1 
+
+r
+
+log (π2/6)(1 + log 2(1 + x)) 2
+
+δ
+
+≤ 4
+
+√x + 1 
+
+r
+
+log (π2/6)(1 + log 2(1 + x2)) 2
+
+δ .
+
+Then it follows that 
+
+pψ(x2) − pψ(x1) ≤
+
+Z x2
+
+> x1
+
+ddx 
+
+pψ(x)dx 
+
+≤ 8
+
+r
+
+log (π2/6)(1 + log 2(1 + x2)) 2
+
+δ
+
+ √1 + x2 − √1 + x1
+
+ .
+
+Note that √1 + x2 − √1 + x1 ≤ √x2 − x1. This leads to the second statement. 43 Lemma 31. Let {zt}t≥0 be an increasing sequence, and let z0 > 0. Then, we have Ptτ =1 (zτ − zτ −1)/z τ ≤ log ( zt/z 0) for all t ≥ 1. 
+
+Proof. Note that Ptτ =1 (zτ − zτ −1)/z τ ≤ R zt 
+
+> z0
+
+(1 /x )dx = log ( zt/z 0). The following lemma states the maximal inequality for supermartingales (Theorem 3.9 in Lattimore and Szepesv´ ari (2020)), which can be viewed as a Markov-type inequality for the maximum of a supermartingale. 
+
+Lemma 32. Let {Xt}t≥0 be a supermartingale with Xt ≥ 0 almost surely for all t ≥ 0. Then for every ϵ > 0, 
+
+P
+
+
+
+sup 
+
+> t≥0
+
+Xt ≥ ϵ
+
+
+
+≤ E[X0]
+
+ϵ .
+
+The following lemma is a conditional variant of Hoeffding’s lemma (Lemma B.7 in Shalev-Shwartz and Ben-David (2014)). 
+
+Lemma 33. Let X be a random variable, and let F be a σ-algebra. Suppose that E[X|F ] ≤
+
+0 and |X| ≤ Y almost surely, where Y is a positive F-measurable random variable. Then, for every λ > 0, almost surely, 
+
+E[eλX |F ] ≤ e λ2Y 22 .
+
+Proof. We closely follow the proof of Lemma B.7 in Shalev-Shwartz and Ben-David (2014). Fix λ > 0. From the proof of Lemma B.7 in Shalev-Shwartz and Ben-David (2014), for any 
+
+y > 0 and x ∈ [−y, y ]
+
+eλx ≤ (y − x) e−λy + ( x + y)eλy 
+
+2y .
+
+Since we have |X| ≤ Y almost surely and Y is F-measurable, by letting x ← X, y ← Y
+
+and taking E[·|F ] on both sides, we have 
+
+E[eλX |F ] ≤ (Y − E [X|F ]) e−λY + ( E[X|F ] + Y )eλY 
+
+2Y ≤ e−λY + eλY 
+
+2where the second inequality follows from that E[X|F ] ≤ 0 and Y > 0 imply E[X|F ]( eλY −
+
+e−λY )/(2 Y ) ≤ 0. Again, from the proof of Lemma B.7 in Shalev-Shwartz and Ben-David (2014), we know that ( e−x + ex)/2 ≤ ex2/2 for all x ∈ R. This completes the proof. The following lemma states standard properties of strongly convex functions. 
+
+Lemma 34. Let f : Rd → (−∞ , ∞] be a proper convex function. Suppose that f is μ-strongly convex for some μ > 0. We have for all x ∈ ri dom( f ), y ∈ dom( f ), ∇f (x) ∈ ∂f (x), 
+
+f (y) ≥ f (x) + ∇f (x)⊤(y − x) + μ
+
+2 ∥y − x∥22.
+
+Moreover, let g : Rd → (−∞ , ∞] be a proper convex function. Then, f + g is μ-strongly convex. 
+
+Proof. The first statement follows from Theorem 5.24 in Beck (2017) and the fact that a proper convex function f is subdifferentiable in ri dom( f ) (Theorem 23.4 in Rockafellar (1970)). The second statement follows from Lemma 5.20 in Beck (2017). 44 References 
+
+Peter Bartlett, Elad Hazan, and Alexander Rakhlin. Adaptive online gradient descent. 
+
+Advances in neural information processing systems , 20, 2007. Amir Beck. First-order methods in optimization . SIAM, 2017. Nicolo Cesa-Bianchi and G´ abor Lugosi. Prediction, learning, and games . Cambridge uni-versity press, 2006. Nicolo Cesa-Bianchi, Philip M Long, and Manfred K Warmuth. Worst-case quadratic loss bounds for prediction using linear functions and gradient descent. IEEE Transactions on Neural Networks , 7(3):604–619, 1996. Thomas M Cover. Universal portfolios. Mathematical finance , 1(1):1–29, 1991. John Duchi, Elad Hazan, and Yoram Singer. Adaptive subgradient methods for online learning and stochastic optimization. Journal of machine learning research , 12(7), 2011. Dan Garber and Ben Kretzu. Projection-free online convex optimization with time-varying constraints. In Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp, editors, Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceed-ings of Machine Learning Research , pages 14988–15005. PMLR, 21–27 Jul 2024. URL 
+
+https://proceedings.mlr.press/v235/garber24a.html .Hengquan Guo, Xin Liu, Honghao Wei, and Lei Ying. Online convex optimization with hard constraints: Towards the best of two worlds and beyond. Advances in Neural Information Processing Systems , 35:36426–36439, 2022. Elad Hazan. Introduction to online convex optimization. Foundations and Trends in Opti-mization , 2(3-4):157–325, 2016. Rodolphe Jenatton, Jim Huang, and C´ edric Archambeau. Adaptive algorithms for online convex optimization with long-term constraints. In International Conference on Machine Learning , pages 402–411. PMLR, 2016. Tor Lattimore and Csaba Szepesv´ ari. Bandit algorithms . Cambridge University Press, 2020. Jordan Lekeufack and Michael I Jordan. An optimistic algorithm for online convex opti-mization with adversarial constraints. arXiv preprint arXiv:2412.08060 , 2024. Mehrdad Mahdavi, Rong Jin, and Tianbao Yang. Trading regret for efficiency: online convex optimization with long term constraints. The Journal of Machine Learning Research , 13 (1):2503–2528, 2012. Shie Mannor, John N Tsitsiklis, and Jia Yuan Yu. Online learning with sample path constraints. Journal of Machine Learning Research , 10(3), 2009. Aranyak Mehta, Amin Saberi, Umesh Vazirani, and Vijay Vazirani. Adwords and general-ized online matching. Journal of the ACM (JACM) , 54(5):22–es, 2007. 45 Michael J Neely and Hao Yu. Online convex optimization with time-varying constraints. 
+
+arXiv preprint arXiv:1702.04783 , 2017. Francesco Orabona. A modern introduction to online learning. arXiv preprint arXiv:1912.13213 , 2019. Zhaoye Pan, Haozhe Lei, Fan Zuo, Zilin Bian, and Tao Li. Distributed online convex optimization with nonseparable costs and constraints. IEEE Control Systems Letters ,2026. R Tyrrell Rockafellar, Stanislav Uryasev, et al. Optimization of conditional value-at-risk. 
+
+Journal of risk , 2:21–42, 2000. RT Rockafellar. Convex analysis. Princeton Math. Series , 28, 1970. Dhruv Sarkar and Abhishek Sinha. Improved guarantees for constrained online convex optimization via self-contraction. arXiv preprint arXiv:2605.21107 , 2026a. Dhruv Sarkar and Abhishek Sinha. Optimal anytime algorithms for online convex optimiza-tion with adversarial constraints. In Forty-third International Conference on Machine Learning , 2026b. URL https://openreview.net/forum?id=7FG30Wld9Q .Dhruv Sarkar, Aprameyo Chakrabartty, Subhamon Supantha, Palash Dey, and Abhishek Sinha. Projection-free algorithms for online convex optimization with adversarial con-straints. In The 29th International Conference on Artificial Intelligence and Statistics ,2026. URL https://openreview.net/forum?id=TCCrm6XGi8 .Shai Shalev-Shwartz. Online learning and online convex optimization. Foundations and Trends ® in Machine Learning , 4(2):107–194, 2012. Shai Shalev-Shwartz and Shai Ben-David. Understanding machine learning: From theory to algorithms . Cambridge university press, 2014. Ashudeep Singh and Thorsten Joachims. Fairness of exposure in rankings. In Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery & data mining ,pages 2219–2228, 2018. Abhishek Sinha and Rahul Vaze. Optimal algorithms for online convex optimization with adversarial constraints. Advances in Neural Information Processing Systems , 37:41274– 41302, 2024. Abhishek Sinha and Rahul Vaze. Beyond ˜O(√T ) constraint violation for online convex optimization with adversarial constraints. Advances in Neural Information Processing Systems , 38:142578–142603, 2026. Subhamon Supantha and Abhishek Sinha. Universal dynamic regret and constraint viola-tion bounds for constrained online convex optimization. In 37th International Confer-ence on Algorithmic Learning Theory , 2026. URL https://openreview.net/forum?id= 8rALmxNjJH .David Tse and Pramod Viswanath. Fundamentals of wireless communication . Cambridge university press, 2005. 46 Rahul Vaze and Abhishek Sinha. O(√T ) static regret and instance dependent constraint violation for constrained online convex optimization. Advances in Neural Information Processing Systems , 38:61602–61629, 2026. Juncheng Wang, Bingjie Yan, and Yituo Liu. Doubly-bounded queue for constrained online learning: Keeping pace with dynamics of both loss and constraint. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pages 21135–21143, 2025a. Yibo Wang, Yuanyu Wan, and Lijun Zhang. Revisiting projection-free online learning with time-varying constraints. In Proceedings of the AAAI Conference on Artificial Intelli-gence , volume 39, pages 21339–21347, 2025b. Xiaohan Wei, Hao Yu, and Michael J Neely. Online primal-dual mirror descent under stochastic constraints. Proceedings of the ACM on Measurement and Analysis of Com-puting Systems , 4(2):1–36, 2020. Xinlei Yi, Xiuxian Li, Lihua Xie, and Karl H Johansson. Distributed online convex opti-mization with time-varying coupled inequality constraints. IEEE Transactions on Signal Processing , 68:731–746, 2020. Xinlei Yi, Xiuxian Li, Tao Yang, Lihua Xie, Tianyou Chai, and Karl Johansson. Regret and cumulative constraint violation analysis for online convex optimization with long term constraints. In International conference on machine learning , pages 11998–12008. PMLR, 2021. Xinlei Yi, Xiuxian Li, Tao Yang, Lihua Xie, Tianyou Chai, and Karl Henrik Johansson. Regret and cumulative constraint violation analysis for distributed online constrained convex optimization. IEEE Transactions on Automatic Control , 68(5):2875–2890, 2022. Hao Yu and Michael J Neely. A low complexity algorithm with O(√T ) regret and O(1) constraint violations for online convex optimization with long term constraints. Journal of Machine Learning Research , 21(1):1–24, 2020. Hao Yu, Michael Neely, and Xiaohan Wei. Online convex optimization with stochastic constraints. Advances in Neural Information Processing Systems , 30, 2017. Jianjun Yuan and Andrew Lamperski. Online convex optimization for cumulative con-straints. Advances in Neural Information Processing Systems , 31, 2018. Wentao Zhang. Multi-constraint online convex optimization with adversarial constraints. 
+
+Transactions on Machine Learning Research , 2026. ISSN 2835-8856. URL https:// openreview.net/forum?id=3sLjLHCGzS .Martin Zinkevich. Online convex programming and generalized infinitesimal gradient ascent. In Proceedings of the 20th international conference on machine learning (icml-03) , pages 928–936, 2003. 47

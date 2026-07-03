@@ -1,0 +1,311 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-03T21:10:26.966714+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2607.01266v1",
+      "source": "arxiv",
+      "title": "Fast approximation and learning of binary classification tasks in o-minimal structures using ReLU neural networks",
+      "abstract": "We study binary classification problems whose decision sets are given by definable sets in o-minimal expansions of the real field. Motivated by cell decomposition of definable sets, we introduce traceable sets as a classical proxy for definable decision regions and analyze their approximation by ReLU neural networks. Under uniform bounds on the number of connected components and suitable $C^m$ extensions for the boundary functions, we prove that characteristic functions of traceable subsets of $[-1/2,1/2]^n$ can be approximated in $L^p$ to accuracy $\\varepsilon>0$ by ReLU neural networks of size $\\mathcal{O}(\\varepsilon^{-p(n-1)/m})$, with depth independent of $\\varepsilon$ and polynomially bounded weights. This establishes quantitative approximation rates for certain definable collections in o-minimal structures using ReLU neural networks. The same approach also yields the stated approximation rates for a subclass of definable maps $[-1/2,1/2]^n \\to \\mathbb{R}$. We then combine the approximation capabilities with entropy estimates for ReLU neural network classes to obtain statistical learning rates for empirical risk minimization with hinge loss. For $N$ uniformly distributed samples, the resulting classifiers achieve expected misclassification error of order $N^{-m/(m+pn-p)}$ up to an arbitrarily small polynomial loss.",
+      "authors": [
+        "Clemens Kinn",
+        "Philipp Petersen"
+      ],
+      "primary_category": "math.LO",
+      "categories": [
+        "math.LO",
+        "cs.LG",
+        "math.FA"
+      ],
+      "published": "2026-06-29T20:44:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.01266v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Approximating decision boundaries for binary classification using ReLU networks",
+      "llm_evidence_cn": "使用ReLU网络逼近二分类决策边界",
+      "llm_evidence": "使用ReLU网络逼近二分类决策边界",
+      "canonical_evidence": "使用ReLU网络逼近二分类决策边界",
+      "llm_tldr_en": "The paper studies approximating binary classification decision boundaries in o-minimal structures using ReLU neural networks, proving network size bounds for L^p approximation of traceable sets.",
+      "llm_tldr_cn": "本文研究在o-最小结构中用ReLU神经网络逼近二分类决策边界，针对可轨集类推导出L^p逼近的ReLU网络尺寸上界，且深度与精度无关。该结果为学习复杂决策边界提供了理论保证和网络设计指导。",
+      "llm_tldr": "本文研究在o-最小结构中用ReLU神经网络逼近二分类决策边界，针对可轨集类推导出L^p逼近的ReLU网络尺寸上界，且深度与精度无关。该结果为学习复杂决策边界提供了理论保证和网络设计指导。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29147v1",
+      "source": "arxiv",
+      "title": "Consistent CutPINNs for Convection-Diffusion Equations on Curved Level-Set Domains",
+      "abstract": "We present an a priori error analysis of consistent-loss PINNs for stationary convection-diffusion equations on curved level-set domains. The standard mean-squared interior loss fails in the convection-dominated regime: the solution develops an $O(\\eps)$ boundary layer in which the pointwise residual grows like $\\eps^{-1}$, so the loss is dominated by the few collocation points inside the layer and leaves the smooth bulk unresolved. We remove this mismatch by penalising the interior residual in a discrete $\\Lpγ$ norm with $γ= 1 + 1/\\log\\mtil$, a computable surrogate for the $\\Hminusone$ stability term, and imposing the boundary condition through a discrete $\\HhalfBdry$ trace norm, which treats flat and curved geometries uniformly. Under Besov regularity assumptions we prove a single a priori $\\Hone$ error bound, valid for all interior exponents $γ\\in (1,2]$, with an optimal recovery rate governed by a cut-cell floor $1/(2γ)$ specific to the curved geometry. Numerical experiments on a rectangle and a disk at $\\eps = 2^{-s}$, $s \\in \\{2,4,6\\}$, confirm the analysis: as the layer sharpens, the $\\Lp{2}$ interior loss becomes seed-fragile while the $\\Lpγ$ interior trains reliably, the interior norm being the decisive factor in convergence.",
+      "authors": [
+        "Maneesh Kumar Singh"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA"
+      ],
+      "published": "2026-06-28T02:04:29+00:00",
+      "link": "https://arxiv.org/pdf/2606.29147v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "handles boundary layers in convection-dominated convection-diffusion equations with PINNs",
+      "llm_evidence_cn": "用PINNs处理对流占优对流扩散方程中的边界层",
+      "llm_evidence": "用PINNs处理对流占优对流扩散方程中的边界层",
+      "canonical_evidence": "用PINNs处理对流占优对流扩散方程中的边界层",
+      "llm_tldr_en": "Introduces consistent-loss PINNs for convection-diffusion equations on curved domains, addressing boundary layer issues in convection-dominated regimes by using Lp gamma interior loss and H^{1/2} boundary trace norm.",
+      "llm_tldr_cn": "针对对流占优的对流扩散方程，标准PINNs损失函数因边界层内残差过大而失效。本文提出一致性损失PINNs，采用离散Lpγ范数惩罚内部残差（γ=1+1/log(ε̃)）以近似H^{-1}稳定性，并结合离散H^{1/2}迹范数施加边界条件。在Besov空间框架下进行了先验误差分析。该方法有效解决了弯曲区域上边界层导致的数值困难，对气动优化中的边界层问题具有参考价值。",
+      "llm_tldr": "针对对流占优的对流扩散方程，标准PINNs损失函数因边界层内残差过大而失效。本文提出一致性损失PINNs，采用离散Lpγ范数惩罚内部残差（γ=1+1/log(ε̃)）以近似H^{-1}稳定性，并结合离散H^{1/2}迹范数施加边界条件。在Besov空间框架下进行了先验误差分析。该方法有效解决了弯曲区域上边界层导致的数值困难，对气动优化中的边界层问题具有参考价值。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary layers in aerodynamics",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29436v1",
+      "source": "arxiv",
+      "title": "Fourier Neural Operators with Least-Squares Readout Refit for Learning Random Obstacle-to-Solution Maps",
+      "abstract": "We study operator learning for random obstacle-to-solution maps arising from elliptic variational inequalities with finite-band self-affine random obstacle fields. Instead of introducing an explicit truncated stochastic parametrization of the random input, we learn the map directly from sampled obstacle realizations on a fixed grid. This problem is challenging because the solution is governed not only by the obstacle field itself, but also by the induced contact set and free-boundary geometry. We introduce a post-training least-squares readout refit for the Fourier neural operator (FNO). After the FNO is trained end to end, its nonlinear backbone is frozen and the final affine readout is recomputed by solving the induced linear least-squares problem over all training samples and grid points. The refit yields the empirical squared-error optimal readout for the learned frozen features while leaving the nonlinear representation unchanged. We compare vanilla DeepONet, POD-DeepONet, a two-stage DeepONet baseline, FNO, and FNO with least-squares readout refit (FNO-LS) on two obstacle ensembles with different amplitude levels. Numerical results show that FNO-LS achieves the strongest overall performance among the tested models, particularly for higher-amplitude obstacles with more complex contact geometry. The method improves average field accuracy, contact-set recovery, and obstacle-violation metrics at low additional cost, especially when the FNO backbone is informative but not fully converged. These results suggest that least-squares readout refit is a simple and effective post-training enhancement for learning random obstacle-to-solution maps.",
+      "authors": [
+        "Chenhui Zhu",
+        "Fei Wang"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA",
+        "cs.LG"
+      ],
+      "published": "2026-06-28T14:53:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.29436v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "learns random obstacle-to-solution maps with free-boundary geometry",
+      "llm_evidence_cn": "学习具有自由边界几何的随机障碍物到解的映射",
+      "llm_evidence": "学习具有自由边界几何的随机障碍物到解的映射",
+      "canonical_evidence": "学习具有自由边界几何的随机障碍物到解的映射",
+      "llm_tldr_en": "Proposes FNO with least-squares readout refit to learn solution maps for random obstacle problems, accurately capturing contact sets and free boundaries.",
+      "llm_tldr_cn": "针对随机障碍物问题中自由边界几何难以建模的挑战，本文提出一种后训练最小二乘读出重拟合的傅里叶神经算子，直接学习障碍物到解的映射。该方法冻结非线性骨干网络，仅重新计算仿射读出，显著提升对接触集和自由边界的预测精度，为随机参数化自由边界问题的高效求解提供了新途径。",
+      "llm_tldr": "针对随机障碍物问题中自由边界几何难以建模的挑战，本文提出一种后训练最小二乘读出重拟合的傅里叶神经算子，直接学习障碍物到解的映射。该方法冻结非线性骨干网络，仅重新计算仿射读出，显著提升对接触集和自由边界的预测精度，为随机参数化自由边界问题的高效求解提供了新途径。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundaries in various fields",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02286v1",
+      "source": "arxiv",
+      "title": "A novel time-domain iterative method for a three-dimensional inverse acoustic obstacle scattering problem",
+      "abstract": "This paper concerns the three-dimensional forward and inverse acoustic obstacle scattering problem in the time domain. For the forward problem, a retarded potential formulation discretized by convolution quadrature and Galerkin methods is introduced. By introducing the retarded boundary integral defined on a homothetic surface, we propose a novel time-domain convolution quadrature based iterative method to reconstruct both the shape and location of a rigid obstacle. The retarded integral in the time domain is reformulated into a system of integrals in the s-domain. The resulting s-domain integrals are very fast to compute, as they only involve non-singular integrals over the homothetic surfaces. Moreover, the Fréchet derivative with respect to the boundary can be derived straightforwardly. We also prove that the scattered field generated by the homothetic surface converges to the exact field in the time domain. To improve the stability of the inversion algorithm, an incremental truncation technique is proposed, and numerical experiments confirm the effectiveness and robustness of our method.",
+      "authors": [
+        "Lu Zhao",
+        "Heping Dong",
+        "Zhiyong Cheng"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA"
+      ],
+      "published": "2026-07-02T15:04:23+00:00",
+      "link": "https://arxiv.org/pdf/2607.02286v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "reconstruct shape and location of rigid obstacle via iterative method",
+      "llm_evidence_cn": "通过迭代方法重建刚性障碍物的形状和位置",
+      "llm_evidence": "通过迭代方法重建刚性障碍物的形状和位置",
+      "canonical_evidence": "通过迭代方法重建刚性障碍物的形状和位置",
+      "llm_tldr_en": "Proposes a time-domain iterative method based on retarded boundary integrals to reconstruct the shape and location of 3D rigid obstacles in inverse acoustic scattering.",
+      "llm_tldr_cn": "本文针对三维时域声波逆散射问题，提出一种基于延迟边界积分的时域迭代方法，用于重建刚性障碍物的形状和位置。方法利用位似曲面上的延迟积分，将时域问题转化为s域非奇异积分系统，实现快速计算。数值实验表明方法有效重建了障碍物边界，为形状优化提供了新思路。",
+      "llm_tldr": "本文针对三维时域声波逆散射问题，提出一种基于延迟边界积分的时域迭代方法，用于重建刚性障碍物的形状和位置。方法利用位似曲面上的延迟积分，将时域问题转化为s域非奇异积分系统，实现快速计算。数值实验表明方法有效重建了障碍物边界，为形状优化提供了新思路。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.31480v1",
+      "source": "arxiv",
+      "title": "Constrained Online Convex Optimization without Slater's Condition",
+      "abstract": "We study constrained online convex optimization with adversarial losses and stochastic or adversarial constraints. For stochastic constraints, existing algorithms that achieve nearly optimal regret and constraint violation bounds typically rely on regularity assumptions such as Slater's condition, while adversarial-constraint algorithms avoid these assumptions by using a rather restrictive round-wise feasible comparator. We bridge this gap with an anytime primal-dual framework that incorporates an adaptive regularizer into the dual update. The regularizer stabilizes the dual process without relying on the negative drift induced by Slater's condition. For stochastic constraints and convex losses, our algorithm achieves $O(\\sqrt{T})$ expected regret and $O(\\sqrt{T}\\log T)$ expected cumulative constraint violation. Furthermore, we show that our algorithm also admits high-probability bounds of the same order on regret and constraint violation. For strongly convex losses, the regret bound improves to $O(\\log T)$ with a violation bound of the same order. With a minor modification, the framework also applies to adversarial constraints and provides guarantees for hard constraint violation.",
+      "authors": [
+        "Kihyun Yu",
+        "Junehee Lee",
+        "Dabeen Lee"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.OC"
+      ],
+      "published": "2026-06-30T10:54:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.31480v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "proposes primal-dual framework for constrained online convex optimization without Slater's condition, directly handling boundary constraints",
+      "llm_evidence_cn": "提出无需Slater条件的约束在线凸优化原对偶框架，直接处理边界约束",
+      "llm_evidence": "提出无需Slater条件的约束在线凸优化原对偶框架，直接处理边界约束",
+      "canonical_evidence": "提出无需Slater条件的约束在线凸优化原对偶框架，直接处理边界约束",
+      "llm_tldr_en": "Proposes an anytime primal-dual algorithm with adaptive regularization for constrained online convex optimization without Slater's condition, achieving optimal regret and constraint violation bounds.",
+      "llm_tldr_cn": "针对在线凸优化中约束条件不满足Slater条件（可行域内部为空）的困难，本文提出一种带自适应正则项的原始-对偶算法框架。该正则项稳定对偶更新过程，不依赖Slater条件带来的负漂移。在随机约束和凸损失下，算法达到O(√T)的期望遗憾和O(√T)的约束违反，填补了现有算法需强正则条件或限制比较器的空白。",
+      "llm_tldr": "针对在线凸优化中约束条件不满足Slater条件（可行域内部为空）的困难，本文提出一种带自适应正则项的原始-对偶算法框架。该正则项稳定对偶更新过程，不依赖Slater条件带来的负漂移。在随机约束和凸损失下，算法达到O(√T)的期望遗憾和O(√T)的约束违反，填补了现有算法需强正则条件或限制比较器的空白。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.00560v1",
+      "source": "arxiv",
+      "title": "A multilevel stochastic-gradient neural solver for boundary integral equations",
+      "abstract": "We develop a multilevel stochastic-gradient neural solver for boundary integral equations of the second kind. The unknown density is represented by a multilayer perceptron, trained by minimizing the Nyström-discretized residual on a ladder of refining quadrature grids, each level warm-started from the parameters of the previous one. Each step requires only dense matrix-vector products on mini-batches of collocation rows and network passes, operations that map directly onto GPU hardware. The residual contraction is governed by the empirical neural tangent kernel (NTK), the discrete sample of a single continuum kernel. On a fixed grid, training stalls once the residual concentrates in modes the network contracts slowly, the plateau described by the frequency principle; a spectral analysis explains, and experiments confirm, how refining the quadrature resolves more of the continuum kernel's spectrum and returns these modes to the optimizer's reach. Spectral bias, elsewhere an obstruction to neural network solvers, thus serves as the smoother of a multigrid-type iteration, with quadrature refinement in place of coarse-grid correction. Under a uniform regularity bound on the network, the total work is a constant multiple of the work on the finest grid, and the uniform conditioning of the discrete second-kind operator leaves the NTK as the sole rate-determining spectrum while converting the training residual into an a posteriori error bound. Experiments on interior Dirichlet Laplace/Poisson problems and exterior Neumann Helmholtz problems, using both parametric and signed-distance surface representations, demonstrate the effectiveness and efficiency of the proposed method compared with GMRES at comparable tolerances.",
+      "authors": [
+        "Bing-Ze Lu",
+        "Richard Tsai"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA"
+      ],
+      "published": "2026-07-01T07:50:17+00:00",
+      "link": "https://arxiv.org/pdf/2607.00560v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "neural solver for boundary integral equations, optimizing network to satisfy boundary conditions",
+      "llm_evidence_cn": "用神经网络求解边界积分方程，通过优化网络满足边界条件",
+      "llm_evidence": "用神经网络求解边界积分方程，通过优化网络满足边界条件",
+      "canonical_evidence": "用神经网络求解边界积分方程，通过优化网络满足边界条件",
+      "llm_tldr_en": "Develops a multilevel neural solver for boundary integral equations; uses stochastic gradient training on refining grids, achieving efficient solution with GPU parallelism.",
+      "llm_tldr_cn": "针对第二类边界积分方程求解，本文提出一种多级随机梯度神经网络方法，用多层感知机表示未知密度，通过在递进细化的求积网格上最小化Nyström离散残差进行训练。每级参数从前一级热启动，仅需密集矩阵-向量乘和GPU并行计算，可利用NTK分析残差收缩性质，为边界值问题提供了一种高效、硬件友好的深度学习求解框架。",
+      "llm_tldr": "针对第二类边界积分方程求解，本文提出一种多级随机梯度神经网络方法，用多层感知机表示未知密度，通过在递进细化的求积网格上最小化Nyström离散残差进行训练。每级参数从前一级热启动，仅需密集矩阵-向量乘和GPU并行计算，可利用NTK分析残差收缩性质，为边界值问题提供了一种高效、硬件友好的深度学习求解框架。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.01128v1",
+      "source": "arxiv",
+      "title": "GAIA: Geometry-Adaptive Operator Learning for Forward and Inverse Problems",
+      "abstract": "Operator learning for partial differential equations (PDEs) on arbitrary geometries builds fast neural surrogates for large-scale simulation. Although recent geometry-adaptive neural operators have made substantial progress, they are mainly designed for forward problems in which inputs and outputs share the same spatial domain. This limits their applicability for boundary value problems (BVPs) and inverse problems, where inputs and outputs may live on different domains. We introduce the Geometry-Adaptive Integral Autoencoder (GAIA), an operator learning model that encodes the domain boundary and the interior field distribution into geometry tokens, and conditions integral transform layers on these tokens via cross-attention, allowing the kernel to adapt locally to geometric features. This yields a single architecture for forward (including BVPs) and inverse problems on arbitrary domains in one pass, without retraining, iterative optimization, or graph construction. We evaluate GAIA on seven 2D and 3D benchmarks, four of which are new or substantially extended benchmarks for inverse problems and BVP: electrical impedance tomography, optical tomography, 3D Darcy flow on varying geometries, and a modified setting of Poisson BVP on mechanical components benchmark (MCB). GAIA sets new state-of-the-art results on every inverse and BVP task, reducing median relative $L^2$ error by 64% on airfoil flow reconstruction and 27% on EIT relative to the next best amortized method, and outperforming all baselines on every shape category of MCB. On other forward problems, GAIA is competitive with specialized solvers while maintaining stable accuracy across point resolutions on which transformer-based baselines degrade.",
+      "authors": [
+        "Meenakshi Krishnan",
+        "Pranav Pulijala",
+        "Ke Chen",
+        "Haizhao Yang",
+        "Ramani Duraiswami"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.NA"
+      ],
+      "published": "2026-07-01T16:14:22+00:00",
+      "link": "https://arxiv.org/pdf/2607.01128v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Introduces GAIA, a geometry-adaptive operator learning model for boundary value problems and inverse problems with different input/output domains.",
+      "llm_evidence_cn": "提出几何自适应算子学习模型GAIA，用于边界值问题和输入输出域不同的逆问题。",
+      "llm_evidence": "提出几何自适应算子学习模型GAIA，用于边界值问题和输入输出域不同的逆问题。",
+      "canonical_evidence": "提出几何自适应算子学习模型GAIA，用于边界值问题和输入输出域不同的逆问题。",
+      "llm_tldr_en": "This paper presents GAIA, a neural operator that encodes domain boundary and interior fields into tokens, enabling geometry-adaptive integral transforms for PDEs. It addresses forward and inverse problems, including boundary value problems where inputs/outputs live on different domains, and demonstrates superior performance on various geometries.",
+      "llm_tldr_cn": "本文提出几何自适应积分自编码器（GAIA），将区域边界和内部场分布编码为几何令牌，通过交叉注意力调节积分变换核，解决输入输出域不同的边界值问题和逆问题。该模型在多种几何上表现出优越性能，为参数优化和设计提供了快速代理模型。",
+      "llm_tldr": "本文提出几何自适应积分自编码器（GAIA），将区域边界和内部场分布编码为几何令牌，通过交叉注意力调节积分变换核，解决输入输出域不同的边界值问题和逆问题。该模型在多种几何上表现出优越性能，为参数优化和设计提供了快速代理模型。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.02336v1",
+      "source": "arxiv",
+      "title": "Block Preconditioning for Shifted Boundary Method Discretisations of the Stokes Problem",
+      "abstract": "The Shifted Boundary Method (SBM) sidesteps body-fitted meshing by shifting boundary conditions onto a surrogate boundary and correcting for the displacement through Taylor expansions. Despite its broad analysis and application, scalable iterative solvers for the incompressible Stokes equations remain underdeveloped. We present a block preconditioner for SBM--Stokes discretisations that uses the velocity block together with a pressure mass matrix as a Schur complement approximation. Because the SBM system is non-symmetric, classical operator preconditioning does not apply directly; a field-of-values analysis instead shows that the non-symmetric SBM contributions act as asymptotically small perturbations of a standard saddle-point operator, yielding mesh-independent GMRES convergence on sufficiently fine meshes. Numerical experiments demonstrate iteration counts under refinement across geometries of increasing complexity. We expose a coarse-mesh regime in which an under-resolved grid produces elevated iteration counts, an artefact of insufficient resolution that vanishes once the mesh captures the geometry.",
+      "authors": [
+        "Michał Wichrowski",
+        "Ajay Ajith"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA"
+      ],
+      "published": "2026-07-02T15:39:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.02336v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "develops preconditioner for Shifted Boundary Method, an algorithm for boundary value problems in Stokes flow",
+      "llm_evidence_cn": "为移动边界法开发预条件子，该方法是Stokes流边界值问题的算法",
+      "llm_evidence": "为移动边界法开发预条件子，该方法是Stokes流边界值问题的算法",
+      "canonical_evidence": "为移动边界法开发预条件子，该方法是Stokes流边界值问题的算法",
+      "llm_tldr_en": "Proposes a block preconditioner for Shifted Boundary Method discretizations of Stokes, using Schur complement approximation and field-of-values analysis for efficient iterative solvers.",
+      "llm_tldr_cn": "针对移动边界法（SBM）离散的不可压缩Stokes方程，提出一种块预条件子。该方法利用速度块和压力质量矩阵的Schur补近似，并通过场值分析处理非对称项。实验表明该预条件子能有效加速迭代求解，为含复杂边界的流体问题提供了高效算法。",
+      "llm_tldr": "针对移动边界法（SBM）离散的不可压缩Stokes方程，提出一种块预条件子。该方法利用速度块和压力质量矩阵的Schur补近似，并通过场值分析处理非对称项。实验表明该预条件子能有效加速迭代求解，为含复杂边界的流体问题提供了高效算法。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "algorithms for solving boundary optimization problems",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
