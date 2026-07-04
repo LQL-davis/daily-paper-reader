@@ -1,0 +1,1231 @@
+Title: PDE-constrained optimization for virtual sensing in structural dynamics: Full-field displacement and force recovery from sparse sensors
+
+URL Source: https://arxiv.org/pdf/2606.29349v1
+
+Published Time: Tue, 30 Jun 2026 01:09:22 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+# PDE-constrained optimization for virtual sensing in structural dynamics: Full-field displacement and force recovery from sparse sensors 
+
+Minjae Kim a,1 , Jaehwan Jeong a,1 , Jaemin Kim a, ∗
+
+> a
+
+School of Mechanical Engineering, Changwon National University, Changwon 51140, Republic of Korea 
+
+Abstract 
+
+Virtual sensing — recovering full-field structural response from sparse sensor measurements — is a fundamental challenge in structural health monitoring. This study formulates virtual sensing as a PDE-constrained optimization (PDE-CO) problem, where the governing elastodynamic equation serves as an equality constraint, the applied force distribution is the optimization variable, and the full-field displacement and force are jointly recovered. Gradients of the Tikhonov-regularized objective are computed via reverse-mode automatic di ff erentiation through the forward PDE solver, and L-BFGS iteratively finds the optimal state. The framework couples an o ffl ine FEniCSx stage for finite element assembly with an online GPU-accelerated JAX stage, and is verified on three examples of increasing complexity: a cantilever plate, a 90 ◦ elbow pipe, and a reactor pressure vessel (RPV) representative of a 300 MW pressurized nuclear reactor. PDE-CO consistently outperforms modal expansion across all three cases, reducing displacement errors by factors of 2 to 17 × with sub-percent accuracy on every example. Unlike modal expansion, where force is derived by back-calculation from truncated modal coordinates and is not jointly optimized, PDE-CO recovers displacement and force simultaneously through the PDE constraint; the increased computational cost is o ff set by GPU acceleration delivering up to 64 .8× speedup over CPU. 
+
+Keywords: PDE-constrained optimization, Virtual sensing, Full-field inference, Automatic di ff erentiation, Inverse problems, Structural dynamics 
+
+Nomenclature 
+
+Symbol Definition Symbol Definition 
+
+K Global sti ff ness matrix M Global consistent mass matrix 
+
+D(ω) Dynamic sti ff ness matrix; K − ω2M D f f Free-DOF block of DP Force mapping matrix S f Sensor selection matrix (Boolean) 
+
+A Forward operator; −ω2S f D−1 
+
+> f f
+
+P Φ Modal matrix (retained eigenmodes) 
+
+θ Unknown force parameter vector q Modal coordinate vector ˆU f Free-DOF displacement amplitude ˆaobs Observed sensor acceleration 
+
+ε Small strain tensor σ Cauchy stress tensor 
+
+J(θ) Objective function α Tikhonov regularization weight 
+
+ω Excitation circular frequency ωi i-th natural frequency 
+
+E Young’s modulus ν Poisson’s ratio 
+
+ρ Mass density C Elasticity tensor 
+
+N Total DOFs N f Number of free DOFs 
+
+Nθ Number of force parameters Ns Number of sensor DOFs 
+
+Nd Number of retained modes Ω Physical domain 
+
+ΓD Dirichlet boundary ΓN Neumann boundary 
+
+> ∗
+
+Corresponding Author 
+
+Email address: jaeminkim@changwon.ac.kr (Jaemin Kim) 
+
+> 1
+
+These authors contributed equally to this work. 
+
+> arXiv:2606.29349v1 [math-ph] 28 Jun 2026
+
+1. Introduction 
+
+Virtual sensing — the recovery of full-field displacement, strain, and acceleration fields across an entire structure from sparse sensor measurements — is a key capability for structural health monitoring (SHM) (Ritto and Rochinha, 2021; Lee et al., 2023), fatigue assessment, and damage detection (Ge and Lui, 2005) (see Figure 1). The structural dynamics community has developed several approaches for virtual sensing, including modal least-squares regression (Lee et al., 2024), Kalman filter methods (Mora et al., 2023; Lourens et al., 2012), reduced-order modeling approaches (Oh et al., 2022; Kim et al., 2017, 2018), and physics-guided machine learning approaches (Haywood-Alexander et al., 2026). Among these, modal expansion is the most widely adopted: the displacement is represented as a linear combination of the Nd lowest-frequency (dominant) eigenmodes, and the modal coordinates are fitted to sensor data via least-squares. However, modal expansion su ff ers from fundamental limitations. First, retaining only Nd modes introduces modal truncation error, and Nd is bounded by the sensor count ( Nd ≤ Ns − 1 for an overdetermined system), so the sparse sensor data cannot constrain a higher-order modal basis. Second, the governing PDE is never enforced: the sensor data determines only Ns degrees of freedom, and no physical law propagates this information to the remaining N f − Ns DOFs. When Ns ≪ N f , this purely kinematic approach lacks the information to reconstruct the response accurately away from sensor locations. The scientific computing community, in parallel, has developed di ff erentiable simulation frameworks (Xue et al., 2023; Bezgin et al., 2023) that formulate inverse problems as PDE-constrained optimization (PDE-CO), with au-tomatic di ff erentiation handling all sensitivity computations. PDE-CO treats the governing equation as an equality constraint, ensuring the recovered solution is physically consistent at every optimization iteration. By enforcing the PDE, sparse sensor information is propagated to the entire domain through the physics, filling the information gap that modal expansion cannot bridge. The PDE-CO framework o ff ers several key advantages over modal expan-sion for virtual sensing. First, it eliminates modal truncation error. PDE-CO uses the full dynamic sti ff ness matrix 
+
+D f f ∈ RN f ×N f rather than a truncated modal basis Φ ∈ RN f ×Nd , so the solution space is the entire N f -dimensional FE space. Second, the PDE constraint provides physics-based regularization. Every trial solution is consistent with the governing equation, and the inverse operator D−1 
+
+> f f
+
+acts as a smoothing operator that attenuates high-frequency spa-tial components. Third, gradients are computed via reverse-mode AD and supplied to L-BFGS, a unified paradigm that extends identically to nonlinear forward models, material identification, and topology optimization. Fourth, the full-field displacement emerges directly from the primal PDE solve at the optimal force, so both the displacement field and the force distribution are recovered simultaneously within a single optimization framework without auxiliary post-processing steps. Physical twin Digital twin 
+
+> (Physics-based)
+
+Sensors 
+
+> ···
+
+Full-field reconstruction 
+
+> (displacement/ applied force)
+> Figure 1: Schematic of virtual sensing via physics-based digital twin. Left (physical twin): a reactor pressure vessel instrumented with sparse accelerometers (red dots). Right (digital twin): a physics-based finite element model reconstructs the full-field displacement distribution over the entire domain from the sparse sensor measurements.
+
+2Despite their conceptual similarity, the two threads — modal-based virtual sensing and PDE-constrained optimiza-tion — have not converged for full-field inference in structural dynamics. The adjoint-based PDE-CO framework has been applied to static inverse problems such as elasticity imaging (Oberai et al., 2003), structural weakness identifica-tion (Kosti´ c et al., 2023), and constitutive inverse design (Bahmani, 2026). Xue et al. (2023) developed JAX-FEM, a GPU-accelerated di ff erentiable FE solver that computes the adjoint gradient via reverse-mode AD through the forward solver and performs optimization with L-BFGS, demonstrating PDE-CO for Poisson and static elasticity problems. In structural dynamics, Ding et al. (2021) employed the adjoint method for sizing optimization under transient dynamic loads, but this is a design optimization problem rather than an inverse sensing problem. To the best of the authors’ knowledge, no prior work has applied PDE-CO to recover full-field displacement from sparse vibration sensors in structural dynamics. Existing virtual sensing methods rely on modal expansion (Iliopoulos et al., 2016), Kalman filters (Lourens et al., 2012), physics-guided machine learning (Haywood-Alexander et al., 2026), or transfer function inversion, but do not exploit the full PDE constraint in a di ff erentiable optimization framework. This study addresses this gap through the following contributions. Virtual sensing under harmonic excitation is formulated as a PDE-CO problem, where the dynamic sti ff ness equation D(ω) ˆ U f = Pθ serves as the equality constraint and the force parameter θ ∈ RNθ is the optimization variable. The force on the candidate loaded boundary 
+
+ΓN is parameterized via a Boolean selection matrix P, and the gradient is computed via JAX reverse-mode AD; L-BFGS then iteratively recovers the optimal force distribution and the corresponding full-field displacement. It is demonstrated analytically and numerically that PDE-CO achieves superior displacement recovery compared to modal expansion, because the PDE constraint eliminates modal truncation error and propagates sensor information through the exact governing equation. The framework is verified on three examples of increasing complexity — a cantilever plate ( ϵu = 0.45%, 4 sensors), a 90 ◦ elbow pipe ( ϵu = 0.28%, 8 sensors), and a double-loop cylindrical RPV representative of a 300 MW PWR ( ϵu = 0.885%, 36 sensors) — consistently outperforming modal expansion (ϵu: 7 .69%, 1 .11%, 1 .86%), with GPU acceleration on an NVIDIA RTX 5070 Ti providing up to 64 .8× speedup to make large-scale optimization tractable. Section 2 reviews the modal expansion approach for virtual sensing and identifies its limitations. Section 3 intro-duces PDE-constrained optimization as a general inverse problem framework and establishes the key idea. Section 4 develops the PDE-CO formulation for full-field inference under harmonic excitation. Section 5 describes the im-plementation pipeline combining FEniCSx, JAX, and SciPy. Section 6 presents numerical experiments. Section 7 discusses limitations and extensions. Section 8 concludes. 
+
+2. Modal expansion-based virtual sensing and its limitations 
+
+2.1. Modal expansion procedure 
+
+The standard approach to full-field recovery from sparse sensor measurements is modal expansion (Kullaa, 2016). The method begins by solving the generalized eigenvalue problem associated with the free-DOF system: 
+
+K f f ϕi = ω2 
+
+> i
+
+M f f ϕi, i = 1, . . . , N f , (1) where ωi is the i-th natural frequency and ϕi ∈ RN f is the corresponding eigenmode. The eigenmodes are normalized to be mass-orthonormal, so the modal matrix Φ = [ϕ1, . . . , ϕNd ] ∈ RN f ×Nd composed of the first Nd dominant modes satisfies the orthogonality conditions: 
+
+Φ⊤M f f Φ = INd , Φ⊤K f f Φ = Λ, (2) where Λ = diag( ω21, . . . , ω 2 
+
+> Nd
+
+) is the spectral matrix. The displacement field of the free DOFs is then approximated by a truncated modal superposition: ˆU f ≈ Φ q, (3) where q ∈ RNd is the modal coordinate vector to be determined from sensor data. 3Under harmonic excitation at frequency ω, the sensor acceleration data ˆ aobs ∈ RNs is first converted to sensor displacements via the kinematic relationship ˆ a = −ω2 ˆu:ˆuobs = − ˆaobs 
+
+ω2 . (4) The sensor displacements are related to the full free-DOF displacement through the sensor selection matrix S f ∈
+
+RNs×N f (a Boolean matrix that extracts sensor DOFs): ˆuobs = S f ˆU f ≈ S f Φ q = Φm q, (5) where Φm B S f Φ ∈ RNs×Nd is the modal matrix restricted to sensor DOFs. 
+
+2.2. Full-field reconstruction 
+
+The modal coordinates q are recovered by minimizing the Tikhonov-regularized least-squares cost function: 
+
+Jmodal (q) = ∥Φm q − ˆuobs ∥2 + αm∥q∥2, (6) where αm > 0 is a regularization parameter that penalizes large modal coordinates. Setting ∇qJmodal = 0 yields the closed-form solution: ˆq = (Φ⊤
+
+> m
+
+Φm + αm INd )−1Φ⊤ 
+
+> m
+
+ˆuobs . (7) When Ns > Nd and the system is well-conditioned, the unregularized pseudoinverse ( αm = 0) can be used. In practice, however, the number of available sensors is often limited ( Ns ≤ Nd) or the system is ill-conditioned, making regularization essential for a stable solution. The full-field displacement at all free DOFs is then reconstructed as: ˆUmodal  
+
+> f
+
+= Φ ˆq. (8) The inversion involves only an Nd × Nd system, making modal expansion computationally e ffi cient and widely used for real-time virtual sensing. However, the entire procedure is purely kinematic: it fits mode shapes to sensor data without ever enforcing the governing PDE or using knowledge of the applied forces. Modal expansion recovers an approximate displacement field but with accuracy limited by modal truncation error. 
+
+2.3. Limitations: force recovery from modal displacement 
+
+A natural question is whether the applied force can be recovered by inverting the governing equation once the displacement field has been obtained. Given the free-DOF dynamic sti ff ness matrix D f f = K f f − ω2M f f (to be derived in Section 4.2), the modal force estimate is: ˆFmodal  
+
+> f
+
+= D f f ˆUmodal  
+
+> f
+
+. (9) This produces a poor force estimate for two reasons. The first is error amplification through the dynamic sti ff ness operator. The true displacement can be expanded in the complete set of N f eigenmodes as ˆ Utrue  
+
+> f
+
+= PN f 
+
+> i=1
+
+ϕi qtrue  
+
+> i
+
+, where qtrue  
+
+> i
+
+is the true modal coordinate for mode i. The modal expansion retains only the first Nd modes, so ˆ Umodal  
+
+> f
+
+= ˆUtrue  
+
+> f
+
++ ϵ, where the truncation error is: 
+
+ϵ =
+
+> Nd
+
+X
+
+> i=1
+
+( ˆ qi − qtrue  
+
+> i
+
+) ϕi − 
+
+> Nf
+
+X 
+
+> i=Nd+1
+
+ϕi qtrue  
+
+> i
+
+. (10) The first sum represents the least-squares fitting error (typically small), and the second sum represents the modal truncation error from omitted higher modes. Applying the dynamic sti ff ness operator yields the force error ˆ Fmodal  
+
+> f
+
+=
+
+4ˆFtrue  
+
+> f
+
++ D f f ϵ. Since the eigenmodes satisfy K f f ϕi = ω2 
+
+> i
+
+M f f ϕi and D f f ϕi = (ω2 
+
+> i
+
+− ω2) M f f ϕi, the force error from the truncated modes becomes: 
+
+D f f ϵ ≈ −  
+
+> Nf
+
+X 
+
+> i=Nd+1
+
+(ω2 
+
+> i
+
+− ω2) ϕi qtrue  
+
+> i
+
++ fitting error terms . (11) The amplification factor ( ω2 
+
+> i
+
+−ω2) for each omitted mode grows rapidly with mode number because natural frequencies increase as ωi ∝ i2 for plate structures. Consequently, while the omitted modes contribute qtrue  
+
+> i
+
+to the displacement error — which decreases with mode number — they contribute ( ω2 
+
+> i
+
+−ω2) qtrue  
+
+> i
+
+to the force error, where the amplification factor increases faster than qtrue  
+
+> i
+
+decreases. Higher modes may therefore contribute negligibly to the displacement field but significantly to the force field. This is a manifestation of the general principle that di ff erentiation amplifies high-frequency content: the dynamic sti ff ness operator, being a second-order spatial operator, functions as a spectral amplifier that magnifies the truncation error. The second reason is loss of spatial localization. The true external force is spatially localized on the loaded boundary ΓN : in the FE discretization, ˆ Ftrue  
+
+> f
+
+is a sparse vector with at most Nθ nonzero entries out of N f total. However, the modal force estimate (9) is generically a dense vector with nonzero entries at all N f free DOFs, because each eigenmode ϕi has support over the entire domain and the full-rank operator D f f maps any nonzero vector to a dense vector. The modal force estimate therefore predicts nonzero forces at interior nodes and at the clamped boundary — locations where the true force is identically zero. Modal expansion has no mechanism to enforce that the recovered force is localized to a specific boundary region. 
+
+3. PDE-constrained optimization as an alternative 
+
+The limitations identified in Section 2 — modal truncation error, absence of a physics constraint, and force re-covery failure — motivate an alternative framework. PDE-constrained optimization (PDE-CO) addresses all three by enforcing the governing equation as an equality constraint, operating on the full-order FE system without modal reduction, and recovering the unknown force distribution by minimizing the sensor data misfit. 
+
+3.1. Key idea and general formulation 
+
+The advantages of PDE-CO over modal expansion are summarized in the Introduction. The key idea is to treat the unknown force ˆ F f ∈ RN f as the optimization variable and enforce the governing PDE as an equality constraint. Given a trial force ˆ F f , the forward solve yields the displacement: ˆU f = D−1 
+
+> f f
+
+ˆF f , (12) where D f f = K f f − ω2M f f is the dynamic sti ff ness matrix (to be derived in Section 4.2). The predicted sensor response is then extracted as ˆ as = −ω2 S f ˆU f , where S f ∈ RNs×N f is a Boolean selection matrix. The optimization minimizes the misfit between ˆ as and the observed data ˆ aobs :min  
+
+> ˆFf
+
+J = ˆas − ˆaobs  
+
+> 2
+
++ α ˆF f
+
+> 2
+
+, (13) where α is the Tikhonov regularization weight. The PDE constraint (12) is embedded in the objective through the forward solve, so any minimizer automatically satisfies the governing equation. More generally, the force is parameterized as ˆ F f = Pθ, where P ∈ RN f ×Nθ is a parameterization matrix that selects or maps the optimization variable θ ∈ RNθ to the nodal force vector. When the loaded boundary ΓN is known, P is a Boolean selection matrix that restricts forces to the DOFs on ΓN , with Nθ equal to the number of candidate loaded DOFs. 
+
+Remark 1 (Role of P and S f ). The two matrices P and S f play complementary roles in the PDE-CO pipeline: P ∈
+
+RN f ×Nθ maps the optimization variable θ into the full DOF space (input selection), while S f ∈ RNs×N f extracts sensor 
+
+5DOFs from the full DOF space (output selection). Both are Boolean (0–1) matrices when used as selectors, and the information flow is: 
+
+θ P
+
+−−→ ˆF f
+
+> D−1
+> f f
+
+−−−→ ˆU f 
+
+> Sf
+
+−−−→ ˆUs.
+
+Here the hat notation ˆU f denotes the harmonic displacement amplitude at free DOFs, specific to the problem of this paper. In the general formulation below, the same role is played by the full FE solution vector U ∈ RN . Conceptually, 
+
+U can be partitioned as U = [Us; U¯s], where Us ∈ RNs collects the sensor DOFs and U¯s ∈ RN−Ns collects the remaining (unobserved) DOFs. The sensor extraction ˆUs = S f ˆU f in the diagram above corresponds to U[i] at the observed DOF indices i ∈ I obs in the general formulation, i.e., Us.
+
+In abstract notation, the PDE-CO formulation for an inverse problem reads: min  
+
+> θ
+
+J(θ, U) =
+
+X
+
+> i∈I obs
+
+ U[i] − Ui,obs 
+
+2 + α R(θ) s.t. R(U, θ) = 0, (14) where U ∈ RN is the FE solution vector, θ ∈ RNθ is the unknown parameter, R(U, θ) = 0 is the discrete residual form of the governing PDE, Iobs is the set of observed DOF indices, and R(θ) is a regularization term. For the linear problem considered in this study, the residual takes the form R(U, θ) = KU − F(θ), where K denotes the discrete PDE operator and F(θ) is the load vector parameterized by θ. For a static problem K reduces to the sti ff ness matrix K f f ;for the harmonic problem of this study it corresponds to the dynamic sti ff ness matrix D f f = K f f − ω2M f f .A key advantage of PDE-CO is that the PDE constraint resolves the underdetermined nature of the inverse problem through physics. In practice, the number of sensor DOFs Ns is much smaller than the total DOFs N (e.g., Ns = 15 vs. 
+
+N = 1,872 in this study), so the sensor data alone cannot determine the full state. The PDE constraint R(U, θ) = 0 acts as a physics-based regularizer: for each trial θ, the entire state U(θ) is uniquely determined by the governing equation. The optimization therefore searches only over the parameter space θ ∈ RNθ , and the PDE propagates the sparse sensor information to the entire domain. 
+
+3.2. Reduced-space formulation 
+
+Problem (14) can be approached in two ways. The full-space (or all-at-once) approach treats ( θ, U) as simulta-neous unknowns and enforces the PDE constraint via Lagrange multipliers (Biegler et al., 2003). The reduced-space approach, adopted in this study, eliminates U by solving the PDE for each trial θ.In the reduced-space approach, the PDE constraint R(U, θ) = 0 implicitly defines U as a function of θ:
+
+R U(θ), θ = 0 =⇒ U = U(θ). (15) Substituting into the objective gives the reduced objective ˆJ(θ) B J θ, U(θ), which is a function of θ alone. The optimization problem then reduces to the unconstrained problem min θ ˆJ(θ). In this study, θ enters only in the right-hand side F, so the forward model U(θ) = K−1F(θ) is linear in θ because K
+
+is a constant operator. The reduced objective takes the explicit form: ˆJ(θ) =
+
+X
+
+> i∈I obs
+
+ K−1F(θ)i − Ui,obs 
+
+2
+
++ α R(θ), (16) which is a convex quadratic in θ. Although a closed-form solution via normal equations exists in principle, forming the explicit sensing matrix A ∈ RNs×Nθ requires Nθ forward solves; when Nθ ∼ N f (e.g., unknown load boundary), this is computationally prohibitive. In practice, the problem is solved iteratively using L-BFGS with gradients computed via reverse-mode AD (see Section 4.9). The concrete form of Eq. (16) for the harmonic problem is derived in Section 4.7 as Eq. (40). In this study, the force on the candidate loaded boundary ΓN is parameterized via a Boolean selection matrix P,so ˆ F f = Pθ. Each θ j represents the nodal force at a candidate loaded DOF, and the optimization determines the force amplitudes from the sensor data. 6Remark 2 (Why force parameterization helps displacement recovery). The force parameter θ is the internal op-timization variable, not the output of interest. The key insight is that the mapping θ 7 → ˆU f = D−1 
+
+> f f
+
+Pθ is a smoothing operator: high-frequency spatial components in θ are strongly attenuated in the resulting displacement. This means the optimization need not find the exact force — it su ffi ces to find any θ∗ whose displacement field matches the data, and the PDE ensures this field is physically consistent everywhere. 3.3. Gradient computation 
+
+Gradient-based optimization requires the total derivative d ˆJ/dθ. By the chain rule: 
+
+d ˆJ
+
+dθ = ∂J
+
+∂θ + ∂J
+
+∂U
+
+dU
+
+dθ . (17) The first term ∂J/∂ θ is the direct dependence of the objective on θ (from the regularization term). The second term involves the sensitivity matrix dU/dθ ∈ RN×Nθ , which captures how the PDE solution changes with the parameter. Computing dU/dθ explicitly (the direct method) requires solving Nθ linear systems — one per column of the sensitivity matrix — yielding a total cost of Nθ PDE solves. When Nθ is large, this means Nθ forward solves per gradient evaluation, which is computationally prohibitive. The adjoint method reduces this cost to a single additional PDE solve, regardless of Nθ. The key idea is to introduce an adjoint variable λ ∈ RN — not a physical unknown but a computational device — that satisfies: 
+
+∂R
+
+∂U
+
+!⊤
+
+λ = − ∂J
+
+∂U
+
+!⊤
+
+. (18) The right-hand side ∂J/∂ U represents how the objective is sensitive to each DOF of the displacement. Solving Eq. (18) propagates this sensitivity backward through the PDE operator, yielding λ. The total derivative is then obtained without forming dU/dθ:
+
+d ˆJ
+
+dθ = ∂J
+
+∂θ + λ⊤ ∂R
+
+∂θ . (19) While the direct method requires 1 + Nθ PDE solves per gradient (e.g., 1 ,873 for Nθ = 1,872 in this study), the adjoint method (Biegler et al., 2003; Oberai et al., 2003; Zhang et al., 2026) requires only two (one forward, one adjoint), regardless of Nθ. Conceptually, the adjoint solve is analogous to backpropagation in neural networks: the forward solve maps the input θ to the output J, and the adjoint solve propagates the output sensitivity back to the input. In modern di ff erentiable simulation frameworks (e.g., JAX-FEM (Xue et al., 2023)), the adjoint gradient (19) is computed automatically via reverse-mode AD through the forward PDE solver: the user implements only the forward model, and the framework (JAX (Bradbury et al., 2018) in this study) generates the adjoint solve automatically via 
+
+jax.grad . This eliminates the need to derive and implement the adjoint equation (18) manually, while retaining the same O(1) PDE-solve cost per gradient evaluation. Given the e ffi cient adjoint-based gradient, the reduced objective (16) is minimized iteratively using the L-BFGS quasi-Newton method, which approximates the inverse Hessian from successive gradient evaluations without forming or storing the full Hessian matrix. Each L-BFGS iteration requires one gradient evaluation ( = two PDE solves), and convergence is typically achieved in O(10)– O(100) iterations. 
+
+Remark 3 (Why iterative L-BFGS is more e ffi cient than the closed-form solution). The forward model of this study is linear: U f (θ) = D−1 
+
+> f f
+
+Pθ, and the reduced objective (16) is a convex quadratic. A closed-form solution therefore exists via the normal equations: 
+
+(A⊤A + αI) θ∗ = A⊤ ˆaobs ,
+
+where A = −ω2 S f D−1 
+
+> f f
+
+P ∈ RNs×Nθ is the sensing matrix. However, forming A explicitly requires N θ forward solves (one per column of D−1 
+
+> f f
+
+P). When N θ is large, this is computationally prohibitive. By contrast, the AD-based L-BFGS approach never forms A. Each L-BFGS iteration evaluates the gradient via one forward solve ( D f f ˆU f = Pθ) and one adjoint solve ( D⊤ 
+
+> f f
+
+λ = w), both reusing the same sparse LU factorization of D f f . If L-BFGS converges in k iterations, the total cost is 2k back-substitutions. In practice k ∼ O(10) –O (100) ,so the iterative approach requires O (20) –O (200) PDE solves, far fewer than the N θ solves needed for the closed-form approach when N θ is large. 
+
+7The correctness of the AD-computed gradient is verified via the Taylor test, a standard procedure in PDE-CO (Xue et al., 2023): the first-order Taylor remainder must converge at O(ϵ2) as the perturbation step ϵ → 0. The detailed derivation and convergence criteria are provided in Appendix B. 
+
+4. A specific PDE-CO formulation for structural dynamics 
+
+This section develops the PDE-CO formulation step by step, starting from the governing PDE and arriving at an AD-based iterative solution for the full-field displacement and strain. Each subsection introduces one building block, and the connections between them are summarized in Figure 2 at the end. 
+
+4.1. Governing equations 
+
+Consider a structure occupying domain Ω ⊂ R3 with boundary ∂Ω = Γ D ∪ ΓN , where ΓD is the clamped (fixed) boundary and ΓN is the boundary on which external surface traction is applied. The displacement field u(x, t) satisfies the linear elastodynamics initial-boundary value problem: 
+
+ρ ¨u − ∇ · σ(u) = b(x, t) in Ω × (0 , T ], (20) 
+
+σ(u) · n = t(x, t) on ΓN , (21) 
+
+u = 0 on ΓD, (22) where ρ is the mass density, σ is the Cauchy stress tensor, b is the body force per unit volume, n is the outward unit normal on ΓN , and t is the surface traction. The constitutive relation for linear isotropic elasticity is: 
+
+σ = λ tr( ε) I + 2μ ε, (23) where λ = Eν/  (1 + ν)(1 − 2ν) and μ = E/ 2(1 + ν) are the Lamé parameters, E is Young’s modulus, ν is Poisson’s ratio, and the small strain tensor is ε = 12 (∇u + ∇u⊤). 
+
+Remark 4 (The inverse problem). In Eq. (21) , the surface traction t on ΓN is the quantity to be recovered. In a standard forward problem, t is given and u is computed. In the present inverse problem, t is unknown and must be recovered from sparse observations of u (or its derivatives) at a few sensor locations inside Ω.4.2. Harmonic excitation and dynamic sti ff ness 
+
+The present study focuses on the case of harmonic (single-frequency) excitation, which enables an algebraic reformulation that avoids time integration entirely. Under harmonic excitation at circular frequency ω, all time-dependent quantities are expressed as: 
+
+u(x, t) = ˆu(x) eiωt, t(x, t) = ˆt(x) eiωt, b(x, t) = ˆb(x) eiωt, (24) where the hat ( ˆ · ) denotes the frequency-domain (complex) amplitude. The frequency ω is assumed known — it can be identified from the frequency content of sensor time histories (e.g., via FFT) or is prescribed in controlled laboratory tests. Substituting Eq. (24) into Eq. (20) and canceling the common factor eiωt, the time derivative becomes a multipli-cation by −ω2:
+
+ρ ¨u = ρ (iω)2 ˆu eiωt = −ω2ρ ˆu eiωt. (25) The governing PDE (20) thus reduces to the frequency-domain form: 
+
+−ω2ρ ˆu − ∇ · σ( ˆ u) = ˆb in Ω. (26) Although a single frequency is assumed here, the extension to broadband excitation is straightforward under linearity: the sensor time histories are decomposed into frequency components via FFT, the PDE-CO problem is solved inde-pendently at each frequency ωk (with the corresponding dynamic sti ff ness D f f (ωk)), and the results are superposed via IFFT to reconstruct the time-domain full-field response. The single-frequency formulation therefore serves as the fundamental building block for general dynamic loading. 8Remark 5 (Advantage of harmonic assumption). Equation (26) is a time-independent PDE for the amplitude ˆu(x).The original dynamic problem (a hyperbolic PDE in space-time) has been reduced to a single elliptic-like boundary value problem in space alone. This is the key simplification that makes the inverse problem tractable: only one linear system per frequency needs to be solved, rather than marching through time. 4.3. FE discretization and semi-discrete system 
+
+Equation (26) is discretized using the standard Galerkin finite element method. The displacement field is approx-imated as uh(x) = PNnode  
+
+> I=1
+
+NI (x) dI , where NI is the shape function associated with node I and dI ∈ R3 is the nodal displacement vector. Multiplying Eq. (20) by a test function vh, integrating over Ω, applying integration by parts, and substituting the FE approximation yields the semi-discrete equation of motion: 
+
+M ¨U(t) + KU (t) = R(t), (27) where U(t) ∈ RN is the global nodal displacement vector, M ∈ RN×N is the consistent mass matrix, K ∈ RN×N is the sti ff ness matrix, and R(t) ∈ RN is the consistent nodal force vector assembled from body forces and surface tractions. Note that damping is omitted for simplicity; the formulation extends naturally to include viscous or proportional damping via a damping matrix C.For harmonic excitation, substituting U(t) = ˆU eiωt and R(t) = ˆR eiωt into Eq. (27) and defining the dynamic sti ff ness matrix D(ω) B K − ω2M:
+
+D(ω) ˆ U = ˆR. (28) The dynamic sti ff ness D(ω) combines the elastic restoring force ( K) and the inertial reaction ( −ω2M) into a single operator. At low frequencies ( ω → 0), D ≈ K and the problem reduces to the quasi-static regime. At a natural frequency ω = ωn, D becomes singular (resonance). The excitation frequency ω must therefore be chosen away from any natural frequency. 
+
+4.4. DOF partitioning and boundary condition elimination 
+
+The global DOFs are partitioned into two disjoint sets based on their boundary conditions: ˆU =
+
+" ˆU f
+
+ˆUc
+
+#
+
+, ˆR =
+
+" ˆR f
+
+ˆRc
+
+#
+
+, (29) where subscript f denotes free DOFs (unknown displacements) and subscript c denotes clamped DOFs (prescribed as ˆUc = 0 on ΓD). The dynamic sti ff ness system (28) partitions as: 
+
+"D f f D f c 
+
+Dc f Dcc 
+
+# " ˆU f
+
+0
+
+#
+
+=
+
+" ˆF f
+
+ˆRc
+
+#
+
+, (30) where ˆ F f is the external force on the free DOFs (including the unknown traction on ΓN ), and ˆ Rc is the reaction force at the clamped boundary (not needed for the present problem). Since ˆ Uc = 0, the first block row gives: 
+
+D f f ˆU f = ˆF f , (31) where D f f = K f f − ω2M f f ∈ RN f ×N f is the free-DOF dynamic sti ff ness matrix. This is the governing equation of the present inverse problem: given observations related to ˆ U f , the objective is to recover the right-hand side ˆ F f .
+
+Remark 6 (An important distinction from Dirichlet-type inverse problems). In many inverse problems, the un-known is a prescribed displacement on part of the boundary (Dirichlet BC), which requires partitioning into free, clamped, and prescribed sets. In the present formulation, the unknown is a prescribed force on ΓN (Neumann BC). Since the loaded boundary has unknown forces but free displacements, those DOFs remain in the “free” set. This simplifies the partition: only free and clamped DOFs are present, with no prescribed-displacement partition needed. 
+
+94.5. Force parameterization: the key modeling step 
+
+The force vector ˆ F f ∈ RN f has N f components — one for each free DOF. Although the loaded boundary ΓN may be known from engineering context (e.g., an inner pressure surface or a contact face), the distribution of force across 
+
+ΓN is unknown and must be recovered from sensor data. To this end, a force parameterization is introduced that maps a reduced set of unknowns on ΓN to the full force vector. Let θ ∈ RNθ be the vector of unknown force amplitudes at the Nθ candidate DOFs. The relationship between θ
+
+and the full force vector is: ˆF f = Pθ, (32) where P ∈ RN f ×Nθ is the force mapping matrix (also called the load distribution matrix). Together with the sensor extraction matrix S f , P defines the input–output pipeline of PDE-CO: P maps θ into the full DOF space (input selec-tion), while S f extracts sensor DOFs from the solution (output selection); see Remark 1 for the complete information flow diagram. When the loaded boundary ΓN is known a priori, P is constructed as a Boolean selection matrix that picks out the DOFs on ΓN :
+
+Pi j =
+
+
+
+1 if free DOF i corresponds to loaded DOF j,
+
+0 otherwise . (33) Each θ j then represents a nodal force value (in N) at a known loaded DOF, and Nθ equals the number of loaded DOFs on ΓN . When ΓN is a localized region, Nθ can be significantly smaller than N f ; in general, Nθ typically remains larger than Ns, so the inverse problem is underdetermined from a purely data-driven perspective. PDE-CO nevertheless produces accurate solutions because the PDE constraint R(U, θ) = 0 provides additional information beyond the sensor data: for each trial θ, the governing equation uniquely determines the full displacement field U(θ), enforcing spatial coherence across the entire domain. The Tikhonov regularization α∥θ∥2 further selects the minimum-norm solution, ensuring uniqueness even when multiple force distributions could produce similar sensor responses. 
+
+Remark 7 (Physical meaning of P). The Boolean matrix P encodes the spatial pattern of the candidate load (which DOFs can carry external force), while θ encodes the amplitude at each candidate DOF. Each θ j has units of force (N), and the product Pθ scatters these values into the full N f -dimensional force vector, with zeros at non-loaded DOFs. Since ΓN is known, P localizes the force by construction; the optimization only needs to determine the force amplitudes 
+
+θ.4.6. Sensor model and observation equation 
+
+In practice, accelerometers are the most common sensor type for digital-twin and virtual-sensing applications in structural dynamics (Lourens et al., 2012; Kullaa, 2016; Iliopoulos et al., 2016; Maes et al., 2016; Tarpø et al., 2020; Lee et al., 2024). Under harmonic excitation, the acceleration at a point is related to the displacement by: 
+
+a(x, t) = ¨u(x, t) = −ω2 ˆu(x) eiωt. (34) Thus the acceleration amplitude is simply ˆ a = −ω2 ˆu: a scalar multiple of the displacement amplitude. As noted in Section 4.2, the single-frequency formulation extends naturally to broadband excitation via FFT-based frequency decomposition and superposition. Suppose Nsensor accelerometer nodes are placed at interior locations (away from both ΓD and ΓN ), providing 
+
+Ns = 3×Nsensor scalar observations (three components per node). The observed acceleration amplitudes are collected in a vector ˆ aobs ∈ RNs . To relate ˆ aobs to the full free-DOF displacement vector ˆ U f , a sensor selection matrix S f ∈ RNs×N f
+
+is introduced. This is a Boolean matrix that extracts sensor DOFs from the free DOF vector: (S f )i j =
+
+
+
+1 if sensor DOF i corresponds to free DOF j,
+
+0 otherwise . (35) Each row of S f contains exactly one nonzero entry. The observation equation then reads: ˆaobs = −ω2 S f ˆU f . (36) 10 4.7. PDE-CO formulation: from physics to optimization 
+
+All the building blocks are now in place to formulate the full-field inference in structural dynamics as a PDE-constrained optimization problem. The idea is simple: find the force parameter θ such that the predicted sensor accelerations match the observed accelerations as closely as possible, subject to the structure satisfying its governing equation .
+
+Step 1: Forward model.. For a given trial load θ, the structural response is uniquely determined by the PDE constraint. Substituting Eq. (32) into Eq. (31): 
+
+D f f ˆU f = Pθ =⇒ ˆU f (θ) = D−1 
+
+> f f
+
+Pθ. (37) This equation maps the load parameter θ to the full displacement field ˆ U f through the governing PDE. Every entry of ˆU f — not just the sensor DOFs — is determined. 
+
+Step 2: Predicted acceleration.. Using Eqs. (36) and (37): ˆapred (θ) = −ω2 S f ˆU f (θ) = −ω2 S f D−1 
+
+> f f
+
+P θ. (38) 
+
+Step 3: Forward operator.. Since all operations in Eq. (38) are linear in θ, the entire forward model can be written as a single matrix-vector product: ˆapred (θ) = Aθ, where A B −ω2 S f D−1 
+
+> f f
+
+P ∈ RNs×Nθ . (39) Each column a j of A represents the sensor acceleration pattern produced by a unit force at loaded DOF j. The matrix 
+
+A encapsulates the full physics: it maps an arbitrary load distribution θ on ΓN , through the governing PDE, to the resulting acceleration at the sensor locations. 
+
+Remark 8 (Linearity and matrix-free computation). The linearity of Eq. (39) is a consequence of the linearity of the governing PDE and the linear force parameterization. Although A exists as a mathematical object, it is never formed explicitly when N θ is large: doing so would require N θ forward solves. Instead, the matrix-vector products 
+
+Aθ (forward) and A⊤r (adjoint, where r = ˆapred − ˆaobs is the residual) are computed implicitly via PDE solves, and the gradient is obtained via reverse-mode AD. For nonlinear problems, the same AD + L-BFGS framework applies without modification. 
+
+The quantities in this framework are classified as follows. The sti ff ness and mass matrices K f f , M f f are assembled from the FE model; the force mapping matrix P is constructed from the chosen parameterization; the sensor selection matrix S f encodes the sensor layout. These are known o ffl ine. The excitation frequency ω (prescribed or identified via FFT of the sensor signal) and the measured sensor accelerations ˆ aobs are known online. The only unknown is the force parameter vector θ ∈ RNθ . The displacement field ˆ U f is not an independent unknown: once θ is fixed, ˆ U f is uniquely determined by the PDE constraint (37). The optimization therefore searches over θ alone; the full-field acceleration (and hence displacement) at every mesh node is a by-product of the PDE solve. 
+
+Step 4: Optimization problem.. The optimization problem is: min 
+
+> θ∈RNθ
+
+J(θ) = ∥Aθ − ˆaobs ∥2
+
+| {z }
+
+> data misfit
+
++ α∥θ∥2
+
+|{z} 
+
+> regularization
+
+, (40) where α > 0 is the Tikhonov regularization weight. The objective J(θ) measures how well the predicted sensor response (from the trial load θ via the PDE) matches the observed sensor data. 11 4.8. Regularization 
+
+The Tikhonov term α∥θ∥2 in Eq. (40) plays di ff erent roles depending on the problem setting: 1. Underdetermined case (Nθ > Ns): The data misfit alone has infinitely many minimizers (a family of loads producing identical sensor readings). The regularization selects the minimum-norm solution by penalizing large force amplitudes. 2. Overdetermined case (Ns > Nθ): The system Aθ = ˆaobs is generically inconsistent (no exact solution exists, e.g., due to measurement noise). The regularization stabilizes the least-squares solution against ill-conditioning and noise amplification. 3. Noise-free, well-conditioned case : When the data is exact and A is well-conditioned, α can be set to a very small value (e.g., 10 −6) to provide minimal bias. The weight α controls the trade-o ff between data fidelity (small α, trust the data) and solution regularity (large α, pe-nalize large θ). In practice, α can be selected via the L-curve method, generalized cross-validation, or the discrepancy principle (Hansen, 1998). 
+
+4.9. AD-based iterative solution via L-BFGS 
+
+When Nθ is large, forming the explicit sensing matrix A ∈ RNs×Nθ requires Nθ forward solves and is computa-tionally expensive. Instead, Eq. (40) is solved iteratively using L-BFGS with gradients computed via reverse-mode automatic di ff erentiation (AD). Each L-BFGS iteration requires evaluating the objective J(θ) and its gradient ∇θJ. Without forming A explicitly, this proceeds in two steps: 1. Forward solve : Given trial θ, solve D f f ˆU f = Pθ for ˆ U f , then compute ˆ apred = −ω2 S f ˆU f and the residual 
+
+r = ˆapred − ˆaobs .2. Adjoint solve : Scatter w = −ω2 S⊤ 
+
+> f
+
+r back to the free DOF space, solve D⊤ 
+
+> f f
+
+λ = w for the adjoint variable λ,and compute 
+
+∇θJ = 2P⊤λ + 2αθ. (41) Since D f f is symmetric, the adjoint solve uses the same factorization as the forward solve. The total cost per iteration is two linear solves with D f f , regardless of Nθ. With a pre-computed sparse LU factorization of D f f , each back-substitution costs O(N f ), making each gradient evaluation e ffi cient. In practice, the gradient (41) is not derived by hand but computed automatically via reverse-mode AD through the forward solver. In the present study, JAX (Bradbury et al., 2018) is used to di ff erentiate through jnp.linalg.solve :the call jax.grad(objective) produces a function that evaluates Eq. (41) automatically, including correct handling of the implicit di ff erentiation through the linear solve. This is mathematically equivalent to the hand-derived adjoint gradient but eliminates the need for manual derivation, reducing implementation e ff ort and potential for errors. The gradient is passed to the L-BFGS-B optimizer (SciPy minimize (Virtanen et al., 2020)), which approximates the inverse Hessian from successive gradient evaluations. For the linear (quadratic) case, L-BFGS converges rapidly because the Hessian 2( A⊤A + αI) is constant. 
+
+Remark 9 (Computational cost). Each L-BFGS iteration requires two D f f solves. With a sparse LU factorization (computed once), each back-substitution costs O (N f b) where b is the bandwidth. For k iterations of L-BFGS, the total cost is O (k · N f · b), compared to O (Nθ · N f · b) for forming A explicitly (N θ forward solves). Since typically k ∼ 10 –100 ≪ Nθ, the iterative approach is more e ffi cient when N θ is large. 4.10. Full-field reconstruction 
+
+Once the optimal load θ∗ is obtained, the complete structural response is recovered by a single forward solve: ˆU∗ 
+
+> f
+
+= D−1 
+
+> f f
+
+Pθ∗, ˆa∗ 
+
+> full
+
+= −ω2 ˆU∗ 
+
+> f
+
+. (42) The output of PDE-CO is the full displacement and acceleration fields over the entire domain Ω, not just at sensor locations. The force parameter θ∗ is an internal optimization variable; the primary output is the reconstructed full-field state ˆ U∗ 
+
+> f
+
+. This is possible because the PDE constraint (37) uniquely determines the full state from the force parameter. 12 Offline (FEniCSx, CPU) 
+
+Mesh generation 
+
+Assemble K, M
+
+DOF partitioning (clamped vs. free) 
+
+Extract Kf f , Mf f 
+
+Force mapping P
+
+(Boolean matrix) 
+
+Eigenvalue problem (frequency selection) 
+
+Dynamic stiffness 
+
+Df f = Kf f − ω2Mf f 
+
+Online (JAX, GPU) 
+
+Sensor data ˆaobs 
+
+Automatic differentiation (AD) 
+
+Df f ˆUf = Pθ, ∇θ J
+
+L-BFGS optimization 
+
+θ∗ = arg min ∥ˆapred (θ) − ˆaobs ∥2 + α∥θ∥2
+
+Full-field reconstruction ˆU∗ 
+
+> f
+
+= D−1 
+
+> f f
+
+Pθ∗
+
+f ∗ = Pθ∗
+
+Full-field displacement ˆU∗
+
+> f
+
+Full-field force distribution f ∗Figure 2: Flowchart of the PDE-CO framework for full-field inference. O ffl ine (FEniCSx, CPU): FE matrices are assembled and the force mapping matrix is constructed. Online (JAX, GPU): The objective and gradient are evaluated via JAX AD (forward + adjoint solve per iteration), L-BFGS iteratively recovers θ∗, and the full-field displacement and force distribution are reconstructed. 
+
+5. Implementation using JAX-FEM 
+
+Figure 2 illustrates the overall pipeline, which consists of two stages. The o ffl ine stage is executed on a CPU using FEniCSx and proceeds as follows: (i) a finite element mesh is generated for the target structure; (ii) the global sti ff ness and mass matrices K and M are assembled; (iii) the degrees of freedom are partitioned into clamped (Dirichlet) and free sets; (iv) the free-DOF submatrices K f f and M f f are extracted; (v) the Boolean force mapping matrix P is constructed to map the reduced force parameter θ to the full free-DOF force vector; (vi) an eigenvalue problem is solved to select the excitation frequency ω; and (vii) the frequency-domain dynamic sti ff ness matrix D f f = K f f −
+
+ω2M f f is formed. The online stage is executed on a GPU using JAX. Given sensor observations ˆ aobs , the o ffl ine-computed matrices D f f and P are transferred to the GPU (dashed arrows in Figure 2), and the following operations are performed: (i) the forward problem D f f ˆU f = Pθ and the gradient ∇θJ are evaluated via automatic di ff erentiation; (ii) the L-BFGS optimizer iteratively updates θ to minimize ∥ˆapred (θ) − ˆaobs ∥2 + α∥θ∥2; and (iii) upon convergence, the full-field displacement ˆ U∗ 
+
+> f
+
+= D−1 
+
+> f f
+
+Pθ∗ and the full-field force distribution f∗ = Pθ∗ are reconstructed. 
+
+5.1. Finite element implementation (o ffl ine stage) 
+
+The spatial discretization follows the standard Galerkin finite element method using FEniCSx (Baratta et al., 2023). The displacement field is interpolated using continuous Lagrange shape functions as described in Section 4.3. 13 The trial and test function spaces are defined as 
+
+Sh = uh ∈ [H1(Ω)] ndim uh = ¯u on ΓD , (43) 
+
+Vh = vh ∈ [H1(Ω)] ndim vh = 0 on ΓD , (44) where ndim denotes the spatial dimension. The weak form of the governing equation (20) is stated as follows: find 
+
+uh ∈ S h such that 
+
+Z
+
+> Ω
+
+σ(uh) : ε(vh) d V +
+
+Z
+
+> Ω
+
+ρ ¨uh · vh dV =
+
+Z
+
+> ΓN
+
+t · vh dS ∀ vh ∈ V h. (45) The small strain tensor is discretized as 
+
+εh =
+
+> nnode
+
+X
+
+> a=1
+
+Ba ua, (46) where Ba = ∇s Na is the symmetric gradient of the shape function associated with node a. Substituting the FE interpolation into Eq. (45), the global sti ff ness matrix K, consistent mass matrix M, and consistent nodal force vector 
+
+R are assembled from element-level contributions: 
+
+Kab =
+
+Z
+
+> Ω
+
+B⊤ 
+
+> a
+
+C Bb dV, (47) 
+
+Mab =
+
+Z
+
+> Ω
+
+ρ Na Nb I dV, (48) 
+
+Ra =
+
+Z
+
+> ΓN
+
+Na t dS , (49) where C is the fourth-order elasticity tensor corresponding to the linear isotropic constitutive relation (23), and ρ is the mass density. The surface traction t on ΓN is the unknown quantity in the present inverse problem, and the consistent nodal force vector is parameterized as ˆ F f = Pθ via the Boolean selection matrix P ∈ RN f ×Nθ defined in Eq. (33). Applying the DOF partition (Eq. (29), Section 4.4) to the global sti ff ness and mass matrices yields the block structure: 
+
+K =
+
+"K f f K f c 
+
+Kc f Kcc 
+
+#
+
+, M =
+
+"M f f M f c 
+
+Mc f Mcc 
+
+#
+
+. (50) Since the homogeneous Dirichlet condition ˆ Uc = 0 eliminates the coupling terms K f c ˆUc and M f c ˆUc from the govern-ing equation (31), only the free-DOF sub-matrices K f f , M f f ∈ RN f ×N f are required. For the modal expansion method (Section 2), which will be compared with the proposed method in the numerical examples (Section 6), the generalized eigenvalue problem 
+
+K f f ϕn = ω2 
+
+> n
+
+M f f ϕn (51) is solved to obtain the natural frequencies ωn and mode shapes ϕn. The dynamic sti ff ness matrix is then formed at the excitation frequency ω:
+
+D f f = K f f − ω2M f f . (52) 
+
+5.2. Automatic di ff erentiation using JAX (online stage) 
+
+In the online stage, the optimization problem (40) is solved iteratively using L-BFGS with gradients computed via reverse-mode automatic di ff erentiation (AD). The implementation leverages JAX (Bradbury et al., 2018) for AD and SciPy (Virtanen et al., 2020) for the L-BFGS-B optimizer. The dynamic sti ff ness matrix D f f assembled in the o ffl ine stage is first factorized as 
+
+D f f = LU , (53) 14 Algorithm 1 PDE-CO for full-field inference (harmonic, linear, AD-based) 
+
+Require: D f f , P, S f ; observed ˆ aobs ; frequency ω; regularization α; max iterations k
+
+Ensure: Optimal load θ∗; recovered field ˆ U∗ 
+
+> f
+> 1:
+
+Factorize D f f = LU ▷ One-time LU factorization  
+
+> 2:
+
+θ ← 0 ▷ Initial guess  
+
+> 3:
+
+for i = 1, . . . , k do  
+
+> 4:
+
+ˆU f ← D−1 
+
+> f f
+
+Pθ ▷ Forward solve (back-substitution)  
+
+> 5:
+
+ˆapred ← − ω2 S f ˆU f ; r ← ˆapred − ˆaobs  
+
+> 6:
+
+λ ← D−1 
+
+> f f
+
+(−ω2 S⊤ 
+
+> f
+
+r) ▷ Adjoint solve (back-substitution)  
+
+> 7:
+
+g ← 2P⊤λ + 2αθ ▷ Gradient  
+
+> 8:
+
+θ ← L-BFGS-update( θ, g) 
+
+> 9:
+
+end for  
+
+> 10:
+
+θ∗ ← θ 
+
+> 11:
+
+ˆU∗ 
+
+> f
+
+← D−1 
+
+> f f
+
+Pθ∗ ▷ Full-field reconstruction where L and U are the lower and upper triangular factors, respectively. This factorization is performed once and reused across all L-BFGS iterations, so that each subsequent linear solve reduces to a pair of triangular back-substitutions. At each iteration, the objective function J(θ) and its gradient ∇θJ are evaluated via the forward and adjoint solves described in Section 4.9. Rather than deriving the adjoint gradient analytically, JAX di ff erentiates through the linear solve automatically: the call jax.grad(objective) produces a function that evaluates Eq. (41), including implicit di ff erentiation through D−1 
+
+> f f
+
+Pθ. The resulting gradient is passed to the L-BFGS-B optimizer, which approximates the inverse Hessian from successive gradient evaluations and updates θ accordingly. Upon convergence, the full-field displacement is reconstructed via a single additional back-substitution as described in Section 4.10. Algorithm 1 summarizes the procedure. 
+
+Remark 10 (Interface between FEniCSx and JAX). The o ffl ine-stage matrices assembled by FEniCSx are trans-ferred to JAX as dense arrays. For the moderate system sizes considered here (N f ∼ 10 3), this is feasible: the dense matrix D f f occupies N 2 
+
+> f
+
+× 8 bytes ≈ 28 MB. For larger systems (N f ≳ 10 4), sparse direct solvers should be used within the AD pipeline. 
+
+6. Numerical examples 
+
+Three benchmark problems of progressively increasing complexity are presented to validate the proposed frame-work: (1) a cantilever rectangular plate subjected to uniform end-face traction on the free-end cross-section; (2) a 90 ◦ elbow pipe subjected to uniform end-face traction on the free-end cross-section; and (3) a reactor pressure vessel (RPV) subjected to a localized Gaussian pressure on the inner surface. The cases progress in both geometric com-plexity and load configuration, allowing the robustness of the proposed framework to be assessed under increasingly challenging conditions. All examples assume a linear isotropic elastic material (structural steel), harmonic steady-state excitation at ω = ω1/2 (sub-resonant regime), and benchmark PDE-CO against modal expansion (Section 2). Table 1 summarizes the key performance metrics for all three cases. Two complementary criteria are used to assess performance: 
+
+• Displacement recovery (quantitative). The full-field relative displacement error ϵu = ∥urec − utrue ∥/∥utrue ∥
+
+is evaluated at every free DOF and reported as a scalar norm. DOF-by-DOF error curves (Figs. 5(a), 8(a), 11(a)) show the spatial distribution of errors across the top 200 highest-error DOFs. Both methods produce a displacement estimate, enabling direct quantitative comparison. 
+
+• Force distribution recovery (spatial /visual). Figures 4, 7, and 10 (lower rows: panels (d)–(f)) show the recovered force magnitude distributions alongside the reference. Modal expansion produces no force estimate and is absent from this comparison. A single scalar error norm is not reported for the force because the recovered 
+
+θ∗ is a distributed nodal vector whose sparsity and spatial extent di ff er intrinsically from the reference load 15 (uniform face load or Gaussian distribution); the relevant criterion is whether the correct loading region and spatial pattern are identified.                                      
+
+> Table 1: Summary of numerical results for the three examples. Nf: free DOFs; Nθ: force parameter dimension; Nsensor : number of sensors; ϵu:relative displacement error; Iters: L-BFGS iterations; topt : optimization wall time (online stage on NVIDIA RTX 5070 Ti 16 GB via JAX).
+> NfNθNsensor ϵu[%] Iters topt [s] PDE-CO Modal Plate 1,872 78 40.45 7.69 11 0.54 Pipe 11,160 11,160 80.28 1.11 200 615 RPV 7,206 2,850 36 0.885 1.86 2,000 15,294
+
+6.1. Rectangular plate 
+
+The first example is a cantilever rectangular plate ( Lx × Ly × Lz = 1.0 × 0.6 × 0.01 m, E = 210 GPa, ν = 0.3, 
+
+ρ = 7,850 kg /m3). The plate is fully clamped at x = 0 (zero displacement on all faces at x = 0) and free on the remaining five faces. A uniform negative z-direction distributed force is applied across the entire free-end face (x = Lx), represented by red arrows in Figure 3. The force is parameterized by θ ∈ R78 covering all free DOFs at the tip face ( Nθ = 78, surface-selective parameterization). Four acceleration sensors (12 DOFs) are placed on the top surface. The FE mesh consists of 288 tetrahedral elements (650 nodes, N f = 1,872 free DOFs). The excitation frequency is set to ω = 74 .3 rad /s ( ≈11 .8 Hz, i.e., ω1/2), and the Tikhonov regularization parameter is α = 10 −6.Figure 4 presents the full-field comparison of the recovered displacement and force distributions (six panels). All field quantities are visualized on the undeformed mesh geometry to enable direct visual comparison between methods. The upper row shows the displacement magnitude field — (a) reference, (b) modal expansion, (c) PDE-CO. Both methods reproduce the gross bending pattern (large displacement at the free end, zero at the clamp), but PDE-CO matches the reference field more closely. The lower row shows the recovered force magnitude distribution over the plate surface — (d) reference, (e) modal expansion, (f) PDE-CO. The reference force is sharply concentrated on the free-end face. The modal expansion force estimate (e) fails to identify the loading region; multiple spurious hotspots are scattered across the interior of the plate, far from the true loading region. In contrast, the PDE-CO force estimate (f) correctly concentrates on the free-end face, matching the true loading region. Figure 5 presents (a) relative DOF-wise displacement error sorted by magnitude (top 200 DOFs) and (b) L-BFGS convergence history. The L-BFGS optimizer converged in only 11 iterations ( J ≈ 10 −6). As reported in Table 1 (row 1), PDE-CO achieves ϵu = 0.45% while modal expansion ( Nd = 11 modes, 4 sensors) yields ϵu = 7.69%. While modal expansion (7 .69%) provides a reasonable displacement baseline, PDE-CO reduces the error to 0 .45%— a 17 × improvement. The large modal displacement error is characteristic of thin-plate problems, where truncation to Nd = 11 modes cannot capture the high-frequency bending modes that dominate the displacement field near the clamp. Furthermore, modal expansion completely fails to identify the loading location (scattered force estimate), while PDE-CO correctly recovers the free-end loading pattern. 
+
+6.2. Bent pipe 
+
+The second example is a 90 ◦ elbow pipe with outer radius Rout = 150 mm, inner radius Rin = 140 mm (wall thickness t = 10 mm), two straight segments of length L = 500 mm each, centerline bend radius Rbend = 300 mm, and bend angle 90 ◦; the total centerline path length is 2 × 500 + 300 π/ 2 ≈ 1,471 mm. The material properties are 
+
+E = 210 ,000 MPa, ν = 0.3, and ρ = 7.85 × 10 −9 tonne /mm 3 (mm-tonne-s unit system). The first straight segment is fully clamped; a uniform negative z-direction distributed force is applied across the entire free-end cross-section of the second segment (see Figure 6), the same boundary-face loading paradigm as the plate but in a curved 3D structure. The force is parameterized by θ ∈ R11 ,160 covering all free DOFs ( P = I). Eight acceleration sensors (24 DOFs) are placed on the outer surface — four on the upper straight segment and four symmetrically on the lower straight segment. The FE mesh has 11,300 tetrahedral elements (3,782 nodes, N f = 11 ,160 free DOFs). The excitation frequency is ω = 416 .2 rad /s ( ≈66 .2 Hz), and the Tikhonov regularization parameter is α = 10 −6.16 EνρLWH: 210 GPa : 0.3 : 7,850 kg/m³ : 1.0 m : 0.6 m : 10 mm 
+
+Sensors 
+
+Load Fully clamped Figure 3: Cantilever plate: problem geometry. The plate is fully clamped at x = 0; four acceleration sensors (blue dots) are placed on the top surface; a uniform negative z-direction distributed force (red arrows) is applied across the entire free-end face at x = L. Material and geometric properties are listed in the figure. 0.0e+00 5.3e-05 1e-5 2e-5 3e-5 4e-5 
+
+> Displacement  (reference )
+> 0.0e+00 5.3e-05 1e-5 2e-5 3e-5 4e-5
+> Displacement  (PDE -CO )
+> 0.0e+00 5.3e-05 1e-5 2e-5 3e-5 4e-5
+> Displacement  (modal  expansion )
+> 0.0 1.0 0.2 0.4 0.6 0.8
+> Force  magnitude  (reference )
+> 0.0 2.8 0.4 0.8 1.2 1.6 22.4
+> Force  magnitude  (modal  expansion )
+> 0.0
+> 0.21
+> 0.04 0.08 0.12 0.16
+> Force  magnitude  (PDE -CO )
+
+(a) (b) (c) (d) (e) (f) 
+
+Figure 4: Cantilever plate: full-field recovery comparison. Upper row: displacement magnitude — (a) reference, (b) modal expansion, (c) PDE-CO. Lower row: recovered force magnitude over the plate surface — (d) reference (concentrated on free-end face), (e) modal expansion (multiple spurious hotspots scattered across plate interior, far from true load), (f) PDE-CO (correctly concentrated on the free-end face). PDE-CO yields improved displacement accuracy and notably better force localization compared to modal expansion; detailed quantitative error analysis is presented in Figure 5. 
+
+17 L-BFGS iteration Ob jective  J(θ)                     
+
+> DOF index (sorted by error)
+> 10
+> -3
+> 020406080100 120 140 160 180 200
+> Relative  displacement error
+> 10
+> -2
+> 10
+> -1
+> PDE-CO Modal expansion
+> 10
+> -6
+> 10
+> -5
+> 10
+> -4
+> 10
+> -3
+> 10
+> -2
+> 12345678910 11
+
+(a) (b) Figure 5: Cantilever plate: quantitative performance comparison. (a) Relative displacement error |urec               
+
+> i−utrue
+> i|/∥utrue ∥∞per DOF, sorted by magnitude (top 200 DOFs): PDE-CO (blue, ϵu=0.45%) uniformly outperforms modal expansion (red, 7 .69%). (b) L-BFGS convergence: J(θ)decreases from ∼10 −1to ∼10 −6in 11 iterations.
+
+Figure 7 presents the full-field comparison (six panels). The upper row shows the displacement magnitude — (a) reference, (b) modal expansion, (c) PDE-CO. Both methods capture the gross bending pattern (maximum at the free end, zero at the clamp), but PDE-CO reproduces the reference field more faithfully. The lower row shows the recovered force magnitude distribution — (d) reference (distributed uniformly over the free-end cross-section), (e) modal expansion, (f) PDE-CO. The modal expansion force estimate (e) is spread along the pipe body with signifi-cant spurious components, failing to identify the correct free-end loading region cleanly. The PDE-CO force estimate (f) more accurately captures the force distribution near the free-end cross-section, though distinguishing between concentrated and distributed loading from sensor data alone remains inherently ambiguous. Figure 8 presents (a) DOF-wise displacement error (top 200 DOFs) and (b) L-BFGS convergence (200 iterations, not fully converged). As reported in Table 1 (row 2), PDE-CO achieves ϵu = 0.28% while modal expansion ( Nd = 23 modes, 8 sensors) yields ϵu = 1.11%. Notably, despite a substantial increase in problem size ( N f = 11 ,160 vs. 1 ,872 for the plate), both methods achieve lower displacement error here because the pipe is thick-walled ( t/R = 10 /145 ≈
+
+7%) and beam-bending modes dominate, making modal truncation less severe. Modal expansion achieves 1 .11%—a respectable result for a curved 3D structure. PDE-CO reduces this to 0 .28%, a 4 .0× improvement, and additionally recovers a more correct force distribution. The optimization wall time was 615 s for 200 iterations. 
+
+6.3. Reactor pressure vessel (RPV) 
+
+The third example is a double-loop cylindrical reactor pressure vessel (RPV) representative of a 300 MW pressur-ized nuclear reactor (PWR) nuclear power plant, the most complex case in both geometry and loading type. Unlike the plate and pipe, where the excitation is a concentrated force applied at an accessible structural boundary (the free end), the RPV is excited by a localized Gaussian impact on the inner surface—a surface that is inaccessible to direct measurement and separated from the outer-surface sensors by a 200 mm thick wall. This shift from boundary loading to inner-surface loading is physically motivated, as operational loads on pressure vessels (fluid pressure transients, pump-induced vibration, flow-induced forces) act on the inner wetted surface and cannot be measured directly. The identification of such loads from outer-surface sensor responses is therefore a substantially harder inverse problem than the tip-force recovery in the preceding examples. The RPV body has inner diameter Din = 3,150 mm and nominal outer diameter Dout = 3,352 mm (nominal wall thickness t = 200 mm). The model includes a cylindrical body with ellipsoidal /hemispherical heads, four nozzles (two set-in nozzles in the ±Z direction, two set-out nozzles at ±(X +Z), 60 ◦ apart), and four external support pads. The material properties are E = 210 ,000 MPa, ν = 0.3, and 
+
+ρ = 7.85 × 10 −9 tonne /mm 3 (steel, mm-tonne-s system). The bottom faces of all four support pads are fully fixed (Dirichlet boundary condition). Force parameterization is restricted to the inner surface free DOFs, θ ∈ R2,850 (Nθ = 2,850, inner surface of the cylindrical body and hemispherical heads). This encodes the physical assumption that operational loads on a pressure 18 Load 
+
+EνρDthk L
+
+θ
+
+: 210 GPa : 0.3 : 7,850 kg/m³ : 300 mm (outer) : 10 mm : 1 m : 90° (bent angle) 
+
+Sensors Fully clamped Figure 6: Bent 90 ◦ elbow pipe: problem geometry. The top end is fully clamped (green ring); eight acceleration sensors (blue dots) are placed on the outer surface — four on the upper straight segment and four symmetrically on the lower straight segment; a uniform negative z-direction distributed force (red arrows) is applied across the entire free-end cross-section. Material and geometric properties are listed in the figure. 0.0e+00 5.2e-03 0.001 0.002 0.003 0.004 
+
+> Displacement  (reference )
+> 0.0e+00 5. 2e-03 0.001 0.002 0.003 0.004
+> Displacement  (PDE -CO )
+> 0.0e+00 5.2e-03 0.001 0.002 0.003 0.004
+> Displacement  (modal  expansion )
+> 0.0e+00 1.0e+00 0.2 0.4 0.6 0.8
+> Force  magnitude  (reference )
+> 0.0e+00 4.3e-01 0.05 0.15 0.25 0.35
+> Force  magnitude  (modal  expansion )
+> 0.0e+00 1.6e-01 0.04 0.08 0.12
+> Force  magnitude  (PDE -CO )
+
+(a) (b) (c) (d) (e) (f) 
+
+Figure 7: Bent 90 ◦ elbow pipe: full-field recovery comparison. Upper row: displacement magnitude — (a) reference, (b) modal expansion, (c) PDE-CO. Lower row: recovered force magnitude — (d) reference (ring concentrated on the free-end cross-section), (e) modal expansion (di ff use, spurious distribution spread along the pipe body), (f) PDE-CO (concentrated near the free-end region, consistent with reference). PDE-CO yields improved displacement accuracy and notably better force localization compared to modal expansion; detailed quantitative error analysis is presented in Figure 8. 
+
+19 L-BFGS iteration Ob jective  J(θ)           
+
+> DOF index (sorted by error) Relative  displacement error
+> ×10 -3
+> 020406080100 120 140 160 180 200
+
+(a) (b)                
+
+> 46810 12 14 16 10
+> -2
+> 10 -1
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> 020 40 60 80 100 120 140 160 180 200
+> PDE-CO Modal expansion Figure 8: Bent 90 ◦elbow pipe: quantitative performance comparison. (a) DOF-wise relative displacement error (top 200 DOFs): PDE-CO (blue,
+> ϵu=0.28%) consistently outperforms modal expansion (red, 1 .11%). (b) L-BFGS convergence: J(θ) decreases by ∼7 orders of magnitude over 200 iterations but does not fully converge within the budget.
+
+vessel are transmitted through the inner surface (e.g., fluid pressure, jet impingement). The ground-truth force is a localized x-direction Gaussian impact centered at mid-height on the +X side of the inner cylindrical surface. Thirty-six acceleration sensors (6 × 6 grid, 6 height levels × 6 circumferential positions) are placed on the outer surface ( Ns = 36 nodes, Nsensor = 108 DOFs). The FE mesh has 7,432 tetrahedral elements (2,446 nodes, N f = 7,206 free DOFs; coarse mesh with lc = 150–400 mm for tractable dense-solve times on CPU). The excitation frequency is ω = 120 .6 rad /s ( ≈19 .2 Hz), and the Tikhonov regularization parameter is α = 10 −12 (small, reflecting the well-constrained sensor configuration with Nsensor /Nθ = 108 /2,850 ≈ 3.8%). Figure 10 presents the full-field comparison for the RPV (six panels). The upper row shows the displacement magnitude — (a) reference, (b) modal expansion, (c) PDE-CO. All three show the same gross response pattern (large displacement at the lower hemispherical head, smaller at the nozzle ring), reflecting that both methods capture the dominant vibration shape. The lower row shows the recovered force magnitude on the inner surface — (d) reference (compact Gaussian spot centered at mid-height on the cylindrical body), (e) modal expansion, (f) PDE-CO. Modal expansion (e) approximately identifies the loading region but produces a more di ff use distribution. PDE-CO (f) recovers a sharper, more localized spot at the correct position, more consistent with the true Gaussian profile. Figure 11 presents (a) DOF-wise displacement error (top 200 DOFs) and (b) L-BFGS convergence (2,000 iter-ations, steadily decreasing). The L-BFGS optimizer was stopped at 2,000 iterations, as the displacement error had already reached a su ffi ciently small level ( ϵu = 0.885%); the objective function continues to decrease steadily, indi-cating that further iterations would yield additional improvement. As reported in Table 1 (row 3), PDE-CO achieves 
+
+ϵu = 0.885% while modal expansion ( Nd = 50 modes, 36 sensors) yields ϵu = 1.86%. Modal expansion achieves 1.86%—a respectable result given the industrial-scale geometry and 36 sensors covering only Nsensor /Nθ = 3.8% of the parameterized DOFs. PDE-CO reduces this to 0 .885% (2 .1× improvement), and does so despite the forcing being on the inner surface, invisible to outer-surface sensors, and the optimizer not yet having converged. Addition-ally, PDE-CO recovers a sharper, more localized force distribution on the inner surface, while modal expansion can only produce a di ff use approximation. The optimization required 15,294 s for 2,000 iterations (7.6 s per iteration), reflecting the dense linear solve cost at this problem scale. 
+
+7. Discussion 
+
+The consistent superiority of PDE-CO across all three examples demonstrates two key properties. (i) Robustness to geometric complexity — from the flat plate to the curved pipe (both with free-end face loading), PDE-CO maintains sub-percent displacement error and correctly identifies the loading region. (ii) Robustness to loading type — from boundary face loading (plate, pipe) to inner-surface distributed loading (RPV), PDE-CO continues to outperform modal expansion in displacement recovery and uniquely provides a spatially resolved force estimate. 20 EνρDthk : 210 GPa : 0.3 : 7,850 kg/m³ : 3,352 mm (outer) : 200 mm 
+
+Sensors 
+
+····
+
+Load Figure 9: Reactor pressure vessel (RPV): problem geometry. Left: outer surface view with 36 acceleration sensors (blue dots) arranged in a 6 × 6grid (6 height levels × 6 circumferential positions). Right: cross-section view showing the localized x-direction Gaussian impact (red arrows) applied to the inner cylindrical surface at mid-height. Material and geometric properties are listed in the figure. 0.0e+00 3.2e-06 5e-7 1e-6 1.5e-6 2e-6 2.5e-6 
+
+> 0.0e+00 1.0e+00 0.2 0.4 0.6 0.8
+> 0.0e+00 3.2e-06 5e-7 1e-6 1.5e-6 2e-6 2.5e-6 3e-6
+> 0.0e+00 3.2e-06 5e-7 1e-6 1.5e-6 2e-6 2.5e-6
+> 0.0e+00 3.3e-01 0.05 0.1 0.15 0.2 0.25 0.3
+> 0.0e+00 7.8e-01 0.1 0.2 0.3 0.4 0.5 0.6 0.7
+> Displacement  (reference )
+> Displacement  (PDE -CO )
+> Displacement  (modal  expansion )
+> Force  magnitude  (reference )
+> Force  magnitude  (modal  expansion )
+> Force  magnitude  (PDE -CO )
+
+(a) (b) (c) 
+
+(d) (e) (f) 
+
+Figure 10: Reactor pressure vessel (RPV): full-field recovery comparison. Upper row: displacement magnitude — (a) reference, (b) modal expansion, (c) PDE-CO. Lower row: recovered force magnitude on the inner surface — (d) reference (compact Gaussian spot at mid-height), (e) modal expansion (approximately correct location but more di ff use), (f) PDE-CO (sharper, more localized at the correct position). PDE-CO yields improved displacement accuracy and notably better force localization compared to modal expansion; detailed quantitative error analysis is presented in Figure 11. 
+
+21 L-BFGS iteration Ob jective  J(θ) 
+
+> DOF index (sorted by error) Relative  displacement error
+
+(a) (b)                         
+
+> 10 -3
+> 10 -2
+> 0200 400 600 800 1000 1200 1400 1600 1800 2000
+> 10 -5
+> 10 -4
+> 10 -6
+> 10 -7
+> 10 -8
+> 10 -9
+> 10
+> -10
+> 10
+> -11
+> 020 40 60 80 100 120 140 160 180 200 0.005 0.01 0.015 0.025 0.035 0.045 PDE-CO Modal expansion Figure 11: Reactor pressure vessel (RPV): quantitative performance comparison. (a) DOF-wise relative displacement error (top 200 DOFs): PDE-CO (blue, ϵu=0.885%) outperforms modal expansion (red, 1 .86%) across all sorted DOFs. (b) L-BFGS convergence: J(θ) decreases steadily over 2,000 iterations without reaching full convergence, indicating further accuracy gains are achievable with additional iterations or GPU acceleration.
+
+7.1. Why PDE-CO achieves superior displacement recovery 
+
+The numerical results across all three examples confirm the theoretical analysis of Section 4.7. PDE-CO achieves superior virtual sensing accuracy through two complementary mechanisms. First, the PDE constraint enforces exactness. The governing equation D f f ˆU f = Pθ ensures that, for any trial force 
+
+θ, the resulting displacement field ˆ U f (θ) = D−1 
+
+> f f
+
+Pθ is exactly consistent with the full-order FE system. Unlike modal expansion, which truncates the kinematic space to Nd modes, PDE-CO uses the complete FE system, eliminating modal truncation error within the FE discretization. Second, the inverse dynamic sti ff ness operator D−1 
+
+> f f
+
+acts as a smoothing operator, strongly attenuating high-frequency spatial components in θ when mapped to displacement. The optimization finds θ∗ whose displacement 
+
+D−1 
+
+> f f
+
+Pθ∗ matches the sensor data, and the PDE constraint propagates this accuracy from the sensor locations to the entire domain. As a further advantage, the PDE-CO framework simultaneously recovers the optimal force distribution f∗ = Pθ∗
+
+as a natural by-product of the optimization; while modal expansion can derive a force estimate by back-calculation (ˆ f = D f f Φq), this estimate inherits modal truncation error and is not jointly optimized with the displacement. This is particularly valuable for structural health monitoring scenarios where the loading acts on inaccessible surfaces, such as the inner surface of a pressure vessel. It should be noted that displacement accuracy is assessed quantitatively via DOF-wise error norms (Table 1), whereas load recovery is assessed qualitatively in this study. A direct scalar error norm for the recovered force is not reported because the optimization variable θ∗ is a distributed nodal force vector whose spatial distribution and sparsity di ff er fundamentally from the concentrated or Gaussian ground-truth load; comparing them as vectors would conflate spatial distribution di ff erences with amplitude errors. Instead, correctness of the recovered force is judged by whether the identified loading region and directional pattern match the known true load, which they do in all three examples. 
+
+7.2. Why PDE-CO outperforms modal expansion 
+
+The numerical results reveal an important nuance: modal expansion itself is a strong virtual sensing baseline. For the pipe (1 .11%) and RPV (1 .86%), modal expansion achieves sub-2% displacement errors that would be acceptable in many engineering applications, and the improvement brought by PDE-CO is meaningful but incremental in these cases. The picture is more dramatic for the thin plate (7 .69%), where modal truncation is severe due to the high-frequency bending modes that dominate the response near the clamped boundary. Displacement recovery, however, is only one facet of the comparison. PDE-CO’s distinctive advantage lies in load identification: the force θ is the primary optimization variable, jointly optimized with the displacement through the PDE constraint. Modal expansion can derive a force estimate by back-calculation (ˆ f = D f f Φq), but this estimate inherits modal truncation error and is not directly optimized against sensor data. This capability — qualitatively 22 verified in all three examples — is practically irreplaceable for structural health monitoring scenarios where the loading is unknown, inaccessible, or spatially distributed. Considering both criteria, the three examples yield displacement improvement ratios of 17 × for the plate (7 .69% →
+
+0.45%), 4 .0× for the pipe (1 .11% → 0.28%), and 2 .1× for the RPV (1 .86% → 0.885%). The decreasing ratio from plate to RPV does not indicate that PDE-CO weakens; rather, it reflects that modal expansion performs less catastroph-ically as the sensor-to-mode ratio improves ( Nsensor /Nd = 12 /11 → 24 /23 → 108 /50) and as the structure becomes thick-walled (pipe, RPV) rather than thin (plate). Nonetheless, PDE-CO consistently achieves lower displacement error in absolute terms across all cases, including the RPV where the load acts on the inner surface — a scenario that modal expansion was never designed to handle. The underlying mechanisms are detailed in Section 7.1. Briefly, the modal truncation of the kinematic basis (Nd ≤ Ns − 1) directly limits displacement accuracy — most severely for the thin plate where high-frequency bending modes are discarded — while the absence of equilibrium enforcement renders any back-calculated force estimate dynamically inconsistent. PDE-CO eliminates both deficiencies through the governing equation constraint. 
+
+7.3. Computational considerations 
+
+The computational cost of PDE-CO consists of one LU factorization of D f f at cost O(N3 
+
+> f
+
+) for dense matrices (or O(N f b2) for banded matrices), followed by K L-BFGS iterations each requiring two back-substitutions at cost 
+
+O(2 KN 2 
+
+> f
+
+). The three examples span three orders of magnitude in optimization time: the plate ( N f = 1,872, K = 11 iterations to convergence) required topt = 0.54 s (total including JIT compilation: 2 .9 s); the pipe ( N f = 11 ,160, 
+
+K = 200 iterations, at the maximum allowable iterations) required 615 s (3 .1 s per iteration); and the RPV ( N f = 7,206, 
+
+K = 2,000 iterations, at the maximum allowable iterations) required 15 ,294 s (7 .6 s per iteration, higher due to the inner-surface scatter operation). In comparison, modal expansion wall times are negligible: 0 .54 s (plate), 58 .8 s (pipe, dominated by eigenvalue decomposition), and 14 .1 s (RPV). The large PDE-CO wall times motivate GPU acceleration. The core bottleneck is the dense linear solve D f f x = b,called twice per L-BFGS iteration via JAX’s cuSOLVER backend on an NVIDIA RTX 5070 Ti (16 GB VRAM). The GPU outperforms the CPU beyond N f ≈ 500; at N f = 12 ,144 (RPV coarse mesh, lc = 300 mm) it delivers a 64 .8×
+
+speedup (1 .77 s vs. 114 .6 s per solve), as reported in Table 2. This reduces the e ff ective RPV iteration cost from 
+
+∼7.6 s to ∼0.15 s, and implies a reduction from 615 s to approximately 12 s for the pipe at the same 200 iterations — making near-real-time monitoring feasible. In contrast, modal expansion requires one eigenvalue decomposition (O(Nd N2 
+
+> f
+
+)) plus a single Ns × Nd least-squares solve ( O(N3 
+
+> d
+
+)), which is fast but does not benefit from iteration-level GPU parallelism. The additional cost of PDE-CO is therefore justified by its accuracy gains and force identification capability, particularly when GPU acceleration is available.                                                            
+
+> Table 2: Wall time for a single dense linear solve Df f x=b: CPU (NumPy /LAPACK) vs. GPU (JAX /cuSOLVER, NVIDIA RTX 5070 Ti 16 GB), as a function of the number of free DOFs Nf. Mem. denotes the memory footprint of the Nf×Nffloat64 matrix. The GPU becomes faster than the CPU at Nf≈500 and delivers a 64 .8×speedup at Nf=12 ,144 (RPV coarse mesh, lc=300 mm), reducing the per-iteration solve time from 114 .6 s to 1 .77 s. Since each L-BFGS iteration requires two linear solves, this translates to an e ff ective iteration cost reduction from ∼7.6 s to
+> ∼0.15 s for the RPV example. RPV mesh refinement levels are noted in parentheses.
+> NfMem. [GB] CPU [s] GPU [s] Speedup 500 0.002 0.006 0.002 2.3 ×
+> 1,000 0.008 0.048 0.006 8.2 ×
+> 2,000 0.032 0.377 0.017 22.1 ×
+> 5,000 0.2 7.07 0.145 48.7 ×
+> 10,000 0.8 62.5 1.01 61.8 ×
+> 12,144 (RPV, lc=300) 1.2 114.6 1.77 64.8 ×
+
+7.4. Limitations 
+
+The current formulation rests on several assumptions that define its scope. The framework assumes linear elas-todynamics, so geometric or material nonlinearity is not addressed. The dynamic sti ff ness formulation is applicable to single-frequency harmonic loading with a known excitation frequency ω; broadband or transient loading requires extension to the time domain. Furthermore, the excitation frequency must be chosen away from the natural frequen-cies of the structure, since D f f (ω) becomes singular at resonance; the present study uses ω = ω1/2 for all examples, 23 and the sensitivity of the recovered solution to the choice of ω has not been systematically investigated. For large structural models with N f ≳ 10 4 DOFs, the dense LU factorization becomes computationally prohibitive, and sparse direct or iterative solvers must replace it. Finally, in the presence of significant measurement noise, the regularization parameter α must be selected carefully — for example, via the L-curve method or cross-validation — to balance data fidelity against solution regularity. 
+
+7.5. Future extensions 
+
+The di ff erentiable virtual sensing framework based on PDE-CO admits several natural extensions. Projection-based reduced-order models (ROMs) (Craig Jr and Bampton, 1968; Kim et al., 2017, 2018; Zahr and Farhat, 2014) can be incorporated to reduce the forward solve cost while retaining the physics constraint advantage, enabling ROM-accelerated PDE-CO for large-scale applications. Extension to the time domain via Newmark-β time integration would enable transient full-field inference and broaden applicability to impact and broadband loading scenarios. Multi-frequency and broadband problems can be addressed through superposition of harmonic solutions or frequency-domain sweeps. Geometric or material nonlinearity can be incorporated by reformulating the PDE constraint in resid-ual form, enabling force identification in structures where modal expansion is inapplicable. Finally, the di ff erentiable solver is directly compatible with Hamiltonian Monte Carlo sampling, enabling Bayesian inference for principled uncertainty quantification of both the recovered displacement field and the identified force distribution. 
+
+8. Conclusions 
+
+This study presented a PDE-constrained optimization (PDE-CO) framework for virtual sensing in structural dy-namics, recovering full-field displacement and applied loading from sparse acceleration sensor measurements. The framework couples an o ffl ine finite element stage (FEniCSx) with an online GPU-accelerated optimization stage (JAX), and was verified on three examples of increasing complexity: a cantilever plate, a 90 ◦ elbow pipe, and a double-loop cylindrical reactor pressure vessel (RPV) representative of a 300 MW pressurized nuclear reactor. PDE-CO consistently outperformed modal expansion in displacement recovery across all three examples. Modal expansion itself achieved respectable accuracy for the pipe ( ϵu = 1.11%) and RPV ( ϵu = 1.86%) where the sensor-to-mode ratio was favorable, but PDE-CO reduced these errors to 0 .28% and 0 .885%, respectively. The improvement was most dramatic for the thin cantilever plate, where modal truncation is severe and modal expansion yielded ϵu = 7.69%; PDE-CO reduced this to 0 .45%, a 17 × gain. Notably, despite a substantial increase in problem size from the plate (N f = 1,872) to the pipe ( N f = 11 ,160), the pipe exhibited lower error for both methods, reflecting the structural advantage of a thick-walled geometry where beam-bending modes dominate and modal truncation is less severe. The accuracy advantage of PDE-CO stems from the PDE constraint D f f ˆU f = Pθ, which enforces exact consis-tency with the full-order FE system. This eliminates modal truncation error and propagates sparse sensor information through the governing equation to the entire displacement field. The recovered displacement is therefore exactly dynamically consistent with the identified loading, regardless of the number or placement of sensors. Force identification is PDE-CO’s most distinctive advantage over modal expansion. While modal expansion can derive a force estimate through back-calculation from recovered modal coordinates (ˆ f = D f f Φq), this estimate inherits modal truncation error and is not jointly optimized with the displacement. PDE-CO simultaneously recovers the optimal force distribution f∗ = Pθ∗ as a natural by-product of the optimization. The recovered spatial loading pattern correctly identifies the loading region and directional character in all three examples, and for the RPV this extends to inner-surface load identification from outer-surface sensors alone — a virtual sensing capability with direct relevance to pressure vessel structural health monitoring. Load recovery is assessed qualitatively rather than by scalar error norms, since the di ff erence in spatial distribution between the recovered distributed force and the concentrated or Gaussian ground-truth load makes vector norm comparison an unsuitable quality metric. The dominant computational cost is the dense linear solve D f f x = b, called twice per L-BFGS iteration via JAX’s cuSOLVER backend. GPU acceleration on an NVIDIA RTX 5070 Ti provides up to 64 .8× speedup over CPU at 
+
+N f ≈ 12 ,000, reducing the RPV per-iteration cost from ∼7.6 s to ∼0.15 s and making near-real-time monitoring feasible at the mesh sizes considered. However, as the number of force parameters Nθ increases substantially — for example, when the candidate loaded boundary is large or finely discretized — the L-BFGS convergence requires more iterations, and total optimization cost grows accordingly; GPU infrastructure is therefore essential for real-time 24 digital twin applications at operational scale. The AD-based gradient via JAX reverse-mode automatic di ff erentiation eliminates the need for hand-derived adjoint equations; the Taylor test confirms first-order convergence of the discrete gradient, verifying correctness automatically. The virtual sensing framework provides a foundation for extension to time-dependent problems via Newmark-β
+
+integration, nonlinear systems via residual-form PDE constraints, broadband excitation via multi-frequency superpo-sition, and ROM-accelerated large-scale applications via projection-based model reduction. 
+
+Appendix A Analytical derivation of the forward operator and objective gradient 
+
+This appendix provides a detailed derivation of the forward model linearity and the gradient computation used in the AD-based optimization. 
+
+A.1 Dynamic sti ff ness derivation 
+
+For harmonic excitation U(t) = ˆUeiωt, the semi-discrete equation of motion (27) becomes: 
+
+−ω2M ˆU + K ˆU = ˆR, (54) which can be written as: 
+
+D(ω) ˆ U = ˆR, D(ω) = K − ω2M. (55) After eliminating clamped DOFs: 
+
+D f f ˆU f = ˆF f , (56) where D f f = K f f − ω2M f f . Note that D f f is singular when ω coincides with a natural frequency. The excitation frequency must be chosen away from resonance for the linear solve to be well-conditioned. 
+
+A.2 Linearity of the forward model 
+
+The forward model maps the unknown load parameter θ ∈ RNθ to the predicted sensor acceleration ˆ apred ∈ RNs
+
+through a chain of three linear operations. First, the force parameterization (32) assembles the full force vector ˆF f = Pθ, which is linear in θ because P ∈ RN f ×Nθ is a constant matrix depending only on the mesh geometry: ˆF f = Pθ. (57) Second, the governing equation (31) maps the force to the displacement field, which is also linear in θ because the dynamic sti ff ness D f f = K f f − ω2M f f is independent of θ:ˆU f = D−1 
+
+> f f
+
+ˆF f = D−1 
+
+> f f
+
+Pθ. (58) Third, the sensor selection matrix S f extracts sensor DOFs and the kinematic relation ˆ a = −ω2 ˆu converts displacement to acceleration: ˆapred = −ω2 S f ˆU f = −ω2 S f D−1 
+
+> f f
+
+P θ. (59) Composing the three steps, the entire forward model reduces to a single matrix-vector product: ˆapred = −ω2 S f D−1 
+
+> f f
+
+P
+
+| {z }
+
+A ∈ RNs×Nθ
+
+θ = Aθ, (60) since the composition of linear maps is linear. 25 A.3 Objective function and its properties 
+
+The Tikhonov-regularized objective is: 
+
+J(θ) = ∥Aθ − ˆaobs ∥2
+
+| {z }
+
+> data misfit
+
++ α∥θ∥2
+
+|{z} 
+
+> regularization
+
+, (61) where α > 0. Expanding term by term: 
+
+J(θ) = θ⊤ A⊤A + αIθ − 2 ˆ a⊤
+
+> obs
+
+A θ + ∥ˆaobs ∥2. (62) This is a quadratic function of θ with Hessian H = 2( A⊤A + αI). Since A⊤A is symmetric positive semi-definite and 
+
+α > 0, the Hessian is symmetric positive definite: 
+
+v⊤H v = 2 ∥Av ∥2 + α∥v∥2 > 0 ∀ v , 0, (63) guaranteeing that J is strictly convex with a unique global minimum. 
+
+A.4 Gradient derivation (adjoint method) 
+
+Di ff erentiating Eq. (62) with respect to θ yields the analytical gradient: 
+
+∇θJ = 2( A⊤A + αI)θ − 2 A⊤ ˆaobs . (64) When A is formed explicitly (feasible for small Nθ), setting the gradient to zero gives the closed-form normal equation: (A⊤A + αI)θ∗ = A⊤ ˆaobs . (65) When Nθ is large, forming A explicitly is computationally prohibitive. Instead, the gradient is computed in matrix-free form via the adjoint method: the forward solve D f f ˆU f = Pθ yields the predicted acceleration ˆ apred = −ω2S f ˆU f
+
+and residual r = ˆapred − ˆaobs ; the adjoint solve D f f λ = −ω2S⊤ 
+
+> f
+
+r (exploiting D⊤ 
+
+> f f
+
+= D f f ) then yields the gradient as 
+
+∇θJ = 2P⊤λ + 2αθ. This procedure requires exactly two D f f solves per gradient evaluation, regardless of Nθ. In practice, the gradient is computed automatically via reverse-mode AD (JAX), which internally implements this adjoint computation. 
+
+A.5 Computational cost 
+
+The LU factorization of D f f is performed once at cost O(N f b2) for sparse FE matrices with bandwidth b. Each L-BFGS iteration then requires two back-substitutions at cost O(N f b) each, giving a total cost of O(N f b2 +2KN f b) for 
+
+K iterations. With K ∼ 200 iterations and sparse factorization, this is substantially cheaper than forming A explicitly, which would require Nθ forward solves at total cost O(Nθ N f b). For nonlinear problems where K(θ) depends on θ, the objective is no longer quadratic, but the same AD + L-BFGS framework applies. The gradient ∇θJ is computed via reverse-mode AD through the nonlinear forward solver, and L-BFGS iteratively converges to a local minimum. The primary di ff erence is that the Hessian is no longer constant, potentially requiring more iterations and restarts for non-convex objectives. 
+
+Appendix B Gradient verification: Taylor test 
+
+The Taylor test provides a rigorous, implementation-independent verification that the computed gradient ∇θJ is consistent with the objective function J(θ). Choose an arbitrary base point θ0, a random perturbation direction δθ, and a sequence of decreasing step sizes ϵk
+
+(e.g., ϵk = 2−k, k = 0, 1, . . . ). For each ϵk, compute the perturbed objective: 
+
+r(ϵ) B ˆJ(θ0 + ϵ δ θ) − ˆJ(θ0). (66) By continuity of ˆJ, the Taylor expansion gives r(ϵ) = ϵ ∇ ˆJ · δθ + O(ϵ2), so |r(ϵ)| = O(ϵ) as ϵ → 0; halving ϵ
+
+should halve |r(ϵ)|. This zeroth-order test verifies only that the objective is smooth and does not test the gradient. 26 Subtracting the linear term predicted by the gradient yields the first-order remainder: 
+
+r(ϵ) − ϵ ∇θ ˆJ(θ0) · δθ = O(ϵ2) as ϵ → 0. (67) If the gradient is correctly implemented, halving ϵ reduces this remainder by a factor of 4 (quadratic convergence); convergence at only O(ϵ) indicates an error in the gradient implementation. In practice, one plots log |r(ϵ)| and log |r(ϵ) − ϵ ∇ ˆJ · δθ| versus log ϵ. The zeroth-order curve should have slope 
+
+≈ 1 and the first-order curve slope ≈ 2. Deviation from slope 2 at very small ϵ is expected due to floating-point cancellation; the test is valid in the range ϵ ∈ [10 −8, 10 −1] for 64-bit arithmetic. 
+
+CRediT author contribution statement Minjae Kim, Jaehwan Jeong : Investigation, Data curation, Visualization. Jaemin Kim : Methodology, Software, Validation, Formal analysis, Investigation, Data curation, Visualization, Writing – original draft, Writing – review & editing, Project administration, Supervision. 
+
+References 
+
+Bahmani, B., 2026. Constitutive priors for inverse design. arXiv preprint Northwestern University. Preprint. Baratta, I.A., Dean, J.P., Dokken, J.S., Habera, M., Hale, J.S., Richardson, C.N., Rognes, M.E., Scroggs, M.W., Sime, N., Wells, G.N., 2023. DOLFINx: the next generation FEniCS problem solving environment. Zenodo doi:10.5281 /zenodo.10447666. Bezgin, D.A., Buhendwa, A.B., Adams, N.A., 2023. JAX-Fluids: A fully-di ff erentiable high-order computational fluid dynamics solver for compressible two-phase flows. Computer Physics Communications 282, 108527. Biegler, L.T., Ghattas, O., Heinkenschloss, M., van Bloemen Waanders, B. (Eds.), 2003. Large-Scale PDE-Constrained Optimization. volume 30 of Lecture Notes in Computational Science and Engineering . Springer, Berlin, Heidelberg. Bradbury, J., Frostig, R., Hawkins, P., Johnson, M.J., Leary, C., Maclaurin, D., Necula, G., Paszke, A., Vander-Plas, J., Wanderman-Milne, S., Zhang, Q., 2018. JAX: composable transformations of Python +NumPy programs. 
+
+http://github.com/jax-ml/jax .Craig Jr, R.R., Bampton, M.C., 1968. Coupling of substructures for dynamic analyses. AIAA Journal 6, 1313–1319. Ding, J., van Keulen, F., Aage, N., 2021. Adjoint-based analysis and optimization of beam-like structures subjected to dynamic loads. Structural and Multidisciplinary Optimization 64, 2955–2978. Ge, M., Lui, E.M., 2005. Structural damage identification using system dynamic properties. Computers & Structures 83, 2185–2196. doi:10.1016 /j.compstruc.2005.05.002. Hansen, P.C., 1998. Rank-Deficient and Discrete Ill-Posed Problems: Numerical Aspects of Linear Inversion. SIAM, Philadelphia. Haywood-Alexander, M., Duthé, G., Chatzi, E., 2026. PiGGO: Physics-Guided Learnable Graph Kalman Filters for Virtual Sensing of Nonlinear Dynamic Structures under Uncertainty. arXiv preprint arXiv:2604.26593 . Iliopoulos, A., Shirzadeh, R., Weijtjens, W., Guillaume, P., Van Hemelrijck, D., Devriendt, C., 2016. A modal decomposition and expansion approach for prediction of dynamic responses on a monopile o ff shore wind tur-bine using a limited number of vibration sensors. Mechanical Systems and Signal Processing 68–69, 84–104. doi:10.1016 /j.ymssp.2015.07.016. Kim, J., Boo, S.H., Lee, P.S., 2018. Considering the higher-order e ff ect of residual modes in the Craig–Bampton method. AIAA Journal 56, 403–412. 27 Kim, J.H., Kim, J., Lee, P.S., 2017. Improving the accuracy of the dual Craig–Bampton method. Computers & Structures 191, 22–32. Kosti´ c, B., Hartmann, S., Bier, W., 2023. Adjoint-based determination of weaknesses in structures. Computer Methods in Applied Mechanics and Engineering 417, 116471. Kullaa, J., 2016. Virtual sensing of structural vibrations using dynamic substructuring. Mechanical Systems and Signal Processing 79, 203–224. Lee, S., Park, M., Oh, M.H., Lee, P.S., 2024. Virtual sensing for real-time strain field estimation and its verification on a laboratory-scale jacket structure under water waves. Computers & Structures 298, 107366. Lee, Y., Kim, H., Min, S., Yoon, H., 2023. Structural damage detection using deep learning and FE model updating techniques. Scientific Reports 13, 18694. doi:10.1038 /s41598-023-46141-9. Lourens, E.M., Reynders, E., De Roeck, G., Degrande, G., Lombaert, G., 2012. An augmented Kalman filter for force identification in structural dynamics. Mechanical Systems and Signal Processing 27, 446–460. Maes, K., Iliopoulos, A., Weijtjens, W., Devriendt, C., Lombaert, G., 2016. Dynamic strain estimation for fatigue assessment of an o ff shore monopile wind turbine using filtering and modal expansion algorithms. Mechanical Systems and Signal Processing 76–77, 592–611. doi:10.1016 /j.ymssp.2016.01.004. Mora, B., Basurko, J., Sabahi, I., Leturiondo, U., Albizuri, J., 2023. Strain virtual sensing for structural health monitoring under variable loads. Sensors 23, 4706. Oberai, A.A., Gokhale, N.H., Feijóo, G.R., 2003. Solution of inverse problems in elasticity imaging using the adjoint method. Inverse Problems 19, 297–313. Oh, S., Lee, H., Lee, J.K., Yoon, H., Kim, J.G., 2022. Real-time response estimation of structural vibration with inverse force identification. arXiv preprint arXiv:2211.12513 . Ritto, T.G., Rochinha, F.A., 2021. Digital twin, physics-based model, and machine learning applied to damage detec-tion in structures. Mechanical Systems and Signal Processing 155, 107614. doi:10.1016 /j.ymssp.2021.107614. Tarpø, M., Nabuco, B., Georgakis, C., Brincker, R., 2020. Expansion of experimental mode shape from operational modal analysis and virtual sensing for fatigue analysis using the modal expansion method. International Journal of Fatigue 130, 105280. doi:10.1016 /j.ijfatigue.2019.105280. Virtanen, P., Gommers, R., Oliphant, T.E., Haberland, M., Reddy, T., Cournapeau, D., Burovski, E., Peterson, P., Weckesser, W., Bright, J., et al., 2020. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nature Methods 17, 261–272. doi:10.1038 /s41592-019-0686-2. Xue, T., Liao, S., Gan, Z., Park, C., Xie, X., Liu, W.K., Cao, J., 2023. JAX-FEM: A di ff erentiable GPU-accelerated 3D finite element solver for automatic inverse design and mechanistic data science. Computer Physics Communications 291, 108802. Zahr, M.J., Farhat, C., 2014. Progressive construction of a parametric reduced-order model for PDE-constrained optimization. International Journal for Numerical Methods in Engineering 102, 1111–1135. Zhang, Z., Alla, A., Karniadakis, G.E., 2026. Adjoint method versus physics-informed neural networks in PDE-constrained inverse problems. arXiv preprint arXiv:2606.12337 . 28

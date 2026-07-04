@@ -1,0 +1,54 @@
+{
+  "label": "2026-07-04",
+  "date": "2026-07-04",
+  "generated_at": "2026-07-04T20:22:17",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202607/04/2606.29349v1-pde-constrained-optimization-for-virtual-sensing-in-structural-dynamics-full-field-displacement-and-force-recovery-from-sparse-sensors",
+      "section": "deep",
+      "title_en": "PDE-constrained optimization for virtual sensing in structural dynamics: Full-field displacement and force recovery from sparse sensors",
+      "authors": "Minjae Kim, Jaehwan Jeong, Jaemin Kim",
+      "date": "2026-06-28",
+      "pdf": "https://arxiv.org/pdf/2606.29349v1",
+      "score": "10.0",
+      "evidence": "将虚拟感知建模为以弹性动力学方程为约束的PDE约束优化问题",
+      "tldr": "结构健康监测常依赖稀疏传感器，但准确恢复全场位移和力是一大难点。本研究将虚拟传感构建为PDE约束优化问题，以弹性动力学方程为等式约束，优化力分布，通过反向自动微分计算梯度，使用L-BFGS迭代求解，并联合离线FEniCSx有限元组装与在线JAX GPU加速，实现位移与力的同时高精度恢复。在悬臂板、90°弯管和反应堆压力容器三例中，所提方法位移误差较模态展开法降低2-17倍，均达亚百分比精度，且GPU加速高达64.8倍。该框架突破了模态展开法需后处理求力的局限，为结构数字孪生和实时监测提供了物理一致、高效可扩展的解决方案。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Virtual sensing -- recovering full-field structural response from sparse sensor measurements -- is a fundamental challenge in structural health monitoring. This study formulates virtual sensing as a PDE-constrained optimization (PDE-CO) problem, where the governing elastodynamic equation serves as an equality constraint, the applied force distribution is the optimization variable, and the full-field displacement and force are jointly recovered. Gradients of the Tikhonov-regularized objective are computed via reverse-mode automatic differentiation through the forward PDE solver, and L-BFGS iteratively finds the optimal state. The framework couples an offline FEniCSx stage for finite element assembly with an online GPU-accelerated JAX stage, and is verified on three examples of increasing complexity: a cantilever plate, a $90^\\circ$ elbow pipe, and a reactor pressure vessel (RPV) representative of a 300~MW pressurized nuclear reactor. PDE-CO consistently outperforms modal expansion across all three cases, reducing displacement errors by factors of $2$ to $17\\times$ with sub-percent accuracy on every example. Unlike modal expansion, where force is derived by back-calculation from truncated modal coordinates and is not jointly optimized, PDE-CO recovers displacement and force simultaneously through the PDE constraint; the increased computational cost is offset by GPU acceleration delivering up to $64.8\\times$ speedup over CPU.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/04/2607.00865v1-constrained-bayesian-optimisation-with-multiple-information-sources",
+      "section": "deep",
+      "title_en": "Constrained Bayesian Optimisation with Multiple Information Sources",
+      "authors": "Hauke Maathuis, Roeland De Breuker, Saullo Castro, Maike Osborne",
+      "date": "2026-07-01",
+      "pdf": "https://arxiv.org/pdf/2607.00865v1",
+      "score": "10.0",
+      "evidence": "未知约束下的贝叶斯优化，可行域小，直接解决边界约束下的优化问题。",
+      "tldr": "在约束贝叶斯优化中，可行域狭小常导致探索极其困难，现有方法多依赖真实评估而忽略辅助信息。本文提出多信息源框架，扩展约束最大熵搜索，捕捉源间相关性并平衡评估成本与信息增益。实验表明，即使辅助数据弱相关，该方法也能高效识别可行最优解，显著优于基准，尤其在早期探索阶段。这项工作为约束优化问题利用廉价辅助信息开辟了新思路。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Bayesian Optimisation (BO) under unknown constraints is particularly challenging when feasible regions are small. In such settings, existing methods that typically rely solely on evaluations of the true objective and constraints struggle to efficiently explore the design space. However, many real-world applications offer auxiliary data sources (e.g. surrogate models or simplified simulations) that can support early exploration. Despite this potential, their integration into constrained BO remains largely unexplored. We propose a general multi-source framework that extends constrained Max-value Entropy Search, capturing inter-source correlation while balancing evaluation cost and information gain. Experiments on both synthetic and physics-based benchmarks show that our method efficiently identifies feasible and optimal solutions, even when auxiliary data are only weakly correlated. The proposed approach consistently outperforms existing methods, particularly in early-stage exploration.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/04/2607.01140v1-relation-centric-open-vocabulary-3d-gaussian-segmentation",
+      "section": "quick",
+      "title_en": "Relation-Centric Open-Vocabulary 3D Gaussian Segmentation",
+      "authors": "Eunsung Cha, Hyunjoon Lee, Jaesik Park",
+      "date": "2026-07-01",
+      "pdf": "https://arxiv.org/pdf/2607.01140v1",
+      "score": "6.0",
+      "evidence": "将高斯分割重构为建模成对关系以实现沿物体边界的精确分离",
+      "tldr": "开放词汇3D高斯分割需将语言理解与对象边界精准分离结合，现有方法或产生噪声分割，或依赖昂贵的逐场景优化。PairGS将分割任务重新定义为建模高斯间成对关系，利用视图贡献权重和多视图掩码等丰富信号构建关系图，通过稀疏边缘候选与层次聚类实现多粒度查询，无需繁重优化。在基准数据集上取得最优性能，快速变体比优化式实例特征方法提速50倍，为高效准确的3D高斯分割开辟新方向。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Open-vocabulary 3D Gaussian segmentation is challenging because it requires language understanding for diverse queries and accurate separation of Gaussians along object boundaries. Prior approaches either embed language knowledge into individual Gaussians to improve query responsiveness or optimize per-Gaussian instance features to encode object identity. However, these strategies may produce noisy Gaussian segmentations or rely on cost-inefficient per-scene optimization. We propose PairGS, a framework that reframes Gaussian segmentation as modeling pairwise relations between Gaussians. 3D Gaussian representations provide rich signals for relation estimation, such as view contribution weights and multi-view mask evidence. By leveraging these cues, PairGS explicitly constructs a relation graph for segmentation without a heavy optimization process. PairGS first proposes sparse edge candidates using low-dimensional descriptors, computes precise pairwise affinities only on those candidates, and builds a hierarchical cluster tree for multi-granular querying. It achieves state-of-the-art results on open-vocabulary 3D Gaussian segmentation benchmarks, while the fast variant is 50x faster than optimization-based instance-feature approaches.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

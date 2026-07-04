@@ -1,0 +1,1134 @@
+Title: Constrained Bayesian Optimisation with Multiple Information Sources
+
+URL Source: https://arxiv.org/pdf/2607.00865v1
+
+Published Time: Thu, 02 Jul 2026 01:00:10 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+# Constrained Bayesian Optimisation with Multiple Information Sources 
+
+Hauke Maathuis Roeland De Breuker Saullo G. P. Castro Maike Osborne 
+
+TU Delft TU Delft TU Delft University of Oxford 
+
+## Abstract 
+
+Bayesian Optimisation (BO) under unknown constraints is particularly challenging when feasible regions are small. In such settings, existing methods that typically rely solely on evaluations of the true objective and con-straints struggle to efficiently explore the de-sign space. However, many real-world appli-cations offer auxiliary data sources (e.g. sur-rogate models or simplified simulations) that can support early exploration. Despite this potential, their integration into constrained BO remains largely unexplored. We propose a general multi-source framework that ex-tends constrained Max-value Entropy Search, capturing inter-source correlation while bal-ancing evaluation cost and information gain. Experiments on both synthetic and physics-based benchmarks show that our method ef-ficiently identifies feasible and optimal so-lutions, even when auxiliary data are only weakly correlated. The proposed approach consistently outperforms existing methods, particularly in early-stage exploration. 
+
+## 1 Introduction 
+
+Bayesian optimisation (BO) is a principled framework for optimising expensive black-box functions. Such problems are prevalent in science and engineering applications, including materials discovery, drug design and simulation-based engineering. In these domains, where each evaluation may involve expensive physical experiments or high-resolution simulations, sample efficiency becomes critical. Constraints, often black-box functions themselves, are often equally expensive to evaluate, yet essential to ensure feasible designs. In many applications the feasible region is small, discontinuous, or highly non-linear, making even the discovery of a single feasible point challeng-ing, especially in high-dimensional spaces where data is sparse, as commonly seen in crashworthiness design (Raponi et al., 2019). In many engineering applications, however, prac-titioners may have access to multiple information sources. Examples include coarse simulations (Wu et al., 2019), simplified physics-based models (Maathuis et al., 2024; Aretz et al., 2025), or an-alytical approximations (Anand et al., 2024), that are cheaper to evaluate but potentially biased or noisy. In drug design, this may include inexpensive simulations alongside costly laboratory experiments. While these information sources are often correlated with the target information source (ground truth), the strength and structure of this correlation can vary significantly. Yet, even when information sources are only weakly correlated with the target, they can still provide valuable information for optimisation and help populate the design space, particularly in data-sparse scenarios. Unlike traditional BO methods that rely on asingle information source, multi-source BO leverages multiple models in a cost-aware manner, using cheap sources to guide exploration while reserving expensive evaluations to maintain accuracy. These approaches, often referred to as multi-fidelity in literature, were initially modelled through autoregressive processes (Kennedy and O’Hagan, 2000; Forrester et al., 2007), with later work extending acquisition strategies to this setting (Kandasamy et al., 2017; Poloczek et al., 2016; Wu et al., 2019; Takeno et al., 2020). While much of the literature uses the term multi-fidelity, our work adopts the more general multi-source perspective, which does not assume a strict fidelity hierarchy. Despite recent progress, the integration of multi-source modelling with constrained BO remains under-explored, as most methods address either con-straints or multiple sources in isolation. In particular, leveraging low-cost sources for early-stage explo-ration, especially when feasible points are unknown, has received little attention. To close this gap, we 
+
+> arXiv:2607.00865v1 [cs.LG] 1 Jul 2026 Constrained Bayesian Optimisation with Multiple Information Sources
+
+propose a scalable framework for constrained BO with multiple information sources, targeting problems with expensive target evaluations, hard-to-locate feasible regions, and sparse data. We formalise the constrained optimisation problem with multiple sources as min 
+
+> x∈X ⊂ Rd
+
+f (L)(x)s.t. c(L) 
+
+> i
+
+(x) ≤ 0, i = 1 , . . . , g 
+
+(1) where f (L) : X → R and c(L) 
+
+> i
+
+: X → R ∀i = 1 , ..., g 
+
+respectively denote the objective and constraints at the target information source L (most accurate but costly). We assume that the objective and all con-straints are always evaluated jointly at a given source. While this assumption may not hold in all domains, it is natural in computational engineering. The de-sign space X ⊂ Rd may be high-dimensional. To reduce queries to source L, we additionally leverage cheaper information sources f (ℓ), c(ℓ) 
+
+> i
+
+with ℓ ∈ S =
+
+{0, 1, . . . , L } which provide biased or noisy estimates at lower cost. These auxiliary sources help explore the design space and identify promising regions, while target source evaluations refine solutions near the fea-sibility boundary or optima. The goal is to efficiently optimise f (L) subject to the constraints c(L) 
+
+> i
+
+≤ 0 un-der a limited budget by balancing information gain and query cost across sources. Our work makes the following key contributions: 
+
+• A unified framework for constrained BO with mul-tiple sources, combining cheap auxiliary samples and a trust region heuristic for scalability in to high-dimensional input spaces. 
+
+• A systematic comparison of scaling multi-source GP models. 
+
+• Extensive experiments on real-world and syn-thetic benchmarks, showing clear improvements over existing constrained BO methods. 
+
+## 2 Related Work 
+
+Early approaches to multi-source or multi-fidelity 
+
+modelling used hierarchical Gaussian processes (GPs) with nested fidelities (Forrester et al., 2007; Kennedy and O’Hagan, 2000), later extended to non-nested settings via autoregressive and discrepancy-based models (Gratiet, 2013; Perdikaris et al., 2017). In BO, Kandasamy et al. (2017) proposed a bandit-based fidelity selection method, while Poloczek et al. (2016) introduced the Multi-Information Source Optimi-sation (MISO) framework, treating each source as a biased observation of a latent function. Further developments include trace-aware knowledge gradients (Wu et al., 2019), multi-fidelity MES (Takeno et al., 2020), and safeguards against uninformative sources (Mikkola et al., 2022). Additionally, recent pre-prints (Foumani and Bostanabad, 2025; Cordelier et al., 2025) explore constrained multi-source BO. The former introduces a simple cost-aware heuristic based on expected improvement with feasibility filtering, while the latter performs sequential optimisation over design and fidelity. However, both approaches remain limited in empirical validation. A parallel line of research has explored information-theoretic acquisition functions which aim to maximise expected information gain about the global optimum. 
+
+Predictive Entropy Search (PES) (Hern´ andez-Lobato et al., 2014) and Max-value Entropy Search (MES) (Wang and Jegelka, 2018) estimate information gain about the global optimum. Extensions include 
+
+Fast Information-theoretic BO (FITBO) (Ru et al., 2018) and General-purpose Information-based BO 
+
+(GIBBON) (Moss et al., 2021). Constrained vari-ants incorporate feasibility modelling via PES with constraints (PESC) (Hern´ andez-Lobato et al., 2016) and constrained MES (CMES) (Perrone et al., 2019; Takeno et al., 2022). For scalability to high dimensions with constraints, proposed strategies include trust-region heuristics (Eriksson and Poloczek, 2021), its extension of feasibility-aware refinements (Ascia et al., 2025), and scaled lengthscale priors (Hvarfner et al., 2024; Papenmeier et al., 2025), often in combination with 
+
+log Constrained Expected Improvement (logCEI) (Ament et al., 2023). High-dimensional problems with thousands of black-box constraints have been addressed in Maathuis et al. (2025), while Om et al. (2025) employ flow-based ensembles to improve GP scalability. Despite this progress, the joint treatment of con-straints and multiple sources to scale BO algorithms remains under-explored. Early discovery of feasible regions is especially critical, yet existing methods rarely exploit auxiliary sources for this purpose. We address this gap by proposing a scalable, unified, information-theoretic framework for constrained BO with multiple sources. 
+
+## 3 Bayesian Optimisation with Black-Box Constraints and Multiple Information Sources 
+
+In this section, we first review BO with unknown con-straints and its use of Gaussian processes. We then Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+show how this framework can be extended to incorpo-rate multiple information sources. 
+
+3.1 Constrained Bayesian Optimisation 
+
+We consider the constrained optimisation problem in Equation 1, where the feasible set under the target information source L is defined as: 
+
+X (L) 
+
+> f
+
+= {x ∈ X | c(L) 
+
+> i
+
+(x) ≤ 0, i = 1 , . . . , g }. (2) Since constraint predictions may vary across sources, feasibility must be defined with respect to the target source L. BO (Kushner, 1962, 1964) addresses ex-pensive, black-box problems by learning probabilistic surrogate models, typically GPs, to approximate the objective and constraints, allowing for efficient explo-ration and exploitation of the design space (Frazier, 2018). An acquisition function α(x; Dn) : X → R
+
+balances this exploration-exploitation trade-off by se-lecting the next evaluation point x+ ∈ X . In the con-strained setting, feasibility such that x+ ∈ X f , must be accounted for by the acquisition function: 
+
+x+ = arg max 
+
+> x∈X f
+
+α(x; Dn). (3) Popular constrained acquisition functions have been proposed in Gardner et al. (2014); Gelbart et al. (2014); Ament et al. (2023); Hern´ andez-Lobato et al. (2016); Eriksson and Poloczek (2021). These methods leverage GP-based uncertainty estimates to guide the search towards promising, feasible regions, enabling ef-ficient optimisation despite limited budgets and un-known constraint landscapes. 
+
+3.2 Gaussian Process Regression 
+
+GPs provide a flexible, non-parametric prior over func-tions. A function u : X → R, where X ⊂ Rd, is said to follow a GP prior if for any finite collection of input points {xi}ni=1 ⊂ X . The corresponding vector of func-tion values follows a multivariate normal distribution 
+
+u ∼ GP (μ, Σ) such that [u(x1), . . . , u (xn)] ⊤ ∼ N (μ, K), (4) where μ : X → R is the mean function with μi = μ(xi), and Σ : X × X → R is the covariance function with Kij = Σ( xi, xj ). In practice, the mean is often taken to be zero, while typical covariance functions include the squared exponential or Mat´ ern kernels, parametrised by hyperparameters that are obtained by optimising the marginal likelihood (Rasmussen and Williams, 2006). 
+
+3.3 Extending Gaussian Processes to Multiple Data Sources 
+
+To extend GPs to the multi-source setting, we model evaluations indexed by ℓ ∈ S = {0, 1, . . . , L }, where 
+
+ℓ = L denotes the most target source and ℓ = 0 the cheapest auxiliary source. The joint domain is then the source–augmented input space S × X , with X ⊂ Rd.Following the MISO framework (Poloczek et al., 2016), we consider each source specific function u(ℓ) : S×X → 
+
+R:
+
+u(ℓ)(x) = u(L)(x) + ∆ (ℓ)(x), with ∆ (L) ≡ 0. (5) where u(L) : X → R is a latent target function and ∆(ℓ) : X → R a source-dependent discrepancy. We place independent GP priors over both: 
+
+u(L) ∼ GP (μL, ΣL),
+
+∆(ℓ) ∼ GP (μℓ, Σℓ), ∀ ℓ < L. (6) We typically assume μℓ ≡ 0, whereas Σ L and Σ ℓ
+
+are chosen from standard kernel families and learned jointly via marginal likelihood maximisation. Since the sum of independent GPs is again a GP, the combined model defines a joint GP over the source-augmented input space: u : S ×X → R with u(ℓ, x) := 
+
+u(ℓ)(x) ∼ GP (μ, Σ) with mean and covariance func-tions given by: 
+
+μ(ℓ, x) = E[u(ℓ)(x)] = E[u(L)(x)] + E[∆ (ℓ)(x)] ,
+
+Σ (ℓ, x), (ℓ′, x′) = Σ L(x, x′) + δ(ℓ, ℓ ′)Σ ℓ(x, x′), (7) where δ(ℓ, ℓ ′) is the Kronecker delta. This structure captures inter-source correlations through a shared latent process, while allowing source-specific dis-crepancies. Unlike na¨ ıve multi-output GPs (Bonilla et al., 2007) or multi-fidelity models with a strict hierarchy (Kennedy and O’Hagan, 2000), the additive characteristic explicitly encodes a source structure, allowing for joint inference over the latent function 
+
+u(L), discrepancies ∆ (ℓ) and hyperparameters from observations Dn = {(ℓi, xi, y i)}ni=1 , while maintaining flexibility. In practice, we fit a separate MISO model for each black-box function, i.e. one for the objective 
+
+f and one for each constraint ci ∀i = {1, ..., g }, all defined over the same source-augmented domain 
+
+S × X . Figure 1 illustrates how the model can approximate the target source f (L) from only two target source observations D(L) by leveraging six auxiliary observations D(ℓ).Constrained Bayesian Optimisation with Multiple Information Sources 0.00 0.25 0.50 0.75 1.00 
+
+x
+
+−10 
+
+0
+
+10 
+
+> f (x)
+
+f (`)
+
+f (L)
+
+D(`)
+
+D(L)
+
+GP (L)
+
+Figure 1: Multi-source GP approximation of the target function. 
+
+## 4 Constrained Max-Value Entropy Search with Multiple Information Sources 
+
+We propose Multi-Source Constrained Max-value En-tropy Search (MS-CMES), extending the Max-value Entropy Search (Wang and Jegelka, 2018) principle to settings where both objective and constraints can be queried at multiple information sources. In each itera-tion we aim to choose the next pair ( x+, ℓ +) by balanc-ing three factors: (i) expected information gain about the best feasible solution at the target source, (ii) the correlation between auxiliary and target sources, and (iii) the cost of each source, allowing the method to exploit cheap, approximate sources early on. This is achieved by solving (x+, ℓ +) = arg max  
+
+> x∈X ,ℓ ∈S
+
+αn(x, ℓ )
+
+λ(x, ℓ ) , (8) where λ(x, ℓ ) denotes the cost of evaluating source ℓ.In the following we assume that each function f (ℓ) and constraint c(ℓ) 
+
+> i
+
+∀i ∈ { 1, ..., g } can be observed through any source ℓ ∈ S .
+
+Mutual Information Gain. Following the Max-value Entropy Search principle, the function αn max-imises the expected information gain about the con-strained optimum f ∗ = max x∈X (L)
+
+> f
+
+f (L)(x) at the tar-get source L:
+
+αn(x, ℓ ) = I
+
+
+
+u(ℓ)(x); f ∗
+
+. (9) with u(ℓ)(x) = [ f (ℓ)(x), c (ℓ)1 (x), . . . , c (ℓ) 
+
+> g
+
+(x)] ∈ Rg+1 . In the following we will omit that u(ℓ) depends on x. This expression measures how much querying ( x, ℓ ) reduces uncertainty over f ∗, with all quantities modelled via the joint GP framework described in Section 3.3. As f ∗
+
+is unknown, we approximate it from the GP posteriors via: 
+
+f ∗ := 
+
+
+
+max  
+
+> x∈X (L)
+> f
+
+f (L)(x) if X (L)
+
+> f
+
+̸ = ∅
+
+f (L)
+
+
+
+arg min 
+
+> x∈X
+
+P 
+
+> j
+
+¯c(L)
+
+> j
+
+
+
+else (10) with ¯ c(L) 
+
+> j
+
+= max  0, c (L) 
+
+> j
+
+(x). This fallback ensures that, in the absence of any feasible point at the target source (i.e. when X (L) 
+
+> f
+
+= ∅), the algorithm focuses on reducing uncertainty around the most promising in-feasible region. Based on this definition of f ∗, mutual information can be written as 
+
+I(u(ℓ); f ∗) = Ef ∗
+
+h
+
+DKL 
+
+
+
+p(u(ℓ) | f ∗) ∥ p(u(ℓ))
+
+i 
+
+= Ef ∗
+
+
+
+Eu(ℓ)|f ∗
+
+
+
+log p(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+ (11) However, p(u(ℓ) | f ∗) is intractable to compute di-rectly. Therefore, we adopt the variational lower bound on mutual information as derived by (Takeno et al., 2022), adapted to our multi-source context. By introducing a variational distribution q(u(ℓ) | f ∗), we can write the information gain as: 
+
+I(u(ℓ); f ∗) ≥ Ef ∗
+
+
+
+Eu(ℓ)|f ∗ log q(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+| {z }
+
+> := αn(x,ℓ )
+
+. (12) This lower bound quantifies the expected information gain from evaluating ( x, ℓ ), i.e. whether the outcome falls within the feasible region defined by the current value of the constrained optimum f ∗. The variational distribution q(u | f ∗) is defined as the normalised pos-terior over the joint outputs, restricted to the feasible set F := ( −∞ , f ∗] × (−∞ , 0] g ⊂ Rg+1 :
+
+q(u(ℓ) | f ∗) = 
+
+
+
+p(u(ℓ))Pr( u(ℓ) ∈ F ) if u(ℓ) ∈ F 
+
+0 otherwise (13) Substituting Equation 13 into the variational lower bound in Equation 12 yields the acquisition function 
+
+αn(x, ℓ ) := Ef ∗
+
+
+
+Eu(ℓ)|f ∗ log q(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+
+
+≈ − 1
+
+K
+
+> K
+
+X
+
+> k=1
+
+log Pr( u(ℓ) ∈ F )(14) where Pr( u(ℓ) ∈ F )= Pr 
+
+
+
+f (ℓ)(x) ≤ f ∗ GY
+
+> i=1
+
+Pr 
+
+
+
+c(ℓ) 
+
+> i
+
+(x) ≤ 0
+
+ (15) Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+The expectation is estimated by drawing K samples 
+
+{f ∗ 
+
+> k
+
+}Kk=1 of the constrained optimum using discrete Thompson sampling from the GP posterior at the tar-get source L. A full derivation is provided in Ap-pendix A.1. 
+
+Variance correction. As shown in Equations 14 and 15, we are interested in Pr( u(ℓ) ∈ F ). However, this introduces a mismatch: while F is defined at the target source L, u(ℓ) is potentially computed on a different source with ℓ̸ = L. Thus, a candidate may appear feasible under source ℓ, yet violating con-straints or optimality at source L, since X (L)
+
+> f
+
+̸ = X (ℓ) 
+
+> f
+
+.The authors in Moss et al. (2020) show that u(ℓ) | f (L)
+
+is not a truncated Gaussian but rather an extended skew Gaussian distribution, which they approximate in (Moss et al., 2020, 2021) via a variance-correction by quantifying the correlation ρ(x, ℓ ) ∈ (0 , 1] between source ℓ and target L. This mechanism ensures that weakly informative sources are automatically pe-nalised, preventing spurious feasibility or infeasibility from dominating early-stage acquisition decisions. Since the MISO model assumes conditional inde-pendence between fidelities given the latent, without backward conditioning, we retain the truncated Gaussian approximation in Equation 14, but correct its variance (Moss et al., 2021) via: ˜σ(ℓ)(x) ≈ σ(L)(x)
+
+
+
+1 − ρ2(x, ℓ )Ψ 
+
+
+
+γ(L) 
+
+, (16) where γ(L) = t−μ(L)(x) 
+
+> σ(L)(x)
+
+and Ψ( γ) = ϕ(γ)Φ( γ)
+
+
+
+γ + ϕ(γ)Φ( γ)
+
+
+
+.We set t = f ∗ for the objective and t = 0 for the con-straints, respectively. Hence, the adjusted feasibility probabilities from Equation 15 can be computed via: Pr 
+
+
+
+f (ℓ)(x) ≤ f ∗
+
+≈ Φ f ∗ − μ(ℓ) 
+
+> f
+
+(x)˜σ(ℓ) 
+
+> f
+
+(x)
+
+!
+
+Pr 
+
+
+
+c(ℓ) 
+
+> i
+
+(x) ≤ 0
+
+
+
+≈ Φ − μ(ℓ) 
+
+> ci
+
+(x)˜σ(ℓ) 
+
+> ci
+
+(x)
+
+!
+
+.
+
+(17) with Φ( •) being the cumulative distribution function of a standard Gaussian. We emphasise that the cor-rected variance ˜ σ(ℓ) is always computed with respect to the predictive mean μ(L) and variance σ(L) of data source L, since the goal is to reduce uncertainty about the target-source optimum f ∗.This follows from the fact that the mutual information gained by evaluating at source ℓ can be interpreted as upper bounded: 
+
+I(u(ℓ)(x); f ∗) ≤ I(u(L)(x); f ∗), (18) with reduction scaled by ρ2(x, ℓ ), as illustrated in Fig-ure 2. Importantly, the scaling also prevents overcon-fidence of auxiliary models which may appear more certain due to being trained on a larger data set. −1.0 −0.5 0.0 0.5 1.0Constraint value c(x)                
+
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0Probability density
+> Pr( c(x)≤0) ≈0.69 Pr( c(x)≤0) ≈0.66 Pr( c(x)≤0) ≈0.63
+> ρ= 1 .0
+> ρ= 0 .8
+> ρ= 0 .1
+
+Figure 2: Illustration of the variance correction (see Equation 17), depending on the correlation coefficient 
+
+ρ ∈ [1 .0, 0.8, 0.1] whereas ρ = 1 .0 denotes perfect cor-relation. This correction is crucial in early-stage optimisation, where feasible regions are unknown and auxiliary sources may be misleading. By inflating variances at untrusted sources (when ρ2 ≈ 0), the model can still assign non-negligible feasibility probability as uncer-tainty is high. Rather than discarding such points, the acquisition function keeps encouraging exploration near the feasibility boundary. Details on how the cor-relation is computed in case of the MISO model can be found in Appendix A.2 
+
+Trust region acquisition optimisation. To fur-ther increase the efficiency and scalability, we restrict acquisition optimisation to a dynamically updated 
+
+trust region (TR), centred at the best observed point 
+
+x† ∈ D n, restricted to all points where ℓ = L, following the idea of (Eriksson and Poloczek, 2021): 
+
+x† = arg max 
+
+> (xi,L )∈D n
+
+f (L)(xi) s.t. c(L) 
+
+> j
+
+(xi) ≤ 0, ∀j, (19) or, if no feasible point is known, as the one with mini-mal total constraint violation. The TR is defined as a hypercube around x† with side length r, as 
+
+T (x†, r ) = x ∈ X x† − r 
+
+> 2
+
+≤ x ≤ x† + r 
+
+> 2
+
+}, (20) clipped to the domain X = [0 , 1] d. Hence, the K sam-ples {f ∗ 
+
+> k
+
+}Kk=1 are generated within T , and candidate points are then selected by (x+, ℓ +) = arg max  
+
+> x∈T (x†,r ), ℓ ∈S
+
+αn(x, ℓ )
+
+λ(x, ℓ ) . (21) Depending on the progress of the optimisation, r
+
+shrinks or expands. More details can be found in Appendix A.3. A summary of the acquisition strategy Constrained Bayesian Optimisation with Multiple Information Sources 
+
+Algorithm 1 MS-CMES: Multi-Source Constrained Max-value Entropy Search 
+
+Require: Initial multi-source GP models for the ob-jective and constraints, budget B, cost model 
+
+λ(x, ℓ ), Number of MC samples K
+
+1: Initialise data D ← { (xi, ℓ i, f (ℓi)(xi), c (ℓi) 
+
+> j
+
+(xi)) }ni=1 
+
+2: while Computational budget is not exhausted do 
+
+3: Sample {f ∗ 
+
+> k
+
+}Kk=1 using GP (L)(·) posteriors in T
+
+4: Solve ( x+, ℓ +) ← arg max x∈T , ℓ ∈S 
+
+> αn(x,ℓ )
+> λ(x,ℓ )
+
+5: Query all outputs at ( x+, ℓ +)
+
+6: Dn+1 ← D n ∪ { (x+, ℓ +, f (ℓ+)(x+), c (ℓ+) 
+
+> j
+
+(x+)) }
+
+7: Update GP models using Dn+1 
+
+8: end while 
+
+is provided in Algorithm 1, where the optimisation problem in Line 4 is solved using gradient ascent. The complexity is discussed in Appendix B. Summarising, the key novelty lies in combining a constrained, entropy-based information gain crite-rion with explicit multi-source modelling and variance correction. Unlike previous single-source constrained BO methods (Takeno et al., 2022) or multi-source methods without constraints (Poloczek et al., 2016), MS-CMES provides the first principled acquisition rule for constrained optimisation that automatically down-weights uninformative sources. 
+
+## 5 Numerical Experiments 
+
+We present numerical experiments that first com-pare multi-source models and their scalability with in-creasing dimensionality, then benchmark the proposed MS-CMES acquisition strategy against state-of-the-art methods, followed by an ablation study and pa-rameter sensitivity analysis. 
+
+5.1 Scalability of Gaussian Processes with Multiple Data Sources 
+
+We compare the performance of the MISO model (Subsection 3.3) against three representative alterna-tives: the Kennedy–O’Hagan (KOH) model (Kennedy and O’Hagan, 2000; Forrester et al., 2007), multi-task Gaussian processes (MTGP) (Bonilla et al., 2007), and a standard GP trained only on target-source data. As test function we use the Rosenbrock function (Rosen-brock, 1960) in dimensions d ∈ { 10 , 50 , 100 }. The tar-get source contains nL = d data points, while the aux-iliary source contains nℓ = 4 d. Auxiliary signals with no, weak, and strong correlation are constructed fol-lowing the procedure in Appendix D. Figure 3 reports the normalised RMSE averaged over 10 random seeds. 10 50 100 Dimensionality ( D)
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0Normalised RMSE
+> Single Fidelity MTGP (strong) MISO (strong) KOH (strong) MTGP (weak) MISO (weak) KOH (weak) MTGP (uncorrelated) MISO (uncorrelated) KOH (uncorrelated)
+
+Figure 3: Model comparison across problem dimen-sionalities d ∈ {10 , 50 , 100 } using the Rosenbrock benchmark. Results show the normalised RMSE av-eraged over ten random seeds, error bars indicate 1 σ
+
+standard deviation.. When auxiliary and target sources are strongly cor-related, all multi-source models achieve comparable accuracy and consistently outperform the single-source GP. This behaviour is expected in settings such as mesh-refined aerodynamic solvers, where lower-cost simulations preserve much of the structural information of their high-cost counterparts. By contrast, strong correlations cannot always be assumed. In scenarios where simulators represent the same physical system but differ substantially, or where simulation data complements experimental data, the outputs are often weakly correlated or structurally divergent. In such cases, models such as KOH and MTGP, which impose a strict hierarchy or assume shared latent structure, show degraded performance. MISO, by explicitly modelling source-specific discrepancies, remains robust across a wide range of inter-source correlations. Notably, even when auxiliary sources are entirely uninformative or uncorrelated, the performances of MISO and MTGP do not degrade much below that of a single-source GP trained only on high-fidelity data. In contrast, KOH, which assumes a strict hierarchy between sources, performs significantly worse in such settings. This robustness makes MISO particularly well-suited for general multi-source optimisation, especially when the relationships between sources are unknown, weak, or heterogeneous. 
+
+5.2 Benchmark Tests 
+
+To evaluate performance and scalability, we select five constrained benchmark problems with dimen-sionalities ranging from d = 4 − 100. These in-Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+clude the physics-based Pressure Vessel benchmark (Coello Coello and Mezura Montes, 2002), the Rosen-brock function with two constraints (Rosenbrock, 1960), the (Rotated) Rastrigin and the Different Pow-ers function (Dufoss´ e et al., 2022). More information can be found in Appendix G. We use the approach pre-sented in Appendix D to derive a corrupted, weakly correlated signal for each objective and constraint of the respective function. Moreover, we focus on the practically relevant regime of low to moderate eval-uation budgets, specifically up to 200 evaluations of the target information source, as common in scenar-ios where evaluation costs of the target source are immense (Pretsch et al., 2025). The corresponding code can be found at github.com/released/upon/ acceptance .
+
+MS-CMES Setup. In our MS-CMES implementa-tion, we adopt a constant cost model, depending only on the data source, with cost weights cL = 1000 for the target source and cℓ = 1 for the auxiliary source (more information on the cost function can be found in Appendix F). This translates to an evaluation budget of c ≈ 2 · 10 5. We use K = 32 samples to approxi-mate f ∗ and initialise the optimisation with a ratio of 
+
+nℓ/n L = 5 points during the design of experiments. 
+
+Baseline methods. We compare our method against several state-of-the-art single- and multi-source approaches for constrained BO. These in-clude SCBO (Eriksson and Poloczek, 2021), FuRBO (Ascia et al., 2025), a vanilla BO (VBO) base-line with dimensionality-scaled lengthscale priors (Hvarfner et al., 2024) using LogCEI (Ament et al., 2023) as the acquisition function, and a random search baseline. We also compare against CMES-IBO, the information-theoretic constrained BO method pro-posed by Takeno et al. (2022), which our work extends. In Appendix E, we introduce a minor modification to this method and refer to the modified version as CMES-IBO+. Additionally, we include Constrained Multi-Fidelity Bayesian Optimisation (CMFBO) from Foumani and Bostanabad (2025) as a representative fidelity-aware baseline. We do not include PESC (Hern´ andez-Lobato et al., 2017) in our comparison, as it has previously been shown to be outperformed by SCBO (Eriksson and Poloczek, 2021). 
+
+Results. All GP models use Mat´ ern kernels and are trained jointly across sources. For benchmarks with 
+
+d ≥ 40, we use a batch size of q = 5 and n0 = 50 initial samples, while for the Pressure Vessel benchmark we use q = 1 and n0 = 10 initial samples. For multi-source methods we use 5 n0 auxiliary source samples. The results are depicted in Figure 4, averaged over ten random seeds with mean and variance reported. We emphasise that in multi-source methods only outputs on the target source f (L), c (L)1 , ..., c (L) 
+
+> g
+
+determine the optimality and feasibility of a sample. Moreover, when no feasible point has been found, we assign its value to the highest feasible objective discovered so far. On the Pressure Vessel benchmark, all meth-ods perform similarly, though MS-CMES achieves slightly better results than CMES-IBO+. CMFBO struggles to converge and random search fails to discover a feasible point. On the Rastrigin family (standard, rotated) and the Different Powers bench-mark, most methods find it difficult to locate the first feasible point. Here, MS-CMES stands out, significantly outperforming alternatives, whereas CMFBO, CMES-IBO+, VBO, and random never find a single feasible sample. SCBO performs somewhat better but is eventually surpassed by FuRBO. On the Rosenbrock benchmark, CMFBO and random again fail to converge, while VBO and CMES-IBO+ achieve promising final values but are clearly outperformed by MS-CMES. Overall, MS-CMES delivers the strongest per-formance, particularly on the more challenging high-dimensional problems. On the Pressure Vessel benchmark, performance is broadly comparable across methods, though MS-CMES still surpasses CMES-IBO+, highlighting the benefits of incorporating auxiliary information. The advantage of our approach becomes especially evident in higher dimensions: whereas most baselines fail to identify any feasible point even after many iterations, MS-CMES discovers feasible solutions immediately after the initial design. Although the auxiliary signals are only weakly corre-lated (see Appendix D), exploiting them proves highly beneficial, enabling MS-CMES to locate feasible regions early and substantially enhance optimisation performance. 
+
+5.3 Ablation and Parameter Study 
+
+We further examine the effect of the trust region (TR) heuristic by comparing MS-CMES with and without TR-constrained acquisition optimisation, see Figure 9 in Appendix H. In the unconstrained variant, f ∗ is sampled and Equation 21 is optimised over the full domain X rather than within the adaptive TR (in T ). Both variants perform similarly on Pressure Vessel and Rosenbrock, but the TR heuristic provides clear efficiency gains on the more challenging high-dimensional problems. This indicates that dynamically restricting the search space helps concentrate exploration and prevents drifting into Constrained Bayesian Optimisation with Multiple Information Sources 0.00 0.25 0.50 0.75 1.00 Cost ×10 5                                   
+
+> 10000
+> 15000 Function value
+> Pressure Vessel d= 4 , g = 4
+> 0.00.51.01.52.0Cost ×10 5
+> 35000
+> 40000
+> 45000
+> 50000 Function value
+> Different Powers d= 40 , g = 9
+> 0.00.51.01.52.0Cost ×10 5
+> 10000
+> 15000
+> 20000 Function value
+> Rastrigin d= 40 , g = 9
+> 0.00.51.01.52.0Cost ×10 5
+> 10000
+> 20000 Function value
+> Rotated Rastrigin d= 40 , g = 9
+> 0.00.51.01.52.0Cost ×10 5
+> 0
+> 20000
+> 40000 Function value
+> Rosenbrock d= 100 , g = 2 MS-CMES CMFBO CMES-IBO+ VBO SCBO FuRBO Random Search
+
+Figure 4: Comparison of optimisation performance across five constrained benchmark problems with dimension-alities up to d = 100. Results are averaged over ten random seeds, shaded regions indicate 1 σ standard deviation. unpromising regions. We also investigate the impact of the number of Monte Carlo samples K used to estimate the entropy bound. Figure 8 in Appendix H shows that while performance improves slightly for larger K, moderate values as K = 10 are already sufficient. This under-lines the robustness of the method, consistent with the findings of Takeno et al. (2022). 
+
+## 6 Conclusion 
+
+We introduced MS-CMES, the first information-theoretic framework for constrained Bayesian optimi-sation with multiple information sources. By explic-itly modelling inter-source correlations and evaluation costs, MS-CMES leverages inexpensive, approximate sources for early exploration while reserving costly tar-get evaluations for refinement. Across a diverse set of benchmarks, we demonstrated that MS-CMES consis-tently outperforms established baselines in both iden-tifying feasible regions and converging towards opti-mal solutions. These results highlight the promise of multi-source modelling for constrained optimisation in domains ranging from engineering design to drug dis-covery. 
+
+Limitations. Our current formulation assumes that the objective and all constraints are evaluated jointly at a given source. While this assumption holds natu-rally in many simulation-based settings, it is restrictive in cases where partial observations are available (e.g. objective-only or constraint-only measurements). Ex-tending MS-CMES to accommodate selective output queries would require acquisition strategies capable of balancing heterogeneous information gains. Moreover, the method currently presumes that auxiliary sources exist for every objective and constraint. In problems where this is not the case, the framework could eas-ily be adapted by defaulting to single-source models for missing signals. Finally, performance depends on the quality of the user-specified cost function λ(x, ℓ ). If costs are poorly estimated, the optimisation may misallocate evaluations, making careful cost modelling crucial in practice. 
+
+Future Work. Several promising directions remain. Extending the framework to support partial-output queries would increase flexibility in settings where ob-jectives and constraints can be decoupled. In addi-tion, scalable generative models trained on archival data offer a particularly promising avenue. We believe that by treating such models as auxiliary information sources, organisations could recycle past experiments and simulations, effectively turning historical data into a reusable asset that accelerates and guides future op-timisation. Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+## References 
+
+Elena Raponi, Mariusz Bujny, Markus Olhofer, Nikola Aulig, Simonetta Boria, and Fabian Duddeck. Kriging-assisted topology optimization of crash structures. Computer Methods in Applied Mechan-ics and Engineering , 348:730–752, May 2019. ISSN 00457825. doi:10.1016/j.cma.2019.02.002. Jian Wu, Saul Toscano-Palmerin, Peter I. Frazier, and Andrew Gordon Wilson. Practical Multi-fidelity Bayesian Optimization for Hyperparameter Tuning, 2019. Version Number: 1. Hauke Maathuis, Saullo G. P. Castro, and Roeland De Breuker. Exploring Multi-Fidelity Aeroelastic Tai-loring: Prospect and Model Assessment, November 2024. arXiv:2411.03247 [cs]. Nicole Aretz, Max Gunzburger, Mathieu Morlighem, and Karen Willcox. Multifidelity uncertainty quan-tification for ice sheet simulations. Computational Geosciences , 29(1):5, February 2025. ISSN 1420-0597, 1573-1499. doi:10.1007/s10596-024-10329-3. Shreyas Anand, Ren´ e Alderliesten, and Saullo G.P. Castro. Crashworthiness in preliminary de-sign: Mean crushing force prediction for closed-section thin-walled metallic structures. 
+
+International Journal of Impact Engineer-ing , 188:104946, June 2024. ISSN 0734743X. doi:10.1016/j.ijimpeng.2024.104946. M. C. Kennedy and A. O’Hagan. Predicting the out-put from a complex computer code when fast ap-proximations are available. Biometrika , 87(1):1–13, 2000. ISSN 00063444, 14643510. Alexander I.J Forrester, Andr´ as S´ obester, and Andy J Keane. Multi-fidelity optimization via surrogate modelling. Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences ,463(2088):3251–3269, December 2007. ISSN 1364-5021, 1471-2946. doi:10.1098/rspa.2007.1900. Kirthevasan Kandasamy, Gautam Dasarathy, Jeff Schneider, and Barnabas Poczos. Multi-fidelity Bayesian Optimisation with Continuous Approxi-mations, 2017. Version Number: 1. Matthias Poloczek, Jialei Wang, and Peter I. Frazier. Multi-Information Source Optimization, November 2016. arXiv:1603.00389 [stat]. Shion Takeno, Hitoshi Fukuoka, Yuhki Tsukada, Toshiyuki Koyama, Motoki Shiga, Ichiro Takeuchi, and Masayuki Karasuyama. Multi-fidelity Bayesian Optimization with Max-value Entropy Search and its parallelization, February 2020. arXiv:1901.08275 [stat]. Loic Le Gratiet. Recursive co-kriging model for De-sign of Computer experiments with multiple levels of fidelity with an application to hydrodynamic, Jan-uary 2013. arXiv:1210.0686 [math]. P. Perdikaris, M. Raissi, A. Damianou, N. D. Lawrence, and G. E. Karniadakis. Nonlinear in-formation fusion algorithms for data-efficient multi-fidelity modelling. Proceedings of the Royal Soci-ety A: Mathematical, Physical and Engineering Sci-ences , 473(2198):20160751, February 2017. ISSN 1364-5021, 1471-2946. doi:10.1098/rspa.2016.0751. Petrus Mikkola, Julien Martinelli, Louis Filstroff, and Samuel Kaski. Multi-Fidelity Bayesian Optimiza-tion with Unreliable Information Sources, 2022. Ver-sion Number: 2. Zahra Zanjani Foumani and Ramin Bostanabad. Constrained multi-fidelity Bayesian optimization with automatic stop condition, March 2025. arXiv:2503.01126 [cs]. Oihan Cordelier, Youssef Diouane, Nathalie Bartoli, and Eric Laurendeau. Multi-Fidelity Constrained Bayesian Optimization with Application to Aircraft Wing Design. In AIAA AVIATION FORUM AND ASCEND 2025 , Las Vegas, Nevada, July 2025. American Institute of Aeronautics and Astronau-tics. ISBN 978-1-62410-738-2. doi:10.2514/6.2025-3474. Jos´ e Miguel Hern´ andez-Lobato, Matthew W. Hoff-man, and Zoubin Ghahramani. Predictive Entropy Search for Efficient Global Optimization of Black-box Functions, June 2014. arXiv:1406.2541 [stat]. Zi Wang and Stefanie Jegelka. Max-value Entropy Search for Efficient Bayesian Optimization, January 2018. arXiv:1703.01968 [stat]. Binxin Ru, Mark McLeod, Diego Granziol, and Michael A. Osborne. Fast Information-theoretic Bayesian Optimisation, June 2018. arXiv:1711.00673 [stat]. Henry B. Moss, David S. Leslie, Javier Gonza-lez, and Paul Rayson. GIBBON: General-purpose Information-Based Bayesian OptimisatioN, October 2021. arXiv:2102.03324 [cs]. Jos´ e Miguel Hern´ andez-Lobato, Michael A. Gelbart, Ryan P. Adams, Matthew W. Hoffman, and Zoubin Ghahramani. A General Framework for Con-strained Bayesian Optimization using Information-based Search, September 2016. URL http: //arxiv.org/abs/1511.09422 . arXiv:1511.09422 [stat]. Valerio Perrone, Iaroslav Shcherbatyi, Rodolphe Je-natton, Cedric Archambeau, and Matthias Seeger. Constrained Bayesian Optimization with Max-Value Entropy Search, October 2019. arXiv:1910.07003 [stat]. Constrained Bayesian Optimisation with Multiple Information Sources 
+
+Shion Takeno, Tomoyuki Tamura, Kazuki Shitara, and Masayuki Karasuyama. Sequential and parallel constrained max-value entropy search via informa-tion lower bound. In Kamalika Chaudhuri, Stefanie Jegelka, Le Song, Csaba Szepesvari, Gang Niu, and Sivan Sabato, editors, Proceedings of the 39th Inter-national Conference on Machine Learning , volume 162 of Proceedings of Machine Learning Research ,pages 20960–20986. PMLR, 17–23 Jul 2022. David Eriksson and Matthias Poloczek. Scal-able Constrained Bayesian Optimization, February 2021. URL http://arxiv.org/abs/2002.08526 .arXiv:2002.08526 [cs, stat]. Paolo Ascia, Elena Raponi, Thomas B¨ ack, and Fabian Duddeck. Feasibility-Driven Trust Region Bayesian Optimization, June 2025. arXiv:2506.14619 [cs]. Carl Hvarfner, Erik Orm Hellsten, and Luigi Nardi. Vanilla Bayesian Optimization Performs Great in High Dimensions, December 2024. arXiv:2402.02229 [cs]. Leonard Papenmeier, Matthias Poloczek, and Luigi Nardi. Understanding High-Dimensional Bayesian Optimization, June 2025. arXiv:2502.09198 [cs]. Sebastian Ament, Samuel Daulton, David Eriks-son, Maximilian Balandat, and Eytan Bakshy. Unexpected Improvements to Expected Improve-ment for Bayesian Optimization, January 2023. arXiv:2310.20708 [cs]. Hauke F. Maathuis, Roeland De Breuker, and Saullo G. P. Castro. Scaling Bayesian Optimization for High-Dimensional and Large-Scale Constrained Spaces. AIAA Journal , pages 1–11, July 2025. ISSN 0001-1452, 1533-385X. doi:10.2514/1.J065252. Kiyoung Om, Kyuil Sim, Taeyoung Yun, Hyeongyu Kang, and Jinkyoo Park. Posterior Inference in La-tent Space for Scalable Constrained Black-box Op-timization, July 2025. arXiv:2507.00480 [cs]. Harold J Kushner. A versatile stochastic model of a function of unknown and time varying form. 
+
+Journal of Mathematical Analysis and Applica-tions , 5(1):150–167, August 1962. ISSN 0022247X. doi:10.1016/0022-247X(62)90011-2. H. J. Kushner. A New Method of Locating the Max-imum Point of an Arbitrary Multipeak Curve in the Presence of Noise. Journal of Basic Engineer-ing , 86(1):97–106, March 1964. ISSN 0021-9223. doi:10.1115/1.3653121. Peter I. Frazier. A Tutorial on Bayesian Optimiza-tion, July 2018. URL http://arxiv.org/abs/ 1807.02811 . arXiv:1807.02811 [cs, math, stat]. Jacob R Gardner, Matt J Kusner, and Gardner Jake. Bayesian Optimization with Inequality Constraints. 
+
+31st International Conference on Machine Learning, Beijing, China, 2014 , 2014. Michael A Gelbart, Jasper Snoek, and Ryan P Adams. Bayesian Optimization with Unknown Constraints, 2014. Carl Edward Rasmussen and Christopher K. I. Williams. Gaussian processes for machine learn-ing . Adaptive computation and machine learning. MIT Press, Cambridge, Mass, 2006. ISBN 978-0-262-18253-9. OCLC: ocm61285753. Edwin V. Bonilla, Felix V. Agakov, and Christopher K. I. Williams. Kernel multi-task learning using task-specific features. In Marina Meila and Xi-aotong Shen, editors, Proceedings of the Eleventh International Conference on Artificial Intelligence and Statistics , volume 2 of Proceedings of Machine Learning Research , pages 43–50, San Juan, Puerto Rico, 21–24 Mar 2007. PMLR. Henry B. Moss, David S. Leslie, and Paul Rayson. MUMBO: MUlti-task Max-value Bayesian Opti-mization, June 2020. arXiv:2006.12093 [cs]. H. H. Rosenbrock. An Automatic Method for Find-ing the Greatest or Least Value of a Function. The Computer Journal , 3(3):175–184, March 1960. ISSN 0010-4620, 1460-2067. doi:10.1093/comjnl/3.3.175. Carlos A. Coello Coello and Efr´ en Mezura Montes. Constraint-handling in genetic algorithms through the use of dominance-based tournament selection. 
+
+Advanced Engineering Informatics , 16(3):193–203, July 2002. ISSN 14740346. doi:10.1016/S1474-0346(02)00011-3. Paul Dufoss´ e, Nikolaus Hansen, Dimo Brockhoff, Phillipe R Sampaio, Asma Atamna, and Anne Auger. Building scalable test problems for bench-marking constrained optimizers. Technical report, Technical Report. http://numbbo. github. io/coco-doc/bbob-constrained/To be . . . , 2022. Lisa Pretsch, Ilya Arsenyev, Nathalie Bartoli, and Fabian Duddeck. Bayesian optimization of coop-erative components for multi-stage aero-structural compressor blade design. Structural and Mul-tidisciplinary Optimization , 68(4):84, April 2025. ISSN 1615-147X, 1615-1488. doi:10.1007/s00158-025-03998-w. Jos´ e Miguel Hern´ andez-Lobato, James Requeima, Ed-ward O. Pyzer-Knapp, and Al´ an Aspuru-Guzik. Parallel and Distributed Thompson Sampling for Large-scale Accelerated Exploration of Chemical Space, 2017. URL https://arxiv.org/abs/1706. 01825 .Jacob R. Gardner, Geoff Pleiss, David Bindel, Kil-ian Q. Weinberger, and Andrew Gordon Wilson. Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+GPyTorch: Blackbox Matrix-Matrix Gaussian Pro-cess Inference with GPU Acceleration, June 2021. arXiv:1809.11165 [cs]. Maximilian Balandat, Brian Karrer, Daniel R. Jiang, Samuel Daulton, Benjamin Letham, Andrew Gor-don Wilson, and Eytan Bakshy. BoTorch: A Frame-work for Efficient Monte-Carlo Bayesian Optimiza-tion. In Advances in Neural Information Processing Systems 33 , 2020. URL http://arxiv.org/abs/ 1910.06403 .Supplementary Materials 
+
+## A Details on MS-CMES 
+
+This appendix complements Section 4 by providing detailed derivations for the variational bound used in MS-CMES, the associated variance correction mechanism that accounts for discrepancies between information sources and the trust region heuristic. 
+
+A.1 Variational Bound and Variance Correction in MS-CMES 
+
+We aim to compute the mutual information between a new observation u(ℓ) and the unknown constrained optimum f ∗. This quantity is defined as: 
+
+I(u(ℓ); f ∗) = Ef ∗
+
+h
+
+DKL 
+
+
+
+p(u(ℓ) | f ∗) ∥ p(u(ℓ))
+
+i 
+
+= Ef ∗
+
+
+
+Eu(ℓ)|f ∗
+
+
+
+log p(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+ | {z }
+
+> (∗)
+
+(22) This follows from the standard mutual information identity I(X; Y ) = EY [D KL (p(X | Y ) ∥ p(X))] with D KL 
+
+being the Kullback-Leibler divergence. However, p(u(ℓ) | f ∗) is intractable to compute directly. We continue to follow the approach of Takeno et al. (2022) who introduce a variational distribution q(u(ℓ) | f ∗): 
+
+Eu(ℓ)|f ∗
+
+
+
+log p(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+
+
+= Eu(ℓ)|f ∗
+
+
+
+log q(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+
+
++ D KL 
+
+
+
+q(u(ℓ) | f ∗) ∥ p(u(ℓ) | f ∗)
+
+
+
+≥ Eu(ℓ)|f ∗
+
+
+
+log q(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+ (23) Since D KL (· ∥ · ) ≥ 0 we end up at the information source-dependent lower bound. Inserting Equation 23 into Equation 22, we can write: 
+
+I(u(ℓ); f ∗) ≥ Ef ∗
+
+
+
+Eu(ℓ)|f ∗ log q(u(ℓ) | f ∗)
+
+p(u(ℓ)(x)) 
+
+
+
+(24) This lower bound quantifies the expected information gain obtained by observing whether the evaluation ( x, ℓ )yields a realisation within the feasible region associated with the current value of the constrained optimum f ∗.In the unconstrained case, the variational distribution q(u | f ∗) corresponds to a truncated Gaussian. In the constrained setting, we define q(u | f ∗) as the normalised posterior over the joint outputs, restricted to the feasible set F ⊂ Rg+1 , i.e. F := ( −∞ , f ∗] × (−∞ , 0] g . We define the feasibility probability Pr( u(ℓ) ∈ F ) at data source ℓ as: Pr( u(ℓ) ∈ F ) = Pr 
+
+
+
+f (ℓ)(x) ≤ f ∗ GY
+
+> i=1
+
+Pr 
+
+
+
+c(ℓ) 
+
+> i
+
+(x) ≤ 0
+
+
+
+(25) where Φ( •) is the commulative distribution function of a standard Gaussian. Using this, the variational distri-bution q(u(ℓ) | f ∗) is defined as 
+
+q(u(ℓ) | f ∗) = 
+
+
+
+p(u(ℓ))Pr( u(ℓ) ∈ F ) if u(ℓ) ∈ F 
+
+0 otherwise (26) Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+Substituting Equation 26 into the lower bound in Equation 24 gives: 
+
+αn(x, ℓ ) := Ef ∗
+
+
+
+Eu(ℓ)|f ∗ log q(u(ℓ) | f ∗)
+
+p(u(ℓ))
+
+
+
+= Ef ∗
+
+Z 
+
+p(u(ℓ)|f ∗) log q(u(ℓ)|f ∗)
+
+p(u(ℓ)) du(ℓ)
+
+
+
+= Ef ∗
+
+Z 
+
+p(u(ℓ)|f ∗) log p(u(ℓ))Pr( u(ℓ) ∈ F )p(u(ℓ)) du(ℓ)
+
+
+
+= Ef ∗
+
+Z 
+
+p(u(ℓ)|f ∗) log 1Pr( u(ℓ) ∈ F ) du(ℓ)
+
+
+
+= Ef ∗
+
+
+
+− log Pr( u(ℓ) ∈ F )
+
+Z
+
+p(u(ℓ)|f ∗) du(ℓ)
+
+
+
+= Ef ∗
+
+h
+
+− log Pr( u(ℓ) ∈ F )
+
+i
+
+(27) Finally, the expected value is approximated with K samples as 
+
+Ef ∗
+
+h
+
+− log Pr( u(ℓ) ∈ F )
+
+i
+
+≈ − 1
+
+K
+
+> K
+
+X
+
+> k=1
+
+log Pr( u(ℓ) ∈ F ) (28) 
+
+A.2 Variance Correction 
+
+Recalling the setup of the multi-source model in Equations 5 and 7, we can quantify the correlation (Rasmussen and Williams, 2006) with: 
+
+ρ(x, ℓ ) = Cov  u(L)(x), u (ℓ)(x)
+
+σL(x)σℓ(x)= σL(x)
+
+σL(x) + σ∆(x) ∈ (0 , 1] .
+
+(29) with Cov  u(ℓ)(x), u (L)(x) = Var  u(L)(x) = σL2. From that, it follows that ρ(x, L ) ≡ 1. The discrepancy ∆(ℓ) increases predictive variance at more inaccurate data sources which changes the shape of the conditional distribution. 
+
+A.3 Trust-Region Constrained Optimisation of the Acquisition Function 
+
+We constrain the optimisation of the acquisition function to a dynamically updated trust region (TR) in order to stabilise the search. This idea, inspired by Eriksson and Poloczek (2021), focuses optimisation on promising neighbourhoods around the current best observed solution, which is particularly beneficial in high-dimensional settings. At iteration n, let the dataset of all evaluations be Dn = {(xi, ℓ i, f (ℓi)(xi), c (ℓi)1 (xi), . . . , c (ℓi) 
+
+> g
+
+(xi)) }ni=1 .We select x† from the subset of points evaluated at the target source L, i.e. {(xi, ℓ i) ∈ D n | ℓi = L}. If at least one feasible point has been observed, x† is defined as the best feasible point: 
+
+x† = arg max 
+
+> (xi,L )∈D n
+
+f (L)(xi) s.t. c(L) 
+
+> j
+
+(xi) ≤ 0 ∀j. (30) If no feasible point exists, x∗ is chosen as the infeasible point with the smallest total constraint violation: 
+
+x∗ = arg min 
+
+> (xi,ℓ i)∈D n, ℓ i=Lg
+
+X
+
+> j=1
+
+max  0, c (L) 
+
+> j
+
+(xi). (31) The trust region is defined as a hypercube centred at x∗ with side length r:
+
+T (x†, r ) = 
+
+n
+
+x ∈ X x† 
+
+> z
+
+− r 
+
+> 2
+
+≤ xz ≤ x† 
+
+> z
+
++ r 
+
+> 2
+
+, z = 1 , . . . , d 
+
+o
+
+, (32) Constrained Bayesian Optimisation with Multiple Information Sources 
+
+clipped to the global domain X = [0 , 1] d.The side length r is adapted dynamically. Let sn and fn denote counters of consecutive successes and failures, respectively. A success occurs if the new evaluation improves upon the best feasible objective, or reduces total constraint violation relative to x∗. Otherwise, a failure is recorded. When sn reaches a tolerance 
+
+smax , the region is expanded as r ← min(2 r, r max ) and sn is reset. Conversely, if fn reaches fmax , the region is shrunk as r ← 12 r and fn reset. If r falls below rmin , the TR is restarted around the current best point. At each iteration, new candidates are chosen by optimising the cost-scaled acquisition function within the TR: (x+, ℓ +) = arg max  
+
+> x∈T (x†,r ), ℓ ∈S
+
+αn(x, ℓ )
+
+λ(x, ℓ ) . (33) This strategy prevents the optimiser from wasting evaluations in unpromising regions (particularly when auxiliary sources are misleading) and provides a principled balance between local refinement and global exploration through adaptive expansion and contraction of the trust region. 
+
+## B Computational Complexity 
+
+We briefly analyse the computational complexity of the proposed method, separating the cost of model training from that of acquisition optimisation. 
+
+Multi-Source Gaussian Process Model Let n = P 
+
+> ℓ∈S
+
+nℓ denote the total number of observations across sources. The training and inference requires a Cholesky factorisation of the n × n covariance matrix, leading to the classical complexities for time and memory, O(n3) and O(n2). Optimisation of the hyperparameters requires repeated gradient evaluations, hence scales identically. Due to the additive structure, additional kernel parameters are introduced due to the discrepancy GP ∆ (ℓ), compared to a standard, single-source GP. For large data sets n, inducing point methods such as Structured Kernel Interpolation (SKI) or Sparse GPs (SGPR) could be applicable. 
+
+Acquisition function (MS-CMES) The cost of evaluating the acquisition function decomposes as follows: We draw K samples from the posterior of the constrained optimum on a candidate set of size nc to obtain 
+
+f ∗. This costs O(Kn c) plus the cost of GP posterior evaluation on nc candidates. Evaluating α(x, ℓ ), for each candidate x, computing feasibility probabilities involves Gaussian CDFs of the posterior mean/variance. With g
+
+constraints, a batch of b candidates and |S| number of sources, the complexity yields O(bK (g + 1) |S| ). In total this leads to O(Kn c + bK (g + 1) |S| ). 
+
+Computational resources in this work. All experiments were carried out on a compute cluster equipped with Intel Xeon Gold 5218 CPUs (2.3 GHz). All jobs were executed on single CPU nodes without GPU acceler-ation. Runtime per experiment varied with problem dimensionality and evaluation budget but remained within a few hours for the largest benchmarks, showing that the method does not need extensive compute. 
+
+## C Details on Implementation of Models 
+
+C.1 MISO Model 
+
+We implement a variant of the Multi-Information Source Optimisation (MISO) model based on the structure proposed by Poloczek et al. (2016). This subsection accompanies the mathematical description in Section 3.3. Our model assumes a hierarchical design of experiments, wherein each target source evaluation is accompanied by evaluations from all auxiliary sources at the same input location. This nested design is motivated by the assumption that auxiliary sources are inexpensive to query, allowing evaluations to be collected “for free” when-ever a target source point is selected by the acquisition function. The model decomposes the objective into a shared latent function and source-specific discrepancies. Both the base kernel and the discrepancy kernels are in-stantiated as Mat´ ern-5/2 kernels. Discrepancy kernels are masked to activate only on data from their associated source level. These components are combined additively in the covariance module. To capture the magnitude Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+of inter-fidelity variation, we place a log-normal prior on the outputscale of each discrepancy kernel. The prior’s mean is set to the empirical mean squared discrepancy between target and auxiliary source observations across the training data, extracted from the nested design. This reflects an informed prior belief on the relative strength of the discrepancy signal. Finally, the model exposes a utility function that returns the local squared correlation 
+
+ρ2(x) between each auxiliary source and the target source, based on the kernel structure. We implemented the model with the help of GPyTorch (Gardner et al., 2021) and use it within BoTorch (Balandat et al., 2020) for optimisation. 
+
+C.2 KOH Model 
+
+The Kennedy-O’Hagan (KOH) model (Kennedy and O’Hagan, 2000) is a seminal framework for multi-fidelity/ multi-source GP modelling, originally proposed for calibrating computer models using experimental data. It has since become a cornerstone in multi-source BO and surrogate modelling, particularly when relating a cheap but approximate simulator to a more expensive high-fidelity function. In its canonical form, the KOH model assumes a hierarchical structure that expresses the high-fidelity response fL(x) as a scaled version of the low-fidelity model fℓ(x), plus a discrepancy term: 
+
+fL(x) = ρf ℓ(x) + ∆( x), (34) where ρ ∈ R is a scalar calibration or scaling parameter that is learned alongside the other hyperparameters defin-ing the model, fℓ(x) ∼ GP (0 , k ℓ(x, x′)) is a GP representing the low-fidelity simulator, ∆( x) ∼ GP (0 , k ∆(x, x′)) is a discrepancy GP capturing the systematic mismatch between fidelities. Under this model, the joint prior over 
+
+fℓ(·) and fL(·) is analytically tractable and Gaussian, and the posterior predictions retain closed-form expressions under Gaussian noise. This hierarchical design enforces that high-fidelity predictions are informed by low-fidelity evaluations through the shared term fℓ(·), while allowing the discrepancy GP to correct for systematic errors. We implemented this model with the help of GPyTorch (Gardner et al., 2021), using the Mat´ ern-5/2 kernel. 
+
+C.3 MTGP Model 
+
+The MTGP model proposed by Bonilla et al. (2007) offers a principled approach for jointly modelling multiple related outputs (tasks) using a shared GP framework. In the context of multi-source modelling, tasks correspond to different sources, providing a flexible and non-hierarchical alternative to models like KOH. Let fℓ(x) denote the output of task ℓ ∈ { 1, . . . , L } at input x ∈ X . The MTGP assumes that the joint function f (x, ℓ ) is drawn from a GP: 
+
+f (x, ℓ ) ∼ GP (0 , k (( x, ℓ ), (x′, ℓ ′))) , (35) with a covariance function decomposed as: 
+
+k(( x, ℓ ), (x′, ℓ ′)) = kx(x, x′) · kℓ(ℓ, ℓ ′). (36) Here kx is a standard kernel (e.g. RBF or Mat´ ern) defined over the input space, kℓ is a positive semi-definite covariance matrix Kℓ ∈ RL×L that encodes task relationships. This structure allows the MTGP to capture correlations across tasks (sources), enabling knowledge transfer from low-fidelity data to improve predictions at high fidelity. Importantly, unlike the KOH model, MTGPs do not impose any explicit hierarchy or discrepancy structure. Instead, task dependencies are entirely captured through the learned task covariance matrix. In this work, we make use of GPyTorch ’s (Gardner et al., 2021) Multi-Task Gaussian Process implementation (Bonilla et al., 2007), again using the Mat´ ern-5/2 kernel. 
+
+## D Extending Benchmarks to Multi-Fidelities 
+
+Let u(L) : Rd → R denote a target source objective or constraint function. We define a auxiliary source u(ℓ) by applying an input-dependent oscillatory distortion to the function u(L). The distortion is scaled relative to the Constrained Bayesian Optimisation with Multiple Information Sources 
+
+estimated magnitude of each function. Let Sf > 0 denote an empirical estimate of the objective’s scale: 
+
+S := Ex∼U ([0 ,1] d)
+
+h
+
+|u(L)(x)|
+
+i
+
+(37) The oscillatory signal is defined as: 
+
+s(x) := sin 
+
+ 2πd
+
+> d
+
+X
+
+> j=1
+
+xj
+
+ (38) For the weak correlation level, set the relative distortion factor to ρ := 1, for a strong correlation ρ := 0 .1. We define the auxiliary source ˜ u(ℓ) as: 
+
+u(ℓ)(x) := u(L)(x) · 1 + ρS 
+
+max  |u(L)(x)|, ε  · s(x)
+
+!
+
++ ξ (39) with ξ ∼ N (0 , σ 2 
+
+> ξ
+
+). 0.0 0.2 0.4 0.6 0.8 1.0 
+
+> x00.00.20.40.60.81.0
+> x1
+> −1.0
+> −0.8
+> −0.6
+> −0.4
+> −0.20.0
+> ×10 3f (x)
+> f`
+> fL
+
+Figure 5: We use the 40-dimensional Different Powers objective function f and plot a slice along variable x4 to visualise the difference between the target information source fL and the weakly correlated and noisy auxiliary information source fℓ.
+
+## E Baseline Methods: Experiment Setup 
+
+Multi-Source Constrained Max-value Entropy Search In MS-CMES we use the MISO model as discussed in Appendix C.1 and employ discrete Thompson sampling to sample f ∗. Moreover, we use optimize acqf mixed 
+
+in BoTorch Balandat et al. (2020), using 3 restarts and 200 raw samples to maximise the acquisition function. 
+
+Vanilla Bayesian Optimisation Here, we use the dimensionality-scaled lengthscale prior from Hvarfner et al. (2024) and the logarithmic version of Constrained Expected Improvements (logCEI), proposed in Ament et al. (2023). We use 64 MC samples and enable the sample around best option, embedded in BoTorch ’s acquisition function optimiser. More information can be found in Papenmeier et al. (2025). 
+
+Scalable Constrained Bayesian Optimisation We use the same parameters as in Eriksson and Poloczek (2021). The method is implemented in BoTorch and can be found here: https://botorch.org/docs/ tutorials/scalable_constrained_bo/ 
+
+Feasibility-Driven Trust Region Bayesian Optimisation FuRBO is directly built upon SCBO and differs only w.r.t. the trust region heuristic. Here again, we employ the same user-defined parameters as presented in Ascia et al. (2025). The corresponding code was taken from https://anonymous.4open.science/r/FuRBO .Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 
+
+Constrained Max-value Entropy Search Additionally, we compare against the original CMES-IBO meth-ods, proposed in Takeno et al. (2022). While the authors propose to define f ∗ as 
+
+f ∗ := 
+
+
+
+max 
+
+> x∈X f
+
+f (x) if Xf̸ = ∅−∞ else ,
+
+(40) we found that our definition from Equation 10 yields better results as depicted in Figure 6 where we plot the mean and standard deviation over ten runs. For all benchmarks (this Section as well as Section 5.2) we use 
+
+K = 32. Similar to before, we employ discrete Thompson sampling to sample f ∗ and use optimize acqf in 
+
+BoTorch Balandat et al. (2020), using 3 restarts and 200 raw samples. 0 25 50 75 100 Number of evaluations              
+
+> 10000
+> 15000 Function value
+> Pressure Vessel d= 4, g= 4
+> 050 100 150 200 Number of evaluations
+> 0
+> 20000
+> 40000 Function value
+> Rosenbrock d= 100, g= 2 CMES-IBO+ CMES-IBO
+
+Figure 6: Comparison of the original definition of f ∗ (CMES-IBO) verus using the definition in Equation 10, here denoted with CMES-IBO+. 
+
+Constrained Multi-Fidelity Bayesian Optimisation We implemented our own version of the acquisition function in Foumani and Bostanabad (2025) in combination with the introduced MISO model. We use gradient-ascent to maximise the acquisition function. However, to obtain a similar ratio of auxiliary and target source evaluations we noted that we need to set the cost to cL = 0. Like before, we employ optimize acqf in BoTorch 
+
+Balandat et al. (2020), using 3 restarts and 200 raw samples. 
+
+## F Details on Cost Function 
+
+As the cost function needs to be set up such that it reflects the magnitude of the acquisition function scale, we found that in MS-CMES λ(x, ℓ ) = 1 + ℓ 
+
+> 10 5
+
+cℓ balances the number of target and auxiliary source evaluations well. However, for real world problems, the choice of the cost function can be problem specific and needs to reflect the sources it is trying to balance. We emphasise that the choice of cost function is arbitrary as it solely scales the utility value of the acquisition function. To showcase when a target source evaluation is queried, we depict in Figure 7 the accumulated costs over the accumulated evaluations. While auxiliary sources provide cost-effective guidance in early iterations, our acquisition function also continues to select the target source throughout the optimisation. 
+
+## G Details on Benchmark Problems 
+
+We evaluate our method on several well-known constrained test problems to stress different aspects of perfor-mance: 
+
+• The Pressure Vessel benchmark was proposed by Coello Coello and Mezura Montes (2002) with dimen-sionality d = 4 and number of constraints g = 4. The aim is to minimise a total cost of designing the pressure vessel, including the shell and head thicknesses, as well as the inner radius and length of the cylindrical section including some bounds. Constrained Bayesian Optimisation with Multiple Information Sources 0 500 1000 Accumulated evaluations 
+
+0.0
+
+0.5
+
+1.0
+
+1.5Accumulated costs 
+
+×10 5 
+
+> Mean acc. costs DOE
+
+Figure 7: Accumulated evaluation cost as a function of the accumulated number of evaluations. 
+
+• The benchmarks Different Powers , Rastrigin and Rotated Rastrigin (all d = 40 and g = 9) were drawn from the BBOB-constrained suite (Dufoss´ e et al., 2022), These functions are constructed by applying non-linear transformations (e.g. rotations, asymmetric scaling, oscillatory distortions) to the base functions, then overlaying constraint functions so that the feasible region becomes non-trivial. For instance, the Rastrigin and rotated Rastrigin variants combine the highly multimodal base with global rotations, while Different Powers applies coordinate-wise power scaling to create differing levels of smoothness along axes. This set covers both multimodal, non-separable and ill-conditioned landscapes with constraints, making it a rigorous benchmark for constrained multi-source BO. 
+
+• Additionally, we test our method on the Rosenbrock objective (Rosenbrock, 1960) augmented with two nonlinear constraints ( d = 100 and g = 2) defined in Eriksson and Poloczek (2021), which challenges the model in high dimensions and with narrow feasible channels. 
+
+## H Ablation and Parameter Study 0 1 2 3 4 5Cost ×10 4                                      
+
+> 6000
+> 8000
+> 10000
+> 12000 Function value
+> Pressure Vessel d= 4 , g = 4
+> 0.00.51.01.52.0Cost ×10 5
+> 35000
+> 37500
+> 40000
+> 42500 Function value
+> Different Powers d= 40 , g = 9
+> 0.00.51.01.52.0Cost ×10 5
+> 10000
+> 12000 Function value
+> Rastrigin d= 40 , g = 9
+> 0.00.51.01.52.0Cost ×10 5
+> 7500
+> 10000
+> 12500
+> 15000 Function value
+> Rotated Rastrigin d= 40 , g = 9
+> 0.00.51.01.52.0Cost ×10 5
+> 0
+> 5000
+> 10000 Function value
+> Rosenbrock d= 100 , g = 2
+> K= 1
+> K= 10
+> K= 32
+
+Figure 8: Parameter study on the number of MC samples K: optimisation performance for K ∈ { 1, 10 , 30 },showing that already moderate values yield stable results. Hauke Maathuis, Roeland De Breuker, Saullo G. P. Castro, Maike Osborne 0 1 2 3 4 5Cost ×10 4
+
+10000 
+
+15000 
+
+20000 Function value 
+
+Pressure Vessel d = 4 , g = 4 
+
+0.0 0.5 1.0 1.5 2.0Cost ×10 5
+
+36000 
+
+38000 
+
+40000 Function value 
+
+Different Powers d = 40 , g = 9 
+
+0.0 0.5 1.0 1.5 2.0Cost ×10 5
+
+10000 
+
+12000 Function value 
+
+Rastrigin d = 40 , g = 9 
+
+0.0 0.5 1.0 1.5 2.0Cost ×10 5
+
+10000 
+
+15000 Function value 
+
+Rotated Rastrigin d = 40 , g = 9 
+
+0.0 0.5 1.0 1.5 2.0Cost ×10 5
+
+0
+
+5000 
+
+10000 Function value 
+
+Rosenbrock d = 100 , g = 2 Optimisation in T
+
+Optimisation in X
+
+Figure 9: Ablation study on the trust region heuristic: comparison of MS-CMES with and without trust re-gion–constrained acquisition optimisation.

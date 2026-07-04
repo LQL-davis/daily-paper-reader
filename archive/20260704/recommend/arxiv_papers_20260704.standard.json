@@ -1,0 +1,128 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-04T20:17:53.339691+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.29349v1",
+      "source": "arxiv",
+      "title": "PDE-constrained optimization for virtual sensing in structural dynamics: Full-field displacement and force recovery from sparse sensors",
+      "abstract": "Virtual sensing -- recovering full-field structural response from sparse sensor measurements -- is a fundamental challenge in structural health monitoring. This study formulates virtual sensing as a PDE-constrained optimization (PDE-CO) problem, where the governing elastodynamic equation serves as an equality constraint, the applied force distribution is the optimization variable, and the full-field displacement and force are jointly recovered. Gradients of the Tikhonov-regularized objective are computed via reverse-mode automatic differentiation through the forward PDE solver, and L-BFGS iteratively finds the optimal state. The framework couples an offline FEniCSx stage for finite element assembly with an online GPU-accelerated JAX stage, and is verified on three examples of increasing complexity: a cantilever plate, a $90^\\circ$ elbow pipe, and a reactor pressure vessel (RPV) representative of a 300~MW pressurized nuclear reactor. PDE-CO consistently outperforms modal expansion across all three cases, reducing displacement errors by factors of $2$ to $17\\times$ with sub-percent accuracy on every example. Unlike modal expansion, where force is derived by back-calculation from truncated modal coordinates and is not jointly optimized, PDE-CO recovers displacement and force simultaneously through the PDE constraint; the increased computational cost is offset by GPU acceleration delivering up to $64.8\\times$ speedup over CPU.",
+      "authors": [
+        "Minjae Kim",
+        "Jaehwan Jeong",
+        "Jaemin Kim"
+      ],
+      "primary_category": "math-ph",
+      "categories": [
+        "math-ph"
+      ],
+      "published": "2026-06-28T11:42:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.29349v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "virtual sensing formulated as PDE-constrained optimization with elastodynamic equation",
+      "llm_evidence_cn": "将虚拟感知建模为以弹性动力学方程为约束的PDE约束优化问题",
+      "llm_evidence": "将虚拟感知建模为以弹性动力学方程为约束的PDE约束优化问题",
+      "canonical_evidence": "将虚拟感知建模为以弹性动力学方程为约束的PDE约束优化问题",
+      "llm_tldr_en": "This study formulates virtual sensing as a PDE-constrained optimization, recovering full-field displacement and force from sparse sensors by solving an inverse problem with L-BFGS and automatic differentiation, achieving high reconstruction accuracy in numerical experiments.",
+      "llm_tldr_cn": "本研究将结构健康监测中的虚拟感知问题形式化为PDE约束优化，以弹性动力学方程作为等式约束，结合Tikhonov正则化和L-BFGS优化器，通过自动微分计算梯度，从稀疏传感器数据中联合恢复全场位移和载荷力；数值实验验证了该方法在损伤检测等任务中的高效重建性能。",
+      "llm_tldr": "本研究将结构健康监测中的虚拟感知问题形式化为PDE约束优化，以弹性动力学方程作为等式约束，结合Tikhonov正则化和L-BFGS优化器，通过自动微分计算梯度，从稀疏传感器数据中联合恢复全场位移和载荷力；数值实验验证了该方法在损伤检测等任务中的高效重建性能。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.00865v1",
+      "source": "arxiv",
+      "title": "Constrained Bayesian Optimisation with Multiple Information Sources",
+      "abstract": "Bayesian Optimisation (BO) under unknown constraints is particularly challenging when feasible regions are small. In such settings, existing methods that typically rely solely on evaluations of the true objective and constraints struggle to efficiently explore the design space. However, many real-world applications offer auxiliary data sources (e.g. surrogate models or simplified simulations) that can support early exploration. Despite this potential, their integration into constrained BO remains largely unexplored. We propose a general multi-source framework that extends constrained Max-value Entropy Search, capturing inter-source correlation while balancing evaluation cost and information gain. Experiments on both synthetic and physics-based benchmarks show that our method efficiently identifies feasible and optimal solutions, even when auxiliary data are only weakly correlated. The proposed approach consistently outperforms existing methods, particularly in early-stage exploration.",
+      "authors": [
+        "Hauke Maathuis",
+        "Roeland De Breuker",
+        "Saullo Castro",
+        "Maike Osborne"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-07-01T12:31:15+00:00",
+      "link": "https://arxiv.org/pdf/2607.00865v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Bayesian optimisation under unknown constraints, where feasible regions are small, directly addresses optimization under boundary constraints.",
+      "llm_evidence_cn": "未知约束下的贝叶斯优化，可行域小，直接解决边界约束下的优化问题。",
+      "llm_evidence": "未知约束下的贝叶斯优化，可行域小，直接解决边界约束下的优化问题。",
+      "canonical_evidence": "未知约束下的贝叶斯优化，可行域小，直接解决边界约束下的优化问题。",
+      "llm_tldr_en": "Proposes a multi-source Bayesian optimization framework for problems with unknown constraints, efficiently exploring small feasible regions by integrating auxiliary data sources, demonstrating improved constraint handling.",
+      "llm_tldr_cn": "针对未知约束下可行域狭小的贝叶斯优化难题，本文提出多信息源约束优化框架。扩展约束最大熵搜索，整合低精度模拟等辅助数据源，通过考虑源间相关性并平衡成本与信息增益，有效探索边界狭窄的可行空间。在合成及物理基准测试中，新方法在强边界约束下成功定位最优解，展现出比单源贝叶斯优化更好的性能。该框架为工程设计中常见的边界约束黑箱优化提供了有力工具，拓宽了贝叶斯优化在复杂优化场景下的应用。",
+      "llm_tldr": "针对未知约束下可行域狭小的贝叶斯优化难题，本文提出多信息源约束优化框架。扩展约束最大熵搜索，整合低精度模拟等辅助数据源，通过考虑源间相关性并平衡成本与信息增益，有效探索边界狭窄的可行空间。在合成及物理基准测试中，新方法在强边界约束下成功定位最优解，展现出比单源贝叶斯优化更好的性能。该框架为工程设计中常见的边界约束黑箱优化提供了有力工具，拓宽了贝叶斯优化在复杂优化场景下的应用。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.01140v1",
+      "source": "arxiv",
+      "title": "Relation-Centric Open-Vocabulary 3D Gaussian Segmentation",
+      "abstract": "Open-vocabulary 3D Gaussian segmentation is challenging because it requires language understanding for diverse queries and accurate separation of Gaussians along object boundaries. Prior approaches either embed language knowledge into individual Gaussians to improve query responsiveness or optimize per-Gaussian instance features to encode object identity. However, these strategies may produce noisy Gaussian segmentations or rely on cost-inefficient per-scene optimization. We propose PairGS, a framework that reframes Gaussian segmentation as modeling pairwise relations between Gaussians. 3D Gaussian representations provide rich signals for relation estimation, such as view contribution weights and multi-view mask evidence. By leveraging these cues, PairGS explicitly constructs a relation graph for segmentation without a heavy optimization process. PairGS first proposes sparse edge candidates using low-dimensional descriptors, computes precise pairwise affinities only on those candidates, and builds a hierarchical cluster tree for multi-granular querying. It achieves state-of-the-art results on open-vocabulary 3D Gaussian segmentation benchmarks, while the fast variant is 50x faster than optimization-based instance-feature approaches.",
+      "authors": [
+        "Eunsung Cha",
+        "Hyunjoon Lee",
+        "Jaesik Park"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-01T16:23:41+00:00",
+      "link": "https://arxiv.org/pdf/2607.01140v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "reframes Gaussian segmentation as modeling pairwise relations to separate Gaussians along object boundaries",
+      "llm_evidence_cn": "将高斯分割重构为建模成对关系以实现沿物体边界的精确分离",
+      "llm_evidence": "将高斯分割重构为建模成对关系以实现沿物体边界的精确分离",
+      "canonical_evidence": "将高斯分割重构为建模成对关系以实现沿物体边界的精确分离",
+      "llm_tldr_en": "PairGS proposes a relation-centric framework for open-vocabulary 3D Gaussian segmentation, leveraging pairwise relations to accurately separate Gaussians at object boundaries, avoiding per-scene optimization and improving boundary quality.",
+      "llm_tldr_cn": "针对开放词汇3D高斯分割中边界分离噪声大和场景优化成本高的问题，PairGS将分割重构为高斯间成对关系建模，利用视角贡献权重和多视角掩膜证据显式优化边界区域的分割准确性，从而在无需逐场景优化的情况下获得更清晰的物体边界，并在多个数据集上验证了有效性。",
+      "llm_tldr": "针对开放词汇3D高斯分割中边界分离噪声大和场景优化成本高的问题，PairGS将分割重构为高斯间成对关系建模，利用视角贡献权重和多视角掩膜证据显式优化边界区域的分割准确性，从而在无需逐场景优化的情况下获得更清晰的物体边界，并在多个数据集上验证了有效性。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "boundary optimization algorithms and their applications",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
