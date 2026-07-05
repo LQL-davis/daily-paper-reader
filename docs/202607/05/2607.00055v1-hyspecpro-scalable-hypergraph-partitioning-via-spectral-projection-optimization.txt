@@ -1,0 +1,364 @@
+Title: HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization
+
+URL Source: https://arxiv.org/pdf/2607.00055v1
+
+Published Time: Thu, 02 Jul 2026 00:02:45 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+# HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization 
+
+## Rongjian Liang 
+
+rliang@nvidia.com NVIDIA Santa Clara, USA 
+
+## Zhuo Feng 
+
+zfeng12@stevens.edu Stevens Institute of Technology Hoboken, USA NVIDIA Santa Clara, USA 
+
+## Haoxing Ren 
+
+haoxingr@nvidia.com NVIDIA Santa Clara, USA 
+
+## Abstract 
+
+Modern VLSI designs comprise tens of billions of components, making scalable hypergraph partitioning critical for parallel and hierarchical optimization. Although multilevel partitioning remains the dominant paradigm, its coarsening stage can distort structural information—especially in hypergraphs with many high-degree hyperedges—leading to increased refinement overhead and lim-ited scalability. Recent approaches incorporate spectral informa-tion to guide coarsening, but only in a heuristic manner, with-out directly optimizing the partitioning objectives. We introduce HySpecPro, a single-level hypergraph partitioner that performs end-to-end optimization in a spectral embedding space. HySpecPro constructs embeddings from a bipartite Laplacian and performs effi-cient projection-based search, supported by a fully GPU-accelerated implementation. Experiments show that HySpecPro delivers cut quality comparable to state-of-the-art multilevel methods while scaling linearly with the total hyperedge degree. 
+
+ACM Reference Format: 
+
+Rongjian Liang, Zhuo Feng, and Haoxing Ren. 2026. HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization. In . ACM, New York, NY, USA, 7 pages. https://doi.org/10.1145/nnnnnnn.nnnnnnn 
+
+## 1 Introduction 
+
+Modern VLSI designs comprise tens of billions of interconnected components, making full-chip optimization computationally prohib-itive and often requiring weeks to months to complete. To improve scalability, circuit netlists are typically decomposed into smaller sub-blocks for parallel or hierarchical optimization. Hypergraphs provide a natural representation of netlists by capturing multi-way connectivity among circuit elements. A central task in this context is hypergraph partitioning [ 13 ], which divides vertices into bal-anced parts while minimizing objectives such as cut size. However, the problem is NP-hard due to its discrete and highly combinatorial nature [ 11 ], necessitating scalable and high-quality approximation algorithms for modern chip design.  
+
+> Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than the author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+> Conference’17, Washington, DC, USA
+> ©2026 Copyright held by the owner/author(s). Publication rights licensed to ACM. ACM ISBN 978-x-xxxx-xxxx-x/YYYY/MM https://doi.org/10.1145/nnnnnnn.nnnnnnn
+
+Figure 1: Analysis of LU230 and its partitioning results. 
+
+## 1.1 Motivations 
+
+State-of-the-art (SOTA) hypergraph partitioners predominantly fol-low the multilevel paradigm [ 12 , 14 , 15 , 19 , 20 ]. KaHyPar [ 20 ], for example, (1) coarsens the hypergraph into successively smaller ones while attempting to preserve structure; (2) computes an initial par-tition on the coarsest hypergraph; and (3) uncoarsens and refines the solution at progressively finer levels. While highly effective, this workflow depends critically on coarsening quality. When coarsen-ing distorts the original structure—particularly in hypergraphs with many high-degree edges—the refinement stage requires extensive local search to recover high-quality solutions, which can dominate runtime and limit scalability. The LU230 testcase from the Titan23 suite [ 17 ] exemplifies this issue. As shown in Figure 5, KaHyPar requires nearly 2500 seconds on LU230, far slower than other similarly sized designs. The run-time breakdown in Figure 1(a) shows that over 98% of total time is spent in refinement. LU230 exhibits a heavy-tailed hyperedge-degree distribution (Figure 1(b)), which makes structure-preserving coarsening particularly challenging. To quantify the resulting in-formation loss, we compare the best achievable cut on the original hypergraph (estimated using several SOTA partitioners) with those obtained on the first two coarsened levels produced by KaHyPar. If  
+
+> arXiv:2607.00055v1 [cs.AR] 30 Jun 2026 Conference’17, July 2017, Washington, DC, USA Rongjian Liang, Zhuo Feng, and Haoxing Ren
+
+coarsening preserved all essential structure, these cut values would be identical. Instead, Figure 1(c) shows substantial discrepancies across levels, indicating that important structural information is lost during coarsening—thereby explaining the unusually large refinement cost on LU230. Spectral techniques have proven highly effective in graph-based applications such as clustering, sparsification, and circuit modeling [8 , 22 , 23 , 25 ] by capturing global structural information through the spectrum of the Laplacian. While spectral graph theory enables nearly-linear algorithms for tasks like sparsification and coarsen-ing [ 16 , 21 ], analogous advances for hypergraphs are still in their early stages. Recent progress in nonlinear diffusion-based Laplacian formulations has provided rigorous theoretical foundations [ 5 , 6 ], extending Cheeger’s inequality to hypergraphs, while practical implementations are still limited. Recent methods [ 14 , 15 ] have explored incorporating spectral information to mitigate coarsening distortion. But they remain bound to the multilevel pipeline where information loss is unavoid-able. Moreover, coarsening is often largely oblivious to the true cost function and balance constraints, shifting these burdens to the refinement stage. Although such approaches often report im-proved cut quality, they rarely achieve better runtime. This raises a key question: Can we step outside the multilevel framework and leverage spectral information more effectively to match the quality of spectral-guided multilevel partitioners while delivering substantially better scalability? 
+
+A separate line of work performs single-level partitioning in a spectral embedding space. Classical spectral clustering partitions vertices using Laplacian eigenvectors but does not enforce balance, requiring substantial post-processing. SpecPart [ 1 , 3, 4] constructs spectral embeddings and refines high-quality initial solutions from multilevel methods using tree sweeps in the embedding space. How-ever, it leverages spectral information indirectly and heuristically, making its cut quality heavily dependent on both the initial solu-tions and the tree construction heuristics. 
+
+## 1.2 Contributions 
+
+This work addresses the limitations of multilevel coarsening and the indirect use of spectral information by introducing a single-level 
+
+hypergraph partitioning paradigm based on end-to-end optimization 
+
+in a spectral embedding space. HySpecPro constructs the embed-ding using the first few Laplacian eigenvectors of the bipartite representation of the hypergraph, and then directly optimizes the partition via a projection-based continuous formulation. Our main contributions are: (1) Single-level partitioning. HySpecPro is, to our knowledge, the first single-level hypergraph partitioner to achieve cut quality competitive with SOTA multilevel methods. (2) End-to-end continuous optimization. We reformulate hy-pergraph partitioning as a continuous problem in the spec-tral embedding space and introduce an efficient projection-optimization procedure that directly targets the objective. (3) GPU-accelerated implementation. HySpecPro features a fully GPU-accelerated pipeline, employing CuPy [ 18 ] for high-throughput eigenvector computation and Deep Graph Library (DGL) [24] for batched evaluation of partition candidates. (4) Strong empirical performance. Experiments on the Titan23 and L_HG suites demonstrate that HySpecPro delivers highly competitive cut sizes while scaling substantially better than leading multilevel methods, particularly on hypergraphs with many high-degree edges. (5) Flexible, integrable framework. HySpecPro’s simple single-level, end-to-end formulation avoids the complex heuristics of prior partitioners, making it easy to adapt to objectives be-yond min-cut and enabling much deeper integration with other optimization engines in VLSI design. (6) Open-source release. To support future research and integra-tion with EDA workflows, we release HySpecPro as open source at https://github.com/NVlabs/HySpecPro. 
+
+## 2 PRELIMINARIES 
+
+This section presents preliminaries necessary for the understand-ing of HySpecPro. We first offer the mathematical formulation for hypergraph partitioning, followed by a brief overview of the Co-variance Matrix Adaptation Evolution Strategy used in HySpecPro. 
+
+## 2.1 Hypergraph Partitioning Formulation 
+
+Hypergraph partitioning seeks to divide the vertices of a hyper-graph into 𝐾 balanced blocks while minimizing the number of cut 
+
+hyperedges, i.e., hyperedges whose pins lie in more than one block. Formally, let H = (𝑉 , 𝐸 ) be a hypergraph with vertex weights 
+
+𝑤 (𝑣 ) > 0 and hyperedge weights 𝜔 (𝑒 ) > 0. A partition of 𝑉 into 𝐾 
+
+disjoint blocks 𝑉 1, . . . , 𝑉 𝐾 induces, for each hyperedge 𝑒 ,
+
+𝜆 𝑒 = { 𝑖 | 𝑒 ∩ 𝑉 𝑖 ≠ ∅ } ,
+
+the number of blocks touched by 𝑒 . The optimization objective is 
+
+min 
+
+> 𝑉 1,...,𝑉 𝐾
+
+cut (H ) =∑︁  
+
+> 𝑒 ∈𝐸
+
+𝜔 (𝑒 ) 1{𝜆 𝑒 > 1}, (1) where 1{·} is the indicator function. Balance constraints with imbalance tolerance 𝜖 ≥ 0 require 
+
+𝑊 𝑖 =∑︁  
+
+> 𝑣 ∈𝑉 𝑖
+
+𝑤 (𝑣 ), 𝑊 =∑︁  
+
+> 𝑣 ∈𝑉
+
+𝑤 (𝑣 ), 𝑊 avg = 𝑊 𝐾 ,𝑊 avg − 𝜖𝑊 ≤ 𝑊 𝑖 ≤ 𝑊 avg + 𝜖𝑊 , 𝑖 = 1, . . . , 𝐾 . (2) For simplicity but without loss of generality, this work focuses on the bipartitioning case ( 𝐾 = 2) with unit vertex and hyperedge weights. Extensions to non-uniform weights are left to future work. 
+
+## 2.2 Covariance Matrix Adaptation Evolution Strategy (CMA-ES) 
+
+CMA-ES [ 10 ] is a stochastic, derivative-free optimization algorithm designed for difficult nonconvex and non-smooth search landscapes. At iteration 𝑡 , the algorithm maintains a multivariate normal distri-bution N ( 𝑚 𝑡 , 𝜎 2 
+
+> 𝑡
+
+𝐶 𝑡 ) over the search space, where 𝑚 𝑡 is the mean, 𝜎 𝑡 
+
+is a global step size, and 𝐶 𝑡 is a full covariance matrix that captures the shape of the search distribution. A population of candidate solutions is sampled from this distribution, evaluated by the objec-tive function, and ranked. The mean is then updated toward the weighted recombination of the best samples. The covariance matrix 
+
+𝐶 𝑡 is adapted to increase variance along directions that consistently lead to better solutions and to reduce variance along unproductive HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization Conference’17, July 2017, Washington, DC, USA 
+
+> Figure 2: Illustration of the spectral projection optimization process in HySpecPro.
+
+directions, enabling automatic learning of the underlying prob-lem geometry. The step size 𝜎 𝑡 is controlled separately through a cumulative path mechanism that encourages long-term progress while preventing premature convergence. CMA-ES is widely used because it is robust, requires no gradient information, adapts to ill-conditioned problems, and performs strongly on small-dimensional (e.g., 3–100) black-box optimization tasks. 
+
+## 3 Methodology 
+
+HySpecPro is a single-level hypergraph partitioning framework that performs end-to-end optimization in a spectral embedding space. It consists of two stages: (1) spectral embedding construction and (2) projection-based optimization, as shown in Figure 2. The following subsections detail these stages, analyze the runtime complexity, and describe two optional enhancements integrated into the framework. 
+
+## 3.1 Spectral Embedding Space Construction 
+
+HySpecPro constructs its embedding space by forming a weighted bipartite representation of the input hypergraph and computing the first few eigenvectors of its normalized Laplacian, as shown in Figure 2(a). These eigenvectors define the spectral embedding used for subsequent optimization. 
+
+Weighted Bipartite Graph Construction. For a hypergraph 
+
+H = (𝑉 , 𝐸 ), we build a weighted bipartite graph B with vertex nodes (one for each 𝑣 ∈ 𝑉 ) and hyperedge nodes (one for each 
+
+𝑒 ∈ 𝐸 ). An undirected edge connects 𝑣 and 𝑒 iff 𝑣 ∈ 𝑒 in H , with weight 𝜔 (𝑒 )/ 𝑑 (𝑒 ), where 𝜔 (𝑒 ) is the hyperedge weight and 𝑑 (𝑒 ) its degree. This normalization prevents high-degree hyperedges from dominating the affinity structure. 
+
+Eigenvector Computation. Let 𝐴 B denote the adjacency ma-trix of B, and define its normalized Laplacian as 
+
+𝐿 B = 𝐼 − 𝐷 −1/2 
+
+> B
+
+𝐴 B 𝐷 −1/2 
+
+> B
+
+,
+
+where 𝐷 B is the diagonal degree matrix. HySpecPro extracts the eigenvectors corresponding to the 𝑆 smallest nontrivial eigenval-ues to obtain an 𝑆 -dimensional spectral embedding of the vertex nodes. These eigenvectors capture global connectivity and form the continuous optimization space used by HySpecPro. 
+
+## 3.2 Projection Optimization 
+
+HySpecPro reformulates 𝐾 -way hypergraph partitioning as the optimization of 𝐾 projection vectors in the spectral embedding space, as shown in Figure 2(b). These projections are then optimized using CMA–ES. 
+
+Hypergraph Partitioning as Projection Optimization. Let 
+
+𝑋 ∈ R|𝑉 | × 𝑆 be the spectral embedding matrix, where row 𝑥 ⊤ 
+
+> 𝑣
+
+en-codes the embedding of vertex 𝑣 . HySpecPro parameterizes a 𝐾 -way partition using a projection matrix 
+
+𝑃 = [𝑝 1, . . . , 𝑝 𝐾 ] ∈ R𝑆 ×𝐾 .
+
+Assignment via projection. Each vertex is assigned to the block with the highest projection score: 
+
+𝑦 𝑣 (𝑃 ) = arg max    
+
+> 𝑘 ∈ { 1,...,𝐾 }
+
+𝑝 ⊤ 
+
+> 𝑘
+
+𝑥 𝑣 . (3) 
+
+Hyperedge cut condition. A hyperedge 𝑒 is cut if any two of its incident vertices receive different assignments: 
+
+𝑧 𝑒 (𝑃 ) =
+
+
+
+1, ∃ 𝑣 𝑖 , 𝑣 𝑗 ∈ 𝑒 s.t. 𝑦 𝑣 𝑖 (𝑃 ) ≠ 𝑦 𝑣 𝑗 (𝑃 ),
+
+0, otherwise . (4) The partitioning objective (Equation (1)) can therefore be written as 
+
+min  
+
+> 𝑃
+
+cut (H ) =∑︁  
+
+> 𝑒 ∈𝐸
+
+𝜔 (𝑒 ) 𝑧 𝑒 (𝑃 ), (5) with standard balance constraints. 
+
+Compact continuous representation. Unlike the original discrete formulation over assignments (𝑉 1, . . . , 𝑉 𝐾 ), whose search space grows exponentially with |𝑉 |, the reformulation optimizes only the continuous matrix 𝑃 with 𝑆 × 𝐾 parameters. This compact parameterization is central to HySpecPro’s scalable optimization. 
+
+Expressiveness of linear separators. The projection vectors in-duce hyperplanes that partition the spectral embedding space (Fig-ure 2(b)). Although the framework can be extended to nonlinear separation boundaries, embeddings of netlist hypergraphs in the Titan23 suite often exhibit a ray-like geometry (Figure 4), making linear separation surprisingly effective. Extending the framework to richer decision models is a promising direction for future work. 
+
+Continuous Optimization of Projection Vectors. HySpecPro optimizes the projection vectors using CMA–ES, a derivative-free method well suited for this task. The objective in Equation (3)–(5) Conference’17, July 2017, Washington, DC, USA Rongjian Liang, Zhuo Feng, and Haoxing Ren 
+
+is highly nonconvex and piecewise constant due to the winner-take-all assignment, making gradient-based approaches unreliable. CMA–ES handles such landscapes robustly. Moreover, real-world hypergraphs such as VLSI netlists exhibit strong community struc-ture, leading to spectral embeddings with small effective dimension 
+
+𝑆 . As a result, the projection matrix 𝑃 ∈ R𝑆 ×𝐾 contains relatively few parameters, allowing CMA–ES to optimize it efficiently. In practice, CMA–ES is initialized at the origin of the embed-ding space, with no explicit bounds on 𝑃 . Balance constraints are enforced through a penalty term proportional to their degree of violation. 
+
+## 3.3 GPU-Accelerated Implementation 
+
+HySpecPro leverages GPU acceleration for both spectral embedding construction and projection optimization. 
+
+GPU-Accelerated Spectral Embedding Construction. We use CuPy, a GPU-accelerated array library for Python, to form the normalized Laplacian and compute its first few eigenpairs. To reduce memory usage, the Laplacian and related matrices are stored in sparse format and processed using CuPy’s sparse linear-algebra operators. 
+
+GPU-Accelerated Projection Optimization. The dominant cost in projection optimization is solution evaluation, as CMA– ES requires thousands of candidate evaluations per iteration. We adopt the GPU-accelerated batched evaluation strategy from Med-Part [ 15 ]. Each candidate partition is encoded as node features on the bipartite graph B, represented as a heterogeneous graph in DGL. Cut sizes and balance constraints are computed through DGL message passing and PyTorch tensor operations, enabling efficient batched execution fully on the GPU. 
+
+## 3.4 Runtime Complexity 
+
+HySpecPro computes the smallest 𝑆 eigenpairs of the normalized Laplacian using CuPy’s GPU-accelerated Lanczos solver. For a sparse matrix with nnz nonzeros, each Lanczos iteration is dom-inated by a sparse matrix–vector multiplication costing O( nnz ).As defined in Section 3.1, the normalized Laplacian 𝐿 B has nnz =
+
+O( TotalDeg ), where TotalDeg is the total hyperedge degree of H .Computing 𝑆 eigenpairs therefore requires 
+
+O TotalDeg · 𝑆 · 𝐼 ,
+
+where 𝐼 is the number of Lanczos iterations. Although GPU acceler-ation does not change the asymptotic cost, it substantially reduces wall-clock time via high-throughput sparse linear algebra. In the projection-optimization stage, the dominant cost is eval-uating candidate projection matrices. Each evaluation performs a DGL message-passing pass on the bipartite graph, with complexity 
+
+O( TotalDeg ). With a CMA–ES population size 𝐵 and 𝑇 generations, the total cost is 
+
+O( TotalDeg · 𝐵 · 𝑇 ) .
+
+DGL’s GPU backend parallelizes edgewise operations, improving runtime in practice but preserving asymptotic behavior. Treating 𝑆 , 𝐼 , 𝐵 , and 𝑇 as constants, the overall runtime of HySpecPro scales linearly with TotalDeg .
+
+Table 1: Statistics of the Titan23 benchmark suite.                                                                                               
+
+> Benchmark |𝑉 ||𝐸 |TotalDeg Sum_deg_ge_100 sparcT1 core 91,976 92,827 503,922 138,351 neuron 92,290 125,305 453,181 127,232 stereo vision 94,050 127,085 414,259 91,078 des90 111,221 139,557 771,009 96,847 SLAM spheric 113,115 142,408 637,880 37,343 cholesky mc 113,250 144,948 622,678 201,216 segmemtation 138,295 179,051 801,427 43,795 bitonic mesh 192,064 235,328 1,364,768 186,557 dart 202,354 223,301 1,133,096 254,433 openCV 217,453 284,108 1,273,473 305,429 stap qrd 240,240 290,123 1,260,458 391,561 minres 261,359 320,540 1,309,022 250,992 cholesky bdti 266,422 342,688 1,410,151 446,869 denoise 275,638 356,848 1,610,717 118,249 sparcT2 core 300,109 302,663 1,615,849 501,749 gsm switch 493,260 507,821 2,712,782 1,213,869 mes noc 547,544 577,664 3,187,553 936,686 LU230 574,372 669,477 2,996,579 1,123,810 LU Network 635,456 726,999 3,331,887 801,400 sparcT1 chip2 820,886 821,274 4,031,921 1,317,794 directrf 931,275 1,374,742 4,812,506 1,007,163 bitcoin miner 1,089,284 1,448,151 4,557,197 907,382
+
+## 3.5 Optional Enhancements 
+
+Two optional enhancements—hybrid spectral embeddings and dif-ferentiable refinement—can be enabled in HySpecPro when parti-tioning quality is prioritized over runtime. 
+
+Hybrid Spectral Embeddings. In addition to the bipartite graph, HySpecPro can construct a sampled clique-expansion graph to capture higher-order relationships within hyperedges. A full clique expansion replaces each hyperedge of size 𝑑 (𝑒 ) with all  𝑑 (𝑒 )
+
+> 2
+
+ pair-wise edges, which is impractical for large hyperedges. To reduce memory and runtime, we instead sample a subset of these pairwise edges for high-degree hyperedges, preserving structural informa-tion while keeping the graph sparse. The spectral-embedding proce-dure in Section 3.1 is then applied to this sampled clique-expansion graph to obtain its first few eigenvectors. HySpecPro evaluates both the bipartite and clique-based embeddings by running CMA–ES on each and selects the better resulting partition. 
+
+Differentiable Refinement. While the smallest nontrivial eigen-vectors capture global structure, some local detail may be missed. As an optional post-processing step, HySpecPro can switch back to the original solution space and apply the differentiable refinement method from MedPart to further improve the partition. 
+
+## 4 Experimental Results and Analysis 
+
+HySpecPro is implemented in Python. All experiments are con-ducted on a server with AMD EPYC 7742 CPUs and an NVIDIA A100 GPU (80 GB). We use 𝑆 = 32 eigenvectors, 𝐼 = 50 Lanczos iterations, and run CMA-ES with a population size 𝐵 = 3000 or the maximum size allowed by GPU memory. The number of evolution-ary generations is set to 𝑇 = 50 .We evaluate three configurations of HySpecPro: 
+
+• HySP : the baseline configuration of HySpecPro; 
+
+• HySP-Hyb : with Hybrid Spectral Embeddings enabled; 
+
+• HySP-RF : with Differentiable Refinement enabled. Although HySP-Hyb and HySP-RF are theoretically guaranteed to achieve cut sizes no worse than HySP, their results may occasionally be slightly worse in practice due to the nondeterministic behavior of CMA-ES. We compare them against the following SOTA partitioners: 
+
+• hMETIS [12]: a widely used sequential multilevel partitioner; 
+
+• SpecPart [3]: a refinement method that improves hMETIS using spectral embeddings; HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization Conference’17, July 2017, Washington, DC, USA 
+
+Table 2: Bi-partitioning cut sizes obtained by different approaches on the Titan23 benchmark suite. The hMETIS, SpecPart, MedPart, SHyPar and KaHyPar results are copied from [19]. The average im-provement is normalized against hMETIS results.   
+
+> Benchmark Cut Size at
+
+𝜖 = 2%                                                                                                                                                                                                                                                    
+
+> hMETIS
+> SpecPart
+> MedPart
+> SHyPar
+> KaHyPar
+> TritonPart
+> mtK-min
+> mtK-mean
+> HySP
+> HySP-Hyb
+> HySP-RF
+> sparcT1 core 1066 1012 1067 974 974 1137 1099 1288 1091 1078 1048 neuron 260 252 262 243 244 245 260 380 248 249 247 stereo vision 180 180 176 169 169 182 174 254 177 171 178 des90 402 402 372 379 380 382 389 477 380 377 375 SLAM spheric 1061 1061 1061 1061 1061 1061 1061 1083 1061 1061 1061 cholesky mc 285 285 283 283 283 282 382 756 283 282 282 segmentation 136 126 114 107 107 107 144 256 128 120 118 bitonic mesh 614 585 594 586 593 588 590 671 589 594 587 dart 844 807 805 784 924 846 817 1113 809 837 797 openCV 511 510 635 499 560 429 591 798 575 588 576 stap qrd 399 399 386 371 371 382 380 509 379 384 379 minres 215 215 215 207 207 208 252 351 210 210 213 cholesky bdti 1157 1156 1161 1156 1156 1197 1209 1792 1157 1157 1157 denoise 722 416 516 416 416 479 456 533 439 428 546 sparcT2 core 1273 1244 1319 1183 1186 1310 1196 1301 1377 1373 1281 gsm switch 5974 1827 1714 1621 1759 1496 2036 2789 1590 1663 1705 mes noc 699 634 699 651 649 886 673 935 646 646 646 LU230 4070 3273 3452 3602 4012 3426 3614 4390 3399 3410 3320 LU Network 550 525 550 524 524 528 610 737 536 533 542 sparcT1 chip2 1524 899 1129 873 874 1043 911 1196 903 910 907 directrf 646 574 646 632 646 576 662 731 506 505 508 bitcoin miner 1570 1297 1562 1514 1576 1489 1523 1582 1651 1582 1618
+> Impro. %
+
+↑ 0 10.99 6.82 12.16 9.95 8.90 4.16 -28.00 9.42 9.80 9.70  
+
+> Cut Size at
+
+𝜖 = 20%                                                                                                                                                                                                                                                    
+
+> sparcT1 core 1290 903 624 631 873 1016 1064 1210 682 643 598 neuron 270 206 270 244 244 245 251 360 216 205 209 stereo vision 143 91 93 91 91 91 91 103 97 96 95 des90 441 358 349 345 380 353 382 481 345 329 327 SLAM spheric 1061 1061 1061 1061 1061 1061 1061 1076 1061 1061 1061 cholesky mc 667 345 281 479 591 281 281 671 281 281 281 segmentation 141 78 78 78 78 80 86 148 82 80 78 bitonic mesh 590 483 493 506 493 506 588 675 489 506 483 dart 603 540 549 539 549 583 797 1127 667 666 547 openCV 554 518 554 473 554 451 625 778 534 450 503 stap qrd 295 295 287 275 287 281 364 490 276 276 276 minres 189 189 181 191 181 211 220 317 182 183 185 cholesky bdti 1024 947 1024 848 1024 861 1245 1680 858 861 850 denoise 478 224 224 220 224 231 340 436 284 298 251 sparcT2 core 1972 1245 1081 918 1081 1171 1192 1298 999 994 974 gsm switch 5352 1407 1503 1407 1503 1695 1641 2201 1434 1439 1430 mes noc 633 617 633 617 633 623 634 860 631 629 629 LU230 3276 2677 2720 2923 2720 3529 3586 4238 3017 2876 2790 LU Network 528 524 528 524 528 529 526 532 542 541 537 sparcT1 chip2 1029 783 877 757 877 939 847 1028 735 738 791 directrf 379 295 317 295 317 295 385 531 318 316 319 bitcoin miner 1255 1225 1255 1282 1255 1278 1232 1514 1231 1233 1231
+> Impro. %
+
+↑ 0 21.73 20.94 22.53 14.14 18.93 9.62 -17.26 21.48 22.69 23.93 
+
+• MedPart [15 ]: a GPU-accelerated multilevel evolutionary dif-ferentiable partitioner; 
+
+• KaHyPar [20 ]: a high-quality sequential multilevel partitioner with advanced refinement; 
+
+• SHyPar [ 19 ]: an extension of KaHyPar that incorporates spec-tral information during coarsening; 
+
+• TritonPart [1]: a leading multi-threaded partitioner; we use its official implementation [2] with default settings; 
+
+• mtK-min [9]: a multi-threaded KaHyPar configuration (also named mtKaHyPar , 24 threads); we report the best cut and the total runtime over 100 runs; 
+
+• mtK-mean [ 9]: the same configuration, reporting average cut size and runtime over 100 runs. To assess performance and scalability, we apply HySpecPro to the Titan23 benchmarks [ 17 ] and eight large, high-complexity hyper-graphs from the L_HG suite [ 9 ], characterized by high TotalDeg and many large hyperedges. Dataset statistics are provided in Table 1 (where Sum_deg_ge_100 denotes the total degree contributed by hyperedges of degree > 100 ) and Table 3. The following subsections present detailed results and analysis. 
+
+Figure 3: Runtime versus aver-age cut-size improvement over hMETIS, aggregated across all Ti-tan23 benchmarks for 𝜖 = 2% and 
+
+𝜖 = 20% .
+
+Figure 4: Visualization of the spectral embeddings (projected to 2D using PCA) and the re-sulting partitions produced by HySpecPro on sparcT1 core. 
+
+## 4.1 Results on Titan23 Benchmarks 
+
+Table 2 summarizes the cut sizes on the Titan benchmarks. Across the suite, all three HySpecPro variants achieve competitive cut sizes, outperforming hMETIS by 9.42% –9.80% at 𝜖 = 2% and by 
+
+21 .48% –23 .93% at 𝜖 = 20% on average. These gains are highly comparable with previously best-reported improvements of 12 .16% 
+
+and 22 .53% , respectively. HySpecPro also attains new best cut sizes on several benchmarks, as indicated in Table 2. In terms of runtime, SpecPart, which refines hMETIS partitions, incurs an approximately 5× runtime overhead relative to hMETIS [ 4]. MedPart requires up to two hours on the largest Titan bench-marks [ 15 ], while SHyPar [ 19 ] reports runtimes similar to KaHy-Par. Detailed runtime comparisons among KaHyPar, TritonPart, mtKaHyPar (24 threads), and HySpecPro are presented in Fig-ure 5. Although HySpecPro is slower than KaHyPar and TritonPart on small hypergraphs, it is consistently faster than them when 
+
+TotalDeg exceeds 2,000 ,000 . The speedups of HySpecPro relative to KaHyPar are especially pronounced for instances with large 
+
+Sum_deg_ge_100 , such as gsm switch , LU230 , and bitcoin miner ,where HySpecPro achieves 5.6×, 27 ×, and 8.09 × accelerations, re-spectively. For mtKaHyPar, we report the mtK-min runtime (the total across 100 runs) rather than mtK-mean, since the latter pro-duces substantially worse cuts than HySpecPro. Relative to mtK-min, HySpecPro is generally slower on this suite but becomes faster on benchmarks with large Sum_deg_ge_100 , while consistently de-livering superior cut quality. Figure 3 illustrates the runtime–cut-size tradeoff among HySpecPro variants. The baseline HySpecPro is the fastest; HySpecPro-Hyb provides an additional 0.8% cut reduction over hMETIS at a 24% 
+
+runtime increase, and HySpecPro-RF delivers about 1.4% further improvement at a 3.6× runtime cost. Conference’17, July 2017, Washington, DC, USA Rongjian Liang, Zhuo Feng, and Haoxing Ren 
+
+Table 3: Statistics of L_HG benchmark suite and bi-partitioning cut sizes obtained by different approaches.                                                                                                                                         
+
+> Benchmark Statistics 𝜖 =2% 𝜖 =10%
+> |𝑉 ||𝐸 |TotalDeg KaHyPar TritonPart mtK-min mtK-mean HySP KaHyPar TritonPart mtK-min mtK-mean HySP
+> StocF-1465 1,465,137 1,465,137 21,005,389 4595 4812 4668 4879 4644 4595 4742 4667 4819 4597 HV15R 2,017,169 2,017,169 283,073,458 60057 60747 60057 60448 60060 60057 60721 60057 61172 60060 Geo_1438 1,437,960 1,437,960 63,156,690 26358 29505 26826 28498 27777 26088 30432 26700 28071 27285 dgreen 1,200,611 1,200,611 38,259,877 9243 8414 8886 9402 8909 7684 7197 7530 7994 6894 Ga41As41H72 268,096 268,096 18,488,476 36984 38048 37473 43205 36293 37302 41124 37111 42893 36172 Bump_2911 2,911,419 2,911,419 26,515,867 58815 61488 59028 59999 59081 TIMEOUT 60441 58866 59393 58980 CurlCurl_4 2,380,515 2,380,515 127,729,899 TIMEOUT 28186 25818 27507 25093 TIMEOUT 24087 24473 26028 22057 circuit5M 5,558,326 5,558,326 59,524,291 TIMEOUT TIMEOUT 9088 32202 9236 TIMEOUT 6523 6405 8191 6522
+> Cut size increase over HySP (%) ↓NA NA 0.16 36.59 0NA 5.70 2.52 11.05 0
+
+Figure 5: Runtime comparison of the four partitioners on the Titan23 and L_HG benchmarks, aggregated over different 𝜖 settings. 
+
+Figure 6: Runtime scalability of HySpecPro. Figure 7: Runtime breakdown of HySpecPro. 
+
+## 4.2 Results on L_HG Benchmarks 
+
+Table 3 and Figure 5 report cut sizes and runtimes of KaHyPar, TritonPart, mtKaHyPar, and HySpecPro on the L_HG benchmarks. In this regime, KaHyPar and TritonPart are significantly slower. For example, KaHyPar reaches the 7200 s timeout on three bench-marks that HySpecPro completes in under 350 s, while TritonPart is on average 7.3× slower than HySpecPro. In terms of cut quality, KaHyPar and HySpecPro achieve comparable results. HySpecPro outperforms TritonPart in nearly all cases, reducing cut size by an average of 5.7% . Compared to mtKaHyPar, HySpecPro is consis-tently faster across all benchmarks while also achieving smaller average cuts. 
+
+## 4.3 Comparison of Spectral Embeddings 
+
+By replacing the bipartite weights in Section 3.1 from 𝜔 (𝑒 )/ 𝑑 (𝑒 ) to 
+
+𝜔 (𝑒 ), we observe an average 5% reduction in cut-size improvement on the Titan23 benchmarks at 𝜖 = 20% , underscoring the impor-tance of using normalized bipartite weights. In HySpecPro-Hyb, we further examine which embedding—induced by weighted bipartite or by sampled clique-expansion—produces the better partition. We find that the weighted bipartite embedding yields the superior re-sult in roughly 95% of the cases, providing additional evidence for the effectiveness of the spectral embedding design in Section 3.1. 
+
+## 4.4 Comparison with Alternative Optimization Techniques in the Embedding Space 
+
+We also implement a differentiable alternative for optimizing the projection vectors (Section 3.2) by replacing the winner-take-all assignment in Equation (3) with a softmax-based relaxation and sub-stituting the objective in Equation (5) with the differentiable proxy from MedPart. Relative to the CMA–ES approach, this method yields an average 4% degradation in cut-size improvement on the Titan23 benchmarks at 𝜖 = 20% .CuGraph’s spectralBalancedCutClustering function [ 7] pro-vides a spectral balanced-cut clustering method for graphs but does not support hypergraphs. To enable comparison, we apply it to a sampled clique-expansion of each hypergraph. The resulting parti-tions are frequently imbalanced, and even after applying the differ-entiable refinement described in Section 3.5, their quality remains inferior to that of HySpecPro. 
+
+## 4.5 Runtime Analysis 
+
+Figure 6 shows that HySpecPro’s runtime grows linearly with 
+
+TotalDeg , consistent with the theoretical analysis in Section 3.4. Figure 7 provides a runtime breakdown on 5 representative bench-marks: projection optimization dominates the total runtime, whereas GPU-accelerated embedding construction finishes within 27 s even for hypergraphs with TotalDeg up to 283 million. I/O overhead is HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization Conference’17, July 2017, Washington, DC, USA 
+
+also noticeable due to our current naive Python implementation, and could be substantially reduced with a more optimized pipeline. 
+
+## 5 Conclusions 
+
+In this work, we introduced HySpecPro, the first single-level hyper-graph partitioner to achieve cut sizes competitive with SOTA multi-level methods while retaining runtime linear in the total hyperedge degree. Its performance derives from efficient spectral-embedding construction, end-to-end projection optimization in the embedding space, and a fully GPU-accelerated implementation. Future direc-tions include extending the framework to support non-uniform vertex and hyperedge weights and integrating HySpecPro with optimization engines in the EDA flow. 
+
+## References 
+
+[1] Ismail Bustany, Grigor Gasparyan, Andrew B Kahng, Ioannis Koutis, Bodhisatta Pramanik, and Zhiang Wang. 2023. An open-source constraints-driven general partitioning multi-tool for VLSI physical design. In Proceedings of International Conference on Computer Aided Design (ICCAD) . IEEE, 1–9. [2] Ismail Bustany, Grigor Gasparyan, Andrew B Kahng, Ioannis Koutis, Bodhisatta Pramanik, and Zhiang Wang. 2023. TritonPart Official Implementation. https: //github.com/ABKGroup/TritonPart [3] Ismail Bustany, Andrew B Kahng, Ioannis Koutis, Bodhisatta Pramanik, and Zhiang Wang. 2022. SpecPart: A supervised spectral framework for hypergraph partitioning solution improvement. In Proceedings of International Conference on Computer-Aided Design (ICCAD) . 1–9. [4] Ismail Bustany, Andrew B Kahng, Ioannis Koutis, Bodhisatta Pramanik, and Zhiang Wang. 2023. K-SpecPart: Supervised embedding algorithms and cut overlay for improved hypergraph partitioning. IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD) 43, 4 (2023), 1232–1245. [5] T-H Hubert Chan and Zhibin Liang. 2020. Generalizing the hypergraph laplacian via a diffusion process with mediators. Theoretical Computer Science (TCS) 806 (2020), 416–428. [6] T-H Hubert Chan, Anand Louis, Zhihao Gavin Tang, and Chenzi Zhang. 2018. Spectral properties of hypergraph laplacian and Titaaapproximation algorithms. 
+
+Journal of the ACM (JACM) 65, 3 (2018), 1–48. [7] Alex Fender, Brad Rees, and Joe Eaton. 2022. Rapids cugraph. In Massive Graph Analytics . Chapman and Hall/CRC, 483–493. [8] Zhuo Feng. 2018. Similarity-Aware Spectral Sparsification by Edge Filtering. In 
+
+Proceedings of Design Automation Conference (DAC) . 1–6. [9] Lars Gottesbüren, Tobias Heuer, Nikolai Maas, Peter Sanders, and Sebastian Schlag. 2024. Scalable high-quality hypergraph partitioning. ACM Transactions on Algorithms (TALG) 20, 1 (2024), 1–54. [10] Nikolaus Hansen, Youhei Akimoto, and Petr Baudis. 2019. CMA-ES/pycma on Github. https://doi.org/10.5281/zenodo.2559634 [11] Juris Hartmanis. 1982. Computers and intractability: a guide to the theory of np-completeness. Siam Review (SIREV) 24, 1 (1982), 90. [12] George Karypis. 1998. hMETIS 1.5: A hypergraph partitioning package. 
+
+http://www.cs.umn.edu/metis (1998). [13] George Karypis, Rajat Aggarwal, Vipin Kumar, and Shashi Shekhar. 1997. Mul-tilevel hypergraph partitioning: Application in VLSI domain. In Proceedings of Design Automation Conference (DAC) . 526–529. [14] Wan Luan Lee, Dian-Lun Lin, Cheng-Hsiang Chiu, Ulf Schlichtmann, and Tsung-Wei Huang. 2025. HyperG: Multilevel GPU-Accelerated k-way hypergraph par-titioner. In Proceedings of Asia and South Pacific Design Automation Conference (ASP-DAC) . 1031–1040. [15] Rongjian Liang, Anthony Agnesina, and Haoxing Ren. 2024. Medpart: A multi-level evolutionary differentiable hypergraph partitioner. In Proceedings of Inter-national Symposium on Physical Design (ISPD) . 3–11. [16] Andreas Loukas and Pierre Vandergheynst. 2018. Spectrally Approximating Large Graphs with Smaller Graphs. In Proceedings of International Conference on Machine Learning (ICML) . 3243–3252. [17] Kevin E Murray, Scott Whitty, Suya Liu, Jason Luu, and Vaughn Betz. 2013. Titan: Enabling large and complex benchmarks in academic CAD. In Proceedings of International Conference on Field programmable Logic and Applications (FPL) . 1–8. [18] Royud Nishino and Shohei Hido Crissman Loomis. 2017. Cupy: A numpy-compatible library for nvidia gpu calculations. Proceedings of Confernce on Neural Information Processing Systems (NeurIPS) 151, 7 (2017). [19] Hamed Sajadinia, Ali Aghdaei, and Zhuo Feng. 2025. SHyPar: A Spectral Coarsen-ing Approach to Hypergraph Partitioning. IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD) (2025). [20] Sebastian Schlag, Vitali Henne, Tobias Heuer, Henning Meyerhenke, Peter Sanders, and Christian Schulz. 2016. K-way hypergraph partitioning via n-level recursive bisection. In Proceedings of Workshop on Algorithm Engineering and Experiments (ALENEX) . 53–67. [21] Daniel Spielman and ShangHua Teng. 2011. Spectral sparsification of graphs. 
+
+SIAM Journal on Computing (SIAM J. Comput.) 40, 4 (2011), 981–1025. [22] D. Spielman and S. Teng. 2014. Nearly Linear Time Algorithms for Precondi-tioning and Solving Symmetric, Diagonally Dominant Linear Systems. SIAM Journal on Matrix Analysis and Applications (SIAM J. Matrix Anal. Appl.) 35, 3 (2014), 835–885. [23] Shang-Hua Teng. 2016. Scalable Algorithms for Data and Network Analysis. 
+
+Foundations and Trends in Theoretical Computer Science (FnT) 12, 1–2 (2016), 1–274. [24] Minjie Yu Wang. 2019. Deep graph library: Towards efficient and scalable deep learning on graphs. In Proceedings of International Conference on Learning Repre-sentations Workshop on Representation Learning on Graphs and Manifolds (ICLR) .[25] Xueqian Zhao, Zhuo Feng, and Cheng Zhuo. 2014. An Efficient Spectral Graph Sparsification Approach to Scalable Reduction of Large Flip-chip Power Grids. In Proceedings of Internation Conference on Computer-Aided Design (ICCAD) . 218– 223.

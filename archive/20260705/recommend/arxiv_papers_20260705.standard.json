@@ -1,0 +1,162 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-05T20:09:00.378226+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 0,
+    "quick_skim_target": 11,
+    "quick_selected": 0
+  },
+  "deep_dive": [
+    {
+      "id": "2606.28734v1",
+      "source": "arxiv",
+      "title": "Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs",
+      "abstract": "Many combinatorial optimization problems admit quadratic unconstrained binary formulations (QUBO) which can often be relaxed to the box $[0,1]^n$ and optimized using scalable gradient-based methods. However, the resulting non-convex landscape can often contain local optima that are spurious or infeasible. In this paper, we establish sufficient structural conditions on quadratic penalties that rule out these failures, guaranteeing that every local minimizer of the relaxed problem is both binary and feasible. For each problem we study, we examine existing QUBO formulations when available, identify why they fail when they do, and propose alternative relaxed QUBOs that satisfy our conditions. We show for several common combinatorial problems, including open-pit mining, 0--1 knapsack, and traveling salesman formulations, that these constructions allow gradient-based methods such as projected gradient descent and Adam to be safely applied to obtain valid binary solutions. Our results clarify when differentiable optimization is a reliable local solver for quadratic combinatorial objectives.",
+      "authors": [
+        "Cheng-Han Huang",
+        "Yongliang Sun",
+        "Chaoyan Huang",
+        "Ismail Alkhouri",
+        "Rongrong Wang"
+      ],
+      "primary_category": "cs.DM",
+      "categories": [
+        "cs.DM"
+      ],
+      "published": "2026-06-27T05:00:30+00:00",
+      "link": "https://arxiv.org/pdf/2606.28734v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "ensures local minima of continuous relaxations lie on the boundary of the box constraints, yielding feasible binary solutions",
+      "llm_evidence_cn": "确保连续松弛的局部极小值位于盒约束边界上，产生可行的二元解",
+      "llm_evidence": "确保连续松弛的局部极小值位于盒约束边界上，产生可行的二元解",
+      "canonical_evidence": "确保连续松弛的局部极小值位于盒约束边界上，产生可行的二元解",
+      "llm_tldr_en": "The paper establishes sufficient conditions on quadratic penalties in QUBO relaxations to guarantee that all local minima of the relaxed box-constrained problem are binary and feasible, effectively optimizing under boundary constraints.",
+      "llm_tldr_cn": "针对二元线性规划中连续松弛可能陷入非可行局部极小的问题，本文通过分析二次惩罚项的充分条件，保证盒约束松弛问题的每个局部极小点都位于边界（即二元解），从而避免了不可行解。研究为多种组合优化问题提出了新的QUBO公式，并在实验中验证了其有效性，为设计可靠松弛提供了理论工具。",
+      "llm_tldr": "针对二元线性规划中连续松弛可能陷入非可行局部极小的问题，本文通过分析二次惩罚项的充分条件，保证盒约束松弛问题的每个局部极小点都位于边界（即二元解），从而避免了不可行解。研究为多种组合优化问题提出了新的QUBO公式，并在实验中验证了其有效性，为设计可靠松弛提供了理论工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29913v1",
+      "source": "arxiv",
+      "title": "Semi-discrete convex order and Laguerre tessellation fitting",
+      "abstract": "Laguerre tessellations offer an efficient way to parameterize a large class of convex partitions of Euclidean space using only a set of points and scalar weights. For this reason, they have become popular in computational geometry, imaging and numerical analysis, both as a modeling and a discretization tool. In this paper we study the problem of reconstructing a Laguerre tessellation with prescribed cell volumes from the barycenters of its cells. We establish a geometric interpretation of this problem in terms of the set of discrete measures dominated in convex order by an absolutely continuous measure. In particular, we show that the reconstruction problem can be solved approximately by computing a Wasserstein projection onto this set. More generally, our method can also be applied to fit a Laguerre tessellation to an arbitrary set of barycenters. We give a concrete application of this in materials science, of fitting a Laguerre tessellation to an electron backscatter diffraction (EBSD) image of a steel.",
+      "authors": [
+        "David P. Bourne",
+        "Thomas Gallouët",
+        "Quentin Mérigot",
+        "Andrea Natale"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2026-06-29T07:51:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.29913v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Reconstructing Laguerre tessellation with cell volume constraints involves adjusting cell boundaries to match shape targets",
+      "llm_evidence_cn": "重建拉盖尔镶嵌以匹配细胞体积，涉及调整细胞边界以实现形状优化",
+      "llm_evidence": "重建拉盖尔镶嵌以匹配细胞体积，涉及调整细胞边界以实现形状优化",
+      "canonical_evidence": "重建拉盖尔镶嵌以匹配细胞体积，涉及调整细胞边界以实现形状优化",
+      "llm_tldr_en": "This paper studies reconstructing Laguerre tessellations from cell barycenters, providing a convex-order framework and Wasserstein projection method that effectively adjusts cell boundaries to fit prescribed volumes.",
+      "llm_tldr_cn": "针对从细胞重心重建具有指定体积的拉盖尔镶嵌这一形状优化问题，本文提出了一种基于半离散凸序的几何框架。该方法将重建问题解释为在凸序下受绝对连续测度支配的离散测度集合上的投影，并利用Wasserstein投影进行近似求解，从而高效地调整细胞边界以满足体积约束。实验表明，该框架不仅为拉盖尔镶嵌拟合提供了理论保障，也为更一般的形状边界调整问题开辟了新的计算途径。",
+      "llm_tldr": "针对从细胞重心重建具有指定体积的拉盖尔镶嵌这一形状优化问题，本文提出了一种基于半离散凸序的几何框架。该方法将重建问题解释为在凸序下受绝对连续测度支配的离散测度集合上的投影，并利用Wasserstein投影进行近似求解，从而高效地调整细胞边界以满足体积约束。实验表明，该框架不仅为拉盖尔镶嵌拟合提供了理论保障，也为更一般的形状边界调整问题开辟了新的计算途径。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.00055v1",
+      "source": "arxiv",
+      "title": "HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization",
+      "abstract": "Modern VLSI designs comprise tens of billions of components, making scalable hypergraph partitioning critical for parallel and hierarchical optimization. Although multilevel partitioning remains the dominant paradigm, its coarsening stage can distort structural information, especially in hypergraphs with many high-degree hyperedges, leading to increased refinement overhead and limited scalability. Recent approaches incorporate spectral information to guide coarsening, but only in a heuristic manner, without directly optimizing the partitioning objectives. We introduce HySpecPro, a single-level hypergraph partitioner that performs end-to-end optimization in a spectral embedding space. HySpecPro constructs embeddings from a bipartite Laplacian and performs efficient projection-based search, supported by a fully GPU-accelerated implementation. Experiments show that HySpecPro delivers cut quality comparable to state-of-the-art multilevel methods while scaling linearly with the total hyperedge degree.",
+      "authors": [
+        "Rongjian Liang",
+        "Zhuo Feng",
+        "Haoxing Ren"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-06-30T02:20:15+00:00",
+      "link": "https://arxiv.org/pdf/2607.00055v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Directly optimizes partition boundaries (cut) in hypergraphs",
+      "llm_evidence_cn": "直接优化超图中的划分边界（切割）",
+      "llm_evidence": "直接优化超图中的划分边界（切割）",
+      "canonical_evidence": "直接优化超图中的划分边界（切割）",
+      "llm_tldr_en": "Proposes a single-level hypergraph partitioner that uses spectral embeddings to directly optimize partitioning objectives, achieving scalable performance for VLSI designs.",
+      "llm_tldr_cn": "针对多级划分在粗化阶段可能丢失结构信息的问题，提出单级超图划分器HySpecPro，通过在谱嵌入空间端到端优化划分目标，实现可扩展的高质量超图划分，尤其适用于包含大量高度超边的VLSI设计。",
+      "llm_tldr": "针对多级划分在粗化阶段可能丢失结构信息的问题，提出单级超图划分器HySpecPro，通过在谱嵌入空间端到端优化划分目标，实现可扩展的高质量超图划分，尤其适用于包含大量高度超边的VLSI设计。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundaries in various fields",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02069v1",
+      "source": "arxiv",
+      "title": "Algebraic Model Counting for Global Analysis of Optimal Decision Trees",
+      "abstract": "Ensuring model reliability in Explainable AI requires a global assessment of the hypothesis space. We propose a formal framework for the exhaustive analysis of optimal and near-optimal decision trees, called Algebraic Decision Tree Counting (ADTC). Inspired by Algebraic Model Counting (AMC) in knowledge representation, ADTC reformulates diverse analytical tasks, such as optimization, counting, and sampling, into a unified sum-of-products computation over a semiring $R$. While the hypothesis space of decision trees is doubly exponential with respect to the maximum depth $Δ$, our dynamic programming algorithm achieves $O^*(n^{O(Δ)})$ time complexity in the number of features $n$, where $O^*$ suppresses polynomial factors. To handle complex constraints consisting of multiple tree metrics, we introduce model behavior tensors that aggregate semiring values via convolution products over a tensor semiring. This algebraic approach efficiently constructs a model profile that captures the global landscape and trade-offs between criteria such as accuracy, size, and fairness. We demonstrate the utility of our software, emtrees, on real-world datasets, illustrating how ADTC facilitates evidence-based model selection in sensitive domains.",
+      "authors": [
+        "Hiroki Arimura"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-07-02T12:03:11+00:00",
+      "link": "https://arxiv.org/pdf/2607.02069v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "exhaustive analysis of optimal decision trees for classification boundary optimization",
+      "llm_evidence_cn": "对最优决策树进行穷举分析以优化分类决策边界",
+      "llm_evidence": "对最优决策树进行穷举分析以优化分类决策边界",
+      "canonical_evidence": "对最优决策树进行穷举分析以优化分类决策边界",
+      "llm_tldr_en": "Proposes algebraic framework for global analysis of optimal decision trees, enabling optimization, counting, and sampling of classification boundaries with near-polynomial complexity.",
+      "llm_tldr_cn": "该论文针对可解释AI中模型可靠性问题，提出代数决策树计数框架，将最优决策树的分析转化为半环上的和积计算，通过动态规划算法在特征数多项时间内完成优化、计数和采样，为分类决策边界的全局评估提供了系统性工具。",
+      "llm_tldr": "该论文针对可解释AI中模型可靠性问题，提出代数决策树计数框架，将最优决策树的分析转化为半环上的和积计算，通过动态规划算法在特征数多项时间内完成优化、计数和采样，为分类决策边界的全局评估提供了系统性工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": []
+}

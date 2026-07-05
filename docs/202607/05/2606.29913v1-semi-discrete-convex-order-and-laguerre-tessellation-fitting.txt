@@ -1,0 +1,2171 @@
+Title: Semi-discrete convex order and Laguerre tessellation fitting
+
+URL Source: https://arxiv.org/pdf/2606.29913v1
+
+Published Time: Tue, 30 Jun 2026 02:12:13 GMT
+
+Number of Pages: 35
+
+Markdown Content:
+SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATION FITTING 
+
+DAVID P. BOURNE, THOMAS O. GALLOU ¨ET, QUENTIN M ´ERIGOT, AND ANDREA NATALE 
+
+Abstract. Laguerre tessellations offer an efficient way to parameterize a large class of convex partitions of Euclidean space using only a set of points and scalar weights. For this reason, they have become popular in computational geometry, imaging and numerical analysis, both as a modeling and a discretization tool. In this paper we study the problem of reconstructing a Laguerre tessellation with prescribed cell vol-umes from the barycenters of its cells. We establish a geometric interpretation of this problem in terms of the set of discrete measures dominated in convex order by an absolutely continuous measure. In particular, we show that the reconstruction prob-lem can be solved approximately by computing a Wasserstein projection onto this set. More generally, our method can also be applied to fit a Laguerre tessellation to an ar-bitrary set of barycenters. We give a concrete application of this in materials science, of fitting a Laguerre tessellation to an electron backscatter diffraction (EBSD) image of a steel. 
+
+1. Introduction 
+
+Laguerre tessellations, also known as weighted Voronoi tessellations, power diagrams [5], affine partitions [1], or regular partitions [28], are partitions of Rd into convex cells that generalize Voronoi tessellations. Specifically, given a vector of distinct generators 
+
+Y = ( y1, . . . , y N ) ∈ (Rd)N , i.e., yi̸ = yj for all i̸ = j, and a vector of weights ϕ =(ϕ1, . . . , ϕ N ) ∈ RN , the associated Laguerre tessellation is the partition of Rd defined by the cells 
+
+Li(ϕ, Y ) := {x ∈ Rd ; ⟨x, y i⟩ − ϕi ≥ ⟨ x, y j ⟩ − ϕj ∀i̸ = j}.
+
+Setting ϕi = |yi|2/2, the definition above yields the classical Voronoi tessellation asso-ciated with Y . In general, Laguerre tessellations form a strict subset of the space of all convex tessellations of Rd. However, it turns out that for d ≥ 3 all convex tessellations satisfying some mild geometric requirements (specifically, “simple” tessellations) are always Laguerre [4, Theorem 4]. Because of their versatility, Laguerre tessellations have become an established mod-eling tool in various fields, including biology [10], optics [31], and materials science [11] to name a few. In particular, they are often used to describe the microstructure of materials such as metals or foams. A common problem in this context consists in computing a Laguerre tessellation with prescribed geometrical properties coming from experimental observations [29, 34, 11, 23]. Motivated by these applications, in this work we will study the following problem: 
+
+Question 1. Can one recover a set of generators and weights associated with a given Laguerre tessellation provided only the volumes and the barycenters of its cells?  
+
+> 1
+> arXiv:2606.29913v1 [math.OC] 29 Jun 2026 2D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE
+
+Figure 1. We seek to reconstruct a Laguerre tessellation given its cells’ barycenters (i.e., their centroids) and volumes (computed with respect to a given density; here constant on a star), represented by the disks on the left. The empty dots on the right are the unknown generators of the tessellation. We refer to Figure 1 for an illustration of the problem, and to Section 1.1 for more about the physical motivation. This problem was originally posed in [12]. In Theorem 4.5 of [12], the authors show that a Laguerre tessellation is uniquely determined by the volumes and barycenters of its cells. However, the generators and weights are not unique in general. The key idea of this work is to characterize the barycenters of Laguerre cells with prescribed volumes in terms of convex order between probability measures; see Section 1.3. This establishes a direct connection between the reconstruction problem and semi-discrete optimal transport. We leverage this connection to propose an algorithm that approximately solves the reconstruction problem. Specifically, our method consists in computing a Wasserstein projection onto the set of measures in convex order with a given absolutely continuous measure. Importantly, the proposed approach can be used more generally on experimental data which does not necessarily arise from a Laguerre tessellation. 1.1. Motivation from materials science. Question 1 was inspired by [12] and the image reconstruction problem in [34], which is about reconstructing the microstructure of polycrystalline materials from incomplete data, namely, far-field three-dimensional X-ray diffraction data (3DXRD). Polycrystalline materials, such as steel, are composed of grains , which are regions where the atoms form a crystal lattice. The grains form a tessellation of the material; see Figure 15 (left), where the colors correspond to the grains. The 3DXRD data consists of the volumes and barycenters of the grains, but the grains themselves are unknown. In [34] the authors reconstruct the grains by finding a Laguerre tessellation that approximately matches the measured volumes and barycenters, using stochastic optimization, where each cell in the Laguerre tessellation represents a grain. This reconstruction problem has also been studied for example by [29, 36, 12]. We propose a solution using convex optimization and apply it to reconstruct an image of steel (see Section 6.3.2). SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 3
+
+1.2. Semi-discrete optimal transport. Laguerre tessellations with prescribed cell volumes arise naturally in the theory of optimal transport [6, 32]. Let P1(Rd) denote the set of probability measures with finite first moments, i.e., such that R |x|dμ(x) < ∞.Let ρ ∈ P 1(Rd) be an absolutely continuous measure and define ∆N := {Y = ( y1, . . . , y N ) ∈ (Rd)N ; ∃ 1 ≤ i < j ≤ N such that yi = yj }.
+
+Given a vector of volumes v = ( v1, . . . , v N ) ∈ RN>0 satisfying P 
+
+> i
+
+vi = 1, for any Y ∈
+
+(Rd)N \ ∆N , there always exists a vector of weights ϕ∗ ∈ RN such that (1) ρ(Li(ϕ∗, Y )) = vi, ∀ i = 1 , . . . , N. 
+
+Moreover, there is a unique Laguerre tessellation that satisfies this condition (see [6, Theorem 3] or also [32, Section 4]). To see this, consider the following semi-discrete optimal transport problem: (2) max 
+
+Z 
+
+> Rd×Rd
+
+⟨x, y ⟩ dγ(x, y ) ; γ ∈ Γ( ρ, ν N (v, Y )) 
+
+
+
+,
+
+where Γ( μ, ν ) denotes the set of probability measures on Rd × Rd with marginals μ, ν ∈P1(Rd), and νN (v, Y ) is the discrete measure supported on Y with masses v, i.e., (3) νN (v, Y ) := 
+
+> N
+
+X
+
+> i=1
+
+viδyi ∈ P (Rd).
+
+The term semi-discrete refers here to the fact that one two marginals of the plan γ
+
+is absolutely continuous while the other is discrete. Since ρ is absolutely continuous, Brenier’s Theorem [37, Section 1.3.1] guarantees that problem (2) admits a unique solution γ, which is characterized as the only transport plan γ ∈ P (Rd × Rd) satisfying 
+
+γ = (Id , ∇u)#ρ and (4) (∇u)#ρ = νN (v, Y ),
+
+where u : Rd → R is a convex function known as Brenier potential, and # denotes the push-forward of measures. It can be shown that u necessarily takes the form (5) u(x) = max   
+
+> i∈{ 1,...,N }
+
+{⟨ x, y i⟩ − ϕi} ,
+
+for an appropriate vector of weights ϕ; see, e.g., [32, Proposition 37]. Consequently, 
+
+∇u(x) = yi for a.e. x ∈ Li(ϕ, Y ).
+
+By expressing condition (4) with this ansatz, one deduces the existence of a vector of weights ϕ∗ satisfying (1). Choosing ϕ = ϕ∗ in (5) yields a Brenier potential for the transport problem (2). Moreover, the plan γ∗ defined by (6) 
+
+Z
+
+> Rd×Rd
+
+φ(x, y ) d γ∗(x, y ) = 
+
+> N
+
+X
+
+> i=1
+
+Z 
+
+> Li(ϕ∗,Y )
+
+φ(x, y i) d ρ(x) ,
+
+for all φ ∈ Cb(Rd × Rd), is the unique solution of problem (2). 4 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+1.3. Convex order. Two probability measures ν, ρ ∈ P 1(Rd) are said to be in convex order, denoted ν ⪯C ρ, if and only if (7) 
+
+Z
+
+> Rd
+
+φ dν ≤
+
+Z
+
+> Rd
+
+φ dρ
+
+for all convex functions φ : Rd → R. By Strassen’s Theorem [38], a convex order rela-tionship between two measures is equivalent to the existence of a martingale coupling between them (see Lemma 3.2). This fact has made convex order relations a central tool in economics and finance applications, for example. In particular, common problems in this context are the design of sampling algorithms preserving convex order relations or, conversely, statistical tests to infer convex order relationships from samples. Recently, these problems have been approached using Wasserstein projections: sampling strate-gies were proposed in [2, 3], while statistical tests for convex order were developed in [25, 26]. The Wasserstein projection of a given probability measure ν onto the set of measures dominated by ρ in the convex order is found by solving (8) inf {W 22 (μ, ν ) ; μ ⪯C ρ}
+
+where W2 denotes the 2-Wasserstein distance (see equation (36) for the definition). Remarkably, this problem can also be recast as an instance of weak optimal transport [22, 21]; this is a class of optimization problems over couplings γ ∈ Γ( ρ, ν ) as in (2), but where the functional minimized is not linear in γ. To be precise, problem (8) is equiva-lent to a barycentric weak optimal transport problem; see for example [21, Proposition 1.1] or [2, Theorem 2.1]. This interpretation has been crucial for the recent develop-ment of numerical algorithms to solve projection problems as in (8) in the fully discrete setting, where all measures are discrete [3, 20, 25]. To the best of our knowledge, no numerical strategies for the semi-discrete setting (where ρ in equation (8) is absolutely continuous and ν is discrete) have been proposed prior to this work. 1.4. Contributions and structure of the paper. Let CN (v, ρ ) be the set of particle positions B = ( b1, . . . , b N ) ∈ (Rd)N associated with discrete measures νN (v, B ) that satisfy (7), i.e., 
+
+CN (v, ρ ) := {B = ( b1, . . . , b N ) ∈ (Rd)N ; νN (v, B ) ⪯C ρ},
+
+where ρ ∈ P 1(Rd) is a given absolutely continuous probability measure with bounded density with respect to Lebesgue, and as before v = ( v1, . . . , v N ) ∈ RN>0 with P 
+
+> i
+
+vi = 1. Using (7) and the definition of convexity one can verify that CN (v, ρ ) is a convex set. Our main contributions concern the structure of this set and its relation to the reconstruction problem stated in Question 1. Specifically, we will show that the exposed points of the set CN (v, ρ ) are the vectors B = ( bi)i with 
+
+bi = 1
+
+vi
+
+Z 
+
+> Li(ϕ∗,Y )
+
+x dρ(x) ,
+
+where Y = ( Rd)N \ ∆N is any vector of generators and ϕ∗ is such that condition (1) holds. In other words, there exists Y ∈ (Rd)N \ ∆N and ϕ ∈ RN such that, for all 
+
+i ∈ { 1, . . . , N }, Li(ϕ, Y ) has measure vi and barycenter bi (with respect to ρ) if and SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 5
+
+only if ( b1, . . . , b N ) is an exposed point of CN (v, ρ ). This answers an open problem posed in [12]. Moreover we show that the extreme points of CN (v, ρ ) can be constructed in a similar way but replacing Laguerre tessellations by an inductive type of tessellation introduced in [1], which we name hierarchical Laguerre tessellations. Similar results are already present in the literature in different contexts. In [18], Ekeland and Schachermayer already identified a connection between convex order and optimal transport that relies on interpreting random variables as exposing directions, which is essentially equivalent to our point of view. However, they do not consider specifically the semi-discrete case, which allows for a very explicit characterization of exposed and extreme points. On the other hand, in the fully-discrete case, i.e., when also 
+
+ρ is a fixed discrete measure, the set CN (v, ρ ) coincides with the so-called gravity body 
+
+introduced by Brieden and Gritzmann [14] to study balanced clusterings of points in Rd
+
+[15]. In that case, CN (v, ρ ) is a polytope and its vertices correspond to the barycenters of a certain class of Laguerre tessellations. Our results represent the natural extension of such a characterization to the case of an absolutely continuous reference measure ρ.Exploiting our characterization of the set CN (v, ρ ), we provide sufficient conditions that guarantee that, given a collection of barycenters B of a Laguerre tessellation, one can recover a Laguerre tessellation whose cell barycenters are arbitrary close to B
+
+by solving the Wasserstein projection problem (8). Finally, we provide two numeri-cal algorithms to solve this reconstruction problem, or more generally problem (8) in the semi-discrete setting, i.e., whenever ρ is absolutely continuous and ν is discrete. Importantly, our algorithm can also be applied to solve the fitting problem , which cor-responds to the case where B is not necessarily a collection of barycenters of a Laguerre tessellation. The rest of the paper is structured as follows. In Section 2 we introduce the concept of a hierarchical Laguerre tessellation and describe its relation with classical Laguerre tessellations. In Section 3 we characterize the exposed and extreme points of the set 
+
+CN (v, ρ ). We also prove in Proposition 3.4 that a hierarchical Laguerre tessellation is uniquely determined by the volumes and barycenters of its cells. This generalizes Theorem 4.5 in [12]. In Section 4 we study the projection problem onto to CN (v, ρ ), and in Section 5 we describe how one can use it to recover a Laguerre tessellation with prescribed cell volumes from the cell barycenters. Finally, we propose different convex optimization methods to solve the projection problem and show numerical results in Section 6, including an application in materials science of fitting a Laguerre tessellation to an EBSD image of steel provided by Tata Steel Netherlands. 2. Hierarchical Laguerre tessellations 
+
+In this section we describe the concept of a hierarchical Laguerre tessellation, which has already appeared in the literature for different types of applications [1, 24]. Here, we focus on the case where the cell volumes of the tessellations are assigned, and describe the precise relation between hierarchical Laguerre tessellations and classical ones. This will be useful in the next section to characterize the set of discrete measures dominated in convex order by a given measure. 6 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+Figure 2. An example of convex tessellation of R2 which is not a (hi-erarchical) Laguerre tessellation. The two-dimensional cells of the tes-sellation have as boundaries the solid lines. In order for this tessellation to be Laguerre, it should be possible to recover it as the projection of a polyhedron in R3, but this is impossible if the dashed lines do not meet at a single point. In fact if three planes intersect in R3, their common intersection is either a line or a single point. We start by recalling that a convex tessellation of Rd is a list ( P1, . . . , P N ) of (possibly empty) closed convex sets Pi, called cells, with pairwise disjoint interiors such that 
+
+[
+
+> i
+
+Pi = Rd.
+
+Let ρ ∈ P 1(Rd) be a reference probability measure that is absolutely continuous with respect to the Lebesgue measure. We will also denote by ρ its density with respect to the Lebesgue measure, which we assume to be bounded. We will be interested in tessellations with fixed cell volumes with respect to ρ. More precisely, given a vector 
+
+v = ( v1, . . . , v N ) ∈ RN>0 with P 
+
+> i
+
+vi = 1, we define the set of convex tessellations with volumes v as follows: 
+
+T N
+
+> conv
+
+(v, ρ ) := {(Pi)Ni=1 convex tessellation of Rd ; ρ(Pi) = vi ∀i} .
+
+Similarly, we define the set of Laguerre tessellations with volumes v as follows: 
+
+T N
+
+> Lag
+
+(v, ρ ) := {(Pi)Ni=1 Laguerre tessellation of Rd ; ρ(Pi) = vi ∀i} .
+
+Clearly T N
+
+> Lag
+
+(v, ρ ) ⊂ T N
+
+> conv
+
+(v, ρ ). However there are convex tessellations that are not Laguerre tessellations. Typical examples in any dimension are binary partitions by hyperplanes (see Figure 4, right). In R2, however, we have further counterexamples due to stronger geometric constraints implied by the definition of Laguerre tessellations, illustrated in Figure 2. By identifying the convex cells of a given tessellation with the associated characteristic functions, we can interpret T N 
+
+> conv
+
+and T N 
+
+> Lag
+
+as subsets of ( L∞(ρ)) N , which we equip with the product weak-* topology. Using this topology, we now characterize the closure of 
+
+T N
+
+> Lag
+
+(v, ρ ) in terms of hierarchical Laguerre tessellations. 
+
+Definition 2.1 (Hierarchical Laguerre Tessellation) . A hierarchical Laguerre tessella-tion is defined recursively as follows: 
+
+• Every Laguerre tessellation is a hierarchical Laguerre tessellation; SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 7
+
+• If ( Pi)1≤i≤N is a hierarchical Laguerre tessellation with N cells and if ( Qj )1≤i≤M is a Laguerre tessellation with M cells, then for any i0 ∈ { 1, . . . , N }, the tessellation with N + M − 1 cells P1, . . . , P i0−1, P i0 ∩ Q1, P i0 ∩ Q2, . . . , P i0 ∩ QM , P i0+1 , . . . , P N
+
+is also a hierarchical Laguerre tessellation. Informally, given a hierarchical Laguerre tessellation ( Pi)i, the tessellation obtained by partitioning a given cell Pi with a Laguerre tessellation is also a hierarchical Laguerre tessellation; see Figure 4 (right). In particular, any recursive binary partition of Rd by hyperplanes defines a hierarchical Laguerre tesselation. As for Laguerre tessellations, we denote the set of hierarchical Laguerre tessellations with N cells of prescribed volumes as follows: 
+
+T N
+
+> hLag
+
+(v, ρ ) := {(Pi)Ni=1 hierarchical Laguerre tessellation of Rd ; ρ(Pi) = vi ∀i} .
+
+Proposition 2.2. T N
+
+> Lag
+
+(v, ρ ) = T N
+
+> hLag
+
+(v, ρ ).Proof. Let us show that T N
+
+> Lag
+
+(v, ρ ) ⊆ T N
+
+> hLag
+
+(v, ρ ). Given any sequence of tessellations (( Lni )i)n ⊂ T N
+
+> Lag
+
+, let ( Y n)n ⊂ (Rd)N \ ∆N be the associated sequence of generators, shifted and normalized so that yn 
+
+> 1
+
+= 0 and max i̸=k |yni − ynk | = 1. (This is always possible thanks to the invariance properties of Laguerre tessellations with respect to translations and dilations of the generators; see also [33, Proposition 6].) Up to ex-tracting a subsequence (not relabelled), for some 2 ≤ M ≤ N and Y ∞ ∈ (Rd)M \ ∆M ,and a surjective map σ : {1, . . . , N } → { 1, . . . , M },
+
+yni → y∞ 
+
+> σ(i)
+
+, ∀i = 1 , . . . , N. 
+
+Moreover, (9) νN (v, Y n) = 
+
+> N
+
+X
+
+> i=1
+
+viδyni ⇀ ν M (w, Y ∞) = 
+
+> M
+
+X
+
+> j=1
+
+wj δy∞ 
+
+> i
+
+, wj = X
+
+> i∈σ−1(j)
+
+vi,
+
+where the convergence is understood as weak convergence of measures, i.e., in dual-ity with continuous bounded functions on Rd. Let ( γn)n be the sequence of optimal transport plans from ρ to νN (v, Y n), obtained by solving problem (2). By stability of optimal plans (see, e.g., Theorem 5.20 in [41]), this converges weakly to the unique optimal transport plan from ρ to νM (w, Y ∞), 
+
+γ =
+
+> M
+
+X
+
+> j=1
+
+ρ|L∞ 
+
+> j
+
+⊗ δy∞ 
+
+> j
+
+,
+
+where ( L∞ 
+
+> j
+
+)j is the Laguerre tessellation with generators Y ∞ and volumes w. In par-ticular, denoting (10) Qnj := [
+
+> i∈σ−1(j)
+
+Lni .
+
+then ρ|Qnj ⇀ ρ |L∞ 
+
+> j
+
+weakly as n → ∞ , from which we can deduce that also the corre-sponding characteristic functions converge, i.e., 
+
+1Qnj → 1L∞ 
+
+> j
+
+weakly-* in L∞(ρ).8 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+If M = N , we would be already done, since ( L∞ 
+
+> j
+
+)j is a Laguerre tessellation. Otherwise, let 1 ≤ j ≤ M be any index such that ˜N := |σ−1(j)| > 1 and define Qnj as above. We shift and normalize the set ˜Y n = ( yni )i∈σ−1(j) so that yni1 = 0 for some i1 ∈ σ−1(j)and max {| yni − ynk | ; i, k ∈ σ−1(j), i ̸ = k} = 1. Up to extracting a subsequence (not relabelled), for some 2 ≤ ˜M ≤ ˜N and ˜Y ∞ ∈ (Rd) ˜M \ ∆ ˜M , and a surjective map 
+
+σ : {1, . . . , ˜N } → { 1, . . . , ˜M },
+
+yni → y∞ 
+
+> σ(i)
+
+, ∀i = 1 , . . . , ˜N . 
+
+We can then proceed as before, with ρ replaced by ρ|Qnj , for which ρ|Qnj ⇀ ρ |L∞ 
+
+> j
+
+as 
+
+n → ∞ . Iterating this argument implies that T N 
+
+> Lag
+
+⊆ T N
+
+> hLag
+
+.Let us prove that T N 
+
+> hLag
+
+⊆ T N
+
+> Lag
+
+. Given any hierarchical Laguerre tessellation ( Li)i ∈T N
+
+> hLag
+
+(v, ρ ), using Lemma 3.5 in [1], we can construct a sequence of Laguerre tessellations (( ˜Lni )i)n with generators Y n ∈ (Rd)N \ ∆N (but possibly different volumes) such that ˜Lni → Li locally in the Hausdorff metric. Since ˜Lni and Li are convex sets, this implies (11) 1˜Lni → 1Li weakly-* in L∞(ρ); see [9], for example. In particular, this means that 
+
+vni := ρ( ˜Lni ) → vi
+
+for all i. Let ( Lni )i be the Laguerre tessellation with generators Y n, but with weights chosen so that ρ(Lni ) = vi for all i. We now show that, up to the extraction of a subsequence, Lni also converges towards Li for all i, which implies that T N 
+
+> hLag
+
+⊆ T N
+
+> Lag
+
+.Proceeding as before, we can assume that, for some 2 ≤ M ≤ N and Y ∞ ∈ (Rd)M \∆M ,and a surjective map σ : {1, . . . , N } → { 1, . . . , M },
+
+yni → y∞ 
+
+> σ(i)
+
+, ∀i = 1 , . . . , N. 
+
+Denoting vn := ( vni )i, and w as defined in equation (9), we have 
+
+νN (vn, Y n) ⇀ ν M (w, Y ∞) ,
+
+and also 
+
+νN (v, Y n) ⇀ ν M (w, Y ∞).
+
+Using again the stability of optimal transport maps we deduce that 
+
+1Qnj → 1L∞ 
+
+> j
+
+weakly-* in L∞(ρ),
+
+where Qnj is again defined as in (10) and ( L∞ 
+
+> j
+
+)j is the Laguerre tessellation with volumes 
+
+w and generators Y ∞. Moreover, due to (11), we also have 
+
+L∞ 
+
+> j
+
+= [
+
+> i∈σ−1(j)
+
+Li .
+
+Iterating the argument as before we obtain the result. □SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 9
+
+3. Semi-discrete convex order 
+
+In this section we study the set of discrete measures of prescribed masses in convex order with respect to ρ. We will give a characterization of this set as a convex body in RdN , and in terms of measures supported on the cell barycenters of Laguerre and hierarchical Laguerre tessellations. As before, we fix a vector v = ( v1, . . . , v N ) ∈ RN>0 such that P 
+
+> i
+
+vi = 1, and an absolutely continuous reference measure ρ ∈ P 1(Rd) with bounded density. We study the following set: 
+
+CN (v, ρ ) := {B ∈ (Rd)N ; νN (v, B ) ⪯C ρ} ⊂ RdN ,
+
+where the notation ⪯C was defined in equation (7) and we recall that 
+
+νN (v, B ) := 
+
+> N
+
+X
+
+> i=1
+
+viδbi ∈ P (Rd) ,
+
+for any B = ( b1, . . . , b N ) ∈ (Rd)N . For brevity, we will omit to indicate the dependency of CN on ρ and v when it is clear from the context. It will be convenient to use the weighted l2-metric on ( Rd)N defined by 
+
+⟨Y, Z ⟩v := X
+
+> i
+
+⟨yi, z i⟩vi,
+
+for any Y = ( yi)i and Z = ( zi)i in ( Rd)N . Moreover, we will denote ∥Y ∥2 
+
+> v
+
+:= ⟨Y, Y ⟩v.3.1. Basic properties of CN . By definition, a point B ∈ C N if and only if 
+
+X
+
+> i
+
+φ(bi)vi ≤
+
+Z
+
+> Rd
+
+φ dρ
+
+for any convex function φ : Rd → R. In particular, CN is convex. It is also non-empty because, by Jensen’s inequality, (bary( ρ), . . . , bary( ρ)) ∈ C N (v, ρ ), where bary( ρ) := 
+
+Z
+
+> Rd
+
+x dρ(x) .
+
+The set CN is also closed, since the functions φ defining the set are continuous. Moreover 
+
+CN is bounded, since we can take φ(x) = |x|. Now, if B ∈ C N , by taking φ(x) = ±x,we obtain that (12) X
+
+> i
+
+bivi = bary( ρ) .
+
+Due to this constraint CN cannot have full dimension, and more precisely dim( CN ) ≤
+
+(N − 1) d. (Recall that the dimension of a convex set is defined to be the dimension of its affine hull.) Since we are supposing that ρ is absolutely continuous, the following equality holds: 
+
+Lemma 3.1. dim( CN ) = ( N − 1) d.10 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+Proof. We argue by induction on N . The statement is trivially true for N = 1. Suppose it is also true for a given N , and fix a vector of admissible volumes v = ( v1, . . . , v N +1 ). Let ˜ ρ ∈ L∞(Rd) be any density such that 0 ≤ ˜ρ ≤ ρ and ˜ ρ(Rd) = vN +1 . Let ˜ v =(v1, . . . , v N ). By Jensen’s inequality, we can construct B = ( b1, . . . , b N +1 ) ∈ C N +1 (v, ρ )by setting 
+
+bN +1 = bary(˜ ρ) := 1˜ρ(Rd)
+
+Z
+
+> Rd
+
+x d˜ ρ(x),
+
+and taking any ˜B = ( b1, . . . , b N )∈ C N (˜ v, ρ − ˜ρ) so that 
+
+νN (˜ v, ˜B) ⪯C ρ − ˜ρ . 
+
+Hence we just need to show that ˜ ρ can be chosen so that bN +1 = bary(˜ ρ) is an arbitrary point in a set of dimension d, i.e., {bary(˜ ρ) ; ˜ ρ ∈ L∞(Rd), 0 ≤ ˜ρ ≤ ρ, ˜ρ(Rd) = vN +1 }
+
+has dimension d, as this implies that dim( CN +1 ) ≥ dN . By convexity, it suffices to find d + 1 densities {˜ρi}d+1  
+
+> i=1
+
+as above (i.e., ˜ ρi ∈ L∞(Rd), 0 ≤ ˜ρi ≤ ρ, ˜ ρi(Rd) = vN +1 )such that the convex hull of b1, . . . , b d+1 , with bi = bary(˜ ρi), has dimension d. We can construct them as follows. First, we define the sets Ai ⊂ Rd inductively by 
+
+A1 := Rd , pi := bary( ρ|Ai ) , Ai+1 := Ai ∩ { x∈ Rd : ⟨hi, x − pi⟩ > 0} ,
+
+for i = 1 , . . . , d , where h1 = Rd \ { 0} is arbitrary and, for all i ≥ 2, hi ∈ span( p2 −
+
+p1, . . . , p i −p1)⊥ \{ 0} is also chosen arbitrarily. It is easy to check that ρ(Ai) > 0: in fact, if ρ(Ai) > 0, then ρ(Ai+1 ) > 0 independently of the choice of hi, since pi = bary( ρ|Ai ). (If this were not the case, then necessarily ρ(∂A i+1 ) > 0, but this is impossible since ρ
+
+is absolutely continuous). Then we define ˜ρi := vN +1 
+
+1 − εi
+
+
+
+ρ − εi
+
+ρ|Ai
+
+ρ(Ai)
+
+
+
+where 0 < ε i < min( ρ(Ai), 1 − vN +1 ) is a given coefficient. By the bounds on εi, we have indeed 0 ≤ ˜ρi ≤ ρ and moreover ˜ ρi(Rd) = vN +1 . Now, since A1 = Rd, then b1 = p1
+
+and, for all i ≥ 2, (13) bi − b1 = bary(˜ ρi) − b1 = 11 − εi
+
+(p1 − εipi) − p1 = εi
+
+εi − 1(pi − p1).
+
+Since ρ is absolutely continuous and Ai+1 is convex, then pi+1 = bary( ρ|Ai+1 ) ∈ Ai+1 .By definition of Ai+1 , this means that for all i ≥ 2, 
+
+pi+1 − pi /∈ span( p2 − p1, . . . , p i − p1) ,
+
+which also implies that pi+1 − p1 /∈ span( p2 − p1, . . . , p i − p1). Hence, by induction and equation (13), the vectors {b2 − b1, . . . , b d+1 − b1} are linearly independent, and we are done. □
+
+3.2. Strassen’s Theorem and barycenters of Laguerre tessellations. As can already be deduced from the proof of Lemma 3.1, one can construct points in CN by decomposing the density ρ appropriately. In order to describe this procedure, let us first recall the following alternative characterization of convex order, due to Strassen [38]: SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 11 
+
+ρ1
+
+ρ2
+
+ρ3
+
+b1 b2 b3
+
+x
+
+Figure 3. Construction of a discrete measure in convex order with a density ρ = ρ1 + ρ2 + ρ3 on R. Setting bi = bary( ρi) and vi = ρi(R), then 
+
+ν3(v, B ) ⪯C ρ.
+
+Lemma 3.2 (Strassen’s Theorem) . Let μ, ν ∈ P 1(Rd). Then μ ⪯C ν if and only if there exists a martingale coupling between μ and ν, namely, there exists a coupling θ ∈ Γ( μ, ν )
+
+such that dθ(x, y ) = d θx(y)d μ(x) (in the sense of disintegration of measures) and 
+
+(14) 
+
+Z
+
+> Rd
+
+y dθx(y) = x for μ-a.e. x ∈ Rd .
+
+In our setting ( μ = νN (v, B ), ν = ρ), this means that B ∈ C N (ρ, v ) if and only if there exists N densities ( ρi)Ni=1 such that (15) 
+
+> N
+
+X
+
+> i=1
+
+ρi = ρ , 
+
+Z
+
+> Rd
+
+dρi = vi , bi = bary( ρi) := 1
+
+vi
+
+Z
+
+> Rd
+
+y dρi(y) ,
+
+for all i = 1 , . . . , N , or in other words, the points bi are the barycenters of the densities 
+
+ρi. In the notation of Lemma 3.2, θbi = ρi/v i for all i. Note, in particular, that if v
+
+and B satisfy (15), then clearly νN (v, B ) ⪯C ρ by Jensen’s inequality. An illustration of this construction is shown in Figure 3. As a particular case of this construction, given any measurable partition ( Pi)Ni=1 of 
+
+Rd such that vi = ρ(Pi) for all i, we can also construct an element of B ∈ C N simply by setting 
+
+bi = bary ρ(Pi) := 1
+
+vi
+
+Z
+
+> Pi
+
+x dρ(x).
+
+In particular, denoting by 
+
+BN
+
+> Lag
+
+(v, ρ ) := {B ∈ (Rd)N ; ∃ (Li)i ∈ T N
+
+> Lag
+
+(v, ρ ) such that bi = bary ρ(Li) ∀ i}
+
+and 
+
+BN
+
+> hLag
+
+(v, ρ ) := {B ∈ (Rd)N ; ∃ (Li)i ∈ T N
+
+> hLag
+
+(v, ρ ) such that bi = bary ρ(Li) ∀ i}
+
+the set of barycenters of Laguerre and hierarchical Laguerre tesellations with prescribed volumes, we have BN 
+
+> Lag
+
+⊂ B N 
+
+> hLag
+
+⊂ C N by construction. Furthermore, BN 
+
+> Lag
+
+is neither convex nor closed. An example showing that the limit of vectors in BN 
+
+> Lag
+
+may not belong to the same set is shown in Figure 4. More precisely, as a corollary of Proposition 2.2 we have the following: 
+
+Lemma 3.3. BN 
+
+> Lag
+
+= BN
+
+> hLag
+
+.
+
+The following proposition states that there exists a one-to-one correspondence be-tween T N 
+
+> hLag
+
+and BN
+
+> hLag
+
+, generalizing an analogous result for Laguerre tessellations proved in [12, Theorem 4.5]. 12 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+Proposition 3.4. Let B ∈ B N
+
+> hLag
+
+(v, ρ ). Then there exists a unique collection of proba-bility measures (θi)Ni=1 ⊂ P 1(Rd) such that 
+
+(16) X
+
+> i
+
+viθi = ρ , bary( θi) := 
+
+Z
+
+> Rd
+
+xdθi(x) = bi , ∀ i = 1 , . . . , N. 
+
+In particular, there exists a unique tessellation of Rd with volumes and barycenters equal to v and B respectively, which therefore must be a hierarchical Laguerre tessellation. Proof. Let ( ˜Li)i be a given hierarchical Laguerre tessellation corresponding to B. The existence of a ( θi)i as in the statement follows from the fact that we can always take, for i = 1 , . . . , N , θi = 1 
+
+> vi
+
+ρ|˜Li . We want to prove that ( θi)i is uniquely determined by the conditions (16), which implies that ( ˜Li)Ni=1 is also unique. Since B ∈ B N
+
+> hLag
+
+(v, ρ ), there exists a Laguerre tessellation ( Lj )Mj=1 with generators 
+
+Y ∈ (Rd)M \ ∆M , with 2 ≤ M ≤ N , and a surjective map σ : {1, . . . , N } → { 1, . . . , M }
+
+such that, for all j = 1 , . . . , M ,
+
+ρ(Lj ) = X
+
+> i∈σ−1(j)
+
+vi =: wj , bary ρ(Lj ) = 1
+
+wj
+
+X
+
+> i∈σ−1(j)
+
+vibi .
+
+By construction, the coupling γ∗ ∈ P 1(Rd × Rd) defined by 
+
+Z
+
+> Rd×Rd
+
+φ(x, y ) d γ∗(x, y ) = 
+
+> M
+
+X
+
+> j=1
+
+Z
+
+> Lj
+
+φ(x, y j ) d ρ(x) ∀ φ ∈ Cb(Rd × Rd)is the unique optimal transport plan from ρ to νM (w, Y ). Now, let ( θi)i ⊂ P 1(Rd) be an arbitrary collection of probability measures satisfying (16). We can define a coupling 
+
+γ ∈ Γ( ρ, ν M (w, Y )) as follows: 
+
+Z
+
+> Rd×Rd
+
+φ(x, y ) d γ(x, y ) = 
+
+> M
+
+X
+
+> j=1
+
+X
+
+> i∈σ−1(j)
+
+vi
+
+Z
+
+> Rd
+
+φ(x, y j ) d θi(x) ∀ φ ∈ Cb(Rd × Rd) .
+
+In particular, it is easy to check that 
+
+Z
+
+> Rd×Rd
+
+⟨x, y ⟩ dγ(x, y ) = 
+
+> M
+
+X
+
+> j=1
+
+X
+
+> i∈σ−1(j)
+
+vj ⟨bi, y j ⟩ =
+
+Z
+
+> Rd×Rd
+
+⟨x, y ⟩ dγ∗(x, y ) ,
+
+and therefore by the uniqueness of γ∗, for all j = 1 , . . . , M ,
+
+X
+
+> i∈σ−1(j)
+
+viθi = ρ|Lj .
+
+This means that the left-hand side is uniquely determined for all j. But then we can iterate the construction replacing ρ with ρ|Lj , for each j = 1 , . . . , M . Eventually, this allows us to deduce that each θi is uniquely determined, and we are done. □SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 13 
+
+y1
+
+y3
+
+y2
+
+b1
+
+b2
+
+b3
+
+Figure 4. Consider the Laguerre tessellation on the left, defined by the generators ( y1, y 2, y 3) and volumes v1 = v2 = v3, where ρ is uniform on a square (shaded area). As y2 and y3 approach each other, the tessel-lation degenerates to the configuration on the right. This limit is not a Laguerre tessellation, but a hierarchical Laguerre tessellation: it can be constructed by first partitioning the square into two cells via a Laguerre tessellation (corresponding to the vertical segment), and then subdivid-ing the right cell using a second Laguerre partition (corresponding to the horizontal segment). In particular, note that the vector of barycenters 
+
+B = ( b1, b 2, b 3) ∈ B N 
+
+> hLag
+
+is not in BN
+
+> Lag
+
+.3.3. Support function, exposed and extreme points. In this section we compute the support function of CN , and use this to prove that BN 
+
+> Lag
+
+and BN 
+
+> hLag
+
+are precisely the sets of exposed and extreme points of CN , respectively. Define the function FN : ( Rd)N → R as follows: (17) FN (Y ) := max 
+
+Z 
+
+> Rd×Rd
+
+⟨x, y ⟩ dγ(x, y ) ; γ ∈ Γ( ρ, ν N (v, Y )) 
+
+
+
+.
+
+We will also denote the same function by FN (v, ρ ; Y ) when we want to emphasize the dependence on v and ρ. Note that (if ρ has finite second moments) FN is related to the Wasserstein distance W2(ρ, ν N (v, Y )) via 
+
+FN (Y ) = −12W 22 (ρ, ν N (v, Y )) + 12
+
+Z
+
+> Rd
+
+|x|2 dρ(x) + 12
+
+> N
+
+X
+
+> i=1
+
+vi|yi|2.
+
+The following proposition states that F ∗ 
+
+> N
+
+is the indicator function of the convex set CN .Therefore FN = F ∗∗  
+
+> N
+
+= ι∗CN is the support function of CN by, e.g., [7, Example 18.3]. 
+
+Proposition 3.5. The function FN is convex and continuous; it is non-differentiable on ∆N and C1 on (Rd)N \ ∆N , and for all Y ∈ (Rd)N \ ∆N ,
+
+∇FN (Y ) = ( bary ρ(L∗ 
+
+> i
+
+(v, Y )) ) i ,
+
+where ∇ denotes the gradient with respect to the l2-inner product weighted by v, ⟨· , ·⟩ v,and (L∗ 
+
+> i
+
+(v, Y )) i is the unique Laguerre tessellation with generators Y and volumes v.14 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+Moreover, for all B ∈ (Rd)N ,
+
+(18) F ∗ 
+
+> N
+
+(B) = ιCN (B) := 
+
+ 0 if νN (v, B ) ⪯C ρ, 
+
++∞ otherwise ,
+
+where F ∗ 
+
+> N
+
+is the Fenchel-Legendre transform of FN , again with respect to ⟨· , ·⟩ v. Fur-thermore, for all Y ∈ (Rd)N , the subgradient of FN at Y is given by 
+
+∂F N (Y ) = argmax {⟨ Y, X ⟩v ; X ∈ C N }(19) = {B ∈ C N ; FN (Y ) = ⟨B, Y ⟩v} .(20) Note that, for Y ∈ ∆N , we give an explicit expression for an element of ∂F N (Y )below in equation (46). 
+
+Proof. The first part follows from Proposition 5.1 in [27] or Theorem 4.2 of [12], for example. We give a sketch of the proof for completeness. Given any two vectors 
+
+Z, Y ∈ (Rd)N \ ∆N , the coupling γ ∈ P (Rd × Rd) defined by 
+
+Z
+
+> Rd×Rd
+
+φ(x, y ) d γ(x, y ) = X
+
+> i
+
+Z  
+
+> L∗
+> i(v,Y )
+
+φ(x, z i) d ρ(x),
+
+for any bounded continuous function φ : Rd × Rd → R, belongs to Γ( ρ, ν N (Z, v )) and is admissible for the problem defining FN (Z). In addition, the coupling γ∗ ∈ P (Rd × Rd)defined by (21) 
+
+Z
+
+> Rd×Rd
+
+φ(x, y ) d γ∗(x, y ) = X
+
+> i
+
+Z  
+
+> L∗
+> i(v,Y )
+
+φ(x, y i) d ρ(x) ∀ φ ∈ Cb(Rd × Rd)is the unique solution of the problem defining FN (Y ). In particular, this implies that 
+
+FN (Z) ≥ FN (Y ) + X
+
+> i
+
+Z  
+
+> L∗
+> i(v,Y )
+
+⟨x, z i − yi⟩ dρ(x).
+
+This means that B(Y ) := (bary ρL∗ 
+
+> i
+
+(v, Y )) i ∈ ∂F N (Y ), the subgradient of F with respect to the metric ⟨· , ·⟩ v, and therefore F is convex. By stability of optimal transport, bary ρ(L∗ 
+
+> i
+
+(v, Y )) is a continuous function of Y (see Proposition 5.1 in [27]), which implies at once that B(Y ) = ∇FN (Y ) and that F is C1. On the other hand, by a similar reasoning, one can show that if Y ∈ ∆N , then ∂F N (Y ) does not consist of a single vector so FN is not differentiable at these points. For the second part of the statement, observe that, by disintegrating the plan γ in equation (17) with respect to its second marginal, the function FN can be equivalently written as follows: (22) FN (Y ) = max 
+
+( NX
+
+> i=1
+
+Z
+
+> Rd
+
+⟨x, y i⟩vidθi(x) ; θi ∈ P 1(Rd) ,
+
+> N
+
+X
+
+> i=1
+
+θivi = ρ
+
+)
+
+.
+
+In view of Strassen’s theorem (see in particular equation (15)), this is equivalent to (23) FN (Y ) = max {⟨ Y, X ⟩v ; X ∈ C N } ,
+
+which in turn is equivalent to (18). SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 15 
+
+Next we prove (19). Since FN = ι∗CN , by Fenchel duality, 
+
+B ∈ ∂F N (Y ) ⇐⇒ Y ∈ ∂ι CN (B)
+
+⇐⇒ ιCN (X) ≥ ιCN (B) + ⟨Y, X − B⟩v , ∀ X ∈ (Rd)N
+
+⇐⇒ B ∈ C N and ⟨Y, B ⟩v ≥ ⟨ Y, X ⟩v , ∀ X ∈ C N ,
+
+which proves (19). Finally, (20) follows from (19) and (23). □
+
+The function FN allows us to provide a characterization of the exposed and extreme points of CN . We remark that a similar result but in the continuous setting was es-tablished in [17], but considering the linear structure on probability measures, which is different from the type of convexity considered in this work. We recall that the exposed faces of CN are the sets of maximizers of a linear form on CN . Exposed faces are faces, i.e., convex subsets F ⊂ C N containing every closed segment in CN whose interior intersects F. Proper (exposed) faces are (exposed) faces that are neither the empty set nor CN . Exposed points are exposed faces containing a single point. 
+
+Theorem 3.6 (Exposed points and faces) . The following holds: 
+
+(24) CN = conv( BN
+
+> Lag
+
+) .
+
+Moreover, 
+
+1. BN 
+
+> Lag
+
+coincides with the set of exposed points of CN ;
+
+2. the proper exposed faces of CN have dimension d(N − M ) for M = 2 , . . . , N . For a given M , the exposed faces of dimension d(N −M ) are given by {F N
+
+> Lag
+
+(Y, σ )}Y,σ 
+
+where Y ∈ (Rd)M \ ∆M , σ : {1, . . . , N } → { 1, . . . , M } is any surjective map and 
+
+(25) FN
+
+> Lag
+
+(Y, σ ) = 
+
+n
+
+B ∈ (Rd)N ; X
+
+> i∈σ−1(j)
+
+viδbi ⪯C ρ|L∗   
+
+> j(w,Y )
+
+, ∀ j = 1 , . . . , M 
+
+o
+
+,
+
+where (L∗ 
+
+> i
+
+(w, Y )) i is the unique Laguerre tessellation with generators Y and vol-umes w = ( w1, . . . , w M ), where 
+
+(26) wj = X
+
+> i∈σ−1(j)
+
+vi , ∀ j = 1 , . . . , M ;3. the relative boundary of CN can be characterized as follows: 
+
+rel ∂CN = [
+
+> Y,σ
+
+FN
+
+> Lag
+
+(Y, σ )
+
+where the union is over any Y ∈ (Rd)M \∆M , M = 2 , . . . , N and σ : {1, . . . , N } → {1, . . . , M } surjective. Proof. First we prove (24). By (6), we observe that 
+
+FN (Y ) = sup 
+
+(X
+
+> i
+
+Z
+
+> Li
+
+⟨x, y i⟩ dρ(x) ; ( Li)i ∈ T N
+
+> Lag
+
+(v, ρ )
+
+)
+
+.
+
+Hence, 
+
+FN (Y ) = sup ⟨B, Y ⟩v ; B ∈ B N 
+
+> Lag
+
+,16 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+and the right-hand side is precisely ι∗BN
+
+> Lag
+
+(Y ), so that F ∗ 
+
+> N
+
+= ι∗∗ BN
+
+> Lag
+
+. But F ∗ 
+
+> N
+
+= ιCN by Proposition 3.5. Therefore CN = conv( BN
+
+> Lag
+
+). To prove the first point, observe that by Proposition 3.5, 
+
+B ∈ B N 
+
+> Lag
+
+⇐⇒ ∃ Y : {B} = ∂F N (Y )
+
+⇐⇒ ∃ Y : {B} = arg max {⟨ X, Y ⟩v ; X ∈ C N } ,
+
+which is equivalent to B being an exposed point of CN . Note that equation (24) can be alternatively deduced as a direct consequence of this fact. To prove the second point, observe that the exposed faces of CN can be obtained as the intersection of CN with any supporting hyperplane different from the affine hull of CN .Any such hyperplane has a normal ˜Y ∈ (Rd)N which must be different from the constant vector (defined by ˜ yi = c for all i and c̸ = 0). Therefore, there exists Y ∈ (Rd)M \ ∆M ,for some M ∈ { 2, . . . , N }, and σ : {1, . . . , N } → { 1, . . . , M } surjective, such that ˜Y = (˜ yi)i ∈ (Rd)N is given by ˜ yi = yσ(i) for all i. By equation (20), the intersection of 
+
+CN with the supporting hyperplane of outward normal ˜Y is the set of points B ∈ C N
+
+such that FN ( ˜Y ) = ⟨B, ˜Y ⟩v.Let ( L∗ 
+
+> i
+
+(w, Y )) i be the Laguerre tessellation with generators Y and volumes w, defined in (26). Let us take γ ∈ Γ( ρ, ν M (w, Y )) to be the optimal transport plan defined by dγ(x, y ) = 
+
+> N
+
+X
+
+> i=1
+
+vidθi(x) ⊗ δ ˜Yi (y),
+
+where θi ∈ P (Rd) satisfies (27) X
+
+> i∈σ−1(j)
+
+viθi = ρ|L∗   
+
+> j(w,Y )
+
+,
+
+for all j = 1 , . . . , M . By construction (see Section 1.2), 
+
+FM (Y ) = 
+
+Z
+
+⟨x, y ⟩dγ(x, y ) .
+
+Therefore, 
+
+FN (v, ρ ; ˜Y ) = FM (w, ρ ; Y ) = 
+
+> N
+
+X
+
+> i=1
+
+vi
+
+Z 
+
+xdθi(x), ˜yi
+
+
+
+.
+
+This means that the vectors B = ( b1, . . . , b N ) ∈ C N belonging to the exposed face with normal ˜Y are precisely those satisfying (28) bi =
+
+Z
+
+xdθi(x) ,
+
+for some collection of probability measures ( θi)i as above. Finally, by Strassen’s The-orem (see equation (15)), the existence of probability measures θi satisfying (27) and (28) is equivalent to the convex order relation 
+
+X
+
+> i∈σ−1(j)
+
+viδbi ⪯C ρ|L∗  
+
+> j(w,Y )
+
+.SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 17 
+
+B Y
+
+CN (v, ρ )
+
+yi
+
+bi
+
+Figure 5. The vector of barycenters B = ( bi)i of a Laguerre tessellation with generators Y = ( yi)i and volumes v = ( vi)i (right figure) is the unique maximizer of X 7 → ⟨ X, Y ⟩v on CN (v, ρ ) (left). This proves equation (25). Finally, by direct computation and Lemma 3.1 (see also Remark 3.8 below), dim( FN
+
+> Lag
+
+(Y, σ )) = 
+
+> M
+
+X
+
+> j=1
+
+d(# σ−1(j) − 1) = d(N − M ) .
+
+The third point follows from the fact that the relative boundary of a convex body is the union of all its proper exposed faces. □
+
+Figure 5 provides a graphical illustration of the first point in Theorem 3.6 character-izing the exposed points of CN .
+
+Example 3.7. Here are two simple examples of CN , which were constructed by finding 
+
+BN 
+
+> Lag
+
+and using equation (24). 1. If d = 1, then CN is a convex polytope. In particular, there is no distinction between exposed and extreme points in this case. When all the volumes vi are equal, then CN is exactly the permutahedron associated with the barycenters bi
+
+of Li, where ( Li)i the unique partition of the real line R by disjoint intervals such that ρ(Li) = 1 /N .2. If N = d = 2, v1 = v2 = 12 and ρ = 1 
+
+> π
+
+χB(0 ,1) is the uniform probability distribution on the unit disk, then CN (v, ρ ) ⊂ R4 is a two-dimensional disk. It lies in the plane spanned by (1 , 0, −1, 0) , (0 , 1, 0, −1), has center 0 and radius r = 43π2 , where ( r, 0) is the barycenter (with respect to ρ) of the half-disk B(0 , 1) ∩ { x1 ≥ 0}.
+
+Remark 3.8. Since each exposed face FN
+
+> Lag
+
+(Y, σ ) can itself be described by convex order relations analogous to those defining CN (v, ρ ) (see equation (25) ), Theorem 3.6 also provides a precise characterization of the exposed faces of FN
+
+> Lag
+
+(Y, σ ). Applying the theorem recursively this yields a hierarchical description of the boundary of CN (v, ρ ).To make this precise, using the same notation as in Theorem 3.6, let us denote, for any 18 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+j = 1 , . . . , M ,
+
+ρj := ρ|L∗  
+
+> j(w,Y )
+
+wj
+
+, where w = ( wj )j ∈ RM>0 with wj := X
+
+> i∈σ−1(j)
+
+vi ,N j := # σ−1(j) , vj := 
+
+vi1
+
+wj
+
+, . . . , viN j
+
+wj
+
+
+
+, where ik ∈ σ−1(j) and ik < i k+1 .
+
+Moreover, for any X ∈ (Rd)N , we denote 
+
+Xj :=  xi1 , . . . , x iN j
+
+ ∈ (Rd)N j
+
+where ik ∈ σ−1(j) and ik < i k+1 .
+
+Then, by the characterization of the face FN
+
+> Lag
+
+(Y, σ ) in Theorem 3.6, 
+
+(29) X = ( x1, . . . , x N ) ∈ F N
+
+> Lag
+
+(Y, σ ) ⇐⇒ Xj ∈ C N j (vj , ρ j ) , ∀ j = 1 , . . . , M . 
+
+In other words, the exposed face FN
+
+> Lag
+
+(Y, σ ) can be identified with the Cartesian product 
+
+×Mj=1 CN j (vj , ρ j ).
+
+Combining Proposition 3.4 and Theorem 3.6 yields the following result on extreme points. Before stating it, we recall that an extreme point of CN is a point B ∈ C N that cannot be expressed as the linear combination of two other points in CN different from 
+
+B.
+
+Theorem 3.9 (Extreme points) . BN 
+
+> hLag
+
+= BN 
+
+> Lag
+
+is the set of extreme points of CN .Proof. By Lemma 3.3 and Theorem 3.6, BN
+
+> hLag
+
+(v, ρ ) = BN
+
+> Lag
+
+(v, ρ ) is the closure of the exposed points of CN (v, ρ ). Hence, BN
+
+> hLag
+
+(v, ρ ) ⊂ rel ∂CN (v, ρ ) and it must contain all the extreme points of CN (v, ρ ) by Straszewicz’s Theorem [39], which states that the set of exposed points of a compact convex set is dense in the set of its extreme points. It remains to prove the converse inclusion. Let B = ( b1, . . . , b N ) ∈ B N
+
+> hLag
+
+, and let (Li)Ni=1 ∈ T N
+
+> hLag
+
+(v, ρ ) be the corresponding hierarchical Laguerre tessellation. Thus 
+
+bi = 1
+
+vi
+
+Z
+
+> Li
+
+x dρ(x), ρ(Li) = vi.
+
+By Proposition 3.4, the collection ¯θi := 1 
+
+> vi
+
+ρ|Li is uniquely characterized by the conditions (30) 
+
+> N
+
+X
+
+> i=1
+
+vi ¯θi = ρ, 
+
+Z
+
+> Rd
+
+x d¯θi(x) = bi .
+
+Suppose now that B is not extreme. Then there exist X = ( x1, . . . , x N ), Z = ( z1, . . . , z N ) ∈CN and some λ ∈ (0 , 1) such that B = (1 − λ)X + λZ . By Strassen’s Theorem, applied in the form of (15), there exist probability measures ( θXi )i and ( θZi )i such that 
+
+> N
+
+X
+
+> i=1
+
+viθXi = ρ, 
+
+Z
+
+> Rd
+
+x dθXi (x) = xi,
+
+> N
+
+X
+
+> i=1
+
+viθZi = ρ, 
+
+Z
+
+> Rd
+
+x dθZi (x) = zi.SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 19 
+
+Define θi := (1 − λ)θXi + λθ Zi . Then each θi is a probability measure, and it satisfies (30). Hence, by uniqueness, θi = ¯θi for all i. We now show that this forces X = Z = B.Since (1 − λ)θXi + λθ Zi = ¯θi, and all measures involved are nonnegative, and since λ̸ = 1, this implies that θXi is absolutely continuous with respect to ¯θi. Let aXi be the density of θXi with respect to ¯θi, so that viθXi = aXi ρ|Li . Then, using P 
+
+> i
+
+viθXi = ρ, we obtain 
+
+ρ =
+
+> N
+
+X
+
+> i=1
+
+aXi ρ|Li .
+
+Since the cells Li form a partition up to a ρ-negligible set, it follows that aXi coincide with the indicator function of Li ρ-a.e. This implies that for all i, θXi = ¯θi. Thus, 
+
+xi =
+
+Z
+
+> Rd
+
+x dθXi (x) = 
+
+Z
+
+> Rd
+
+x d¯θi(x) = bi.
+
+This implies that X = B and similarly that Z = B, thus showing that B is extreme. □
+
+3.4. Irreducible Laguerre tessellations and maximal faces. We say that a La-guerre tessellation ( Li)Ni=1 is irreducible if there does not exist any other Laguerre tes-sellation ( ˜Lj )Mj=1 with 1 < M < N whose cells ˜Lj can be expressed as a union of those from ( Li)Ni=1 ; see Figure 6. We denote by T N
+
+> iLag
+
+(v, ρ ) the set of irreducible tessellations in 
+
+T N
+
+> Lag
+
+(v, ρ ). In this section, we study the set of barycenters of such tessellations defined as follows: 
+
+BN
+
+> iLag
+
+(v, ρ ) := {B ∈ (Rd)N ; ∃ (Li)i ∈ T N
+
+> iLag
+
+(v, ρ ) such that bi = bary ρ(Li) ∀ i} .
+
+Specifically, we show the following result: 
+
+Theorem 3.10. Let exp( CN (v, ρ )) denote the set of exposed points of CN (v, ρ ). Then 
+
+BN
+
+> iLag
+
+(v, ρ ) is the interior of BN
+
+> Lag
+
+(v, ρ ) = exp( CN (v, ρ )) in rel ∂CN (v, ρ ).
+
+Before proving Theorem 3.10, we describe the relation between BN 
+
+> iLag
+
+and the convex set CN . First, we recall that a maximal face of a convex set is a proper face that is maximal under inclusion, i.e., it is not a strict subset of any other proper face. 
+
+Proposition 3.11. The following are equivalent: 
+
+1. B ∈ B N
+
+> iLag
+
+(v, ρ );
+
+2. {B} ⊂ C N (v, ρ ) is a maximal face. Proof. {B} is a maximal face if and only if B is an exposed point that does not belong to any proper exposed face other than {B}. The result then follows as a direct consequence of Theorem 3.6 and Proposition 3.4. More precisely, suppose that {B} is a maximal face and B / ∈ B N
+
+> iLag
+
+(v, ρ ). Then, by definition of BN
+
+> iLag
+
+, there exists M < N , Y ∈ (Rd)M \ ∆M
+
+and σ : {1, . . . , N } → { 1, . . . , M } such that B ∈ F N
+
+> Lag
+
+(Y, σ ) (defined in equation (25)). But then, by Theorem 3.6, B would be belong to an exposed face other than {B}. The converse holds by a similar argument since, for any B ∈ B N
+
+> iLag
+
+(v, ρ ), by Proposition 3.4, there is a unique tessellation associated with it, which is in T N 
+
+> iLag
+
+by construction. □20 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+b1 b2
+
+b3b4
+
+y1 = y4 y2 = y3
+
+y1 = y2
+
+y3 = y4
+
+Figure 6. The figure on the left shows an example of a Laguerre tessel-lation that is not irreducible. For this tessellation, the vector of barycen-ters B = ( b1, b 2, b 3, b 4), corresponding to ρ uniform on the square and 
+
+v1 = v2 = v3 = v4, lies on two distinct exposed faces of C4(v, ρ ), each of dimension strictly greater than zero. These faces are exposed by the hyperplanes with normal vectors Y = ( y1, y 2, y 3, y 4) shown in the figure (center and right). 
+
+Proof of Theorem 3.10. It suffices to show that BN
+
+> iLag
+
+(v, ρ ) is open in rel ∂CN (v, ρ ). In fact, by construction BN 
+
+> iLag
+
+⊆ B N
+
+> Lag
+
+, and by Proposition 3.11, BN 
+
+> Lag
+
+\ B N 
+
+> iLag
+
+⊆ ∂BN
+
+> Lag
+
+, the boundary of BN 
+
+> Lag
+
+in rel ∂CN (v, ρ ). Let us suppose that BN
+
+> iLag
+
+(v, ρ ) is not open in rel ∂CN (v, ρ ). Then, for some B ∈BN
+
+> iLag
+
+(v, ρ ), there exists a sequence of points ( Bn)n ⊂ rel ∂CN (v, ρ ) \ B N
+
+> iLag
+
+(v, ρ ) such that 
+
+Bn → B as n → ∞ . By Proposition 3.11 and Theorem 3.6, there exists a sequence of vectors ( Y n)n ⊂ ∆N \ { Y = ( y, . . . , y ) ; y ∈ Rd} such that 
+
+Bn ∈ argmax {⟨ Y n, X ⟩v ; X ∈ C N }.
+
+We can suppose that each vector Y n is normalized so that yn 
+
+> 1
+
+= 0 and max i̸=k |yni −ynk | =1. Hence, up to the extraction of a subsequence, Y n → Y ∞ ∈ ∆N \{ Y = ( y, . . . , y ) ; y ∈
+
+Rd}. Moreover, 
+
+B ∈ argmax {⟨ Y ∞, X ⟩v ; X ∈ C N }.
+
+But then, reasoning as in the proof of Theorem 3.6, this means that {B} cannot be a maximal face, which is a contradiction by Proposition 3.11. □
+
+4. Semi-discrete Wasserstein projections in convex order 
+
+In this section we describe how the L2-projection of a vector X ∈ (Rd)N onto CN (v, ρ )can be reinterpreted as a Wasserstein projection of the discrete measure νN (v, X ) onto the set of measures μ ⪯C ρ. While this problem is of independent interest, it will be instrumental to our approach to reconstructing a Laguerre tessellation from its cell volumes and barycenters, discussed in the following sections. Let us define the following weighted orthogonal projection (31) PCN (X) := argmin {∥ B − X∥2 
+
+> v
+
+; B ∈ C N }.
+
+Note that since CN is a bounded, closed and convex set, this problem is well-defined and admits a unique solution. SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 21 
+
+It will be useful to consider its dual (with respect to the duality expressed by the inner product ⟨· , ·⟩ v), which can be written as follows: 
+
+Lemma 4.1. Let X ∈ (Rd)N . The following holds: 
+
+(32) inf 
+
+> B∈(Rd)N
+
+∥B − X∥2
+
+> v
+
+2 + ιCN (B)
+
+
+
+= − inf  
+
+> Y∈(Rd)N
+
+∥Y ∥2
+
+> v
+
+2 − ⟨ Y, X ⟩v + FN (v, ρ ; Y )
+
+
+
+.
+
+Moreover the problems on the left- and right-hand sides admit unique solutions, denoted 
+
+PCN (X) and Y ∗ respectively, which satisfy 
+
+(33) Y ∗ = X − PCN (X) .
+
+Proof. The result is classical since the right-hand side of (32) is just the Legendre transform of the sum Y 7 → FN (Y ) + ∥Y ∥2
+
+> v
+
+/2, which is given by the inf-convolution of the Legendre transforms of FN and ∥ · ∥ 2
+
+> v
+
+/2. We detail the proof for clarity. Both problems admit a unique solutions by the strong convexity and lower-semicontinuity of the objective functions. Moreover, B∗ = PCN (X) is the unique solution of the prob-lem on the left-hand side of (32) if and only if 0 ∈ ∂
+
+
+
+B 7 → ∥B − X∥2
+
+> v
+
+2 + ιCN (B)
+
+
+
+(B∗) ⇐⇒ X − B∗ ∈ ∂ι CN (B∗)
+
+⇐⇒ B∗ ∈ ∂F N (X − B∗) ,(34) since F ∗ 
+
+> N
+
+= ιCN , by Proposition 3.5. Similarly, Y ∗ is the unique solution of the problem on the right-hand side of (32) if and only if (35) 0 ∈ ∂
+
+
+
+Y 7 → ∥Y ∥2
+
+> v
+
+2 − ⟨ Y, X ⟩v + FN (Y )
+
+
+
+(Y ∗) ⇐⇒ X − Y ∗ ∈ ∂F N (Y ∗).
+
+Then equation (33) follows from (34) and (35), and moreover B∗ ∈ ∂F (Y ∗). Equation (32) follows since, by Fenchel duality and equation (33), 
+
+FN (Y ∗) + ιCN (B∗) = ⟨B∗, Y ∗⟩v = −∥B∗ − X∥2
+
+> v
+
+2 − ∥Y ∗∥2
+
+> v
+
+2 + ⟨Y ∗, X ⟩v .
+
+□
+
+We now show the equivalence between problem (31) and the 2-Wasserstein projection problem (8). In order to state this, let us first recall the definition of the 2-Wasserstein distance W2:(36) W 22 (μ, ν ) := inf 
+
+> γ∈Γ( μ,ν )
+
+Z 
+
+> Rd×Rd
+
+|x − y|2 dγ(x, y )
+
+
+
+for any μ, ν ∈ P 2(Rd) probability measures with finite second moments, and where Γ( μ, ν ) ∈ P (Rd × Rd) is the set of probability measures with first and second marginals equal to μ and ν, respectively. 
+
+Proposition 4.2. Let X ∈ (Rd)N . The measure νN (v, P CN (X)) is the unique solution of the projection problem 
+
+(37) inf {W 22 (ν, ν N (v, X )) ; ν ⪯C ρ}.22 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+Proof. Existence and uniqueness of the minimizer ν∗ of (37) has been proven in [21]. In the same work, the authors showed that there exists a Lipschitz continuous optimal transport map T ∗ from νN (v, X ) to ν∗. This implies that ν∗ = νN (v, Y ∗) for some vector Y ∗ = ( T ∗(xi)) i ∈ (Rd)N . Using the fact that 
+
+W 22 (νN (v, Y ), ν N (v, X )) ≤ ∥ Y − X∥2
+
+> v
+
+,
+
+for any Y ∈ (Rd)N , we obtain 
+
+∥Y ∗ − X∥2 
+
+> v
+
+= inf {W 22 (ν, ν N (v, X )) ; ν ⪯C ρ} ≤ inf {∥ Y − X∥2 
+
+> v
+
+; νN (v, Y ) ⪯C ρ},
+
+which implies that Y ∗ = PCN (X). □
+
+We conclude this section by remarking that the set CN gives rise to an alternative characterisation of the quantization problem and optimal centroidal Laguerre tessella-tions. 
+
+Remark 4.3 (Connection with optimal quantization) . Consider the non-convex opti-mization problem 
+
+(38) inf 
+
+> X∈(Rd)N
+
+
+
+−∥X∥2
+
+> v
+
+2 ; X ∈ C N
+
+
+
+.
+
+Suppose that X ∈ (Rd)N \∆N is a global minimizer. Then 0 ∈ ∂(−∥·∥ 2
+
+> v
+
+/2+ ιCN )( X), and it follows from Proposition 3.5 that X ∈ ∂F N (X) or equivalently xi = bary ρ(L∗ 
+
+> i
+
+(v, X )) 
+
+for all i. In other words, X generates a centroidal Laguerre tessellation [13, 42] . More-over, it can be shown using Toland duality [40] that global minimizers of problem (38) 
+
+are global minimizers of the following optimal quantization problem [11, 30, 35] :
+
+(39) inf  
+
+> Y∈(Rd)N
+
+W2(ρ, ν N (v, Y )) .
+
+Here we look for the best approximation of the absolutely continuous measure ρ by a discrete measure with fixed volumes. Problem (38) provides an alternative formulation of the quantization problem (39) . For an analogous statement in the fully discrete setting, where ρ is discrete, see [14, Theorem 2.4] .
+
+5. Laguerre tessellation reconstruction 
+
+In Theorem 3.6, we showed that the vectors in ( Rd)N that can be obtained as the barycenters of Laguerre tessellations with given volumes, BN
+
+> Lag
+
+, are precisely the exposed points of CN . Moreover, for any B ∈ B N
+
+> Lag
+
+, there exists a supporting hyperplane with normal Y ∈ (Rd)N \ ∆N that exposes B, i.e., such that 
+
+{B} = argmax {⟨ X, Y ⟩v ; X ∈ C N }.
+
+By Proposition 3.5 the vector Y is a vector of generators associated with the tessellation with barycenters B.We can then reformulate the Laguerre tessellation reconstruction and fitting problems as follows: can one retrieve an exposed point of CN that is closest to a given point B ∈
+
+(Rd)N and recover a normal vector Y that exposes it? If B is already an exposed point, we can regard this as a reconstruction problem (as this is equivalent to Question 1), SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 23 
+
+otherwise we regard it as a fitting problem. In this section we focus on the reconstruction problem, and discuss two possible methods to solve this. 5.1. Reconstruction via Legendre transform. By Proposition 3.5, given a point 
+
+B ∈ B N
+
+> Lag
+
+, the generators X associated with B solve the problem (40) sup 
+
+> Y
+
+H(Y ; B) , H(Y ; B) := ⟨Y, B ⟩v − FN (Y ) .
+
+In [12] it was proposed to solve the reconstruction problem precisely by computing a solution to this maximization problem. While this seems to work well in practice (see [12, Section 5.1]), the function H( · ; B) is not strictly concave and it is also maximized by the constant vector Y = ( y, . . . , y ) ∈ (Rd)N for any y ∈ Rd, and so maximising H is not guaranteed to solve the reconstruction problem. We remark that this issue can be addressed by adding a convex constraint to the problem. Specifically, fixing arbitrary indices i̸ = j and δ > 0, one can restrict the maximization over the set 
+
+{Y ∈ (Rd)N ; ⟨bi − bj , y i − yj ⟩ ≥ δ }.
+
+In fact, by the invariance of the barycenters upon dilation of the generators, it is always possible to construct a set of generators Y associated with B that satisfies this constraint. On the other hand, by Proposition 3.4, any maximizer Y satisfying the constraint must also satisfy yi̸ = yj for all i̸ = j, and is therefore a set of generators associated with the barycenters B.5.2. Reconstruction via projections in convex order. We describe here a second approach to solving the reconstruction problem based on the orthogonal projection on 
+
+CN discussed in Section 4, which has the advantage of being unconstrained and strongly convex. The idea is illustrated in Figure 7. Given an exposed point B of CN , we first perturb it by a dilation, i.e. we consider the point λB , with λ > 1. One can check that 
+
+λB / ∈ C N and that B∗ = PCN (λB ) is on the relative boundary of CN (see Lemma 5.1 below). By standard properties of the orthogonal projection, B∗ is exposed by the vector Y ∗ = λB − B∗, and ∥B − B∗∥v ≤ | λ − 1|∥ B∥v is small for λ close to one. Finally, if Y ∗ /∈ ∆N , we have found an approximate solution of the reconstruction problem, since then Y ∗ is a vector of distinct generators associated with B∗.In order to show in which cases the property Y ∗ /∈ ∆N is satisfied we will need the following lemma: 
+
+Lemma 5.1. Let N ≥ 2, and suppose that B is in the relative boundary of CN , denoted 
+
+rel ∂CN . Then, for any λ > 1 we also have PCN (λB ) ∈ rel ∂CN . Moreover, Y ∗ := 
+
+λB − PCN (λB ) is not a constant vector in (Rd)N , i.e., there does not exist y ∈ Rd such that y∗ 
+
+> i
+
+= y for all i ∈ { 1, . . . , N }.Proof. Since B ∈ rel ∂CN , there exists a vector Y ∈ (Rd)N , different from the constant vector, such that (41) B ∈ argmax {⟨ Y, X ⟩ ; X ∈ C N } .24 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+B∗
+
+Y ∗
+
+λB 
+
+B Y
+
+CN (v, ρ )
+
+Figure 7. In order to approximate Y , the direction exposing B, we compute Y ∗ = λB − B∗ where B∗ = PCN (v,ρ )(λB ) for λ > 1 close to 1. By construction, B∗ maximizes ⟨· , Y ∗⟩v on CN , i.e., Y ∗ exposes B∗, and 
+
+B∗ → B as λ → 1. Furthermore, we can pick Y parallel to the affine hull of CN defined by equation (12), i.e. such that P 
+
+> i
+
+viyi = 0. Note that the constant vector bary( ρ)N := (bary( ρ), . . . , bary( ρ)) ∈ (Rd)N
+
+is in the relative interior of CN , by the third point of Theorem 3.6. Therefore, because of (41), we have (42) ⟨B, Y ⟩v > ⟨bary( ρ)N , Y ⟩v = X
+
+> i
+
+vi⟨bary( ρ), y i⟩ = 0 .
+
+This implies that λB / ∈ C N and PCN (λB ) belongs to the relative boundary of CN . In fact, since ⟨λB, Y ⟩v > ⟨B, Y ⟩v by equation (42), then λB and CN are separated by the supporting hyperplane containing B given by 
+
+{X ∈ (Rd)N ; ⟨X, Y ⟩v = ⟨B, Y ⟩v} .
+
+In addition, define Y ∗ := λB − PCN (λB ). By the classical characterisation of the orthogonal projection (e.g. [7, Theorem 8.4]), 
+
+⟨Y ∗, bary( ρ)N − PCN (λB )⟩v < 0 ,
+
+where the inequality is strict because bary( ρ)N belongs to the relative interior of CN .This means that Y ∗ cannot have the form y∗ 
+
+> i
+
+= y for all i, since otherwise this inner product would be zero by equation (12). □
+
+As a direct consequence of Theorem 3.10 and Lemma 5.1, we obtain the following result: 
+
+Proposition 5.2. Suppose that B ∈ B N
+
+> iLag
+
+(v, ρ ). Then for any λ > 1 sufficiently small, 
+
+PCN (λB ) ∈ B N
+
+> iLag
+
+(v, ρ ) and moreover Y ∗ := λB − PCN (λB ) ∈ (Rd)N \ ∆N is a vector of generators associated with PCN (λB ).
+
+Proposition 5.2 says that we can recover an irreducible Laguerre tessellation with barycenters arbitrary close to a given B ∈ B N 
+
+> iLag
+
+via an orthogonal projection. On the other hand, in the general case where B ∈ B N 
+
+> Lag
+
+or B ∈ B N
+
+> hLag
+
+, we cannot guarantee that Y ∗ /∈ ∆N . Even when B ∈ B N
+
+> iLag
+
+, Proposition 5.2 does not provide a quantitative estimate on how small λ should be in order to obtain a set of generators Y ∗ /∈ ∆N .SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 25 
+
+However, numerically, the approach seems robust with respect to the choice of λ, in the sense that it generally provides a set of distinct generators even for λ ≫ 1. Note also that as λ → 1, B∗ → B and by stability of optimal transport maps (see, e.g., Theorem 5.20 in [41]) one can deduce that the Laguerre tessellation associated with B∗ converges to the one associated with B (i.e., corresponding cells converge in measure). However it is not straightforward to quantify this convergence in terms of ∥B − B∗∥v.We conclude the section with two further reinterpretations of the projection PCN (λB ). First, by the convex duality in Lemma 4.1, if PCN (λB ) is an exposed point that does not belong to any face of dimension strictly larger than zero, its exposing normal is 
+
+Y = λB − PCN (λB ) .
+
+Moreover, Y is the unique minimizer for the problem inf 
+
+> Y
+
+∥Y ∥2
+
+> v
+
+2λ − ⟨ Y, B ⟩v + 1
+
+λFN (v, ρ ; Y )
+
+
+
+.
+
+In other words, by introducing λ > 1, we are weakening the problem’s strong convexity to avoid the trivial solution Y = 0, which is the unique solution of the problem when λ =1 and B ∈ B N
+
+> Lag
+
+. On the other hand, note that this is a strongly convex unconstrained problem, and therefore easier to solve than problem (40), which is only convex and constrained. The downside is that here we are only computing an approximate solution. Remarkably, however, in numerical tests the projection approach generally produce good results even for relatively large values of λ (see Section 6). The second interpretation is a consequence of Proposition 4.2. Specifically, PCN (λX )can be related to the set of particle positions at time t = λ/ (λ − 1) > 1 obtained by extending (in a specific way) the W2-geodesic connecting ρ at time 0 to νN (v, X ) at time 1. Such an extension was introduced in [20] under the name of metric extrapolation ,and is defined via a minimization of a difference of squared Wasserstein distances, as explained in the following remark. 
+
+Remark 5.3 (Relation with the metric Wasserstein extrapolation) . Let us consider the problem of projecting λX onto CN with λ > 1, as in Proposition 5.2, but with X ∈ (Rd)N
+
+arbitrary. By the change of variable Y = ( λ − 1) Z, the dual problem in Lemma 4.1 becomes up to constant terms 
+
+(43) inf 
+
+> Z∈(Rd)N
+
+
+
+λ(λ − 1) ∥Z − X∥2
+
+> v
+
+2 − (λ − 1) W 22 (νN (v, Z ), ρ )2
+
+
+
+.
+
+Set t = λ/ (λ − 1) . Then the infimum in (43) is larger than 
+
+(44) λ inf 
+
+> μ∈P 2(Rd)
+
+W 22 (μ, ν N (v, X )) 2( t − 1) − W 22 (μ, ρ )2t
+
+
+
+.
+
+In fact, ∥Z − X∥v ≥ W2(νN (v, Z ), ν N (v, X )) , and we get problem (44) by replacing the minimization over Z with a minimization over any probability measure μ with finite sec-ond moments. This is precisely the metric extrapolation problem, which was introduced in [20] to extend up to time t > 1 the W2-geodesic connecting ρ at time 0 to νN (v, X )
+
+at time 1. It was proven in [20] that the solution to this problem is unique and has the 26 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+form μ∗ = T#νN (v, X ) where T is a continuous map. This implies that problem (44) 
+
+actually coincides with (43) and μ∗ = νN (v, Z ∗) with Z∗ solving (43) .
+
+6. Numerical methods and tests 
+
+In this section we describe two numerical strategies to solve the projection prob-lem considered in Section 4, and then apply them to the reconstruction and fitting of Laguerre tessellations. 6.1. Subgradient descent. Let us go back to the dual problem in Lemma 4.1, i.e. (45) inf  
+
+> Y
+
+GN (Y ) , where GN (Y ) := ∥Y ∥2
+
+> v
+
+2 − ⟨ Y, X ⟩v + FN (v, ρ ; Y ) .
+
+Note that minimizing GN is equivalent to evaluating the proximal operator of FN with respect to the weighted Euclidean norm ∥ · ∥ v; see [7, Definition 25.1]. Given any Y ∈ (Rd)N , let M ∈ { 1, . . . , N } and ˜Y ∈ (Rd)M \ ∆M be such that 
+
+yi = ˜ yσ(i) for all i, for some surjective map σ : {1, . . . , N } → { 1, . . . , M }. Define 
+
+w = ( w1, . . . , w M ) by 
+
+wj = X
+
+> i∈σ−1(j)
+
+vi.
+
+Then, from the proof of Theorem 3.6, one can deduce that (46) B(Y ) := (bary ρ(L∗
+
+> σ(i)
+
+(w, ˜Y ))) i ∈ ∂F N (Y ),
+
+where ∂F N denotes the subgradient of FN with respect to the metric ⟨· , ·⟩ v.
+
+Lemma 6.1. Suppose ρ ∈ P 2(Rd), i.e. 
+
+m22(ρ) := 
+
+Z
+
+> Rd
+
+|x|2dρ(x) < +∞.
+
+Then FN is m2(ρ)-Lipschitz. Moreover, denoting by Y ∗ the unique solution of (45) ,
+
+∥Y ∗ − X∥v ≤ m2(ρ) and GN is 2m2(ρ)-Lipschitz on the set {Y ; ∥Y − X∥v ≤ m2(ρ)}.Proof. For any Y, Z ∈ (Rd)N , since B(Z) ∈ ∂F N (Z), 
+
+FN (Z) − FN (Y ) ≤ ⟨ B(Z), Z − Y ⟩v
+
+≤ ∥ B(Z)∥v∥Z − Y ∥v
+
+≤ m2(ρ)∥Z − Y ∥v ,
+
+where the last inequality is due to Jensen’s inequality. Exchanging Y and Z we obtain that FN is m2(ρ)-Lipschitz. Moreover, by Lemma 4.1, 
+
+∥Y ∗ − X∥v = ∥PCN (X)∥v ≤ m2(ρ) ,
+
+where the last inequality follows from the definition of convex order and choosing as test function φ : x → | x|2. We conclude by observing that 
+
+∂G N (Y ) = Y − X + ∂F N (Y )and using the triangle inequality. □SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 27 
+
+Given the considerations above, we can formulate a projected subgradient descent method with varying stepsize ηk (see, e.g., Section 3.4.1 in [16]) as follows: given Y1 ∈
+
+(Rd)N , for all k ≥ 1, (47) 
+
+Step 1. Zk = Yk − ηk(Yk − X + B(Yk)) ,
+
+Step 2. Yk+1 = X + max 
+
+∥Zk − X∥v
+
+m2(ρ) , 1
+
+−1
+
+(Zk − X) .
+
+As a consequence of Lemma 6.1, the strong convexity of GN , and Theorem 3.9 in [16] we have that the subgradient method defined by (47) converges with sublinear rate with an appropriate choice of step-size. More precisely: 
+
+Lemma 6.2. Choosing ηk = 2 /(k + 1) , the iterates of algorithm (47) satisfy for k ≥ 1
+
+GN
+
+> k
+
+X
+
+> j=1
+
+2jk(k + 1) Yj
+
+!
+
+− GN (Y ∗) ≤ 4m22(ρ)
+
+k + 1 .
+
+6.2. Frank-Wolfe algorithm. The projection problem inf 
+
+> B∈C N
+
+JN (B) , JN (B) := 12∥B − X∥2 
+
+> v
+
+,
+
+can be solved by applying directly the classical Frank-Wolfe algorithm [19]. In our setting, this amounts to the following iterative scheme, which allows us to compute 
+
+PCN (X) from a given initial guess B1 ∈ C N : for all k ≥ 1, (48) 
+
+Step 1 . Compute Ck = B(X − Bk) ∈ ∂F N (X − Bk),
+
+Step 2 . λk = arg min {∥ λB k + (1 − λ)Ck − X∥2 
+
+> v
+
+; λ ∈ [0 , 1] },
+
+Step 3 . Bk+1 = λkBk + (1 − λk)Ck .
+
+Note that in the first step B(·) is defined as in (46). The expression for Ck is derived by minimizing over CN the linearization of JN about Bk. As for the convergence of the algorithm, we start by observing that diam( CN ) ≤ 2m2(ρ). In fact, for any X1, X 2 ∈ C N ,by the triangle inequality and Jensen’s inequality, 
+
+∥X1 − X2∥2 
+
+> v
+
+≤ 2∥X1∥2 
+
+> v
+
++ 2 ∥X2∥2 
+
+> v
+
+≤ 4m22(ρ) .
+
+Then, as a direct application of Theorem 13.14 in [8], we find: 
+
+Lemma 6.3. The iterates of algorithm (48) satisfy for k ≥ 2
+
+JN (Bk) − JN (PCN (X)) ≤ 8m22(ρ)
+
+k − 1 .
+
+6.3. Numerical tests. We now present some numerical results that illustrate the be-havior of our method for the reconstruction and fitting problems. More precisely, given a set of volumes v and barycenters B, we reconstruct the generators of the associated tessellation by setting 
+
+Y = λB − PCN (λB ) ,
+
+where λ = t/ (t−1) with t > 1 is a regularization parameter. In practice, Y is computed either directly via algorithm (47) or by setting Y = X − B where B is obtained via 28 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+algorithm (48). For the tests considered here, we found numerically that particles stayed sufficiently far from each other to allow for the computation of the optimal tessellation with N distinct particles (which was realized using the open-source library 
+
+sd-ot , available at https://github.com/sd-ot ). A Jupyter notebook containing the numerical experiments and code used in this paper is available at https://github. com/andnatale/Laguerre-fitting/ .6.3.1. Reconstruction of Laguerre tessellations. We consider the problem of reconstruct-ing a Laguerre tessellation given its cell volumes and barycenters. For all tests in this section, we use as reference measure ρ = 1[0 ,1] 2 dx.Figure 8 shows the result obtained using algorithm (47) with t = 1250 and N = 20. The reconstruction obtained using the Frank-Wolfe scheme (48) is identical. Note that here the initialization of the subgradient scheme is a random distribution of generators (depicted in Figure 8, center) and the one for the Frank-Wolfe scheme is the associ-ated distribution of barycenters. The convergence of the two schemes is illustrated in Figures 9 and 10, both in terms of number of iterations and increasing the regulariza-tion parameter t. One can observe that both schemes appear to converge faster than predicted in Lemmas 6.2 and 6.3, and that the Frank-Wolfe algorithm exhibits almost linear convergence, especially for small values of t.The results corresponding to a larger test ( N = 728) are shown in Figure 11, 12, 13, and 14. Note that while the reconstructed barycenters approximate well the data, the reconstructed generators are very different (see Figure 12) and the shape of specific Laguerre cells may differ considerably with respect to the true ones (see Figure 11). This is expected since the tessellation generating the data is not irreducible. As for the convergence of the schemes, we consider two possible initial conditions shown in Figure 13, the first being associated to a uniform distribution of generators, and the second corresponding the the choice Y1 = B and B1 = B. Note that in this symmetric configuration this choice yields already a good approximation of the target tessellation. The behavior of the subgradient descent scheme is however unchanged, whereas the Frank-Wolfe scheme, even if starting with a much lower error, converges slowly at first and eventually performs similarly to the subgradient scheme. 6.3.2. Fitting a Laguerre tessellation to data. As in [12], we apply our method to fit a Laguerre tessellation to an electron backscatter diffraction (EBSD) image of a single-phase steel (provided by Tata Steel Netherlands), shown in Figure 15. The pixels are colored according to their crystallographic orientation, and the regions where this is constant are called grains. The image we consider has N = 243 grains. We used the areas v and the barycenters B of the grains as data in our method to generate a vector of generators Y . Note that since by construction B ∈ C N , we do need to include a regularization also in this case. For the tests presented here we set t = 10. We used as reference measure ρ = 1Ωdx where Ω = [0 , 252 .25] 2 is the image domain (measured in microns). The results are shown in Figures 15 and 16. For this test, both schemes are initialized using with the target barycenters, i.e. Y1 = B and B1 = B. As in the previous example, after the first iterations, the two schemes perform similarly. SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 29 
+
+Figure 8. Reconstruction of a Laguerre tessellation, for t = 1250 and the subgradient descent scheme. The barycenters of the true solutions are in blue and those of the reconstruction are in red. The reconstruction obtained with the Frank-Wolfe scheme is identical (not shown). 
+
+Figure 9. On the left: error GN (Yk) − GN (YK ) for the subgradient scheme, for 1 ≤ k ≤ K, for different values of t (the curve ( i) corresponds to t = 2 · 5i−1), and the data in Figure 8. On the right: error JN (Bk) −
+
+JN (BK ) for the Frank-Wolfe scheme. 
+
+Acknowledgements 
+
+The authors thank Ir` ene Waldspurger for her valuable feedback on an earlier version of this manuscript. This work was partly supported by the Labex CEMPI (ANR-11-LABX-0007-01). DPB would like to thank the UK Engineering and Physical Sciences Research Council (EPSRC) for financial support via the grant EP/V00204X/1. AN 30 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+Figure 10. Error of the barycenter reconstruction, ∥BK − B∥v, for dif-ferent t at the last iteration K of (a) the subgradient descent scheme and (b) the Frank-Wolfe scheme. 
+
+Figure 11. Reconstruction of a Laguerre tessellation, for t = 100. The barycenters of the true solution are in blue and those of the reconstruction are in red (subgradient descent, center, and Frank-Wolfe, right). acknowledges funding by the Agence Nationale de la Recherche (ANR), project ANR-25-CE40-3242-01. 
+
+References  
+
+> [1] Arseniy Akopyan and Roman Karasev. Kadets-type theorems for partitions of a convex body.
+> Discrete & Computational Geometry , 48:766–776, 2012. SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 31
+
+Figure 12. Generators of true Laguerre tessellation in Figure 11 (left) and generators for reconstruction for t = 100 (subgradient descent, center, and Frank-Wolfe, right). 
+
+Figure 13. Initial conditions for the reconstruction problem in Figures 11 and 12. The barycenters of the true solutions are in blue and those of the reconstruction are in red. 
+
+[2] Aur´ elien Alfonsi, Jacopo Corbetta, and Benjamin Jourdain. Sampling of one-dimensional proba-bility measures in the convex order and computation of robust option price bounds. International Journal of Theoretical and Applied Finance , 22(03):1950002, 2019. [3] Aur´ elien Alfonsi, Jacopo Corbetta, and Benjamin Jourdain. Sampling of probability measures in the convex order by Wasserstein projection. Annales de l’Institut Henri Poincar´ e - Probabilit´ es et Statistiques , 56(3):1706–1729, 2020. [4] Franz Aurenhammer. A criterion for the affine equivalence of cell complexes in Rd and convex polyhedra in Rd+1 . Discrete & Computational Geometry , 2(1):49–64, 1987. [5] Franz Aurenhammer. Power diagrams: properties, algorithms and applications. SIAM Journal on Computing , 16(1):78–96, 1987. [6] Franz Aurenhammer, Friedrich Hoffmann, and Boris Aronov. Minkowski-type theorems and least-squares clustering. Algorithmica , 20(1):61–76, 1998. 32 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+Figure 14. Convergence of the scheme for the data represented in Fig-ure 11 and t = 100, shown in terms of GN (Yk) − GN (YK ) for the subgra-dient scheme ( a) and JN (Bk) − JN (BK ) for the Frank-Wolfe scheme ( b), for 1 ≤ k ≤ K, and for the initial condition 1 (left) and 2 (right). 
+
+Figure 15. Left: An EBSD image of steel. Right: A Laguerre tessella-tion fitted to the areas and barycenters of the grains in the EBSD image, overlaid over the image. The barycenters of the grains are in blue, the barycenters of the fitted Laguerre cells are in red. This was computed with t = 10 and the subgradient descent scheme. The fitted tessellation computed with the Frank-Wolfe scheme is almost identical (not shown). SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 33 
+
+Figure 16. Convergence of the scheme for the data extracted from the EBSD image in Figure 15 and t = 10, shown in terms of GN (Yk)−GN (YK )and JN (Bk) − JN (BK ) for the subgradient descent scheme ( a) and Frank-Wolfe scheme ( b), respectively, and for 1 ≤ k ≤ K.
+
+[7] Heinz H. Bauschke and Walaa M. Moursi. An Introduction to Convexity, Optimization, and Al-gorithms . SIAM, 2023. [8] Amir Beck. First-order methods in optimization . SIAM, 2017. [9] Gerald A. Beer. The Hausdorff metric and convergence in measure. Michigan Mathematical Jour-nal , 21(1):63–64, 1974. [10] Martin Bock, Amit Kumar Tyagi, Jan-Ulrich Kreft, and Wolfgang Alt. Generalized Voronoi tessellation as a model of two-dimensional cell tissue dynamics. Bulletin of Mathematical Biology ,72:1696–1731, 2010. [11] David P. Bourne, Piet J. J. Kok, Steven M. Roper, and Wil D. T. Spanjer. Laguerre tessellations and polycrystalline microstructures: a fast algorithm for generating grains of given volumes. 
+
+Philosophical Magazine , 100(21):2677–2707, 2020. [12] David P. Bourne, Mason Pearce, and Steven M. Roper. Inverting Laguerre tessellations: Recov-ering tessellations from the volumes and centroids of their cells using optimal transport. ESAIM: Mathematical Modelling and Numerical Analysis , 59(5):841–871, 2025. [13] David P. Bourne and Steven M. Roper. Centroidal power diagrams, Lloyd’s algorithm, and ap-plications to optimal location problems. SIAM Journal on Numerical Analysis , 53(6):2545–2569, 2015. [14] Andreas Brieden and Peter Gritzmann. On optimal weighted balanced clusterings: Gravity bodies and power diagrams. SIAM Journal on Discrete Mathematics , 26(2):415–434, 2012. [15] Andreas Brieden, Peter Gritzmann, and Fabian Klemm. Constrained clustering via diagrams: A unified theory and its application to electoral district design. European Journal of Operational Research , 263(1):18–34, 2017. [16] S´ ebastien Bubeck. Convex optimization: Algorithms and complexity. Foundations and Trends ®
+
+in Machine Learning , 8(3-4):231–357, 2015. [17] Krzysztof J. Ciosmak. Applications of Strassen’s theorem and Choquet theory to optimal transport problems, to uniformly convex functions and to uniformly smooth functions. Nonlinear Analysis ,232:113267, 2023. 34 D. P. BOURNE, T. O. GALLOU ¨ET, Q. M ´ERIGOT, AND A. NATALE 
+
+[18] Ivar Ekeland and Walter Schachermayer. Optimal transport and the geometry of L1(Rd). Pro-ceedings of the American Mathematical Society , 142(10):3585–3596, 2014. [19] Marguerite Frank, Philip Wolfe, et al. An algorithm for quadratic programming. Naval research logistics quarterly , 3(1-2):95–110, 1956. [20] Thomas O. Gallou¨ et, Andrea Natale, and Gabriele Todeschi. Metric extrapolation in the Wasser-stein space. Calculus of Variations and Partial Differential Equations , 64(5):147, 2025. [21] Nathael Gozlan and Nicolas Juillet. On a mixture of Brenier and Strassen theorems. Proceedings of the London Mathematical Society , 120(3):434–463, 2020. [22] Nathael Gozlan, Cyril Roberto, Paul-Marie Samson, and Prasad Tetali. Kantorovich duality for general transport costs and applications. Journal of Functional Analysis , 273(11):3327–3405, 2017. [23] Peter Gritzmann. Constrained clustering, diagrams, coresets, and their applications. Geometry, Analysis and Convexity , page 87, 2026. [24] Rafel Jaume and G¨ unter Rote. Recursively-regular subdivisions and applications. Journal of Com-putational Geometry , 7(1), 2016. [25] Jakwang Kim, Young-Heon Kim, Yuanlong Ruan, and Andrew Warren. Statistical inference of convex order by Wasserstein projection. arXiv:2406.02840 , 2024. [26] Young-Heon Kim and Yuanlong Ruan. Backward and forward Wasserstein projections in stochas-tic order. Journal of Functional Analysis , 286(2):110201, 2024. [27] Hugo Leclerc, Quentin M´ erigot, Filippo Santambrogio, and Federico Stra. Lagrangian discretiza-tion of crowd motion and linear diffusion. SIAM Journal on Numerical Analysis , 58(4):2093–2118, 2020. [28] Emerson Le´ on and G¨ unter M. Ziegler. Spaces of convex n-partitions. In New Trends in Intuitive Geometry , pages 279–306. Springer, 2018. [29] Allan Lyckegaard, Erik Mejdal Lauridsen, Wolfgang Ludwig, Richard Warren Fonda, and Hen-ning Friis Poulsen. On the use of Laguerre tessellations for representations of 3d grain structures. 
+
+Advanced Engineering Materials , 13(3):165–170, 2011. [30] Quentin M´ erigot, Filippo Santambrogio, and Cl´ ement Sarrazin. Non-asymptotic convergence bounds for Wasserstein approximation using point clouds. In M. Ranzato, A. Beygelzimer, Y. Dauphin, P.S. Liang, and J. Wortman Vaughan, editors, Proceedings of Advances in Neu-ral Information Processing Systems 34 (NeurIPS 2021) . 2021. [31] Quentin M´ erigot and Boris Thibert. Mirrors, lenses and Monge–Amp` ere equations. European Mathematical Society Magazine , (120):16–28, 2021. [32] Quentin M´ erigot and Boris Thibert. Optimal transport: discretization and algorithms. In A. Bonito and R. H. Nochetto, editors, Geometric Partial Differential Equations - Part II , vol-ume 22 of Handbook of Numerical Analysis , pages 133–212. North-Holland, 2021. [33] Jocelyn Meyron. Initialization procedures for discrete and semi-discrete optimal transport. 
+
+Computer-Aided Design , 115:13–22, 2019. [34] Lukas Petrich, Jakub Stanˇ ek, Mingyan Wang, Daniel Westhoff, Ludˇ ek Heller, Petr ˇSittner, Carl E Krill III, Viktor Beneˇ s, and Volker Schmidt. Reconstruction of grains in polycrystalline materials from incomplete data using Laguerre tessellations. Microscopy and Microanalysis , 25(3):743–752, 2019. [35] Leo Portales, Elsa Cazelles, and Edouard Pauwels. On the sequential convergence of Lloyd’s algorithms. Mathematics of Operations Research , 51(2):1120–1138, 2025. [36] Romain Quey and Lo¨ ıc Renversade. Optimal polyhedral description of 3D polycrystals: Method and application to statistical and synchrotron X-ray diffraction data. Computer Methods in Applied Mechanics and Engineering , 330:308–333, 2018. [37] Filippo Santambrogio. Optimal Transport for Applied Mathematicians . Birkh¨ auser, 2015. [38] Volker Strassen. The existence of probability measures with given marginals. The Annals of Math-ematical Statistics , 36(2):423–439, 1965. [39] Stefan Straszewicz. ¨Uber exponierte punkte abgeschlossener punktmengen. Fundamenta Mathe-maticae , 24(1):139–143, 1935. SEMI-DISCRETE CONVEX ORDER AND LAGUERRE TESSELLATIONS 35 
+
+[40] John F. Toland. A duality principle for non-convex optimisation and the calculus of variations. 
+
+Archive for Rational Mechanics and Analysis , 71:41–61, 1979. [41] C´ edric Villani. Optimal transport: old and new , volume 338. Springer, 2009. [42] Shi-Qing Xin, Bruno L´ evy, Zhonggui Chen, Lei Chu, Yaohui Yu, Changhe Tu, and Wenping Wang. Centroidal power diagrams with capacity constraints: Computation, applications, and extension. 
+
+ACM Transactions on Graphics , 35(6):244:1–244:12, 2016. 
+
+David P. Bourne, Maxwell Institute for Mathematical Sciences and Department of Mathematics, Heriot-Watt University, Edinburgh, UK 
+
+Email address : d.bourne@hw.ac.uk 
+
+Thomas O. Gallou¨ et, Universit´ e Paris-Saclay, CNRS, Inria, Laboratoire de math´ ematiques d’Orsay, ParMA, 91405, Orsay, France 
+
+Email address : thomas.gallouet@inria.fr 
+
+Quentin M´ erigot. Universit´ e Paris-Saclay, CNRS, Inria, Laboratoire de math´ ematiques d’Orsay, 91405, Orsay, France / DMA, ´Ecole normale superieure, Universit´ e PSL, CNRS, 75005 Paris, France / Institut universitaire de France (IUF) 
+
+Email address : quentin.merigot@universite-paris-saclay.fr 
+
+Andrea Natale, Universit´ e Paris-Saclay, CNRS, Inria, Laboratoire de math´ ematiques d’Orsay, ParMA, 91405, Orsay, France 
+
+Email address : andrea.natale@inria.fr

@@ -1,0 +1,69 @@
+{
+  "label": "2026-07-05",
+  "date": "2026-07-05",
+  "generated_at": "2026-07-05T20:13:16",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202607/05/2606.28734v1-local-minima-in-quadratic-penalty-relaxations-of-binary-linear-programs",
+      "section": "deep",
+      "title_en": "Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs",
+      "authors": "Cheng-Han Huang, Yongliang Sun, Chaoyan Huang, Ismail Alkhouri, Rongrong Wang",
+      "date": "2026-06-27",
+      "pdf": "https://arxiv.org/pdf/2606.28734v1",
+      "score": "10.0",
+      "evidence": "确保连续松弛的局部极小值位于盒约束边界上，产生可行的二元解",
+      "tldr": "组合优化问题常转化为二次无约束二元规划并松弛到[0,1]^n箱形，通过梯度方法求解，但非凸地形易产生虚假局部最优。本文建立二次惩罚项的充分结构条件，确保松弛问题的每个局部极小点都是二元可行解。对于露天采矿、零一背包和旅行商等经典问题，分析现有公式的缺陷，提出满足条件的新松弛，使投影梯度下降和Adam等算法能安全获得有效二元解。该工作明确了可微优化何时能可靠求解组合二次目标。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Many combinatorial optimization problems admit quadratic unconstrained binary formulations (QUBO) which can often be relaxed to the box $[0,1]^n$ and optimized using scalable gradient-based methods. However, the resulting non-convex landscape can often contain local optima that are spurious or infeasible. In this paper, we establish sufficient structural conditions on quadratic penalties that rule out these failures, guaranteeing that every local minimizer of the relaxed problem is both binary and feasible. For each problem we study, we examine existing QUBO formulations when available, identify why they fail when they do, and propose alternative relaxed QUBOs that satisfy our conditions. We show for several common combinatorial problems, including open-pit mining, 0--1 knapsack, and traveling salesman formulations, that these constructions allow gradient-based methods such as projected gradient descent and Adam to be safely applied to obtain valid binary solutions. Our results clarify when differentiable optimization is a reliable local solver for quadratic combinatorial objectives.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/05/2606.29913v1-semi-discrete-convex-order-and-laguerre-tessellation-fitting",
+      "section": "deep",
+      "title_en": "Semi-discrete convex order and Laguerre tessellation fitting",
+      "authors": "David P. Bourne, Thomas Gallouët, Quentin Mérigot, Andrea Natale",
+      "date": "2026-06-29",
+      "pdf": "https://arxiv.org/pdf/2606.29913v1",
+      "score": "9.0",
+      "evidence": "重建拉盖尔镶嵌以匹配细胞体积，涉及调整细胞边界以实现形状优化",
+      "tldr": "Laguerre镶嵌通过点集和标量权重参数化欧氏空间凸划分，广泛应用于计算几何、成像与数值分析。本文研究从已知细胞体积和重心重建该镶嵌的问题，将其几何解释为寻找在凸序下受绝对连续测度支配的离散测度集合。利用Wasserstein投影到该集合，可近似求解重建，并推广至任意重心拟合。方法在材料科学中成功应用于钢材电子背散射衍射(EBSD)图像拟合，验证了有效性。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Laguerre tessellations offer an efficient way to parameterize a large class of convex partitions of Euclidean space using only a set of points and scalar weights. For this reason, they have become popular in computational geometry, imaging and numerical analysis, both as a modeling and a discretization tool. In this paper we study the problem of reconstructing a Laguerre tessellation with prescribed cell volumes from the barycenters of its cells. We establish a geometric interpretation of this problem in terms of the set of discrete measures dominated in convex order by an absolutely continuous measure. In particular, we show that the reconstruction problem can be solved approximately by computing a Wasserstein projection onto this set. More generally, our method can also be applied to fit a Laguerre tessellation to an arbitrary set of barycenters. We give a concrete application of this in materials science, of fitting a Laguerre tessellation to an electron backscatter diffraction (EBSD) image of a steel.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/05/2607.00055v1-hyspecpro-scalable-hypergraph-partitioning-via-spectral-projection-optimization",
+      "section": "deep",
+      "title_en": "HySpecPro: Scalable Hypergraph Partitioning via Spectral Projection Optimization",
+      "authors": "Rongjian Liang, Zhuo Feng, Haoxing Ren",
+      "date": "2026-06-30",
+      "pdf": "https://arxiv.org/pdf/2607.00055v1",
+      "score": "9.0",
+      "evidence": "直接优化超图中的划分边界（切割）",
+      "tldr": "在数十亿晶体管集成时代，超图划分质量与效率直接影响VLSI设计并行处理性能。现有主流多级划分器依赖粗化-细化流程，但粗化阶段极易损失结构信息，对高度超边尤其严重，导致细化阶段需大量计算且难以扩展。近期工作引入谱特征指导粗化，却仍局限于启发式规则，没有在全局空间直接优化划分目标。本文提出HySpecPro，首个在谱嵌入空间进行端到端投影优化的单级超图划分器。该方法由二分拉普拉斯构造嵌入，借助GPU加速的投影搜索实现线性复杂度划分。实验表明，HySpecPro的切割质量可比肩顶尖多级方法，且运行时间随超边总度数线性增长，摆脱了粗化带来的信息损失与扩展困境，为超大规模设计自动化开辟了谱优化新路径。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Modern VLSI designs comprise tens of billions of components, making scalable hypergraph partitioning critical for parallel and hierarchical optimization. Although multilevel partitioning remains the dominant paradigm, its coarsening stage can distort structural information, especially in hypergraphs with many high-degree hyperedges, leading to increased refinement overhead and limited scalability. Recent approaches incorporate spectral information to guide coarsening, but only in a heuristic manner, without directly optimizing the partitioning objectives. We introduce HySpecPro, a single-level hypergraph partitioner that performs end-to-end optimization in a spectral embedding space. HySpecPro constructs embeddings from a bipartite Laplacian and performs efficient projection-based search, supported by a fully GPU-accelerated implementation. Experiments show that HySpecPro delivers cut quality comparable to state-of-the-art multilevel methods while scaling linearly with the total hyperedge degree.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/05/2607.02069v1-algebraic-model-counting-for-global-analysis-of-optimal-decision-trees",
+      "section": "deep",
+      "title_en": "Algebraic Model Counting for Global Analysis of Optimal Decision Trees",
+      "authors": "Hiroki Arimura",
+      "date": "2026-07-02",
+      "pdf": "https://arxiv.org/pdf/2607.02069v1",
+      "score": "9.0",
+      "evidence": "对最优决策树进行穷举分析以优化分类决策边界",
+      "tldr": "在可解释AI中，决策树假设空间的全局分析对模型可靠性至关重要。本文提出代数决策树计数（ADTC）框架，将优化、计数、采样等任务统一为半环上的积和计算，并利用动态规划实现特征数n的O^*(n^{O(Δ)})时间复杂度。引入模型行为张量，通过卷积积构建包含准确率、规模、公平性等指标的模型概况，揭示全局权衡。在真实数据集上，ADTC工具emtrees促进敏感领域基于证据的模型选择。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Ensuring model reliability in Explainable AI requires a global assessment of the hypothesis space. We propose a formal framework for the exhaustive analysis of optimal and near-optimal decision trees, called Algebraic Decision Tree Counting (ADTC). Inspired by Algebraic Model Counting (AMC) in knowledge representation, ADTC reformulates diverse analytical tasks, such as optimization, counting, and sampling, into a unified sum-of-products computation over a semiring $R$. While the hypothesis space of decision trees is doubly exponential with respect to the maximum depth $Δ$, our dynamic programming algorithm achieves $O^*(n^{O(Δ)})$ time complexity in the number of features $n$, where $O^*$ suppresses polynomial factors. To handle complex constraints consisting of multiple tree metrics, we introduce model behavior tensors that aggregate semiring values via convolution products over a tensor semiring. This algebraic approach efficiently constructs a model profile that captures the global landscape and trade-offs between criteria such as accuracy, size, and fairness. We demonstrate the utility of our software, emtrees, on real-world datasets, illustrating how ADTC facilitates evidence-based model selection in sensitive domains.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

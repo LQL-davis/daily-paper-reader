@@ -1,0 +1,2019 @@
+Title: Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs
+
+URL Source: https://arxiv.org/pdf/2606.28734v1
+
+Published Time: Tue, 30 Jun 2026 00:28:38 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+Cheng-Han Huang 1 Yongliang Sun 1 Chaoyan Huang 1 2 Ismail Alkhouri 3 4 Rongrong Wang 1 5 
+
+## Abstract 
+
+Many combinatorial optimization problems ad-mit quadratic unconstrained binary formulations (QUBO) which can often be relaxed to the box 
+
+[0 , 1] n and optimized using scalable gradient-based methods. However, the resulting non-convex landscape can often contain local optima that are spurious or infeasible. In this paper, we establish sufficient structural conditions on quadratic penalties that rule out these failures, guaranteeing that every local minimizer of the re-laxed problem is both binary and feasible. For each problem we study, we examine existing QUBO formulations when available, identify why they fail when they do, and propose alternative re-laxed QUBOs that satisfy our conditions. We show for several common combinatorial prob-lems, including open-pit mining, 0–1 knapsack, and traveling salesman formulations, that these constructions allow gradient-based methods such as projected gradient descent and Adam to be safely applied to obtain valid binary solutions. Our results clarify when differentiable optimiza-tion is a reliable local solver for quadratic combi-natorial objectives. 
+
+## 1. Introduction 
+
+Quadratic unconstrained binary optimization (QUBO) for-mulations provide a unifying framework for a wide range of combinatorial optimization problems (Kochenberger et al., 2014), including maximum independent set (Karp, 2009), knapsack variants (Martello & Toth, 1990), open-pit mining 
+
+> 1
+
+Department of Computational Mathematics, Science, & En-gineering, Michigan State University 2Department of Electrical Engineering and Computer Science, University of Michigan 3XCP, Los Alamos National Laboratory 4Michigan Institute for Com-putational Discovery and Engineering, University of Michigan 
+
+> 5
+
+Department of Mathematics, Michigan State University. Corre-spondence to: Cheng-Han Huang <huang248@msu.edu >, Ron-grong Wang <wangron6@msu.edu >.
+
+Proceedings of the 43 rd International Conference on Machine Learning , Seoul, South Korea. PMLR 306, 2026. Copyright 2026 by the author(s). 
+
+(Lerchs, 1965), and the traveling salesman problem (Dantzig et al., 1954). Traditionally, QUBOs have been solved using discrete optimization techniques such as local bit-flip heuris-tics (Benlic & Hao, 2013), simulated annealing (Kirkpatrick et al., 1983), branch-and-bound methods (Clausen, 1999), or quantum-inspired algorithms (Glover et al., 2022b). In these settings, optimization is performed directly over binary vari-ables, and feasibility or optimality is determined purely by objective values on discrete configurations. For a QUBO encoding of a constrained combinatorial problem, feasibil-ity refers to satisfaction of the original discrete constraints encoded by the formulation. Recently, however, there has been growing interest in opti-mizing relaxed QUBOs over the continuous domain [0 , 1] n
+
+using scalable gradient-based methods (Alkhouri et al., 2025; 2026; Sun et al., 2026). This approach is attractive due to its compatibility with modern hardware (GPU/TPU) and automatic differentiation frameworks (Baydin et al., 2018). Nevertheless, a fundamental obstacle remains: local minimizers of relaxed QUBOs are not guaranteed to corre-spond to valid binary and feasible solutions of the original combinatorial problem. Even when constraint violations are penalized with arbitrarily large weights, relaxed QUBOs may admit fractional or infeasible strict local minima un-der box constraints. This phenomenon cannot be explained by insufficient optimization or poor initialization; rather, it reflects intrinsic geometric properties of the nonconvex penalty landscape. As a result, continuous optimization of relaxed QUBOs is often regarded as unreliable for exact combinatorial solving. 
+
+Central question. This paper addresses the following question: When can gradient-based optimization of a re-laxed QUBO be trusted as a local solver for the original discrete problem? More precisely, we seek structural condi-tions under which every local minimizer of a box-relaxed QUBO is both binary and feasible. Importantly, we do not require global optimality, convex-ity, or exact penalty equivalence. Our focus is exclusively on local minima under box constraints, which govern the behavior of projected gradient descent (PGD) and related first-order methods. 
+
+Why large penalties are insufficient. A common intu-ition is that infeasible solutions can always be eliminated 1
+
+> arXiv:2606.28734v1 [cs.DM] 27 Jun 2026 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs
+
+by increasing the penalty parameter (Nocedal, 2006). We show that this intuition is false in the continuous relaxation. Specifically, we identify a failure mode in which the penalty landscape becomes “trapped” at the boundary because the gradient points “outward” from the feasible region, rather than toward it. Such a point becomes a strict local minimizer regardless of how large the penalty weight is. This phenomenon arises in standard QUBO formulations, including widely used penalties for precedence constraints in open-pit mining. It demonstrates that feasibility at local minima is not determined by penalty magnitude alone, but by the first-order geometry of the penalty. 
+
+Our approach. We show that the correctness of local minima in relaxed QUBOs can be guaranteed by simple, verifiable structural properties of the penalty. Our analysis identifies three key ingredients: • diagonal-free quadratic penalties on core variables, • integer-valued penalty gradients at binary points, and • a local repairability condition ensuring that every infea-sible binary point admits a feasible descent direction for the penalty with a uniform margin. Under these conditions, we prove that for sufficiently large (but finite) penalty weight, every local minimizer of the relaxed problem is both binary and feasible. These guaran-tees are purely local, require no convexity assumptions, and apply directly to projected gradient methods. 
+
+Implications. Our framework explains both successes and failures of existing QUBO formulations. It recovers known guarantees for maximum independent set as a special case (such as those in (Mahdavi Pajouh et al., 2013; Alkhouri et al., 2025)), explains why common formulations for open-pit mining can fail even with infinite penalty, and motivates new penalty constructions for knapsack and traveling sales-man problems that admit feasible local minima. Rather than proposing problem-specific heuristics, our results clarify which geometric properties any QUBO penalty must satisfy to be compatible with gradient-based optimization. This paper makes the following contributions: • Structural obstruction. We identify a fundamental failure mode in relaxed QUBOs: infeasible binary points that are first-order stationary under box con-straints and therefore remain strict local minima for arbitrarily large penalty weights. This shows that in-creasing the penalty magnitude alone is insufficient to guarantee feasibility under continuous optimization. • General local correctness theory. We establish problem-independent conditions under which every local minimizer of a relaxed QUBO is binary and feasi-ble. Our results rely on diagonal-free quadratic penal-ties with integer coefficients and a local repairability property that rules out infeasible stationary points. • Binarity and feasibility guarantees. We prove sepa-rate theorems showing that sufficiently large penalties eliminate fractional local minima and infeasible binary local minima, yielding finite, explicit penalty thresh-olds. • Explanatory power for existing formulations. Our framework recovers known guarantees for maximum independent set, explains the failure of commonly used penalties for open-pit mining, and clarifies when standard QUBO constructions are incompatible with gradient-based methods. • New penalty constructions. Guided by our theory, we propose alternative QUBO penalties for knapsack and traveling salesman formulations that satisfy the required structural conditions and admit only valid local minima under continuous relaxation. 
+
+1.1. Related studies 
+
+Classical QUBO formulations prioritize binary-domain cor-rectness, as they are tailored for discrete solvers (e.g., branch-and-bound, quantum heuristics) (Glover et al., 2022a). However, they often fail under gradient-based con-tinuous relaxation because they do not account for the first-order geometry of the box [0 , 1] n. This work analyzes local minima in relaxed QUBOs and identifies structural penalty properties that ensure local correctness. By bridging discrete formulations with continuous optimization, we provide a theoretical foundation for using gradient methods as reliable combinatorial solvers. The paper in (Burer & Letchford, 2009) studies nonconvex quadratic programming problems with box constraints and shows that finding a global optimum is NP-hard. It also provides a detailed characterization of the extreme points of related linearized formulations. While both (Burer & Letchford, 2009) and our work analyze properties of box-constrained quadratic objectives, our paper focuses on their behavior under projected gradient-based optimization meth-ods. In recent studies (Alkhouri et al., 2025; 2026), the authors proposed using differentiable solvers for relaxed QUBOs applied to the Maximum Independent Set (MIS) and Maxi-mum Cut (MaxCut) problems. While these works charac-terize binary local optima, including stationary points, their analyses are inherently problem-specific. In contrast, our paper generalizes the analysis of local optima for relaxed QUBOs by deriving problem-agnostic properties and, in addition, proposing new theory-guided formulations. 2Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+## 2. Main Theory: Local Correctness of Relaxed QUBOs 
+
+2.1. Problem Setting 
+
+We consider relaxed QUBO objectives of the form 
+
+ˆf (z) = w⊤z +γV (z), z ∈ [0 , 1] N , N := n+m, (1) where z = ( x, y ) collects decision variables x ∈ Rn (i.e., the variables that appear in the linear objective term) and possible auxiliary variables y ∈ Rm, w is an expanded linear objective on the variables, with weight 0 assigned to all auxiliary variables, and V (z) is a quadratic penalty encoding feasibility constraints. If no auxiliary variables are involved, we simply drop the y term and refer to z = x. The parameter γ controls the relative strength of the penalty land-scape. In particular, variables with zero objective weight do not affect the original objective value. We therefore refer to the decision variables with nonzero objective weight as the 
+
+core variables .Our goal is to characterize the structural conditions in V in which, provided γ is sufficiently large, every local minimum of the PGD of ˆf over [0 , 1] N corresponds to a binary and feasible solution .Let’s first review some preliminaries, which will be used in our model design and analysis. 
+
+Definition 2.1 (Projected Gradient Descent (PGD)) . Given an initial point z0 ∈ [0 , 1] N and a step size sequence 
+
+{ηk}k≥0 with ηk > 0, PGD for minimizing ˆf over [0 , 1] N
+
+generates iterates 
+
+zk+1 = Π [0 ,1] N
+
+
+
+zk − ηk∇ ˆf (zk)
+
+
+
+, (2) where Π[0 ,1] N denotes the Euclidean projection onto the box 
+
+[0 , 1] N , applied componentwise. 
+
+Definition 2.2 (Box-stationary point of PGD) . A point 
+
+z⋆ ∈ [0 , 1] N is called a box-stationary point of PGD for a continuously differentiable function f if it satisfies the following first-order condition 
+
+⟨∇ f (z⋆), d ⟩ ≥ 0, ∀d ∈ T (z⋆),
+
+where T (z) := {d ∈ RN : zi = 0 ⇒ di ≥ 0, z i = 1 ⇒
+
+di ≤ 0, 0 < z i < 1 ⇒ di ∈ R}, which means T (z⋆)
+
+denotes the tangent cone of the box [0 , 1] N at z⋆.When a box-stationary point further satisfies the second order sufficient condition, it is a box-local minimizer . A box-local minimizer admits no feasible first-order descent direction under the box constraint, and therefore any PGD limit point that is a box-local minimizer is a valid discrete solution. 
+
+Definition 2.3 (Penalty interaction graph) . Let 
+
+V (z) = X
+
+> 1≤i≤j≤N
+
+Qij zizj +
+
+> N
+
+X
+
+> i=1
+
+dizi + const ,
+
+be a quadratic penalty. The penalty interaction graph is the undirected graph G = ( {1, . . . , N }, E ), where (i, j ) ∈ E
+
+if and only if Qij ̸ = 0 .
+
+2.2. Interior Independence of Local Minima 
+
+We first establish a useful lemma showing that under core diagonal-free penalties (i.e., quadratic penalties with no z2
+
+> i
+
+terms on the core variables), the set of interior coordinates at a PGD local minimum forms an independent set in the penalty interaction graph. 
+
+Lemma 2.4 (Interior independence) . Let ˆf (z) = w⊤z +
+
+γV (z) with V diagonal-free on the core variables. Let 
+
+C := {i : wi̸ = 0 } be the set of nonzero-weight (core) indices. If z⋆ is a local minimizer of ˆf over [0 , 1] N , i ∈ C is any interior core coordinate, and Qij ̸ = 0 , then z⋆j ∈ { 0, 1}.In particular, core interior coordinates form an independent set in the interaction graph of V .
+
+2.3. Binarity of Local Minimizers 
+
+We are now ready to show that under diagonal free penalties, a sufficiently large penalty coefficient eliminates fractional local minimizers on all variables with nonzero linear weight. 
+
+Theorem 2.5 (Core binarity at local minimizers) . Let 
+
+ˆf (z) = w⊤z + γV (z), z ∈ [0 , 1] N ,
+
+where 
+
+V (z) = X
+
+> 1≤i≤j≤N
+
+Qij zizj +
+
+> N
+
+X
+
+> i=1
+
+dizi + const 
+
+is quadratic, diagonal-free on the core variables, and has integer coefficients Qij , d i ∈ Z. Let C := {i : wi̸ = 0 } be the set of core indices. Assume 
+
+|γ| > max  
+
+> i∈C
+
+|wi|. (3) 
+
+Then every local minimizer z⋆ of ˆf over [0 , 1] N satisfies 
+
+z⋆i ∈ { 0, 1} for all i ∈ C .
+
+2.4. Feasibility via Local Repairability 
+
+Binarity alone does not guarantee feasibility. We now show that feasibility of local minima can be enforced by a purely local geometric condition on the penalty. 3Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+Definition 2.6 (Local repairability with margin δ > 0). Let 
+
+F ⊆ { 0, 1}|C| denote the feasible set of core assignments, and let D ⊆ RN be a bounded family of candidate direc-tions. We say that V is locally repairable with margin δ > 0
+
+(relative to D) if for every 
+
+z = ( x, y ) ∈ [0 , 1] N
+
+whose core satisfies 
+
+x ∈ { 0, 1}|C| \ F ,
+
+there exists a direction d ∈ D ∩ T (z) such that 
+
+⟨∇ V (z), d ⟩ ≤ − δ. 
+
+If there are no auxiliary variables, simply read z = x.
+
+Theorem 2.7 (Feasibility of binary local minimizers) . Con-sider 
+
+ˆf (z) = w⊤z + γV (z), z ∈ [0 , 1] N ,
+
+and assume: (i) (Core binarity ) Every local minimizer of ˆf over [0 , 1] N
+
+has a binary core. (ii) (Local repairability ) V is locally repairable with mar-gin δ > 0 relative to a bounded direction set D.Define 
+
+L := sup 
+
+n
+
+⟨w, d ⟩ : z ∈ [0 , 1] N has infeasible binary core ,d ∈ D ∩ T (z)
+
+o
+
+.
+
+Then, for every 
+
+γ > Lδ ,
+
+every local minimizer of ˆf over [0 , 1] N has feasible core. 
+
+2.5. A Unified Criterion for Local Correctness 
+
+We now summarize the preceding results into a unified criterion that guarantees the local correctness of relaxed QUBOs under projected gradient descent. Consider the box-constrained optimization problem of (1) ,we have 
+
+min 
+
+> z∈[0 ,1] N
+
+ˆf (z) := w⊤z + γV (z).
+
+Our analysis identifies three structural conditions on the penalty V that together ensure local correctness. 
+
+(C1) Diagonal-free structure. The quadratic penalty V
+
+is diagonal-free on the core variables, i.e., it contains no 
+
+z2 
+
+> i
+
+terms for core indices. This structural property implies an interior independence phenomenon: at any PGD local minimum, no two interacting variables can simultaneously lie in the interior of the box. 
+
+(C2) Integer-valued penalty gradients. The coefficients of V are integer-valued. Combined with interior indepen-dence, this ensures that the penalty gradient at any interior core coordinate is integer-valued. For sufficiently large penalty weight γ, this eliminates fractional local minima on all core variables with nonzero linear weight, yielding core binarity. 
+
+(C3) Local repairability. The penalty V is locally re-pairable with margin δ > 0 relative to a bounded family of admissible directions. That is, from any infeasible binary core configuration, there exists a feasible first-order descent direction that strictly decreases the penalty. Under these three conditions, the geometry of the relaxed objective excludes both fractional and infeasible PGD local minima. Hence, we have the following main theorem. 
+
+Theorem 2.8 (Unified criterion for local correctness) . As-sume that the quadratic penalty V satisfies (C1) –(C3) above. Then there exists a finite threshold γ⋆ > 0 such that for all 
+
+γ > γ ⋆, every box-local minimizer of ˆf over [0 , 1] N has a binary core belonging to the projected feasible set of the original combinatorial problem. 
+
+Thus, under the stated assumptions, invalid box-local min-ima are ruled out. This criterion is purely local, requires no convexity assumptions, and is independent of the specific combinatorial problem under consideration. 
+
+## 3. Examples 
+
+We apply our theorem to several classical combinatorial optimization (CO) problems with linear objectives and hard constraints, illustrating how our penalty construc-tion ensures binarity and feasibility of local minimizers. We always cast examples into the minimization template 
+
+ˆf (z) = w⊤z + γV (z).
+
+3.1. Open-Pit Mining (OP) 
+
+Open-pit mining is a classical precedence-constrained com-binatorial optimization problem arising in large-scale re-source extraction (Hochbaum & Chen, 2000). The mining region is discretized into a finite collection of blocks, each associated with an economic value. Due to slope stability and safety requirements, the extraction of a given block is permitted only after certain predecessor blocks have been removed. The objective is to select a subset of blocks that maximizes the total economic value while respecting all 4Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+precedence constraints. Let i ∈ { 1, . . . , n } index the blocks. Each block i is as-sociated with an economic value wi ∈ R, and a binary decision variable xi ∈ { 0, 1} indicating whether the block is extracted. For each block i, let P (i) ⊆ { 1, . . . , n } denote the set of pre-decessor blocks that must be extracted before i (e.g., due to slope or stability constraints). The precedence-constrained optimization problem is given by 
+
+max 
+
+> x∈{ 0,1}n
+> n
+
+X
+
+> i=1
+
+wixi,
+
+s.t. xi ≤ xj , ∀i ∈ { 1, . . . , n }, ∀j ∈ P (i).
+
+We begin with a naive QUBO formulation for open-pit mining that enforces precedence constraints only between parent–child pairs. This formulation is often used as a direct encoding of the constraints, and we therefore refer to it as the naive parent formulation .
+
+Naive parent formulation. Let p → c denote a prece-dence constraint requiring that block p be extracted before block c. The naive parent formulation uses the penalty 
+
+Vpar (x) := X
+
+> p→c
+
+xc(1 − xp),
+
+leading to the relaxed objective 
+
+ˆf (x) = −w⊤x + γV par (x).
+
+As we will show, this seemingly natural penalty can admit in-feasible strict local minima in the box relaxation, regardless of how large the penalty parameter γ is. This demonstrates that feasibility does not automatically follow from large penalty weights unless the penalty satisfies an explicit local repairability condition. We construct an alternative QUBO penalty that is specifi-cally designed to satisfy the sufficient conditions for local correctness. 
+
+Ancestor formulation (theory-guided). Instead of penal-izing only immediate parent–child violations, we require that whenever a block c is extracted, all of its ancestors must also be extracted. Let Anc (c) denote the set of all (strict) ancestors of node c in the precedence directed acyclic graph (DAG). We define the penalty 
+
+Vanc (x) := X
+
+> c∈{ 1,2,...,n }
+
+X
+
+> α∈Anc (c)
+
+xc(1 − xα),
+
+and the corresponding relaxed objective 
+
+ˆf (x) = −w⊤x + γV anc (x). (4) We can show that the ancestor formulation allows each infeasible point to admit one-bit repairable directions and is therefore compatible with the local repairability criterion developed earlier. For both QUBO formulations, the binarity condition in our framework is satisfied, as the quadratic penalties are diagonal-free and all coefficients of V are integer-valued. 
+
+Proposition 3.1 (Feasibility of the ancestor formulation under a finite penalty) . Let ˆf (x) = −w⊤x + γV anc (x)
+
+over [0 , 1] n. Assume that core binarity holds. Then Vanc is locally repairable with margin δ = 1 relative to the single-bit removal directions 
+
+D := {− ei : i = 1 , . . . , n }.
+
+Then any γ > max i wi guarantees that every binary PGD local minimum of ˆf has a feasible core. 
+
+By Thm 2.8, any penalty parameter γ satisfying both the core binarity condition of Thm 2.5 and the feasibility condi-tion of Thm 2.7 guarantees that all PGD local minimizers are binary and feasible. For the open-pit mining (4) , this reduces to the simple sufficient condition 
+
+γ > max  
+
+> i
+
+|wi|.
+
+For the ancestor formulation, turning off a violating node always reduces the penalty. Flipping xc : 1 → 0 eliminates all terms xc(1 − xα) for every missing ancestor α, and the penalty drops by at least 1. We now contrast this positive result with a failure mode of the naive parent formulation. 
+
+Remark 3.2 (Why the naive parent formulation can fail) .
+
+Consider the chain g → r → a → b and the infeasible binary point 
+
+xg = 0 , xr = 0 , xa = 1 , xb = 1 .
+
+At this point, Vpar (x) = xr (1 − xg ) + xa(1 − xr ) + xb(1 −
+
+xa) = 1 , yet a direct calculation shows that 
+
+∇Vpar (x) = 0 .
+
+Hence, for every feasible direction d ∈ T (x) we have 
+
+⟨∇ Vpar (x), d ⟩ = 0 , violating the local repairability con-dition for any δ > 0. This flatness reflects the need for coordinated multi-bit repairs in the parent formulation, in contrast to the strict one-bit repairs admitted by the ancestor formulation. 
+
+Lemma 3.3 (The flat infeasible vertex can be a strict local minimizer) . Fix any γ > 0. Consider the chain precedence graph g → r → a → b with the naive parent penalty 
+
+Vpar (x) = xr (1 − xg ) + xa(1 − xr ) + xb(1 − xa).
+
+Define the relaxed objective over [0 , 1] 4 by 
+
+ˆf (x) := −w⊤x + γV par (x), x = ( xg , x r , x a, x b),
+
+5Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+and choose weights 
+
+wg = wr = −1, wa = wb = 1 .
+
+Then the infeasible binary point 
+
+x⋆ = (0 , 0, 1, 1) 
+
+is a strict local minimizer of ˆf over [0 , 1] 4.
+
+3.2. Set Packing and 0–1 Knapsack 
+
+The family of packing-type constraints naturally splits into two regimes. When each constraint has right-hand side 1
+
+and 0–1 incidence coefficients, pairwise conflict penalties are the natural square-free construction. By contrast, for genuine knapsack constraints one typically introduces slack variables and starts from a squared residual penalty. We therefore treat these cases separately. 3.2.1. S ET PACKING 
+
+We first consider the set packing class 
+
+max 
+
+> n
+
+X
+
+> i=1
+
+wixi
+
+s.t. 
+
+> n
+
+X
+
+> i=1
+
+Ak,i xi ≤ 1, k = 1 , . . . , K, x ∈ { 0, 1}n,
+
+(5) where w ∈ Rn 
+
+> +
+
+and A ∈ { 0, 1}K×n. Since each row has right-hand side 1, a violation means that at least two active variables appear in the same constraint. This makes pairwise conflict penalties a natural diagonal-free encoding. 
+
+Examples. 
+
+• Graph MIS (edge packing). For a graph G = ( V, E ),the constraints xu + xv ≤ 1 for each edge (u, v ) ∈ E
+
+can be written as Ax ≤ 1 with one row per edge and two ones per row (Karp, 2009). This is the familiar MIS feasibility condition. • k-set packing. Let U be a universe of elements and let S = {S1, . . . , S n} be sets with |Si| ≤ k. Choosing disjoint sets is equivalent to requiring that for each element e ∈ U , at most one chosen set may contain e,
+
+X 
+
+> i:e∈Si
+
+xi ≤ 1.
+
+For k ≥ 3, this problem is NP-hard (Chan & Lau, 2012). To construct a QUBO, we use the pairwise conflict penalty 
+
+Vsp (x) := 
+
+> K
+
+X
+
+> k=1
+
+X
+
+> 1≤i<j ≤n
+
+Ak,i Ak,j xixj . (6) The corresponding relaxed objective is 
+
+ˆfsp (x) := −w⊤x + γV sp (x). (7) The penalty Vsp (x) is diagonal-free with integer coeffi-cients, so Theorem 2.5 implies core binarity whenever 
+
+γ > max i wi. Moreover, for binary x, the condition 
+
+Vsp (x) = 0 is equivalent to feasibility of (5). 
+
+Proposition 3.4 (Feasibility of local minimizers for set pack-ing) . Assume that any local minimizer of (7) is binary on the core. If γ > max i wi, then every PGD local minimizer of (7) is feasible for (5) .
+
+The proof follows the local-repairability template: if a bi-nary point violates some row k, then at least two active variables appear in that row, and turning off any one of them strictly decreases the penalty (6). 3.2.2. S INGLE -CONSTRAINT 0–1 KNAPSACK AND BINARY -EQUIVALENT CANCELLATION 
+
+We now turn to a single knapsack-type constraint 
+
+max 
+
+> n
+
+X
+
+> i=1
+
+wixi
+
+s.t. 
+
+> n
+
+X
+
+> i=1
+
+aixi ≤ b, x ∈ { 0, 1}n,
+
+(8) and first focus on the binary-coefficient case ai ∈ { 0, 1}.Unlike set packing, here we encode the inequality by intro-ducing slack bits. Let 
+
+s(y) := 
+
+> M
+
+X
+
+> ℓ=0
+
+2ℓ yℓ, y ∈ [0 , 1] M +1 ,
+
+and define the residual 
+
+r(x, y ) := a⊤x + s(y) − b. 
+
+With sufficiently many bits, any integer slack in [0 , 2M +1 −
+
+1] is representable. A natural QUBO representation of (8) is 
+
+ˆf (x, y ) := −w⊤x + γ r (x, y )2. (9) However, the squared residual contains diagonal terms in the core variables, and therefore may admit nonbinary local minimizers in the box relaxation. To remove these diagonal terms while preserving the ob-jective on binary core points, we consider the following formulation 
+
+Vbe (x, y ) := r(x, y )2 −
+
+> n
+
+X
+
+> i=1
+
+aix2 
+
+> i
+
++
+
+> n
+
+X
+
+> i=1
+
+aixi. (10) 6Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+We then consider the relaxed optimization problem 
+
+min  
+
+> (x,y )∈[0 ,1] n×[0 ,1] M+1
+
+ˆf (x, y ) := −w⊤x+γV be (x, y ). (11) We say that (10) is binary-equivalent to the raw squared penalty if they agree on all binary core assignments. 
+
+Definition 3.5. A quadratic polynomial ˜V (z) is said to be 
+
+binary-equivalent to V (z) if ˜V (z) = V (z) for all core x
+
+encoded in z = ( x, y ) ∈ { 0, 1}n × [0 , 1] M +1 .In other words, binary-equivalent transformations preserve the value of the objective on the discrete feasible/infeasible core assignments of interest, while allowing us to reshape the relaxed landscape. For (10) , the core part is diagonal-free with integer coefficients, so Theorem 2.5 again yields core binarity whenever γ > max i wi.
+
+Theorem 3.6 (Feasibility of local minimizers for single-con-straint binary-coefficient knapsack) . Assume ai ∈ { 0, 1}
+
+for all i, and assume that any local minimizer of (11) is binary on the core. If γ > max i wi, then every PGD local minimizer of (11) is feasible for (8) .
+
+The key point is that in the single-constraint binary-coefficient case, an infeasible binary point has positive resid-ual r ≥ 1, and turning off any active variable in the violated constraint yields a strict penalty decrease. Thus the binary-equivalent cancellation is sufficient in this case. For general multi-constraint knapsack problems with integer coefficients, binary-equivalent diagonal cancellation is no longer sufficient to guarantee local repairability. We dis-cuss this obstruction and a repair-oriented over-corrected construction in Appendix G. Since the construction does not preserve the binary objective values in the same way as the single-constraint formulation, we treat it as an extension rather than as part of the main theorem pipeline. 
+
+3.3. Traveling Salesman Problem 
+
+This section illustrates how our framework applies to the traveling salesman problem (TSP). We first consider the assignment problem (Lawler, 2001), allowing both multiple cycles and self-loops (standing traveling salesman). We then show that the time-indexed TSP fits an extension of our framework to a quadratic core objective, yielding a relaxed QUBO whose local minimizers are binary and feasible TSP solutions. Throughout, let n ≥ 3 and let cij ≥ 0 be travel costs. 3.3.1. A SSIGNMENT PROBLEM 
+
+We begin with the assignment problem 
+
+min 
+
+> xn
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+cij xij (12) s.t. 
+
+> n
+
+X
+
+> j=1
+
+xij = 1 ∀i, 
+
+> n
+
+X
+
+> i=1
+
+xij = 1 ∀j, xij ∈ { 0, 1}.
+
+Feasible solutions are permutation matrices. Equivalently, they encode a cycle cover of the cities, where 1-cycles xii =1 are allowed with cii = 0 . We therefore interpret (12) as an assignment model with standing moves. 
+
+Square-free penalty for degree equalities. Define resid-uals 
+
+ρi(x) := 
+
+> n
+
+X
+
+> j=1
+
+xij − 1, κj (x) := 
+
+> n
+
+X
+
+> i=1
+
+xij − 1.
+
+The raw squared penalty P 
+
+> i
+
+ρi(x)2 + P 
+
+> j
+
+κj (x)2 contains diagonal core terms x2 
+
+> ij
+
+. Since each xij appears in exactly one row residual and one column residual, its diagonal coef-ficient in the raw squared penalty is 2. We therefore apply a binary-equivalent diagonal cancellation and define 
+
+Vdeg (x) := 
+
+> n
+
+X
+
+> i=1
+
+ρ2 
+
+> i
+
+(x) + 
+
+> n
+
+X
+
+> j=1
+
+κ2 
+
+> j
+
+(x)
+
+− 2
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+x2 
+
+> ij
+
++ 2 
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+xij .
+
+(13) We consider the box-relaxed penalized objective 
+
+ˆfdeg (x) := 
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+cij xij + ε
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+xij + γ V deg (x).
+
+(14) where ε Pni=1 
+
+Pnj=1 xij is added to make every variable appear in the core with a positive coefficient and equals nε 
+
+on every feasible assignments. 
+
+Binarity. Since Vdeg is diagonal-free with integer-valued coefficients on the core variables, Theorem 2.5 implies that every PGD local minimum of (14) is binary on the core provided 
+
+γ > c max , cmax := max  
+
+> 1≤i,j ≤n
+
+cij + ε. 
+
+Theorem 3.7 (Feasibility of local minimizers for the assign-ment relaxation) . Assume cii = 0 ∀i and cij ≥ 0 for all 
+
+i̸ = j and let cmax := max i,j cij + ε. Consider (14) with 
+
+Vdeg defined in (13) . Assume γ > c max so that every PGD 
+
+7Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+local minimum has a binary core. Then every PGD local minimum x⋆ satisfies the assignment equalities 
+
+> n
+
+X
+
+> j=1
+
+x⋆ij = 1 ∀i, 
+
+> n
+
+X
+
+> i=1
+
+x⋆ij = 1 ∀j, 
+
+and hence is feasible for (12) .
+
+3.3.2. T IME -INDEXED TSP AND DIAGONAL -FREE QUADRATIC CORES 
+
+We now turn to a formulation that does fit our local-correctness framework. Let xi,t ∈ { 0, 1} indicate that city 
+
+i is visited at time t, with time interpreted cyclically. The time-indexed TSP is 
+
+min  
+
+> x
+
+Q(x) := 
+
+> n
+
+X
+
+> t=1
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+cij xi,t xj,t +1 
+
+s.t. 
+
+> n
+
+X
+
+> i=1
+
+xi,t = 1 , t = 1 , . . . , n, 
+
+> n
+
+X
+
+> t=1
+
+xi,t = 1 , i = 1 , . . . , n, xi,t ∈ { 0, 1}.
+
+Any feasible point is a permutation matrix in the city–time grid, and therefore encodes a Hamiltonian tour. Define the assignment residuals 
+
+ρt(x) := 
+
+> n
+
+X
+
+> i=1
+
+xi,t − 1, κi(x) := 
+
+> n
+
+X
+
+> t=1
+
+xi,t − 1.
+
+As in the assignment model, the raw squared penalty P 
+
+> t
+
+ρt(x)2 + P 
+
+> i
+
+κi(x)2 contains diagonal terms x2
+
+> i,t
+
+. Since each variable appears in exactly one time residual and one city residual, we again apply a binary-equivalent diagonal cancellation and define 
+
+Vtime (x) := 
+
+> n
+
+X
+
+> t=1
+
+ρt(x)2 +
+
+> n
+
+X
+
+> i=1
+
+κi(x)2
+
+− 2
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> t=1
+
+x2 
+
+> i,t
+
++ 2 
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> t=1
+
+xi,t .
+
+As previous, we make every variable appear in the core with a positive coefficient by adding a tiny tie-break term 
+
+ε P 
+
+> i,t
+
+xi,t , which is constant over feasible tours. The re-laxed objective is 
+
+ˆftime (x) := Q(x)+ ε
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> t=1
+
+xi,t +γV time (x), x ∈ [0 , 1] n×n.
+
+(15) This formulation no longer has a linear core, but it fits the diagonal-free quadratic-core extension of our theory: the travel cost Q(x) is bilinear, while the penalty Vtime is square-free on the core. The same large-γ mechanism then yields binarity and feasibility of local minimizers. 
+
+Theorem 3.8 (Local correctness of the time-indexed TSP relaxation) . Fix ε > 0 and consider (15) , then there exists a finite threshold γ⋆ 
+
+> time
+
+> 0, such that for all γ > γ ⋆
+
+> time
+
+,every PGD local minimizer of (15) is binary and satisfies the assignment equalities 
+
+> n
+
+X
+
+> i=1
+
+x⋆i,t = 1 ∀t, 
+
+> n
+
+X
+
+> t=1
+
+x⋆i,t = 1 ∀i. 
+
+Remark 3.9 (Removing the positive-cost assumption) . If some cij = 0 , replace cij by cij + ε′ for any ε′ > 0. Since every feasible tour uses exactly n transitions, this adds the constant nε ′ to all feasible tours, but ensures all edge inter-actions appear in the quadratic core. 
+
+## 4. Numerical Experiments 
+
+We present two experiments. First, we validate the local-correctness theory on open-pit mining (MineLib (Espinoza et al., 2013)), 0–1 knapsack (kplib (Pisinger, 2005)), and traveling salesman (TSPLIB (Reinelt, 1991)) by comparing naive squared penalties with our theory-guided construc-tions. Second, we give solver-context results on maximum independent set (MIS), a canonical packing problem cov-ered by our theory. These experiments are intended as empirical context for the relaxed QUBO formulation, not as a comprehensive benchmark against specialized solvers. 
+
+4.1. Validation of Local-Correctness Theory 
+
+Two instances are tested for each problem class, where for each problem we compare a standard (naive) QUBO formulation against our theory-guided construction. Each configuration is run from 10 random initializations, and we report the empirical binarity rate and feasibility rate of the returned solutions. 
+
+Penalty regimes. For knapsack and TSP we test two penalty weights: γsmall = γ∗ + 0 .1 where γ∗ is the threshold according to Thm 2.8 and γlarge = 10 3 γsmall , intended to approximate the “ γ → ∞ ” regime. We report the resulting ranges of γsmall across instances in the corresponding tables. 
+
+Optimizers. For slack-free QUBOs (open pit and time-indexed TSP), we use PGD, aligned with our theoretical characterization of PGD local minima. For knapsack, slack expansions can make the landscape highly ill-conditioned; we therefore use projected Adam, which more reliably es-capes flat first-order traps, and evaluate correctness using the same binarity/feasibility criteria. Since the preconditioning factors are strictly positive, the set of first-order optimality conditions remains unchanged. 8Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+Table 1. Correctness verification of the relaxed QUBOs of two open pit instances. γ∗ ≈ 1e16 .
+
+Theory-Guided QUBO Naive QUBO 
+
+γ∗ + 0 .1 Bin: 100% (20/20) Bin: 60% (12/20) Feas: 100% (20/20) Feas: 0% (0/20) 
+
+Table 2. Correctness verification of the relaxed QUBOs of two knapsack instances. γ∗ ≈ 1000 .
+
+Theory-Guided QUBO Naive QUBO 
+
+γsmall 
+
+Bin: 100% (20/20) Bin: 0% (0/20) Feas: 100% (20/20) Feas: 100% (20/20) 
+
+γlarge 
+
+Bin: 100% (20/20) Bin: 0% (0/20) Feas: 100% (20/20) Feas: 100% (20/20) 
+
+Open-pit mining. We contrast the theory-guided ancestor form QUBO with the commonly used parent form QUBO. These MineLib instances contain “air” blocks with ex-tremely negative values that are typically removed during preprocessing. We intentionally avoid such preprocessing and run on the raw block models to stress-test robustness. Even at this very large theoretical threshold, the ancestor formulation succeeds on the raw block model while the parent formulation fails. Because the raw penalty scale is already dominated by these large-magnitude dummy blocks, we focus on formulation comparison rather than a separate “very large γ” ablation. 
+
+Knapsack and TSP. Across all tested instances, our pro-posed QUBOs achieve binary and feasible solutions under both γsmall and γlarge . In contrast, the naive QUBOs can converge to fractional and/or infeasible local minima, and increasing γ alone does not reliably remove these failures. 
+
+4.2. Maximum Independent Set: Practical Context on a Canonical NP-hard Packing Problem 
+
+We next study the maximum independent set (MIS) problem as a canonical NP-hard packing problem. This experiment complements the theory developed earlier for packing-type relaxations. The goal here is not to present a new specialized MIS heuristic, but to show that the relaxed-QUBO formula-tion studied in this paper supports practically competitive local optimization when solved by PGD. Table 4 reports the average independent-set size over 8 Erd ˝os–R ´enyi instances per setting under a 5-minute budget. PGD returns larger independent sets than Gurobi across all tested sizes and densities. Table 5 compares PGD with lightweight heuristics on a representative subset. The re-sults show that PGD is competitive with stochastic local search (SLS) and GRASP, and that batched GPU restarts im-prove the short-budget regime. Here SLS denotes stochastic perturbation (ratio 25% ) followed by greedy repair, while GRASP denotes a semi-greedy randomized construction followed by local search. 
+
+Table 3. Correctness verification for relaxed time-indexed TSP QUBOs under two penalty regimes for two TSP instances. γ∗ ≈{1e5, 3e6} each for one of the two instances. 
+
+Theory-Guided QUBO Naive QUBO 
+
+γsmall 
+
+Bin: 100% (20/20) Bin: 0% (0/20) Feas: 100% (20/20) Feas: 0% (0/20) 
+
+γlarge 
+
+Bin: 100% (20/20) Bin: 5% (1/20) Feas: 100% (20/20) Feas: 0% (0/20) 
+
+Table 4. Average MIS size under a fixed 5-minute budget on 8
+
+Erd ˝os–R ´enyi instances for each (n, p ) setting. PGD and Gurobi are run under the same wall-clock budget.                                                             
+
+> (n, p )PGD (0 .3) Gurobi (0 .3) PGD (0 .5) Gurobi (0 .5) PGD (0 .7) Gurobi (0 .7)
+> 2000 27 21.875 14.25 13.125 10 8.375 4000 28.5 20.5 16 11.625 10.5 7.375 6000 30.25 21.75 17.375 12.25 10.5 88000 30.875 23.25 17.375 13.25 10.75 7.75 10000 30.625 22.875 17 13.5 10.625 8.25 20000 32.5 24.5 17.875 14 11 8.625 30000 33.625 26.25 18.75 14.25 11.25 9.125 40000 34.125 26.75 18.875 15.125 11.625 9.625
+
+Table 5. Representative MIS comparisons under 5-minute and 
+
+30 -second budgets. Rows are ordered from smaller- to larger-MIS regimes, rather than by graph size alone. “PGD (1GPU Parallel)” denotes batched parallel restarts optimized simultaneously on one GPU.                                                                       
+
+> 5minutes
+> (n, p )PGD Gurobi SLS GRASP
+> (8000 ,0.7) 10.75 7.75 10.5 11.125
+> (4000 ,0.5) 16 11.625 16.125 17
+> (2000 ,0.3) 27 21.875 25.625 27.125
+> (4000 ,0.3) 28.5 20.5 28.25 29
+> (8000 ,0.3) 30.875 23.25 30.375 30.625
+> (3000 ,1/30) 198.5 142.75 194.75 186.125
+> 30 seconds
+> (n, p )PGD (1GPU Parallel) PGD SLS GRASP
+> (8000 ,0.7) 11.125 10.125 10.375 11
+> (4000 ,0.5) 16.375 15.75 15.75 16.25
+> (2000 ,0.3) 26.75 25.75 25.625 26.75
+> (4000 ,0.3) 29 28.125 28.125 28.125
+> (8000 ,0.3) 31 29.625 29.875 30
+> (3000 ,1/30) 200.75 191.5 191.75 183.5
+
+## 5. Conclusion 
+
+We studied when solving box-relaxed QUBOs with first-order methods can be certifiably correct for the underlying binary constrained problem. Under diagonal-free penalty structure, we showed that sufficiently large penalties rule out fractional local minima on the core variables, yielding binarity guarantees for box-local minimizers. We then intro-duced a local-repairability condition for constraint penalties, providing explicit thresholds under which any box-local minimizer is not only binary but also feasible. A practical design principle is highlighted: formulation choice is part of the theory, and selecting a certifiable formulation can be more important than tuning the penalty. 9Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+## Acknowledgment 
+
+This work was supported by the Defense Advanced Re-search Projects Agency (DARPA) under Cooperative Agree-ment No. HR0011-25-2-0021. 
+
+## Impact Statement 
+
+This paper provides theoretical conditions and explicit penalty thresholds under which box-constrained local min-imizers of relaxed QUBO objectives are guaranteed to be binary and feasible for the underlying discrete constraints. The main positive impact is improved reliability and inter-pretability of gradient-based heuristics for QUBO models, including clarifying how formulation choices affect correct-ness. The results are purely theoretical and do not guarantee global optimality. Potential negative impact comes from overinterpreting the guarantees or using excessively large penalties that can harm optimization or numerical stability; practitioners should treat the theory as a correctness check under stated assumptions and incorporate domain-specific constraints and oversight in any real deployment. 
+
+## References 
+
+Alkhouri, I., Denmat, C. L., Li, Y., YU, C., Liu, J., Wang, R., and Velasquez, A. Differentiable quadratic optimization for the maximum independent set problem. In Forty-second International Conference on Machine Learning ,2025. Alkhouri, I., Wu, M., Yu, C., Liu, J., Wang, R., and Ve-lasquez, A. A scalable lift-and-project differentiable ap-proach for the maximum cut problem. AISTATS , 2026. Baydin, A. G., Pearlmutter, B. A., Radul, A. A., and Siskind, J. M. Automatic differentiation in machine learning: a survey. Journal of machine learning research , 18(153): 1–43, 2018. Benlic, U. and Hao, J.-K. Breakout local search for the max-cutproblem. Engineering Applications of Artificial Intelligence , 26(3):1162–1173, 2013. Burer, S. and Letchford, A. N. On nonconvex quadratic programming with box constraints. SIAM Journal on Optimization , 20(2):1073–1089, 2009. Chan, Y. H. and Lau, L. C. On linear and semidefinite pro-gramming relaxations for hypergraph matching. Mathe-matical programming , 135(1):123–148, 2012. Clausen, J. Branch and bound algorithms-principles and examples. Department of computer science, University of Copenhagen , pp. 1–30, 1999. Dantzig, G., Fulkerson, R., and Johnson, S. Solution of a large-scale traveling-salesman problem. Journal of the operations research society of America , 2(4):393–410, 1954. Espinoza, D., Goycoolea, M., Moreno, E., and Newman, A. Minelib: a library of open pit mining problems. Annals of operations research , 206(1):93–114, 2013. Glover, F., Kochenberger, G., and Du, Y. Applications and computational advances for solving the qubo model. In 
+
+The quadratic unconstrained binary optimization prob-lem: theory, algorithms, and applications , pp. 39–56. Springer, 2022a. Glover, F., Kochenberger, G., Hennig, R., and Du, Y. Quan-tum bridge analytics i: a tutorial on formulating and using qubo models. Annals of Operations Research , 314(1): 141–183, 2022b. Hochbaum, D. S. and Chen, A. Performance analysis and best implementations of old and new algorithms for the open-pit mining problem. Operations Research , 48(6): 894–914, 2000. Karp, R. M. Reducibility among combinatorial problems. In 50 Years of Integer Programming 1958-2008: from the Early Years to the State-of-the-Art , pp. 219–241. Springer, 2009. Kirkpatrick, S., Gelatt Jr, C. D., and Vecchi, M. P. Opti-mization by simulated annealing. science , 220(4598): 671–680, 1983. Kochenberger, G., Hao, J.-K., Glover, F., Lewis, M., L ¨u, Z., Wang, H., and Wang, Y. The unconstrained binary quadratic programming problem: a survey. Journal of combinatorial optimization , 28(1):58–81, 2014. Lawler, E. L. Combinatorial optimization: networks and matroids . Courier Corporation, 2001. Lerchs, H. Optimum design of open-pit mines. CIM bulletin ,58(633):47–54, 1965. Mahdavi Pajouh, F., Balasundaram, B., and Prokopyev, O. A. On characterization of maximal independent sets via quadratic optimization. Journal of Heuristics , 19(4): 629–644, 2013. Martello, S. and Toth, P. Knapsack problems: algorithms and computer implementations . John Wiley & Sons, Inc., 1990. Nocedal, J. Numerical optimization. Springer Ser. Oper. Res. Financ. Eng./Springer , 2006. Pisinger, D. Where are the hard knapsack problems? Com-puters & Operations Research , 32(9):2271–2284, 2005. 10 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+Reinelt, G. Tsplib—a traveling salesman problem library. 
+
+ORSA journal on computing , 3(4):376–384, 1991. Sun, Y., Alkhouri, I., Huang, C.-H., Velasquez, A., Jha, S., and Wang, R. Mutation-guided differentiable quadratic combinatorial optimization, 2026. URL https:// arxiv.org/abs/2605.06921 .11 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+## Appendix 
+
+In the appendix, we collect full proofs and technical details that are omitted from the main text for readability. The appendix is organized as follows: 1. Appendix A provides the proof of Lemma 2.4, establishing the interior-structure property used throughout the binarity analysis. 2. Appendix B provides the proof of Theorem 2.5, which gives the core binarity guarantee for diagonal-free integer-coefficient penalties. 3. Appendix C provides the proof of Theorem 2.7, proving feasibility of local minimizers under the local-repairability condition and a sufficiently large penalty. 4. Appendix D provides the proof of Proposition 3.1, establishing feasibility (via repair directions) for the ancestor 
+
+formulation in open-pit mining. 5. Appendix E provides the proof of Lemma 3.3, giving a concrete failure mode of the naive parent formulation by constructing an infeasible strict local minimizer. 6. Appendix F provides the proof of Theorem 3.6 for the single-constraint knapsack setting, deriving an explicit penalty threshold that enforces feasibility. 7. Appendix G discusses the extension from single-constraint knapsack to multi-constraint knapsack. 8. Appendix H provides the proof of Theorem 3.7 for the assignment problem. 9. Appendix I presents the time-indexed TSP extension (quadratic/bilinear travel-cost core): the square-free penalty construction, the interior-structure lemma, and the resulting core-binarity and feasibility guarantees. 
+
+## A. Proof of Lemma 2.4 
+
+Proof. Fix a local minimizer z⋆ of ˆf (z) = w⊤z + γV (z) over the box [0 , 1] N and let J := J(z⋆) = {i : 0 < z ⋆i < 1}.Assume toward a contradiction that there exist distinct indices i, j ∈ J with Qij ̸ = 0 and at least one of i and j is a core variable. Since (z⋆i , z ⋆j ) ∈ (0 , 1) 2, there exists ε > 0 such that for all (s, t ) ∈ R2 with ∥(s, t )∥2 ≤ ε,
+
+z⋆ + se i + te j ∈ [0 , 1] N .
+
+Define the two–variable restriction 
+
+ϕ(s, t ) := ˆf (z⋆ + se i + te j ).
+
+Then (0 , 0) is a (unconstrained) local minimizer of the C2 function ϕ, so the 2 × 2 Hessian H := ∇2ϕ(0 , 0) must be positive semidefinite. Because w⊤z is linear, it contributes no second derivatives. For the penalty, the only term in V that creates a mixed second derivative between coordinates i and j is Qij zizj . Hence, the (i, j ) block of ∇2V (z⋆) has the form 
+
+∇2(i,j )V (z⋆) = 
+
+2Qii Qij 
+
+Qij 2Qjj 
+
+
+
+,
+
+where we interpret Qkk = 0 for those indices on which V has no diagonal term (in particular, for core indices under the diagonal-free assumption). Therefore 
+
+H = γ
+
+2Qii Qij 
+
+Qij 2Qjj 
+
+
+
+.
+
+Its determinant is 
+
+det( H) = γ2 4Qii Qjj − Q2
+
+> ij
+
+ ≤ − γ2Q2 
+
+> ij
+
+< 0,
+
+so H is indefinite, contradicting the second-order necessary condition at (0 , 0) . We conclude that no interior core coordinate can interact with another interior coordinate. 12 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+## B. Proof of Thm 2.5 
+
+Proof. Let z⋆ be a PGD local minimizer of ˆf (z) = w⊤z + γV (z) over [0 , 1] N and recall the core set C = {i : wi̸ = 0 }.Fix any core index i ∈ C . Suppose toward a contradiction that 0 < z ⋆i < 1.By Lemma 2.4, the interior set J(z⋆) is a core independent set of the interaction graph induced by the off–diagonal coefficients Qij . In particular, every index j with Qij ̸ = 0 must satisfy z⋆j ∈ { 0, 1}.Compute the partial derivative of V at z⋆ in the ith coordinate: 
+
+∂iV (z⋆) = X 
+
+> j̸=i
+
+Qij z⋆j + di.
+
+Because Qij , d i ∈ Z and each z⋆j ∈ { 0, 1} whenever Qij ̸ = 0 , we have ∂iV (z⋆) ∈ Z.Since z⋆i is interior, the first-order stationarity condition for box constraints reduces to ∂i ˆf (z⋆) = 0 , i.e., 
+
+0 = ∂i ˆf (z⋆) = wi + γ ∂ iV (z⋆).
+
+Let k := ∂iV (z⋆) ∈ Z. Then wi = −γk and thus |wi| = |γ| | k|. Under the assumption |γ| > max i∈C |wi|, we have 
+
+|γ| > |wi|; hence the equality |wi| = |γ| | k| forces k = 0 . But then 0 = wi + γk = wi, contradicting i ∈ C (i.e., wi̸ = 0 ). Therefore no core coordinate can be interior, and z⋆i ∈ { 0, 1} for all i ∈ C .
+
+## C. Proof of Thm 2.7 
+
+Proof. Let z⋆ be a local minimizer of ˆf (z) = w⊤z + γV (z)
+
+over [0 , 1] N . Assume for contradiction that the core of z⋆ is infeasible. By assumption (i), every local minimizer has binary core, so the core of z⋆ is binary and infeasible. Hence assumption (ii) applies: there exists a repair direction 
+
+d ∈ D ∩ T (z⋆)
+
+such that 
+
+⟨∇ V (z⋆), d ⟩ ≤ − δ. 
+
+By the definition of L,
+
+⟨w, d ⟩ ≤ L. 
+
+Therefore 
+
+⟨∇ ˆf (z⋆), d ⟩ = ⟨w, d ⟩ + γ⟨∇ V (z⋆), d ⟩ ≤ L − γδ. 
+
+If γ > L/δ , then 
+
+⟨∇ ˆf (z⋆), d ⟩ < 0.
+
+Since d ∈ T (z⋆), the standard first-order necessary condition for a local minimizer over a box implies 
+
+⟨∇ ˆf (z⋆), d ⟩ ≥ 0,
+
+a contradiction. Hence the core of z⋆ must be feasible. 
+
+## D. Proof of Proposition 3.1 
+
+Proof. Assume core binarity holds. Let x ∈ { 0, 1}n be an infeasible binary point. Let S = {i : xi = 1 } be the set of extracted blocks. Since x is infeasible, there exists a block c ∈ S that violates a precedence constraint; that is, there is an ancestor α ∈ Anc (c) such that xα = 0 . This implies P
+
+> α∈Anc (c)
+
+(1 − xα) ≥ 1.We select a specific violating node c∗ to repair. Let Vviol = {c ∈ S : ∃α ∈ Anc (c), x α = 0 } be the set of extracted blocks with missing ancestors. Choose c∗ to be a maximal element of Vviol with respect to the graph topology (i.e., c∗ has no 13 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+descendants in Vviol ). In fact, we can choose c∗ to be maximal in S; if a node is in S, any descendant in S implies the ancestor is satisfied relative to the descendant, but we simply need a node c∗ ∈ S such that no descendant of c∗ is in S. If x
+
+is infeasible, we can always find a ”deepest” active node c∗ that violates ancestry constraints (or whose ancestors do) such that turning c∗ off does not create new violations for its descendants (because it has none active). Consider the direction d = −ec∗ ∈ D ∩ T (x), which corresponds to un-extracting block c∗. The gradient of the penalty is: 
+
+∂iVanc (x) = X
+
+> α∈Anc (i)
+
+(1 − xα) − X
+
+> k:i∈Anc (k)
+
+xk.
+
+Evaluating this at c∗: 1. The ancestor term P
+
+> α∈Anc (c∗)
+
+(1 − xα) ≥ 1 because c∗ is infeasible. 2. The descendant term 
+
+P 
+
+> k:c∗∈Anc (k)
+
+xk = 0 because c∗ was chosen such that no active descendants exist (or we recursively remove them). Specifically, in the ancestor formulation, removing a node c removes the requirement for its ancestors to be present for c,decreasing the penalty. The only penalty increase could come from c being an ancestor to some other active k. However, if we choose c∗ such that it has no active descendants, this term is 0. Thus, ∂c∗ Vanc (x) ≥ 1. The directional derivative is: 
+
+⟨∇ Vanc (x), d ⟩ = −∂c∗ Vanc (x) ≤ − 1.
+
+This confirms local repairability with margin δ = 1 . The linear gain bound is L = sup d∈D ⟨− w, d ⟩ = sup i wi. By Theorem 2.7, any γ > (max i wi)/1 guarantees feasibility. 
+
+## E. Proof of Lemma 3.3 
+
+Proof. First note x⋆ is infeasible since r → a is violated: x⋆a(1 − x⋆r ) = 1 . Also 
+
+Vpar (x⋆) = x⋆a(1 − x⋆r ) + x⋆b (1 − x⋆a) = 1 .
+
+Step 1: The parent penalty is first-order flat at x⋆. A direct differentiation gives 
+
+∂g Vpar = −xr , ∂r Vpar = (1 − xg ) − xa, ∂aVpar = (1 − xr ) − xb, ∂bVpar = (1 − xa),
+
+hence ∇Vpar (x⋆) = 0 .
+
+Step 2: Tangent-cone directions have a uniform first-order increase from the linear term. The tangent cone of the box at x⋆
+
+is 
+
+T (x⋆) = {h ∈ R4 : hg ≥ 0, h r ≥ 0, h a ≤ 0, h b ≤ 0}.
+
+For any h ∈ T (x⋆),
+
+⟨∇ (−w⊤x) x=x⋆ , h ⟩ = ⟨− w, h ⟩ = ( −wg )hg + ( −wr )hr + ( −wa)ha + ( −wb)hb = hg + hr − ha − hb = ∥h∥1.
+
+In particular, ⟨− w, h ⟩ ≥ ∥ h∥2 for all h ∈ T (x⋆).
+
+Step 3: The penalty changes only at second order near x⋆. Since Vpar is a quadratic polynomial, Taylor’s theorem is exact: 
+
+Vpar (x⋆ + h) − Vpar (x⋆) = ⟨∇ Vpar (x⋆), h ⟩ + 12 h⊤Hh = 12 h⊤Hh, 
+
+where the Hessian H is constant with off-diagonal entries only on the edges (g, r ), (r, a ), (a, b ) and zeros on the diagonal. In particular, ∥H∥2 ≤ 2 (each row has at most two nonzeros of magnitude 1), so 
+
+Vpar (x⋆ + h) − Vpar (x⋆) ≥ − 12 ∥H∥2∥h∥22 ≥ −∥ h∥22.
+
+Step 4: Strict local minimality. Combining the above, 
+
+ˆf (x⋆ + h) − ˆf (x⋆) = ⟨− w, h ⟩ + γ Vpar (x⋆ + h) − Vpar (x⋆) ≥ ∥ h∥2 − γ∥h∥22.
+
+Thus for any nonzero feasible perturbation with ∥h∥2 < 1/γ we have ˆf (x⋆ + h) > ˆf (x⋆), proving that x⋆ is a strict local minimizer over [0 , 1] 4.Finally, note this also aligns with the box first-order necessary condition: at a local minimizer, every feasible direction 
+
+d ∈ T (x⋆) must satisfy ⟨∇ ˆf (x⋆), d ⟩ ≥ 0; here ∇ ˆf (x⋆) = −w and the inequality holds strictly for all d ∈ T (x⋆) \ { 0}.14 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+## F. Proof of Thm 3.6 
+
+Proof. Let (x⋆, y ⋆) be a PGD local minimizer of (11) . By assumption, its core x⋆ is binary. Assume for contradiction that 
+
+(x⋆, y ⋆) is infeasible for (8). Then 
+
+a⊤x⋆ > b. 
+
+Since a⊤x⋆ and b are integers, we have 
+
+a⊤x⋆ ≥ b + 1 .
+
+Because the slack encoding satisfies s(y⋆) ≥ 0, the residual obeys 
+
+r(x⋆, y ⋆) = a⊤x⋆ + s(y⋆) − b ≥ 1.
+
+Since x⋆ is binary and infeasible, there exists an index i such that 
+
+x⋆i = 1 and ai = 1 .
+
+Consider the feasible direction 
+
+d := ( −ei, 0) ,
+
+which turns off this active core variable and leaves the slack variables unchanged. Because x⋆i = 1 , we have d ∈ T (x⋆, y ⋆).Now 
+
+Vbe (x, y ) = r(x, y )2 −
+
+> n
+
+X
+
+> j=1
+
+aj x2 
+
+> j
+
++
+
+> n
+
+X
+
+> j=1
+
+aj xj ,
+
+so for any i,
+
+∂V be 
+
+∂x i
+
+(x, y ) = 2 ai r(x, y ) − 2aixi + ai.
+
+Evaluating at (x⋆, y ⋆) and using ai = 1 , x⋆i = 1 , and r(x⋆, y ⋆) ≥ 1, we obtain 
+
+∂V be 
+
+∂x i
+
+(x⋆, y ⋆) = 2 r(x⋆, y ⋆) − 1 ≥ 1.
+
+Hence 
+
+⟨∇ Vbe (x⋆, y ⋆), d ⟩ = − ∂V be 
+
+∂x i
+
+(x⋆, y ⋆) ≤ − 1.
+
+So the penalty is locally repairable with margin δ = 1 relative to the direction set 
+
+D := {(−ei, 0) : i = 1 , . . . , n }.
+
+For the linear term in (11), 
+
+⟨(−w, 0) , d ⟩ = wi ≤ max  
+
+> j
+
+wj .
+
+Thus the constant in Theorem 2.7 satisfies 
+
+L ≤ max  
+
+> j
+
+wj .
+
+If γ > max j wj , then in particular γ > L/δ = L, since δ = 1 . Therefore Theorem 2.7 implies that every PGD local minimizer of (11) is feasible for (8). 
+
+## G. Multi-constraint Knapsack 
+
+We consider the general multi-constraint knapsack problem 
+
+max 
+
+> n
+
+X
+
+> i=1
+
+wixi
+
+s.t. Ax ≤ b, A ∈ ZK×n>0 , b ∈ ZK>0, x ∈ { 0, 1}n.
+
+(16) 15 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+As before, we introduce an independent block of slack bits for each constraint: 
+
+sk(y(k)) := 
+
+> Mk
+
+X
+
+> ℓ=0
+
+2ℓ y(k) 
+
+> ℓ
+
+, r k(x, y (k)) := Ak, :x + sk(y(k)) − bk.
+
+A natural squared-residual construction is then KX
+
+> k=1
+
+rk(x, y (k))2.
+
+For general coefficients and multiple constraints, however, binary-equivalent diagonal cancellation is no longer enough to guarantee that every infeasible binary point admits a descent direction. Indeed, the cancellation 
+
+V k
+
+> be
+
+(x, y ) := rk(x, y (k))2 −
+
+> n
+
+X
+
+> i=1
+
+A2
+
+> k,i
+
+ x2 
+
+> i
+
+− xi
+
+ (17) removes the core diagonal terms and preserves the value on binary points, but creates local minimizers at infeasible points. This motivates the over-corrected penalty 
+
+V k
+
+> over
+
+(x, y ) := rk(x, y (k))2 −
+
+> n
+
+X
+
+> i=1
+
+A2
+
+> k,i
+
+ x2 
+
+> i
+
+− 2xi
+
+, (18) and the aggregated objective 
+
+ˆf (x, y ) := −w⊤x + γ
+
+> K
+
+X
+
+> k=1
+
+V k
+
+> over
+
+(x, y ). (19) Relative to the binary-equivalent correction (17) , the over-correction (18) reshapes the relaxed landscape to favor one-bit repairs at violated constraints, and feasibility follows. In particular, at an infeasible binary point, the derivative of the kth bracket with respect to an active variable xi = 1 contains the term 2Ak,i rk(x, y (k)), which is strictly positive whenever the kth constraint is violated. Thus turning off a variable in a violated row becomes a natural repair move, whereas the binary-equivalent correction may admit flat or adverse first-order behavior. We emphasize the distinction between the two constructions: binary-equivalent cancellation preserves the discrete objective values on binary points, while over-correction is introduced specifically to improve local repairability in the relaxation. 
+
+## H. Proof of Thm 3.7 
+
+Proof. Work with the objective in (14) , and let ˜cij := cij + ε. Let x⋆ be a PGD local minimum of ˆfdeg over the box. By the assumed bound γ > c max and Theorem 2.5, the core is binary, so 
+
+x⋆ij ∈ { 0, 1} ∀ i, j. 
+
+Define the row and column residuals 
+
+ρi(x) := 
+
+> n
+
+X
+
+> j=1
+
+xij − 1, κj (x) := 
+
+> n
+
+X
+
+> i=1
+
+xij − 1.
+
+Since x⋆ is binary, every ρi(x⋆) and κj (x⋆) is an integer. A direct differentiation of (13) gives, for every pair (i, j ),
+
+∂V deg 
+
+∂x ij 
+
+(x) = 2 ρi(x) + 2 κj (x) − 4xij + 2 . (20) Because x⋆ is a local minimum over the box, the coordinatewise first-order conditions are 
+
+x⋆ij = 1 ⇒ ∂ ˆfdeg 
+
+∂x ij 
+
+(x⋆) ≤ 0, x⋆ij = 0 ⇒ ∂ ˆfdeg 
+
+∂x ij 
+
+(x⋆) ≥ 0. (21) Indeed, when x⋆ij = 1 , the direction −eij is feasible; when x⋆ij = 0 , the direction +eij is feasible. 16 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+Step 1: no row can have out-degree at least 2. Assume for contradiction that there exists a row i with 
+
+> n
+
+X
+
+> j=1
+
+x⋆ij ≥ 2,
+
+equivalently ρi(x⋆) ≥ 1. Choose any j such that x⋆ij = 1 . Then the column sum of column j is at least 1, so 
+
+κj (x⋆) ≥ 0.
+
+Using (21) and (20) at this selected entry, 
+
+0 ≥ ∂ ˆfdeg 
+
+∂x ij 
+
+(x⋆) = ˜ cij + γ
+
+
+
+2ρi(x⋆) + 2 κj (x⋆) − 4 · 1 + 2 
+
+
+
+,
+
+that is, 
+
+0 ≥ ˜cij + 2 γ ρi(x⋆) + κj (x⋆) − 1.
+
+Since ˜cij > 0, this implies 
+
+ρi(x⋆) + κj (x⋆) − 1 < 0.
+
+Because the left-hand side is an integer, in fact 
+
+ρi(x⋆) + κj (x⋆) − 1 ≤ − 1, so ρi(x⋆) + κj (x⋆) ≤ 0.
+
+But ρi(x⋆) ≥ 1 and κj (x⋆) ≥ 0, hence 
+
+ρi(x⋆) + κj (x⋆) ≥ 1,
+
+a contradiction. Therefore every row has out-degree at most 1.
+
+Step 2: no row can have out-degree 0. Assume for contradiction that there exists a row i with 
+
+> n
+
+X
+
+> j=1
+
+x⋆ij = 0 ,
+
+equivalently ρi(x⋆) = −1. By Step 1, every row has out-degree at most 1. Hence the total number of selected edges is at most n − 1: nX
+
+> i=1
+> n
+
+X
+
+> j=1
+
+x⋆ij ≤ n − 1.
+
+Therefore the total column sum is also at most n − 1, so at least one column ℓ must have in-degree 0:
+
+> n
+
+X
+
+> i=1
+
+x⋆iℓ = 0 , equivalently κℓ(x⋆) = −1.
+
+For this pair (i, ℓ ) we have x⋆iℓ = 0 . Applying (21) and (20), 
+
+0 ≤ ∂ ˆfdeg 
+
+∂x iℓ 
+
+(x⋆) = ˜ ciℓ + γ
+
+
+
+2( −1) + 2( −1) − 4 · 0 + 2 
+
+
+
+= ˜ ciℓ − 2γ. 
+
+But ˜ciℓ ≤ cmax and γ > c max imply 
+
+˜ciℓ − 2γ < c max − 2γ < 0,
+
+a contradiction. Hence no row can have out-degree 0.
+
+Conclusion for rows. Every row has out-degree neither ≥ 2 nor 0, hence every row has out-degree exactly 1:
+
+> n
+
+X
+
+> j=1
+
+x⋆ij = 1 ∀i. 
+
+17 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+Conclusion for columns. The argument is symmetric in rows and columns. Equivalently, one may repeat the above proof with the roles of ρ and κ interchanged. Thus every column has in-degree exactly 1:
+
+> n
+
+X
+
+> i=1
+
+x⋆ij = 1 ∀j. 
+
+Therefore x⋆ satisfies all assignment equalities and is feasible for (12). 
+
+## I. Time-indexed TSP (quadratic objective) 
+
+This appendix section records a quadratic-core extension of the main framework: the time-indexed formulation of TSP has a bilinear travel-cost objective. We show that, after a square-free diagonal cancellation of the assignment penalties and a small tie-break, the same binarity/feasibility mechanism applies. 
+
+I.1. Problem and square-free penalty 
+
+Let xi,t ∈ { 0, 1} indicate that city i ∈ { 1, . . . , n } is visited at time t ∈ { 1, . . . , n }. We interpret time cyclically: t + 1 is modulo n (equivalently, define x·,n +1 := x·,1 and x·,0 := x·,n ). The integer program is 
+
+min  
+
+> x
+
+Q(x) := 
+
+> n
+
+X
+
+> t=1
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+cij xi,t xj,t +1 
+
+s.t. 
+
+> n
+
+X
+
+> i=1
+
+xi,t = 1 , t = 1 , . . . , n, 
+
+> n
+
+X
+
+> t=1
+
+xi,t = 1 , i = 1 , . . . , n, xi,t ∈ { 0, 1}, i = 1 , . . . , n, t = 1 , . . . , n. 
+
+(22) Any feasible x is a permutation matrix: it selects exactly one city per time and exactly one time per city, and thus encodes a Hamiltonian tour. 
+
+Square-free penalty for assignment equalities. Define residuals 
+
+ρt(x) := 
+
+> n
+
+X
+
+> i=1
+
+xi,t − 1, κi(x) := 
+
+> n
+
+X
+
+> t=1
+
+xi,t − 1.
+
+The raw squared penalty P 
+
+> t
+
+ρt(x)2 + P 
+
+> i
+
+κi(x)2 contains diagonal terms x2
+
+> i,t
+
+. Since each xi,t appears in exactly one ρt
+
+and one κi, its diagonal coefficient in the raw squared penalty is 2, so we apply a binary-equivalent diagonal cancellation and define 
+
+Vtime (x) := 
+
+> n
+
+X
+
+> t=1
+
+ρt(x)2 +
+
+> n
+
+X
+
+> i=1
+
+κi(x)2 − 2
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> t=1
+
+x2 
+
+> i,t
+
++ 2 
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> t=1
+
+xi,t . (23) By construction, Vtime is quadratic and has zero diagonal in the variables xi,t .
+
+Relaxed penalized objective with a tie-break. Fix a small ε > 0 and consider the box relaxation 
+
+min 
+
+> x∈[0 ,1] n2
+
+ˆftime (x) := Q(x) + ε
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> t=1
+
+xi,t + γ V time (x). (24) On the feasible set of (22) we have P 
+
+> i,t
+
+xi,t = n, so the tie-break term ε P 
+
+> i,t
+
+xi,t is constant and does not re-rank feasible tours. 18 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+I.2. Useful identities and bounds 
+
+Assume cij ≥ 0. Differentiating Q under cyclic time gives, for each (i, t ),
+
+∂Q ∂x i,t 
+
+(x) = 
+
+> n
+
+X
+
+> j=1
+
+cij xj,t +1 +
+
+> n
+
+X
+
+> k=1
+
+cki xk,t −1 ≥ 0. (25) Hence, for x ∈ [0 , 1] n2
+
+,
+
+0 ≤ ∂Q ∂x i,t 
+
+(x) ≤
+
+> n
+
+X
+
+> j=1
+
+cij +
+
+> n
+
+X
+
+> k=1
+
+cki ⇒ ∥∇ Q(x)∥∞ ≤ Cmax , (26) where 
+
+Cmax := max 
+
+> i∈{ 1,...,n }
+
+ nX
+
+> j=1
+
+cij +
+
+> n
+
+X
+
+> k=1
+
+cki 
+
+
+
+. (27) Differentiating (23) yields, for every (i, t ),
+
+∂V time 
+
+∂x i,t 
+
+(x) = 2 ρt(x) + 2 κi(x) − 4xi,t + 2 . (28) 
+
+I.3. A penalty-structure lemma 
+
+Let J(x) := {(i, t ) : 0 < x i,t < 1} be the interior index set. 
+
+Lemma I.1 (Row/column interior independence for Vtime ). Let x⋆ be a local minimizer of ˆftime over [0 , 1] n2
+
+. Then J(x⋆)
+
+contains no two indices in the same time slice or the same city: 
+
+(i, t ), (i′, t ) ∈ J(x⋆) ⇒ i = i′, (i, t ), (i, t ′) ∈ J(x⋆) ⇒ t = t′.
+
+Equivalently: for each fixed t, at most one x⋆i,t is interior; and for each fixed i, at most one x⋆i,t is interior. Proof. We prove the time-slice claim; the city claim can be proved in a similar fashion. Assume for contradiction that (i, t )
+
+and (i′, t ) are both interior with i̸ = i′. Consider the restriction of ˆftime to the 2D affine subspace x⋆ + se i,t + re i′,t for small (s, r ). Because x⋆i,t , x ⋆i′,t ∈ (0 , 1) , for sufficiently small (s, r ) this stays in the box. The penalty Vtime contains the term ρt(x)2 where ρt(x) = P 
+
+> k
+
+xk,t − 1. Hence ∂2ρt(x)2/∂x i,t ∂x i′,t = 2 for i̸ = i′.The diagonal cancellation in (23) removes only diagonal terms in x2 
+
+> k,t
+
+and does not change this mixed second derivative. Therefore the 2 × 2 Hessian block of Vtime on coordinates (xi,t , x i′,t ) has the form 
+
+∇2(i,i ′),t Vtime =
+
+0 22 0
+
+
+
+,
+
+which is indefinite. The linear tie-break term ε P 
+
+> i,t
+
+xi,t contributes no second derivatives. Moreover, the bilinear travel cost Q(x) has no squared terms, so it contributes zero diagonal entries to this two-dimensional Hessian block. For two variables in the same time slice, xi,t and xi′,t , the travel cost Q does not couple them directly, since Q only couples adjacent time slices. Hence the Hessian block of the full objective on these two coordinates is 
+
+γ
+
+0 22 0
+
+
+
+,
+
+which has determinant −4γ2 < 0. This contradicts the second-order necessary condition for a local minimizer at an interior point. Hence no two distinct indices in the same time slice can both be interior. 19 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+I.4. Core binarity for time-indexed TSP Theorem I.2 (Core binarity for time-indexed TSP) . Assume cij ≥ 0 and fix ε > 0. If 
+
+γ > C max + ε, 
+
+then every local minimizer x⋆ of (24) satisfies x⋆i,t ∈ { 0, 1} for all i, t .Proof. Let x⋆ be a local minimizer of (24) . Assume toward a contradiction that J := J(x⋆)̸ = ∅, and pick an interior index 
+
+(i, t ) ∈ J.By Lemma I.1, every variable in the same time slice t other than x⋆i,t is binary, and every variable in the same city row i
+
+other than x⋆i,t is binary. Hence P  
+
+> k̸=i
+
+x⋆k,t ∈ Z and P 
+
+> s̸=t
+
+x⋆i,s ∈ Z. Write 
+
+ρt(x⋆) = 
+
+ X  
+
+> k̸=i
+
+x⋆k,t 
+
+
+
++ x⋆i,t − 1, κi(x⋆) = 
+
+ X 
+
+> s̸=t
+
+x⋆i,s 
+
+
+
++ x⋆i,t − 1.
+
+Substituting these expressions into (28), the x⋆i,t terms cancel: 
+
+∂V time 
+
+∂x i,t 
+
+(x⋆) = 2 X 
+
+> k̸=i
+
+x⋆k,t + 2 X
+
+> s̸=t
+
+x⋆i,s − 2 ∈ 2Z.
+
+Since x⋆i,t is interior, first-order stationarity yields 
+
+0 = ∂ ˆftime 
+
+∂x i,t 
+
+(x⋆) = ∂Q ∂x i,t 
+
+(x⋆) + ε + γ ∂V time 
+
+∂x i,t 
+
+(x⋆).
+
+By (25), ∂Q ∂x i,t (x⋆) ≥ 0, hence the first two terms satisfy ∂Q ∂x i,t (x⋆) + ε > 0. Also by (26), 
+
+0 < ∂Q ∂x i,t 
+
+(x⋆) + ε ≤ Cmax + ε. 
+
+If ∂V time  
+
+> ∂x i,t
+
+(x⋆)̸ = 0 , then since it is an even integer, 
+
+γ ∂V time 
+
+∂x i,t 
+
+(x⋆) ≥ 2γ > 2( Cmax + ε) ≥ ∂Q ∂x i,t 
+
+(x⋆) + ε ,
+
+so the sum cannot be zero, a contradiction. Therefore ∂V time  
+
+> ∂x i,t
+
+(x⋆) = 0 , which forces ∂Q ∂x i,t (x⋆) + ε = 0 , impossible because the left-hand side is strictly positive. Thus J = ∅ and x⋆ is binary. 
+
+I.5. Feasibility of binary local minimizers Theorem I.3 (Feasibility of local minimizers for time-indexed TSP) . Assume cij ≥ 0 and fix ε > 0. Suppose every local minimizer of (24) is binary. If 
+
+γ > 12 (Cmax + ε),
+
+then every local minimizer x⋆ satisfies the assignment equalities P 
+
+> i
+
+x⋆i,t = 1 for all t and P 
+
+> t
+
+x⋆i,t = 1 for all i. Consequently, 
+
+x⋆ is feasible for (22) and encodes a Hamiltonian tour. Proof. Let x⋆ be a binary local minimizer. For a local minimizer over a box, every feasible direction d in the tangent cone satisfies ⟨∇ ˆftime (x⋆), d ⟩ ≥ 0.
+
+(A) No surplus rows/columns. Suppose some time t has P 
+
+> i
+
+x⋆i,t ≥ 2, i.e. ρt(x⋆) ≥ 1. Pick any i with x⋆i,t = 1 and take 
+
+d := −ei,t (feasible since x⋆i,t = 1 ). Using (28) and κi(x⋆) ≥ 0 (city i appears at least once when a 1 occurs), we have 
+
+∂V time 
+
+∂x i,t 
+
+(x⋆) = 2 ρt(x⋆) + 2 κi(x⋆) − 4 · 1 + 2 = 2 ρt(x⋆) + 2 κi(x⋆) − 2 ≥ 0.
+
+20 Local Minima in Quadratic-Penalty Relaxations of Binary Linear Programs 
+
+In fact, since ρt(x⋆) ≥ 1, the right-hand side is at least 0 and is strictly positive unless κi(x⋆) = 0 and ρt(x⋆) = 1 ; either way, 
+
+⟨∇ Vtime (x⋆), d ⟩ = −∂i,t Vtime (x⋆) ≤ 0. Moreover, by (25) , ⟨∇ Q(x⋆), d ⟩ = −∂i,t Q(x⋆) ≤ 0, and ⟨∇ (ε P x)( x⋆), d ⟩ =
+
+−ε < 0. Therefore ⟨∇ ˆftime (x⋆), d ⟩ < 0, a contradiction. Hence every time t satisfies P 
+
+> i
+
+x⋆i,t ≤ 1. An identical argument shows every city i satisfies P 
+
+> t
+
+x⋆i,t ≤ 1.
+
+(B) No deficit rows/columns. If some time t had P 
+
+> i
+
+x⋆i,t = 0 , then since every time has at most one 1 by (A), the total number of ones satisfies P 
+
+> i,t
+
+x⋆i,t ≤ n − 1. Therefore some city k must have P 
+
+> t
+
+x⋆k,t = 0 as well. Pick such a deficit pair 
+
+(k, t ) with x⋆k,t = 0 and take d := + ek,t (feasible). Then ρt(x⋆) = κk(x⋆) = −1, so (28) gives 
+
+∂V time 
+
+∂x k,t 
+
+(x⋆) = 2( −1) + 2( −1) − 4 · 0 + 2 = −2, ⇒ ⟨∇ Vtime (x⋆), d ⟩ = −2.
+
+Also, by (26), 
+
+⟨∇ Q(x⋆), d ⟩ = ∂Q ∂x k,t 
+
+(x⋆) ≤ Cmax , ⟨∇ (ε X x)( x⋆), d ⟩ = ε. 
+
+Therefore 
+
+⟨∇ ˆftime (x⋆), d ⟩ ≤ (Cmax + ε) − 2γ < 0,
+
+contradicting local optimality when γ > 12 (Cmax + ε). Hence no deficit time can exist; similarly no deficit city can exist. Combining (A) and (B), every time has exactly one selected city and every city is selected at exactly one time, so x⋆ satisfies the assignment equalities and is feasible for (22). 
+
+Remark I.4 (The tie-break is harmless) . On the feasible set of (15) , we always have P 
+
+> i,t
+
+xi,t = n, so the added term 
+
+ε P 
+
+> i,t
+
+xi,t is constant and does not change which tour is optimal. It only simplifies exclusion of degenerate stationary points in the box relaxation. 21
