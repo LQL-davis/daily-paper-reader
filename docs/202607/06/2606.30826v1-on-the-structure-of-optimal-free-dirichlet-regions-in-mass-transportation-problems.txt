@@ -1,0 +1,2942 @@
+Title: On the structure of optimal free Dirichlet regions in mass transportation problems
+
+URL Source: https://arxiv.org/pdf/2606.30826v1
+
+Published Time: Wed, 01 Jul 2026 00:12:07 GMT
+
+Number of Pages: 47
+
+Markdown Content:
+ON THE STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS IN MASS TRANSPORTATION PROBLEMS 
+
+LUCAS D. O’BRIEN 
+
+Abstract. For a compactly supported probability measure μ on the d-dimensional space Rd, the average distance problem asks us to minimize the average distance functional over all compact, connected, Σ ⊆ Rd
+
+satisfying the Hausdorff 1-measure constraint H1(Σ) ≤ ℓ. This problem was first introduced in 2002 by Buttazzo, Oudet, and Stepanov to study optimal transport problems with free regions on which the transport cost vanishes, and has undergone a considerable amount of research since. Most recently, Kobayashi, Kim, and the author studied the structure of these regions using the barycentre field, a tool for studying the average distance functional introduced previously by Kobayashi, Hayase, and Kim. In this paper, we build upon this work to prove in much greater generality a topological description of minimizers of the average distance problem conjectured by Buttazzo, Oudet, and Stepanov. In particular, we prove this conjecture in all dimensions in the case originally studied by these authors. 
+
+Contents 
+
+1. Introduction 21.1. Motivation and history 21.2. Main results and outline 41.3. Notation 72. The barycentre field 92.1. Preliminary results 92.2. A general first-order approximation 10 2.3. The barycentre field 13 2.4. Negligibility of the ambiguous locus 16 2.5. Bounding higher-order terms 19 3. Bounding the mass of noncut points 21 3.1. A critical idea 21 3.2. The barycentre field and atomic noncut points 24 3.3. Existence of an atom for soft-penalty minimizers 28 4. Atomic noncut points and barycentre nontriviality 31 4.1. Rescaling of optimizers 31 
+
+2020 Mathematics Subject Classification. 49Q20, 49Q10. The author’s work was supported by an internal fellowship from the Massachusetts Institute of Technology School of Science. ©July 1, 2026.  
+
+> 1
+> arXiv:2606.30826v1 [math.OC] 29 Jun 2026 2LUCAS D. O’BRIEN
+
+4.2. Existence of atoms 39 4.3. Topological description of average distance minimizers 43 4.4. Bounding the number of endpoints of minimizers 43 References 45 1. Introduction 
+
+In this paper, we will study the minimizers of the (hard-constraint) aver-age distance problem introduced by Buttazzo, Oudet, and Stepanov in [2]. Given a compactly supported Borel probability measure μ on Rd, a cost function ϕ : [0 , ∞) → R with ϕ(0) = 0, and a Borel Σ ⊆ Rd, define the 
+
+average distance functional 
+
+Jμϕ (Σ) := 
+
+Z
+
+> Rd
+
+ϕ(dist( x, Σ)) dμ (x); (1.1) here dist( x, Σ) := inf σ∈Σ d(x, σ ), and d(·, ·) is the Euclidean distance. If we define for ℓ > 0
+
+Sℓ := {Σ ⊆ Rd | Σ is compact, connected, and H1(Σ) ≤ ℓ}, (1.2) then the average distance problem asks us to study the sets Σ opt ∈ S ℓ for which 
+
+Jμϕ (Σ opt ) = inf 
+
+> Σ∈S ℓ
+
+Jμϕ (Σ) . (1.3) Existence of minimizers in the average distance problem is well-known: 
+
+Lemma 1.1 (Existence of minimizers) . Assume ϕ is lower semicontinuous. Then, there exists Σ opt ∈ S ℓ such that 
+
+Jμϕ (Σ opt ) = inf 
+
+> Σ∈S ℓ
+
+Jμϕ (Σ) .
+
+Proof. See, for example, [24, Theorem 4.1]. □
+
+1.1. Motivation and history. The original motivation in [2] for studying the average distance problem arose from an optimal transport problem in which the set Σ represents a region over which the cost of transporting mass is negligible. The prototypical example is that of a farmer wishing to build an irrigation network in order to water a crop distributed according to μ,where the water source is located within the network. Assuming the cost of transporting water from a point x ∈ Rd to a point y ∈ Rd is modelled by 
+
+ϕ(d(x, y )), while the cost of transport within the network is negligible, an irrigation network of length ℓ which results in the lowest total transport cost is modelled by an average distance minimizer Σ. For a detailed discussion of the relationship between the average distance problem and optimal transport problems, see [2, 3] and [24], particularly [24, Proposition 8.2]. Over the past two decades, a significant body of work has been amassed studying the properties of minimizers of the average distance problem, a comprehensive account of which can be found in the survey [13]. A problem STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 3
+
+of particular interest is the study of the topological properties of average distance minimizers. In particular, under reasonable conditions, we expect to be able to give the following complete topological description of minimiz-ers: minimizers should not contain any loops, should contain only triple junctions, and should have only finitely many endpoints. That these first two properties hold for minimizers was conjectured in 2002 in [2, Problem 3.2] and [2, Problem 3.3], respectively. This topological description was shown to hold for dimension d = 2, 
+
+ϕ(t) = t, and μ << H2 by Buttazzo and Stepanov in 2003 [3]. At the heart of Buttazzo and Stepanov’s argument was the existence of an atom 
+
+for average distance minimizers; that is, the existence of a point σ ∈ Σ for which 
+
+μ({x ∈ Rd | dist( x, Σ) = d(x, σ )}) > 0. (1.4) Calling a point σ ∈ Σ satisfying (1.4) an atom of Σ is justified by the fact that if πΣ is a closest-point projection onto the set Σ (see Lemma 2.2), then σ
+
+is an atom of Σ precisely when σ is an atom of the measure νπΣ := ( πΣ)#μ by Corollary 2.17. The crucial property afforded by the existence of an atom is the ability to decrease the objective value Jμ(Σ) by Cε when given ε
+
+additional H1-budget, which allows one to perform contradiction arguments by modifying a minimizer with an undesired property in order to gain back 
+
+H1-budget, and then using this extra budget to construct a competitor with strictly smaller objective value. In 2004, Paolini and Stepanov extended the absence of loops for aver-age distance minimizers to general dimensions in [23, Theorem 5.6]. Soon after, Stepanov was able to conditionally prove the remainder of the com-plete topological description in [24, Theorem 5.5], under the assumption that minimizers have atoms. In 2013, Lu and Slepˇ cev proved the complete topo-logical description with the cost function ϕ(t) = t and in dimensions d ≥ 2for the weaker soft-penalty average distance problem (3.10) in [21, Lem-mas 3.1, 3.2, and 3.4]. However, while the topological characterization for the soft-penalty problem in [21] holds for arbitrary compactly supported probability measures μ, a proof of the topological characterization for the hard-constraint problem must use the assumption that μ is not supported on a 1-dimensional set in a critical way; see Remark 3.6. So, in the fol-lowing decade, proving existence of an atom in dimension d > 2 for the (hard-constraint) average distance problem remained an open problem “of great interest” [13, Section 8, Problem 3]. Concurrently, a significant body of research motivated by statistics and machine learning formed around regularizations of the principal curves prob-lem introduced by Hastie and Stuetzle [7] in 1989. Hastie and Stuetzle aimed to generalize linear principal component analysis to allow for curves instead, and did so by defining principal curves to be (smooth) injective curves sat-isfying the self-consistency property: namely, that they are local extrema 4 LUCAS D. O’BRIEN 
+
+of the average distance functional with cost function ϕ(t) = t2 under con-tinuous perturbations. Difficulties with proving the existence of principal curves even for reasonable densities led to the study of regularized principal curves , most notably the length-constrained principal curves introduced by K´ egl et. al. [8] in 2000. The length-constrained principal curves problem is a parameterized version of the average distance problem, and replaces the 
+
+H1-measure constraint with a constraint on the arclength of curves: min  
+
+> L(γ)≤ℓ
+
+Jμϕ (img γ). (1.5) The research on length-constrained principal curves has benefited from this relationship with the average distance problem (see in particular [6, 16]), as has research on other regularized principal curves problems, including 
+
+multiple length-constrained principal curves introduced in [9], and curvature-penalized principal curve/manifold problems such as [10, 17]. This connection has also informed research on the average distance prob-lem. In the recent paper [19], Kobayashi, Kim, and the author proved existence of an atom (and hence the complete topological description) for hard-constraint average distance minimizers in general dimensions, under the assumptions that ϕ(t) = tp for p = 2 or p > 12 (3 + √5) and μ does not charge 1-dimensional sets. This was made possible by studying the av-erage distance problem using the barycentre field , introduced previously by Kobayashi, Hayase, and Kim in [10] to study curvature-penalized princi-pal curves. The barycentre field is essentially the gradient of the average distance functional under continuous perturbations. By adapting Delattre and Fischer’s proof of default of self-consistency [6, Lemma 3.2] for the length-constrained principal curves problem, Kobayashi, Kim, and the au-thor were able to show that the barycentre field is nontrivial under the assumptions outlined above: in particular, this implies that given ε addi-tional H1-measure budget, one can decrease the objective value by Cε . This, in turn, was shown to imply existence of an atom in [19, Theorem 3.2]. Due to its close relationship with the existence of an atom (1.4), extending the barycentre nontriviality result of [19] is a problem of great interest. This paper provides a new argument for barycentre nontriviality and existence of an atom which significantly generalizes the results of [19]. In particular, we prove for the first time in arbitrary dimension the complete topological description of minimizers of the hard-constraint average distance problem in the case ϕ(t) = t originally studied by Buttazzo, Oudet, and Stepanov, affirmatively resolving conjectures in [2]. 1.2. Main results and outline. In Section 2, we review the basic theory of the barycentre field as a means of studying the average distance func-tional, including its fundamental gradient property (Proposition 2.8). The barycentre field was defined in [10] in the case ϕ(t) = tp for p ≥ 1; for 
+
+ϕ ∈ C1([0 , ∞)), we may define it as follows. Notice that the assumption STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 5
+
+that ϕ ∈ C1([0 , ∞)) implies that lim t→0+ ϕ′(t) < +∞: in particular, our results do not apply to the cost functions ϕ(t) = tp for p < 1. 
+
+Definition 1.2 (Barycentre field) . Let Σ ∈ S ℓ, and let πΣ be a closest-point projection onto Σ (see Lemma 2.2). Let ν = ( πΣ)#μ, and let ( ν, {λσ}σ∈Σ)be the disintegration of μ by πΣ. Then, we define the barycentre field of πΣ
+
+by 
+
+BπΣ (σ) := 
+
+Z 
+
+> π−1Σ{σ}
+
+(x − πΣ(x)) 
+
+|x − πΣ(x)| ϕ′(|x − πΣ(x)|)dλ σ(x).
+
+In Section 3, we prove that the ν-mass of any noncut point – that is, a point σ∗ ∈ Σ such that Σ \ { σ∗} is connected – can be bounded from below by the L1(ν)-norm of the barycentre field (see Theorem 3.3 for a more quantitative statement): 
+
+Theorem 1.3 (Bounding the mass of noncut points) . Assume ϕ ∈ C1([0 , ∞)) is nondecreasing, μ(Σ) = 0 for all Σ ⊆ Rd with H1(Σ) < ∞, and let Σ be a solution to the average distance problem. Then, there exists some constant 
+
+C > 0 such that for every noncut point σ∗ ∈ Σ, 
+
+C
+
+Z
+
+> Σ
+
+|B πΣ (σ)|dν ≤ |B πΣ (σ∗)|ν(σ∗),
+
+where ν = ( πΣ)#μ. In particular, if R 
+
+> Σ
+
+|B πΣ (σ)|dν ̸ = 0, then every noncut point of Σ is an atom, and Σ has only finitely many noncut points. This generalizes [19, Theorem 3.2], which proves the same result for ϕ(t) = 
+
+tp, p ≥ 2. In Section 3.3, we apply Theorem 1.3 to the weaker soft-penalty average distance problem defined in (3.10) to prove 
+
+Theorem 1.4 (Existence of an atom for soft-penalty minimizers) . Assume 
+
+ϕ ∈ C1([0 , ∞)) is nondecreasing. Suppose that μ(Σ) = 0 for all Σ ⊆ Rd
+
+with H1(Σ) < ∞. Let Σ be a solution to the soft-penalty average distance problem (3.10). Then, Σ has an atom. Assuming additionally that ϕ satisfies the condition ( α2), Σ satisfies the complete topological description (1) Σ contains no loops, (2) Σ has finitely many endpoints, and (3) Σ has finitely many branching points, all of which are triple branch-ings. In particular, all of the above holds if we take ϕ(t) = tp for p ≥ 1. This generalizes the previous results [21, Lemmas 3.1-3.4] and [19, Corol-lary 1.5], which obtain Theorem 1.4 under the assumption that ϕ(t) = tp
+
+for p = 1 and p ≥ 2, respectively. In Section 4, we return to our study of the hard-constraint average dis-tance problem (1.3). We begin by proving that existence of an atom implies that the barycentre field has nonzero L1(ν)-norm, which combined with Theorem 1.3 yields (see Corollary 4.8 for a more robust statement): 6 LUCAS D. O’BRIEN 
+
+Theorem 1.5 (Nontrivial barycentre field is equivalent to existence of an atom) . Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing. Let Σ ∈ S ℓ be opti-mal, and let πΣ ∈ ΠΣ. Then, ||B πΣ || L1(ν)̸ = 0 if and only if there exists some 
+
+σ ∈ Σ such that ν({σ}) > 0, where ν := ( πΣ)#μ.With this characterization of existence of an atom in hand, we proceed in Section 4.2 to the main theorem of the paper, the existence of atoms for (hard-constraint) average distance minimizers (see Theorem 4.9). 
+
+Theorem 1.6 (Minimizers have atoms) . Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing and satisfies ( α2). Assume that μ(Bε(x)) = o(ε) for each x ∈ Rd.Then, any minimizer Σ ∈ S ℓ has an atom. In particular, Theorem 1.6 holds for ϕ(t) = tp with p = 1 or p ≥ 2. Theorem 1.6 generalizes [19, Theorem 3.5], which proves nontriviality of the barycentre field (and hence existence of an atom) in the case ϕ(t) = tp
+
+for p = 2 or p > 12 (3 + √5). In order to achieve this generalization, we provide a local argument for existence of an atom, in which we compare the mass of two non-atomic noncut points, then use the fact that the barycentre field is trivial to obtain estimates contradicting the minimality of Σ. This avoids the use of global perturbations as in the proof of [19, Theorem 3.5], allowing for considerable simplifications. Additionally, Theorem 1.6 implies the complete topological description due to Stepanov’s conditional result [24, Theorem 5.5], see Theorem 4.11. 
+
+Theorem 1.7 (Complete topological description) . Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing and satisfies the condition ( α2). Assume that μ(Bε(x)) = 
+
+o(ε) for each x ∈ Rd. Then, any minimizer Σ ∈ S ℓ satisfies the following: (1) Σ does not contain any homeomorphic images of S1, and in particular every noncut point of Σ is an endpoint, (2) the number of endpoints of Σ is finite, and (3) there are finitely many branching points of Σ, all of which are triple junctions. In particular, the above hold if we take ϕ(t) = tp for p = 1 or p ≥ 2. While (1) was shown to hold previously in [23], Theorem 1.7 (2)-(3) gen-eralizes the previous topological characterization given in [19]. In particular, Theorem 1.7 applies to the prototypical case ϕ(t) = t of the hard-constraint average distance problem; in this case, Theorem 1.7 (3) resolves for the first time the conjecture [2, Problem 3.3] in all dimensions d ≥ 2. Additionally, we hope that our methods may help to understand the topological proper-ties of minimizers of the recently introduced Wasserstein-H1 problem [5,18], which has many interesting parallels with the average distance problem. Finally, in Section 4.4, we provide a quantitative version of Theorem 1.7(2) by providing an upper bound on the number of endpoints of an average dis-tance minimizer in terms of the budget ℓ and its barycentre field in Propo-sition 4.14. STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 7
+
+1.3. Notation. Before proceeding, we will record a list of the notation used throughout this paper for ease of reference. For the remainder of the paper, we fix a dimension d ≥ 2, a compactly supported Borel probability measure 
+
+μ on Rd, and a function ϕ : [0 , ∞) → R satisfying ϕ(0) = 0. Typically, we will assume that ϕ ∈ C1([0 , ∞)); this means that ϕ′ is a continuous function on (0 , ∞), and that the limit of ϕ′(t) as t → 0+ exists and is a real number. In particular, this assumption excludes the functions ϕ(t) = tp for p < 1. We will often assume that ϕ satisfies Paolini and Stepanov’s condition ( α2)from [23]: For every c > 0, there is λ = λ(c) > 0 such that 
+
+|ϕ(s) − ϕ(t)| ≥ λ|s − t| (α2)for any s, t ∈ [c, diam supp μ], where diam supp μ is the diameter of the support of μ. In particular, ( α2)holds for ϕ(t) = tp for all p ≥ 1. For a set Σ ⊆ Rd, we define the distance to Σ to be dist( x, Σ) := inf  
+
+> σ∈Σ
+
+d(x, σ ),
+
+where d(·, ·) is the Euclidean distance. Then, recall that the average distance functional (1.1) is defined for compact sets Σ ⊆ Rd to be 
+
+J(Σ) = Jμϕ (Σ) := 
+
+Z
+
+> Rd
+
+ϕ(dist( x, Σ)) dμ (x); reference to μ and ϕ in the notation will typically be suppressed. Given some s ≥ 0, we denote the Hausdorff s-measure by Hs. For ℓ > 0, we define the constraint set 
+
+Sℓ := {Σ ⊆ Rd | Σ is compact, connected, and H1(Σ) ≤ ℓ},
+
+and we define S := S 
+
+> ℓ≥0
+
+Sℓ. Then the (hard-constraint) average distance problem (1.3) asks us to find the sets Σ opt ∈ S ℓ such that 
+
+Jμϕ (Σ opt ) = inf 
+
+> Σ∈S ℓ
+
+Jμϕ (Σ) .
+
+Given a solution Σ opt of the average distance problem, we refer to Jμϕ (Σ opt )as the objective value of Σopt , and we will write 
+
+j(ℓ) := inf 
+
+> Σ∈S ℓ
+
+J(Σ) (1.6) for the minimum value in the average distance problem. In Section 3.3, we will also consider the soft-penalty average distance problem (3.10). For 
+
+λ > 0, we define the soft-penalty average distance functional (3.8) (Jμϕ )λ(Σ) := Jμϕ (Σ) + λH1(Σ) ,
+
+for Σ ⊆ Rd compact, then the soft-penalty average distance problem asks us to find Σ λ ∈ S satisfying (3.10) (Jμϕ )λ(Σ λ) = inf 
+
+> Σ∈S
+
+(Jμϕ )λ(Σ) .8 LUCAS D. O’BRIEN 
+
+The soft-penalty average distance problem will only be studied in Sec-tion 3.3; the average distance problem , average distance minimizers , and 
+
+solutions to the average distance problem will always refer to the hard-constraint average distance problem (1.3) and its solutions, unless otherwise specified. We denote 
+
+F = {F : Rd → Rd | F is Borel measureable and || F || ∞ < ∞} ,
+
+where 
+
+|| F || ∞ = inf {a ∈ R | μ(|F |−1(a, ∞)) = 0 }.
+
+For F ∈ F , denote 
+
+I(F ) := {x ∈ Rd | | F (x) − x| = 0 }.
+
+Given a compact set Σ ⊆ Rd, we define the set of closest-point projections onto Σ to be ΠΣ := {F ∈ F | img ( F ) ⊆ Σ and dist( x, Σ) = d(x, F (x)) for all x ∈ Rd},
+
+then Π Σ̸ = ∅ by Lemma 2.2. As explained in Remark 2.4, it is useful to extend the average distance functional to take values in F by defining 
+
+J(F ) = Jμϕ (F ) := 
+
+Z
+
+> Rd
+
+ϕ(|x − F (x)|)dμ (x).
+
+Given F ∈ F, we will frequently consider the measure 
+
+νF := F#μ. 
+
+When F = πΣ and πΣ, Σ are clear from context, we will typically suppress reference to πΣ and write ν = νπΣ . In Section 3 and Section 4, it will also be helpful to consider the measures (2.8) 
+
+dγ F := ϕ′(|x − F (x)|)dμ 
+
+and (2.9) 
+
+ρF := F#(γF ),
+
+as these will frequently show up in bounds. When F = πΣ and πΣ is clear from context, we simply write γ = γπΣ and ρ = ρπΣ . For F ∈ F, we denote (2.3) ∆F (x) := (x − F (x)) 
+
+|x − F (x)| ϕ′(|x − F (x)|).
+
+Letting ( νF , {λσ}σ∈img( F )) be the disintegration fo μ by F , we define the 
+
+barycentre field of F (Definition 2.7) 
+
+BF (σ) := 
+
+Z 
+
+> F−1{σ}
+
+(x − F (x)) 
+
+|x − F (x)| ϕ′(|x − F (x)|)dλ σ(x)=
+
+Z 
+
+> F−1{σ}
+
+∆F (x)dλ σ(x).STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 9
+
+Given a connected set Σ ⊆ Rd, we say a point σ ∈ Σ is a cut point if Σ \ { σ} is not connected, otherwise σ is called a noncut point . We refer to a point σ ∈ Σ as an atom of Σ if 
+
+μ({x ∈ Rd | dist( x, Σ) = d(x, σ )}) > 0.
+
+If Σ ∈ S ℓ is a minimizer of the average distance problem and ϕ ∈ C1([0 , ∞)) is strictly increasing, then the ambiguous locus (see Definition 2.14) of Σ is 
+
+μ-negligible by Proposition 2.16, and thus all of the closest-point projections onto Σ are equal μ-a.e. (see Corollary 2.17). In particular, σ ∈ Σ is an atom of Σ if and only if νπΣ {σ} > 0, so we will use the terms “atom of Σ” and “atom of ν” for an average distance minimizer interchangeably. Given a Borel A ⊆ Rd, we write χA for the indicator function of A, that is 
+
+χA(x) = 
+
+1, x ∈ A, 
+
+0, x / ∈ A. 
+
+Often, we will consider the integral of the function χAϕ(dist( x, Σ)) for some Borel Σ ⊆ Rd; we denote this quantity by 
+
+J|A(Σ) = Jμϕ |A (Σ) := 
+
+Z
+
+> A
+
+ϕ(dist( x, Σ)) dμ (x), (1.7) and define J|A(F ) for F ∈ F similarly. 2. The barycentre field 
+
+In this section, we give a generalized definition of the barycentre field 
+
+originally introduced by Kobayashi, Hayase, and Kim in [10]. We then establish the basic theory of the barycentre field for the average distance functional, generalizing the results of [19, Section 2], as well as providing some general approximation results for the average distance functional. 2.1. Preliminary results. A crucial object which enables our study of the barycentre field are the closest-point projections onto a compact set Σ ⊆ Rd.Since the map 
+
+x 7 → { σ ∈ Σ | d(x, σ ) = dist( x, Σ) }
+
+is in general multivalued, we recall the foundational result [1, Proposi-tion 7.33] which allows us to take measurable selections of this many-valued function. 
+
+Lemma 2.1 (Measurable selection, [1, Proposition 7.33]) . Let X be a metrizable space, Y a compact metrizable space, D a closed subset of 
+
+X × Y , and let f : D → R ∪ {−∞ , ∞} be lower semicontinuous. Let 
+
+f ∗ : πX (D) → R ∪ {−∞ , ∞} be given by 
+
+f ∗(x) = min  
+
+> (x,y )∈π−1
+> X{x}∩ D
+
+f (x, y ),
+
+where πX : X × Y → X, (x, y ) 7 → x is the projection. Then, πX (D) is closed in X, f ∗ is lower semicontinuous, and there exists a Borel-measurable 10 LUCAS D. O’BRIEN 
+
+function φ : πX (D) → Y such that {(x, φ (x)) | x ∈ πX (D)} ⊆ D and 
+
+f (x, φ (x)) = f ∗(x) for all x ∈ πX (D). Using measurable selection, we may establish the existence of closest-point projections onto a compact set Σ. 
+
+Lemma 2.2 (Existence of closest-point projection) . For any compact Σ ⊆
+
+Rd with Σ ̸ = ∅, there exists a Borel measurable map πΣ : Rd → Σ such that dist( x, Σ) = |x − πΣ(x)| for all x ∈ Rd.
+
+Proof. Consider the closed set 
+
+D = {(x, σ ) ∈ Rd × Σ | dist( x, Σ) = |x − σ|} ,
+
+and define f : D → R by f (x, σ ) = |x − σ|. Then, f is continuous, and in particular lower semicontinuous. So, by measurable selection, there exists a Borel-measurable function πΣ : Rd → Σ such that dist( x, Σ) = |x − πΣ(x)|
+
+for all x ∈ Rd. □
+
+Definition 2.3. We will refer a map satisfying the conclusion of Lemma 2.2 as a closest-point projection onto Σ. Given some compact and nonempty Σ ⊆ Rd, we define the set of closest-point projections onto Σ by ΠΣ := {π : Rd → Σ | π is measurable and dist( x, Σ) = |x−π(x)| for all x ∈ Rd}.
+
+Then, by Lemma 2.2, we know that Π Σ is nonempty. Closest-point projections onto a compact set Σ are in general not unique 
+
+μ-a.e.; consider the case when Σ = Sd−1, and μ = δ0 is a Dirac mass at the origin. This is not the case for average distance minimizers: in Corollary 2.17, we will use the barycentre field to prove that any two closest-point projections onto a minimizer of the average distance problem are equal 
+
+μ-a.e. 2.2. A general first-order approximation. A main theme throughout this paper is the problem of finding bounds on the difference 
+
+J(Σ) − J(Σ ′),
+
+where Σ , Σ′ ∈ S . For the cases in which we are interested, Σ ′ will typically be obtained from Σ through a modification which changes the H1-measure by some small amount ε. The examples to keep in mind are that of a continuous global modification , in which Σ ′ = (id + εξ )(Σ) for some continuous function 
+
+ξ, and that of a local modification , in which Σ ′ = Σ ∪ Kε or Σ ′ = Σ \ Kε for some set Kε of length H1(Kε) = ε.When trying to bound this difference, it is often easier to work with a well-chosen Borel function F : Rd → Rd such that img( F ) ⊆ Σ′ instead of a closest-point projection onto Σ ′. For this reason, we will extend the average distance function to take values in the set 
+
+F := {F : Rd → Rd | || F || ∞ < ∞} ,STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 11 
+
+by defining 
+
+J(F ) = Jμϕ (F ) := 
+
+Z
+
+> Rd
+
+ϕ(|x − F (x)|)dμ (x)for F ∈ F.
+
+Remark 2.4. Let Σ ⊆ Rd be compact, and suppose F ∈ F is such that img F ⊆ Σ. Then, for any πΣ ∈ ΠΣ, we have that 
+
+|x − F (x)| ≥ dist( x, Σ) = |x − πΣ(x)|
+
+for all x ∈ Rd. In particular, if ϕ is nondecreasing, then we have that 
+
+Jμϕ (F ) ≥ Jμϕ (πΣ) = Jμϕ (Σ) . (2.1) Thus, in order to bound J(Σ) − J(Σ ′) from below, it suffices to bound 
+
+J(πΣ) − J(F )from below for some F ∈ F satisfying img F ⊆ Σ′. This is why we are interested in studying the extension of the average distance functional to F:in particular, our general first-order approximation result Proposition 2.6 will be stated in terms of elements of F instead of in terms of elements of 
+
+S.Before proceeding to Proposition 2.6, we will prove a preliminary lemma. Recall that when ϕ ∈ C1([0 , ∞)) and a ∈ (0 , ∞), the mean value theorem gives the first-order approximation 
+
+ϕ(a + ε) − ϕ(a)
+
+ε = ϕ′(a) + O(ε).
+
+We wish to extend this approximation to the average distance functional; to do so we require a uniform version of this approximation. Given F ∈ F, we denote 
+
+I(F ) := {x ∈ Rd | F (x) = x}.
+
+Lemma 2.5 (Uniform mean value approximation) . Assume ϕ ∈ C1([0 , ∞)). Let {Fn}n∈N ⊆ F, and F ∈ F such that || Fn − F || ∞ → 0 as n → ∞ . Then, for all x ∈ Rd\(I(F )∪S 
+
+> n∈N
+
+I(Fn)), there exists a sequence {cxn}n∈N ⊆ (0 , ∞)such that cxn → | x − F (x)| as n → ∞ , and 
+
+ϕ(|x − F (x)|) − ϕ(|x − Fn(x)|)= ( Fn(x) − F (x)) · (x − F (x)) 
+
+|x − F (x)| ϕ′(cxn) + O(|| Fn − F || 2
+
+> ∞
+
+). (2.2) Moreover, there exists some uniform choice of C > 0 and N ∈ N such that for μ-a.e. x ∈ Rd \ (I(F ) ∪ S 
+
+> n∈N
+
+I(Fn)), cxn ≤ C for all n ≥ N .
+
+Proof. Fix x ∈ Rd \ (I(F ) ∪ S 
+
+> n∈N
+
+I(Fn)), and fix n ∈ N. Since x / ∈ I (F ) ∪S 
+
+> n∈N
+
+I(Fn), we know that |x − F (x)|̸ = 0 and |x − Fn(x)|̸ = 0. Therefore, since ϕ ∈ C1([0 , ∞)), we know by the mean value theorem that there exists 
+
+cxn ∈ [min {| x − F (x)|, |x − Fn(x)|} , max {| x − F (x)|, |x − Fn(x)|} ] such that 
+
+ϕ(|x − F (x)|) − ϕ(|x − Fn(x)|) = ( |x − F (x)| − | x − Fn(x)|)ϕ′(cxn).12 LUCAS D. O’BRIEN 
+
+Since min {| x − F (x)|, |x − Fn(x)|} ≤ cxn ≤ max {| x − F (x)|, |x − Fn(x)|} 
+
+and |x − Fn(x)| → | x − F (x)| as n → ∞ , we see that cxn → | x − F (x)| as 
+
+n → ∞ .Now, notice that 
+
+|x − Fn(x)|
+
+= |x − F (x)|
+
+
+
+1 − 2( Fn(x) − F (x)) · (x − F (x)) 
+
+|x − F (x)|2 + |F (x) − Fn(x)|2
+
+|x − F (x)|2
+
+ 12
+
+= |x − F (x)| − (Fn(x) − F (x)) · (x − F (x)) 
+
+|x − F (x)| + O(|| Fn − F || 2
+
+> ∞
+
+),
+
+and thus 
+
+ϕ(|x − F (x)|) − ϕ(|x − Fn(x)|) = ( Fn(x) − F (x)) · (x − F (x)) 
+
+|x − F (x)| ϕ′(cxn)+ ϕ′(cxn)O(|| Fn − F || 2
+
+> ∞
+
+).
+
+Since ϕ′ is continuous on [0 , ∞), we have that lim  
+
+> n→∞
+
+ϕ′(cxn) = ϕ′(|x − F (x)|),
+
+so we may absorb ϕ′(cxn) into the O(|| Fn − F || 2
+
+> ∞
+
+) term. This proves (2.2) holds. Finally, notice that for each x ∈ supp μ, we have 
+
+|x − Fn(x)| ≤ diam supp μ + || Fn|| ∞.
+
+Since || F − Fn|| ∞ → 0 as n → ∞ , we may take N ∈ N such that || Fn|| ∞ ≤|| F || ∞ + 1 for all n ≥ N . So, taking C = diam supp μ + || F || ∞ + 1, we see that C and N are independent of choice of x, and for all x ∈ supp μ, for all 
+
+n ≥ N ,
+
+cxn ≤ max {| x − F (x)|, |x − Fn(x)|} ≤ C, 
+
+as claimed. □
+
+For the sake of concision, given F ∈ F, denote ∆F (x) := (x − F (x)) 
+
+|x − F (x)| ϕ′(|x − F (x)|). (2.3) Now, we prove our general first-order approximation. 
+
+Proposition 2.6 (General first-order approximation) . Assume ϕ ∈ C1([0 , ∞)). Let {Fn}n∈N ⊆ F and F ∈ F. Suppose that || F − Fn|| ∞ → 0 as n → ∞ ,and denote εn = || F − Fn|| ∞. Suppose that μ(I(F )) = μ(I(Fn)) = 0 and 
+
+εn > 0 for each n ∈ N. Then, lim inf 
+
+> n→∞
+
+J(F ) − J(Fn)
+
+εn
+
+≥
+
+Z
+
+> Rd
+
+lim inf 
+
+> n→∞
+
+(Fn(x) − F (x)) 
+
+εn
+
+· ∆F (x)dμ, (2.4) STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 13 
+
+and lim sup 
+
+> n→∞
+
+J(F ) − J(Fn)
+
+εn
+
+≤
+
+Z
+
+> Rd
+
+lim sup 
+
+> n→∞
+
+(Fn(x) − F (x)) 
+
+εn
+
+· ∆F (x)dμ. (2.5) 
+
+Proof. We will only verify equation (2.4), as (2.5) follows by an analogous argument. By Lemma 2.5, we have for each x ∈ Rd \ (I(F ) ∪ S 
+
+> n∈N
+
+I(Fn)) that lim inf 
+
+> n→∞
+
+ϕ(|x − F (x)|) − ϕ(|x − Fn(x)|)
+
+εn
+
+= lim inf 
+
+> n→∞
+
+(Fn(x) − F (x)) 
+
+εn
+
+· ∆F (x).
+
+Since μ(I(F ) ∪ S 
+
+> n∈N
+
+I(Fn)) = 0 by assumption, we conclude that this equality holds μ-a.e. Moreover, taking C and N as in Lemma 2.5, we have that for μ-a.e. x ∈ Rd and all n ≥ N that cxn ≤ C. Since ϕ′ is continuous on [0 , ∞), we see that it attains a maximum M on the interval [0 , C ], so by Lemma 2.5 we have for all sufficiently large n that 
+
+| inf 
+
+> m≥n
+
+( ϕ(|x − F (x)|) − ϕ(|x − Fn(x)|)
+
+εn
+
+)| ≤ 2M
+
+for μ-a.e. x ∈ Rd. Since μ is finite, the constant function x 7 → 2M has bounded integral, so by the dominated convergence theorem we see that 
+
+Z
+
+> Rd
+
+lim inf 
+
+> n→∞
+
+(Fn(x) − F (x)) 
+
+εn
+
+· ∆F (x)dμ 
+
+= lim 
+
+> n→∞
+
+Z
+
+> Rd
+
+inf 
+
+> m≥n
+
+( ϕ(|x − F (x)|) − ϕ(|x − Fn(x)|)
+
+εn
+
+)dμ 
+
+≤ lim inf 
+
+> n→∞
+
+J(F ) − J(Fn)
+
+εn
+
+,
+
+proving (2.4). □
+
+2.3. The barycentre field. We are now ready to introduce the barycentre field, and its fundamental property as the “negative gradient” of J under continuous perturbations. 
+
+Definition 2.7 (Barycentre field) . Let F ∈ F, and let νF = F#μ. Let (νF , {λσ}σ∈img ( F )) be the disintegration of μ by F . Then, we define the 
+
+barycentre field of F by 
+
+BF (σ) := 
+
+Z 
+
+> F−1{σ}
+
+(x − F (x)) 
+
+|x − F (x)| ϕ′(|x − F (x)|)dλ σ(x)=
+
+Z 
+
+> F−1{σ}
+
+∆F (x)dλ σ(x).
+
+Now, we generalize the relevant inequality in [10, Theorem 4.8] and [19, Proposition 2.11] to the case of nondecreasing ϕ ∈ C1([0 , ∞)). A version of this result is also given in the case ϕ(t) = t for the soft-penalty average distance functional by Buttazzo, Manini, and Stepanov [4, Theorem 2.1]. 14 LUCAS D. O’BRIEN 
+
+Proposition 2.8 (Gradient interpretation of the barycentre field) . Assume 
+
+ϕ ∈ C1([0 , ∞)) is nondecreasing. Let Σ ⊆ Rd, and let ξ : Σ → Rd be continuous with || ξ|| ∞ ≤ 1. For ε > 0, define Σ ε,ξ = {σ + εξ (σ) | σ ∈ Σ}.Suppose that μ(Σ) = 0. Then, for every πΣ ∈ ΠΣ,lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε,ξ )
+
+ε ≥
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ). (2.6) 
+
+Proof. Let πΣ ∈ ΠΣ be arbitrary. Let {εn}n∈N ⊆ (0 , ∞) with εn → 0 as 
+
+n → ∞ . Take Fn = πΣ + εnξ ◦ πΣ, then img Fn ⊆ Σεn,ξ and so J(Σ ε,ξ ) ≤
+
+J(Fn) since ϕ is nondecreasing. Notice that || πΣ − Fn|| ∞ = εn|| ξ|| ∞ ≤ εn.So, we may apply Proposition 2.6 to see that lim inf 
+
+> n→∞
+
+J(Σ) − J(Σ ε,ξ )
+
+εn
+
+≥ lim inf 
+
+> n→∞
+
+J(πΣ) − J(Fn)
+
+εn
+
+≥
+
+Z
+
+> Rd
+
+ξ(π(x)) · ∆F (x)dμ 
+
+=
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ).
+
+Thus, since {εn}n∈N was arbitrary, we conclude that lim inf 
+
+> ε→0+
+
+J(Σ) − J(Σ ε,ξ )
+
+ε ≥ max 
+
+> πΣ∈ΠΣ
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ dν πΣ (σ).
+
+□
+
+Remark 2.9. In fact, we expect that the bound (2.6) is sharp: [10, Theorem 4.8] shows under the same assumptions as Proposition 2.8 that for ϕ(t) = tp,
+
+p ≥ 1, lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε,ξ )
+
+ε = max 
+
+> πΣ∈ΠΣ
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ).
+
+This result should likely extend to the case of ϕ ∈ C1([0 , ∞)) nondecreasing, but as the inequality (2.6) is sufficient for the purposes of this paper, we will not discuss this equality further. We now continue our analogy between the barycentre field and the nega-tive gradient of a function by interpreting another key property of gradients in terms of the barycentre field. Should the negative gradient of a function be nonzero, it will point in the direction of greatest decrease, and so by perturbing by ε in the direction of the negative gradient, we can decrease the value of the function by order ε. We wish to prove a similar property for the barycentre field. First, we will define what it means for J to have “nonzero gradient” at F ∈ F.
+
+Definition 2.10. We say that F has trivial barycentre field if 
+
+νF {σ ∈ img ( F ) | B F (σ)̸ = 0 } = 0 .STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 15 
+
+Otherwise, we say F has nontrivial barycentre field . Similarly, we say a compact set Σ ⊆ Rd has trivial barycentre field or satisfies the (generalized) self-consistency property if πΣ has trivial barycentre field for all πΣ ∈ ΠΣ.Otherwise, we say Σ has nontrivial barycentre field .
+
+Remark 2.11. Notice that a curve γ : [0 , 1] → Rd satisfies the self-consistency property used by Hastie and Steutzle to define principal curves [7] if and only if img ( γ) satisfies the generalized self-consistency property defined in Defi-nition 2.10, in the case ϕ(t) = t2. Indeed, π ∈ Πimg ( γ) has trivial barycentre field for ϕ(t) = t2 if and only if for νπ-a.e. γ(s) ∈ img ( γ), 
+
+Z
+
+> π−1(γ(s))
+
+(x − γ(s)) dλ γ(s)(x) = 
+
+Z
+
+> π−1(γ(s))
+
+xdλ γ(s)(x) − γ(s) = 0 ,
+
+which is precisely the self-consistency property of Hastie and Steutzle [7, Definition 1]. The barycentre field thus gives a natural way to generalize the self-consistency property, justifying our terminology in Definition 2.10. In order to use Proposition 2.8 to perturb in the “direction” of the barycentre field, we need to find a continuous perturbation ξ for which the right hand side of (2.6) is positive. In general, we should not expect the barycentre field to be continuous, as can be seen in [10, Counterexam-ple 4.7]; this means that it is necessary to approximate the barycentre field with a continuous perturbation. In fact, we will approximate BπΣ by a Lip-schitz perturbation: this allows us to control the change in H1-budget as we perturb Σ. 
+
+Proposition 2.12 (Approximation of BπΣ ). Assume ϕ ∈ C1([0 , ∞)) is non-decreasing. Suppose that πΣ ∈ ΠΣ has nontrivial barycentre field. Then, there exists a Lipschitz map ξ : Rd → Rd such that 
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ) > 12
+
+Z
+
+> Σ
+
+|B πΣ (σ)|2dν πΣ (σ) > 0.
+
+Proof. Let 
+
+M = max   
+
+> t∈[0 ,diam (supp μ)]
+
+ϕ′(t),
+
+then since ϕ ∈ C1([0 , ∞)), M < ∞. Notice that |B πΣ | ≤ M , and thus BπΣ ∈
+
+L2(Σ , ν ). But Lipschitz functions are dense in L2(Σ , ν ) by [19, Lemma 2.14], so approximating BπΣ by Lipschitz functions yields the desired result. □
+
+In particular, 
+
+Corollary 2.13 (Right derivative bound on j). Assume ϕ ∈ C1([0 , ∞)) is nondecreasing. Let ℓ > 0, and suppose there exists a solution Σ ∈ S ℓ to the average distance problem with nontrivial barycentre field. Then, there exists some C such that lim inf 
+
+> ε→0+
+
+j(ℓ) − j(ℓ + ε)
+
+ε ≥ C > 0.16 LUCAS D. O’BRIEN 
+
+Proof. Take πΣ ∈ ΠΣ with nontrivial barycentre field, and take ξ as in Proposition 2.12. Let L > 0 be a Lipschitz constant for ξ, and consider 
+
+ζ = 1 
+
+> ℓL
+
+ξ. Then, Σ ε,ζ ∈ Sℓ+ε, and by Proposition 2.8, lim inf 
+
+> ε→0+
+
+j(ℓ) − j(ℓ + ε)
+
+ε ≥ lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε,ζ )
+
+ε
+
+≥
+
+Z
+
+> Σ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ)
+
+≥ 12Lℓ 
+
+Z
+
+> Σ
+
+|B πΣ (σ)|2dν πΣ (σ) > 0.
+
+□
+
+2.4. Negligibility of the ambiguous locus. Now, we will give our first example of the usefulness of the barycentre field by proving that the am-biguous locus (the set of points which do not unique closest point in Σ) is μ-null for sets Σ ⊆ Rd which are local minima of the average distance functional under translation. The results of this section generalize those in [19, Section 2.4], which in turn generalizes the result of Delattre and Fischer [6, Proposition 3.1]. 
+
+Definition 2.14 (Ambiguous locus) . Let Σ ⊆ Rd be compact and nonempty, and for each x ∈ Rd consider the set 
+
+PΣ(x) = {σ ∈ Σ | d(x, σ ) = dist( x, Σ) }.
+
+We define the ambiguous locus of Σ to be 
+
+AΣ = {x ∈ Rd | #PΣ(x) > 1}.
+
+First, we show that if the net barycentre field is nonzero, then we can always decrease the objective value by translating in the direction of the net barycentre field. In particular, if Σ is a minimum of the average distance functional over the set of its translates by vectors in a neighbourhood of 0 in Rd, then the net barycentre field of πΣ equals 0 for any πΣ ∈ ΠΣ.
+
+Lemma 2.15 (Net barycentre field of a minimizer is zero) . Assume ϕ ∈
+
+C1([0 , ∞)) is nondecreasing. Let Σ ⊆ Rd be measurable and nonempty, and let πΣ ∈ ΠΣ. Let 
+
+Bnet  
+
+> πΣ
+
+:= 
+
+Z
+
+> Σ
+
+BπΣ (σ)dν πΣ (σ) = 
+
+Z
+
+> Rd
+
+(x − πΣ(x)) 
+
+|x − πΣ(x)| ϕ′(|x − πΣ(x)|)dμ (2.7) be the net barycentre field of πΣ, and define Σ ε := Σ + εBnet  
+
+> πΣ
+
+. Then, lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε)
+
+ε ≥ |B net  
+
+> πΣ
+
+|2.
+
+In particular, if 0 is a local minimum of the map Rd → R, a 7 → J(Σ + a), then Bnet  
+
+> πΣ
+
+= 0. STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 17 
+
+Proof. Applying Proposition 2.8 with ξ = Bnet  
+
+> πΣ
+
+, we get lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε)
+
+ε ≥
+
+Z
+
+> Σ
+
+Bnet  
+
+> πΣ
+
+· B πΣ (σ)dν (σ) = |B net  
+
+> πΣ
+
+|2.
+
+□
+
+Using Lemma 2.15 to play the role of [6, Remark 2], we can generalize Delattre and Fischer’s proof of [6, Proposition 3.1]. 
+
+Proposition 2.16 (Negligibility of the ambiguous locus) . Assume ϕ ∈
+
+C1([0 , ∞)) is strictly increasing. Suppose that J(Σ + a) ≥ J(Σ) for all 
+
+a in some open neighbourhood of 0. Then, μ(AΣ) = 0. 
+
+Proof. Suppose for the sake of contradiction that μ(AΣ) > 0. To achieve a contradiction, we claim that it suffices to construct for each j ∈ { 1, . . . , d }
+
+a pair ˆX, ˆY ∈ ΠΣ (that is, ˆX, ˆY : Rd → Σ measurable maps such that 
+
+|x − ˆX(x)| = |x − ˆY (x)| = dist( x, Σ) for all x ∈ Rd), such that ˆXj (x) = max πj (PΣ(x)), and ˆY j (x) = min πj (PΣ(x)), where we write ˆXj (x) = πj ( ˆX(x)), and πj : Rd → R, (x1, . . . , x d) 7 → xj
+
+is the projection map. Indeed, suppose such a pair ˆX, ˆY exist for each j.Notice that 
+
+AΣ ⊆
+
+> d
+
+[
+
+> j=1
+
+{x ∈ Rd | max πj (PΣ(x)) > min πj (PΣ(x)) }.
+
+So, since μ(AΣ) > 0, there is some j ∈ { 1, . . . , d } such that 
+
+{x ∈ Rd | max πj (PΣ(x)) > min πj (PΣ(x)) } ∩ A Σ
+
+has positive measure with respect to μ.By Lemma 2.15, since J(Σ + a) ≥ J(Σ) for all a in a neighbourhood of 0, Bnet ˆX = Bnet ˆY = 0. So, we have 0 = Bnet ˆX − B net ˆY
+
+=
+
+Z
+
+> Rd
+
+(x − ˆX(x)) 
+
+|x − ˆX(x)| ϕ′(|x − ˆX(x)|)dμ (x)
+
+−
+
+Z
+
+> Rd
+
+(x − ˆY (x)) 
+
+|x − ˆY (x)| ϕ′(|x − ˆY (x)|)dμ (x)=
+
+Z
+
+> AΣ
+
+( ˆX(x) − ˆY (x)) ϕ′(dist( x, Σ)) dist( x, Σ) dμ (x).
+
+For each x ∈ Σ, PΣ(x) = {x}, thus we have that dist( x, Σ) > 0 for every 
+
+x ∈ A Σ. So, since ϕ ∈ C1([0 , ∞)) is strictly increasing, ϕ′(dist( x, Σ)) > 0for all x ∈ A Σ. Moreover, we have ˆXj (x) − ˆY j (x) ≥ 0 for all x ∈ Rd by 18 LUCAS D. O’BRIEN 
+
+definition, and the inequality is strict on a positive measure subset of AΣ.So, 0 = πj
+
+Z 
+
+> AΣ
+
+( ˆX(x) − ˆY (x)) ϕ′(dist( x, Σ)) dist( x, Σ) dμ (x)
+
+
+
+=
+
+Z
+
+> AΣ
+
+( ˆXj (x) − ˆY j (x)) ϕ′(dist( x, Σ)) dist( x, Σ) dμ (x) > 0,
+
+a contradiction. So, it remains to show that such ˆX and ˆY exist. We show that ˆX exists, the same argument applies to ˆY mutatis mutandis . Fix j ∈ { 1, . . . , d },and consider D = {(x, σ ) ∈ Rd × Σ | σ ∈ P Σ(x)}, then D is closed. Let 
+
+f : D → R, (x, σ ) 7 → − πj (σ), then f is continuous. So, by Lemma 2.1, there exists a Borel-measurable function ˆX : Rd → Σ such that ( x, ˆX(x)) ∈ P Σ(x)for each x ∈ Rd, and for all x ∈ Rd,
+
+f (x, ˆX(x)) = πj ( ˆX(x)) = ˆXj (x) = max  
+
+> σ∈P Σ(x)
+
+πj (σ).
+
+Thus, the desired ˆX ∈ ΠΣ exists. □
+
+In particular, this allows us to conclude that any two closest-point pro-jections onto an average distance minimizer are unique μ-a.e. 
+
+Corollary 2.17 (Uniqueness of closest-point projection) . Assume ϕ ∈ C1([0 , ∞)) is strictly increasing. Let Σ ∈ S ℓ be an average distance minimizer. Then, 
+
+μ(AΣ) = 0, and for any two closest-point projections πΣ, π ′ 
+
+> Σ
+
+∈ ΠΣ,(1) πΣ(x) = π′
+
+> Σ
+
+(x) for μ-a.e. x ∈ Rd,(2) BπΣ = Bπ′ 
+
+> Σ
+
+, and (3) νπΣ = νπ′ 
+
+> Σ
+
+.In particular, under these assumptions, we have 
+
+νπΣ ({σ}) = μ({x ∈ Rd | d(x, σ ) = dist( x, Σ) })for every σ ∈ Σ. 
+
+Proof. The set Sℓ is translation invariant, since for any Σ ∈ S ℓ and a ∈ Rd,the set a + Σ is compact, connected, and 
+
+H1(Σ + a) = H1(Σ) ≤ ℓ. 
+
+So, Proposition 2.16 shows that μ(AΣ) = 0 for any minimizer Σ of the average distance problem. Since 
+
+{x ∈ Rd | πΣ(x)̸ = π′
+
+> Σ
+
+(x)} ⊆ A Σ,
+
+we conclude that πΣ(x) = π′
+
+> Σ
+
+(x) for μ-a.e. x; this implies that BπΣ = Bπ′
+
+> Σ
+
+and νπΣ = νπ′ 
+
+> Σ
+
+. Moreover, we have 
+
+{x ∈ Rd | d(x, σ ) = dist( x, Σ) } \ A Σ ⊆ π−1Σ {σ}⊆ { x ∈ Rd | d(x, σ ) = dist( x, Σ) },STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 19 
+
+so we conclude that 
+
+νπΣ ({σ}) = μ({x ∈ Rd | d(x, σ ) = dist( x, Σ) }).
+
+□
+
+2.5. Bounding higher-order terms. We now will prove a bound on the higher-order terms in the expansion given in the general first-order approxi-mation Proposition 2.6. This result will be particularly useful when bound-ing the change in J(Σ) under local modifications to Σ; such arguments will play a key role in the following sections, especially in the proof of existence of an atom/barycentre nontriviality for average distance minimizers Theo-rem 4.9. The parameters in the following bound play an important role in the proof of Theorem 4.9. In particular, the ability to choose the value of the parame-ter δ appearing in Proposition 2.18, possibly depending on ε, plays a pivotal role in this proof, as does the ability to choose (by carefully constructing 
+
+F and G) the set AF,G . For the sake of concision, we now introduce some notation which we will use throughout the rest of the paper. Define the measure 
+
+dγ F := ϕ′(|x − F (x)|)dμ ; (2.8) this will allow us to use the shorthand 
+
+γF (E) = 
+
+Z
+
+> E
+
+ϕ′(|x − F (x)|)dμ (x)for a Borel set E ⊆ Rd. When F = πΣ and Σ is clear from context, we will often write γ = γπΣ . Moreover, define the measure 
+
+ρ = ρF = F#(γF ). (2.9) Additionally, we denote 
+
+Mϕ := max   
+
+> t∈[0 ,diam (supp μ)]
+
+ϕ′(t); (2.10) when ϕ is clear from context we simply write M = Mϕ. We denote the 
+
+δ-neighbourhood of a set E ⊆ Rd by 
+
+Bδ(E) = [
+
+> σ∈E
+
+Bδ(σ).
+
+Finally, given F ∈ F , we denote 
+
+I(F ) := {x ∈ Rd | | F (x) − x| = 0 }.
+
+Proposition 2.18 (Bounding higher-order terms) . Assume ϕ ∈ C1,1loc ([0 , ∞)), and let L be a Lipschitz constant for ϕ′ on [0 , diam(supp μ)]. Let F, G ∈ F ,and denote ε = || F − G|| ∞. Suppose that μ(I(F )) = μ(I(G)) = 0. Denote 
+
+AF,G = {x ∈ Rd | F (x)̸ = G(x)}. (2.11) 20 LUCAS D. O’BRIEN 
+
+Then, for each δ > 0, 
+
+J(F ) − J(G) −
+
+Z
+
+> Rd
+
+(G(x) − F (x)) · ∆F (x)dμ (x)
+
+≥ − ε2
+
+2δ γF (AF,G \ Bδ(I(F ))) 
+
+− Lε 2μ(AF,G \ Bδ(I(F ))) − 2M εμ (Bδ(I(F )) ∩ AF,G ).
+
+Proof. In what follows, we write A = AF,G . Let x ∈ Rd \(I(F )∪I (G)), then we may apply the mean value theorem to find some min {| x − F (x)|, |x −
+
+G(x)|} ≤ cx ≤ max {| x − F (x)|, |x − G(x)|} such that 
+
+ϕ(|x − F (x)|) − ϕ(|x − G(x)|) = ( |x − F (x)| − | x − G(x)|)ϕ′(cx).
+
+By the definition of L, we then have 
+
+ϕ(|x − F (x)|) − ϕ(|x − G(x)|)
+
+≥ (|x − F (x)| − | x − G(x)|)ϕ′(|x − F (x)|) − Lε 2.
+
+Using the inequality √1 + x ≤ 1 + 12 x, we have 
+
+|x − G(x)| = |(x − F (x)) − (G(x) − F (x)) |
+
+= |x − F (x)|
+
+s
+
+1 − 2( G(x) − F (x)) · (x − F (x)) 
+
+|x − F (x)|2 + |G(x) − F (x)|2
+
+|x − F (x)|2
+
+≤ | x − F (x)| − (G(x) − F (x)) · (x − F (x)) 
+
+|x − F (x)| + 12
+
+|G(x) − F (x)|2
+
+|x − F (x)| .
+
+(2.12) So, since μ(I(F )) = μ(I(G)) = 0, we find that for μ-a.e. x ∈ Rd that 
+
+ϕ(|x − F (x)|) − ϕ(|x − G(x)|) + ( G(x) − F (x)) · ∆F (x)
+
+≥ − Lε 2 − 12
+
+|G(x) − F (x)|2
+
+|x − F (x)| ϕ′(|x − F (x)|).
+
+For μ-a.e. x ∈ A \ Bδ(I(F )), we thus get that 
+
+ϕ(|x − F (x)|) − ϕ(|x − G(x)|) + ( G(x) − F (x)) · ∆F (x)
+
+≥ − (L + 12δ ϕ′(|x − F (x)|)) ε2. (2.13) Meanwhile, if x ∈ A ∩ Bδ(I(F )), then using that 
+
+ϕ(|x − F (x)|) − ϕ(|x − G(x)|) ≥ − εM 
+
+and 
+
+|∆F | ≤ | ϕ′(|x − F (x)|)| ≤ M
+
+for x ∈ Rd \ I (F ), we may directly get the bound 
+
+ϕ(|x − F (x)|) − ϕ(|x − G(x)|) + ( G(x) − F (x)) · ∆F (x) ≥ − 2εM (2.14) for μ-a.e. x ∈ A ∩ Bδ(I(F )). Finally, since 
+
+ϕ(|x − F (x)|) − ϕ(|x − G(x)|) + ( G(x) − F (x)) · ∆F (x) = 0 STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 21 
+
+for x ∈ Rd \ A, integrating (2.14) and (2.13) over the regions in which they are given and adding the resulting bounds yields 
+
+J(F ) − J(G) −
+
+Z
+
+> Rd
+
+(G(x) − F (x)) · ∆F (x)dμ (x)
+
+≥ − ε2
+
+2δ γF (A \ Bδ(I(F ))) − Lε 2μ(A \ Bδ(I(F ))) 
+
+− 2M εμ (Bδ(I(F )) ∩ A),
+
+as desired. □
+
+3. Bounding the mass of noncut points 
+
+A key concept in the remainder of the paper is that of the noncut points 
+
+of an average distance minimizer Σ ∈ S ℓ, that is, the points x ∈ Σ such that Σ \ { x} is connected. The importance of noncut points in the average distance problem comes from the idea that the ν-mass of neighbourhoods of noncut points should be closely related to how much one can improve the objective value given ε additional budget. This suggests a natural link between the mass of noncut points and the barycentre field, which will be established in Corollary 4.8, a key tool in the proof of existence of an atom Theorem 4.9 The focus of this section will be on studying how the mass of noncut points can be bounded from below using improvements to the objective value. In Section 3.1 we will introduce an important idea justifying why we should expect such bounds, before using this idea to prove in Proposition 3.2 that ε-neighbourhoods of noncut points have ν-mass bounded below by a constant times ε as ε → 0. While Proposition 3.2 is certainly not sharp, it will later be used in Theorem 4.9 to bootstrap to existence of an atom. In Section 3.2, we will prove the main theorem of this section, Theorem 3.3, which provides a lower bound on the ν-mass of noncut points in terms of the barycentre field. This generalizes [19, Theorem 3.2] to a much greater range of functions ϕ, in particular including ϕ(t) = tp for any p ≥ 1. Using Theorem 3.3, we will then prove the existence of an atom for minimizers of the soft-penalty average distance problem in Section 3.3, following the arguments of [19, Section 1.1.2]. We begin in Section 3.1 with a discussion of a critical idea from [3], which will form the basis for our proofs of Proposition 3.2 and Theorem 3.3. 3.1. A critical idea. Given a connected topological space X, we say a point p ∈ X is a noncut point if X \ { p} is connected. For example, the endpoints 0 and 1 of the line segment [0 , 1] are the only noncut points of this space, while every point of the unit circle p ∈ S1 is a noncut point. We remark that every Σ ∈ S ℓ containing at least two points will contain at least two noncut points by [11, §47 Theorem IV.5]. The first key relationship between the ν-mass of noncut points and im-provements to the objective value comes from the following critical idea used 22 LUCAS D. O’BRIEN 
+
+by Buttazzo and Stepanov in [3, Proposition 7.1]. Given a noncut point σ
+
+in a minimizer Σ ∈ S ℓ, we expect to find a “noncut-neighbourhood” Bε ⊆ Σof σ with H1(Bε) = ε such that Σ \ Bε is connected, and thus is in Sℓ−ε.Removing Bε from Σ should only increase the objective value by at most a constant times εν (Bε). So, if we can use the ε additional budget to im-prove the objective value of Σ \ Bε by f (ε), then to avoid contradicting the minimality of Σ we should have 
+
+ν(Bε) ≥ C f (ε)
+
+ε
+
+for some C.In particular, if we assumed that the barycentre field was nontrivial, then we would be able to decrease the objective value by C′ε for some constant 
+
+C′ > 0 by Proposition 2.12. This would give us a lower bound on ν(Bε) that is uniform in ε; in particular, by taking ε to 0, we could conclude that every noncut point must be an atom. This particular argument is made rigorous in Theorem 3.3. In Proposition 3.2, we combine the above idea with [23, Lemma 3.6], which says that one can always decrease the objective value by the order ε2
+
+given ε additional budget, to prove that any ε neighbourhood of a noncut point has ν-mass bounded below by Cε for some constant C. We begin by stating [3, Lemma 6.1], which provides the existence of the “noncut-neighbourhoods” described in the above sketch. 
+
+Lemma 3.1 (Noncut-neighbourhood lemma, [3, Lemma 6.1]) . Let Σ be a locally connected metric continuum containing more than one point, and let 
+
+σ ∈ Σ be a noncut point of Σ. Then, there exists a sequence {Bn}n∈N of open subsets of Σ satisfying the following conditions: (i) σ ∈ Bn for all sufficiently large n,(ii) Σ \ Bn is connected for each n ∈ N,(iii) diam ( Bn) → 0 as n → ∞ , and (iv) Bn is connected for every n.We will refer to the sets {Bn}n∈N as a noncut-neighbourhood system for σ.Given a minimizer Σ ∈ S ℓ and πΣ ∈ ΠΣ, define the measure ρ by 
+
+ρ = ρπΣ := ( πΣ)#γ, (3.1) where we recall the definition of γ from (2.8). The measure ρ is be helpful to consider due to the fact that if ϕ ∈ C1([0 , ∞)) is nondecreasing, then by the triangle inequality we have 
+
+Z
+
+> E
+
+|B πΣ (σ)|dν (σ) ≤
+
+Z 
+
+> π−1Σ(E)
+
+ϕ′(|x − πΣ(x)|)dμ (x) = γ(π−1Σ (E)) = ρ(E)for any Borel E ⊆ Rd. In the proof of Theorem 4.9, it is necessary to know that the ρ-mass of noncut-neighbourhoods can be bounded below by Cε ,so we will prove Proposition 3.2 in terms of ρ. However, this easily implies STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 23 
+
+that noncut neighbourhoods have ν-mass bounded below by Cε , thanks to the inequality 
+
+ρ(E) ≤ M ν (E)for any Borel E ⊆ Rd, where M is defined in (2.10). 
+
+Proposition 3.2 (ε-neighbourhoods of noncut points have ν-mass bounded below by ε). Assume ϕ ∈ C1,1loc ([0 , ∞)) satisfies ( α2), and suppose μ(Bε(x)) = 
+
+o(ε) for every x ∈ Rd. Let Σ ∈ S ℓ be optimal, and let σ∗ ∈ Σ be a noncut point. Let {Bn}n∈N be a noncut-neighbourhood system for σ∗, and let 
+
+εn := dist( σ∗, ∂B n). Then, lim 
+
+> n→∞
+
+ρ(Bn)
+
+εn
+
+> 0,
+
+and so in particular lim 
+
+> n→∞
+
+ν(Bn)
+
+εn
+
+> 0.
+
+Proof. For the sake of contradiction, assume that ν(Bn) = o(εn). For each 
+
+n ∈ N, define Σn := Σ \ Bn,
+
+then Σ n is compact, connected, and H1(Σ n) ≤ ℓ−εn. We now wish to apply [23, Lemma 3.6] to find some Σ ′ 
+
+> n
+
+which is compact, connected, H1(Σ ′
+
+> n
+
+) ≤ ℓ,and 
+
+J(Σ ′
+
+> n
+
+) ≤ J(Σ n) − Cε 2 
+
+> n
+
+(3.2) for some C > 0 independent of n. Firstly, notice that we are assuming Paolini and Stepanov’s condition ( α2). Moreover, since μ(Σ) = 0, we may find some η > 0 so that μ(Rd \ Bη(Σ)) > 0; taking H = Bη/ 2(Σ) and 
+
+K = Rd \ Bη(Σ), we see that inf {dist( y, H ) | y ∈ K} = η
+
+2 > 0and μ(K) > 0. So, we see that the assumptions of [23, Lemma 3.6] are satisfied, thus there is some constant C > 0 independent of n so that for all sufficiently large n, we may find some competitor Σ ′ 
+
+> n
+
+∈ S ℓ satisfying (3.2). Now, we use Proposition 2.18 to bound the difference in objective value between Σ and Σ n. Let 
+
+Gn(x) = 
+
+π∂B n (πΣ(x)) , x ∈ π−1Σ (Bn),πΣ(x), otherwise ,
+
+and let F = πΣ. Notice that AF,G n = π−1Σ (Bn), so combining the bound 
+
+γF ≤ M μ (recall the definition of M from (2.10)) with Proposition 2.18 and 24 LUCAS D. O’BRIEN 
+
+taking δ = 1, we have 
+
+J(Σ) − J(Σ n) ≥ J(πΣ) − J(Gn)=
+
+Z
+
+> Bn
+
+(σ − π∂B n (σ)) · B πΣ (σ)dν (σ)
+
+− ( 12 M + L)ε2
+
+> n
+
+ν(Bn) − 2M ε nν(Bn).
+
+So, since ν(Bn) = o(εn) by assumption, we have 
+
+J(Σ) − J(Σ n) ≥
+
+Z
+
+> Bn
+
+(σ − π∂B n (σ)) · B πΣ (σ)dν (σ) + o(ε2
+
+> n
+
+).
+
+Now, using the fact that Σ is optimal, we have that for each n,0 ≥ J(Σ) − J(Σ ′
+
+> n
+
+)= ( J(Σ) − J(Σ n)) + ( J(Σ n) − J(Σ ′
+
+> n
+
+)) 
+
+≥
+
+Z
+
+> Bn
+
+(σ − π∂B n (σ)) · B πΣ (σ)dν (σ) + Cε 2 
+
+> n
+
++ o(ε2
+
+> n
+
+).
+
+Thus, we see that lim 
+
+> n→∞
+
+1
+
+ε2
+
+> n
+
+Z
+
+> Bn
+
+(π∂B n (σ) − σ) · B πΣ (σ)dν (σ) ≥ C > 0.
+
+But we know that 1
+
+ε2
+
+> n
+
+Z
+
+> Bn
+
+(π∂B n (σ) − σ) · B πΣ (σ)dν (σ) ≤ ρ(Bn)
+
+εn
+
+≤ M ν(Bn)
+
+εn
+
+,
+
+where we recall the definition of M from (2.10). So, we conclude that lim 
+
+> n→∞
+
+ν(Bn)
+
+εn
+
+≥ lim 
+
+> n→∞
+
+1
+
+Mρ(Bn)
+
+εn
+
+> 0,
+
+a contradiction. □
+
+3.2. The barycentre field and atomic noncut points. Now, we will proceed with Theorem 3.3, the main result of this section. Our proof will again use the argument outlined in Section 3.1, this time using the barycen-tre field to improve the objective value. 
+
+Theorem 3.3 (Bounding the mass of noncut points) . Assume ϕ ∈ C1([0 , ∞)) is nondecreasing, and assume μ(Σ) = 0 for every Σ ∈ S . Suppose Σ ∈ S ℓ
+
+is an optimizer and Σ contains at least two points. Let πΣ ∈ ΠΣ and 
+
+ν = ( πΣ)#μ. Let σ∗ ∈ Σ be a noncut point. Then, sup 
+
+> ζ∈Lip ∗(Σ)
+
+Z
+
+> Σ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ) ≤ ℓ|B πΣ (σ∗)|νπΣ (σ∗), (3.3) where Lip ∗(ζ) = {ζ : Σ → Rd | ζ is 1-Lipschitz }.STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 25 
+
+Proof. If BπΣ is trivial then the claim clearly holds, so assume BπΣ is non-trivial. Our plan is to remove a noncut-neighbourhood of σ∗ from Σ, gaining back ε budget, and then use the barycentre field to construct a competitor to Σ with this ε extra length. By Lemma 3.1 {Bn}n∈N be a noncut-neighbourhood system for σ∗, and let εn := diam ( Bn). By passing to a subsequence (not relabelled), we may assume that σ∗ ∈ Bn for all n ∈ N. Moreover, since εn → 0 as n → ∞ , we may assume that εn < ℓ for all n ∈ N. Let ζ ∈ Lip ∗(Σ), and for each n ∈ N
+
+define the competitor Σn := {σ + εn
+
+ℓ − εn
+
+ζ(σ) | σ ∈ Σ \ Bn}.
+
+The set Σ \ Bn is compact and connected by our choice of Bn, and σ 7 →
+
+σ + εn 
+
+> ℓ−εn
+
+ζ(σ) is continuous, so we see that Σ n is compact and connected. Moreover, since ζ is 1-Lipschitz, the map σ 7 → σ + εn 
+
+> ℓ−εn
+
+ζ(σ) is 1 + εn 
+
+> ℓ−εn
+
+-Lipschitz, and thus 
+
+H1(Σ n) ≤ (1 + εn
+
+ℓ − εn
+
+)H1(Σ \ Bn)
+
+≤ ℓ − εn + εn
+
+= ℓ, 
+
+so Σ n ∈ S ℓ for each n ∈ N.Now that we have constructed our competitor Σ n, we will approximate 
+
+J(Σ n). Fix δ > 0, and define Cδ := Bδ(σ∗) ∩ Σ. Then, since εn → 0 as 
+
+n → ∞ , we may pass to a further subsequence to assume that Bn ⊆ Cδ for all n ∈ N. Denote Hn(x) := πΣ\Bn (πΣ(x)), and define 
+
+Fn := 
+
+n πΣ(x) + εn 
+
+> ℓ−εn
+
+ζ(πΣ(x)) , x ∈ π−1Σ (Σ \ Cδ),Hn(x) + εn 
+
+> ℓ−εn
+
+ζ(Hn(x)) , x ∈ π−1Σ (Cδ).
+
+We wish to approximate J(Σ) by J(Fn). Indeed, if x ∈ π−1Σ (Cδ), then 
+
+Hn(x) ∈ Σ\Bn by definition, whereas if x ∈ π−1Σ (Σ \Cδ), then since Bn ⊆ Cδ,
+
+πΣ(x) ∈ Σ \ Bn. In either case, we have Fn ∈ Σn, so img ( Fn) ⊆ Σn.Therefore, by Remark 2.4, we know that J(Fn) ≥ J(Σ n). Recalling the notation J|A from (1.7), we have that 
+
+J(Σ) − J(Σ n) ≥ J(Σ) − J(Fn)= J(Σ) − J|π−1Σ (Σ \Cδ )(πΣ + εn
+
+ℓ − εn
+
+ζ ◦ πΣ)
+
+− J|π−1Σ (Cδ )(Hn + εn
+
+ℓ − εn
+
+ζ ◦ Hn).
+
+Notice that 
+
+J|π−1Σ (Σ \Cδ )(πΣ + εn
+
+ℓ − εn
+
+ζ ◦ πΣ) = J(πΣ + εn
+
+ℓ − εn
+
+ζ ◦ πΣ)
+
+− J|π−1Σ (Cδ )(πΣ + εn
+
+ℓ − εn
+
+ζ ◦ πΣ),26 LUCAS D. O’BRIEN 
+
+and so we can divide our lower bound on J(Σ) − J(Σ n) into three terms which are amenable to bounding using Proposition 2.6: 
+
+J(Σ) − J(Σ n) ≥ J(Σ) − J(πΣ + εn
+
+ℓ − εn
+
+ζ ◦ πΣ)+ J|π−1Σ (Cδ )(πΣ + εn
+
+ℓ − εn
+
+ζ ◦ πΣ) − J|π−1Σ (Cδ )(πΣ)+ J|π−1Σ (Cδ )(πΣ) − Jπ−1Σ (Cδ )(Hn + εn
+
+ℓ − εn
+
+ζ ◦ Hn).
+
+For the first term, we apply Proposition 2.6 to see that lim inf 
+
+> n→∞
+
+J(Σ) − J(πΣ + εn 
+
+> ℓ−εn
+
+)
+
+> εn
+> ℓ−εn
+
+≥
+
+Z
+
+> Σ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ). (3.4) Notice that J|A = Jμ⌞A, so we have no issues applying Proposition 2.6 to the second term to see that lim sup 
+
+> n→∞
+
+J|π−1Σ (Cδ )(Σ) − J|π−1Σ (Cδ )(πΣ + εn 
+
+> ℓ−εn
+
+ζ ◦ πΣ)
+
+> εn
+> ℓ−εn
+
+≤
+
+Z
+
+> Cδ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ),
+
+and so in particular lim inf 
+
+> n→∞
+
+J|π−1Σ (Cδ )(πΣ + εn 
+
+> ℓ−εn
+
+ζ ◦ πΣ) − J|π−1Σ (Cδ )(Σ) 
+
+> εn
+> ℓ−εn
+
+≥ − 
+
+Z
+
+> Cδ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ).
+
+(3.5) Finally, we approximate the third term. Notice that for each x ∈ π−1Σ (Cδ), 
+
+|Hn(x) − πΣ(x)| ≤ εn = εn
+
+ℓ − εn
+
+(ℓ − εn).
+
+In particular, we have that lim  
+
+> n→∞
+
+ζ(Hn(x)) = ζ(πΣ(x)) ,
+
+and lim 
+
+> n→∞
+
+|Hn(x) − πΣ(x)|
+
+> εn
+> ℓ−εn
+
+= ℓ. 
+
+So, applying Proposition 2.6, we have lim inf 
+
+> n→∞
+
+J|π−1Σ (Cδ )(Σ) − J|π−1Σ (Cδ )(Hn + εn 
+
+> ℓ−εn
+
+ζ ◦ Hn)
+
+> εn
+> ℓ−εn
+
+≥ − ℓ
+
+Z
+
+> Cδ
+
+|B πΣ (σ)|dν πΣ (σ) + 
+
+Z
+
+> Cδ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ).
+
+(3.6) Combining (3.4), (3.5), and (3.6), we conclude that lim inf 
+
+> n→∞
+
+J(Σ) − J(Σ n)
+
+> εn
+> ℓ−εn
+
+≥
+
+Z
+
+> Σ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ) − ℓ
+
+Z
+
+> Cδ
+
+|B πΣ (σ)|dν πΣ (σ).STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 27 
+
+To avoid contradicting the optimality of Σ, we must therefore have 
+
+Z
+
+> Σ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ) ≤ ℓ
+
+Z
+
+> Cδ
+
+|B πΣ (σ)|dν πΣ (σ)for all δ > 0. Taking δ → 0, we thus conclude that 
+
+Z
+
+> Σ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ) ≤ ℓ|B πΣ (σ∗)|νπΣ (σ∗),
+
+as desired. □
+
+Corollary 3.4. Assume ϕ ∈ C1([0 , ∞)) is nondecreasing, and let Σ be a solution to the average distance problem. Then, there exists some constant 
+
+C > 0 such that for every noncut point σ∗ ∈ Σ, 
+
+C
+
+Z
+
+> Σ
+
+|B πΣ (σ)|dν πΣ (σ) ≤ |B πΣ (σ∗)|νπΣ (σ∗). (3.7) In particular, if BπΣ is nontrivial, then every noncut point of Σ is an atom, and Σ has finitely many noncut points. 
+
+Proof. Lipschitz functions are dense in L2(μ), so we may take ξ to be a Lipschitz map so that 
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ) ≥ 12
+
+Z
+
+> Σ
+
+|B πΣ (σ)|dν πΣ (σ).
+
+Taking L to be a nonzero Lipschitz constant for ξ, we see that ζ := 1 
+
+> L
+
+ξ is 1-Lipschitz, and so by Theorem 3.3, for any noncut point σ∗ ∈ Σ, 12Lℓ 
+
+Z
+
+> Σ
+
+|B πΣ (σ)|dν πΣ ≤ 1
+
+ℓ
+
+Z
+
+> Σ
+
+ζ(σ) · B πΣ (σ)dν πΣ (σ) ≤ |B πΣ (σ∗)|νπΣ (σ∗).
+
+This proves that (3.7) holds. If BπΣ is nontrivial, then this inequality uniformly bounds |B πΣ (σ∗)| away from 0 for noncut points σ∗, and in particular every noncut point of Σ must be an atom. Moreover, since |B πΣ (σ)| can be bounded from above by Mϕ
+
+for ν-a.e. σ (recall the notation Mϕ from (2.10)), we conclude that (3.7) provides a uniform lower bound on the ν-mass of the noncut points σ∗ of Σ, and in particular, since ν(Σ) = 1, Σ has only finitely many noncut points in this case. □
+
+Remark 3.5. Notice that while nontriviality of the barycentre field implies that every noncut point is an atom, it does not seem to be true that every atom is necessarily a noncut point: indeed, the blow-up analysis of Santam-brogio and Tilli [20] does not rule out the existence of atoms at corner points of minimizers, and Buttazzo, Manini, and Stepanov [4, Proposition 4.1] have constructed an example Σ which contains an atom at a corner point, and is stationary for the soft-penalty average distance functional (3.8). 28 LUCAS D. O’BRIEN 
+
+3.3. Existence of an atom for soft-penalty minimizers. Following the arguments of [19, Section 1.1.2], we now prove existence of an atom for minimizers of the soft-penalty average distance problem. For any λ > 0, define the soft-penalty average distance functional by (Jμϕ )λ(Σ) := Jμϕ (Σ) + λH1(Σ) , (3.8) for Σ ⊆ Rd compact. Define 
+
+S := [
+
+> l≥0
+
+Sℓ = {Σ ⊆ Rd | Σ is compact, connected, and H1(Σ) < ∞} , (3.9) then the soft-penalty average distance problem asks us to find Σ λ ∈ S such that (Jμϕ )λ(Σ λ) = inf 
+
+> Σ∈S
+
+(Jμϕ )λ(Σ) . (3.10) 
+
+Remark 3.6 (Comparison of hard-constraint and soft-penalty average dis-tance problems) . Every minimizer Σ λ ∈ S of the soft-penalty average dis-tance problem solves the hard-constraint average distance problem with length budget ℓ = H1(Σ λ). However, it is not known under what condi-tions, if any, a hard-constraint average distance minimizer will also solve a soft-penalty problem for some λ > 0, see [13, Remark 22]. If H1(supp μ) < ∞, then one can easily find hard-constraint minimiz-ers which do not solve a soft-penalty problem. Indeed, for any compactly supported μ with H1(supp μ) < ∞, one can find a compact, connected set Σ ⊆ Rd with Σ ⊇ supp μ and H1(Σ) < ∞. Such a Σ will certainly minimize 
+
+Jμ over SH1(Σ) , but will not solve the soft-penalty problem for any λ if there is some Σ ′ ∈ S ℓ with Σ ′ ⊇ supp μ and H1(Σ ′) < H1(Σ). Surprisingly, we can also find examples of hard-constraint minimizers which also minimize H1(Σ ′) over all Σ ′ ∈ S containing supp μ, but are not soft-penalty minimizers. To do so, take d ≥ 2, ϕ(t) = tp for p = 1 or 
+
+p ≥ 2, Σ + = Sdi=1 {te i | t ∈ [− 12d , 12d ]}, and let μ = H1⌞Σ+ be the uniform measure on Σ +. Clearly, Σ + minimizes the average distance functional over 
+
+S1, and moreover Σ + minimizes H1(Σ +) over all Σ ′ ∈ S containing supp μ.Despite this, Σ + cannot solve the soft-penalty average distance problem for any λ > 0. Indeed, since μ is compactly supported, any minimizer of a soft-penalty average distance problem cannot contain a point of order (see (3.11)) greater than 3; this is guaranteed by [21, Lemma 3.4] in the case that 
+
+ϕ(t) = t, and [19, Corollary 1.5] in the case that ϕ(t) = tp for p ≥ 2. The point 0 ∈ Σ+ has order 2 d ≥ 4, showing it is not a soft-penalty minimizer for any λ.This example helps motivate why proving the topological characterization for the hard-constraint problem is more difficult than for the soft-penalty problem: while [21] and [19] prove the soft-penalty topological characteri-zation for arbitrary compactly supported probability measures in the cases 
+
+ϕ(t) = tp for p = 1 and p ≥ 2 respectively, the proof of the hard-constraint STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 29 
+
+topological characterization Theorem 4.11 must crucially use the fact that 
+
+μ is not supported on a 1-dimensional set to avoid examples such as Σ +.Now, we generalize the results of [19, Section 1.1.2] on soft-penalty av-erage distance minimizers. The proofs we give are the same as in [19]: the improvement of our results comes from Proposition 2.8 and Theorem 3.3. We begin by proving nontriviality of the barycentre field for soft-penalty minimizers, something which is significantly easier in the soft-penalty case than in the hard-constraint case. Note that Proposition 3.7 and [19, Propo-sition 1.4] are predated by Buttazzo, Manini, and Stepanov’s stronger result [4, Proposition 2.1] in the case ϕ(t) = t: the crucial step in our approach for yielding existence of an atom comes from using Corollary 3.4 to show that nontriviality of the barycentre field implies existence of an atom. 
+
+Proposition 3.7 (Barycentre nontriviality for soft-penalty minimizers) .
+
+Assume ϕ ∈ C1([0 , ∞)) is nondecreasing. Suppose that μ(Σ) = 0 for all Σ ∈ S . Let λ > 0, and let Σ = Σ λ be a solution to (3.10) with H1(Σ) > 0. Then, for any πΣ ∈ ΠΣ, BπΣ is nontrivial. 
+
+Proof. Suppose not, and for each ε > 0 consider the rescaled set (1 − ε)Σ. Clearly, (1 − ε)Σ ∈ S , and H1((1 − ε)Σ) = H1(Σ) − εH1(Σ). Moreover, taking ξ : σ 7 → − σ, we have that (1 − ε)Σ = Σ ε,ξ (recalling notation from Proposition 2.8), and so by Proposition 2.8 and the assumption that BπΣ is trivial, 
+
+J(Σ) ≥ J((1 − ε)Σ) + o(ε).
+
+Therefore, (J)λ(Σ) = J(Σ) + λH1(Σ) 
+
+≥ J((1 − ε)Σ) + λH1((1 − ε)Σ) + λε H1(Σ) + o(ε)= ( J)λ((1 − ε)Σ) + λε H1(Σ) + o(ε),
+
+and so since H1(Σ) > 0, taking ε small enough we conclude that (J)λ(Σ) > (J)λ((1 − ε)Σ) ,
+
+contradicting the optimality of Σ. □
+
+Using this, we can now prove existence of an atom, and thus the complete topological description, for soft-penalty minimizers. The following result was proven for the case ϕ(t) = t in [21, Lemma 3.1 and 3.3], and for the case 
+
+ϕ(t) = tp for p ≥ 2 in [19, Proposition 1.4 and Theorem 1.2]. Notice that these results are stronger in their respective cases, as they do not require the assumption that μ(Σ) = 0 for all Σ ∈ S .
+
+Corollary 3.8 (Existence of an atom for soft-penalty minimizers) . Assume 
+
+ϕ ∈ C1([0 , ∞)) is nondecreasing. Suppose that μ(Σ) = 0 for all Σ ∈ S . Let 
+
+λ > 0, and let Σ = Σ λ be a solution to (3.10). Then, Σ has an atom. 30 LUCAS D. O’BRIEN 
+
+Proof. If H1(Σ) = 0 then the conclusion is trivial, so assume this is not the case. Then, Σ has nontrivial barycentre field by Proposition 3.7, and so by Corollary 3.4, Σ has an atom. □
+
+Theorem 3.3 allows us to get a slight improvement of Paolini and Stepanov’s [23, Theorem 5.6] in the soft-penalty case, as we can prove absence of loops under only the assumptions that ϕ ∈ C1([0 , ∞)) and ϕ is nondecreasing, thus removing the assumption of Paolini and Stepanov’s property ( α2). 
+
+Corollary 3.9 (Absence of loops for soft-penalty minimizers) . Assume ϕ ∈
+
+C1([0 , ∞)) is nondecreasing. Suppose that μ(Σ) = 0 for all Σ ∈ S . Let 
+
+λ > 0, and let Σ = Σ λ be a solution to (3.10). Then, Σ contains only finitely many noncut points, and thus contains no loops, i.e. homeomorphic images of S1.
+
+Proof. The claim is trivial if H1(Σ) = 0, so assume this is not the case. Then, by Proposition 3.7 the barycentre field of Σ is nontrivial, and so by Corollary 3.4 we get a uniform lower bound on the ν-mass of any noncut point σ ∈ Σ. But by [23, Lemma 5.2], H1-a.e. point of a loop is a noncut point, and thus since ν(Σ) = 1, Σ cannot contain any loops. □
+
+Now, we can combine Corollary 3.8 with Stepanov’s conditional result [24, Theorem 5.5] to conclude the remainder of the complete topological description for soft-penalty minimizers. We define the order of a point σ ∈ Σby ord σ(Σ) := lim sup 
+
+> r→0+
+
+#(Σ ∩ ∂B r(σ)) , (3.11) where # denotes set cardinality. We say a point σ ∈ Σ is a branching point 
+
+if ord σ(Σ) > 2. For reference, we state here Paolini and Stepanov’s [23] property ( α2): For every c > 0, there is λ = λ(c) > 0 such that 
+
+|ϕ(s) − ϕ(t)| ≥ λ|s − t| (α2)for any s, t ∈ [c, diam supp μ]. 
+
+Corollary 3.10 (Triple branching for soft-penalty minimizers) . Assume ϕ ∈
+
+C1([0 , ∞)) is nondecreasing and satisfies Paolini and Stepanov’s condition (α2). Suppose that μ(Σ) = 0 for all Σ ∈ S . Let λ > 0, and let Σ = Σ λ be a solution to (3.10). Then, Σ has finitely many branching points, and each branching point σ ∈ Σ is a triple branching, i.e. ord σ(Σ) = 3. 
+
+Proof. If H1(Σ) = 0, the conclusion is trivial, so assume this is not the case. By Corollary 3.8, Σ has an atom, and moreover Σ solves the hard-constraint average distance problem with ℓ = H1(Σ). So, by [24, Theorem 5.5 (iii)-(iv)], Σ has finitely many branching points, and each branching point is a triple branching. □
+
+In particular, the complete topological description (nonexistence of loops, finitely many endpoints, and finitely many branching points with only triple STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 31 
+
+branchings) holds for soft-penalty average distance problem minimizers when we take ϕ(t) = tp for any p ≥ 1, in any dimension d ≥ 2. Now, we return to our discussion of the hard-constraint average distance problem. 4. Atomic noncut points and barycentre nontriviality 
+
+The main result of this section, Theorem 4.9, is the existence of an atom for (hard-constraint) average distance minimizers. First, in Section 4.1, we will prove that existence of an atom is equivalent to nontriviality of the barycentre field (Corollary 4.8), proving along the way an important technical estimate on a typical local modification in the average distance problem (Lemma 4.4). Then, we will prove Theorem 4.9 in Section 4.2. We discuss the consequences of Theorem 4.9 for the structure of average distance minimizers in Section 4.3, concluding with quantitative bounds on the number of noncut points of average distance minimizers in Section 4.4. 4.1. Rescaling of optimizers. The goal of this subsection is to prove that the existence of an atom implies nontriviality of the barycentre field, which when combined with Corollary 3.4 will prove the equivalence between exis-tence of an atom and nontriviality of the barycentre field in Corollary 4.8. We will do this by studying the scaling constant , a constant defined via the barycentre field which measures the change in objective value under the rescaling Σ 7 → (1 + ε)Σ. The main result of this section, Theorem 4.6, bounds the scaling constant in terms of the ρ-mass of points σ∗ ∈ Σ. Theorem 4.6 is essentially a gen-eralization of the “ ν has an atom” case of the proof of nontriviality of the barycentre field by the author, Kobayashi, and Kim in [19, Theorem 3.5]; see [19, Section 4.3] for a discussion of this case. Along the way, we will prove a key technical lemma, Lemma 4.4, which will be used in the proof of exis-tence of an atom (Theorem 4.9). This lemma bounds the improvement one can gain by adding the d-dimensional cross to the set Σ. The d-dimensional cross is a typical local modification used when studying the average distance problem, for example by Paolini and Stepanov in [23, Lemma 3.6] to uncon-ditionally obtain improvements of order ε2 to the objective value, given ε
+
+additional budget. Our Lemma 4.4 is a version of [23, Lemma 3.6] special-ized for the purpose of proving existence of an atom; our bound is altered to include additional parameters and terms depending on the barycentre field in order to provide the flexibility required to prove Theorem 4.9. Similar bounds to Lemma 4.4 appear in the proof of [19, Theorem 3.5], and the idea to bound the improvement from the d-dimensional cross in terms of the barycentre field originates from Delattre and Fischer’s proof of default of self-consistency for the ϕ(t) = t2 case of the length-constrained principal curves problem [6, Lemma 3.2]. 32 LUCAS D. O’BRIEN 
+
+We begin by defining the aforementioned scaling constant, and proving its independence on the choice of base point and interpretation in terms of the change in objective value under the rescaling Σ 7 → (1 + ε)Σ. 
+
+Definition 4.1 (Scaling constant) . Let Σ ⊆ Rd be compact, and let πΣ ∈
+
+ΠΣ. For any a ∈ Rd, define the scaling constant of πΣ to be 
+
+βaπΣ := 
+
+Z
+
+> Σ
+
+(σ − a) · B πΣ (σ)dν πΣ (σ).
+
+Lemma 4.2 (Independence and interpretation of scaling constant) . Assume 
+
+ϕ ∈ C1([0 , ∞)) is nondecreasing. Let Σ ∈ S ℓ be optimal, and let πΣ ∈ ΠΣ.Then, βΣ := βaπΣ is defined independently of choice of a ∈ Rd and πΣ ∈ ΠΣ.Moreover, letting Σ ε := (1 + ε)Σ ∈ S (1+ ε)ℓ, we have lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε)
+
+ε ≥ βΣ.
+
+Proof. First, notice that for any a ∈ Rd,
+
+βaπΣ =
+
+Z
+
+> Σ
+
+(σ − a) · B πΣ (σ)dν πΣ (σ)= β0 
+
+> πΣ
+
+− a · B net 
+
+> πΣ
+
+= β0 
+
+> πΣ
+
+,
+
+since Bnet  
+
+> πΣ
+
+= 0 by Lemma 2.15. By Proposition 2.16, β0 
+
+> πΣ
+
+is independent of 
+
+πΣ ∈ ΠΣ as well. So, βΣ := βaπΣ is defined independently of choice of a ∈ Rd
+
+and πΣ ∈ ΠΣ. Moreover, we have lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε)
+
+ε ≥ lim 
+
+> ε→0+
+
+J(πΣ) − J((1 + ε)πΣ)
+
+ε
+
+≥
+
+Z
+
+> Σ
+
+σ · B πΣ (σ)dν πΣ (σ)= βΣ,
+
+as claimed. □
+
+Now, we define the d-dimensional cross. 
+
+Definition 4.3 (d-dimensional cross) . Given ε > 0, define the d-dimensional cross to be 
+
+Kε =
+
+> d
+
+[
+
+> i=1
+
+{te i | t ∈ [− 12d ε, 12d ε]},
+
+where {e1, . . . , e d} is the standard basis for Rd.In our next lemma, we provide a bound on the improvement to the ob-jective value J(Σ) afforded by adding the d-dimensional cross to a set Σ, specialized for the purposes of proving Theorem 4.9. Recall the notation STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 33 
+
+J|E from (1.7), γ = γπΣ from (2.8), and ρ = ρπΣ from (2.9). Moreover, for 
+
+ϕ ∈ C1,1loc ([0 , ∞)), we denote by 
+
+L = Lϕ := Lip( ϕ′|[0 ,diam supp μ]) (4.1) a Lipschitz constant for ϕ′ on [0 , diam supp μ]. 
+
+Lemma 4.4 (Estimating the improvement from the d-dimensional cross) .
+
+Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing. Let Σ ⊆ Rd, and let 0 ∈ Σ. Let A ⊆ Σ be Borel with 0 ∈ A, and let η = diam ( A). Then, for every 
+
+ε > 0, we have 
+
+J|π−1Σ (A)(Σ) − J|π−1Σ (A)(Kε)
+
+≥
+
+
+
+( ε
+
+4d3/2 − η2
+
+32 d3/2ε )ρ(A) − η
+
+Z
+
+> A
+
+|B πΣ (σ)|dν (σ)
+
+− (2 η + 1 + 2 √d
+
+4d3/2 ε)γ(B16 d3/2ε(A) ∩ π−1Σ (A)) 
+
+− L(η + ε)2ν(A)
+
+
+
+.
+
+(4.2) 
+
+Proof. Fix A ⊆ Σ Borel, and fix ε > 0. Let πΣ ∈ ΠΣ and πKε ∈ ΠKε . Fix some x ∈ π−1Σ (A). By the mean value theorem, there is some min {| x − πKε (x)|, |x − πΣ(x)|} ≤ cxε ≤ max {| x − πKε (x)|, |x − πΣ(x)|} 
+
+such that 
+
+ϕ(|x − πΣ(x)|) − ϕ(|x − πKε |) ≥ (|x − πΣ(x)| − | x − πKε (x)|)ϕ′(cxε ).
+
+Recalling the notation L = Lϕ from (4.1), we have 
+
+|ϕ′(cxε ) − ϕ′(|x − πΣ(x)|)| ≤ L(|πΣ(x)| + |πKε (x)|) ≤ L(η + ε),
+
+and thus 
+
+ϕ(|x − πΣ(x)|) − ϕ(|x − πKε (x)|)
+
+≥ (|x − πΣ(x)| − | x − πKε (x)|)ϕ′(|x − πΣ(x)|) − L(η + ε)2.
+
+Therefore, we see that 
+
+J|π−1Σ (A)(πΣ) − J|π−1Σ (A)(πKε )
+
+≥
+
+Z 
+
+> π−1Σ(A)
+
+(|x − πΣ(x)| − | x − πKε (x)|)dγ (x) − L(η + ε)2ν(A).
+
+Now, we bound the integral of the difference 
+
+|x − πΣ(x)| − | x − πKε (x)|. (4.3) We will do so by splitting the domain of integration πΣ(A) into two parts, namely 
+
+π−1Σ (A) = ( π−1Σ (A) \ B16 d3/2ε(A)) ∪ (π−1Σ (A) ∩ B16 d3/2ε(A)) ,
+
+and bounding this difference separately on each region. 34 LUCAS D. O’BRIEN 
+
+First, let us bound (4.3) in the region π−1Σ (A)\B16 d3/2ε(A). By [23, Lemma 3.3 (iii)], we know that for all x ∈ Rd with |x| ≥ ε 
+
+> 2√d
+
+, we have 
+
+|x − πKε(x)| = dist( x, K ε) ≤ | x| − ε
+
+4d3/2 . (4.4) In particular, since 16 d3/2ε ≥ ε 
+
+> 2√d
+
+, the above holds for all x ∈ π−1Σ (A) \
+
+B16 d3/2ε(A). Now, what is left to do is bound the difference between |x −
+
+πΣ(x)| and |x|. It is easy to do so using the triangle inequality; however, in order to specialize our bound for the proof of Theorem 4.9, we will choose a slightly more technical approach which introduces the barycentre field into our bound. Applying (2.12) with G(x) = 0 and F (x) = πΣ(x), we have 
+
+|x| ≤ | x − πΣ(x)| + πΣ(x) · (x − πΣ(x)) 
+
+|x − πΣ(x)| + 12
+
+|πΣ(x)|2
+
+|x − πΣ(x)| .
+
+So, since we are assuming x / ∈ B16 d3/2ε(A), we have 
+
+|x − πΣ(x)| ≥ 16 d3/2ε. 
+
+Using that x ∈ π−1Σ (A) to see that |πΣ(x)| ≤ η, our bound becomes 
+
+|x| ≤ | x − πΣ(x)| + πΣ(x) · (x − πΣ(x)) 
+
+|x − πΣ(x)| + η2
+
+32 d3/2ε .
+
+Combining this with (4.4), we have 
+
+|x − πKε (x)| ≤ | x − πΣ(x)| − ε
+
+4d3/2 + πΣ(x) · (x − πΣ(x)) 
+
+|x − πΣ(x)| + η2
+
+32 d3/2ε .
+
+Thus, we have 
+
+Z 
+
+> π−1Σ(A)\B16 d3/2ε(A)
+
+(|x − πΣ(x)| − | x − πKε (x)|)dγ (x)
+
+≥ ( ε
+
+4d3/2 − η2
+
+32 d3/2ε )γ(π−1Σ (A) \ B16 d3/2ε(A)) 
+
+−
+
+Z 
+
+> π−1Σ(A)\B16 d3/2ε(A)
+
+πΣ(x) · ∆πΣ (x)dμ (x),
+
+where we recall the notation ∆ πΣ from (2.3). Let us simplify this bound slightly. First, we use that 
+
+γ(π−1Σ (A) \ B16 d3/2ε(A)) = ρ(A) − γ(B4d3/2 (A) ∩ π−1Σ (A)) to find ( ε
+
+4d3/2 − η2
+
+32 d3/2ε )γ(π−1Σ (A) \ B16 d3/2ε(A)) 
+
+≥ ( ε
+
+4d3/2 − η2
+
+32 d3/2ε )ρ(A) − ε
+
+4d3/2 γ(π−1Σ (A) \ B16 d3/2ε(A)) .STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 35 
+
+Next, we notice that 
+
+Z 
+
+> π−1Σ(A)\B16 d3/2ε(A)
+
+πΣ(x) · ∆πΣ (x)dμ (x)=
+
+Z
+
+> A
+
+σ · B πΣ (σ)dν (σ) −
+
+Z 
+
+> π−1Σ(A)∩B16 d3/2ε(A)
+
+πΣ(x) · ∆πΣ (x)dμ (x)
+
+≤ η
+
+Z
+
+> A
+
+|BπΣ (σ)|dν (σ) + M ηγ (π−1Σ (A) ∩ B16 d3/2ε(A)); recall the definition of M from (2.10). Putting this all together, our bound simplifies to 
+
+Z 
+
+> π−1Σ(A)\B16 d3/2ε(A)
+
+(|x − πΣ(x)| − | x − πKε (x)|)dγ (x)
+
+≥
+
+
+
+( ε
+
+4d3/2 − η2
+
+32 d3/2ε )ρ(A) − ( ε
+
+4d3/2 + η)γ(B16 d3/2ε(A) ∩ π−1Σ (A)) 
+
+− η
+
+Z
+
+> A
+
+|B πΣ (σ)|dν (σ)
+
+
+
+.
+
+In the region π−1Σ (A) ∩ B16 d3/2ε(A), our bound on (4.3) can be more straightforward. For any x ∈ Rd, we have 
+
+|x − πΣ(x)| − | x − πKε (x)| ≥ −| πΣ(x) − πKε (x)|≥ − (|πΣ(x)| + |πKε (x)|)
+
+≥ − (η + ε
+
+2d ),
+
+so we see that 
+
+Z 
+
+> π−1Σ(A)∩B16 d3/2ε(A)
+
+(|x − πΣ(x)| − | x − πKε (x)|)dγ (x)
+
+≥ − (η + ε
+
+2d )γ(B16 d3/2ε(A) ∩ π−1Σ (A)) .
+
+Thus, since 
+
+ε
+
+4d3/2 + ε
+
+2d = 1 + 2 √d
+
+4d3/2 ε, 
+
+combining our bounds yields 
+
+J|π−1Σ (A)(Σ) − J|π−1Σ (A)(Kε)
+
+≥
+
+
+
+( ε
+
+4d3/2 − η2
+
+32 d3/2ε )ρ(A) − η
+
+Z
+
+> A
+
+|B πΣ (σ)|dν (σ)
+
+− (2 η + 1 + 2 √d
+
+4d3/2 ε)γ(B16 d3/2ε(A) ∩ π−1Σ (A)) 
+
+− L(η + ε)2ν(A)
+
+
+
+,
+
+as was claimed. □36 LUCAS D. O’BRIEN 
+
+Remark 4.5. The reason that we use B16 d3/2ε(A) to divide the region 
+
+π−1Σ (A) is the following: if we take A = Bε(0), then we have that η = 2 ε.Thus, we see that 
+
+ε
+
+4d3/2 − η2
+
+32 d3/2ε ≥ ε
+
+8d3/2 > 0.
+
+The fact that this difference is a positive constant times ε is a result of the choice to use B16 d3/2ε(A), and plays a key role in the proof of Theorem 4.9. Now, we proceed with the main theorem of this subsection, which provides a lower bound on the scaling constant in terms of the ρ-mass of any point 
+
+σ∗ ∈ Σ, and in particular in terms of any atom of Σ, should one exist. 
+
+Theorem 4.6 (Bounding the scaling constant in terms of atoms) . Assume 
+
+ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing. Suppose Σ ∈ S ℓ is optimal for some 
+
+ℓ > 0. Then, for every point σ∗ ∈ Σ, we have 
+
+βΣ ≥ ℓ
+
+4d3/2 ρπΣ {σ∗}. (4.5) 
+
+Proof. Take some σ∗ ∈ Σ, and using the translation invariance of the average distance problem assume without loss of generality that σ∗ = 0. Let ε > 0. Defining Σε = (1 − εℓ )Σ ,
+
+we have lim 
+
+> ε→0+
+
+J(Σ) − J(Σ ε)
+
+ε ≥ lim 
+
+> ε→0+
+
+J(πΣ) − J((1 − εℓ )πΣ)
+
+ε
+
+≥ − 1
+
+ℓ
+
+Z
+
+> Σ
+
+σ · B πΣ dν πΣ
+
+= − 1
+
+ℓ βΣ.
+
+Now, define Σ′ 
+
+> ε
+
+= Σ ε ∪ Kε,
+
+then Σ ′ 
+
+> ε
+
+is compact, connected, and 
+
+H1(Σ ′
+
+> ε
+
+) ≤ H 1(Σ ε) + H1(Kε) ≤ ℓ. 
+
+So, by the optimality of Σ, we have 0 ≥ J(Σ) − J(Σ ′
+
+> ε
+
+).
+
+Now, take any πΣε ∈ ΠΣε , and define 
+
+Fε(x) := 
+
+πΣε (x), x / ∈ π−1Σ {0},πKε (x), x ∈ π−1Σ {0}.
+
+Then, img ( Fε) ⊆ Σ′
+
+> ε
+
+, and as a result, 
+
+J(Σ ε) − J(Σ ′
+
+> ε
+
+) ≥ J(πΣε ) − J(Fε)= J|π−1Σ {0}(πΣε ) − J|π−1Σ {0}(πKε ).STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 37 
+
+So, applying Lemma 4.4 with A = {0}, we see since η = 0 that 
+
+J(Σ ε) − J(Σ ′
+
+> ε
+
+) ≥ ε
+
+4d3/2 ρπΣε ({0}) + o(ε),
+
+where we are using that γ(B16 d3/2ε(0)) = o(1) since μ has no atoms. Putting this all together, we see that 0 ≥ J(Σ) − J(Σ ′
+
+> ε
+
+)= J(Σ) − J(Σ ε) + J(Σ ε) − J(Σ ′
+
+> ε
+
+)
+
+≥ − εℓ βΣ + ε
+
+4d3/2 ρπΣε ({0}) + o(ε),
+
+so 
+
+βΣ ≥ lim sup 
+
+> ε→0+
+
+ℓ
+
+4d3/2 ρπΣε ({0}). (4.6) We now claim that we can choose πΣε ∈ ΠΣε for each ε > 0 so that lim sup 
+
+> ε→0+
+
+ρπΣε {0} ≥ ρπΣ {0}.
+
+Indeed, for each ε > 0, define Φε = {x ∈ Rd | dist( x, Σε) = dist( x, 0) },
+
+where here Σ 0 = Σ. For any ε > 0, we may use measurable selection Lemma 2.1 to take some πΣε ∈ ΠΣε such that π−1Σε {0} = Φ ε. So, for any sequence of positive real numbers εn converging to 0, we have lim sup 
+
+> ε→0+
+
+ρπΣε {0} = lim sup 
+
+> n→∞
+
+Z
+
+> Rd
+
+χΦεn ϕ′(dist( x, Σε)) dμ 
+
+≥ lim inf 
+
+> n→∞
+
+Z
+
+> Rd
+
+χΦεn ϕ′(dist( x, Σε)) dμ 
+
+≥
+
+Z
+
+> Rd
+
+lim inf  
+
+> n→∞
+
+χΦεn ϕ′(dist( x, Σε)) dμ, 
+
+where the last inequality uses Fatou’s lemma; this is justified since ϕ′ is assumed to be nonnegative. Notice that for any ε1, ε 2 ≥ 0, we can use the triangle inequality to get the bound 
+
+|dist( x, Σε1 ) − dist( x, Σε2 )| ≤ | ε1 − ε2| 1
+
+ℓ dist( x, Σ) . (4.7) Therefore, since ϕ′ is continuous, we know that the family of functions 
+
+ϕ′(dist( x, Σεn )) converge pointwise to ϕ′(dist( x, Σ)). In particular, lim inf  
+
+> n→∞
+
+χΦεn ϕ′(dist( x, Σε)) = χlim inf n Φεn ϕ′(dist( x, Σ)) ,
+
+where lim inf  
+
+> n
+
+Φεn := [ 
+
+> N∈N
+
+\
+
+> n>N
+
+Φεn .38 LUCAS D. O’BRIEN 
+
+Now, we claim that lim inf n Φεn ⊇ Φ0. Indeed, for each x, the map ε 7 →
+
+dist( x, Σε) is continuous by (4.7). In particular, if dist( x, Σε) = dist( x, 0) for all sufficiently small ε > 0, then dist( x, Σ) = dist( x, 0). So, we have lim inf  
+
+> n
+
+Φεn ⊇ Φ0,
+
+and thus since ϕ′(dist( x, Σ)) ≥ 0, lim sup 
+
+> ε→0+
+
+ρπΣε {0} ≥ 
+
+Z
+
+> Rd
+
+χΦ0 ϕ′(dist( x, Σ)) dμ 
+
+= γπΣ (Φ 0).
+
+Finally, from Proposition 2.16 and the fact that γ ≪ μ, we know that 
+
+γ(Φ 0 \ π−1Σ {0}) = 0 ,
+
+upon which we conclude that lim sup 
+
+> ε→0+
+
+ρπΣε {0} ≥ ρπΣ ({0}).
+
+Combining this with (4.6), we see that 
+
+βΣ ≥ ℓ
+
+4d3/2 ρπΣ {0},
+
+as claimed. □
+
+Remark 4.7. Notice that for any noncut point σ∗ ∈ Σ, since the identity map is 1-Lipschitz, 
+
+βΣ =
+
+Z
+
+> Σ
+
+(σ − σ∗) · B πΣ (σ)dν πΣ (σ)
+
+≤ max 
+
+> ξ∈Lip ∗(Σ)
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ).
+
+Finally, we combine Theorem 4.6 with Corollary 3.4 to prove the equiva-lence between nontriviality of the barycentre field and existence of an atom for average distance minimizers. 
+
+Corollary 4.8 (Nontrivial barycentre field and atoms) . Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing. Let Σ ∈ S ℓ be optimal, and let πΣ ∈ ΠΣ. Then, the following are equivalent: (i) BπΣ is nontrivial, (ii) Every noncut point σ∗ ∈ Σ is an atom, i.e. νπΣ {σ∗} > 0, (iii) There exists a point σ∗ ∈ Σ with νπΣ {σ∗} > 0, (iv) There exists σ∗ ∈ Σ with ρπΣ {σ∗} > 0, (v) βπΣ > 0. 
+
+Proof. ((i) = ⇒ (ii)) If BπΣ is nontrivial, then by Corollary 3.4, there exists some constant λ > 0 such that for every noncut point σ∗ ∈ Σ, 
+
+|B πΣ (σ∗)|νπΣ {σ∗} ≥ λ
+
+Z
+
+> Σ
+
+|B πΣ (σ)|dν πΣ (σ) > 0.STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 39 
+
+((ii) = ⇒ (iii)) By [11, §47 Theorem IV.5], Σ always contains at least two noncut points. ((iii) =⇒ (iv)) Suppose σ∗ ∈ Σ with νπΣ {σ∗} > 0. Then, π−1Σ {σ∗} is a set with positive μ-mass. Since ϕ is strictly increasing and μ(Σ) = 0 by assumption, we have that ϕ′(|x − πΣ(x)|) > 0 μ-a.e., and therefore 
+
+ρπΣ {σ∗} =
+
+Z 
+
+> π−1Σ{σ∗}
+
+ϕ′(|x − πΣ(x)|)dμ (x) > 0.
+
+((iv) =⇒ (v)) By Theorem 4.6, we have 
+
+βΣ ≥ ℓ
+
+4d3/2 ρπΣ {σ∗} > 0.
+
+((iv) =⇒ (i)) is obvious. □
+
+4.2. Existence of atoms. We now proceed with the main theorem of this section: the existence of atoms for average distance minimizers, provided 
+
+ϕ ∈ C1,1loc ([0 , ∞)) satisfies ( α2) and is strictly increasing. This generalizes the results of [19], where existence of an atom was shown for ϕ(t) = tp with 
+
+p = 2 or p > 12 (3+ √5); in particular, Theorem 4.9 applies to the prototypical 
+
+ϕ(t) = t case of the average distance problem, as well as ϕ(t) = tp for all 
+
+p ≥ 2. The proofs of both Theorem 4.9 and [19, Theorem 3.5] proceed by con-tradiction. Supposing we are given a minimizer Σ ∈ S ℓ with no atom, we wish to modify Σ in such a way that we gain back ε length budget, while controlling the increase to the objective value using the barycentre field. By Corollary 4.8, the assumption that Σ has no atoms implies that Σ has trivial barycentre field, so the increase to the objective value from the budget-gaining modification only depends on the higher order terms in the barycentre field expansion. If we add back the gained ε length in a clever way, we can hope to get a decrease to the objective value which outweighs these higher order terms; this would then allows us to construct a competitor with strictly smaller objective value than that of Σ, a contradiction. The crux of this argument lies in adding back the recovered ε length in such a way that the improvement to the objective value outweighs the increase from the budget-gaining modification. In particular, it is crucial to control the higher order terms in the barycentre field expansion for the budget-gaining modification. This is one of the major obstructions to gen-eralizing the strategy of proof of [19, Theorem 3.5] to, for example, the case ϕ(t) = t; indeed, [19] relies on a global rescaling to gain back length, whose higher-order terms are much more difficult to control when the map 
+
+t 7 → ϕ(|t|) is no longer C1 at the origin. Instead, we will rely on a local modi-fication to gain back ε length from Σ, as the higher-order terms coming from such a modification can be bounded sufficiently well using Proposition 2.18. In addition to simplifying the proof, this local argument allows us to avoid the issues caused by lower regularity of t 7 → ϕ(|t|) to the proof strategy of 40 LUCAS D. O’BRIEN 
+
+[19, Theorem 3.5], allowing us to prove existence of atoms in cases that were previously out of reach. 
+
+Theorem 4.9 (Minimizers have atoms) . Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing and satisfies ( α2). Assume that μ(Bε(x)) = o(ε) for each x ∈ Rd.Then, any minimizer Σ ∈ S ℓ has an atom. 
+
+Proof. Let Σ ∈ S ℓ, and suppose for the sake of contradiction that ν has no atoms. Let σ1, σ 2 ∈ Σ be two distinct noncut points. Write σ∗ = σ1,and take σ2 = 0 to be the origin. By Lemma 3.1, take {Bn}n∈N to be a noncut neighbourhood system for σ∗, and let εn = dist( σ∗, ∂B n), where the boundary is taken with respect to the subspace topology on Σ. Without loss of generality, assume that lim sup 
+
+> n→∞
+
+ρ(Bεn (0)) 
+
+ρ(Bεn (σ∗)) > 0; (4.8) if this is not the case then we may interchange the roles of σ∗ and 0. Notice that 
+
+ρ(Bεn (0)) 
+
+ρ(Bn) ≥ ρ(Bεn (0)) 
+
+ρ(Bεn (σ∗)) for each n. Using (4.8) and passing to a subsequence, we may assume that 
+
+C := lim 
+
+> n→∞
+
+ρ(Bεn (0)) 
+
+ρ(Bn) (4.9) converges, and C > 0. Passing to a further subsequence, assume that Bn ∩
+
+Bεn (0) = ∅ for each n ∈ N. For each n, define Σ′ 
+
+> n
+
+= (Σ \ Bn) ∪ Kεn .
+
+Then, Σ ′ 
+
+> n
+
+is compact, connected, and H1(Σ ′
+
+> n
+
+) ≤ ℓ. We begin with a technical lemma which will form the basis for our proof. 
+
+Lemma 4.10 (Conditional bound) . Take the assumptions in Theorem 4.9. Suppose Σ ∈ S ℓ is a minimizer, and Σ has no atom. Then, for any n ∈ N,for any δ > 0 possibly depending on n, we have 
+
+J(Σ) − J(Σ ′
+
+> n
+
+) ≥ εn
+
+8d3/2 ρ(Bεn (0)) − ε2
+
+> n
+
+2δ ρ(Bn)
+
+− 2M ε nμ(Bδ(Σ) ∩ π−1Σ (Bn)) + o(ε2
+
+> n
+
+).
+
+(4.10) 
+
+Proof. Taking the boundary ∂B n with respect to the subspace topology on Σ, define 
+
+Fn(x) := 
+
+πKεn (x), x ∈ π−1Σ (Bεn (0)) 
+
+π∂B n (x), x ∈ π−1Σ (Bn),πΣ(x), otherwise .STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 41 
+
+Then, we see that img ( Fn) ⊆ Σ′
+
+> n
+
+, and therefore 
+
+J(Σ) − J(Σ ′
+
+> n
+
+) ≥ J(πΣ) − J(Fn)
+
+≥ J|π−1Σ (Bεn (0)) (Σ) − J|π−1Σ (Bεn (0)) (Kεn )+ J|π−1Σ (Bn)(Σ) − J|π−1Σ (Bn)(∂B n).
+
+First, we use Lemma 4.4 to bound the term 
+
+J|π−1Σ (Bεn (0)) (Σ) − J|π−1Σ (Bεn (0)) (Kεn ).
+
+Indeed, take A = Bεn (0) ∩ Σ, and notice that η = diam ( A) ≤ 2εn. So, by Lemma 4.4, we have 
+
+J|π−1Σ (Bεn (0)) (Σ) − J|π−1Σ (Bεn (0)) (Kεn )
+
+≥
+
+ εn
+
+8d3/2 ρ(Bεn (0)) − 2εn
+
+Z 
+
+> Bεn (0) ∩Σ
+
+|B πΣ (σ)|dν πΣ (σ)
+
+− ( 1 + 2 √d + 16 d3/2
+
+4d3/2 )εnγ(B16 d3/2εn (Σ) ∩ π−1Σ (Bεn (0))) 
+
+− 9Lε 2
+
+> n
+
+ν(Bεn (0)) 
+
+
+
+.
+
+The assumption that ν is atomless implies that BπΣ is trivial by Theorem 3.3, and therefore 2εn
+
+Z 
+
+> Bεn (0) ∩Σ
+
+|B πΣ (σ)|dν πΣ (σ) = 0 .
+
+Since γ(Bε(0)) = o(ε) by assumption, we have ( 1 + 2 √d + 16 d3/2
+
+4d3/2 )εnγ(B16 d3/2εn (Σ) ∩ π−1Σ (Bεn (0))) = o(ε2
+
+> n
+
+).
+
+Finally, since we are assuming ν is atomless, ν(B εn  
+
+> 8d3/2
+
+(0)) = o(1), so we have 9Lε 2
+
+> n
+
+ν(Bεn (0)) = o(ε2
+
+> n
+
+).
+
+Thus, we may write our bound as 
+
+J|π−1Σ (Bεn (0)) (Σ) − J|π−1Σ (Bεn (0)) (Kεn ) ≥ εn
+
+8d3/2 ρ(Bεn (0)) + o(ε2
+
+> n
+
+). (4.11) Now, we use Proposition 2.18 to bound the term J|π−1Σ (Bn)(Σ) −J|π−1Σ (Bn)(∂B n). Indeed, noticing that 
+
+J|π−1Σ (Bn) = Jμ⌞π−1Σ (Bn),42 LUCAS D. O’BRIEN 
+
+we may apply Proposition 2.18 to see that for any δ > 0, 
+
+J|π−1Σ (Bn)(Σ) − J|π−1Σ (Bn)(∂B n)
+
+≥ J|π−1Σ (Bn)(πΣ) − J|π−1Σ (Bn)(π∂B n ◦ πΣ)
+
+≥
+
+ Z 
+
+> Bn
+
+(π∂B n (σ) − σ) · B πΣ (σ)dν (σ) − ε2
+
+> n
+
+2δ γ(π−1Σ (Bn) \ Bδ(Σ)) 
+
+− Lε 2
+
+> n
+
+μ(π−1Σ (Bn) \ Bδ(Σ)) − 2M ε nμ(Bδ(Σ) ∩ π−1Σ (Bn)) 
+
+
+
+.
+
+By Theorem 3.3, the assumption that ν has no atoms implies that the barycentre field is trivial. Moreover, since ν(Bn) → 0 as n → ∞ , we have that Lε 2
+
+> n
+
+ν(Bn) = o(εn)2. Therefore, our bound simplifies to 
+
+J|π−1Σ (Bn)(Σ) − J|π−1Σ (Bn)(∂B n)
+
+≥ − ε2
+
+> n
+
+2δ ρ(Bn) − o(ε2
+
+> n
+
+) − 2M ε nμ(Bδ(Σ) ∩ π−1Σ (Bn)) .
+
+(4.12) Combining (4.11) and (4.12), we conclude that 
+
+J(Σ) − J(Σ ′
+
+> n
+
+) ≥ εn
+
+8d3/2 ρ(Bεn (0)) − ε2
+
+> n
+
+2δ ρ(Bn)
+
+− 2M ε nμ(Bδ(Σ) ∩ π−1Σ (Bn)) + o(ε2
+
+> n
+
+).
+
+which is the desired bound. □
+
+Finally, we may use the bound (4.10) to contradict the minimality of Σ. To do so, we choose δ in terms of εn so that the right hand side of (4.10) is positive for sufficiently large n. Recall the definition of C from (4.9). Since 
+
+C > 0, we may take 
+
+δ = 8d3/2
+
+C εn.
+
+Since μ(Bε(0)) = o(ε), we conclude that 2M ε nμ(B 16 d3/2 
+
+> Cεn
+
+(Σ) ∩ π−1Σ (Bn)) = o(ε2
+
+> n
+
+).
+
+Moreover, by the definition of C (4.9), we have 
+
+C
+
+2 ρ(Bn) ≤ ρ(Bεn (0)) for all n sufficiently large. So, substituting our choice of δ into (4.10), we get that for all sufficiently large n,
+
+J(Σ) − J(Σ ′
+
+> n
+
+) ≥ εn
+
+16 d3/2 ρ(Bεn (0)) + o(ε2
+
+> n
+
+).
+
+So, since lim n→∞ ρ(Bεn (0))  
+
+> εn
+
+> 0 by Proposition 3.2, if we choose n to be large enough we find that 
+
+J(Σ) − J(Σ ′
+
+> n
+
+) > 0,
+
+contradicting the minimality of Σ. □STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 43 
+
+4.3. Topological description of average distance minimizers. By com-bining Theorem 4.9 with the conditional results of [24], we may now prove the complete topological description of average distance minimizers when 
+
+ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing and satisfies ( α2). Recall from (3.11) that ord σ(Σ) := lim sup 
+
+> r→0+
+
+#(Σ ∩ ∂B r(σ)) .
+
+Theorem 4.11 (Complete topological description) . Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing and satisfies ( α2). Assume that μ(Bε(x)) = o(ε) for each x ∈ Rd. Then, any minimizer Σ ∈ S ℓ satisfies the following: (1) Σ does not contain any homeomorphic images of S1, and in particular any noncut point of Σ is an endpoint [23, Theorem 5.6]. (2) The number of noncut points of Σ is finite. (3) There are finitely many branching points, i.e. points x ∈ Σ with ord xΣ > 2, of Σ. (4) Every branching point x is a triple junction, i.e. ord xΣ = 3. 
+
+Proof. By Theorem 4.9, the conditional assumption that Σ has an atom in [24, Theorem 5.5] holds, and so the theorem follows from [24, Theorem 5.5]. □
+
+4.4. Bounding the number of endpoints of minimizers. From The-orem 4.11, we know that any minimizer Σ ∈ S ℓ of the average distance problem has only finitely many endpoints points. However, it is not clear how we should expect the number of endpoints points of Σ to behave as we vary ℓ. Intuitively, we may expect fewer endpoints points when ℓ is small compared to diam(supp μ); this is supported by the numerical results of [2, Figures 3-5 and Appendix B]. It is much less clear how we should expect the number of noncut points to change as ℓ grows larger: comparing the numerical results [2, Figures 3-5] and [2, Figures 10-12] seems to suggest qualitatively different growth rates for the number of endpoints even be-tween the cases when μ is the uniform measure on the unit ball versus the unit square in R2.In this section, we will provide an upper bound on the number of noncut points of a hard-constraint average distance minimizer Σ depending on ℓ and a quantity defined via the barycentre field. This further deepens our ability to understand the structure of a minimizer Σ in terms of its barycentre field. Let us remark that we do in general expect there to be some branching present as ℓ increases: lower bounds on the time at which a branching must occur in the quasi-static evolution for the average distance functional are provided by Lu [14] for certain configurations. Let Noncut(Σ) := {σ ∈ Σ | σ is a noncut point } (4.13) be the set of noncut points of Σ. Define 
+
+NΣ := #Noncut(Σ) ,44 LUCAS D. O’BRIEN 
+
+and let 
+
+n(ℓ) := min {NΣ | Σ ∈ S ℓ is an average distance minimizer };
+
+N (ℓ) := max {NΣ | Σ ∈ S ℓ is an average distance minimizer }. (4.14) We will refer to N (ℓ) and n(ℓ) as the upper and lower endpoint rates , re-spectively. This terminology is justified by Theorem 4.11 (1), which says that every noncut point of an optimizer Σ is an endpoint, and we have that 2 ≤ n(ℓ) ≤ N (ℓ) < ∞
+
+for all ℓ by Theorem 4.11 (2). 
+
+Remark 4.12. It is clear that minimizers of the average distance problem need not be unique: for example, when μ is the uniform measure on the unit disk, any minimizer remains a minimizer after a rotation. However, it is not clear whether we will have n(ℓ) = N (ℓ) for every ℓ > 0. We now combine Theorem 3.3 and Theorem 4.6 to obtain a version of [3, Proposition 7.1] in which the constant is computed in terms of the barycentre field. 
+
+Lemma 4.13 (Comparison of noncut points) . Assume ϕ ∈ C1,1loc ([0 , ∞)) is strictly increasing, and satisfies ( α2). Let Σ ∈ S ℓ be optimal. Then, for any noncut points σ1, σ 2 ∈ Σ, 14d3/2 ρπΣ {σ1} ≤ |B πΣ (σ2)|νπΣ {σ2}
+
+Proof. Combining Theorem 4.6, Remark 4.7, and Theorem 3.3, we get 
+
+ℓ
+
+4d3/2 ρπΣ {σ1} ≤ βΣ
+
+≤ sup 
+
+> ξ∈Lip ∗(Σ)
+
+1Lip( ξ)
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ)
+
+≤ ℓ|B πΣ (σ2)|νπΣ {σ2},
+
+so dividing through by ℓ yields the desired inequality. □
+
+Now, we will use Lemma 4.13 to provide an upper bound on the number of noncut points of an average distance minimizer Σ. 
+
+Proposition 4.14 (Upper bound on the number of endpoints) . Assume 
+
+ϕ ∈ C1,1loc ([0 , ∞)) satisfies ( α2). Assume that μ(Bε(x)) = o(ε) for each x ∈
+
+Rd. Let Σ ∈ S ℓ be optimal, and define ΛΣ := inf {Lip( f ) |
+
+Z
+
+> Noncut(Σ)
+
+|B πΣ (σ)|dν (σ) ≤
+
+Z
+
+> Σ
+
+f (σ) · B πΣ (σ)dν (σ)}.
+
+(4.15) Then, for any σ∗ ∈ Noncut(Σ), 
+
+NΣ ≤ 4d3/2ΛΣℓ. STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 45 
+
+Proof. Let f be a Lipschitz function satisfying the defining inequality in (4.15). By Lemma 4.13, for any noncut point σ∗ ∈ Noncut(Σ), 14d3/2 ρπΣ {σ∗} ≤ |B πΣ (σ∗)|νπΣ {σ∗}.
+
+Since Noncut(Σ) is finite by Theorem 4.11, we may take the sum over all 
+
+σ∗ ∈ Noncut(Σ) to yield 14d3/2 ρ(Noncut(Σ)) ≤
+
+Z
+
+> Noncut(Σ)
+
+|B πΣ (σ)|dν (σ)
+
+≤
+
+Z
+
+> Σ
+
+f (σ) · B πΣ (σ)dν (σ).
+
+But by Theorem 3.3, for any noncut point σ∗ ∈ Noncut(Σ), we have 
+
+Z
+
+> Σ
+
+f (σ) · B πΣ (σ)dν (σ) ≤ Lip( f ) sup 
+
+> ξ∈Lip ∗(Σ)
+
+Z
+
+> Σ
+
+ξ(σ) · B πΣ (σ)dν πΣ (σ)
+
+≤ Lip( f )ℓ|B πΣ (σ∗)|νπΣ (σ∗),
+
+and so 14d3/2 ρ(Noncut(Σ)) ≤ Lip( f )ℓ|B πΣ (σ∗)|ν{σ∗}.
+
+Summing over all σ∗ ∈ Noncut(Σ) again, we get 
+
+NΣ
+
+14d3/2 ρ(Noncut(Σ)) ≤ Lip( f )ℓ
+
+Z
+
+> Noncut(Σ)
+
+|B πΣ (σ)|dν (σ).
+
+Recall that by the triangle inequality, for any measurable E, we have 
+
+Z
+
+> E
+
+|B πΣ (σ)|dν (σ) ≤ ρ(E).
+
+So, since ρ(Noncut(Σ)) > 0 by Corollary 4.8 and Theorem 4.9, by taking the infimum over all f satisfying the inequality in (4.15) we conclude that 
+
+NΣ ≤ 4d3/2ΛΣℓ. 
+
+□
+
+Even in the simplest cases, little is currently known about the behaviour of N (ℓ): indeed, it is not even clear whether N (ℓ) → ∞ as ℓ → ∞ when μ
+
+is the uniform measure on the unit ball in R2, c.f. [2, Figures 3-5]. A better understanding of the behaviour of n(ℓ) and N (ℓ) would be very interest-ing, and Proposition 4.14 exhibits the usefulness of the barycentre field for studying this problem. 
+
+References    
+
+> [1] Dimitri P. Bertsekas and Steven E. Shreve, Stochastic Optimal Control: The Discrete-Time Case , Athena Scientific, 1978. [2] Guiseppe Buttazzo, Edouard Oudet, and Eugene Stepanov, Optimal transportation problems with free Dirichlet regions , Variational Methods for Discontinuous Structures (2002), 41 - 65. 46 LUCAS D. O’BRIEN
+
+[3] Giuseppe Buttazzo and Eugene Stepanov, Optimal transportation networks as free Dirichlet regions for the Monge-Kantorovich problem , Annali della Scuola Normale Superiore di Pisa - Classe di Scienze 2 (2003), no. 4, 631-678. [4] Giuseppe Buttazzo, Edoardo Mainini, and Eugene Stepanov, Stationary configura-tions for the average distance functional and related problems , Control and cybernetics 
+
+38 (2009), no. 4, 1107-1130. [5] Antonin Chambolle, Vincent Duval, and Jo˜ ao Miguel Machado, One-dimensional approximation of measures in Wasserstein distances , Journal de l’ ´Ecole polytechnique 
+
+12 (2025), 101-145. [6] Sylvain Delattre and Aur´ elie Fischer, On principal curves with a length constraint ,Annales de l’Institut Henri Poincar´ e, Probabilit´ es et Statistiques 56 (2020), no. 3, 2108-2140. [7] Trevor Hastie and Werner Stuetzle, Principal curves , Journal of the American Sta-tistical Association 84 (1989), no. 406, 502-516. [8] Bal´ azs K´ egl, Adam Krzyzak, Tam´ as Linder, and Kenneth Zeger, Learning and design of principal curves , IEEE transactions on pattern analysis and machine intelligence 
+
+22 (2000), no. 3. [9] Slav Kirov and Dejan Slepˇ cev, Multiple Penalized Principal Curves: Analysis and Computation , J. Math. Imaging Vision 59 (2017), no. 2, 234–256, DOI 10.1007/s10851-017-0730-8. [10] Forest Kobayashi, Jonathan Hayase, and Young-Heon Kim, Monge-Kantorovich fit-ting with Sobolev budgets , arXiv (2024). https://arxiv.org/abs/2409.16541. [11] K. Kuratowski, Topology: Volume II, Volume 2 , Elsevier, Oxford, England, UK, 2014. [12] A. Lemenant, About the Regularity of Average Distance Minimizers in R2, Journal of Convex Analysis 18 (2011), no. 4, 949–981. [13] , A presentation of the average distance minimizing problem , Journal of Math-ematical Sciences 181 (2012), 820-836. [14] Xin Yang Lu, Branching time estimates in quasi-static evolution for the average dis-tance functional , Communications in Applied Analysis 16 (2012), no. 2, 229-248. [15] , More counterexamples to regularity of minimizers of the average-distance problem , Advances in Calculus of Variations 9 (2015), no. 1, 41-63. [16] Xin Yang Lu and Dejan Slepˇ cev, Average-distance problem for parameterized curves , ESAIM Control Optim. Calc. Var. 22 (2016), no. 2, 404–416, DOI 10.1051/cocv/2015011. [17] , Average-distance problem with curvature penalization for data parameter-ization: regularity of minimizers , ESAIM: COCV 27 (2021), no. 8, 1-25, DOI 10.1051/cocv/2021002. [18] Jo˜ ao Miguel Machado, Absence of loops for the Wasserstein-H1 problem: The concentration/blow-up argument , Advances in Calculus of Variations, DOI 10.1515/acv-2025-0071. [19] Lucas O’Brien, Forest Kobayashi, and Young-Heon Kim, Structure of average distance minimizers in general dimensions , arXiv (2025). https://arxiv.org/abs/2503.23256. [20] F. Santambrogio and P. Tilli, Blow-up of optimal sets in the irrigation problem , Jour-nal of Geometric Analysis 15 (2005), 343–362. [21] Xin Yang Lu and Dejan Slepˇ cev, Properties of minimizers of average-distance problem via discrete approximation of measures , SIAM Journal on Mathematical Analysis 45 
+
+(2013), no. 5, 3114 - 3131. [22] Dejan Slepˇ cev, Counterexample to regularity in the average distance problem , Annales de l’Institut Henri Poincar´ e C, Analyse non lin´ eaire 31 (2014), no. 1, 169-184. [23] Emanuele Paolini and Eugene Stepanov, Qualitative properties of maximum and av-erage distance minimizers in Rn, Journal of Mathematical Sciences 112 (2004), no. 3, 3290 - 3309. STRUCTURE OF OPTIMAL FREE DIRICHLET REGIONS 47 
+
+[24] Eugene Stepanov, Partial geometric regularity of some optimal connected transporta-tion networks , Journal of mathematical sciences 132 (2006), no. 4, 522-552. 
+
+Lucas D. O’Brien, Department of Mathematics, Massachusetts Institute of Technology, Cambridge, Massachusetts, Email: obrie720@mit.edu

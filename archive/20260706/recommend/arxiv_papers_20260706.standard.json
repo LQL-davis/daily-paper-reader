@@ -1,0 +1,241 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-06T21:19:05.870187+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.30826v1",
+      "source": "arxiv",
+      "title": "On the structure of optimal free Dirichlet regions in mass transportation problems",
+      "abstract": "For a compactly supported probability measure $μ$ on the $d$-dimensional space $\\mathbb{R}^d$, the average distance problem asks us to minimize the average distance functional over all compact, connected, $Σ\\subseteq \\mathbb{R}^d$ satisfying the Hausdorff $1$-measure constraint $\\mathcal{H}^1(Σ) \\leq \\ell$. This problem was first introduced in 2002 by Buttazzo, Oudet, and Stepanov to study optimal transport problems with free regions on which the transport cost vanishes, and has undergone a considerable amount of research since. Most recently, Kobayashi, Kim, and the author studied the structure of these regions using the barycentre field, a tool for studying the average distance functional introduced previously by Kobayashi, Hayase, and Kim. In this paper, we build upon this work to prove in much greater generality a topological description of minimizers of the average distance problem conjectured by Buttazzo, Oudet, and Stepanov. In particular, we prove this conjecture in all dimensions in the case originally studied by these authors.",
+      "authors": [
+        "Lucas D. O'Brien"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2026-06-29T18:56:52+00:00",
+      "link": "https://arxiv.org/pdf/2606.30826v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "optimal free Dirichlet regions in mass transportation problems",
+      "llm_evidence_cn": "质量传输问题中最优自由狄利克雷区域的结构研究，涉及边界优化",
+      "llm_evidence": "质量传输问题中最优自由狄利克雷区域的结构研究，涉及边界优化",
+      "canonical_evidence": "质量传输问题中最优自由狄利克雷区域的结构研究，涉及边界优化",
+      "llm_tldr_en": "Analyzes the structure of optimal free Dirichlet regions in the average distance problem, a shape optimization problem where the goal is to minimize the average distance functional over subsets with a length constraint, using the barycentre field to characterize optimal boundaries.",
+      "llm_tldr_cn": "本文研究质量传输中的平均距离问题，即最小化平均距离泛函，寻找满足豪斯多夫1-测度约束的最优连通区域。通过分析最优化区域的结构，特别是自由狄利克雷区域，揭示了其与最优化运输计划的深刻联系。该工作为自由边界形状优化问题提供了新的几何视角和理论工具。",
+      "llm_tldr": "本文研究质量传输中的平均距离问题，即最小化平均距离泛函，寻找满足豪斯多夫1-测度约束的最优连通区域。通过分析最优化区域的结构，特别是自由狄利克雷区域，揭示了其与最优化运输计划的深刻联系。该工作为自由边界形状优化问题提供了新的几何视角和理论工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.00095v1",
+      "source": "arxiv",
+      "title": "SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling",
+      "abstract": "Generative models have emerged as scalable surrogates for physical simulation, yet they offer no guarantee that their outputs respect the conservation laws, boundary conditions, and nonlinear invariants that govern the underlying physics. Constrained sampling closes this gap, enforcing such constraints exactly at inference time without retraining, but at a computational cost: projection, correction, and trajectory-optimization steps are repeated during sampling, with these steps becoming expensive for nonlinear constraints. Standard ML frameworks exacerbate this: their dense tensor algebra and limited sparse solver composability obscure the structure that physical constraints naturally induce, making efficient batched nonlinear optimization difficult to realize in practice. We address this bottleneck by exploiting the structure that sample-wise batching and local PDE couplings induce in the projection subproblems -- namely, block-sparse Jacobian and KKT systems -- exposing this structure using ExaModels.jl and solving the resulting sparse nonlinear programs with MadNLP.jl and GPU sparse factorization. Applied to Physics-Constrained Flow Matching (PCFM), on PDE benchmarks with linear, nonlinear, one-dimensional, and two-dimensional constraints, this approach accelerates nonlinear constraint projection while maintaining constraint satisfaction. These results show that sparse GPU nonlinear optimization is a practical foundation for constrained generative sampling in scientific machine learning.",
+      "authors": [
+        "Alaina Kolli",
+        "Theodoros Xenakis",
+        "Utkarsh Utkarsh",
+        "Pengfei Cai",
+        "Rafael Gomez-Bombarelli",
+        "Alan Edelman",
+        "Christopher Vincent Rackauckas"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CE"
+      ],
+      "published": "2026-06-30T19:35:09+00:00",
+      "link": "https://arxiv.org/pdf/2607.00095v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "enforcing boundary conditions via constrained optimization in generative models",
+      "llm_evidence_cn": "通过约束优化在生成模型中强制满足边界条件",
+      "llm_evidence": "通过约束优化在生成模型中强制满足边界条件",
+      "canonical_evidence": "通过约束优化在生成模型中强制满足边界条件",
+      "llm_tldr_en": "Proposes SNAP-FM, which uses sparse nonlinear accelerated projection to enforce physical constraints including boundary conditions exactly during generative model inference, achieving efficient constrained optimization for boundary adherence.",
+      "llm_tldr_cn": "生成模型难以保证输出满足物理守恒律和边界条件。本文提出SNAP-FM方法，在推理阶段通过稀疏非线性加速投影，对生成样本施加精确的边界条件等物理约束，将约束采样视为优化问题。该方法利用问题的稀疏结构实现高效批处理，在保证物理一致性的同时提升了计算性能。",
+      "llm_tldr": "生成模型难以保证输出满足物理守恒律和边界条件。本文提出SNAP-FM方法，在推理阶段通过稀疏非线性加速投影，对生成样本施加精确的边界条件等物理约束，将约束采样视为优化问题。该方法利用问题的稀疏结构实现高效批处理，在保证物理一致性的同时提升了计算性能。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01478v1",
+      "source": "arxiv",
+      "title": "Boundary-Aware Quantization: Finite-Scale Decision Geometry of Neural Classifiers",
+      "abstract": "We measured quantization-induced decision-boundary changes using local logit-margin radii, first-order boundary displacement, normal variation, slice-boundary Jaccard distance, grid prediction changes, multiclass junction counts, and low-margin boundary-band flips. On the digits benchmark, 8-bit weight quantization preserved all test labels while producing boundary-mask Jaccard \\(0.428\\) on the PCA slice; at 4 bits, accuracy remained \\(0.9733\\), while boundary Jaccard rose to \\(0.970\\) and median local boundary shift reached \\(0.0290\\). Interpolation between adjacent quantization levels localized the visible reconfigurations at multiclass junctions, with 12, 34, and 17 triple-junction cells in the selected transitions. Calibration-to-test stopping reduced the digits held-out flip rate from \\(0.0094\\) to \\(0.0022\\) and boundary Jaccard from \\(0.825\\) to \\(0.524\\); the same stopping rule also reduced flips on MNIST and Fashion-MNIST. On official CIFAR-10 subsets, PTQ-W selected by accuracy gave 6-bit flip \\(0.0367\\) and boundary Jaccard \\(0.184\\), whereas boundary-aware stopping selected 8-bit flip \\(0.0083\\) and boundary Jaccard \\(0.048\\). On full CIFAR-10 with three seeds, 6-bit PTQ-W lost \\(0.0029\\) accuracy relative to float, changed \\(5.3\\%\\) of held-out decisions, and changed \\(24.5\\%\\) of low-margin boundary-band decisions. A fixed-bit boundary-gap rounding term changed the trade-off at 4 bits by reducing boundary Jaccard from \\(0.457\\) to \\(0.435\\) and boundary-band pair-order flip from \\(0.3600\\) to \\(0.3558\\), with an accuracy trade-off; the 3-bit stress test exposed the tuning limit of this surrogate. Calibration boundary Jaccard predicted held-out boundary Jaccard across PTQ-W and optimized rounding variants with \\(r=0.947\\)--\\(0.994\\).",
+      "authors": [
+        "O. M. Kiselev"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC",
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-01T21:19:06+00:00",
+      "link": "https://arxiv.org/pdf/2607.01478v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Studies quantization-induced decision boundary changes, directly relevant to optimizing decision boundaries for classification.",
+      "llm_evidence_cn": "研究量化引起的决策边界变化，直接相关于优化分类决策边界。",
+      "llm_evidence": "研究量化引起的决策边界变化，直接相关于优化分类决策边界。",
+      "canonical_evidence": "研究量化引起的决策边界变化，直接相关于优化分类决策边界。",
+      "llm_tldr_en": "Analyzes quantization-induced decision boundary shifts using metrics like boundary displacement and Jaccard distance. Shows 4-bit quantization retains accuracy but significantly changes boundary geometry. Provides insights for boundary optimization under hardware constraints.",
+      "llm_tldr_cn": "该论文解决了在有限精度条件下神经网络决策边界稳定性的问题。它提出了一套边界感知的度量框架，包括局部逻辑半径、边界位移和Jaccard距离等，以量化权重量化引起的边界几何变化。在数字数据集上，实验显示4位量化保持97%以上准确率，但边界Jaccard距离显著增加，表明边界结构发生实质重组。这些发现对在资源受限下优化分类器决策边界提供了定量依据。",
+      "llm_tldr": "该论文解决了在有限精度条件下神经网络决策边界稳定性的问题。它提出了一套边界感知的度量框架，包括局部逻辑半径、边界位移和Jaccard距离等，以量化权重量化引起的边界几何变化。在数字数据集上，实验显示4位量化保持97%以上准确率，但边界Jaccard距离显著增加，表明边界结构发生实质重组。这些发现对在资源受限下优化分类器决策边界提供了定量依据。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02334v1",
+      "source": "arxiv",
+      "title": "A Unified CutFEM Formulation for Finite-Strain Elasticity: Energy Minimisation and Corner Singularities",
+      "abstract": "We present a fully variational, model-independent formulation of the Cut Finite Element Method (CutFEM) for finite-strain elasticity. The discrete problem is the stationarity condition of a augmented energy functional consisting of the bulk hyperelastic energy, the Nitsche terms that impose the boundary conditions weakly, and the ghost-penalty stabilisation. The residual and the (symmetrised) tangent follow from this functional by successive variations. Automatic differentiation (AD) generates the first Piola--Kirchhoff stress tensor and the elasticity tensor directly from the scalar energy density, avoiding manual re-derivation when exchanging hyperelastic models. To our knowledge, this is the first unfitted finite-strain scheme combining an energy-only, model-independent construction with AD and an accuracy analysis at unfitted boundaries.   Analysis of the linearised problem solved at each Newton step establishes cut-independent coercivity, continuity, and an $O(h^{-2})$ condition number bound, yielding a quasi-optimal convergence theorem for regular solutions through the Brezzi--Rappaz--Raviart framework. Numerically, the method attains optimal $h$-convergence for linear, quadratic, and cubic elements on a smooth test case. Furthermore, we quantify the method's accuracy limit at mixed Dirichlet--Neumann junctions using the Kolosov--Muskhelishvili characteristic equation. The exact solution's corner singularity caps the convergence rate identically for fitted and unfitted methods. We demonstrate that local mesh refinement removes this bound, with the unfitted discretisation inheriting the recovered optimal rates and cut-independent constants.",
+      "authors": [
+        "Michał Tomasz Wichrowski",
+        "Ella Godiva Noomen"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA"
+      ],
+      "published": "2026-07-02T15:39:06+00:00",
+      "link": "https://arxiv.org/pdf/2607.02334v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "unified CutFEM formulation for finite-strain elasticity with energy minimisation and Nitsche boundary conditions",
+      "llm_evidence_cn": "统一CutFEM变分公式，通过能量极小化和Nitsche方法处理边界条件",
+      "llm_evidence": "统一CutFEM变分公式，通过能量极小化和Nitsche方法处理边界条件",
+      "canonical_evidence": "统一CutFEM变分公式，通过能量极小化和Nitsche方法处理边界条件",
+      "llm_tldr_en": "Proposes a fully variational CutFEM formulation for finite-strain elasticity, where boundary conditions are imposed weakly via Nitsche terms within an augmented energy functional, enabling automatic differentiation for stress tensors and handling corner singularities.",
+      "llm_tldr_cn": "针对有限应变弹性问题，本文提出一种完全变分的CutFEM方法，通过增强能量泛函将边界条件弱施加为Nitsche项，并用自动微分简化模型切换。该方法统一了各种超弹性模型的处理，并有效应对角点奇异性挑战，为非拟合网格上的弹性问题求解提供了通用的优化框架。",
+      "llm_tldr": "针对有限应变弹性问题，本文提出一种完全变分的CutFEM方法，通过增强能量泛函将边界条件弱施加为Nitsche项，并用自动微分简化模型切换。该方法统一了各种超弹性模型的处理，并有效应对角点奇异性挑战，为非拟合网格上的弹性问题求解提供了通用的优化框架。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.30333v1",
+      "source": "arxiv",
+      "title": "Local-Minima-Preserving Continuous Relaxation of Ising Problems",
+      "abstract": "The generalized Ising problem captures a broad spectrum of hard combinatorial problems, including MAX-CUT, Number Partitioning (NPP), and Maximum Independent Set. In this work, we consider the notion of one-flip local minima for this problem. We construct a polynomial relaxation and prove the landscape equivalence theorem: there exists a one-to-one correspondence between the local minima of the relaxation and the one-flip minima of the original Ising problem. This guarantee reduces the Ising problem to finding the local minima of a smooth function, allowing us to leverage gradient-based optimizers such as ADAM. We demonstrate that our method is scalable and it achieves strong performance across challenging benchmarks, including spin-glass models, MAX-CUT, and NPP.",
+      "authors": [
+        "Debraj Banerjee",
+        "Santanu Mahapatra",
+        "Kunal N. Chaudhury"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC",
+        "cs.LG",
+        "physics.comp-ph"
+      ],
+      "published": "2026-06-29T14:13:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.30333v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Continuous relaxation of Ising problems like MAX-CUT, which optimize graph partitions (boundaries), preserves local minima for efficient optimization",
+      "llm_evidence_cn": "将MAX-CUT等Ising问题（图划分边界优化）连续松弛，保持局部极小值以实现高效优化",
+      "llm_evidence": "将MAX-CUT等Ising问题（图划分边界优化）连续松弛，保持局部极小值以实现高效优化",
+      "canonical_evidence": "将MAX-CUT等Ising问题（图划分边界优化）连续松弛，保持局部极小值以实现高效优化",
+      "llm_tldr_en": "Proposes a polynomial relaxation for Ising problems that preserves one-flip local minima, enabling gradient-based optimization of graph cut boundaries.",
+      "llm_tldr_cn": "针对组合优化中Ising问题（如MAX-CUT）的困难，提出一种多项式连续松弛方法，证明了松弛后光滑函数的局部极小与原始问题的一翻转局部极小一一对应，从而可利用ADAM等梯度优化器求解，在自旋玻璃模型、MAX-CUT等基准上取得强扩展性和高性能，为图划分等边界优化问题提供了新途径。",
+      "llm_tldr": "针对组合优化中Ising问题（如MAX-CUT）的困难，提出一种多项式连续松弛方法，证明了松弛后光滑函数的局部极小与原始问题的一翻转局部极小一一对应，从而可利用ADAM等梯度优化器求解，在自旋玻璃模型、MAX-CUT等基准上取得强扩展性和高性能，为图划分等边界优化问题提供了新途径。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundaries in various fields",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.01449v1",
+      "source": "arxiv",
+      "title": "Geometry-Aware R-Structured Kolmogorov-Arnold Networks",
+      "abstract": "We propose a novel hybrid neural architecture, the Geometry-aware R-Structured Kolmogorov-Arnold Network (GRS-KAN), which integrates V.L.Rvachev's R-functions into the Kolmogorov-Arnold Network (KAN) framework. The proposed approach combines two complementary modeling mechanisms: smooth nonlinear structure is learned by KAN branches, while known geometric or logical constraints are encoded analytically using differentiable R-functions. This enables explicit representation of discontinuities, feasible regions, and implicit geometric boundaries within a trainable neural architecture.   The framework implements differentiable logical operations through R-conjunctions and R-disjunctions, allowing complex geometric supports to be represented analytically and incorporated directly into regression models. Several GRS-KAN variants are introduced, including additive, multiplicative, and agnostic branch-weighted architectures.   The method is demonstrated on regression problems involving discontinuities with circular and rectangular supports. Numerical experiments show that explicit geometric encoding substantially improves predictive accuracy and boundary localization compared with standard KANs. In the considered benchmarks, geometry-aware GRS-KAN models reduce test RMSE by up to 67% while simultaneously improving interpretability through explicit analytical representation of the learned geometric structure. The agnostic variant further demonstrates the ability to automatically determine whether geometric priors are beneficial for a given learning task.",
+      "authors": [
+        "Sergei Kucherenko",
+        "Nilay Shah"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.NA"
+      ],
+      "published": "2026-07-01T20:14:24+00:00",
+      "link": "https://arxiv.org/pdf/2607.01449v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "encodes geometric constraints and boundaries analytically in neural networks",
+      "llm_evidence_cn": "在神经网络中解析编码几何约束和边界",
+      "llm_evidence": "在神经网络中解析编码几何约束和边界",
+      "canonical_evidence": "在神经网络中解析编码几何约束和边界",
+      "llm_tldr_en": "Proposes GRS-KAN that integrates R-functions into KAN to explicitly represent geometric boundaries and constraints, enabling differentiable handling of boundaries for optimization tasks.",
+      "llm_tldr_cn": "针对神经网络难以显式表示几何边界的问题，提出将R函数集成到KAN中的GRS-KAN架构。该方法可解析编码几何约束、支持区域和隐式边界，实现边界的可微处理。实验表明该架构能有效表示复杂几何支撑，为含边界约束的优化问题提供了可微表示工具。",
+      "llm_tldr": "针对神经网络难以显式表示几何边界的问题，提出将R函数集成到KAN中的GRS-KAN架构。该方法可解析编码几何约束、支持区域和隐式边界，实现边界的可微处理。实验表明该架构能有效表示复杂几何支撑，为含边界约束的优化问题提供了可微表示工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

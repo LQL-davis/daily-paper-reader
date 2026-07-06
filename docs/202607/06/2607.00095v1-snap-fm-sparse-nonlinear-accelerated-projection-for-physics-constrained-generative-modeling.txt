@@ -1,0 +1,927 @@
+Title: SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling
+
+URL Source: https://arxiv.org/pdf/2607.00095v1
+
+Published Time: Thu, 02 Jul 2026 00:04:24 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+Alaina Kolli * 1 Theodoros Xenakis * 1 2 Utkarsh Utkarsh * 1 Pengfei Cai 1 Rafael G´ omez-Bombarelli 1
+
+Alan Edelman 1 Christopher V. Rackauckas 1
+
+# Abstract 
+
+Generative models have emerged as scalable sur-rogates for physical simulation, yet they offer no guarantee that their outputs respect the conserva-tion laws, boundary conditions, and nonlinear in-variants that govern the underlying physics. Con-strained sampling closes this gap, enforcing such constraints exactly at inference time without re-training, but at a computational cost: projection, correction and trajectory-optimization steps are repeated during sampling, with these steps becom-ing expensive for nonlinear constraints. Standard ML frameworks exacerbate this: their dense ten-sor algebra and limited sparse solver composabil-ity obscure the structure that physical constraints naturally induce, making efficient batched non-linear optimization difficult to realize in practice. We address this bottleneck by exploiting the struc-ture that sample-wise batching and local PDE couplings induce in the projection subproblems – namely, block-sparse Jacobian and KKT systems – exposing this structure using ExaModels.jl 
+
+and solving the resulting sparse nonlinear pro-grams with MadNLP.jl and GPU sparse factor-ization. Applied to Physics-Constrained Flow Matching (PCFM), on PDE benchmarks with linear, nonlinear, one-dimensional, and two-dimensional constraints, this approach accelerates nonlinear constraint projection while maintaining constraint satisfaction. These results show that sparse GPU nonlinear optimization is a practical foundation for constrained generative sampling in scientific machine learning. 
+
+> 1
+
+Massachusetts Institute of Technology 2Norwegian University of Science and Technology. Correspondence to: Christopher V. Rackauckas <crackauc@mit.edu >.
+
+Proceedings of the AI4Physics Workshop at the 43 rd International Conference on Machine Learning (AI4Physics@ICML 2026) ,Seoul, South Korea. 2026. Copyright 2026 by the author(s). 
+
+# 1. Introduction 
+
+Generative models have emerged as flexible surrogates for physical simulation, learning solution distributions for par-tial differential equations (PDEs) and amortizing inference across varying physical conditions (Price et al., 2023; Yuan et al., 2023; Huang et al., 2024; Utkarsh et al., 2025a). Yet their deployment in scientific settings is limited by a fun-damental gap: unconstrained generative models do not, by themselves, guarantee physical fidelity. Conservation of mass, momentum, and energy, nonlinear boundary condi-tions, and invariants tied to the governing equations are central to classical numerical simulation, but are routinely violated by learned surrogates unless explicitly enforced (Raissi et al., 2019; Li et al., 2021). Closing this gap with-out sacrificing the amortized inference advantage of genera-tive models is the central challenge of physics-constrained generative modeling. Constraint enforcement in generative sampling can be broadly divided into soft and hard approaches. Soft meth-ods, including training-time penalty losses (Baldan et al., 2025; Huang et al., 2024), PINN-style residual regulariza-tion, physics-informed neural operators, and architecture-level inductive biases (Greydanus et al., 2019; Richter-Powell et al., 2022), encourage constraint satisfaction ap-proximately. These approaches are computationally at-tractive and scale naturally within modern deep learning pipelines, but they generally provide no exact feasibility guarantees and can exhibit increased constraint violation under distribution shift. Hard-constrained methods instead aim to enforce feasibility exactly, either through inference-time correction and opti-mization (Utkarsh et al., 2025a; Christopher et al., 2024; Cheng et al., 2025; R ¨omer et al., 2024; Yuan et al., 2023) or through end-to-end constrained formulations (Utkarsh et al., 2025b). In the simplest case, one can apply a final post-hoc projection that maps a generated sample onto the feasible manifold, but such a late correction can introduce substan-tial distributional distortion. To reduce this mismatch, many methods interleave corrections with the sampling dynam-ics, repeatedly guiding or projecting intermediate states toward feasibility (Utkarsh et al., 2025a; Cheng et al., 2025; 1
+
+> arXiv:2607.00095v1 [cs.LG] 30 Jun 2026 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling
+
+Christopher et al., 2024; Ben-Hamu et al., 2024). Relaxed variants further delay or soften early corrections, reflecting the fact that early iterates often remain noise-like and may be harmed by overly strict constraint enforcement. Despite these algorithmic differences, hard-constrained test-time methods share a common computational burden: feasi-bility is enforced through repeated optimization during sam-pling (Utkarsh et al., 2025a; Cheng et al., 2025; Christopher et al., 2024). In projection-based methods, this burden is especially explicit: each correction maps an intermediate state onto, or closer to, the constraint manifold by solving a constrained optimization problem. For linear constraints, this projection often reduces to a single matrix solve. For the nonlinear conservation laws governing many physical systems, including flux constraints, integral invariants, and nonlinear boundary conditions, the same step requires iter-ative nonlinear optimization. Since this optimization must be performed repeatedly across sampling steps and over batches of generated samples, it can dominate the total cost of hard-constrained generation. The central question is therefore not merely whether to enforce hard constraints, but how to make the resulting projection and correction steps fast enough to be practical at scale. The algorithmic response is well known from large-scale optimization: exploit the sparsity induced by the constraints, and solve the resulting KKT systems using sparse linear algebra (Nocedal & Wright, 2006; Pacaud & Shin, 2024; Rennich et al., 2014; Lu & Yang, 2025). However, this strategy is difficult to deploy inside modern generative sam-pling pipelines. Standard ML frameworks are optimized primarily for dense batched tensor algebra, and although sparse tensor support exists, it does not yet provide a ma-ture end-to-end stack for batched nonlinear programming, interior-point globalization, GPU-resident sparse KKT fac-torization, and integration with the sampling loop (Paszke et al., 2019; Bradbury et al., 2018). This gap between con-strained optimization practice and deep generative modeling infrastructure motivates our approach. The projection NLPs arising in batched hard-constrained sampling are highly structured. Across the batch, the con-straint Jacobian is block diagonal because each sample’s constraints are independent of the others. Within each block, the Jacobian is sparse because physical conservation laws and PDE discretizations couple only local spatial or tem-poral degrees of freedom. This two-level structure yields sparse KKT systems that are amenable to GPU-resident sparse factorization, avoiding the dense tensorization that would otherwise make nonlinear projection prohibitively expensive. We realize this idea through SNAP-FM, a sparse nonlin-ear projection framework based on Physics-Constrained Flow Matching (PCFM) (Utkarsh et al., 2025a). SNAP-FM uses ExaModels.jl to symbolically compile the struc-tured projection NLP, MadNLP.jl as the interior-point solver, and GPU sparse factorization for the resulting KKT systems. Built on PCFM, which enforces arbitrary nonlin-ear constraints zero-shot in pretrained flow models, SNAP-FM targets the main computational bottleneck of constraint enforcement: repeated nonlinear projection during sam-pling. Across heat, reaction-diffusion, Burgers, and two-dimensional Navier–Stokes benchmarks, SNAP-FM accel-erates the projection step relative to generic optimization baselines while maintaining constraint satisfaction. 
+
+# 2. Physics Constrained Flow Matching 
+
+This work builds directly on the Physics-Constrained Flow Matching framework introduced by Utkarsh et al. (2025a), with the goal of extending it to a domain the current imple-mentation doesn’t support: the efficient enforcement of non-linear constraints at scale. Among recent constraint-aware generative models, PCFM is the natural foundation for our work, also showing promising extension to different scien-tific domains such as atomistic generative models (Cai et al., 2026). It ensures constraint satisfaction exactly at inference time, requiring no retraining or architectural modifications of the underlying flow model, operating entirely post-hoc. It projects intermediate flow states onto constraint manifolds at inference time, without requiring gradient information during training, enabling zero-shot constraint enforcement up to machine precision for pretrained flow matching mod-els. Unlike prior zero-shot approaches restricted to linear or non-overlapping constraints, it admits arbitrary nonlinear and coupled constraints within a single framework. These characteristics make PCFM a solid foundation on which to build a more general-purpose constrained sampling mecha-nism. 
+
+2.1. Sampling 
+
+The sampling algorithm utilized in PCFM is a constraint-guided algorithm that interleaves lightweight constraint cor-rections with marginally consistent flow updates. The proce-dure consists of four main steps: forward shooting, Gauss-Newton projection, reverse updating, and relaxed constraint corrections. Let vθ (u, τ ) denote the pretrained flow model, which de-fines an ODE transporting samples u0 ∼ π0 from a tractable prior to solution-like outputs u1 ∼ π1 over flow time 
+
+τ ∈ [0 , 1] . Given a constraint function h(u), PCFM en-forces h(u1) = 0 by discretizing [0 , 1] into N uniform sub-steps. At each timestep, τ → τ ′ = τ + ∆ τ , three operations are performed: a one-step extrapolation to the terminal time using the learned velocity, a projection of the resulting can-didate onto the constraint manifold M = {u : h(u) = 0 },and a linear interpolation back to τ ′ along the optimal-2SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+transport displacement (Utkarsh et al., 2025a): 
+
+ˆu1 = uτ + (1 − τ ) vθ (uτ , τ ), (1) 
+
+u1 = arg min  
+
+> u
+> 12
+
+∥u − ˆu1∥2 s.t. h(u) = 0 , (2) 
+
+uτ ′ = u0 + τ ′(u1 − u0). (3) The full PCFM algorithm of (Utkarsh et al., 2025a) ad-ditionally permits a penalized correction at each step, 
+
+arg min u ∥u−ˆuτ ′ ∥2 +λ∥h(u+(1 −τ ′)vθ (u, τ ′)) ∥2, to com-pensate for nonlinearity under coarse discretization. How-ever, we omit it, as in our experiments, the streamlined three-step variant is sufficient. The key structural feature exploited in this work is that the loop above is constraint-agnostic. Every operation except the projection in step 2 is a fixed arithmetic kernel, learning the entire specifications of the problem to be funneled into the projection subproblem. The cost of a single sampling pass therefore can be divided into two main terms: the con-straint projections and the velocity evaluations. The forward shoot and OT pullback are independent of the constraints being enforced, whereas the projection step scales with the number of imposed constraints and their complexities, caus-ing the projection step to be the bottleneck of the sampling, especially in these more complex cases. The remainder of this work focuses on optimizing the projection step via ex-ploitation of the sparsity in the Jacobians, since constraints are independent across samples, and temporal couplings are typically local. 
+
+# 3. Theory 
+
+In this section, we discuss common constraints imposed on PDE systems and derive structural properties of the associ-ated constraint Jacobians. We adopt notation similar to that of Utkarsh et al. (2025a). Specifically, we consider partial differential equations on a bounded spatiotemporal domain Ω × [0 , T ], where Ω ⊂ Rd.The true PDE solution is a field u : Ω × [0 , T ] → R, which we approximate using a discretized tensor u ∈ RNx×Nt ,where Nx and Nt are the number of spatial and temporal grid points, respectively. In addition to satisfying the governing PDE, the solution must also satisfy a collection of physical constraints. These constraints are represented as 
+
+(Hk(u)) k = 0
+
+where Hk is the k-th constraint acting on the solution u. For convenience, we let H(u) denote the concatenation of all imposed constraints. Further, it is implied that the constraint operator can also work on the discretized solution u.Although the discussion in this section focuses on one-                    
+
+> Table 1. Overview of common constraint types for PDEs. CONSTRAINT TYPE FORM
+> DIRICHLET IC/BC Au −b
+> GLOBAL MASS CONSERVATION
+> R
+> Ωu dx −C
+> NONLINEAR CONSERVATION LAW ddt
+> R
+> Ωρ(u)dx −C
+> NEUMANN OR FLUX BC ∂nu(x, t )−g(x, t )
+
+dimensional PDEs, the main ideas extend naturally to higher-dimensional settings. 
+
+3.1. Constraints 
+
+Constraints imposed for PDEs typically arise from physical principles such as conservation laws, initial conditions, and boundary conditions (LeVeque, 2004; 1992). These con-straints may be linear or nonlinear in u, and may act locally or globally in space and time. A selection of commonly encountered constraints is summarized in table 1. Most constraints encountered in practice are local in time. Meaning, they depend only on a single time step or a small number of neighboring time steps. For instance, an ini-tial value constraint applies only at t = 0 , while a mass conservation constraint typically applies to each time step independently. Even nonlinear conservation laws involving temporal derivatives can often be discretized using finite-difference schemes that couple only a small number of neighboring time steps, thereby preserving temporal local-ity (Quarteroni et al., 2007). The general Dirichlet IC/BC constraint formulated as Au − b in 1 could, in principle, define a global coupling, depending on the structure of A.In practice, however, A is usually sparse and only couples nearby spatial or temporal nodes. 
+
+3.2. Jacobian Structure 
+
+The Gauss-Newton projection step presented in 2.1 can be reformulated as solving the constrained optimization problem 
+
+uproj = min  
+
+> u
+
+|| u − u1|| 22 subject to H(u) = 0 (4) where the variables u can be interpreted as flattened vectors. Solving such a constrained optimization problem generally involves repeatedly solving large linear systems derived from the Karush-Kuhn-Tucker (KKT) conditions (Nocedal & Wright, 2006). These systems typically take the form 
+
+ W JT
+
+> H
+
+JH 0
+
+
+
+(5) where JH = ∂H 
+
+> ∂u
+
+is the Jacobian of the constraints H, and 
+
+W is the Hessian of the Lagrangian. We defer a detailed 3SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+discussion of the KKT derivation to Appendix B. Regardless of the specific optimization method employed, computing the Jacobian - or an approximation to it - is generally a necessary part of the solution procedure (Nocedal & Wright, 2006). A key observation is that physically motivated PDE con-straints typically induce highly sparse Jacobians after dis-cretization. Exploiting this sparsity is crucial for efficiently solving the associated linear systems. Moreover, for a fixed set of constraints, the sparsity pattern remains constant throughout the optimization process, allowing repeated lin-ear solves to reuse structural information. To understand why JH is sparse, consider the discretized solution as a flattened vector u ∈ RNxNt . The Jacobian then has dimensions JH ∈ RNc×NxNt , where Nc denotes the number of constraints. If a constraint depends only on a single time step, at most Nx
+
+entries of the corresponding Jacobian row will be nonzero. Similarly, if a constraint involves only a few spatial steps, but is global in time, then each row contains only a small number of nonzero entries per time step, yielding at most 
+
+O(Nt) non-zero entries overall. Furthermore, constraints that are global in one domain but local in the other often induce repeated block structures in the Jacobian, since the same constraint operator is applied repeatedly across spatial or temporal points. For an involved example involving both mass and an initial value constraint, we refer to Appendix C. 3.2.1. S OLUTION BATCHES 
+
+It is also useful to consider the case where a batch of Ns
+
+samples is generated simultaneously. In that setting, the Jacobian has dimension JH ∈ RNcNs×NxNtNs . Since each sample is independent, the resulting Jacobian exhibits a block-diagonal structure, with each block corresponding to the constraints of an individual sample. 
+
+3.3. Sparse Solvers and GPU acceleration 
+
+Several optimization frameworks have recently been devel-oped to exploit the structure and sparsity of the objective and constraint functions in large-scale nonlinear programs (NLP). Two notable libraries are ExaModels.jl (Shin et al., 2024a) and MadNLP.jl (Shin et al., 2024b). ExaModels is an algebraic modeling and automatic differ-entiation framework designed for high-performance non-linear optimization (Shin et al., 2024a). When using a general-purpose modeling framework such as JuMP.jl 
+
+(Lubin et al., 2023a), it has been found that automatic dif-ferentiation may constitute a significant fraction of the total solver time (Shin et al., 2024b). ExaModels is designed to mitigate this issue by generating sparsity-aware com-putational graphs and compiling them into SIMD-parallel kernels through ExaCore . This allows objectives, con-straints, Jacobians and Hessians to be evaluated efficiently in a single sparsity-preserving pass, while exploiting the parallelism available on modern GPU architectures. (Shin et al., 2024b). MadNLP implements a primal-dual interior point solver, working together with ExaModels to form and solve sparse KKT systems efficiently. Since the sparsity pattern of the Jacobian typically remains fixed throughout the optimization process, MadNLP can leverage this to optimize the linear system solves, significantly reducing overhead associated with repeated factorizations of the Jacobian (Shin et al., 2024b). Furthermore, MadNLP works across both CPU and GPU. On GPUs, MadNLP interfaces with NVIDIA’s GPU sparse linear solver, cuDSS (2025). cuDSS solves sparse linear systems using variants of LU , LDL T or Cholesky factor-ization, and is specifically designed for exploiting the paral-lelism of NVIDIA GPU architectures. Large, sparse KKT systems can thus be solved substantially faster than with traditional CPU-based solvers (Pacaud & Shin, 2024). 
+
+# 4. Methodology and Setup 
+
+We evaluate SNAP-FM via benchmarking of the PCFM sampling loop across a set of PDE problems chosen to span the constraint regimes of practical interest, and for each problem, compare the runtime and constraint-satisfaction behavior of numerous optimization backends inside the projection step. For implementation details and scripts used to reproduce the experiments, we provide the code at https://github.com/xenakistheo/PCFM.jl. Additional details on the experimental setup, hardware, and benchmarking procedure are given in Appendix E. 
+
+4.1. Optimization Methods 
+
+Our main proposed solver, ExaModels + MadNLP on GPU 
+
+is benchmarked against five baselines that utilize different algebraic modeling layers, NLP solvers, and execution hard-ware. We chose this set of methods such that comparisons against the adjacent baselines allow for isolation of contri-butions of each of the three axes. 
+
+ExaModels + MadNLP (GPU) As mentioned earlier, 
+
+ExaModels.jl (Shin et al., 2024a) compiles the projec-tion NLP into SIMD-parallel GPU kernels via ExaCore ,allowing for evaluation of objectives, constraints and ADD in a single sparsity-preserving pass. The resulting struc-tured KKT system is then solved entirely on the GPU by 
+
+MadNLP.jl (Shin et al., 2024b), an interior-point (IP) solver, with the sparse linear systems broken down via 4SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+cuDSS. This combination is a promising direction for large-scale batches where the full Jacobian structure can be ex-ploited for GPU-accelerated NLP. 
+
+ExaModels + MadNLP (CPU) This optimization method is of identical modeling and solver to our main method, but instead executed on the CPU. This baseline isolates the con-tribution of GPU acceleration. Namely, any performance gap that is found between this method and our above ap-proach is purely attributed to hardware utilization. 
+
+JuMP + MadNLP (CPU) We utilize the same NLP solver, but with the model instead expressed in JuMP.jl (Lubin et al., 2023b), a general-purpose algebraic modeling pack-age. JuMP differs from ExaModels in that it does not pre-serve SIMD structure or compile to GPU kernels. Therefore, this allows for isolation of the contribution of the modeling layer, specifically the value of structure-preserving compila-tion. 
+
+JuMP + Ipopt Ipopt (W ¨achter & Biegler, 2006) is one of the most widely deployed NLP solvers in scientific comput-ing. We include it as a standard benchmark any practitioner would reach for when including nonlinear constraints in 
+
+PCFM.jl , and serves as empirical evidence that projection remains the sampling bottleneck in the nonlinear regime. 
+
+Optimization.jl + IPNewton We implemented Optimiza-tion.jl with IPNewton to benchmark with a second interior-point baseline through the Optimization.jl (Dixit & Rackauckas, 2023) unified interface. This ensures that any observed performance improvements are attributed correctly to MadNLP implementations of interior-point methods, not just the IP method itself. 
+
+Optimization.jl + L-BFGS We include L-BFGS as an un-constrained optimization baseline, ensuring the structured-NLP framing is truly advantageous and necessary. Unlike the other methods, L-BFGS does not impose hard equality constraints. Instead, the constrained projection problem is converted into a different mathematical problem in which the constraint residuals enter through a penalty term. This distinction is important when interpreting runtime and feasi-bility results, since a faster L-BFGS should not be read as a faster solution of the hard-constrained projection problem. 
+
+4.2. Test Problems 
+
+We consider generative modeling for a collection of six different PDE benchmark problems with varying physical constraints. These problems are chosen to evaluate how different constraint sets influence both inference quality and computational cost. More importantly, we are also interested in how these results vary across the different solvers. The benchmark problems are as follows • One dimensional heat equation with initial value and mass-conservation constraints. • One dimensional heat equation with initial value, mass-conservation, and energy evolution constraints. • One dimensional reaction diffusion equation with Neu-mann boundary conditions and a nonlinear conserva-tion constraint. • One dimensional Burgers’ equation with boundary and mass-conservation constraints. • One dimensional Burgers’ equation with initial value, mass-conservation, and local flux constraints. • Two-dimensional Navier-Stokes equation in vorticity form with initial-value, total-vorticity conservation, and enstrophy constraints. The test problems with their constraints are described in detail in Appendix A. For both the heat equation and Burgers’ equation, the paired test problems use identical pretrained FFM models. In each case, the training dataset and network architecture are un-changed, and only the inference-time constraints differ. For the Burgers’ with initial value constraint, we also exper-iment with removing the mass-conservation, and the flux constraints in a scaling study. The discretization procedures used to enforce the constraints are described in Appendix D. 
+
+# 5. Experiments and Results 
+
+We evaluate the proposed methods on the benchmark prob-lems outlined in Section 4.2. These problems span con-straint regimes of increasing difficulty, including linear and nonlinear one-dimensional constraints, as well as a non-linear two-dimensional problem. For each benchmark, we compare all optimization backends from Section 4.1 in terms of runtime, and constraint violation. Beyond the main bench-mark results, we include two scaling studies to better char-acterize the computational behavior of the projection step. First, we consider the heat equation with fixed initial condi-tion and mass-conservation constraints, and vary the number of generated samples to study scaling with batch size. Sec-ond, we consider the Burgers equation under increasingly rich constraint sets, allowing us to assess how solver per-formance changes as additional nonlinear constraints are imposed. Unless otherwise stated, all reported runtimes are averaged over four repetitions with 32 generated samples — an ex-ception being the two-dimensional Navier-Stokes problem 5SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+Table 2. Heat Equation - 1 OPTIMIZATION SETUP TIME (S) INFEASIBILITY 
+
+EXA , M AD NLP, GPU 11 .73 ± 0.34 3.19 E-6 EXA , M AD NLP, CPU 14 .29 ± 0.15 3.23 E-7 JUMP, M AD NLP, CPU 137 .94 ± 4.42 7.28 E-7 JUMP, I POPT , CPU 182 .72 ± 4.73 7.44 E-7 IPN EWTON 6225 .35 ± 38 .60 5.31 E-2 L-BFGS 1623 .98 ± 107 .94 3.94 E-2 
+
+Table 3. Heat Equation - 2 OPTIMIZATION SETUP TIME (S) INFEASIBILITY 
+
+EXA , M AD NLP, GPU 110 .26 ± 1.92 0.222 EXA , M AD NLP, CPU 3501 .11 ± 89 .36 0.222 JUMP, M AD NLP, CPU DNF -JUMP, I POPT , CPU DNF -IPN EWTON DNF -L-BFGS 977 .87 ± 39 .22 4.49 E-5 
+
+for which we generated 2 samples due to the substantially larger state dimension. Wall-clock timings are reported us-ing BenchmarkTools.jl ’s @btime ± a standard devi-ation. DNF denotes runs that did not converge within the allotted runtime budget of six hours. 
+
+5.1. Runtime 
+
+Tables 2, 3, 4, 5, 6 & 7 present the central results of this paper: end-to-end sampling time for a full pass of PCFM under each method and constraint regime, broken down into the model-evaluation and projection components for specification. The fastest solver in each constraint regime is highlighted in bold. A few observations worth highlighting. Notably, the Ex-aModels + MadNLP combination beat the other methods in all six test problems. Moreover, the gap between the GPU and CPU implementation isolates the contribution of the hardware. This difference between the two was espe-cially pronounced in the case of the heat equation with an energy-evolution constraint, as well as the Burgers’ PDE with Godunov’s flux constraints. We hypothesize that the nonlinearity of these two sets of constraints made it signifi-cantly harder to solve as an optimization problem. Hence, the difference in performance became more pronounced. Secondly, the difference in the results of JuMP + MadNLP and ExaModels + MadNLP both run on CPU isolates the modeling layer, which is our main focus here. What we observe is that there is a consistent speedup from the ex-ploitation of the sparsity structure of the Jacobian matrices at compile time. Even for the simple constraints in the heat equation, 2, the difference is significant. We also note that missing entries correspond to runs that 
+
+Table 4. Burgers’ (BC) OPTIMIZATION SETUP TIME (S) INFEASIBILITY 
+
+EXA , M AD NLP, GPU 153 .53 ± 1.50 0.564 
+
+EXA , M AD NLP, CPU 109 .74 ± 7.67 0.550 JUMP, M AD NLP, CPU 438 .26 ± 38 .94 0.550 JUMP, I POPT , CPU 1177 .00 ± 75 .58 1.747 IPN EWTON DNF -L-BFGS 170 .04 ± 21 .89 2.038 
+
+Table 5. Burgers’ (IC, Mass, Flux) OPTIMIZATION SETUP TIME (S) INFEASIBILITY 
+
+EXA , M AD NLP, GPU 38 .83 ± 0.55 0.920 EXA , M AD NLP, CPU 2048 .83 ± 187 .58 1.594 JUMP, M AD NLP, CPU DNF -JUMP, I POPT , CPU DNF -IPN EWTON DNF -L-BFGS DNF -
+
+did not complete within the runtime budget. These fail-ures are themselves informative: all methods except for the ExaModels + MadNLP failed to converge on the Burgers’ Equation constraint that included IC and flux constraints within a reasonable amount of time. IPNewton also failed on Burgers’ with boundary constraints, as well as on the Navier-Stokes’ equation. 
+
+5.2. Constraint Violation 
+
+Beyond analyzing the runtimes, we want to examine con-straint violations along the sampling trajectory. Constraint satisfaction is quantified using a metric that mea-sures the average magnitude of the constraint violations across all samples in a batch. Violations are normalized within each constraint type before being aggregated, en-suring that constraints with different scales or numbers of instances contribute comparably. The resulting scalar score provides a fair basis for comparing optimization backends on a given set of constraints. We refer to this metric as 
+
+Infeasibility .Figure 1 follows the mass-conservation residual along the sampling trajectory for our Burgers’ equation constraint un-der each method. The structure-exploiting methods, namely 
+
+ExaModels + MadNLP on GPU and CPU as well as 
+
+JuMP + MadNLP produce residuals that oscillate around zero with a magnitude ∼ 10 −3. To contrast, the unstructured methods produce residuals that appear biased. IPNewton undershoots the constraint in the early steps and overshoots in the latter, while L-BFGS decays negatively throughout. While the overall magnitudes are relatively similar, the qual-itative behavior of our methods differs. The infeasibility values in our results also highlight an im-6SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+Table 6. Reaction-Diffusion Equation OPTIMIZATION SETUP TIME (S) INFEASIBILITY 
+
+EXA , M AD NLP, GPU 35 .68 ± 0.74 4.60 E-4 
+
+EXA , M AD NLP, CPU 24 .58 ± 1.69 4.49 E-4 JUMP, M AD NLP, CPU 173 .15 ± 3.56 4.49 E-4 JUMP, I POPT , CPU 228 .80 ± 4.35 4.49 E-4 IPN EWTON 2314 .20 ± 62 .47 3.67 E-4 L-BFGS 484 .19 ± 45 .62 1.69 E-3 
+
+Table 7. Navier-Stokes’ Equation OPTIMIZATION SETUP TIME (S) INFEASIBILITY 
+
+EXA , M AD NLP, GPU 45 .69 ± 0.96 0.678 EXA , M AD NLP, CPU 118 .49 ± 0.84 0.678 JUMP, M AD NLP, CPU 79 .20 ± 2.02 1.131 JUMP, I POPT , CPU 59 .38 ± 0.74 1.131 IPN EWTON DNF -L-BFGS 298 .30 ± 14 .26 1.766 
+
+portant nuance. The constraints are solved up to the nu-merical tolerances of the nonlinear optimizer. Thus, the reported infeasibility should be interpreted as the residual constraint violation remaining after convergence, rather than as evidence that the constraints are ignored. In all experi-ments, we used the solver’s default feasibility tolerance of 
+
+10 −4. Tighter or problem-specific tolerances may further reduce constraint violation, but could also increase runtime or affect solver robustness. Investigating how to tune these tolerances, and how this trade-off impacts both feasibility and sampling cost, is an important direction for future work. 5.2.1. S CALING STUDY - N UMBER OF SAMPLES 
+
+Figure 2 shows the runtime of each optimization backend as the number of generated samples is increased. The runtime grows approximately linearly with the number of samples for all methods. This is consistent with the block-diagonal structure of the batched projection problem: increasing the batch size adds independent constraint blocks, but does not introduce additional cross-sample coupling. The relative ordering of the methods is also largely preserved across batch sizes. 5.2.2. S CALING STUDY - N UMBER OF CONSTRAINTS 
+
+Table 8 shows the runtime and infeasibility values as ad-ditional constraints are imposed on the Burgers equation. Even for the smaller nonlinear constraint sets, MadNLP-based methods are substantially faster than the alternative baselines. As local flux constraints are added, the projection problem becomes significantly more difficult. In this regime, GPU acceleration becomes increasingly important. The Ex-aModels + MadNLP GPU backend is the only method that remains tractable for the largest tested constraint set. 
+
+Figure 1. Mass-conservation residual along the PCFM sampling trajectory for Burgers’ equation. Structure-exploiting methods (top row) produce residuals that oscillate around zero, consistent with constraint satisfaction modulo numerical noise. Unstructured methods (bottom row) produce systematically biased residuals: 
+
+IPNewton undershoots then overshoots, L-BFGS drifts mono-tonically. 
+
+Figure 2. Runtime scaling with the number of generated samples for the first heat-equation constraint regime. Time scales linearly with number of samples, and ordering is preserved. 
+
+The constraint sets increase in complexity. IC-only fixes the initial condition, while IC, Mass additionally enforces conservation of the spatial integral over time. The Flux( k)constraints add k local Godunov update residuals – see Appendix D. 
+
+# 6. Conclusion 
+
+We present an acceleration of the projection subproblem in Physics-Constrained Flow Matching by exploiting the sparsity structure inherent in the constraints. This work is motivated by the observation that the computational com-plexity of the projection step scales poorly during the PCFM sampling process as the number and complexity of con-straints increase. By analyzing the Jacobian sparsity pattern, we reformulate the problem as a collection of independent per-sample subproblems while additionally leveraging the fixed sparsity structure arising from the discretized conser-vation constraints. To exploit this structure efficiently on the 7SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling                                      
+
+> Table 8. Runtime scaling with the number of imposed constraints for the Burgers equation. DNF denotes runs that did not finish within the runtime budget. OPTIMIZATION SETUP IC-ONLY IC, M ASS IC, M ASS , F LUX (1) IC, M ASS , F LUX (5) IC, M ASS , F LUX (10) EXA , M AD NLP, GPU 6.90 ±0.49 19.32 ±0.49 24.23 ±0.09 39.03 ±0.36 62.95 ±2.07 EXA , M AD NLP, CPU 25.56 ±0.17 24.40 ±0.51 1632.12 ±73.94 2038.96 ±215.10 DNF JUMP, M AD NLP, CPU 155.33 ±1.61 346.27 ±3.75 DNF DNF DNF JUMP, I POPT , CPU 156.28 ±1.87 DNF DNF DNF DNF IPN EWTON 50.38 ±3.56 DNF DNF DNF DNF L-BFGS 3.92 ±0.01 DNF DNF DNF DNF
+
+GPU, we employed ExaModels.jl as the modeling layer together with MadNLP.jl as the nonlinear programming solver. Across our benchmarks, this approach yields a sig-nificant speedup for computationally demanding nonlinear constraints, while not compromising on correctness. 
+
+# Acknowledgments 
+
+We thank the reviewers for their thoughtful comments and constructive suggestions, which helped improve the clarity and quality of this paper. This material is based upon work supported by the U.S. Na-tional Science Foundation under award Nos CNS-2346520, RISE-2425761, and DMS-2325184, by the Defense Ad-vanced Research Projects Agency (DARPA) under Agree-ment No. HR00112490488, by the Department of Energy, National Nuclear Security Administration under Award Number DE-NA0004266 and by the United States Air Force Research Laboratory under Cooperative Agreement Number FA8750-19-2-1000. Neither the United States Government nor any agency thereof, nor any of their employees, makes any warranty, express or implied, or assumes any legal li-ability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or pro-cess disclosed, or represents that its use would not infringe privately owned rights. Reference herein to any specific commercial product, process, or service by trade name, trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement, recommendation, or favoring by the United States Government or any agency thereof. The views and opinions of authors expressed herein do not necessarily state or reflect those of the United States Government or any agency thereof. 
+
+# Impact Statement 
+
+This paper presents work whose goal is to make physi-cally consistent generative simulation more practical for scientific applications. There are many potential societal consequences of our work, none of which we feel must be specifically highlighted here. 
+
+# References 
+
+Baldan, G., Liu, Q., Guardone, A., and Thuerey, N. Flow matching meets pdes: A unified framework for physics-constrained generation. arXiv preprint arXiv:2506.08604 ,2025. Ben-Hamu, H., Puny, O., Gat, I., Karrer, B., Singer, U., and Lipman, Y. D-flow: Differentiating through flows for controlled generation, 2024. URL https://arxiv. org/abs/2402.14017 .Bradbury, J., Frostig, R., Hawkins, P., Johnson, M. J., Leary, C., Maclaurin, D., Necula, G., Paszke, A., VanderPlas, J., Wanderman-Milne, S., et al. Jax: composable transfor-mations of python+ numpy programs. 2018. Cai, P., Utkarsh, U., Segal, N., Subramanian, A., Jager, K., Pan, E., Edelman, A., Rackauckas, C. V., and Gomez-Bombarelli, R. Enforcing constraints in molecular and crystalline generative models via physics-constrained flow matching. In AI for Accelerated Materials Design - ICLR 2026 , 2026. URL https://openreview. net/forum?id=QVQjDmIFg0 .Cheng, C., Han, B., Maddix, D. C., Ansari, A. F., Stuart, A., Mahoney, M. W., and Wang, Y. Gradient-free generation for hard-constrained systems, 2025. URL https:// arxiv.org/abs/2412.01786 .Christopher, J. K., Baek, S., and Fioretto, F. Constrained synthesis with projected diffusion models. Advances in Neural Information Processing Systems , 37:89307– 89333, 2024. Dixit, V. and Rackauckas, C. Optimization.jl: A unified interface for mathematical optimization in julia. In Julia-Con Proceedings , 2023. Greydanus, S., Dzamba, M., and Yosinski, J. Hamiltonian neural networks. Advances in neural information process-ing systems , 32, 2019. Huang, J., Yang, G., Wang, Z., and Park, J. J. Diffusion-pde: Generative pde-solving under partial observation. 
+
+Advances in Neural Information Processing Systems , 37: 130291–130323, 2024. 8SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+LeVeque, R. J. Numerical Methods for Conservation Laws .Lectures in Mathematics ETH Z ¨urich. Birkh ¨auser, Basel, 1992. LeVeque, R. J. Finite-Volume Methods for Hyperbolic Prob-lems . Cambridge Texts in Applied Mathematics. Cam-bridge University Press, 2004. Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhat-tacharya, K., Stuart, A., and Anandkumar, A. Fourier neural operator for parametric partial differential equa-tions, 2021. URL https://arxiv.org/abs/ 2010.08895 .Lu, H. and Yang, J. cupdlp. jl: A gpu implementation of restarted primal-dual hybrid gradient for linear program-ming in julia. Operations Research , 73(6):3440–3452, 2025. Lubin, M., Dowson, O., Dias Garcia, J., Huchette, J., Legat, B., and Vielma, J. P. JuMP 1.0: Recent improvements to a modeling language for mathematical optimization. 
+
+Mathematical Programming Computation , 15:581–589, 2023a. doi: 10.1007/s12532-023-00239-3. Lubin, M., Dowson, O., Dias Garcia, J., Huchette, J., Legat, B., and Vielma, J. P. JuMP 1.0: Recent improvements to a modeling language for mathematical optimization. 
+
+Mathematical Programming Computation , 15:581–589, 2023b. doi: 10.1007/s12532-023-00239-3. Nocedal, J. and Wright, S. Numerical Optimization .Springer, 2006. NVIDIA Corporation. NVIDIA cuDSS: A high-performance CUDA library for direct sparse solvers, 2025. URL https://docs.nvidia.com/cuda/ cudss/ . Accessed: 2026-05-07. Pacaud, F. and Shin, S. GPU-accelerated dynamic nonlinear optimization with ExaModels and MadNLP. In 2024 IEEE 63rd Conference on Decision and Control (CDC) ,pp. 5963–5968, 12 2024. doi: 10.1109/CDC56724.2024. 10886720. Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., Killeen, T., Lin, Z., Gimelshein, N., Antiga, L., et al. Pytorch: An imperative style, high-performance deep learning library. Advances in neural information processing systems , 32, 2019. Price, I., Sanchez-Gonzalez, A., Alet, F., Andersson, T. R., El-Kadi, A., Masters, D., Ewalds, T., Stott, J., Mohamed, S., Battaglia, P., et al. Gencast: Diffusion-based ensemble forecasting for medium-range weather. arXiv preprint arXiv:2312.15796 , 2023. Quarteroni, A., Sacco, R., and Saleri, F. Numerical Mathe-matics . Springer, 2007. Raissi, M., Perdikaris, P., and Karniadakis, G. Physics-informed neural networks: A deep learning frame-work for solving forward and inverse problems involv-ing nonlinear partial differential equations. Journal of Computational Physics , 378:686–707, 2019. ISSN 0021-9991. doi: https://doi.org/10.1016/j.jcp.2018.10. 045. URL https://www.sciencedirect.com/ science/article/pii/S0021999118307125 .Rennich, S. C., Stosic, D., and Davis, T. A. Accelerat-ing sparse cholesky factorization on gpus. In 2014 4th Workshop on Irregular Applications: Architectures and Algorithms (IAˆ 3) , pp. 9–16. IEEE, 2014. Richter-Powell, J., Lipman, Y., and Chen, R. T. Neural conservation laws: A divergence-free perspective. Ad-vances in Neural Information Processing Systems , 35: 38075–38088, 2022. R ¨omer, R., von Rohr, A., and Schoellig, A. P. Diffu-sion predictive control with constraints. arXiv preprint arXiv:2412.09342 , 2024. Shin, S., Anitescu, M., and Pacaud, F. Accelerating op-timal power flow with GPUs, 2024a. ExaModels.jl + MadNLP.jl v0.8 release, Julia Discourse, March 2024. Shin, S., Pacaud, F., and Anitescu, M. Accelerating optimal power flow with GPUs: SIMD abstraction of nonlinear programs and condensed-space interior-point methods. 
+
+Electric Power Systems Research , 236, 2024b. Utkarsh, U., Cai, P., Edelman, A., Gomez-Bombarelli, R., and Rackauckas, C. Physics-constrained flow match-ing: Sampling generative models with hard constraints. 
+
+NeurIPS , 2025a. Utkarsh, U., Maddix, D. C., Ma, R., Mahoney, M. W., and Wang, Y. End-to-end probabilistic framework for learning with hard constraints. arXiv preprint arXiv:2506.07003 ,2025b. W ¨achter, A. and Biegler, L. T. On the implementa-tion of an interior-point filter line-search algorithm for large-scale nonlinear programming. Mathematical Pro-gramming , 106(1):25–57, March 2006. doi: 10.1007/ s10107-004-0559-y. Yuan, Y., Song, J., Iqbal, U., Vahdat, A., and Kautz, J. Physdiff: Physics-guided human motion diffusion model. In Proceedings of the IEEE/CVF international conference on computer vision , pp. 16010–16021, 2023. 9SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+# A. Model Problems 
+
+Many of the constraints considered in this work are formulated in terms of conserved integral quantities. We therefore define the mass and energy of a solution u at time t by 
+
+m(t) := 
+
+Z
+
+> Ω
+
+u(x, t ) dx (6) 
+
+E(t) := 12
+
+Z
+
+> Ω
+
+u2(x, t ) dx (7) 
+
+A.1. Heat Equation Problems 
+
+We first consider the one-dimensional heat equation 
+
+ut = αu xx , Ω = [0 , 2π], t ∈ [0 , 1] (8) with periodic boundary conditions u(0 , t ) = u(2 π, t ), and initial values given by 
+
+u(x, 0) = uH 
+
+> IC
+
+(x) := sin( x + ϕ)
+
+The spatiotemporal gridsizes are Nx = Nt = 100 .For this specific problem, there is an analytical solution given by 
+
+uanalytic (x, t ) = exp( −αt ) sin( x + ϕ) (9) The FFM model was trained using a dataset constructed by computing the analytical solution for different diffusion coefficients and phases. Namely, the parameters were sampled from the following distributions. 
+
+α ∼ U (1 , 5) , ϕ ∼ U (0 , π )
+
+The training dataset contained 10 , 000 such solutions. During inference, we evaluate on two different constraint regimes. In the first regime, we fix ϕ = π/ 4 to keep the initial condition constant, and we enforce the initial value and mass conservation constraints. 
+
+HH,1 (u) = 
+
+u(x, 0) − uH 
+
+> IC
+
+(x)
+
+m(t) − m(0) 
+
+
+
+(10) In the second set of constraints, we additionally impose an energy-evolution constraint together with a local PDE constraint. The resulting constraint operator is given by 
+
+HH,2 (u) = 
+
+
+
+u(x, 0) − uH 
+
+> IC
+
+(x)
+
+m(t) − m(0) 
+
+ut − αu xx ddt 
+
+> 12
+
+R
+
+> Ω
+
+(u(x, t )) 2 dx + α R
+
+> Ω
+
+(ux)2 dx 
+
+ (11) A derivation and motivation for the energy-evolution constraint are provided in Appendix D. 
+
+A.2. Burgers’ 
+
+Secondly, consider the one-dimensional inviscid Burgers’ equation 
+
+ut + 12 (u2)x = 0 , Ω = [0 , 1] , t ∈ [0 , 1] (12) The training dataset was constructed by generating solutions with the Godunov finite volume method (LeVeque, 2004), on a 
+
+Nx = Nt = 101 grid. For the training set, the following three conditions were imposed 10 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+1. Initial value: 
+
+u(x, 0) = uBIC (x; ploc ) := 11 + exp( x−ploc  
+
+> ϵ
+
+)
+
+with ϵ = 0 .02 fixed, and the location sampled randomly from ploc ∼ U (0 .2, 0.8) .2. Dirichlet condition on the left boundary 
+
+u(0 , t ) = ubc with ubc ∼ U (0 , 1) 
+
+3. Von Neumann condition on the right 
+
+ddx u(1 , t ) = 0 80 different values of ploc and ubc were sampled each, generating a total of 6400 solutions for the training dataset. The first regime of constraints considered for the Burgers’ equation imposes a Dirichlet condition on the left boundary, and a Neumann condition on the right boundary. The Dirichlet value is not fixed, but varies across samples - as in the training data. There is also a mass conservation constraint. Together the constraints are given by 
+
+HB,BC (u) = 
+
+
+
+u(0 , t ) − uL
+
+m(t) − m0
+
+∂nu(1 , t )
+
+ (13) In the second regime, we impose an initial value constraint, with ploc sampled as in the training set. In addition to the typical mass constraint we also impose a sequence of local conservation updates based on Godunov’s flux method. The constraint function then becomes 
+
+HB,IC (u) = 
+
+
+
+u(x, 0) − uBIC (x; ploc )) 
+
+m(t) − m(0) 
+
+R(k)
+
+> Flux
+
+(u) ( k = 1 , .., 5) 
+
+ (14) A derivation and description of the flux constraint based on the Godunov method are provided in Appendix D. 
+
+A.3. Reaction-Diffusion Equation 
+
+Next, we consider a nonlinear reaction-diffusion equation given by 
+
+ut = ρu (1 − u) − νu xx (15) 
+
+Ω = [0 , 1] , t ∈ [0 , 1] (16) with parameters (ρ, ν ) = (0 .01 , 0.005) . The equation is discretized on a grid with spatial and temporal resolutions Nx = 128 
+
+and Nt = 100 , respectively. The initial conditions are sampled from randomized combinations of sinusoidal and localized bump functions. The training dataset is generated by pairing 80 distinct initial conditions with 80 boundary conditions, resulting in a total of 6400 PDE solutions. The solutions used for training are computed using a semi-implicit finite difference scheme. 
+
+HRD (u) = 
+
+
+
+u(x, 0) − uIC (x)
+
+m(t) −
+
+
+
+m0 +
+
+Z t
+
+> 0
+
+ρu (1 − u) dτ 
+
++
+
+Z t
+
+> 0
+
+(gL(τ ) − g(τ )) dτ 
+
+ (17) 11 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+A.4. Navier-Stokes Equation 
+
+Lastly we consider the Navier-Stokes equation in two dimensions, given in its vorticity form with periodic boundary conditions as 
+
+wt + u · ∇ w = ν∇2w + f (x) (18) 
+
+Ω = [0 , 1] 2, t ∈ [0 , 49] (19) where w := ∇ × u is the vorticity, and we set the viscosity ν = 10 −3. We let the forcing function f (x) = 0 .1√2 sin(2 π(x +
+
+y) + ϕ). The spatiotemporal resolutions are as follows Nx = Ny = 16 , Nt = 50 . The training dataset was constructed by solving the governing problem with a Crank–Nicolson spectral solver. Specifically, 10 , 000 simulations were generated from 
+
+100 randomly sampled initial vorticities w0, drawn from a Gaussian random field, and 100 forcing phases ϕ ∼ U (0 , π/ 2) .With periodic boundary conditions the vorticity-mass is conserved. We further impose an initial value constraint, and an energy conservation constraint on the vorticity. In total, these are the constraints: 
+
+HNS (w) = 
+
+
+
+w(x, y, 0) − wIC (x, y )
+
+Z
+
+> Ω
+
+w(x, y, t ) dx dy −
+
+Z
+
+> Ω
+
+wIC (x, y ) dx dy 
+
+Z
+
+> Ω
+
+w(x, y, t )2 dx dy −
+
+Z
+
+> Ω
+
+wIC (x, y )2 dx dy 
+
+ (20) 
+
+# B. Newton-KKT system 
+
+Consider the equality constrained optimisation problem 
+
+min  
+
+> x∈Rn
+
+f (x) subject to g(x) = 0 (21) for some objective function f : Rn → R, and constraint function g : Rn → Rm
+
+Our goal is to show that approximating this solution can be reduced to repeatedly solving linear systems of the form Au = b,where A has a characteristic sparse structure that is highly dependent on the Jacobian of g.The key idea to solving (21) is that at the optimum, we cannot improve the objective while remaining in the feasible set. Mathematically, this means that if we suppose that x∗ solves Suppose x∗ solves (21). Consider a small perturbation ∆x. To remain within the feasible set we must require 
+
+g(x∗ + ∆ x) = 0 
+
+Linearization gives 
+
+g(x∗) + J(x∗)∆ x = 0 
+
+where we have introduced the Jacobian of g, J(u) := ∇xg(u) ∈ Rm×n. As x∗ by assumption is in the feasible set, we have that J(x∗)∆ x = 0 . In other words, all feasible perturbations must lie in the nullspace of the Jacobian. Moreover, as x∗ is an optimum, one cannot decrease the objective function in any feasible direction. This implies that 
+
+∇f (x∗)T ∆x = 0 , ∀∆x satisfying J(x∗)∆ x = 0 
+
+A basic linear algebra result is that a vector v which is orthogonal to the nullspace of a matrix Q, is necessarily in the rowspace of Q. This implies that we can write 
+
+∇f (x∗) = −J(x∗)T λ
+
+for some λ ∈ Rm.12 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+These two conditions together form the Karush-Kuhn-Tucker (KKT) conditions that we require the solution to satisfy 
+
+∇f (x) + ( J(x)) T λ = 0 
+
+g(x) = 0 
+
+By introducing the Lagrangian L(x, λ ) = f (x) + ( J(x)) T λ we can also reformulate the problem of finding x∗ so that 
+
+F (x, λ ) = 0 , where we define 
+
+F : Rn+m → Rn+m, F (x, λ ) := 
+
+∇xL(x, λ )
+
+g(x)
+
+
+
+(22) One can recall that a single iteration of the multivariate Newton-Raphson method for solving the problem G(u) : Rp → Rq
+
+takes the form 
+
+u(k+1) = u(k) − (∇G(u(k))) −1G(u(k))
+
+which can be simplified to solving the linear equation 
+
+∇G(u(k))∆ k = −G(u(k)), ∆k := u(k+1) − u(k) (23) Hence, to solve F (x, λ ) = 0 using the Newton-Raphson method, we need to compute ∇(x,λ )F (x, λ ).A straightforward computation yields the linear system 
+
+W JT
+
+J 0
+
+  ∆xn
+
+∆λn
+
+
+
+= −
+
+∇f (xn) + ( J(xn)) T λn
+
+g(xn)
+
+
+
+, W := ∇2
+
+> xx
+
+L(xn, λ n) (24) The matrix on the left-hand side of (24) is called the Newton-KKT system . Its sparse block structure plays a central role in large-scale constrained optimisation algorithms. 
+
+# C. Jacobian Structure Example 
+
+This appendix presents an example illustrating the sparsity structure in the Jacobian arising from a common set of PDE constraints. Consider a PDE subject to the following constraints. 
+
+H(u) = 
+
+ u(x, 0) − f (x) ∀x ∈ ΩR 
+
+> Ω
+
+u(x, t ) dx − R 
+
+> Ω
+
+u(x, 0) dx ∀t ∈ [0 , T ]
+
+
+
+= 0
+
+Assume the solution is discretized on a spatiotemporal grid with (Nx, N t) = (3 , 3) grid points: x1, x 2, x 3, and t1, t 2, t 3.Let u(k) 
+
+> i
+
+denote the approximation of u(xi, t k).The initial value constraint then becomes 
+
+u(1)  
+
+> i
+
+− fi = 0 , fi := f (xi), i = 1 , 2, 3
+
+Using a simple left Riemann sum approximation to the integral, the mass conservation constraint takes the form 
+
+> 2
+
+X
+
+> i=1
+
+u(k) 
+
+> i
+
+−
+
+> 2
+
+X
+
+> i=1
+
+u(1)  
+
+> i
+
+= 0 , k = 2 , 3
+
+where the constraint at the first timestep is omitted. 13 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+In total, this yields 5 constraints. For convenience, we represent the approximation u as the flattened vector 
+
+u = ( u(1) 1 , u(1) 2 , u(1) 3 , ..., u(3) 1 , u(3) 2 , u(3) 3 )T ∈ R9
+
+.The Jacobian of the constraint operator, JH ∈ R5×9 has entries (JH)i,j = ∂Hi 
+
+> ∂uj
+
+, where the constraints are ordered such that the initial value constraints appear first. A straightforward computation gives 
+
+JH =
+
+
+
+1 0 0 0 0 0 0 0 00 1 0 0 0 0 0 0 00 0 1 0 0 0 0 0 0
+
+-1 -1 0 1 1 0 0 0 0
+
+-1 -1 0 0 0 0 1 1 0
+
+ (25) The 3 × 3 identity block in the upper-left corner arises from the initial value constraints. More generally, initial value constraints typically contribute block-diagonal structure to the Jacobian. Similarly, regardless of the number of grid points, a mass conservation constraint discretized using a left Riemann sum produces rows containing a sequence of Nx − 1 nonzero entries followed by a zero, reflecting the structure of the underlying quadrature rule. 
+
+# D. Constraints 
+
+D.1. Energy Evolution Constraint 
+
+In generating solutions for the heat equation we considered an energy evolution constraint. Here, ”energy” is meant as 
+
+E(t) := 12
+
+Z
+
+> Ω
+
+(u(x, t )) 2 dx 
+
+not to be confused with the physical ”energy” of the system. The energy referred to here is more of a measure of variance of 
+
+u. We might want to enforce that the temperature profile, u is smoothed out over time. In other words, that the temporal derivative ddt E(t) ≤ 0. If one assumes zero flux on the boundary, then this is a purely mathematical artifact of the heat equation. 
+
+ddt 
+
+12
+
+Z
+
+> Ω
+
+(u(x, t )) 2 dx =
+
+Z
+
+> Ω
+
+uu t dx 
+
+=
+
+Z
+
+> Ω
+
+αuu xx dx = −α
+
+Z
+
+> Ω
+
+(ux)2 dx 
+
+where the second-to-last equality comes from substituting in the heat equation, and the last equality comes from integration by parts - assuming zero flux on boundary. Importantly, the last expression must be negative, hence, we can enforce 
+
+ddt 
+
+12
+
+Z
+
+> Ω
+
+(u(x, t )) 2 dx = −α
+
+Z
+
+> Ω
+
+(ux)2 dx 
+
+This constraint enforces that the energy of the solution, E(t), which is to be interpreted as the variability of the solution in space, decreases over time - much as one would expect from a diffusive process such as the heat equation. 
+
+D.2. Godunov’s Flux Conservation 
+
+For the Burgers’ equation with fixed initial condition, we additionally imposed a sequence of local conservation constraints based on Godunov’s finite-volume method. The purpose of this constraint was to encourage the neural solution to satisfy not only global mass conservation, but also the local conservative transport structure of the PDE. 14 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+Specifically, the constraint operator included the residual terms 
+
+R(k)
+
+> Flux
+
+(u), k = 1 , . . . , 5,
+
+where each residual corresponds to one conservative update step of a finite-volume discretization. Let the spatial domain be partitioned into cells indexed by i, with cell averages 
+
+uki ≈ 1∆x
+
+Z xi+1 
+
+> xi
+
+u(x, t k) dx. 
+
+For Burgers’ equation 
+
+ut + 12 (u2)x = 0 ,
+
+Godunov’s method updates the solution according to 
+
+uk+1  
+
+> i
+
+= νki − ∆t
+
+∆x
+
+
+
+F ki+ 12
+
+− F ki− 12
+
+
+
+,
+
+where F ki+ 12
+
+denotes the numerical flux through the interface between neighboring cells. For Burgers’ equation, the Godunov flux is given by 
+
+F (a, b ) = 
+
+(min u∈[a,b ] u2 
+
+> 2
+
+, a ≤ b, 
+
+max u∈[b,a ] u2 
+
+> 2
+
+, a > b, 
+
+with a = uki and b = uki+1 .Using the neural network prediction evaluated on the spatial grid, we defined the flux residual as the mismatch between consecutive predicted states and a single Godunov update: 
+
+R(k)
+
+> Flux
+
+(u) = uk+1 −
+
+
+
+uk − ∆t
+
+∆x
+
+
+
+F ki+ 12
+
+− F ki− 12
+
+
+
+.
+
+Thus, the constraint enforces that the predicted solution approximately evolves according to a locally conservative finite-volume scheme over several successive time steps. 
+
+D.3. Discretization 
+
+To evaluate the conservation constraints in practice, the continuous space-time domain was discretized on a uniform grid 
+
+xi = i∆x, tk = k∆t, 
+
+where ∆x and ∆t denote the spatial and temporal step sizes, respectively. Using the representation that uki is the approximation to u(xi, t k), the continuous conservation operators could be approximated through discrete sums and local update relations. Global conservation quantities were approximated through Riemann sums over the spatial grid. For example, the total mass at time tk was approximated as 
+
+m(tk) ≈ X
+
+> i
+
+uki ∆x. 
+
+D.3.1. N EUMANN BOUNDARY CONDITIONS 
+
+For problems with homogeneous Neumann boundary conditions, the continuous condition 
+
+∂u ∂n = 0 
+
+15 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+was enforced discretely by requiring the normal derivative at the boundary to vanish. In one spatial dimension, this corresponds to 
+
+uk 
+
+> 2
+
+− uk
+
+> 1
+
+∆x = 0 , ukNx − ukNx−1
+
+∆x = 0 ,
+
+which implies that the boundary values mirror their neighboring interior values, 
+
+uk 
+
+> 1
+
+= uk 
+
+> 2
+
+, ukNx = ukNx−1.
+
+This prevents artificial fluxes through the boundary and ensures consistency with the conservation constraints. D.3.2. D ISCRETIZATION OF THE CONSERVATION CONSTRAINT 
+
+Consider the continuous conservation constraint 
+
+ddt 
+
+Z
+
+> Ω
+
+ρ(u) dx − C = 0 ,
+
+where ρ(u) denotes some quantity whose integral in space we’d like to conserve, and C is some constant. Using the spatial discretization, the integral term was approximated through a Riemann sum, 
+
+Z
+
+> Ω
+
+ρ(u) dx ≈ X
+
+> i
+
+ρ(uki )∆ x. 
+
+The temporal derivative was then approximated using a finite difference, 
+
+ddt 
+
+Z
+
+> Ω
+
+ρ(u) dx ≈
+
+P 
+
+> i
+
+ρ(uk+1  
+
+> i
+
+)∆ x − P 
+
+> i
+
+ρ(uki )∆ x
+
+∆t .
+
+Hence, the fully discretized conservation constraint becomes 
+
+P 
+
+> i
+
+ρ(uk+1  
+
+> i
+
+)∆ x − P 
+
+> i
+
+ρ(uki )∆ x
+
+∆t − C. 
+
+# E. Implementation Details 
+
+All sampling runs were initialized from white noise – iid Gaussian entries – matched to the grid of the target PDE as a starting point for our models. For all the methods, the forward pass of the pretrained neural operator is executed on the GPU. This choice is intentional to isolate the cost of the projection step, rather than benchmark CPU versus GPU neural-network inference. A fully CPU-resident implementation would likely incur additional cost from evaluating the neural operator on the CPU, and should therefore be expected to have larger end-to-end runtimes than those reported here. 
+
+E.1. Hardware 
+
+All experiments were conducted on a high-performance computing cluster with 1 × NVIDIA L40S GPU (46 GB VRAM), 4 CPU cores, and 64 GB RAM. 
+
+E.2. Test for Correctness 
+
+We verify that all methods produce solutions to the projection subproblem of comparable quality. Figure 3 shows generated samples under each backend, as compared with an analytic solve for reference. The ExaModels + MadNLP variants (both CPU and GPU) reproduce the analytic sample to visual accuracy, demonstrating that the GPU execution does not compromise the correctness of the solution. The remaining backends, JuMP , IPNewton , and L-BFGS ,produce samples that satisfy the constraints nominally but are visibly distinct from the reference. As PCFM is a generative method, even with exact constraint satisfaction, different optimization trajectories can occur. Therefore, the figure highlights differences in reproducibility rather than correctness. 16 SNAP-FM: Sparse Nonlinear Accelerated Projection for Physics-Constrained Generative Modeling 
+
+Figure 3. Generated heat-equation samples under each optimization backend, alongside an analytic reference. ExaModels+MadNLP 
+
+(CPU and GPU) reproduces the analytic sample; JuMP , IPNewton , and L-BFGS produce visibly different samples despite using the same input noise, indicating that solver choice affects the generated sample beyond runtime. 
+
+17

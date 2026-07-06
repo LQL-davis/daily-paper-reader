@@ -1,0 +1,323 @@
+Title: Geometry-Aware R-Structured Kolmogorov-Arnold Networks
+
+URL Source: https://arxiv.org/pdf/2607.01449v1
+
+Published Time: Fri, 03 Jul 2026 00:12:27 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+# Geometry-Aware R-Structured Kolmogorov–Arnold Networks 
+
+S. Kucherenko, N. Shah Imperial College London, London SW7 2AZ, UK July 3, 2026 
+
+Abstract 
+
+We propose a novel hybrid neural architecture, the Geometry-aware R-Structured Kolmogorov-Arnold Network (GRS-KAN), which integrates V. L. Rvachev’s R-functions into the Kolmogorov-Arnold Network (KAN) framework. The proposed approach combines two complementary modeling mechanisms: smooth nonlinear structure is learned by KAN branches, while known geometric or logical constraints are encoded analytically using differentiable R-functions. This enables explicit representation of discontinuities, feasible regions, and implicit geomet-ric boundaries within a trainable neural architecture. The framework implements differentiable logical operations through R-conjunctions and R-disjunctions, allowing complex geometric supports to be represented analytically and incorporated directly into regression models. Several GRS-KAN variants are introduced, including additive, multiplicative, and agnostic branch-weighted architectures. The method is demonstrated on regression problems involving discontinuities with circu-lar and rectangular supports. Numerical experiments show that explicit geometric encoding substantially improves predictive accuracy and boundary localization compared with stan-dard KANs. In the considered benchmarks, geometry-aware GRS-KAN models reduce test RMSE by up to 67% while simultaneously improving interpretability through explicit an-alytical representation of the learned geometric structure. The agnostic variant further demonstrates the ability to automatically determine whether geometric priors are beneficial for a given learning task. 
+
+# 1 Introduction 
+
+Neural networks have achieved remarkable success across numerous domains, yet their “black box” nature remains a significant limitation for applications requiring interpretability and for-mal verification, particularly in safety-critical fields such as pharmaceutical manufacturing, process control, and scientific computing. Two recent developments address this challenge from complementary perspectives: Kolmogorov–Arnold Networks (KANs) and R-functions. KANs, introduced by Liu et al. [3], replace traditional weight matrices with learnable uni-variate functions, offering improved interpretability and accuracy for scientific computing tasks. The architecture is grounded in the Kolmogorov–Arnold representation theorem, which states that any continuous multivariate function can be decomposed into sums of compositions of univariate functions. The introduction of KANs triggered an exceptionally rapid expansion of research activ-ity. Within approximately one year of publication, the original KAN paper accumulated several thousand citations and generated a rapidly growing ecosystem of derivative archi-tectures and applications. Numerous variants have already appeared, including FastKAN, ConvKAN, GraphKAN, TemporalKAN, PDE-KAN, Physics-Informed KANs, Symbolic-KANs, FourierKAN, WaveletKAN, ChebyshevKAN, Transformer–KAN hybrids, operator-learning KANs, and multiple domain-specific implementations in medical imaging, remote sensing, and segmen-tation tasks. This rapid diversification reflects the broader interest in replacing conventional node-based neural nonlinearities with learnable edge-based functional representations. 1
+
+> arXiv:2607.01449v1 [cs.LG] 1 Jul 2026
+
+Most existing KAN extensions focus primarily on modifications of approximation mecha-nisms, including alternative basis functions, spline parameterizations, convolutional operators, symbolic primitives, attention mechanisms, or physics-informed loss constructions. However, comparatively little attention has been devoted to incorporating explicit geometry, Boolean structure, analytical feasible regions, discontinuity-aware compositions, or implicit surface rep-resentations directly into the KAN framework. Separately, R-functions, developed by V.L. Rvachev [6] and extended by Shapiro [7, 8], pro-vide a rigorous bridge between logical operations and real analysis. R-functions allow complex geometric shapes and Boolean conditions to be represented analytically by single differentiable equations. This makes them particularly attractive for embedding geometric constraints and logical structure into differentiable machine learning architectures. This paper introduces the Geometry-aware R-Structured Kolmogorov–Arnold Network (GRS-KAN), a hybrid architecture that embeds R-functions directly into the KAN framework. Con-ceptually, the proposed framework separates two fundamentally different modeling roles: 
+
+• KAN branches learn smooth nonlinear functional structure from data, 
+
+• R-functions encode known geometric or logical structure analytically. This leads to a substantially different direction from existing KAN variants. Rather than intro-ducing another spline modification or approximation basis, the proposed framework incorporates explicit analytical geometry directly into the network architecture itself. The resulting model enables interpretable representation of discontinuities, geometric supports, feasible regions, and implicit boundaries while preserving differentiability required for gradient-based optimization. The key contributions of this work are: 1. A theoretical framework for integrating analytical R-function representations of geometric and logical constraints into KANs within differentiable neural architectures 2. Explicit analytical constructions of geometric indicators using R-conjunctions and R-compositions, together with closed-form gradient expressions suitable for backpropaga-tion. 3. Three architectural variants: targeted additive, targeted multiplicative, and agnostic branch-weighted GRS-KANs. 4. Comprehensive numerical experiments demonstrating improved accuracy, geometric lo-calization, and interpretability on problems with known discontinuous structure. 5. Empirical evidence that learnable branch weights can automatically determine whether explicit geometric priors are beneficial for the regression task. Although the numerical examples in this paper employ simple rectangles and circles, the proposed framework is applicable to arbitrary implicit regions represented analytically by R-functions, including non-convex domains, disconnected regions, and Boolean combinations of multiple constraints. The remainder of this paper is organized as follows. Section 2 reviews the theoretical back-ground of Kolmogorov–Arnold Networks and R-functions, including the analytical construction of geometric primitives used throughout the paper. Section 3 introduces the proposed GRS-KAN architectures, including additive, multiplicative, and agnostic branch-weighted variants. Section 4 presents numerical experiments on smooth and discontinuous benchmark problems, together with pruning diagnostics, geometric localization studies, and comparisons against stan-dard KAN models. Section 5 discusses the implications of explicit geometry-aware learning and the role of learnable branch selection. Finally, Section 6 summarizes the main conclusions and outlines directions for future research, including extensions to multi-region constraints, adaptive geometric gates, and scientific machine learning applications. 22 Background and Theory 
+
+2.1 Kolmogorov–Arnold Networks (KANs) 
+
+Kolmogorov–Arnold Networks (KANs), introduced by Liu et al. [4], are a class of neural net-works motivated by the Kolmogorov–Arnold representation theorem. Unlike conventional Multi-Layer Perceptrons (MLPs), where nonlinear activation functions are attached to nodes and the edges contain scalar weights, KANs place learnable nonlinear functions directly on the edges of the network. This architectural change leads to improved interpretability, sparse composi-tional structure discovery, and strong approximation performance for scientific machine learning problems. The theoretical foundation of KANs is the Kolmogorov–Arnold representation theorem, which states that any continuous multivariate function f : [0 , 1] n → R can be represented as a finite superposition of continuous univariate functions: 
+
+f (x) = 
+
+> 2n
+
+X
+
+> q=0
+
+Φq
+
+
+
+> n
+
+X
+
+> p=1
+
+ψq,p (xp)
+
+ , (1) where ψq,p : [0 , 1] → R and Φ q : R → R are continuous univariate functions. The theorem demonstrates that high-dimensional nonlinear mappings can, in principle, be decomposed into sums and compositions of one-dimensional functions. KANs implement this idea directly by replacing fixed linear weights with learnable univariate edge functions. A KAN layer maps an input vector xl ∈ Rnl to an output vector xl+1 ∈ Rnl+1 
+
+through 
+
+xl+1 ,j =
+
+> nl
+
+X
+
+> i=1
+
+ϕl,j,i (xl,i ), (2) where ϕl,j,i is a trainable univariate function associated with the edge connecting neuron i in layer l to neuron j in layer l+1. Thus, the network performs nonlinear functional transformations directly on the connections rather than on the nodes. Equation (2), adopted from the original KAN formulation of Liu et al. [4], constitutes the fundamental computational building block of a KAN. Throughout this paper, this smooth KAN mapping serves as the baseline function approximator. The key idea of the proposed Geometry-aware R-Structured KAN (GRS-KAN) is not to modify the internal KAN layer itself, but rather to augment the smooth KAN approximation with explicit analytical geometric components con-structed from R-functions. Consequently, the KAN branch learns smooth nonlinear behaviour, while the R-function branch represents known geometric constraints, discontinuities, feasible regions, and implicit boundaries. Following Liu et al. [4], each edge activation is represented using a residual formulation consisting of a smooth base activation plus a spline correction: 
+
+ϕ(x) = wb b(x) + ws spline( x), b(x) = silu( x) = x
+
+1 + exp( −x) , (3) where wb and ws are learnable scalar coefficients. The smooth residual branch provides stable global behaviour, while the spline component captures localized nonlinear structure. The spline term is parameterized using cubic B-spline basis functions: spline( x) = X
+
+> i
+
+ciBi(x), (4) where Bi(x) are cubic B-spline basis functions and ci are trainable spline coefficients optimized by backpropagation. Compared with MLPs, KANs exhibit several important properties: 3• Interpretability: Since nonlinearities are attached to edges as explicit one-dimensional functions, the learned transformations can be visualized directly and, in some cases, sym-bolically simplified. 
+
+• Compositional sparsity: Many scientific functions possess low-dimensional composi-tional structure. KANs naturally expose this through pruning and symbolic snapping of weak or redundant branches. 
+
+• Improved scaling laws: Liu et al. [4] demonstrated empirically that KANs can achieve higher accuracy than comparable MLPs with fewer parameters on scientific regression tasks. 
+
+• Symbolic recovery: For several benchmark functions, pruned KANs recover exact an-alytical expressions after symbolic simplification. A key feature of KANs is structural pruning. During training, many edge activations become negligible, allowing hidden nodes and edges to be removed without degrading accuracy. This often reveals compact compositional representations of the target function. 4(a) Standard KAN architecture. 
+
+> (b) GRS-KAN with geometric gates.
+
+Figure 1: Comparison of standard KAN and Geometry-aware R-Structured KAN (GRS-KAN). The GRS-KAN augments the base KAN with explicit geometric constraints encoded via R-functions, enabling hard-constrained regression and interpretable structure discovery. 5Figure 1 illustrates the conceptual difference between standard KANs and the proposed Geometry-aware R-Structured KAN (GRS-KAN). In a standard KAN, all geometric structure must be inferred implicitly from the data through spline edge activations. In contrast, the GRS-KAN explicitly incorporates geometric priors through differentiable R-function gates, allowing known region constraints and discontinuities to be encoded analytically. Although the architecture defined by Equation (2) is capable of approximating highly non-linear functions, all geometric information—including feasible regions, implicit boundaries, Boolean constraints, and discontinuities—must be inferred implicitly from the training data. For many scientific and engineering applications, however, such geometric information is avail-able a priori . The next section introduces R-functions, which provide an analytical framework for encoding this geometry explicitly. In Section 3 these analytical geometric representations are combined with the smooth approximation capability of KANs to form the proposed Geometry-aware R-Structured Kolmogorov–Arnold Network (GRS-KAN). 
+
+2.2 R-Functions and Geometry Primitives 
+
+R-functions are real-valued functions whose signs are completely determined by the signs of their arguments, enabling logical operations on regions to be represented analytically [5–8]. In the convention used here, an implicit function ϕ(x) ≥ 0 denotes the interior of a region. The analytical representation of implicit geometric regions using R-functions has recently been developed by Kucherenko et al. [1, 2] for the identification of feasible regions and process design spaces in chemical engineering. The present work builds upon these developments by embedding analytical R-function representations directly into the KAN framework, thereby enabling geometry-aware neural architectures. For two implicit functions ϕ1(x) and ϕ2(x), the R-conjunction (AND) and R-disjunction (OR) are defined as: 
+
+ϕ1 ∧α ϕ2 = ϕ1 + ϕ2 − pϕ21 + ϕ22 − 2αϕ 1ϕ2
+
+1 + α , −1 < α ≤ 1, (5) 
+
+ϕ1 ∨α ϕ2 = ϕ1 + ϕ2 + pϕ21 + ϕ22 − 2αϕ 1ϕ2
+
+1 + α , −1 < α ≤ 1, (6) where α controls the smoothness of the operation. When α = 1, these reduce to the standard min/max functions: 
+
+ϕ1 ∧1 ϕ2 = min( ϕ1, ϕ 2), ϕ1 ∨1 ϕ2 = max( ϕ1, ϕ 2).
+
+When α = 0, they become differentiable functions based on the Euclidean norm: 
+
+ϕ1 ∧0 ϕ2 = ϕ1 + ϕ2 −
+
+q
+
+ϕ21 + ϕ22, ϕ1 ∨0 ϕ2 = ϕ1 + ϕ2 +
+
+q
+
+ϕ21 + ϕ22.
+
+The R-negation (NOT) is simply: 
+
+¬ϕ1 = −ϕ1. (7) These operations satisfy De Morgan’s laws and form a sufficiently complete system for constructing any Boolean function as a differentiable real-valued function. This makes them particularly suitable for gradient-based optimization in neural networks, as they provide smooth approximations of logical conditions while preserving exactness at the decision boundary. A composite geometric region D ⊆ Rn can be described as: 
+
+D = F [( ϕ1 ≥ 0) , . . . , (ϕm ≥ 0)] , (8) where ϕi(x) ≥ 0 define primitive geometric regions, and F is a set function constructed using standard set operations ∩, ∪, \ on these primitive regions. The function F can be viewed as 6a Boolean function, in which the set operations are replaced with the corresponding logical functions ∧, ∨, ¬. We seek a single real-function inequality: 
+
+R(ϕ1, . . . , ϕ m) ≥ 0 (9) that defines the composite object D as a closed subset of Rn.
+
+2.3 Explicit Analytical Construction of a Rectangle Indicator 
+
+For the rectangular tests in this paper, we set α = 0, yielding the simplified R-conjunction: 
+
+ϕ1 ∧0 ϕ2 = ϕ1 + ϕ2 −
+
+q
+
+ϕ21 + ϕ22. (10) The rectangle used in the experiments is defined by two perpendicular strips: 
+
+ϕ1(x, y ) = 0 .52 − x2, ϕ2(x, y ) = 0 .42 − y2, (11) where ϕ1(x, y ) ≥ 0 represents the vertical strip |x| ≤ 0.5 and ϕ2(x, y ) ≥ 0 represents the horizontal strip |y| ≤ 0.4. Their R-conjunction yields the rectangle interior: 
+
+Rrect (x, y ) = ϕ1 ∧0 ϕ2. (12) Using the above definitions, the expression can be written explicitly as: 
+
+Rrect (x, y ) =  0.25 − x2 +  0.16 − y2 −
+
+q 0.25 − x22 +  0.16 − y22. (13) This single smooth function completely characterizes the rectangular region: 
+
+• Rrect (x, y ) > 0 for points strictly inside the rectangle ( |x| < 0.5, |y| < 0.4), 
+
+• Rrect (x, y ) = 0 on the boundary ( |x| = 0 .5 or |y| = 0 .4), 
+
+• Rrect (x, y ) < 0 for points outside the rectangle. The expression is continuously differentiable everywhere except at the four corner points (±0.5, ±0.4), where the gradient is discontinuous. This is unavoidable for a sharp rectangle, but the R-function formulation concentrates the non-smoothness at the corners rather than along entire edges. The gradient for interior points and edge points (excluding corners) is: 
+
+∂R rect 
+
+∂x = −2x 1 − 0.25 − x2
+
+p(0 .25 − x2)2 + (0 .16 − y2)2
+
+!
+
+, (14) 
+
+∂R rect 
+
+∂y = −2y 1 − 0.16 − y2
+
+p(0 .25 − x2)2 + (0 .16 − y2)2
+
+!
+
+. (15) The function behaves like a softened indicator that can be sharpened by applying a sigmoid with large κ:
+
+g(x, y ) = σ κ R rect (x, y ) = 11 + exp  −κ R rect (x, y ) , (16) which approaches the ideal indicator I(|x| < 0.5, |y| < 0.4) as κ → ∞ .The rectangle is used throughout this paper as the simplest analytical geometric primitive for demonstrating the proposed framework. For such simple regions, equivalent smooth gates can also be constructed directly from products of sigmoid functions or other differentiable indicator approximations. The advantage of the proposed R-function formulation is not the smoothing itself, but its ability to represent arbitrary implicit regions and Boolean combinations of constraints analytically within a unified differentiable framework. 73 GRS-KAN Architecture 
+
+We propose three variants of the Geometry-aware R-Structured KAN, each suited to different types of geometric priors. The three GRS-KAN architectures presented below correspond to in-creasingly general assumptions regarding the interaction between a smooth function and known geometric information: additive, multiplicative, and automatically discovered. 
+
+3.1 Targeted Additive GRS-KAN 
+
+Many scientific and engineering problems involve target functions that consist of a smooth background together with a localized additive correction acting only inside a prescribed region. Such functions can be written in the general form 
+
+f (x) = fsmooth (x) + c I (x ∈ D), (17) where fsmooth is a continuous background function, D ⊂ Rn denotes a known geometric region, 
+
+I(·) is the indicator function, and c is the magnitude of the additive jump. Representative exam-ples include localized source terms, regime changes, activation phenomena, and discontinuities whose support is known a priori .The discontinuous indicator function is unsuitable for gradient-based optimization. In the proposed GRS-KAN framework, it is replaced by a differentiable approximation constructed from an analytical R-function. Specifically, the indicator is approximated by 
+
+I(x ∈ D) ≈ σ(κR (x)) ,
+
+where R(x) is the R-function representation of the region D, σ(·) is the logistic sigmoid, and κ
+
+controls the transition sharpness. For the rectangular benchmark considered in this paper, R(x) is given by the analytical rect-angle R-function Rrect (x, y ) defined in Section 2.3. The targeted additive GRS-KAN therefore becomes ˆf (x, y ) = fsmooth (x, y ) + c σ (κR rect (x, y )) , (18) where fsmooth is represented by a standard KAN branch that learns the continuous background, while the second term explicitly models the localized discontinuity through the analytical ge-ometry. The jump amplitude c is learned during training, whereas κ controls the sharpness of the transition across the boundary. 
+
+3.2 Targeted Multiplicative GRS-KAN 
+
+A second important class of problems consists of functions whose values are non-zero only inside a prescribed geometric region. Such functions can be expressed in the general form 
+
+f (x) = fsmooth (x) I(x ∈ D), (19) where fsmooth denotes the underlying continuous function, D ⊂ Rn is a known geometric sup-port, and I(·) is the indicator function. This formulation naturally arises when the geometry determines the support, visibility, activation, or amplitude of the underlying physical process. As in the additive formulation, the discontinuous indicator function is replaced by a differ-entiable approximation based on an analytical R-function, 
+
+I(x ∈ D) ≈ σ(κR (x)) ,
+
+where R(x) is the R-function representation of the support region, σ(·) is the logistic sigmoid, and κ controls the sharpness of the transition. 8For the rectangular benchmark considered in this paper, R(x) is represented by the analytical rectangle R-function Rrect (x, y ) introduced in Section 2.3. The targeted multiplicative GRS-KAN is therefore defined as ˆf (x, y ) = fsmooth (x, y ) c σ (κR rect (x, y )) , (20) where the KAN branch learns the smooth background function, while the R-function gate explicitly encodes the geometric support. The trainable coefficient c scales the response, and κ
+
+controls the sharpness of the transition near the boundary. Typical examples include masked functions, visibility constraints, domain-restricted solu-tions of partial differential equations, region-dependent material properties, and financial pay-offs activated only inside prescribed state-space regions. The benchmark considered in this paper corresponds to 
+
+f (x, y ) = xy I (( x, y ) ∈ D) ,
+
+where D is the rectangular region represented analytically by Rrect (x, y ). 
+
+3.3 Agnostic GRS-KAN with Learnable Structure-Selection Parameters 
+
+In many practical applications, the manner in which geometric information interacts with the smooth background is not known a priori . The target function may be purely smooth, contain an additive localized correction, exhibit multiplicative geometric support, or involve a combination of these mechanisms. Rather than selecting a specific architecture beforehand, we introduce an agnostic GRS-KAN that simultaneously considers all three possibilities and learns their relative importance directly from the data. The agnostic architecture combines a baseline KAN branch with additive and multiplicative geometry-aware branches, ˆf (x, y ) = wKAN fbase (x, y ) + wadd g(x, y ) + wmul fmask (x, y ) g(x, y ), (21) where 
+
+g(x, y ) = σ(κR rect (x, y )) is the differentiable R-function gate introduced in the previous subsections. The learnable coefficients wKAN , wadd , and wmul determine the relative contribution of the three branches during training. Consequently, the proposed architecture performs not only function approximation but also automatic structure identification. The coefficients wKAN ,
+
+wadd , and wmul act as learnable structure-selection parameters , automatically identifying the most appropriate interaction between the smooth approximation and the analytical geometric prior. Depending on the underlying problem, the network may recover a purely smooth KAN model, a targeted additive representation, a targeted multiplicative representation, or a hybrid combination of these components. The learned structure-selection parameters therefore provide both an interpretable decomposition of the solution and insight into the underlying functional relationship between geometry and the smooth background. 9(a) Additive discontinuity problem. All three branches remain active, indicating that the optimal approximation combines smooth, additive, and multiplicative components.   
+
+> (b) Masked xy problem. The multiplicative geometry-aware branch dominates, correctly identifying that the target function is governed primarily by geometric support.
+
+Figure 2: Agnostic GRS-KAN architecture illustrating the learned structure-selection parame-ters for two benchmark problems. The relative branch activations reveal how analytical geom-etry interacts with the smooth KAN approximation. Figure 2 illustrates that the learned structure-selection parameters provide a useful diag-nostic of the underlying functional structure. Rather than simply weighting individual network branches, they reveal how analytical geometry should interact with the smooth KAN approxi-mation to represent the target function. For the additive rectangle problem (Figure 2a), the KAN, additive, and multiplicative 10 branches all contribute to the final prediction, indicating that the agnostic model learns a mixed representation rather than selecting a single interaction mechanism. In contrast, for the masked xy problem (Figure 2b), the multiplicative branch receives the dominant weight, correctly identifying that the target function is primarily governed by geometric support. These results demonstrate that the proposed agnostic GRS-KAN can simultaneously per-form function approximation and automatic structure discovery, eliminating the need to pre-scribe a priori how analytical geometry should interact with the smooth approximation. This capability makes GRS-KAN applicable to a broad class of scientific and engineering problems where the functional role of known geometric constraints is itself unknown. 
+
+# 4 Numerical Experiments 
+
+All experiments used reproducible random seeds, Ntrain = 1000, and Ntest = 1000. The primary metrics are train RMSE, test RMSE, parameter count, and boundary-band RMSE (for problems with discontinuities). 
+
+4.1 Validation of Standard KAN on the Liu et al. Toy Benchmark 1 
+
+We first validated our MATLAB KAN implementation against the toy example from Liu et al. [4]: 
+
+f (x, y ) = exp(sin( πx ) + y2). (22) The workflow starts from an improved full [2 , 5, 1] KAN, uses edge-activation scores to identify a compact [2 , 1, 1] structure, retrains/fine-tunes the compact KAN, and finally applies symbolic snapping to recover the underlying analytical representation. The same data split was also tested using MATLAB’s built-in fitrnet regression neural network. Hidden-layer configurations [20 , 20], [50 , 50], [100 , 100], [200 , 100], and [100 , 100 , 50] were swept using ReLU and tanh activations. The selected configuration the lowest validation RMSE was a tanh MLP with hidden-layer sizes [100 , 100 , 50], standardization enabled, ridge parameter λ = 10 −6, and iteration limit 1200. Table 1: Toy problem results for f (x, y ) = exp(sin( πx ) + y2). Model Train RMSE Test RMSE Params Time (s) Full KAN [2 , 5, 1] 0.00355 0.00421 195 11.6 Pruned-structure compact KAN [2 , 1, 1] 0.00247 0.00277 51 0.540 MATLAB NN, fitrnet [100 , 100 , 50]/tanh 0.00229 0.00439 15501 8.02 Symbolic snapped KAN 0 0 12 0.0500 11 (a) True target, full KAN, compact KAN, and MATLAB NN surfaces. 
+
+(b) Test RMSE comparison for MATLAB NN and KAN variants. 
+
+Figure 3: Toy benchmark comparison including the MATLAB NN baseline. 12 (a) Full [2 , 5, 1] KAN before pruning. 
+
+> (b) Same trained network with inactive hidden nodes shown as pruned.
+
+Figure 4: Standard KAN architecture plots. Edge opacity and thickness indicate mean absolute edge activation magnitude. Toy Benchmark 1 13 (a) Before/after RMSE and parameter count after pruning. 
+
+> (b) MATLAB NN validation/test RMSE over layer sizes and activations.
+
+Figure 5: Toy benchmark pruning and NN configuration diagnostics. Figure 3 compares the fitted surfaces and final test errors. All learned models reproduce the smooth nonlinear target accurately. The improved full KAN reaches test RMSE 0 .00421 using only 195 parameters, slightly outperforming the selected MATLAB neural network baseline with test RMSE 0 .00439 despite the latter requiring 15501 parameters. After pruning and retraining, the compact [2 , 1, 1] KAN further improves the test RMSE to 0 .00277 while reducing the parameter count to only 51. The symbolic snapped KAN exactly recovers the analytical expression of the target function. Figure 4 illustrates the structural pruning behaviour of the trained KAN. Subfigure (a) shows the full trained [2 , 5, 1] architecture before simplification. Edge thickness and opacity are proportional to the mean absolute edge activation magnitude, so weak functional connections appear pale and thin. Subfigure (b) shows the resulting pruning decision, where inactive hidden nodes are removed automatically, leaving the compact [2 , 1, 1] architecture. This behaviour confirms one of the central claims of Liu et al. [4]: KANs can reveal sparse compositional structure rather than acting purely as black-box approximators. In many scien-tific problems, the effective functional structure is substantially simpler than the original dense architecture, and KAN pruning exposes this reduced representation explicitly. Figure 5 provides additional diagnostics behind this comparison. Subfigure (a) shows the effect of compacting the KAN structure: the number of parameters decreases from 195 to 51 while the RMSE improves after fine tuning. Thus pruning is not merely compressing the model; it removes weak hidden paths that are not required by the underlying compositional structure. Subfigure (b) presents the MATLAB NN configuration sweep. For this smooth globally nonlinear target, tanh activations outperform ReLU activations, and the best validation score is achieved by the deeper [100 , 100 , 50] tanh network. The comparison highlights that KANs 14 can achieve competitive or better accuracy using substantially fewer parameters, while retaining the additional capability of symbolic structure recovery. 
+
+4.2 Unconstrained product function 
+
+We next evaluated our KAN implementation on a second benchmark problem from Liu et al. [4], the unconstrained product function: 
+
+f (x, y ) = xy. (23) Unlike the smooth nonlinear target in Benchmark 1, this function has an exact multiplicative structure with no additive components or higher-order nonlinearities. It therefore provides a stringent test of whether the pruning and symbolic snapping procedures can correctly identify the absence of unnecessary terms and recover a purely multiplicative relationship. Applying the same workflow as before, we initialized a full [2 , 5, 1] KAN, then used edge-activation scores to prune weak connections. The resulting compact architecture was [2 , 2, 1], which retains a single hidden layer with two active nodes. After retraining the pruned structure, we performed symbolic snapping to map the learned edge functions onto a closed-form analytical expression. As shown in Table 2, pruning reduced the parameter count from 255 to 102 while simul-taneously improving both train and test RMSE by more than an order of magnitude. Sym-bolic snapping then reduced the model to just 9 parameters and recovered the exact product 
+
+f (x, y ) = xy to within machine precision, with test RMSE on the order of 10 −17 . This demon-strates that the KAN framework can distinguish true multiplicative structure from spurious correlations induced by overparameterization. Table 2: KAN results for f (x, y ) = xy .Model Train RMSE Test RMSE Params Time (s) Full KAN [2 , 5, 1] 0.00690 0.00720 255 15.8 Pruned KAN [2 , 2, 1] 4.81 × 10 −4 5.16 × 10 −4 102 0.990 Symbolic snapped KAN 2.82 × 10 −17 2.63 × 10 −17 9 0.0500 15 (a) Surface fit for full and pruned KAN. 
+
+> (b) RMSE and parameter count before and after pruning.
+
+Figure 6: Unconstrained product KAN results. Figure 6 provides a simple symbol-discovery check. Both the full and pruned KAN reproduce the saddle-shaped xy surface, while pruning reduces the architecture from [2 , 5, 1] to [2 , 2, 1] and lowers the test RMSE from 7 .20 ×10 −3 to 5 .16 ×10 −4. This is consistent with the representation 
+
+xy = (( x + y)2 − (x − y)2)/4, which naturally requires two hidden directions. These results verify that our MATLAB baseline captures the central KAN ideas: edge activations, summation nodes, spline functions, residual SiLU basis, pruning by edge activation magnitudes, and symbolic simplification. 
+
+4.3 Rectangular Additive Discontinuity 
+
+The first GRS-KAN benchmark introduces a discontinuous jump superimposed on a smooth background: 
+
+f (x, y ) = sin( πx ) + y2 + 2 I(|x| < 0.5, |y| < 0.4) , (24) 16 where the rectangular region is encoded analytically through Rrect and the additive model in Eq. (18). For comparison, we also evaluate a standard multilayer perceptron baseline using MATLAB’s 
+
+fitrnet . A hyperparameter sweep over hidden-layer configurations [20 , 20], [50 , 50], [100 , 100], [200 , 100], and [100 , 100 , 50] with both ReLU and tanh activations was performed using a 20% validation split. The selected network—a ReLU MLP with [20 , 20] hidden units, standardiza-tion, ridge parameter λ = 10 −6, and 1200 iterations—was retrained on the full training set prior to final evaluation. Table 3: Rectangular additive discontinuity results including the MATLAB NN baseline. Model κ Train RMSE Test RMSE Boundary RMSE Params Standard KAN – 0.128 0.277 0.612 255 MATLAB NN, fitrnet [20 , 20]/ReLU – 0.041 0.114 0.365 501 Generic RS-KAN – 0.105 0.267 0.600 416 Additive GRS-KAN 20 0.198 0.242 0.577 154 Additive GRS-KAN 40 0.156 0.183 0.454 154 Additive GRS-KAN 80 0.127 0.140 0.353 154 Additive GRS-KAN 120 0.110 0.116 0.299 154 Additive GRS-KAN 200 0.090 0.092 0.239 154 17 (a) True target (left) and standard KAN [2 , 5, 1] prediction (right).    
+
+> (b) MATLAB NN [20 ,20]/ReLU (left) and GRS-KAN with κ= 200 (right).
+
+Figure 7: Surface comparisons for the rectangular additive discontinuity. Figure 7 compares the fitted surfaces. The standard KAN (subfigure a) produces a visibly smooth transition across the discontinuity, as it must approximate the jump using smooth spline bases. The MATLAB NN (subfigure b) captures the discontinuity more sharply, reflected in its lower test RMSE (0 .1136 versus 0 .2774). However, the GRS-KAN achieves the sharpest rectangular jump and the best overall test and boundary-band errors, because the jump location is supplied explicitly through Rrect rather than inferred from data alone. 18 (a) Standard KAN architecture. 
+
+> (b) Targeted additive GRS-KAN architecture.
+
+Figure 8: Architectural comparison for the rectangular discontinuity benchmark. Figure 8 illustrates the architectural difference between the two models. The standard KAN must learn both the smooth background and the discontinuity through its spline edge activations, whereas the targeted GRS-KAN separates these roles: the KAN branch models the smooth residual, while the R-function gate encodes the jump explicitly. This structural decoupling is the primary source of the accuracy improvements reported below. 19 (a) Train, test, and boundary-band RMSE versus κ.
+
+> (b) Spatial error map with the true rectangle boundary overlaid.
+
+Figure 9: RMSE analysis and spatial error localization. Figure 9 provides a quantitative and spatial analysis. Subfigure (a) shows that increasing 
+
+κ sharpens the sigmoid gate and monotonically improves both test and boundary-band RMSE over the range tested, with κ = 200 yielding the best performance in this experiment. Subfig-ure (b) localizes the remaining error primarily near the rectangular boundary, where the true discontinuity is most difficult to approximate with a smooth gate. This concentration of error is expected and indicates that the model correctly identifies the geometric structure. Quantitatively, the targeted additive GRS-KAN with κ = 200 reduces test RMSE from 0.2774 (standard KAN) to 0 .0915—a reduction of 67%—and improves boundary-band RMSE from 0 .6116 to 0 .2388, a reduction of 61%. These gains demonstrate that explicit geomet-ric encoding via R-functions substantially improves both global accuracy and localization of 20 discontinuities. 
+
+4.4 Masked Product with Rectangular Support 
+
+The multiplicative geometry test enforces support only inside the rectangle: 
+
+f (x, y ) = xy I (|x| < 0.5, |y| < 0.4) . (25) Table 4: Masked xy rectangle results. Model κ Train RMSE Test RMSE Boundary RMSE Params Standard KAN – 0.00908 0.0149 0.0302 255 Multiplicative GRS-KAN 20 0.0102 0.0134 0.0298 154 Multiplicative GRS-KAN 40 0.00769 0.0107 0.0266 154 Multiplicative GRS-KAN 80 0.00708 0.00780 0.0218 154 Multiplicative GRS-KAN 120 0.00616 0.00675 0.0187 154 Multiplicative GRS-KAN 200 0.00405 0.00620 0.0152 154 
+
+Figure 10: Predicted surfaces for xy masked by the rectangle. 21 (a) Train, test, and boundary-band RMSE versus κ.
+
+> (b) Spatial error map with the true rectangle boundary over-laid.
+
+Figure 11: Masked xy rectangle plots: (a) RMSE sweep and (b) error map. Figure 10 illustrates the case where the multiplicative GRS-KAN is structurally appropriate. The target is zero outside the rectangle and behaves like xy inside it. A conventional KAN must simultaneously learn both the smooth product-like variation and the underlying geometric support from data. The multiplicative GRS-KAN decouples these tasks: the KAN branch models the smooth function, whereas the analytical R-function representation explicitly encodes the geometric support. The remaining errors are concentrated near the rectangle boundary and corners, as shown in Figure 11b, where the smooth sigmoid gate approximates a hard indicator. Figure 11a further shows the trade-off in choosing the sharpness parameter κ.The multiplicative GRS-KAN with κ = 200 reduced test RMSE from 0 .0149 to 0 .0062 (58% reduction) and boundary RMSE from 0 .0302 to 0 .0152 (50% reduction). 
+
+4.5 Agnostic GRS-KAN with Learned Branch Weights 
+
+The agnostic model in Eq. (21) was tested on both rectangular targets. The learned weights reveal the preferred structure. 22 Table 5: Best agnostic GRS-KAN results on rectangular tasks. Task κ Test RMSE Boundary RMSE wKAN wadd wmul Params Additive discontinuity 40 0.100 0.322 1.11 1.08 1.26 309 Masked xy 200 0.00477 0.0146 0.568 0.420 1.01 309    
+
+> (a) Learned wKAN ,wadd , and wmul .
+> (b) Best test RMSE comparison against specialized models.
+
+Figure 12: Agnostic GRS-KAN branch selection on rectangular tasks. Figure 12 summarizes the learned branch selection. For the additive discontinuity, all three weights remain active, so the model finds a mixed representation rather than a clean additive-only structure. For the masked xy target, wmul dominates the geometry-aware part, matching the expected multiplicative form. The RMSE comparison shows that the agnostic model is 23 competitive and even improves over the specialized multiplicative model on the masked product, although it does not beat the specialized additive GRS-KAN on the additive discontinuity. For the masked xy task, the model learned wmul ≈ 1.0, correctly identifying that the mul-tiplicative structure is most appropriate. For the additive discontinuity, all three branches contributed, reflecting the additive jump nature. 
+
+4.6 Sanity Check: Unconstrained Product 
+
+As a validation, the agnostic GRS-KAN was tested on the unconstrained target f (x, y ) = xy ,which has no rectangular support or jump. Table 6: Unconstrained xy : KAN vs. agnostic GRS-KAN. Model κ Test RMSE Params wKAN wadd wmul 
+
+Full KAN – 0.00720 255 – – –Pruned KAN – 0.000516 102 – – –Symbolic snapped KAN – 2.63 × 10 −17 9 – – –Agnostic GRS-KAN 40 0.000745 309 1.25 4.94 × 10 −7 0.00188 24 (a) Learned branch weights for an unconstrained target. 
+
+> (b) KAN and agnostic GRS-KAN test RMSE comparison.
+
+Figure 13: Agnostic GRS-KAN on unconstrained xy . The geometry branches are effectively suppressed. Figure 13 is a negative-control experiment for the geometry-aware architecture. Since the target has no rectangular constraint, the desired behaviour is to suppress the geometry branches. The learned weights show exactly this: wadd and wmul are close to zero, while wKAN remains large. The agnostic model therefore falls back toward a pure KAN representation, although the pruned and symbolically snapped KANs remain more compact for this unconstrained smooth target. The model learned wadd ≈ 0 and wmul ≈ 0, with wKAN remaining large. This is the desired behavior: when no geometric prior is needed, the model falls back to a pure KAN branch and suppresses the geometry branches. 
+
+# 5 Discussion 
+
+The experiments support three main conclusions. 25 1. Standard KAN reproduces expected sparse structures. For the KAN paper toy example, sparsification and pruning reduced the model from [2 , 5, 1] to [2 , 1, 1]. For xy , pruning gave [2 , 2, 1] and symbolic snapping recovered the exact product. This verifies that our MATLAB baseline correctly implements the core KAN mechanisms. 
+
+2. Explicit geometry improves performance on structured problems. For the rect-angular additive discontinuity, the targeted additive GRS-KAN reduced test RMSE by 67% and boundary RMSE by 61% compared to standard KAN. For the masked product, the multi-plicative GRS-KAN achieved 58% and 50% reductions respectively. 
+
+3. Learnable branch weights enable automatic structure discovery. The agnostic GRS-KAN correctly identified the multiplicative structure for the masked product ( wmul ≈
+
+1.0) and suppressed geometry branches for the unconstrained product ( wadd , w mul ≈ 0). This capability is valuable when the appropriate functional form is not known a priori. 
+
+# 6 Conclusions and Future Work 
+
+We have introduced the Geometry-aware R-Structured Kolmogorov–Arnold Network (GRS-KAN), a hybrid architecture that integrates analytical implicit geometry, represented by R-functions, into Kolmogorov–Arnold Networks. The proposed framework enables: 
+
+• Analytical representation of geometric regions and Boolean constraints within differen-tiable neural architectures, 
+
+• Closed-form construction of differentiable region indicators with analytical gradients, 
+
+• Three complementary GRS-KAN architectures (targeted additive, targeted multiplicative, and agnostic) for incorporating different types of analytical geometric priors, 
+
+• Automatic structure discovery through learnable structure-selection parameters. Numerical experiments on rectangular discontinuity and masked product benchmarks demon-strate that incorporating analytical geometric priors significantly improves both prediction ac-curacy and model interpretability compared with standard KANs. Although this paper employs simple analytical geometries such as rectangles and circles as illustrative examples, the proposed framework is applicable to arbitrary implicit regions represented by R-functions, including non-convex domains, disconnected regions, and Boolean combinations of multiple constraints. Future work will investigate incorporating complex analytical R-function representations of engineering design spaces and feasible regions into GRS-KAN. This would enable the integra-tion of analytical geometric priors derived from process constraints, quality specifications, and other engineering models, thereby extending the present framework from simple benchmark geometries to general implicit domains. 
+
+# References 
+
+[1] S. Kucherenko, N. Shah, and O. V. Klymenko. Analytical identification of process design spaces using r-functions. Computers & Chemical Engineering , 198:109112, 2025. [2] S. Kucherenko, N. Shah, and O. V. Klymenko. Identification of feasible regions using r-functions. Journal of Process Control , 154:103539, 2025. [3] Z. Liu, Y. Wang, S. Vaidya, F. Ruehle, J. Halverson, M. Soljacic, T. Y. Hou, and M. Tegmark. Kan: Kolmogorov-arnold networks. arXiv preprint arXiv:2404.19756 , 2024. 26 [4] Ziming Liu, Yixuan Wang, Sachin Vaidya, Fabian Ruehle, James Halverson, Marin Soljacic, Thomas Y. Hou, and Max Tegmark. Kan: Kolmogorov-arnold networks. International Conference on Learning Representations , 2025. [5] V. L. Rvachev. On analytical description of some geometric objects. Reports of Academy of Sciences, USSR , 153:765–768, 1963. [6] V. L. Rvachev. Theory of R-functions and Some Applications . Naukova Dumka, Kiev, 1982. In Russian. [7] V. Shapiro. Theory of r-functions and applications: A primer. Technical Report TR91-1219, Cornell University, 1991. [8] V. Shapiro. Semi-analytic geometry with r-functions. Acta Numerica , 16:239–303, 2007. 27

@@ -1,0 +1,397 @@
+Title: Boundary-Aware Quantization: Finite-Scale Decision Geometry of Neural Classifiers
+
+URL Source: https://arxiv.org/pdf/2607.01478v1
+
+Published Time: Fri, 03 Jul 2026 00:14:30 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+# Boundary-Aware Quantization: Finite-Scale Decision Geometry of Neural Classifiers 
+
+O.M. Kiselev a, ∗
+
+> aInnopolis University, Innopolis, Republic of Tatarstan, Russian Federation
+
+Abstract 
+
+We measured quantization-induced decision-boundary changes using local logit-margin radii, first-order boundary displacement, normal variation, slice-boundary Jaccard distance, grid prediction changes, multiclass junction counts, and low-margin boundary-band flips. On the digits benchmark, 8-bit weight quantization preserved all test labels while producing boundary-mask Jaccard 0.428 on the PCA slice; at 4 bits, accuracy remained 0 .9733, while boundary Jaccard rose to 0 .970 and median local boundary shift reached 0 .0290. Interpolation between adjacent quantization levels localized the visible reconfigurations at multiclass junctions, with 12, 34, and 17 triple-junction cells in the selected transitions. Calibration-to-test stopping reduced the digits held-out flip rate from 0 .0094 to 0 .0022 and boundary Jaccard from 0 .825 to 0 .524; the same stopping rule also reduced flips on MNIST and Fashion-MNIST. On o ffi cial CIFAR-10 subsets, PTQ-W selected by accuracy gave 6-bit flip 0 .0367 and boundary Jaccard 0 .184, whereas boundary-aware stopping selected 8-bit flip 0 .0083 and boundary Jaccard 0 .048. On full CIFAR-10 with three seeds, 6-bit PTQ-W lost 0 .0029 accuracy relative to float, changed 5 .3% of held-out decisions, and changed 24 .5% of low-margin boundary-band decisions. A fixed-bit boundary-gap rounding term changed the trade-o ff at 4 bits by reducing boundary Jaccard from 0 .457 to 0 .435 and boundary-band pair-order flip from 0 .3600 to 0 .3558, with an accuracy trade-o ff ; the 3-bit stress test exposed the tuning limit of this surrogate. Calibration boundary Jaccard predicted held-out boundary Jaccard across PTQ-W and optimized rounding variants with r = 0.947–0 .994. 
+
+Keywords: pattern recognition, neural network quantization, decision boundary, classifier stability, boundary-aware stopping, finite-scale geometry 
+
+1. Introduction 
+
+Quantization is a standard tool for deploying neural clas-sifiers under memory, energy, and latency constraints. A full-precision parameter vector θ is replaced by a representable vector 
+
+θQ = Q(θ), and the resulting model is judged by compression ratio, runtime, and test accuracy. This evaluation is natural when final accuracy is the primary target. In many pattern-recognition pipelines, however, the full-precision model is already a reference system. The compressed model is then expected to remain accurate and to behave sim-ilarly near class boundaries. Two classifiers may have almost identical accuracy while assigning di ff erent labels to near-boundary samples, changing local decision regions, or reorganizing mul-ticlass junctions. Such changes matter when label consistency across model updates is required, when downstream decisions depend on stable local predictions, or when adversarial and near-boundary behavior is part of the acceptance criterion. Let z(x; θ) ∈ RK be the logit vector and 
+
+fθ(x) = arg max  
+
+> k
+
+zk(x; θ).
+
+Here x denotes an input, K is the number of classes, zk(x; θ)is the logit of class k, and fθ(x) is the predicted class index   
+
+> ∗Corresponding author.
+> Email address: o.kiselev@innopolis.ru (O.M. Kiselev)
+
+for parameters θ. The class regions are separated by pairwise boundaries 
+
+Bab (θ) = {x : za(x; θ) = zb(x; θ)}.
+
+Here a and b are distinct class indices, and Bab is the set where their logits are tied. Quantization perturbs the logits through 
+
+θQ − θ. Away from the boundary, a large margin may absorb this perturbation. Near a boundary, the same perturbation can move the separating set across a sample or change how class regions are connected. Boundary diagnostics reveal this geometry. This paper asks a practical question: can boundary behav-ior be measured on a calibration set and then used to decide when quantization should stop? We answer this by proposing a finite-scale boundary audit for quantized classifiers. On a fixed two-dimensional slice and grid, we measure observed boundary masks, grid prediction changes, and multiclass junction cells. These quantities are deployment diagnostics for reference con-sistency at the monitored finite scale. The work is positioned at the intersection of quantization, ro-bustness, and decision-boundary analysis. Neural network quan-tization has been developed for e ffi cient low-precision inference, including integer deployment and quantization-aware training [ 1, 2]. Data-aware post-training methods, such as AdaRound, improve rounding decisions by approximating local loss changes [ 3]. These methods primarily optimize task loss, accuracy, or deployment cost. The adversarial robustness literature shows that high accu-
+
+> arXiv:2607.01478v1 [math.OC] 1 Jul 2026
+
+racy can coexist with geometric instability. Small input pertur-bations can cross a decision boundary and change predictions [4 , 5 ]. Boundary-distance and decision-geometry analyses pro-vide the closest methodological background: DeepFool uses a local linear approximation to estimate boundary-crossing per-turbations, curvature-based work relates robustness to bound-ary curvature, and empirical decision-boundary studies inspect boundary shapes in input space [ 6 –8]. Quantization and robust-ness have also been studied together: Defensive Quantization controls Lipschitz behavior during quantization [ 9], and other work evaluates or optimizes adversarial robustness of quantized networks [10, 11]. The boundary-band analysis used below is a reference-preservation diagnostic. The low-margin band localizes regressions intro-duced by compression relative to a validated full-precision model. In this setting, the relevant events include errors against the ground-truth label, changes of the reference decision, and changes of the reference top-2 class ordering. Thus boundary-band flip is a stratified regression metric tied to quantization-induced decision-geometry drift. The rest of the paper follows this structure. Section 2 com-bines local boundary perturbation estimates with finite-scale slice metrics, multiclass-node retention, boundary-aware stop-ping, and the boundary-aware quantization objective. Section 3 reports the experiments on digits, MNIST, Fashion-MNIST, and o ffi cial CIFAR-10 with post-training quantization, activation quantization, optimized rounding, and fake-quant quantization-aware training; it also records reproducibility and data availabil-ity. Section 4 gives the conclusions. The main empirical message is that quantization can preserve or improve accuracy while changing the reference decision ge-ometry. Boundary-aware stopping serves as an audit layer that tests whether a chosen quantization method preserves the behav-ior of the reference classifier at the finite scales being monitored. 
+
+2. Boundary Change and Finite-Scale Metrics 
+
+For two classes a, b, define the logit gap 
+
+gab (x; θ) = za(x; θ) − zb(x; θ).
+
+The corresponding boundary is the zero set gab = 0. In this notation, a and b are the two compared class indices, and a positive value of gab means that class a has a larger logit than class b. For a labelled sample ( x, y), define the true-label margin 
+
+my(x; θ) = zy(x; θ) − max  
+
+> r,y
+
+zr(x; θ).
+
+Here y is the ground-truth label and r ranges over all competing labels. If the uniform logit perturbation satisfies ∥z(x; θQ) −
+
+z(x; θ)∥∞ ≤ η and my(x; θ) > 2η, then the quantized classifier keeps the correct label at x. Thus samples with large logit margin are stable, while near-boundary samples are potentially sensitive to quantization. When gab is di ff erentiable and ∇xgab (x; θ) , 0, the first-order distance from x to the pairwise boundary is 
+
+ρab (x; θ) = |gab (x; θ)|∥∇ xgab (x; θ)∥2
+
+.
+
+Here ∇x denotes the gradient with respect to the input and ∥ · ∥ 2
+
+is the Euclidean norm. The quantity ρab is the first-order normal distance from x to the pairwise boundary Bab . The quantization-induced displacement of this local boundary is estimated by 
+
+dQab (x) ≈ − gab (x; θQ) − gab (x; θ)
+
+∥∇ xgab (x; θ)∥2
+
+.
+
+The scalar dQab (x) is a signed first-order displacement along the reference normal. The ratio |dQab (x)|/ρ ab (x; θ) is a direct warning signal: if it is large, the quantized boundary can cross the sample or change the local decision geometry around it. We also mea-sure the cosine similarity between ∇xgab (x; θ) and ∇xgab (x; θQ), since a boundary may rotate while the nearby prediction remains unchanged. The same mechanism follows from the implicit function theorem. If g and gQ are C1, ∥∇ g∥ ≥ μ > 0 near a compact regular boundary segment, and ∥gQ − g∥C0 ≤ ε, then the quan-tized zero set remains locally within distance O(ε/μ ). Here μ
+
+is a lower bound on the reference boundary gradient and ε is a uniform functional perturbation bound. Low-gradient bound-ary regions are therefore more sensitive to quantization-induced functional perturbations. These local estimates are combined with finite-scale slice diagnostics. The full decision boundary is high-dimensional, so we ob-serve it on a prescribed family of two-dimensional a ffi ne slices 
+
+Π. On each slice, a regular grid is labelled by the classifier. A grid cell is a boundary cell if its vertices include more than one predicted label. The resulting boundary mask is denoted S Π(θ). The primary slice metric is the boundary-mask Jaccard dis-tance 
+
+J∆(S , S Q) = 1 − |S ∩ S Q||S ∪ S Q| .
+
+Here S = S Π(θ) is the full-precision boundary mask, S Q =
+
+S Π(θQ) is the quantized boundary mask, | · | denotes the number of grid cells in a set, and ∆ indicates that the comparison is made on the fixed slice grid. The metric measures boundary reconfiguration relative to the full-precision reference. We also report grid prediction flip rate on the same slices, because a boundary mask can move substantially while a ff ecting part of the monitored slice. These slice quantities are reference-consistency diagnostics at the chosen resolution. 
+
+2.1. Multiclass Junctions 
+
+Multiclass boundaries contain junctions where three or more class regions meet. Such nodes are more sensitive than ordinary pairwise arcs because several logit equalities must hold simulta-neously. A standard local model is the max-a ffi ne boundary of the upper envelope of a ffi ne logits [ 12 , 13 ]. In the plane, stable vertices are typically trivalent, while four-valent and higher-valent nodes are degenerate. The simplest four-ray model is 
+
+Mδ(u, v) = max {u, v, −u, −v + δ}.
+
+Here u and v are local coordinates on the slice, Mδ is the upper envelope of four a ffi ne logits, and δ is a scalar perturbation of 2one branch. At δ = 0, the four regions meet at the origin. For 
+
+δ > 0, this node splits into two trivalent nodes 
+
+p− =
+
+
+
+− δ
+
+2 , δ
+
+2
+
+
+
+, p+ =
+
+ δ
+
+2 , δ
+
+2
+
+
+
+,
+
+joined by the short edge v = δ/ 2, |u| ≤ δ/ 2. This standard model gives the diagnostic mechanism: quantization can break ties among competing logits and resolve a high-valence node into a small cluster of lower-valence nodes. This motivates a finite-scale node-retention criterion. Let x0
+
+be a reference junction on a slice, and let I = {i1, . . . , ik} be the participating classes. Define 
+
+GI (x; θ) =  zi2 (x; θ) − zi1 (x; θ), . . . , zik (x; θ) − zi1 (x; θ).
+
+The vector GI contains the k − 1 logit tie equations that define a junction with class set I, using class i1 as the reference logit. For tolerance τ, the node-retention radius is 
+
+Rτ 
+
+> I
+
+(x0; θQ) = inf {r ≥ 0 : ∃x ∈ BΠ(x0, r) with ∥GI (x; θQ)∥∞ ≤ τ}.
+
+Here BΠ(x0, r) is the radius-r ball inside the slice Π, ∥ · ∥ ∞ is the maximum absolute component, and τ is the allowed logit-tie tolerance. In a discrete implementation, the same idea is measured by the enclosing radius of the node cluster or by the anchored radius of the cells with the same class-incidence pattern. The practical requirement is that the resolved cluster remains inside an admissible ball. 
+
+2.2. Boundary-Aware Stopping 
+
+Given bit-widths b1 > b2 > · · · > bm, boundary-aware stopping evaluates each quantized model on a calibration set and a prescribed slice family. It selects the smallest bit-width satisfying task-specific constraints: 
+
+∆ Acc( b j) ≤ τacc , Flip cal (b j) ≤ τflip ,
+
+median x
+
+|dQb j (x)|
+
+median x ρ(x; θ) ≤ τd, median x cos( nθ(x), nθQ (x)) ≥ τn,
+
+and, when boundary preservation is required, 
+
+J∆(S Π(θ), S Π(θQb j )) ≤ τJ
+
+on the monitored slices. Here θQb j denotes the model quan-tized to b j bits, ∆ Acc is the validation accuracy loss relative to the full-precision reference, Flip cal is the calibration label-flip rate relative to the reference, dQb j is the corresponding top-2 boundary displacement, ρ is the corresponding top-2 local ra-dius, nθ(x) = ∇xg(x; θ)/∥∇ xg(x; θ)∥2 is the local unit normal of the reference top-2 boundary, g is the top-2 logit gap at x, and 
+
+τacc , τ flip , τ d, τ n, τ J are deployment tolerances. Optional node constraints can bound node displacement, node-cluster radius, or changes in the number of junction cells. If all tested quan-tized candidates violate the constraints, the protocol reports a constraint violation together with the least violating candidate, giving the user a choice between relaxing the tolerances, chang-ing the quantizer, or accepting the measured boundary change. 
+
+2.3. Boundary-Aware Quantization Objective 
+
+The same quantities can also be used inside the quantization procedure. Let Gb be the set of parameters representable at bit-width b, and let C = {c1, . . . , cM } be a finite family of mon-itored boundary objects selected on calibration slices. These objects may include ordinary pairwise boundary cells, multiclass junctions, or high-valence node clusters. Each object has an ad-missible radius rc > 0 and weight wc ≥ 0. A boundary-aware quantizer can then be written as the constrained problem min 
+
+> θQ∈G b
+
+Lcal (θQ) + λθ∥θQ − θ∥2 + λBDbdry (θQ, θ )subject to Rc(θQ) ≤ rc, c = 1, . . . , M.
+
+Here Lcal is the calibration loss, λθ and λB are nonnegative weights, Dbdry is a boundary discrepancy functional, and Rc is the measured displacement or cluster radius of object c. The coe ffi cient wc is a user-chosen priority weight for the monitored object c. It can encode the importance of the classes meeting at this boundary object, the density of calibration samples near it, the reliability of its detection on the slice grid, or the application cost of changing decisions near that object. In the unweighted case wc = 1 for all monitored objects; in a normalized imple-mentation one may use Pc∈C wc = 1. Larger wc allocates more of the quantization objective to preserving object c relative to other monitored arcs and nodes. For degenerate nodes, the object c has a reference location 
+
+xc, a participating label set Ic, an audit search radius ρc, and a logit-tie tolerance τc. The split cluster generated by quantization is 
+
+Nc(θQ) = {x ∈ BΠ(xc, ρ c) : ∥GIc (x; θQ)∥∞ ≤ τc}.
+
+Two useful sizes of this cluster are the anchored radius 
+
+Ranc  
+
+> c
+
+(θQ) = sup 
+
+> x∈N c(θQ)
+
+∥x − xc∥2
+
+and the minimum enclosing radius 
+
+Renc  
+
+> c
+
+(θQ) = inf  
+
+> y∈Π
+
+sup 
+
+> x∈N c(θQ)
+
+∥x − y∥2.
+
+The anchored radius measures how far the resolved nodes move from the original degenerate node, while the enclosing radius measures the smallest ball on the slice that contains the whole resolved cluster. In a grid implementation, Nc is the finite set of cells or grid points satisfying the same incidence /tie condition, and the suprema and infimum are computed over that finite set. The empty-cluster indicator Ec(θQ) = 1[Nc(θQ) = ∅] records disappearance of the monitored incidence pattern. This gives a direct optimization problem for keeping re-solved nodes inside small balls: min 
+
+> θQ∈G b
+
+Lcal (θQ) + λθ∥θQ − θ∥2 + λA
+
+X
+
+> c∈C N
+
+wc
+
+Ranc  
+
+> c
+
+(θQ)
+
+rc
+
+!2
+
++ λE
+
+X
+
+> c∈C N
+
+wc
+
+Renc  
+
+> c
+
+(θQ)
+
+rc
+
+!2
+
++ λ0
+
+X
+
+> c∈C N
+
+wc Ec(θQ),
+
+where CN ⊆ C is the subset of monitored degenerate nodes and 
+
+λA, λ E , λ 0 ≥ 0 control anchored displacement, cluster diameter, 3and disappearance penalties. A minimax version emphasizes the worst preserved node: min 
+
+> θQ∈G b
+
+Lcal (θQ) + λθ∥θQ − θ∥2 + λM max 
+
+> c∈C N
+
+wc
+
+× max {Ranc  
+
+> c
+
+(θQ), Renc  
+
+> c
+
+(θQ)}
+
+rc
+
++ λ0
+
+X
+
+> c∈C N
+
+wc Ec(θQ).
+
+This formulation covers general k-valent nodes: the vector GIc
+
+contains k − 1 tie equations, and the cluster Nc represents the resolved finite-grid trace of that degenerate incidence pattern. It also makes the engineering problem explicit: quantization must distribute rounding error across many monitored arcs and nodes, so a locally harmless rounding choice can still enlarge another node cluster. Equivalently, a soft version minimizes min 
+
+> θQ∈G b
+
+Lcal (θQ) + λθ∥θQ − θ∥2 + λBDbdry (θQ, θ )
+
++ λN
+
+X
+
+> c∈C
+
+wc
+
+" Rc(θQ)
+
+rc
+
+− 1
+
+#2
+
+> +
+
+.
+
+over the quantization grid. Here Dbdry may combine boundary-mask Jaccard distance, grid prediction changes, normal variation, and node-retention penalties on the monitored slice family. This formulation makes explicit that preserving many boundary ob-jects is a global allocation problem: a rounding choice that is harmless for one node may move another node or boundary arc. The experiments below use a di ff erentiable surrogate of this objective for optimized rounding: near-boundary calibration points are selected by small full-precision top-2 margin, and the rounding loss penalizes changes in their top-2 logit gaps. Exact boundary-mask distances and node-cluster radii are evaluated as finite-grid audit metrics. This ablation tests whether boundary information is usable by a quantizer and clarifies the accuracy-boundary trade-o ff .
+
+3. Experiments 
+
+We evaluate whether boundary metrics reveal quantization eff ects that are hidden by accuracy and whether calibration met-rics predict held-out behavior. The implementation produces raw CSV /JSON files and figures under results/ . The experi-ments include a controlled MLP on sklearn digits , stratified MNIST and Fashion-MNIST subsamples, o ffi cial CIFAR-10 subsets with a small CNN, a full-dataset reduced residual CNN check, post-training weight quantization (PTQ-W), post-training weight-and-activation quantization (PTQ-WA), and fake-quant quantization-aware training with logit distillation (QAT-WA). For a tensor T , the uniform a ffi ne fake-quantizer used in the experiments has the form 
+
+bT = s  clip (round( T/s) + z0, qmin , qmax ) − z0
+
+ .
+
+Here b is the bit-width, qmin and qmax are the integer endpoints of the b-bit quantization range, s > 0 is the scale, z0 is the integer zero point, and bT is the dequantized tensor used by the floating-point simulator. In the symmetric weight case, z0 = 0and s is determined from the tensor range. PTQ-W means post-training weight quantization. The full-precision model is trained first, its convolutional and linear weights are mapped to the b-bit grid, and the quantized weights are evaluated with activations computed in floating point. Biases and batch-normalization parameters are kept in full precision in these experiments. PTQ-WA means post-training weight-and-activation quanti-zation. The weights are quantized as in PTQ-W, and activation tensors produced during the forward pass are fake-quantized to the same bit-width. This family measures the additional bound-ary drift caused by activation quantization after training. QAT-WA means quantization-aware training with fake quan-tization of weights and activations. Starting from the full-precision model, fake-quantization operators are inserted into the forward pass and the model is fine-tuned under the quantized computa-tion graph. The loss combines supervised cross-entropy with logit distillation from the full-precision reference, so QAT-WA optimizes task performance while the low-precision simulation is active. All slice metrics are finite-grid quantities. PCA slices ex-pose high-variance data directions, while random slices reduce dependence on one coordinate system. The computational overhead is controlled by the number of monitored samples, slices, and grid points. The protocol is intended as an o ffl ine calibration audit for candidate quantized models. Point margins, flips, and boundary-band flips require forward passes on calibration or held-out samples; local displace-ment and normals additionally require input gradients for the reference top-2 gaps. Slice masks require S g 2 grid evaluations for S monitored slices of grid width g. In the CIFAR-10 runs we use S = 3, g = 16, 2,000 monitored samples per split for point metrics, and 4,096 calibration images for optimized rounding. 
+
+3.1. Controlled Digits Experiment 
+
+The digits model is a one-hidden-layer tanh network. We quantize weights and keep biases in full precision. Uniform affi ne per-tensor quantization is tested at 8, 4, 3, and 2 bits. The 8-bit model preserves all test labels. At 4 bits, accuracy remains close to the float model, while the local boundary shift is already visible. At 3 and 2 bits, the radius quantile drops and boundary displacement increases strongly. This supports the use of local geometry as an early warning signal. On the PCA slice, the boundary-mask Jaccard distance grows sharply even when accuracy is still high. Table 1 shows why boundary Jaccard and grid flip should be read together. From float to 4-bit, the boundary mask changes substantially, while part of the monitored grid changes label. The dominant event is reference-boundary reconfiguration. 
+
+3.2. Interpolation and Junction Reconfiguration 
+
+To interpret visible boundary changes, we interpolate be-tween neighbouring quantized parameter vectors: 
+
+θ(t) = (1 − t)θA + tθB, t ∈ [0 , 1] .
+
+4Here θA and θB are neighbouring quantized parameter vectors and t is the interpolation parameter. For a two-class boundary on a slice, a Morse-type event would occur near Fab = 0, ∂u Fab = 0, 
+
+∂v Fab = 0. Here Fab (u, v; t) = za(x(u, v); θ(t)) − zb(x(u, v); θ(t)) is the logit gap restricted to slice coordinates u, v along t. In our controlled slice, the selected events are localized at multiclass junction cells. The detector returns zero two-class diagonal saddle cells at the selected events. Representative event clusters involve three nearby labels. Thus the appropriate finite-grid description is multiclass junction reattachment or reconnection of the boundary graph. 
+
+3.3. Calibration-to-Test Stopping 
+
+We next evaluate stopping profiles. An accuracy profile accepts the smallest bit-width whose validation accuracy and flip rate remain within tolerance. A boundary-aware profile additionally constrains local displacement, normal stability, and boundary Jaccard distance. The thresholds represent deployment tolerances. For the digits benchmark with five random seeds, bit-widths 8, 6, 5, 4, 3, 2, and both PCA and random slices, accuracy stop-ping selects 4-bit quantization, whereas boundary-aware stop-ping selects 8-bit. This reduces the mean held-out flip rate from 0.0094 to 0 .0022 and the mean boundary Jaccard distance from 0.825 to 0 .524. Calibration boundary metrics also have pre-dictive signal on this benchmark: displacement normalized by baseline radius correlates with held-out label flip rate at r = 0.94, normal cosine correlates negatively with held-out flip rate at 
+
+r = −0.97, and calibration boundary Jaccard predicts held-out boundary Jaccard at r = 0.85. The same pattern appears on stratified MNIST and Fashion-MNIST subsamples (Table 3). Across datasets, accuracy stopping tends to choose lower bit-widths and produces larger held-out flip rates. Boundary-aware stopping is more conservative and reduces decision changes. Calibration displacement normalized by baseline radius corre-lates with held-out flip rate at r = 0.94, 0 .98, and 0 .96 on Digits, MNIST, and Fashion-MNIST, respectively. Calibration normal cosine correlates negatively with held-out flip rate at r = −0.97, 
+
+−0.96, and −0.98. Calibration boundary Jaccard predicts held-out boundary Jaccard at r = 0.85, 0 .97, and 0 .93. 
+
+3.4. Offi cial CIFAR-10 Experiments and Quantization Families 
+
+We then test whether the same behavior appears beyond shal-low MLPs. On o ffi cial CIFAR-10 subsets, we use a small CNN with 10,000 stratified images, three seeds, bit-widths 8 , 6, 4, 3, and three quantization families: PTQ-W, PTQ-WA, and QAT-WA with logit distillation from the full-precision model. For PTQ-WA and QAT-WA, all tested quantized bit-widths violate the strict boundary-aware profile, so the table reports the quantized selections. The full-precision reference has zero flip and zero boundary Jaccard by definition. This result clarifies the role of QAT. QAT-WA can preserve or improve classification accuracy while producing a geometrically di ff erent classifier relative to the original reference. Under accuracy stopping it selects 4-bit quantization with held-out flip rate 0 .1668 and boundary Jaccard 0 .480. Boundary metrics capture a reference-consistency axis separate from the QAT training objective. We also ran optimized rounding checks on the same o ffi -cial CIFAR-10 subset scale. The first optimized baseline uses soft rounding variables for each weight tensor and minimizes a logit-distillation loss to the full-precision model on calibration images, then projects the variables to hard quantized weights. This gives an AdaRound-style weight-rounding baseline. The second optimized baseline adds the proposed boundary term. The experiment is a fixed-bit ablation of the boundary term. To separate the e ff ect of the quantizer from the e ff ect of bit-width selection, the main comparison below is made at fixed bit-widths. For an engineering safety check, we also report a boundary-band flip rate. The band contains the 20% of held-out samples with the smallest full-precision top-2 logit gap. It measures reference-regression risk: how often quantization changes the decision precisely where the reference classifier is closest to a boundary. In the table, Logit denotes logit rounding-W and Boundary denotes boundary rounding-W. All entries are means over three seeds on the held-out split. The boundary-band columns show why boundary diagnostics are relevant for safety-sensitive deployment updates: quantization flips are concentrated near the full-precision boundary. For example, at 6 bits the overall PTQ-W flip rate is 0 .0340, while the flip rate inside the low-margin boundary band is 0 .1692. Thus global accuracy and even global flip rate understate the local regression risk near the reference boundary. The fixed-bit comparison remains a trade-o ff analysis. At 6 bits, logit rounding and boundary-aware rounding have the same band flip and pair flip, while logit rounding has a lower slice-boundary Jaccard. At 4 bits, boundary-aware rounding gives the lowest boundary Jaccard and the lowest pair-order flip in the boundary band, with lower accuracy than PTQ-W and a higher overall flip rate than logit rounding. The 3-bit regime is an aggressive stress test: boundary-aware rounding improves accuracy relative to PTQ-W and logit rounding, while boundary Jaccard and boundary-band pair flip deteriorate. This marks a limit of the present surrogate. The experiment shows that boundary information is a separate signal from logit distillation and exposes a Pareto trade-o ff between accuracy, reference flips, boundary-band flips, and boundary-mask preservation. Cali-bration boundary Jaccard remains predictive of held-out bound-ary Jaccard for PTQ-W ( r = 0.947), data-aware rounding-W (r = 0.936), and boundary-aware rounding-W ( r = 0.994). Finally, we repeat the PTQ part of the protocol on full o ffi cial CIFAR-10 with a reduced residual CNN and three seeds. This full-dataset scale check uses a compact residual architecture trained and evaluated on the complete CIFAR-10 split. The mean full-precision held-out accuracy is 0 .7000 across seeds. Accuracy, reference flips, and boundary-band flips are computed on the full held-out split; local di ff erential metrics use a stratified 3000-sample audit subset. All entries are means over three seeds. The full-CIFAR run supports the same qualitative conclusion at a larger scale. At 6 bits, PTQ-W loses 0 .0029 accuracy relative to float while 5model acc. flip q10 my q10 ρ med. d q90 d med. cos float 0.9756 0.0000 2.8433 0.1808 0.0000 0.0000 1.0000 8-bit 0.9756 0.0000 2.8499 0.1797 0.0020 0.0051 1.0000 4-bit 0.9733 0.0022 3.0195 0.1853 0.0290 0.0621 0.9946 3-bit 0.9644 0.0222 1.9290 0.1305 0.0887 0.1992 0.9745 2-bit 0.8778 0.1133 -0.3377 0.0450 0.1951 0.4689 0.8421 
+
+Figure 1: Controlled digits quantization trade-o ff .
+
+Figure 2: Boundary cells on a PCA slice of the input space. 
+
+model grid flip J∆
+
+float 0.0000 0.000 8-bit 0.0056 0.428 4-bit 0.0949 0.970 3-bit 0.3221 0.985 2-bit 0.5933 0.986 
+
+Table 1: Slice-level boundary change on the digits PCA slice. 
+
+transition selected t∗ event class two-class saddle cells triple-junction cells Jaccard step 8-bit → 4-bit 0.288 multiclass junction 0 12 0.122 4-bit → 3-bit 0.988 multiclass junction 0 34 0.405 3-bit → 2-bit 0.700 multiclass junction 0 17 0.487 
+
+Table 2: Selected interpolation events between adjacent quantization levels. 
+
+dataset profile bit flip vs float, mean [95% CI] J∆, mean [95% CI] Digits accuracy 4-bit 0.0094 [0.0039, 0.0150] 0.825 [0.720, 0.922] Digits boundary-aware 8-bit 0.0022 [0.0000, 0.0056] 0.524 [0.372, 0.676] MNIST accuracy 3-bit 0.0347 [0.0280, 0.0413] 0.425 [0.406, 0.443] MNIST boundary-aware 4-bit 0.0120 [0.0057, 0.0183] 0.303 [0.243, 0.364] Fashion-MNIST accuracy 3-bit 0.0677 [0.0297, 0.1077] 0.610 [0.386, 0.833] Fashion-MNIST boundary-aware 5-bit 0.0170 [0.0100, 0.0227] 0.482 [0.287, 0.688] 
+
+Table 3: Calibration-to-test stopping outcomes on digits, MNIST, and Fashion-MNIST. Table 4: O ffi cial CIFAR-10 subset stopping outcomes. 
+
+family profile mode selected bit test flip vs float, mean [95% CI] boundary Jaccard, mean [95% CI] PTQ-W accuracy 6-bit 0.0367 [0.0332, 0.0435] 0.184 [0.109, 0.329] PTQ-W boundary-aware 8-bit 0.0083 [0.0080, 0.0090] 0.048 [0.024, 0.077] PTQ-WA accuracy 6-bit 0.0463 [0.0385, 0.0510] 0.207 [0.133, 0.281] QAT-WA accuracy 4-bit 0.1668 [0.1603, 0.1734] 0.480 [0.387, 0.647] bit method acc. flip band pair J∆
+
+6 PTQ 0.5565 0.0340 0.1692 0.1667 0.223 6 Logit 0.5560 0.0328 0.1642 0.1608 0.211 6 Boundary 0.5555 0.0328 0.1642 0.1608 0.225 4 PTQ 0.5495 0.1182 0.3983 0.3708 0.462 4 Logit 0.5487 0.1148 0.3883 0.3600 0.457 4 Boundary 0.5467 0.1180 0.3900 0.3558 0.435 3 PTQ 0.5055 0.2620 0.5350 0.4317 0.560 3 Logit 0.5067 0.2603 0.5408 0.4433 0.564 3 Boundary 0.5122 0.2617 0.5492 0.4592 0.648 
+
+Table 5: Fixed-bit CIFAR-10 subset rounding comparison. 
+
+family bit acc. flip band pair J∆
+
+PTQ-W 8 0.6993 0.0159 0.0797 0.0789 0.187 PTQ-W 6 0.6971 0.0530 0.2453 0.2297 0.446 PTQ-W 4 0.6196 0.2554 0.5422 0.4318 0.746 PTQ-W 3 0.3005 0.6959 0.8164 0.4768 0.814 PTQ-WA 8 0.6997 0.0176 0.0878 0.0861 0.186 PTQ-WA 6 0.6965 0.0613 0.2717 0.2515 0.434 PTQ-WA 4 0.5826 0.3109 0.5871 0.4419 0.803 PTQ-WA 3 0.2121 0.7878 0.8643 0.4825 0.773 
+
+Table 6: Full CIFAR-10 reduced-residual scale check. 
+
+6changing 5 .3% of held-out decisions and 24 .5% of low-margin boundary-band decisions. PTQ-WA at 6 bits has similar accu-racy loss and larger reference drift. Accuracy stopping selects 6-bit quantization for both PTQ families in all three seeds; stricter profiles select 8-bit or the full-precision reference. Thus the boundary-aware criterion changes the engineering decision even when accuracy appears acceptable. 
+
+Reproducibility and data availability. All datasets are public: sklearn digits , MNIST, Fashion-MNIST, and the offi cial CIFAR-10 Python archive. The experiments are imple-mented as independent scripts under experiments/ . Raw met-rics, stopping decisions, bootstrap summaries, and calibration-to-test correlations are written as CSV and JSON files in the results directory. The command lines for the main CIFAR-10 PTQ /QAT run, the full-CIFAR reduced-residual scale check, and the rounding ablations are provided in the supplementary reproducibility file, together with the random seeds, bit-widths, quantization families, audit-grid resolution, rounding-sample counts, and CPU-thread settings used to generate the reported tables. 
+
+4. Conclusion 
+
+We presented a boundary-aware diagnostic protocol for neu-ral network quantization. The protocol measures how a quan-tized classifier changes the decision geometry of a full-precision reference through local boundary displacement, normal varia-tion, slice-boundary Jaccard distance, grid prediction changes, and multiclass junction stability. Experiments across several datasets and architectures show that low-bit quantization and QAT can preserve or improve accuracy while changing the refer-ence boundary. Boundary-aware stopping uses calibration geom-etry to select more conservative bit-widths and reduce held-out label flips. Boundary-band analysis shows that quantization re-gressions concentrate near low-margin reference samples, which is the region where deployment updates are most likely to change decisions. An initial fixed-bit rounding experiment shows that boundary information can be inserted into the quantization objec-tive, with a modest and tuning-dependent trade-o ff . The central claim is that quantization can reconfigure decision boundaries at deployment-relevant finite scales, and that this behavior can be measured, predicted, and used as an explicit model-selection criterion. 
+
+Declaration of Competing Interest 
+
+The authors declare the absence of known competing finan-cial interests or personal relationships that could have appeared to influence the work reported in this paper. 
+
+References 
+
+[1] B. Jacob, S. Kligys, B. Chen, M. Zhu, M. Tang, A. Howard, H. Adam, D. Kalenichenko, Quantization and training of neural networks for e ffi cient integer-arithmetic-only infer-ence, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2018, pp. 2704–2713. [2] R. Krishnamoorthi, Quantizing deep convolutional net-works for e ffi cient inference: A whitepaper, arXiv preprint arXiv:1806.08342 (2018). [3] M. Nagel, R. A. Amjad, M. van Baalen, C. Louizos, T. Blankevoort, Up or down? adaptive rounding for post-training quantization, in: Proceedings of the 37th Interna-tional Conference on Machine Learning, Vol. 119 of Pro-ceedings of Machine Learning Research, 2020, pp. 7197– 7206. [4] C. Szegedy, W. Zaremba, I. Sutskever, J. Bruna, D. Erhan, I. Goodfellow, R. Fergus, Intriguing properties of neural networks, in: International Conference on Learning Repre-sentations, 2014. [5] I. J. Goodfellow, J. Shlens, C. Szegedy, Explaining and har-nessing adversarial examples, in: International Conference on Learning Representations, 2015. [6] S.-M. Moosavi-Dezfooli, A. Fawzi, P. Frossard, Deepfool: A simple and accurate method to fool deep neural networks, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp. 2574–2582. [7] S.-M. Moosavi-Dezfooli, A. Fawzi, J. Uesato, P. Frossard, Robustness via curvature regularization, and vice versa, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2019, pp. 9078–9086. [8] D. Mickisch, F. Assion, F. Greßner, W. Günther, M. Motta, Understanding the decision boundary of deep neural networks: An empirical study, arXiv preprint arXiv:2002.01810 (2020). [9] J. Lin, C. Gan, S. Han, Defensive quantization: When e ffi -ciency meets robustness, arXiv preprint arXiv:1904.08444 (2019). [10] M. Gorsline, J. Smith, C. Merkel, On the adversarial robustness of quantized neural networks, arXiv preprint arXiv:2105.00227 (2021). [11] C. Song, R. Ranjan, H. Li, A layer-wise adversarial-aware quantization optimization for improving robustness, arXiv preprint arXiv:2110.12308 (2021). [12] J. Richter-Gebert, B. Sturmfels, T. Theobald, First steps in tropical geometry, in: G. L. Litvinov, V. P. Maslov (Eds.), Idempotent Mathematics and Mathematical Physics, Vol. 377 of Contemporary Mathematics, American Mathemati-cal Society, Providence, RI, 2005, pp. 289–317. [13] D. Maclagan, B. Sturmfels, Introduction to Tropical Geom-etry, Vol. 161 of Graduate Studies in Mathematics, Ameri-can Mathematical Society, Providence, RI, 2015. 7
