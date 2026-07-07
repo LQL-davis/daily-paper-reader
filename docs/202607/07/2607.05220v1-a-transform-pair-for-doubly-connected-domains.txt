@@ -1,0 +1,3406 @@
+Title: A Transform Pair for Doubly Connected Domains
+
+URL Source: https://arxiv.org/pdf/2607.05220v1
+
+Published Time: Tue, 07 Jul 2026 03:22:32 GMT
+
+Number of Pages: 24
+
+Markdown Content:
+# A Transform Pair for Doubly Connected Domains 
+
+Jesse J. Hulse 
+
+Department of Mathematics University of Manitoba Winnipeg, MB, R3T 2N2, CA 
+
+Subject Areas 
+
+complex analysis, unified transform method, boundary value problems 
+
+Keywords 
+
+Szeg˝ o kernel, transform pairs, applications of complex analysis 
+
+Abstract 
+
+A new transform-based technique that generalizes the unified transform method is developed for bounded doubly connected domains as a novel way to numerically solve boundary value problems for holomorphic functions and solutions to the Laplacian. This work builds on the transform methods for multiply connected circular domains developed by Crowdy (2015, IMA J., 80, 1902–1931) and the methods for simply connected bounded domains developed by H., Lanzani, Llewellyn Smith, and Luca (2025, Proc. A, 481 (2319)). The Szeg¨ o kernel of the annulus and a corresponding transformation law is pivotal in the derivation of this new technique. The modified Schwarz problem for two domains is implemented to demonstrate the effectiveness of this new method. 1
+
+> arXiv:2607.05220v1 [math.CV] 6 Jul 2026
+
+# 1 Preliminaries 
+
+1.1 Finitely connected domains 
+
+Let D be a finitely connected bounded domain in C with C∞ smooth boundary. Let ∂D 
+
+denote the boundary of D, which consists of (say) n smooth simple closed curves. We choose 
+
+C∞ complex valued functions ζj (t), j = 1 , . . . , n , t ∈ [aj , b j ], that parametrize the n boundary curves of ∂Ω in the standard way. This means that ζj and all of its derivative agrees at t = aj
+
+and t = bj , ζ′ 
+
+> j
+
+(t) is nowhere vanishing, ζj (t) traces out the curve exactly once, and 
+
+−iζ ′ 
+
+> j
+
+(t)represents the direction of the outward pointing normal vector to the boundary at the point 
+
+ζj (t). The unit tangent function T∂D (ζ), for ζ ∈ ∂D , represents the complex number of modulus 1 that gives the direction of the tangent vector to ∂D at ζ pointing in the direction of the standard orientation of the boundary. The unit tangent vector T∂D is a continuously differential function that can be written explicitly as T∂D (ζj (t)) = ζ′ 
+
+> j
+
+(t)/|ζ′ 
+
+> j
+
+(t)|. The differential dζ is given by dζ = ζ′(t)dt and the arclenth differential, denoted by dσ , is given by dσ (ζ) = |ζ′(t)|dt . It follows that 
+
+dζ = T∂D (ζ)dσ (ζ),
+
+or equivalently 
+
+dσ (ζ) = T∂D (ζ)dζ, (1.1) for all points ζ ∈ ∂D .Let C∞(∂D ) denote the C∞ smooth functions on ∂D . For u and v in C∞(∂D ), the L2
+
+inner product on ∂D of u and v is defined by 
+
+〈u, v 〉L2(∂D, dσ) =
+
+∫
+
+> ∂D
+
+uv dσ. (1.2) The space L2(∂D ) is defined to be the Hilbert space obtained by completing the space C∞(∂D )with respect to this inner product. One may see that L2(∂D ) is equal to the set of complex valued functions u on ∂D such that u(ζj(t)) is a measurable function of t for each j,
+
+|| u|| 2 =
+
+∫
+
+> ∂D
+
+|u|2dσ =
+
+> n
+
+∑
+
+> j=1
+
+∫ bj
+
+> aj
+
+|u(ζj(t)) |2|ζ′ 
+
+> j
+
+(t)|dt 
+
+is finite, and that this definition is independent of the choice of the parametrization of the boundary [1, p. 11]. For an arbitrary finitely connected domain D in C, we define the Hardy Space Hp(D)as the analytic functions f on D such that |f |p has a harmonic majorant in D. The function 
+
+f belongs to the Smirnov Space Ep(D) if there exists a sequence of domains {Ωn} whose boundaries {Cn} consists of a finite number of rectifiable Jordan curves, such that any Ω n
+
+eventually contains each compact subset of D, and the lengths of Cn are bounded, and lim sup 
+
+> n
+
+∫
+
+> Cn
+
+|f (z)|p dσ (z) ≤ M < ∞. (1.3) If we further assume that ∂D consists of rectifiable Jordan curves, then the condition on the boundedness of the lengths of Cn is superfluous. For the remainder of the paper, we will assume that the domain is finitely connected and that our boundary curves are rectifiable. For all f ∈ E1(D), the classical Cauchy integral formula, 
+
+f (z) = 1
+
+2πi 
+
+∫
+
+> ∂D
+
+f (ζ)
+
+ζ − z dζ, 
+
+2Γ1
+
+Γ2
+
+D
+
+Figure 1: A doubly connected domain D with outer boundary curve Γ 1 and inner boundary curve Γ 2.and Cauchy’s theorem, 
+
+∫
+
+> ∂D
+
+f (z)dz = 0 ,
+
+hold for the domain D. The space E2(D) has a reproducing kernel inherited from the Hilbert space structure. The Szeg˝ o kernel is defined as the unique Hilbert space reproducing kernel for the space E2(D) of holomorphic functions. The existence of the Szeg˝ o kernel follows from the Riesz representation theorem, and we note that the Szeg˝ o kernel is domain dependent. 
+
+Theorem 1.1. (The Szeg˝ o formula) Let D be a bounded finitely connected domain whose boundary consists of C∞ simple smooth closed curves. For any f in the Smirnov space E2(D),we have 
+
+f (z) = 
+
+∫
+
+> ∂D
+
+f (ζ)SD(ζ, z ) d σ(ζ) = 〈f, S D(·, z )〉L2(∂D, dσ), z ∈ D, (1.4) 
+
+where SD(ζ, z ) is the Szeg˝ o kernel for D and dσ is arclength. 
+
+Example 1.2. The Szeg˝ o kernel and Cauchy kernel for the unit disk, denoted by CD, is given by 
+
+SD(ζ, z ) = CD(ζ, z ) = − TD(ζ)
+
+2πi( ζ − z) = 1
+
+2π
+
+1
+
+(1 − ζz), |ζ| = 1 , |z| < 1, (1.5) 
+
+where we have used that TD(ζ) = i ζ. We note that the unit disk is the only domain on which the Cauchy kernel and Szeg˝ o kernel are equal. 
+
+Example 1.3. The Szeg˝ o kernel for the annulus Ar := {z ∈ C : r < |z| < 1} is 
+
+SAr (z, ζ ) = 
+
+> ∞
+
+∑
+
+> n=−∞
+
+(zζ)n
+
+1 + r2n+1 . (1.6) 
+
+Any f in the Smirnov space E2(Ar) can represented by 
+
+f (z) = 〈f, S Ar (z, ·)〉E2 =
+
+∫ 
+
+> ∂Ar
+
+f (ζ)SAr (z, ζ )dσ (ζ). (1.7) 
+
+1.2 Background and connection to the unified transform method 
+
+The unified transform method (UTM) is a technique to analyze and solve boundary value problems for integrable and linear/nonlinear PDEs. A.S. Fokas pioneered the UTM [9], and the method has been extended and generalized by many mathematicians since. The UTM has been studied and formulated for the Laplace, biharmonic, Helmholtz, and modified Helmholtz 3q1
+
+> q2
+> δ1
+> δ2
+> C1
+> C2
+> C0
+> D
+
+Figure 2: A multiply connected domain D with circular boundary curves. equations for convex polygons in the plane [6, 7, 2, 12, 15]. For the Laplacian, Fokas and Kapaev developed the UTM in both bounded and unbounded polygonal regions [10]. Crowdy extended the UTM for holomorphic functions on polygonal, circular, and multiply connected domains with circular boundary curves [3, 4]. Crowdy’s transform pair for multiply connected domains with circular boundary curves is the first work to extend the UTM to more complex geometries, while Crowdy and Luca later extended the UTM for the biharmonic equation in doubly connected domains with circular boundary curves [14]. The present work extends the UTM for holomorphic functions to bounded doubly connected domains with smooth boundary curves by utilizing the transformation law for the Szeg˝ o kernel. Using the spectral decomposi-tion of the Cauchy kernel developed by Crowdy [3] and the transformation law for the Szeg˝ okernel, H., Lanzani, Luca, and S.L. Smith extended the UTM for holomorphic functions to bounded, simply connected, Lipschitz domains [13]. Crowdy uses the Cauchy integral formula to develop a transform pair that extends the UTM to complex valued holomorphic functions. He does so by finding the following spectral decomposition for the Cauchy Kernel for the unit disk [3]: 1
+
+ζ − z =
+
+∫
+
+> L1
+
+1
+
+1 − e2πik
+
+zk
+
+ζk+1 dk +
+
+∫
+
+> L2
+
+zk
+
+ζk+1 dk +
+
+∫
+
+> L3
+
+e2πik
+
+1 − e2πik
+
+zk
+
+ζk+1 dk, (1.8) where L1, L 2 and L3 are contours in the spectral k-plane pictured in figure 3. To be precise, with 0 < q < 1/2, L1 is the quarter circle from −iq to −q and the portion of the negative 
+
+y-axis below −iq , L3 is the quarter circle from −q to iq and the portion of the positive y−axis above iq , and L2 is the half line on the real axis starting at −q and emanating in the positive direction. We remark that in [3, 4], 0 < q < 1, but we choose 0 < q < 1/2 so that the contour is at a positive distance away from the poles appearing in equation (2.5). Crowdy formulates this spectral decomposition for the unit disk by writing the Cauchy kernel as a geometric series and showing 1
+
+1 − z =
+
+> ∞
+
+∑
+
+> n=0
+
+zn =
+
+∫
+
+> L1
+
+1
+
+1 − e2πik zk dk +
+
+∫
+
+> L2
+
+zk dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik zkdk, 
+
+by using residue calculus to compute. Let the domain D be the unit disk with M disks of center δj and radius qm removed as shown in figure 2. Crowdy’s transform pair for D is then 
+
+f (z) = 1
+
+2πi 
+
+[ ∫
+
+> L1
+
+ρ00 (k)
+
+1 − e2πik zkdk +
+
+∫
+
+> L2
+
+ρ00 zkdk +
+
+∫
+
+> L3
+
+ρ00 (k)e2πik 
+
+1 − e2πik zkdk 
+
+−
+
+> m
+
+∑
+
+> j=1
+
+( ∫
+
+> L1
+
+ρjj (k)
+
+1 − e2πik 
+
+( qj
+
+z − δj
+
+)k+1 
+
++
+
+∫
+
+> L2
+
+ρjj (k)
+
+( qj
+
+z − δj
+
+)k+1 
+
++
+
+∫
+
+> L3
+
+ρjj (k)e2πik 
+
+1 − e2πik 
+
+( qj
+
+z − δj
+
+)k+1 )
+
+dk 
+
+]
+
+4−1    
+
+> −q0123
+> iq
+> −iq
+> L1
+> L3
+> L2
+
+Figure 3: The fundamental contour with 0 < q < 1/2. where the spectral matrix is defined for n = 0 , 1, 2, . . . , M ρ0n(k) = 
+
+∫
+
+> Cn
+
+f (ζ)
+
+ζk+1 dζ ρmn (k) = − 1
+
+qm
+
+∫
+
+> Cn
+
+f (ζ)
+
+[ζ − δm
+
+qm
+
+]k
+
+dζ, m = 1 , 2, . . . , M. 
+
+The global relations for this transform pair are 
+
+> M
+
+∑
+
+> n=0
+
+ρmn (k) = 0 , k ∈ − N, m = 0 , 1, . . . , M. 
+
+We again remark that the domain D appearing in Crowdy’s transform pair above has circular boundary arcs, hence the spectral decomposition for the unit disk and the Cauchy integral formula was used in conjunction to extend the UTM in this setting. 
+
+# 2 Deriving the new spectral decomposition for SAr
+
+The first step in deriving the new transform pair for general domains is finding the spectral decomposition of the Szego kernel of Ar. Recall the Szeg˝ o kernel for the annulus is 
+
+SAr (z, ζ ) = 
+
+> ∞
+
+∑
+
+> n=−∞
+
+(zζ)n
+
+1 + r2n+1 =
+
+> −1
+
+∑
+
+> n=−∞
+
+(zζ)n
+
+1 + r2n+1 +
+
+> ∞
+
+∑
+
+> n=0
+
+(zζ)n
+
+1 + r2n+1 . (2.1) Rearranging the first series (with n < 0) above gives 
+
+> −1
+
+∑
+
+> n=−∞
+
+(zζ)n
+
+1 + r2n+1 =
+
+> ∞
+
+∑
+
+> n=1
+
+1
+
+(zζ)n
+
+1
+
+1 + r−2n+1 
+
+=
+
+> ∞
+
+∑
+
+> n=1
+
+( r2
+
+zζ
+
+)n 1
+
+r + r2n
+
+= r
+
+zζ
+
+> ∞
+
+∑
+
+> n=0
+
+( r2
+
+zζ
+
+)n 1
+
+1 + r2n+1 .
+
+Recall that Crowdy finds 1
+
+1 − z =
+
+> ∞
+
+∑
+
+> n=0
+
+zn =
+
+∫
+
+> L1
+
+1
+
+1 − e2πik zk dk +
+
+∫
+
+> L2
+
+zk dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik zkdk. 
+
+5It is easily verified that the integrands in (2.2) decay exponentially as |k| → ∞ along the corresponding contours for all |z| < 1. We repeat his argument to find that 
+
+> ∞
+
+∑
+
+> n=0
+
+(zζ)n
+
+1 + r2n+1 
+
+=
+
+∫
+
+> L1
+
+1
+
+1 + r2k+1 
+
+(zζ)k
+
+1 − e2πik dk +
+
+∫
+
+> L2
+
+(zζ)k
+
+1 + r2k+1 dk +
+
+∫
+
+> L3
+
+(zζ)k
+
+1 + r2k+1 
+
+e2πik 
+
+1 − e2πik dk 
+
+(2.2) and 
+
+r
+
+zζ
+
+> ∞
+
+∑
+
+> n=0
+
+( r2
+
+zζ
+
+)n 1
+
+1 + r2n+1 = r
+
+zζ
+
+[ ∫
+
+> L1
+
+1
+
+1 + r2k+1 
+
+1
+
+1 − e2πik 
+
+( r2
+
+zζ
+
+)k
+
+dk 
+
++
+
+∫
+
+> L2
+
+1
+
+1 + r2k+1 
+
+( r2
+
+zζ
+
+)k
+
+dk +
+
+∫
+
+> L3
+
+1
+
+1 + r2k+1 
+
+e2πik 
+
+1 − e2πik 
+
+( r2
+
+zζ
+
+)k
+
+dk 
+
+]
+
+.
+
+(2.3) See Appendix 7.1 for details. Define the function 
+
+γ(w, k ) := 1
+
+1 + r2k+1 
+
+(
+
+wk + r2k+1 
+
+wk+1 
+
+)
+
+, w ∈ D \ { 0}, k ∈ C.
+
+Then the Szeg˝ o kernel for Ar has the following spectral decomposition 2πS Ar (z, ζ ) = 
+
+∫
+
+> L1
+
+γ(zζ, k )
+
+1 − e2πik dk +
+
+∫
+
+> L2
+
+γ(zζ, k )dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik γ(zζ, k )dk 
+
+=
+
+∫
+
+> L1
+
+1
+
+1 + r2k+1 
+
+1
+
+1 − e2πik 
+
+(zζ)k+1 dk +
+
+∫
+
+> L2
+
+1
+
+1 + r2k+1 
+
+(zζ)k+1 dk 
+
++
+
+∫
+
+> L3
+
+1
+
+1 + r2k+1 
+
+e2iπik 
+
+1 − e2πik 
+
+(zζ)k+1 dk 
+
++
+
+∫
+
+> L1
+
+1
+
+1 + r2k+1 
+
+1
+
+1 − e2πik 
+
+( r2
+
+zζ
+
+)k+1 
+
+dk +
+
+∫
+
+> L2
+
+1
+
+1 + r2k+1 
+
+( r2
+
+zζ
+
+)k+1 
+
+dk 
+
++
+
+∫
+
+> L3
+
+1
+
+1 + r2k+1 
+
+e2iπik 
+
+1 − e2πik 
+
+( r2
+
+zζ
+
+)k+1 
+
+dk. 
+
+(2.4) The integrands in (2.4) also decay exponentially as |k| → ∞ along the contours for all z ∈ Ar
+
+and ζ ∈ ∂ Ar. To see this, first note that 1 + r2k+1 = 0 for k ∈ C such that 
+
+k = −1
+
+2 + i(2 n + 1) π
+
+2 ln( r) , n ∈ Z. (2.5) Thus the poles of 1 /(1 + r2k+1 ) are at least a distance of 1 /2 from the contours L1 and L3 as 
+
+|k| → ∞ . Further for k = ix with x ∈ R we have 
+
+∣∣∣ 1
+
+1 + r2k+1 
+
+∣∣∣ =
+
+∣∣∣ 1
+
+1 + r2ix r
+
+∣∣∣ ≤ 1
+
+1 − r .
+
+Thus 1 /(1 + r2k+1 ) is bounded along L1 and L3. It follows that the integrals over L1 and L3
+
+exponentially decay for the same reason they decay in (2 .2). Next, let z = x + iy with x > 0. Then ∣∣∣ 1
+
+1 + r2k+1 
+
+∣∣∣ =
+
+∣∣∣ 1
+
+1 + r2xr2yi r
+
+∣∣∣.
+
+Given that x > 0, it follows that quantity above is bounded. Thus the integrands in (2.4) decay exponentially as |k| → ∞ along the corresponding contours. 62.1 New transform pair for Ar
+
+The new spectral decomposition found in (2.4) will be used to derive a new transform pair for 
+
+Ar, but first a definition. 
+
+Definition 2.1. Let D1 = D and let D2 = Dr(a) denote the disk of radius r centered at a.Let the boundary of D be parametrized by ζ1(t) = eit , t ∈ [0 , 2π] and the boundary of Dr(0) be parametrized by ζ2(t) = −re it , t ∈ [0 , 2π]. For f ∈ E2(Ar) and z ∈ Ar, define 
+
+ρ1m(k) = 
+
+∫
+
+> ∂D m
+
+f (ζm)
+
+ζk+1 
+
+> m
+
+dζ m k ∈ C, m ∈ { 1, 2},ρ2m(k) = r2k+1 
+
+∫
+
+> ∂D m
+
+f (ζm)ζkmdζ m k ∈ C, m ∈ { 1, 2}.
+
+Additionally, define 
+
+τ (z, k ) = 1
+
+1 + r2k+1 
+
+[
+
+zk(ρ11 (k) + ρ22 (−k − 1)) + 1
+
+zk+1 (ρ21 (k) + ρ12 (−k − 1)) 
+
+]
+
+. (2.6) 
+
+Remark 1 : The integrals in definition 2.1 are independent of choice of parametrization, but the parametrization must be oriented in the standard way as described in section 1.1. The subscripts in 2.2 and the subscript appearing in ζm will be dropped for the remainder of this paper, but it is assumed that any parametrization chosen in this standard way. 
+
+Remark 2 : Crowdy’s spectral functions for Ar are 
+
+ρ0n =
+
+∮
+
+> Cn
+
+f (ζ)
+
+ζk+1 dζ ρ1n(k) = −1
+
+r
+
+∮
+
+> Cn
+
+f (ζ)
+
+[ζ
+
+r
+
+]k
+
+dζ = − 1
+
+rk+1 
+
+∮
+
+> Cn
+
+f (ζ)ζkdζ, 
+
+for n ∈ { 0, 1} and m ∈ { 1, 2}. The integrals in Crowdy’s spectral ρ2m functions are orientated in the counterclockwise direction, hence the negative sign. 
+
+Theorem 2.2. Let f ∈ E2(Ar) and z ∈ Ar. Then f has the following transform pair repre-sentation 
+
+f (z) = 1
+
+2πi 
+
+[ ∫
+
+> L1
+
+1
+
+1 − e2πik τ (z, k )dk +
+
+∫
+
+> L2
+
+τ (z, k )dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik τ (z, k )dk 
+
+]
+
+, (2.7) 
+
+where τ is defined by (2.6) . Further, the following global relation holds 
+
+ρj1(k) + ρj2(k) = 0 , k ∈ Z, j = 1 , 2. (2.8) 
+
+Proof. By (1.7) and (2.4), for f ∈ E2(Ar) and z ∈ Ar, we have 
+
+f (z) = 
+
+∫ 
+
+> ∂Ar
+
+f (ζ)SAr (z, ζ )dσ (ζ)= 1
+
+2π
+
+∫
+
+> ∂Ar
+
+f (z)
+
+[ ∫
+
+> L1
+
+τ (zζ, k )
+
+1 − e2πik dk +
+
+∫
+
+> L2
+
+τ (zζ, k )dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik τ (zζ, k )
+
+]
+
+dkdσ (ζ).
+
+The modulus of the integrands in the spectral decomposition decays exponentially |k| → ∞ ,so we may switch the order of integration. See Appendix B of [13] for details concerning this type of argument. Using the equation (1.1) and simplifying gives (2.7). See Appendix 7.2 for these details. Next, for j = 1, we have 
+
+ρ11 (k) + ρ12 (k) = 
+
+∫ 
+
+> ∂D
+
+f (ζ1)
+
+ζk+1 1
+
+dζ 1 +
+
+∫ 
+
+> ∂D r(0)
+
+f (ζ2)
+
+ζk+1 2
+
+dζ 2 =
+
+∫
+
+> Ar
+
+f (ζ)
+
+ζk+1 dζ, 
+
+7which is equal to 0 when k ∈ Z by Cauchy’s theorem for E1(Ar) ⊇ E2(Ar). Likewise 
+
+ρ21 (k) + ρ22 (k) = r2k+1 
+
+∫ 
+
+> ∂D
+
+f (ζ1)ζk 
+
+> 1
+
+dζ 1 + r2k+1 
+
+∫ 
+
+> ∂D r(0)
+
+f (ζ2)ζk 
+
+> 2
+
+dζ 2 = r2k+1 
+
+∫
+
+> Ar
+
+f (ζ)ζkdζ = 0 .
+
+Here we have used that fact that ζk is holomorphic on Ar for all integers k.
+
+We remark on a key difference between transform pair developed using the Szeg˝ o kernel for the annulus and the transform pair for the Szeg˝ o kernel for the unit disk. For the unit disk, the Szeg˝ o kernel and Cauchy kernel are the same, hence the transform pair found in [13] matches the transform pair found in [3] when the domain is the unit disk. However, the Szeg˝ o kernel for an annulus is not equal to the Cauchy kernel, so the transform pair developed in this work will never equal the transform pair found in [4]. 
+
+2.2 New transform pair for doubly connected domains 
+
+One advantage of the Cauchy kernel is that is it is not domain dependent. However, the spectral decomposition (1.8) only holds on domains with circular boundary curves. While the Szeg˝ okernel is domain dependent, it has a transformation law that allows for the generalization of (2.4) to general domains. To be precise, if Φ : D1 7 → D2 is conformal, then 
+
+SD1 (ζ, z ) := √Φ′(z)SD2 (Φ( ζ), Φ( z)) √Φ′(ζ), ζ ∈ ∂D 1, z ∈ D1. (2.9) If D1 and D2 are smooth bounded domains (possibly finitely connected), then the transforma-tion law above holds. Using the equation in (1.1), we can write 
+
+SD1 (ζ, z ) d σ(ζ) = √Φ′(z) SD2 (Φ( ζ), Φ( z)) √Φ′(ζ) TD1 (ζ) d ζ. (2.10) One may prove (see [1, p. 53]) that 
+
+TD2 (Φ( ζ)) √Φ′(ζ) = √Φ′(ζ)TD1 (ζ), ζ ∈ ∂D. (2.11) Combining the two equations (2.11) and (2.10) gives 
+
+SD1 (ζ, z ) d σ(ζ) = √Φ′(z) SD2 (Φ( ζ), Φ( z)) √Φ′(ζ) TD2 (Φ( ζ))d ζ. (2.12) Now let D2 = Ar and D1 = D where D is a smooth bounded domain such that Ψ : Ar → D is a conformal map. Substituting in the expression for SAr found in (2.4) into (2.12) gives 
+
+SD(z, ζ )dσ (z) = √Φ′(ζ)SAr (Φ( z), Φ( ζ)) √Φ′(z) iT Ar (ζ)dζ 
+
+=
+
+√Φ′(z)
+
+2πi 
+
+[ ∫
+
+> L1
+
+τ (Φ( z)Φ( ζ), k )
+
+1 − e2πik dk +
+
+∫
+
+> L2
+
+τ (Φ( z)Φ( ζ), k )dk 
+
++
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik τ (Φ( z)Φ( ζ), k )dk 
+
+]√ Φ′(ζ)TAr (Φ( ζ)) dζ. 
+
+(2.13) This implies the following theorem. 
+
+Theorem 2.3. Let D be a bounded smooth doubly connected domain conformally equivalent to 
+
+Ar = {z ∈ C : r < |z| < 1}, say Φ : D → Ar is a conformal map. Let Γ1 be the outer boundary curve of D, i.e. Φ−1(∂ D) = Γ 1 and Γ2 be the inner boundary of D, i.e. Φ−1(∂D r (0)) = Γ 2.Then for any f ∈ E2(D) and z ∈ D, we have 
+
+f (z) = 
+
+√Φ′(z)
+
+2πi 
+
+[ ∫
+
+> L1
+
+1
+
+1 − e2πik τΦ(z, k )dk +
+
+∫
+
+> L2
+
+τΦ(z, k )dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik τΦ(z, k )dk 
+
+]
+
+, (2.14) 8where 
+
+τΦ(z, k ) = Φ( z)k
+
+1 + r2k+1 (ρ11 ,Φ(k) + ρ22 ,Φ(−k − 1)) + 1
+
+Φ( z)k+1 (ρ21 ,Φ(k) + ρ12 ,Φ(−k − 1)) , (2.15) 
+
+ρ1m, Φ(k) = 
+
+∫
+
+> Γm
+
+f (ζ)√Φ′(ζ)
+
+Φ( ζ)k+1 dζ k ∈ C, m = 1 , 2
+
+ρ2m, Φ(k) = r2k+1 
+
+∫
+
+> Γm
+
+f (ζ)Φ( ζ)k√Φ′(ζ)dζ k ∈ C, m = 1 , 2.
+
+(2.16) 
+
+The following global relation also holds 
+
+ρj1,Φ(k) + ρj2,Φ(k) = 0 , k ∈ N ∪ { 0}, j = 1 , 2. (2.17) 
+
+Remark 1 : If one considers the transform pair when the inner radius r is zero, then ρ2m, Φ(k) = 0 for all k ∈ C, τΦ(z, k ) = Φ( k)kρ1m, Φ(z), and the transform pair reduces to 
+
+f (z) = 
+
+√Φ′(z)
+
+2πi 
+
+[ ∫
+
+> L1
+
+Φ( k)kρ1,Φ(z)
+
+1 − e2πik dk +
+
+∫
+
+> L2
+
+Φ( k)k ρ1,Φ(z)dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik Φ( k)kρ1,Φ(z)dk 
+
+]
+
+.
+
+This is exactly the transform pair for simply connected domains found in [13]. 
+
+Remark 2: Note that if k ∈ Z instead of N, then only a single global relation is needed (either 
+
+j = 1 or j = 2). However, to emphasize the difference between the simply-connected case in which there is only one global relation and the doubly-connected case, the global relation above will be written as in (2.17). 
+
+# 3 The global relation 
+
+We will show that 
+
+ρj1,Φ(k) + ρj2,Φ(k) = 0 , k ∈ Z, j = 1 , 2.
+
+We prove the equality above for j = 1. The proof for j = 2 follows in a similar manner. This proof is similar to the proof of the corresponding global relation for simply connected domain presented in [13]. Let k ∈ N ∪ { 0} and write n := −k − 1. Write ˜ρ(n) := ρ11 ,Φ(−n − 1) + ρ12 ,Φ(−n − 1) = 
+
+∫
+
+> ∂D
+
+√Φ′(ζ)f (ζ)Φ( ζ)n dζ. (3.1) We will prove ˜ρ(n) = 0 , for n ∈ { 0} ∪ N, (3.2) and (2.17) then follows. Denote the inverse of the conformal map Φ by Ψ : Ar → D. Now, we have the following classical result that can be found in [1, p. 51]. Suppose that Ψ : D1 → D2 is a biholormphic mapping between bounded domains with smooth boundaries. Then Ψ ∈ C∞(D1), Ψ′ is nonvanishing on D1, and Ψ −1 ∈ C∞(D2). Additionally Ψ ′ is equal to the square of a function that is holomorphic on a neighborhood of D1. Further, it is known [8, p. 183] that 
+
+f ∈ E2(Ar) if and only if f (Ψ( ζ))[Ψ ′(ζ)] 1/2 ∈ H2(D). (3.3) In particular, √Ψ′(ζ) ∈ H2(D) given that the constant functions are in all Smirnov Spaces. Thus writing Ψ ′ = √Ψ′√Ψ′, applying the change of variable formula ζ := Ψ( w), and using the fact that (Φ ◦ Ψ) ′(w) = (Φ ◦ Φ−1)′(w) = 1, we find 9Ciδ
+
+> −δ
+> −iδ
+
+(a) 
+
+> iδ
+> −δ
+> −iδ
+> C′
+
+(b) 
+
+Figure 4: (a) The Watson Contour (b) The Watson Contour deformed ˜ρ(n) = 
+
+∫
+
+> ∂Ar
+
+√Φ′(Ψ( w))( f ◦ Ψ)( w)wnΨ′(w) d w
+
+=
+
+∫
+
+> ∂Ar
+
+√Φ′(Ψ( w))Ψ ′(w)( f ◦ Ψ)( w)[Φ ◦ Ψ] n(w)√Ψ′(w) d w
+
+=
+
+∫
+
+> ∂Ar
+
+[( f · Φn) ◦ Ψ]( w)√Ψ′(w) d w. 
+
+(3.4) It is known that E2(D) = H2(D) if all boundary curves are analytic [8, p. 182]. Thus it follows from (3.3) that f · Φn ∈ E2(D) if and only if [ f · Φn] ◦ Ψ · √Ψ′ ∈ H2(Ar) = E2(Ar). It was already noted above that Φ extends continuously to the boundary. Thus it follows that 
+
+f · Φn ∈ E2(D). The equality in (3.2) now follows from Cauchy’s theorem for E1 and the fact that E2(D) ⊂ E1(D) when D is bounded. 
+
+# 4 Alternative Integral Representations for Ar
+
+In this section, we write alternative integral representations for SAr that arise from the Watson transform. We give two such representations here. First, we have 
+
+SAr (z, ζ ) = 
+
+∫
+
+> C
+
+(zζ)n
+
+(1 − e2πik )r2n+1 dk +
+
+∫
+
+> C+1
+
+1
+
+(1 − e2πik )(r + r2n+1 )
+
+( r2
+
+zζ
+
+)n
+
+dk, 
+
+where C is the left semi-circle of radius 0 < δ < 1 (adequately small) and two horizontal half-lines with endpoints ±iδ as pictured in figure (4a). Let C + 1 be the contour C translated to the right by 1. As was noted in [3], the contour C is within a distance of 1 from the singularities of the integrand along the real axis. Hence this will not be the optimal choice of contour for computation. The integrands in the spectral decomposition (2.4) developed in this work for the Szeg˝ o kerenl decay exponentially. However, we may deform the contour C in order to move the contour away from the singularities of the integrands. This new deformed contour C′ is pictured in figure (4b). As before, let C′ + 1 be the contour C′ translated to the right by one. Then we have the following integral representation for SAr (z, ζ ): 
+
+SAr (z, ζ ) = 1
+
+2πi 
+
+∫
+
+> C′+1
+
+r2t−1
+
+1 + r2t+1 
+
+eiπt 
+
+e2iπt + 1 1
+
+(zζ)t dt + 1
+
+2πi 
+
+∫
+
+> C′
+
+1
+
+1 + r2t+3 
+
+eiπt 
+
+e2iπt + 1 (zζ)tdt 
+
+= 1
+
+2πi 
+
+∫
+
+> C′+1
+
+r2t−1
+
+1 + r2t+1 
+
+1
+
+sin( πt )1
+
+(zζ)t dt + 1
+
+2πi 
+
+∫
+
+> C′
+
+1
+
+1 + r2t+3 
+
+1
+
+sin( πt )(zζ)tdt. 
+
+(4.1) 10 We chose the representation for SAr (z, ζ ) given in (2.4) and the associated contour in figure 3 for its connection to the unified transform method as discussed in [3, 4, 13] and its connection to the Fourier-Mellon transform as discussed in [3]. See [11] (Chapter 4.2) for a discussion of the Watson transform. It would be interesting to compare the numerical effectiveness of the integral representation for the Szeg˝ o kernel given in (4.1) and (2.4). 
+
+# 5 Transform Pairs for any bounded Doubly Connected Domains 
+
+Two annuli, A1 = {z : r1 < |z| < R 1} and A2 = {z : r1 < |z| < R 2}, are conformally equivalent if and only if r1/R 1 = r2/R 2. The Szeg˝ o kernel for the annulus Ar,R is 
+
+SAr,R (z, ζ ) = 1
+
+2π
+
+> ∞
+
+∑
+
+> n=−∞
+
+(zζ)n
+
+r2n+1 + R2n+1 .
+
+For any annulus Ar,R , there will be a 0 < s < 1 such that As is conformally equivalent to Ar,R .Indeed, consider the conformal map Φ( z) = z/R . The map Φ( z) will map the annulus Ar,R to the annulus Ar/R . Then by the transformation law 2.9 for the Szeg˝ o kernel, we have 
+
+SAr,R (z, ζ ) = 1
+
+√r SAr (Φ( z), Φ( ζ)) 1
+
+√r
+
+= 1
+
+2πr 
+
+> ∞
+
+∑
+
+> n=−∞
+
+(z/r )n(ζ/r )n
+
+1 + ( r/R )2n+1 .
+
+Thus the transform pair developed in section 2.2 holds for any smooth bounded doubly con-nected domain that is conformally equivalent to the annulus Ar,R with the substitutions 
+
+z → z/r , ζ → ζ/r , and r → r/R (and adjusting for the extra factor of 1 /r ). All bounded doubly connected domains are conformally equivalent to an annulus or to the punctured disk. A Transform pair for punctured disks was developed in [13]. 
+
+# 6 Applications 
+
+In this section, the modified Schwarz problem and a related boundary value problem for two doubly connected domains will be implement via the newly developed transform pair. Let 
+
+D be a doubly connected domain with boundary curves Γ 1 and Γ 2 (neither of which are a single point), and let f = u + iv be a holomorphic function on D with prescribed real part 
+
+u1(ζ) = Re f (ζ) on Γ 1 and u2(ζ) = Re f (ζ) on Γ 2. The modified Schwarz problem is to find the missing boundary data v1(ζ) = Im f (ζ) on Γ 1 and v2(ζ) = Im f (ζ) on Γ 2, so that f
+
+is holomorphic and single-valued on D. A closely related variant of this problem is to find the real part of f on Γ 1 and the imaginary part of on Γ 2 given the real part of f on Γ 2 and the imaginary part of f on Γ 1.
+
+6.1 Boundary value problems for doubly connected domains 
+
+Let u be a harmonic function on a doubly connected bounded domain D with smooth boundary curves. We assume that u is a single-valued on D. There are numerous boundary value problems to be considered, including, Dirichlet, Nuemann, and Robin boundary value problems. Given boundary data, we may use the transform pair developed in (2.14) to numerically solve 11 for a holomorphic function f = u + iv where v is a harmonic conjugate to u on D. However, unlike the simply connected case, f is not guaranteed to be single-valued. Functions in E2(D)though are taken to be single valued. Despite this difficulty, the single-valuedness of u does guarantee the single-valuedness of f ′ if Γ 1 and Γ 2 are assumed to be circular. See [5] and references therein for a discussion of this fact. However, this result easily generalizes to any bounded domain that is conformally equivalent to an annulus. In particular, consider the case when D = Ar. Then f ′ is single-valued, and we have the following transform pair for f ′
+
+f ′(z) = 1
+
+2πi 
+
+[ ∫
+
+> L1
+
+1
+
+1 − e2πik τ (z, k )dk +
+
+∫
+
+> L2
+
+τ (z, k )dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik τ (z, k )dk 
+
+]
+
+, (6.1) where 
+
+ρ1m(k) = 
+
+∫
+
+> ∂D m
+
+f ′(ζm)
+
+ζk+1 
+
+> m
+
+dζ m k ∈ C, m = 1 , 2,ρ2m(k) = r2k+1 
+
+∫
+
+> ∂D m
+
+f ′(ζm)ζkmdζ m k ∈ C, m = 1 , 2.
+
+One can recover an expression for f (z) by integrate (6.1) with respect to z:
+
+f (z) = 1
+
+2πi 
+
+[ ∫
+
+> L1
+
+1
+
+1 − e2πik ˜τ (z, k )dk +
+
+∫
+
+> L2
+
+˜τ (z, k )dk +
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik ˜τ (z, k )dk 
+
+]
+
+, (6.2) where ˜τ (z, k ) = 1
+
+1 + r2k+1 
+
+[ zk+1 
+
+k + 1 (ρ11 (k) + ρ22 (−k − 1)) − 1
+
+kz k (ρ21 (k) + ρ12 (−k − 1)) 
+
+]
+
+. (6.3) The expressions for ρ1m and ρ2m can also be written in terms of f by applying integration by parts. However, this approach using the general transform pair given in (2.14) is far more complicated. One would need to integrate √Φ′ and Φ k, and some conformal maps may not have a holomorphic anti-derivative. For example, conformal maps with a simple pole may have a holomorphic anti-derivative. Next, let us consider the case of Dirichlet boundary values. It is a well known fact that u
+
+has a harmonic conjugate v such that f = u + iv is single-valued on D if and only if 
+
+∫
+
+> Γj
+
+∂u 
+
+∂n ds = 0 , 1 ≤ j ≤ 2.
+
+Note that if u extends to be a harmonic function on the interior of Γ 2, then the above condition will always be satisfied. 
+
+6.2 Eccentric annulus 
+
+The first application to be considered is the modified Schwarz problem on an eccentric annulus. The current method will be verified against the method developed by Crowdy in [4]. The eccentric annulus D under consideration is pictured in figure (5). Precisely, 
+
+D = {z ∈ C : |z| < 1, |z − z−0| > r 0},
+
+for some z0 ∈ D and 0 < r 0 < dist ( z0, ∂ D). The outer boundary curve, Γ 1, is the unit circle (centered at the origin), and the inner boundary curve, Γ 2, is a circle with radius r0 and center 12 Φ(z) = α−z
+
+> αz−1
+
+−→ rD
+
+Figure 5: An eccentric annular region. 
+
+z0. We wish to find a conformal map from D to Ar for some r < 1. Such a conformal map will be a linear fraction transformation of the form Φ( ζ) = α − ζ
+
+αζ − 1,
+
+where 
+
+α = −(r20 − z21 − 1) − √(r20 − z21 − 1) 2 − 4z20
+
+2z0
+
+,
+
+and 
+
+r = z0 − r0 − α
+
+α(z0 − r0) − 1 .
+
+Note that given a doubly connected domain D, one must find a r < 1 such that Ar is confomrally equivalent to D. Consider the following modified Schwarz problem for D. We wish to find an 
+
+f ∈ E2(D) such that 
+
+
+
+∂f (z) = 0 , z ∈ D
+
+Re f (ζ) = u1(ζ), ζ ∈ Γ1
+
+Re f (ζ) = u2(ζ), ζ ∈ Γ2
+
+The goal is two-fold. First, find the imaginary part of f on Γ 1, denoted by v1, and the imaginary part of f on Γ 2, denoted by v2. Second, recover the interior values of f by using (2.14). The missing boundary data will be found using the global relation given in (2.17): 
+
+ρj1,Φ(k) + ρj2,Φ(k) = 0 , k ∈ N ∪ { 0}, j = 1 , 2.
+
+On Γ 1 = ∂D we write 
+
+v1(ζ) = a0 +
+
+> ∞
+
+∑
+
+> n=1
+
+anζn +
+
+> ∞
+
+∑
+
+> n=1
+
+anζn,
+
+where the coefficients a0 ∈ R and {an ∈ C|n = 1 , 2, . . . } are to be determined. On Γ 2 =
+
+∂D r0 (z0), we write 
+
+v2(ζ) = b0 +
+
+> ∞
+
+∑
+
+> n=1
+
+bn
+
+(ζ − z0
+
+r0
+
+)n
+
++
+
+> ∞
+
+∑
+
+> n=1
+
+bn
+
+( ζ − z0
+
+r0
+
+)n
+
+,
+
+13 where the coefficients b0 ∈ R and {bn ∈ C|n = 1 , 2, . . . } are to be determined. We choose the standard parametrization for Γ 1:
+
+ζ1(θ) = eiθ , θ ∈ [0 , 2π].
+
+We then have 
+
+f (ζ1(θ)) = u(ζ1(θ)) + i 
+
+(
+
+a0 + ∑
+
+> n≥1
+
+[
+
+aneinθ + ane−inθ 
+
+]) 
+
+. (6.4) We also choose the standard parametrization for Γ 2:
+
+ζ2(θ) = z0 + r0eiθ , θ ∈ [0 , 2π].
+
+We then have 
+
+f (ζ2(θ)) = u(ζ2(θ)) + i 
+
+(
+
+b0 + ∑
+
+> n≥1
+
+[
+
+bneinθ + bne−inθ 
+
+]) 
+
+. (6.5) We have two global relations. For j = 1 0 = ρ11 ,Φ(k) + ρ12 ,Φ(k) = 
+
+∫
+
+> Γ1
+
+f (ζ)√Φ′(ζ)
+
+Φ( ζ)k+1 dζ +
+
+∫
+
+> Γ2
+
+f (ζ)√Φ′(ζ)
+
+Φ( ζ)k+1 dζ 
+
+=
+
+∫ 2π
+
+> 0
+
+√Φ′(ζ1(ζ)) 
+
+Φ( ζ1(θ)) k+1 
+
+(
+
+u(ζ1(θ)) + i 
+
+(
+
+a0 + ∑
+
+> n≥1
+
+[
+
+aneinθ + ane−inθ 
+
+])) 
+
+ζ′
+
+> 1
+
+(θ)dθ 
+
+−
+
+∫ 2π
+
+> 0
+
+√Φ′(ζ2(ζ)) 
+
+Φ( ζ2(θ)) k+1 
+
+(
+
+u(ζ2(θ)) + i 
+
+(
+
+b0 + ∑
+
+> n≥1
+
+[
+
+bneinθ + bne−inθ 
+
+])) 
+
+ζ′
+
+> 2
+
+(θ)dθ. 
+
+We may rewrite the equation above as 
+
+a0 A(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+an A(n, k ) + an A(−n, k )
+
+)
+
++ b0 B(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bn B(n, k ) + bn B(−n, k )
+
+)
+
+= s(k), k ∈ N ∪ { 0},a0A(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+anA(n, k ) + anA(−n, k )
+
+)
+
++ b0B(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bnB(n, k ) + bnB(−n, k )
+
+)
+
+= s(k), k ∈ N ∪ { 0},
+
+(6.6) where 
+
+A(n, k ) = i
+
+∫ 2π
+
+> 0
+
+√Φ′(ζ1(ζ)) 
+
+Φ( ζ1(θ)) k+1 einθ ζ′
+
+> 1
+
+(θ)dθ, 
+
+B(n, k ) = −i
+
+∫ 2π
+
+> 0
+
+√Φ′(ζ2(ζ)) 
+
+Φ( ζ2(θ)) k+1 einθ ζ′
+
+> 2
+
+(θ)dθ, 
+
+and 
+
+s(k) = −
+
+∫ 2π
+
+> 0
+
+√Φ′(ζ1(ζ)) 
+
+Φ( ζ1(θ)) k+1 u(ζ1(θ)) ζ′
+
+> 1
+
+(θ)dθ +
+
+∫ 2π
+
+> 0
+
+√Φ′(ζ2(ζ)) 
+
+Φ( ζ2(θ)) k+1 u(ζ2(θ)) ζ′
+
+> 2
+
+(θ)dθ. 
+
+14 Likewise, with k ∈ N ∪ { 0}, the global relation for j = 2 gives 
+
+a0 A(0 , −k − 1) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+an A(n, −k − 1) + an A(−n, −k − 1) 
+
+)
+
++ b0 B(0 , −k − 1) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bn B(n, −k − 1) + bn B(−n, −k − 1) 
+
+)
+
+= s(−k − 1) ,a0A(0 , −k − 1) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+anA(n, −k − 1) + anA(−n, −k − 1) 
+
+)
+
++ b0B(0 , −k − 1) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bnB(n, −k − 1) + bnB(−n, −k − 1) 
+
+)
+
+= s(−k − 1) .
+
+(6.7) Next, Crowdy’s method is implemented in a similar manner. The first global relation is 0 = 
+
+∫ 
+
+> ∂D
+
+f (ζ)z−k−1dz −
+
+∫ 
+
+> ∂D r0(z0)
+
+f (z)z−k−1dz, k ∈ − N.
+
+Using the same parameterizations ζ1(θ) and ζ2(θ) as above, we have 
+
+a0A′(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+anA′(n, k ) + anA′(−n, k )
+
+)
+
++ b0B′(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bnB′(n, k ) + bnB′(−n, k )
+
+)
+
+= s′(k), k ∈ N ∪ { 0},a0A′(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+anA′(n, k ) + anA′(−n, k )
+
+)
+
++ b0B′(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bnB′(n, k ) + bnB′(−n, k )
+
+)
+
+= s′(k), k ∈ N ∪ { 0},
+
+(6.8) where 
+
+A′(n, k ) = i
+
+∫ 2π
+
+> 0
+
+einθ ζ′
+
+> 1
+
+(θ)
+
+(ζ1(θ)) k+1 dθ, 
+
+B′(n, k ) = −i
+
+∫ 2π
+
+> 0
+
+einθ ζ′
+
+> 2
+
+(θ)
+
+(ζ2(θ)) k+1 dθ, 
+
+and 
+
+s′(k) = −
+
+∫ 2π
+
+> 0
+
+u(ζ1(θ)) ζ′
+
+> 1
+
+(θ)
+
+(ζ1(θ)) k+1 dθ +
+
+∫ 2π
+
+> 0
+
+u(ζ2(θ)) ζ′
+
+> 2
+
+(θ)
+
+(ζ2(θ)) k+1 dθ. 
+
+Likewise, the corresponding equations can be generated for the other global relation. Now, the solution of this boundary value problem will be unique up to a constant, so we may assume WLOG that a0 = 0 and b0 = 0. So we may omit the n = 0 equation from the set of equations above. The series (6.4) and (6.5) are truncated up to n = N
+
+to include only a finite number of unknown coefficients. Then (6.6) and (6.7) generate a system of equations with 4 N unknowns. Then evaluating (6.6) and (6.7) at k = 1 , 2, . . . , K 
+
+generates a system of equations (over-determined if K > N ) that is solved with a least-squares algorithm. The following example was implement in Matlab with the following parameters: 
+
+r0 = 1 /3, z 0 = 1 /4, u 1(ζ) = Re( eζ ), u 2(ζ) = Re(( ζ − z0)−2). The coefficients {an, b n : n ≥ 1}
+
+decay quickly for both the current method and for the method presented in [4], so N was chosen to be N = 8 and K = 12. Figure 6 shows the the numerical solutions for v1(ζ1(θ)) and 
+
+v2(ζ2(θ)) are comparable for both the current method and for the method presented in [4]. 15 θ
+
+> 0
+> π/2
+> π
+> 3π/2 2π
+> Im[f( ζ1(θ))]
+> -3 -2 -1 0123
+
+θ
+
+> 0
+> π/2
+> π
+> 3π/2 2π
+> Im[f( ζ2(θ))]
+> -10 -5 0510
+
+Figure 6: The current method is graphed with a solid blue line and the method in [4] is graphed with red dots.     
+
+> Ψ(ζ) = ζ+γ2/ζ
+> r
+
+1  −→ r + γ2/r 1 + γ2    
+
+> 1−γ2
+> r−γ2/r
+
+Figure 7: An elliptical annular region. 
+
+6.3 Elliptical Annular Region 
+
+Next, a variant of the modified Schwarz problem will be implemented on a doubly connected domain D whose boundary curves are non-circular. Define the domain D as 
+
+D := 
+
+{
+
+z = x + iy : x2
+
+(1 + γ2)2 + y2
+
+(1 − γ2)2 < 1, x2
+
+(r + γ2/r )2 + y2
+
+(r − γ2/r )2 > 1
+
+}
+
+,
+
+where 0 < γ < r < 1 as pictured in (7). The holomorphic function Φ : D → Ar, Φ( ζ) =  
+
+> 1
+> 2
+
+(ζ + √ζ2 − 4γ2), will conformally map D onto Ar. The inverse of Φ is Φ −1(ζ) = Ψ( ζ) = 
+
+ζ + γ2/ζ . Note that Φ and its derivative are single-valued on D. Indeed, the two branch points of Φ, ζ2 − 4γ2 = 0, need to lie in the same component of the complement of D. However, 2γ < r + γ2/r ⇐⇒ 0 < (r − γ)2, hence both lie within the bounded component of the complement of D. Let Γ 1 denote the outer boundary of D:Γ1 =
+
+{
+
+z = x + iy : x2
+
+(1 + γ2)2 + y2
+
+(1 − γ2)2 = 1 
+
+}
+
+,
+
+16 and let Γ 2 denote the inner boundary of D:Γ2 =
+
+{
+
+z = x + iy : x2
+
+(r + γ2/r )2 + y2
+
+(r − γ2/r )2 = 1 
+
+}
+
+.
+
+We wish to find an f ∈ E2(D) such that 
+
+
+
+∂f (z) = 0 , z ∈ D
+
+Re f (ζ) = u1(ζ), ζ ∈ Γ1
+
+Im f (ζ) = v2(ζ), ζ ∈ Γ2
+
+where u1 and v2 is given boundary data. The transform method presented in this work will be used to solve this problem in the following manner. First, complete the missing boundary data: find Im f = v1 on Γ 1 and Re f = u2 on Γ 2. Second, recover the interior values of f
+
+by using (2.14). The missing boundary data will be found by using the global relations given in (2.17). The global relation given in (2.17) involves evaluating √Φ′ along ∂ D. We remark that an equivalent statement of analyticity given by the global relation (2.17) is given by the pullback of (2.17) to Ar:0 = 
+
+∫
+
+> ∂D
+
+f (w)√Φ′(w)
+
+Φ( w)k+1 dw =
+
+∫ 
+
+> ∂Ar
+
+f (Ψ( ζ)) √Φ′(Ψ( ζ))Ψ ′(ζ)
+
+Φ(Ψ( ζ)) k+1 dζ 
+
+=
+
+∫ 
+
+> ∂D
+
+f (Ψ( ζ)) √Ψ′(ζ)
+
+ζk+1 dζ +
+
+∫ 
+
+> ∂D r(0)
+
+f (Ψ( ζ)√Ψ′(ζ)
+
+ζk+1 dζ. 
+
+(6.9) For certain domains or applications, one may choose to use the equivalent global relation above for simplicity or practicality. We will use (6.9) to analyze this boundary value problem as certain expressions were shorter when working with Ψ as oppose to Φ. For ζ ∈ Γ1, write 
+
+v1(ζ) = a0 +
+
+> ∞
+
+∑
+
+> n=1
+
+anΦ( ζ)n +
+
+> ∞
+
+∑
+
+> n=1
+
+anΦ( ζ)n. (6.10) For ζ ∈ Γ2, write 
+
+u2(ζ) = b0 +
+
+> ∞
+
+∑
+
+> n=1
+
+bnΦ( ζ)n +
+
+> ∞
+
+∑
+
+> n=1
+
+bnΦ( ζ)n. (6.11) Next, consider the parametrization of Γ 1 given by the conformal map Ψ: 
+
+θ 7 → Ψ
+
+∣∣∣∂ D
+
+(eiθ ) = eiθ + γ2/e iθ , θ ∈ [0 , 2π] (6.12) and the parametrization of Γ 2 given by 
+
+θ 7 → Ψ
+
+∣∣∣∂D r (0) 
+
+(re iθ ) = re iθ + γ2
+
+re iθ , θ ∈ [0 , 2π]. (6.13) It follows that 
+
+v1(Ψ( eiθ )) = a0 +
+
+> ∞
+
+∑
+
+> n=1
+
+aneinθ +
+
+> ∞
+
+∑
+
+> n=1
+
+ane−inθ 
+
+17 or equivalently 
+
+v1(Ψ( ζ)) = a0 + ∑
+
+> n≥1
+
+anζn + ∑
+
+> n≥1
+
+anζn = a0 + ∑
+
+> n≥1
+
+anζn + ∑
+
+> n≥1
+
+anζ−n, ζ ∈ ∂ D (6.14) and 
+
+u2(Ψ( re iθ )) = b0 +
+
+> ∞
+
+∑
+
+> n=1
+
+bnrneinθ +
+
+> ∞
+
+∑
+
+> n=1
+
+bnrne−inθ 
+
+or equivalently 
+
+u2(Ψ( ζ)) = b0 + ∑
+
+> n≥1
+
+bnζn + ∑
+
+> n≥1
+
+bn ζn = b0 + ∑
+
+> n≥1
+
+bnζn + ∑
+
+> n≥1
+
+bnr2nζ−n ζ ∈ ∂D r (0) . (6.15) 
+
+Remark: When evaluating f at an interior point z ∈ D using the expression given in (2.14), choosing the parametrization for ∂ D and ∂D r(0) given in (6.12) and (6.13) is simplest because of the choice of representation of the functions v1 and u2 given in (6.10) and (6.11). Next, substituting the representation for v1 and u2 found in (6.14) and (6.15) into the equivalent global relation (for j = 1) given in (6.9) yields 
+
+ia 0
+
+∫ 
+
+> ∂D
+
+√Ψ′(ζ)
+
+ζk+1 dζ + i
+
+> ∞
+
+∑
+
+> n=1
+
+an
+
+∫ 
+
+> ∂D
+
+√Ψ′(ζ)
+
+ζk−n+1 dζ + i
+
+> ∞
+
+∑
+
+> n=1
+
+an
+
+∫ 
+
+> ∂D
+
+√Ψ′(ζ)
+
+ζk+n+1 dζ 
+
+− b0
+
+∫ 
+
+> ∂D r(0)
+
+√Ψ′(ζ)
+
+ζk+1 dζ −
+
+> ∞
+
+∑
+
+> n=0
+
+bn
+
+∫ 
+
+> ∂D r(0)
+
+√Ψ′(ζ)
+
+ζk−n+1 dζ −
+
+> ∞
+
+∑
+
+> n=0
+
+bn
+
+∫ 
+
+> ∂D r(0)
+
+r2n√Ψ′(ζ)
+
+ζk+n+1 dζ 
+
+= −i
+
+∫ 
+
+> ∂D
+
+v1(Ψ( ζ)) √Ψ′(ζ)
+
+ζk+1 dζ +
+
+∫
+
+> ∂D 0(r)
+
+u2(Ψ( ζ)) √Ψ′(ζ)
+
+ζk+1 dζ. 
+
+Simplify the equation above gives 
+
+a0 A(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+an A(n, k ) + an A(−n, k )
+
+)
+
++ b0 B(0 , 0, k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bn B(n, k ) + bnr2n B(−n, k )
+
+)
+
+= s(k), k ∈ Z,a0A(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+anA(n, k ) + anA(−n, k )
+
+)
+
++ b0B(0 , k ) + 
+
+> ∞
+
+∑
+
+> n=1
+
+(
+
+bnB(n, k ) + bnr2nB(−n, k )
+
+)
+
+= s(k), k ∈ Z,
+
+(6.16) where 
+
+A(n, k ) = i
+
+∫ 
+
+> ∂D
+
+√Ψ′(ζ)
+
+ζk−n+1 dζ, 
+
+B(n, k ) = 
+
+∫ 
+
+> ∂D r(0)
+
+√Ψ′(ζ)
+
+ζk−n+1 dζ, 
+
+and 
+
+s(k) = −i
+
+∫ 
+
+> ∂D
+
+√Ψ( ζ)
+
+ζk+1 v1(Ψ( ζ)) dζ +
+
+∫ 
+
+> ∂D r(0)
+
+√Ψ( ζ)
+
+ζk+1 u2(Ψ( ζ)) dζ. 
+
+18 θ
+
+> 0
+> π/2
+> π
+> 3π/2 2π
+> Im[f( Ψ(e iθ))]
+> -3 -2 -1 0123
+> θ
+> 0
+> π/2
+> π
+> 3π/2 2π
+> Real[f( Ψ(r e iθ))]
+> -1.5 -1 -0.5 00.5 11.5
+
+Figure 8: The graphs of v1(Ψ( eiθ )) and u2(Ψ( re iθ )). 
+
+> θ
+> 0
+> π/2
+> π
+> 3π/2 2π
+> Im[f( Ψ(e iθ))]
+> -4 -3 -2 -1 01234
+> θ
+> 0
+> π/2
+> π
+> 3π/2 2π
+> Im[f( Ψ(κ eiθ))]
+> -5 05
+
+Figure 9: The graphs of v1(Ψ( eiθ )) and y2(Ψ( re iθ )). A second set of equations can similarly be generated for the second global relation ( j = 2). Now, the solution of this boundary value problem will be unique up to a constant, so we may assume WLOG that a0 = 0 and b0 = 0. So we may omit the n = 0 equation from the set of equations above. The series (6.14) and (6.15) are truncated up to n = N to include only a finite number of unknown coefficients. Then (6.16) and the corresponding set of equations for j = 2 generate a system of equations with 4 N unknowns. Then evaluating (6.16) and the corresponding set of equations for j = 2 at k = 1 , 2, . . . , K generates an over-determined (if K > N ) system of equations that is solved with a least-squares algorithm. The following example was implement in Matlab with the following parameters: γ = 1 /4, r = 3 /4, u1(ζ) = Re( ζ3), v2(ζ) = Im( ζ−1). The coefficients {an, b n : n ≥ 1} decay quickly, so N was chosen to be N = 8 and K = 8. Figure 8 shows v1(Ψ( eiθ )) and u2(Ψ( re iθ )). The classical Schwarz problem of finding an f ∈ E2(D) such that 
+
+
+
+∂f (z) = 0 , z ∈ D
+
+Re f (ζ) = u1(ζ), ζ ∈ Γ1
+
+Re f (ζ) = u2(ζ), ζ ∈ Γ2
+
+will be implemented in a very similar fashion. Following a similar procedure as was outlined for the boundary value problem above, one can numerically recover the missing boundary data 
+
+v1(Φ( ζ)) and u2(Φ( ζ)). With γ = 1 /4 and r = 3 /4 as before and u1(ζ) = Re( e−ζ +z−1), u 2(ζ) = Re( ζ2 + ζ−2). Figure (9) shows a graph of v1(Φ( ζ)) and u2(Φ( ζ)) when implemented using Matlab. 19 −1 −q 0 1 2 3           
+
+> −1−q0123
+> C−
+> 0ǫC−
+> 1ǫC−
+> 2ǫC−
+> 3ǫ
+> C+
+> 0ǫC+
+> 1ǫC+
+> 2ǫC+
+> 3ǫ
+
+Figure 10: The contours L+ (lower) and L− (higher) 
+
+# 7 Appendix 
+
+7.1 A
+
+We will prove the equality stated in equation (2.2). We use a very similar argument as was first presented in [3]. First, for |z| < 1, set 
+
+I =
+
+∫
+
+> L1
+
+1
+
+1 + r2n+1 
+
+zk
+
+1 − e2πik dk +
+
+∫
+
+> L2
+
+zk
+
+1 + r2n+1 dk +
+
+∫
+
+> L3
+
+1
+
+1 + r2n+1 
+
+e2πik 
+
+1 − e2πik zkdk. 
+
+Let P denote the principal value integral. The second integral in the equation above can be rewritten as ∫
+
+> L2
+
+zk
+
+1 + r2n+1 dk = P
+
+∫
+
+> L2
+
+[1 − e2πik 
+
+1 − e2πik 
+
+] zk
+
+1 + r2n+1 dk 
+
+= P
+
+∫
+
+> L2
+
+[ 1
+
+1 − e2πik 
+
+] zk
+
+1 + r2n+1 dk − P 
+
+∫
+
+> L2
+
+[ e2πik 
+
+1 − e2πik 
+
+] zk
+
+1 + r2n+1 dk. 
+
+Let L+ and L2 be the contours shown in figure (10). The contour L+ travels along the x-axis from right to left, has semi-circles of radius ǫ centered on the non-negative integers, and terminates at −q. The contour L− travels along the x-axis from left to right, has semi-circles of radius ǫ centered on the non-negative integers, and starts at −q. Let the semi-circles of radius 
+
+ǫ centered at n on the contour L+ be labeled C+
+
+> nǫ
+
+, and let the semi-circles of radius ǫ centered at n on the contour L− be labeled C−
+
+> nǫ
+
+. Then lim 
+
+> ǫ→0
+
+∫
+
+> L−
+
+[ 1
+
+1 − e2πik 
+
+] zk
+
+1 + r2n+1 dk 
+
+= + P
+
+∫
+
+> L2
+
+[ 1
+
+1 − e2πik 
+
+] zk
+
+1 + r2n+1 dk +
+
+> ∞
+
+∑
+
+> n=0
+
+lim 
+
+> ǫ→0
+
+∫
+
+> C−
+> nǫ
+
+zk
+
+1 + r2n+1 
+
+[ 1
+
+1 − e2πik 
+
+]
+
+dk, 
+
+and lim 
+
+> ǫ→0
+
+∫
+
+> L+
+
+[ e2πik 
+
+1 − e2πik 
+
+] zk
+
+1 + r2n+1 dk 
+
+= + P
+
+∫
+
+> L2
+
+[ e2πik 
+
+1 − e2πik 
+
+] zk
+
+1 + r2n+1 dk +
+
+> ∞
+
+∑
+
+> n=0
+
+lim 
+
+> ǫ→0
+
+∫
+
+> C+
+> nǫ
+
+zk
+
+1 + r2n+1 
+
+[ e2πik 
+
+1 − e2πik 
+
+]
+
+dk. 
+
+Now, using the fractional residue theorem, we compute that lim 
+
+> ǫ→0
+
+∫
+
+> C−
+> nǫ
+
+zk
+
+1 + r2n+1 
+
+[ 1
+
+1 − e2πik 
+
+]
+
+dk = πi Res 
+
+[ zk
+
+1 + r2n+1 
+
+1
+
+1 − e2πik , n 
+
+]
+
+= πi zn
+
+1 + r2n+1 lim 
+
+> k→n
+
+(k − n)
+
+1 − e2πik = 1
+
+2
+
+zn
+
+1 + r2n+1 .
+
+20 −q 0 21 3       
+
+> L3
+> L+
+> −q0213
+> L3
+> The contours L+above and L−below.
+> L−
+
+Figure 11: The contours L+ and L−
+
+Likewise lim 
+
+> ǫ→0
+
+∫
+
+> C+
+> nǫ
+
+zk
+
+1 + r2n+3 
+
+[ e2πik 
+
+1 − e2πik 
+
+]
+
+dk = 1
+
+2
+
+zn
+
+1 + r2n+3 .
+
+Define the contours L+ and L− as L− ≡ L1 ∪ L− and L+ ≡ L+ ∪ L3 pictured in figure (11). Thus 
+
+I =
+
+∫
+
+> L−
+
+1
+
+1 + r2k+1 
+
+[ 1
+
+1 − e2πik 
+
+]
+
+zkdk +
+
+> ∞
+
+∑
+
+> n=0
+
+zn
+
+1 + r2n+1 +
+
+∫
+
+> L+
+
+1
+
+1 + r2k+1 
+
+[ e2πik 
+
+1 − e2πik 
+
+]
+
+zkdk. 
+
+Note that 1 + r2k+1 = 0 for k ∈ C when 
+
+k = −1
+
+2 + i(2 n + 1) π
+
+2 ln( r) , n ∈ Z.
+
+Next, for k = ix with x ∈ R we have 
+
+∣∣∣ 1
+
+1 + r2k+1 
+
+∣∣∣ =
+
+∣∣∣ 1
+
+1 + r2ix r
+
+∣∣∣ ≤ 1
+
+1 − r .
+
+Thus the integrals over L1 and L3 exponentially decay. Next, let z = x + iy with x > 0. Then 
+
+∣∣∣ 1
+
+1 + r2k+1 
+
+∣∣∣ =
+
+∣∣∣ 1
+
+1 + r2xr2yi r
+
+∣∣∣.
+
+Given that x > 0, it follows that 
+
+∣∣∣ 1
+
+1 + r2xr2yi r
+
+∣∣∣ → 1as |k| → ∞ when z is in the first and fourth quadrant. Next, note that 1
+
+> 1+ r2k+1
+
+[ 1
+
+> 1−e2πik
+
+]
+
+zk is analytic in the fourth quadrant and 1
+
+> 1+ r2k+1
+
+[ e2πik 
+
+> 1−e2πik
+
+]
+
+zk is analytic in the first quadrant, so both 21 integral vanish. Repeating this argument for 
+
+r
+
+zζ
+
+> ∞
+
+∑
+
+> n=0
+
+( r2
+
+zζ
+
+)n 1
+
+1 + r2n+1 
+
+gives (2.3). 
+
+7.2 Appendix B 
+
+We prove equation (2.7) (the line below) under the conditions of Theorem (2.7): 
+
+f (z) = 
+
+∫
+
+> ∂Ar
+
+f (ζ)S(ζ, z )dσ (ζ)= 1
+
+2π
+
+[ ∫
+
+> ∂Ar
+
+∫
+
+> L1
+
+f (ζ) γ(zζ, k )
+
+1 − e2πik dkdζ +
+
+∫
+
+> ∂Ar
+
+∫
+
+> L2
+
+γ(zζ, k )dkdζ +
+
+∫
+
+> ∂Ar
+
+∫
+
+> L3
+
+e2πik 
+
+1 − e2πik γ(zζ, k )dkdζ 
+
+]
+
+.
+
+The following computation will completed for 
+
+∫
+
+> ∂Ar
+
+∫
+
+> L2
+
+f (ζ)γ(zζ, k )dkdζ, 
+
+and the other computations are similar. First note that 
+
+∫
+
+> ∂Ar
+
+∫
+
+> L2
+
+γ(zζ, k )dkdσ (ζ) = 
+
+∫
+
+> L2
+
+∫
+
+> ∂Ar
+
+f (ζ) 1
+
+1 + r2k+1 
+
+(
+
+(zζ)k + r2k+1 
+
+(zζ)k+1 
+
+)
+
+dσ (ζ)dk 
+
+=
+
+∫
+
+> L2
+
+1
+
+1 + r2k+1 
+
+[ ∫ 
+
+> ∂D
+
+f (ζ)
+
+(
+
+(zζ)k + r2k+1 
+
+(zζ)k+1 
+
+)
+
+dσ (ζ) + 
+
+∫ 
+
+> Dr(0)
+
+f (ζ)
+
+(
+
+(zζ)k + r2k+1 
+
+(zζ)k+1 
+
+)
+
+dσ (ζ)
+
+]
+
+.
+
+On ∂ D, we have ζ1 = ζ1(t) = eit . Thus ζ1 = 1 /ζ 1 and 
+
+dσ (ζ1) = T∂ D(ζ1)dζ 1 = ie it dζ 1 = −iζ1(t)dζ 1 = −iζ1dζ 1 = 1
+
+iζ 1
+
+dζ 1.
+
+Thus 
+
+∫ 
+
+> ∂D
+
+f (ζ)
+
+(
+
+(zζ)k + r2k+1 
+
+(zζ)k+1 
+
+)
+
+dσ (ζ) = 1
+
+i
+
+∫ 
+
+> ∂D
+
+f (ζ) zk
+
+ζk+1 dζ + r2k+1 
+
+i
+
+∫ 
+
+> ∂D
+
+f (ζ)
+
+zk+1 ζkdζ 
+
+= 1
+
+i zkρ11 (k) + 1
+
+iz k+1 ρ21 (k).
+
+On ∂D r(0), we have ζ2(t) = −re it . Thus 
+
+dσ (ζ2) = T∂ D(ζ2)dζ 2 = −ire it 
+
+r dζ 2(t) = ie −it dζ 2(t) = −iζ2(t)
+
+r dζ 2(t) = −iζ2
+
+r dζ 2 = r
+
+iζ 2
+
+dζ 2.
+
+Also note that ζ2 = −re it = r2/(−re it ) = r2/ζ 2. Thus 
+
+∫ 
+
+> Dr(0)
+
+f (ζ)
+
+(
+
+(zζ)k + r2k+1 
+
+(zζ)k+1 
+
+)
+
+dσ (ζ) = 1
+
+i
+
+∫ 
+
+> Dr(0)
+
+f (ζ)zk r2k
+
+ζk
+
+r
+
+ζ dζ + 1
+
+i
+
+∫ 
+
+> Dr(0)
+
+f (ζ)r2k+1 
+
+zk+1 
+
+ζk+1 
+
+r2k+2 
+
+r
+
+ζ dζ 
+
+= r2k+1 
+
+i
+
+∫ 
+
+> Dr(0)
+
+f (ζ) zk
+
+ζk+1 dζ + 1
+
+i
+
+∫ 
+
+> Dr(0)
+
+f (ζ)
+
+zk+1 ζkdζ 
+
+= 1
+
+i zkρ22 (−k − 1) + 1
+
+iz k+1 ρ12 (−k − 1) .
+
+22 Thus 1
+
+2π
+
+∫
+
+> ∂Ar
+
+∫
+
+> L2
+
+f (ζ)γ(zζ, k )dkdζ 
+
+= 1
+
+2πi 
+
+∫
+
+> L2
+
+1
+
+1 + r2k+1 
+
+[
+
+zk ρ11 (k) + 1
+
+zk+1 ρ21 (k) + zk ρ22 (−k − 1) + 1
+
+zk+1 ρ12 (−k − 1) 
+
+]
+
+dk 
+
+= 1
+
+2πi 
+
+∫
+
+> L2
+
+1
+
+1 + r2k+1 
+
+[
+
+zk (ρ11 (k) + ρ22 (−k − 1)) + 1
+
+zk+1 (ρ21 (k) + ρ12 (−k − 1)) 
+
+]
+
+dk. 
+
+# References 
+
+[1] S. R. Bell. The Cauchy transform, potential theory, and conformal mapping . Chapman and Hall/CRC, New York, 2nd edition, 2015. [2] D Crowdy and J Hauge. A new approach to the complex helmholtz equation with appli-cation to diffusion wave fileds, impedance spectroscopy and unsteady stokes flow. IMA Journal of Applied mathmatics , 86:1287–1326, 2021. [3] D G Crowdy. Fourier–mellin transforms for circular domains. Comput. Methods Funct. Th. , 15:655 – 687, 2015. [4] D G Crowdy. A transform method for laplace’s equation in multiply connected circular domains. IMA Journal of Applied Mathematics , 80:1902–1931, 2015. [5] D.G. Crowdy. Complex var. elliptic equ. The Schwarz problem in multiply connected domains and the Schottky–Klein prime function , 53:221–236, 2008. [6] C Davis and B Fornberg. A spectrally accurate numberical implementation of the fokas transform method for helmholtz-type pdes. Complex Variables and Elliptic Equations ,59:564–577, 2014. [7] M Dimakos and AS Fokas. The poisson and the biharmonic equations in the interior of a convex polygon. Studies in Applied Mathemtics , 134:456–498, 2015. [8] Peter Duren. Theory of Hp Spaces , volume New York. Dover Publications, 1970. [9] A.S. Fokas. A unified transform method for solving linear and certain nonlinear pdes. 
+
+Proceedings of the Royal Society , 453:1411–1443, 1997. [10] A.S. Fokas and A.A. Kapaev. On the transform method for the laplace equation in a polygon. IMA Journal of Applied Mathematics , 68:355–408, 2003. [11] G Gasper and M Rahman. Basic Hypergeometric Series . Encyclodpedia of Mathematics and its Applications. Cambrdige University Press, 2nd edition, 2009. [12] J. J. Hulse, L. Lanzani, S. G. Llewellyn Smith, and E. Luca. A transform-based technque for solving boundary value problesm on convex planar domains. IMA Journal of Applied Mathematics , 89:574–597, 2024. [13] E. Luca. J. Hulse, L. Lanzani. S. Llewellyn Smith. The unified transform method: Beyound circulr or convex domains. Proceedings of the Royal Society A. , 481, 2025. [14] Elena Luca and Daren G. Growdy. A transform method for the biharmonic equation in multiply connected circular domains. IMA Journal of Applied Mathematics , 83:942–972, 2018. 23 [15] E. Spence and A. S. Fokas. A new transform method i: domain-dependent fundamental solutions and integral representations. Proceedings of the Royal Society A , 466:2259–2281, 2010. 24

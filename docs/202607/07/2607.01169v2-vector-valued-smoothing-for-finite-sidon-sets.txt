@@ -1,0 +1,837 @@
+Title: Vector-valued smoothing for finite Sidon sets
+
+URL Source: https://arxiv.org/pdf/2607.01169v2
+
+Published Time: Tue, 07 Jul 2026 02:04:27 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+VECTOR-VALUED SMOOTHING FOR FINITE SIDON SETS 
+
+JIANFENG HOU AND HONGBIN ZHAO 
+
+Abstract. Let F (N ) denote the largest cardinality of a Sidon subset of {0, 1, . . . , N − 1}. We prove 
+
+F (N ) ≤ N 1/2 + 0 .9435 N 1/4 + O(1) .
+
+The argument uses a vector-valued convolution inequality in which several smoothing kernels cooperate to produce a boundary majorant while their 
+
+L2 energies are averaged. For fixed kernels and mixing weights, the boundary optimization is a strictly convex quadratic program with an explicit dual. An eight-kernel numerical candidate is converted into a finite rational certificate and verified using exact arithmetic only. 
+
+1. Introduction 
+
+A finite set A ⊂ Z is Sidon if every nonzero difference has at most one ordered representation; equivalently, 
+
+a − b = c − d̸ = 0 , a, b, c, d ∈ A, 
+
+implies (a, b ) = ( c, d ). Write 
+
+F (N ) := max {|A| : A ⊂ { 0, 1, . . . , N − 1} is Sidon }.
+
+The classical construction of Singer [ 7] gives F (N ) ≥ N 1/2 +O(1) for infinitely many N . Erdős and Turán [4] proved 
+
+F (N ) ≤ N 1/2 + N 1/4 + O(1) ,
+
+and Lindström [ 5 ] later obtained the same secondary term by a different argument. The coefficient of N 1/4 was subsequently reduced to 0.998 , 0.99703 ,and 0.98183 [1, 6 , 2 ]. More recently, Tao reported joint work with Carter, Georgiev, Gómez-Serrano, Hunter, O’Bryant and Wagner on a computer-assisted refinement of the Carter–Hunter–O’Bryant argument, yielding the coefficient 0.97633 [ 3 , 8 ]. We give a fully explicit rational certificate below 
+
+0.9435 .
+
+Theorem 1.1. There is an explicit constant γ0 = 0 .943492590 . . . < 0.9435 
+
+such that 
+
+F (N ) ≤ N 1/2 + γ0N 1/4 + O(1) .
+
+2020 Mathematics Subject Classification. Primary 11B83; Secondary 05B10. 
+
+Key words and phrases. Sidon set, Golomb ruler, convolution, computer-assisted proof.  
+
+> 1
+> arXiv:2607.01169v2 [math.CO] 5 Jul 2026 2JIANFENG HOU AND HONGBIN ZHAO
+
+In particular, 
+
+F (N ) ≤ N 1/2 + 0 .9435 N 1/4 + O(1) .
+
+The scalar smoothing framework is recovered from Lemma 2.1 by taking 
+
+R = 1 . Our new feature is to place several smoothed indicator functions in a weighted Hilbert direct sum and impose the boundary covering condition only on the weighted combination before applying Cauchy–Schwarz. A kernel with small diagonal energy may therefore cooperate with another kernel that is better adapted to the boundary; the resulting bound is not an average of separately valid scalar bounds. The paper is organised as follows. Section 2 establishes the vector-valued smoothing inequality. Section 3 formulates the finite optimization problem and describes the numerical search and rationalization procedure. Section 4 gives the exact eight-kernel certificate and completes the proof. 2. A multi-kernel smoothing lemma 
+
+Fix integers m, L, R ≥ 1. For 1 ≤ r ≤ R, let p(r) = (p(r)0 , . . . , p (r)
+
+> m−1
+
+) be a symmetric probability vector, so that 
+
+p(r) 
+
+> i
+
+≥ 0,
+
+> m−1
+
+∑
+
+> i=0
+
+p(r) 
+
+> i
+
+= 1 , p(r) 
+
+> i
+
+= p(r)
+
+> m−1−i
+
+.
+
+Let λ1, . . . , λ R ≥ 0 with ∑ 
+
+> r
+
+λr = 1 . For every r, choose real numbers 
+
+w(r)0 , . . . , w (r)
+
+> Lm −1
+
+, and extend the sequence by setting w(r) 
+
+> j
+
+= 1 for j ≥ Lm .We impose the finite covering inequalities 
+
+> R
+
+∑
+
+> r=1
+
+λrm−1∑
+
+> i=0
+
+p(r) 
+
+> i
+
+w(r) 
+
+> q+i
+
+≥ 1 (0 ≤ q ≤ Lm ). (1) Define 
+
+a := m
+
+> R
+
+∑
+
+> r=1
+
+λrm−1∑
+
+> i=0
+
+(p(r)
+
+> i
+
+)2, (2) 
+
+b := 1 + 2 
+
+ 1
+
+m
+
+> R
+
+∑
+
+> r=1
+
+λrLm −1∑
+
+> j=0
+
+(w(r)
+
+> j
+
+)2 − L
+
+ . (3) 
+
+Lemma 2.1 (Vector smoothing lemma) . If (1) holds and b > 0, then 
+
+F (N ) ≤ N 1/2 + √ab N 1/4 + O(1) .
+
+The implied constant may depend on the finite certificate, but not on N .Proof. Let A ⊂ { 0, 1, . . . , N − 1} be Sidon and put k = |A|. Let h be a positive integer and set H = mh . For each r define a probability kernel on 
+
+Z by 
+
+K(r) 
+
+> s
+
+= p(r)
+
+> i
+
+h if ih ≤ s < (i + 1) h, 0 ≤ i < m, (4) and K(r) 
+
+> s
+
+= 0 otherwise. The symmetry of p(r) gives K(r) 
+
+> s
+
+= K(r)
+
+> H−1−s
+
+.VECTOR-VALUED SMOOTHING FOR SIDON SETS 3
+
+For ur := 1A ∗ K(r), consider the weighted energy 
+
+E := 
+
+> R
+
+∑
+
+> r=1
+
+λr∥ur∥22.
+
+We first obtain an upper bound from the Sidon property. Let 
+
+Cr(d) := ∑
+
+> s∈Z
+
+K(r) 
+
+> s
+
+K(r)
+
+> s+d
+
+be the autocorrelation of K(r). It is nonnegative and even, and ∑ 
+
+> d
+
+Cr(d) = 1 .If ∆( A) = {a − b : a, b ∈ A, a > b }, then all elements of ∆( A) are distinct. Hence 
+
+∥ur∥22 = kC r(0) + 2 ∑
+
+> d∈∆( A)
+
+Cr(d)
+
+≤ kC r(0) + 2 ∑
+
+> d≥1
+
+Cr(d) = 1 + ( k − 1) Cr(0) .
+
+By (4), 
+
+Cr(0) = ∑
+
+> s
+
+(K(r)
+
+> s
+
+)2 = mH
+
+> m−1
+
+∑
+
+> i=0
+
+(p(r)
+
+> i
+
+)2.
+
+Averaging in r yields the exact estimate 
+
+E ≤ 1 + a(k − 1) 
+
+H . (5) We next derive a lower bound. The support of every ur is contained in 
+
+J := {0, 1, . . . , N + H − 2}, |J| = N + H − 1.
+
+The proof only concerns sufficiently large N , since the finitely many remaining values can be absorbed into the final O(1) term. We shall later choose 
+
+H = √a/b N 3/4 + O(1) . For this choice, N ≥ 2LH holds for all sufficiently large N , so we may and do assume that 
+
+N ≥ 2LH. 
+
+Let 
+
+BL := {0, . . . , LH − 1}, BR := {N + H − 1 − LH, . . . , N + H − 2}.
+
+These two boundary regions are disjoint, and every interval [x, x + H − 1] ,
+
+0 ≤ x < N , meets at most one of them. Define a weight Qr : J → R as follows. At the left boundary, put 
+
+Qr(n) = w(r) 
+
+> j
+
+if jh ≤ n < (j + 1) h, 0 ≤ j < Lm. 
+
+At the right boundary use the reflected values, namely 
+
+Qr(n) = w(r) 
+
+> j
+
+if jh ≤ N + H − 2 − n < (j + 1) h, 0 ≤ j < Lm. 
+
+Set Qr(n) = 1 at all remaining points of J.4 JIANFENG HOU AND HONGBIN ZHAO 
+
+We claim that, for every x ∈ { 0, . . . , N − 1},
+
+> R
+
+∑
+
+> r=1
+
+λrH−1∑
+
+> s=0
+
+K(r) 
+
+> s
+
+Qr(x + s) ≥ 1. (6) There are three ranges. First suppose that 0 ≤ x ≤ LH − 1, and write 
+
+x = qh + t with 0 ≤ q < Lm and 0 ≤ t < h . For the ith block of the kernel, exactly h − t points meet the weight w(r) 
+
+> q+i
+
+and exactly t points meet w(r)
+
+> q+i+1
+
+.Consequently the left-hand side of (6) equals 
+
+(
+
+1 − th
+
+) R∑
+
+> r=1
+
+λrm−1∑
+
+> i=0
+
+p(r) 
+
+> i
+
+w(r) 
+
+> q+i
+
++ th
+
+> R
+
+∑
+
+> r=1
+
+λrm−1∑
+
+> i=0
+
+p(r) 
+
+> i
+
+w(r)
+
+> q+i+1
+
+.
+
+This is a convex combination of the covering constraints with indices q and 
+
+q + 1 , and hence is at least 1 by (1) . Notice that the case q = Lm − 1 uses the final constraint with index Lm .Next suppose that N − LH ≤ x ≤ N − 1, and write x = N − 1 − (qh + t)
+
+with 0 ≤ q < Lm and 0 ≤ t < h . Set s′ = H − 1 − s. The symmetry of the kernel gives K(r) 
+
+> s
+
+= K(r) 
+
+> s′
+
+, while 
+
+N + H − 2 − (x + s) = qh + t + s′.
+
+The reflected definition of Qr therefore reduces the right boundary case to the preceding left boundary calculation. Finally, if LH ≤ x ≤ N − LH − 1,then x + s lies in neither boundary region for every 0 ≤ s < H . All the relevant weights are 1, so equality holds in (6). This proves the claim. Summing (6) over x ∈ A and interchanging sums gives 
+
+k ≤
+
+> R
+
+∑
+
+> r=1
+
+λr
+
+∑
+
+> x∈AH−1
+
+∑
+
+> s=0
+
+K(r) 
+
+> s
+
+Qr(x + s).
+
+For each r,
+
+⟨Qr, u r⟩ = ∑
+
+> n∈J
+
+Qr(n) ∑
+
+> x∈A
+
+K(r) 
+
+> n−x
+
+= ∑
+
+> x∈AH−1
+
+∑
+
+> s=0
+
+K(r) 
+
+> s
+
+Qr(x + s),
+
+and hence 
+
+k ≤
+
+> R
+
+∑
+
+> r=1
+
+λr⟨Qr, u r⟩.
+
+Indeed, in ⊕Rr=1 ℓ2(J),
+
+> R
+
+∑
+
+> r=1
+
+λr⟨Qr, u r⟩ =
+
+〈(√ λr Qr
+
+)Rr=1 , (√ λr ur
+
+)Rr=1 
+
+〉
+
+.
+
+Cauchy–Schwarz in this Hilbert direct sum yields 
+
+k2 ≤
+
+( R∑
+
+> r=1
+
+λr∥Qr∥22
+
+) ( R∑
+
+> r=1
+
+λr∥ur∥22
+
+)
+
+. (7) VECTOR-VALUED SMOOTHING FOR SIDON SETS 5
+
+The first factor is explicit. Starting from the constant weight 1 on J, the two boundary regions contribute 
+
+2h
+
+> R
+
+∑
+
+> r=1
+
+λrLm −1∑
+
+> j=0
+
+((w(r)
+
+> j
+
+)2 − 1
+
+)
+
+.
+
+Thus, by (3), 
+
+> R
+
+∑
+
+> r=1
+
+λr∥Qr∥22 = N + bH − 1. (8) Combining (5), (7) and (8), we obtain the exact inequality 
+
+k2 ≤ (N + bH − 1) 
+
+(
+
+1 + a(k − 1) 
+
+H
+
+)
+
+. (9) The elementary difference count (k
+
+> 2
+
+) ≤ N − 1 gives k = O(N 1/2). Choose 
+
+H := m
+
+⌊ 1
+
+m
+
+√ ab N 3/4 + 12
+
+⌋
+
+.
+
+Then H is a multiple of m and H = √a/b N 3/4 + O(1) . Expanding (9) gives 
+
+k2 ≤ N + bH − 1 + aN (k − 1) 
+
+H + ab (k − 1) − a(k − 1) 
+
+H .
+
+The estimate k = O(N 1/2) first gives 
+
+k2 ≤ N + O(N 3/4),
+
+and hence 
+
+k ≤ N 1/2 + O(N 1/4).
+
+Using this one-sided estimate together with 
+
+H =
+
+√ ab N 3/4 + O(1) ,
+
+we obtain 
+
+bH = √ab N 3/4 + O(1) ,aN (k − 1) 
+
+H ≤ √ab N 3/4 + O(N 1/2).
+
+Moreover, ab (k − 1) = O(N 1/2), while −a(k − 1) /H ≤ 0. Therefore (9) gives 
+
+k2 ≤ N + 2 √ab N 3/4 + O(N 1/2).
+
+Taking square roots yields 
+
+k ≤ N 1/2 + √ab N 1/4 + O(1) ,
+
+as required. □6 JIANFENG HOU AND HONGBIN ZHAO 
+
+3. Finite optimization and numerical search 
+
+3.1. The fixed-kernel boundary problem. For fixed R, m, L , we seek to minimize √ab over the mixing weights, symmetric probability kernels, and boundary vectors satisfying (1) . The full problem is nonconvex because the covering constraints contain products of kernel, mixing, and boundary variables. Once the kernels and mixing weights are fixed, however, the boundary problem is a strictly convex quadratic program. Put n = Lm and omit zero-weight kernels. Write 
+
+w = ( w(r) 
+
+> j
+
+: 1 ≤ r ≤ R, 0 ≤ j < n ) ∈ RRn , D = diag( λ1In, . . . , λ RIn).
+
+For 0 ≤ q < n , define 
+
+Aq, (r,j ) =
+
+{
+
+λrp(r)
+
+> j−q
+
+, 0 ≤ j − q < m, 
+
+0, otherwise ,
+
+and 
+
+cq = 1 −
+
+> R
+
+∑
+
+> r=1
+
+λr
+
+∑
+
+> 0≤i<m q+i≥n
+
+p(r) 
+
+> i
+
+.
+
+Then the nontrivial covering constraints are Aw ≥ c, and minimizing b is equivalent to 
+
+Φ∗ := min {wTDw : Aw ≥ c}, b∗ = 1 + 2 
+
+( Φ∗
+
+m − L
+
+)
+
+. (10) 
+
+Proposition 3.1 (Finite primal–dual formulation) . Let G = AD −1AT. The dual of (10) is 
+
+Φ∗ = max 
+
+> y≥0
+
+{
+
+cTy − 14 yTGy 
+
+}
+
+. (11) 
+
+A primal feasible vector w and a vector y ≥ 0 are optimal if 
+
+2Dw = ATy, yq
+
+((Aw )q − cq
+
+) = 0 (0 ≤ q < n ).
+
+The primal minimizer is unique. Proof. For y ≥ 0, completing the square gives 
+
+wTDw − yT(Aw − c) = 
+
+(
+
+w − 12 D−1ATy
+
+)T
+
+D
+
+(
+
+w − 12 D−1ATy
+
+)
+
++ cTy − 14 yTGy, 
+
+which proves weak duality. If a row Aq is zero, then nonnegativity of the kernels and positivity of the remaining mixing weights imply that all kernel mass occurring in that constraint lies in the fixed tail. Hence cq = 0 , and VECTOR-VALUED SMOOTHING FOR SIDON SETS 7
+
+the constraint is redundant. After deleting all zero rows, every remaining row contains a positive entry. For such a row, 
+
+cq =
+
+> R∑
+> r=1
+
+λr
+
+> ∑
+> 0≤i<m q+i<n
+
+p(r) 
+
+> i
+
+> 0,
+
+and hence (A(M 1)) q = M c q > c q for every M > 1. Slater’s condition therefore applies, giving equality of the primal and dual optimal values. The displayed equations are stationarity and complementary slackness, and uniqueness follows because D is positive definite. □
+
+The dual reduces to a nonnegative least-squares problem and is used to solve the fixed-kernel boundary problem during the exploratory computation. 3.2. Search and rationalization. Starting from coarse symmetric pro-files, we alternated between solving the fixed-kernel boundary problem and optimizing the kernel and mixing parameters. Promising candidates were continued through R = 8 at m = 32 , using one additional six-mode sym-metric profile at each stage. The final floating-point R = 8 candidate was rounded and independently verified by exact rational arithmetic. Positivity and normalization in the outer search were enforced through logarithmic coordinates. At m = 32 and L = 4 , the best values found in increasingly flexible search classes are shown in Table 1.                        
+
+> Rsearch class value of √ab
+> 1free symmetric histogram 0.9461473014 2one free histogram and one uniform kernel 0.9450510577 3continued R= 2 system plus one symmetric profile
+> 0.9437979301 4add the first six-mode symmetric profile 0.9436448861 5add the second six-mode symmetric profile 0.9435665926 6add the third six-mode symmetric profile 0.9435030631 7add the fourth six-mode symmetric profile 0.9434969530 8add the fifth six-mode symmetric profile 0.9434925901 8rounded exact rational certificate used in Theorem 1.1
+> 0.9434925907 . . .
+
+Table 1. Kernel comparisons at m = 32 and L = 4 .The outer problem is nonconvex, so the first eight rows of Table 1 are best values found within the stated search classes, not certified global optima. The final R = 8 row is the exact rational certificate used in Theorem 1.1; hence the improved constant in the theorem comes from the eight-kernel system itself, not merely from a floating-point search value. For each fixed outer candidate, the inner convex problem was solved to numerical tolerance, with primal feasibility and the primal–dual gap monitored. For rationalization, the 8 JIANFENG HOU AND HONGBIN ZHAO 
+
+mixing weights and symmetric kernels were rounded with exact normalization, after which the boundary quadratic program was re-solved and the boundary vectors were rounded. Any residual covering defect was removed by adding a common rational correction to all finite boundary entries. More precisely, if M (q) is the covering expression before the correction and 
+
+ρq := ∑
+
+> r
+
+λr
+
+> ∑
+> 0≤i<m q+i<Lm
+
+p(r) 
+
+> i
+
+,
+
+then it is enough to choose 
+
+η ≥ max  
+
+> 0≤q<Lm ρq>0
+
+max {0, 1 − M (q)}
+
+ρq
+
+.
+
+If ρq = 0 , then the nonnegativity of the kernels implies that all kernel mass in the qth constraint lies in the fixed tail. Consequently M (q) = 1 ,so that constraint requires no correction. All simplex conditions, covering inequalities, and the final comparison were then recomputed using exact rational arithmetic. The numerical optimizer is not trusted by the proof. 4. The exact eight-kernel certificate 
+
+We take 
+
+R = 8 , m = 32 , L = 4 ,
+
+and 
+
+(λ1, . . . , λ 8) = 10 −8(39490874 , 8624912 , 135342 , 12911860 ,
+
+20451562 , 2832639 , 9217142 , 6335669) . (12) The second kernel is uniform. The remaining exact rational kernels and all boundary vectors are provided in the machine-readable certificate accom-panying the paper. The kernel denominator is 10 12 . Before the common correction, the rounded boundary entries have denominator 10 9, and the correction is 17 /250000000000 .The verifier checks all 129 covering inequalities. The final constraint 
+
+q = 128 is equality, while the least positive slack occurs at q = 127 and is 
+
+4735171805469436153 6250000000000000000000000000000 > 0.
+
+Claim 4.1 (Exact eight-kernel certificate) . The rational data in the ancillary certificate satisfy all 129 covering inequalities (1) . Moreover, 
+
+a = 497329054138522113993707809619 390625000000000000000000000000 , (13) 
+
+b = 69918675237166718360455326217 100000000000000000000000000000 , (14) 
+
+and 
+
+ab <  
+
+> (
+
+9435 10000 
+
+> )2
+
+. (15) VECTOR-VALUED SMOOTHING FOR SIDON SETS 9
+
+Proof. The accompanying verifier checks all simplex, symmetry, nonnega-tivity, and covering constraints, computes a and b exactly, and verifies (15) using rational arithmetic only. It also checks the least positive slack displayed above. The SHA–256 hash of the verifier is  
+
+> 957a5afadd849ac4f97c2b71252abb5c796c2db3c91a608ab35097e3c49292a8 .□
+
+Proof of Theorem 1.1. Apply Lemma 2.1 and Claim 4.1. With γ0 = √ab ,
+
+F (N ) ≤ N 1/2 + γ0N 1/4 + O(1) .
+
+Equation (15) gives γ0 < 0.9435 , and direct decimal evaluation gives 
+
+γ0 = 0 .9434925907135450 . . . . □
+
+5. Concluding remarks 
+
+The certificate was found numerically, but the optimization procedure is not part of the proof. Once the rational vectors are fixed, the argument reduces to the general analytic lemma and a finite list of exact inequalities. The multi-kernel formulation is more flexible than averaging scalar bounds: no individual kernel is required to satisfy a boundary covering inequality on its own; only their weighted combination is constrained. It would be interesting to optimize the finite problem systematically or to allow more kernels. A different direction is to introduce controlled cross-kernel terms whose combined correlation kernel remains nonnegative at every nonzero shift. Positive semidefiniteness of the coefficient matrix alone is not sufficient for the Sidon difference estimate, so any such extension would require additional correlation-positivity constraints. 
+
+Data and code availability 
+
+The exact certificate, the standard-library verifier sidon_certificate_ 8kernel.py , and the exploratory search script sidon_numerical_search.py 
+
+are available in the GitHub repository 
+
+https://github.com/HbZhao1/sidon-vector-smoothing/tree/main .
+
+The verifier requires Python 3.9 or later and uses only the Python standard library. Running 
+
+python3 sidon_certificate_8kernel.py 
+
+reproduces all rational checks used in Claim 4.1. 
+
+Declaration on the use of AI 
+
+The authors used generative AI tools to assist in discussing proof strategies, checking proofs, and improving exposition. All mathematical arguments, results, and conclusions were reviewed and verified by the authors. 10 JIANFENG HOU AND HONGBIN ZHAO 
+
+References 
+
+[1] J. Balogh, Z. Füredi and S. Roy, An upper bound on the size of Sidon sets , Amer. Math. Monthly 130 (2023), no. 5, 437–445. doi:10.1080/00029890.2023.2176667. [2] D. Carter, Z. Hunter and K. O’Bryant, On the diameter of finite Sidon sets , Acta Math. Hungar. 175 (2025), no. 1, 108–126. doi:10.1007/s10474-024-01499-8. [3] D. Davis, P. Ivanisvili, T. Tao and contributors, Optimization Constants in Mathemat-ics , GitHub repository, 2026, https://github.com/teorth/optimizationproblems .Accessed July 5, 2026. [4] P. Erdős and P. Turán, On a problem of Sidon in additive number theory, and on some related problems , J. London Math. Soc. 16 (1941), no. 4, 212–215. doi:10.1112/jlms/s1-16.4.212. [5] B. Lindström, An inequality for B2-sequences , J. Combin. Theory 6 (1969), no. 2, 211–212. doi:10.1016/S0021-9800(69)80124-9. [6] K. O’Bryant, On the size of finite Sidon sets , Ukrainian Math. J. 76 (2025), 1352–1368. doi:10.1007/s11253-024-02392-x. [7] J. Singer, A theorem in finite projective geometry and some applications to number theory , Trans. Amer. Math. Soc. 43 (1938), no. 3, 377–385. doi:10.1090/S0002-9947-1938-1501951-4. [8] T. Tao, Comment on Erdős Problem #30, Erdős Problems , February 17, 2026, https: //www.erdosproblems.com/forum/thread/30 . Accessed July 5, 2026. 
+
+Center for Discrete Mathematics, Fuzhou University, Fujian 350108, China 
+
+Email address : jfhou@fzu.edu.cn 
+
+Center for Discrete Mathematics, Fuzhou University, Fujian 350108, China 
+
+Email address : hbzhao2024@163.com

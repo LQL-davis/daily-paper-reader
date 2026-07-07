@@ -1,0 +1,369 @@
+Title: Likelihood-Ratio E-Value Monitoring for Benchmark-Based Decisions in Early-Phase Oncology Trials
+
+URL Source: https://arxiv.org/pdf/2607.04571v1
+
+Published Time: Tue, 07 Jul 2026 02:39:19 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+# Likelihood-Ratio E-Value Monitoring for Benchmark-Based Decisions in Early-Phase Oncology Trials 
+
+# Masahiro Kojima 11Department of Data Science for Business Innovation, Chuo University, 1-13-27 Kasuga, Bunkyo-ku, Tokyo 112-8551, Japan. E-mail: mkojima263@g.chuo-u.ac.jp 
+
+Running title: Calibrated e-value monitoring for phase II trials 
+
+Corresponding author: Masahiro Kojima, Department of Data Science for Business In-novation, Chuo University, 1-13-27 Kasuga, Bunkyo-ku, Tokyo 112-8551, Japan; E-mail: mkojima263@g.chuo-u.ac.jp. 
+
+Abstract 
+
+Early-phase oncology trials often require protocol-ready interim rules for deciding whether an experimental regimen shows sufficient activity relative to prespecified clin-ical benchmarks. Existing Bayesian optimal phase II designs provide calibrated count boundaries for such decisions, but evidence is quantified through posterior probabilities and sample-size-dependent cutoff functions. We propose calibrated e-value monitor-ing (CEVAM), a likelihood-ratio evidence framework that defines monitoring evidence directly relative to prespecified clinical benchmarks, without requiring a Bayesian anal-ysis prior or sample-size-dependent posterior-probability cutoff functions. For a binary 
+
+1
+
+> arXiv:2607.04571v1 [stat.ME] 6 Jul 2026
+
+efficacy endpoint, CEVAM constructs efficacy and reverse-futility e-processes targeted to clinically meaningful benchmark rates and converts them into monotone response-count boundaries. We distinguish a fixed-threshold e-process version, which has an anytime-valid interpretation under optional monitoring, from planned-look calibrated versions designed for conventional finite-look phase II trials. In simulations based on bi-nary benchmark settings used in existing posterior-cutoff phase II designs, the proposed tuned planned-look rule controlled the nominal type I error and achieved the smallest expected sample size across all evaluated settings while retaining similar rejection prob-abilities. In an application to an actual phase II breast cancer trial, CEVAM classified the reported pathological complete response result as sufficient evidence for early suc-cess stopping. Extensions to categorical and multicomponent endpoints are provided in the Supplementary Material. CEVAM offers an analysis-prior-free, protocol-ready likelihood-ratio evidence scale for binary benchmark monitoring in early-phase oncol-ogy trials. 
+
+Keywords: Bayesian phase II design; complex endpoints; early stopping; e-processes; oncology trials; sequential monitoring 
+
+# 1 Introduction 
+
+In early-phase oncology studies, investigators must decide whether an experimental regimen provides enough antitumor activity, acceptable toxicity, or both to justify continued develop-ment. These decisions are often made in small single-arm phase II studies, expansion cohorts after dose escalation, or dose-optimization programs in which several regimens are monitored against clinically meaningful benchmarks rather than compared formally with one another. Because patient populations may be limited and many participants have exhausted standard therapies, monitoring rules should protect patients from ineffective or unsafe regimens while allowing decisive favorable signals to be acted on without unnecessary additional accrual. 2In practice, such rules must also be simple enough to be specified before trial initiation as count boundaries for interim and final analyses. The classical reference point for binary phase II monitoring is Simon’s two-stage design (Simon, 1989), which provides exact type I and type II error control with early stopping for futility. Bayesian monitoring designs broaden this framework by allowing more flexible interim decision making, sequential posterior updating, and natural extensions to endpoints beyond a single binary response (Thall and Simon, 1994; Sambucini, 2008; Cai et al., 2014). Among these designs, the Bayesian optimal phase II design (BOP2) is especially influential because it accommodates binary, ordinal, nested, co-primary, and efficacy–toxicity endpoints under a Dirichlet–multinomial framework, while still allowing explicit type I error calibra-tion and trial-start tabulation of stopping boundaries (Zhou et al., 2017). BOP2 primarily provides posterior-probability futility stopping rules, and related extensions such as BOP2-FE incorporate early efficacy stopping in addition to futility monitoring, using calibrated posterior-probability cutoffs that vary with interim sample size (Xu et al., 2025). These posterior-cutoff designs are practically attractive, but they also have features that motivate a complementary evidence-based formulation. First, even when the analysis prior is chosen to be vague, evidence is still quantified through posterior probabilities. Second, the operative stopping rule is expressed through sample-size-dependent posterior-probability cutoffs, or their futility–efficacy analogues, whose parametric forms are prespecified for computational and practical convenience and then calibrated to obtain desirable operating characteristics (Zhou et al., 2017; Xu et al., 2025). Thus, the calibrated boundaries are highly useful for implementation, but the evidence scale itself is tied to posterior-probability thresholds. Third, because posterior threshold rules are not automatically valid under arbitrary optional stopping, their operating characteristics are fundamentally established by design-stage cali-bration rather than by a direct sequential validity argument. Recent work on e-values and e-processes provides a useful alternative language for se-quential evidence. An e-process is a nonnegative supermartingale under the null; by Ville’s 3inequality, crossing a fixed threshold 1 /α yields time-uniform type I error control under op-tional monitoring (Gr¨ unwald et al., 2024; Ramdas et al., 2023; Vovk and Wang, 2021). This property is appealing in adaptive or flexible early-phase trials, where interim analyses may be irregular or additional reviews may occur. At the same time, many oncology phase II designs are implemented and compared at a fixed set of planned interim looks. We there-fore distinguish the underlying fixed-threshold e-process construction from the planned-look calibrated implementation used for numerical comparison in this paper. In this paper, we propose calibrated e-value monitoring (CEVAM), a likelihood-ratio evidence-monitoring framework for phase II oncology trials. CEVAM is tailored to the benchmark-monitoring problems addressed by BOP2 and BOP2-FE, but replaces posterior-probability evidence with likelihood-ratio evidence on an e-value scale. The key idea is to express clinically relevant endpoint information as Bernoulli projections and to evaluate ev-idence directly relative to prespecified clinical benchmarks. For a binary efficacy endpoint, this construction yields monotone response-count boundaries for early efficacy and futility de-cisions based on likelihood-ratio evidence and reverse likelihood-ratio evidence. For complex endpoints, the same projected-evidence principle can be applied to clinically meaningful com-ponents and combined according to the prespecified clinical decision structure. The novelty of CEVAM is not simply the use of e-values in phase II trials. Rather, CEVAM is designed to preserve the protocol-ready boundary tables and support for complex endpoint struc-tures that make BOP2 and BOP2-FE attractive in practice, while avoiding the need for a Bayesian analysis prior. In contrast to posterior-cutoff designs, the evidence scale in CEVAM is defined by likelihood ratios relative to prespecified clinical benchmarks, so that the moni-toring rule is built from an explicit evidence measure rather than from posterior-probability thresholds. This construction also distinguishes CEVAM from general e-value methodol-ogy for adaptive clinical trials, which has primarily emphasized anytime-valid monitoring, confidence sequences, betting-martingale constructions, and two-arm randomized settings. CEVAM instead targets a narrower but practically important oncology problem: protocol-4ready, arm-level phase II benchmark monitoring with binary and complex endpoints. The main text develops the method for the binary efficacy endpoint setting, whereas extensions to ordinal or multinomial endpoints, nested efficacy endpoints, co-primary efficacy endpoints, and joint efficacy–toxicity endpoints are provided in the Supplementary Material. This paper is organized as follows. Section 2 describes the proposed CEVAM methodol-ogy. Section 3 presents the simulation settings and results for the binary endpoint setting. Section 4 illustrates the proposed design using the TREND trial. Section 5 concludes with a discussion. Additional methodological details and simulation results for complex endpoints are provided in the Supplementary Material. 
+
+# 2 Method 
+
+In early oncology development, multiple candidate dose levels or regimens may be evaluated, sometimes using randomized allocation among dose arms. The monitoring rule considered in this paper is not intended to replace a formal between-dose comparison for final dose selection. Rather, it is applied at the individual dose-arm level to assess whether each candidate dose arm is sufficiently promising relative to prespecified clinical benchmarks. We therefore formulate CEVAM for a single dose arm. The same construction can be applied separately to each dose arm with its own response benchmarks, maximum sample size, and planned monitoring times. We first present CEVAM for a binary efficacy endpoint, such as objective response, because this is the standard benchmark-monitoring setting in phase II oncology trials and yields simple response-count boundaries for early efficacy and futility decisions. Extensions to ordinal or multinomial endpoints, nested efficacy endpoints, co-primary efficacy endpoints, and joint efficacy–toxicity endpoints are developed in the Supplementary Material using the same projected-evidence principle. 52.1 Binary e-processes for efficacy and futility 
+
+Let X1, X 2, . . . denote independent patient-level binary outcomes, where Xi = 1 indicates treatment response and Xi = 0 indicates nonresponse. We write Xi
+
+> iid
+
+∼ Bernoulli( p), with 
+
+p ∈ [0 , 1], and let Rn = Pni=1 Xi denote the cumulative number of responses among the first 
+
+n patients. The design specifies a maximum sample size N and a set of planned interim looks N ⊆ { 1, . . . , N }. Let p0 denote the unacceptable response rate and let p1 > p 0 denote a clinically meaningful design alternative. Throughout the likelihood-ratio construction, we assume 0 < p 0 < p 1 < 1. The parameter α is the prespecified evidence-threshold parameter for efficacy in the fixed-threshold e-process version. Because the efficacy stopping threshold is 1 /α , α also has the usual type I error interpretation for the efficacy claim in the anytime-valid fixed-threshold version. When futility monitoring is used, β is the prespecified evidence-threshold parameter for the reverse-evidence futility rule. It determines the futility threshold 1 /β ; larger values of β make futility stopping more aggressive. This β is not the type I error level for the efficacy claim, but in the fixed-threshold reverse e-process rule it bounds the probability of incorrectly stopping for futility under Hfut 0 : p ≥ p1.The efficacy claim is formulated as the one-sided benchmark hypothesis 
+
+Heff 0 : p ≤ p0 versus Heff 1 : p > p 0.
+
+To construct an e-process against this composite null, we prespecify the design alternative p1.The value p1 is not intended to exhaust the alternative space p > p 0; rather, it specifies the betting alternative at which the likelihood-ratio evidence process is targeted, analogous to the design alternative used for power calculations in conventional phase II designs. Specifically, we compare the simple design alternative p = p1 with the least favorable boundary point 6p = p0 of the composite null and define 
+
+ELR  
+
+> n
+
+(p1, p 0) = 
+
+> n
+
+Y
+
+> i=1
+
+pXi 
+
+> 1
+
+(1 − p1)1−Xi
+
+pXi 
+
+> 0
+
+(1 − p0)1−Xi
+
+=
+
+p1
+
+p0
+
+Rn 1 − p1
+
+1 − p0
+
+n−Rn
+
+. (1) Thus, ELR  
+
+> n
+
+(p1, p 0) is a likelihood-ratio evidence process targeted to the clinically meaningful response rate p1, while its validity is with respect to the full composite null p ≤ p0. Rejection therefore indicates sufficient evidence against p ≤ p0, not evidence that the true response rate is exactly p1.For futility, we use the reverse comparison. A direct way to formalize lack of promise is 
+
+Hfut 0 : p ≥ p1 versus Hfut 1 : p < p 1. (2) Here p1 is the clinically meaningful target response rate, and p0 serves as a representative nonpromising response rate. Define the reverse likelihood-ratio process 
+
+F LR  
+
+> n
+
+(p0, p 1) = 
+
+> n
+
+Y
+
+> i=1
+
+pXi 
+
+> 0
+
+(1 − p0)1−Xi
+
+pXi 
+
+> 1
+
+(1 − p1)1−Xi
+
+=
+
+p0
+
+p1
+
+Rn 1 − p0
+
+1 − p1
+
+n−Rn
+
+. (3) This statistic measures how much more the accumulated data support the representative nonpromising rate p0 than the clinically meaningful target p1. Therefore, crossing a futility threshold does not mean that the observed response rate is simply below p1. Rather, it means that the likelihood-ratio evidence in favor of p0 over p1 is sufficiently large. 
+
+Theorem 2.1. Assume X1, X 2, . . . are independent Bernoulli random variables with common success probability p, and let 0 < p 0 < p 1 < 1. For any 0 < α < 1 and 0 < β < 1, the following statements hold. The efficacy process {ELR  
+
+> n
+
+(p1, p 0) : n ≥ 0} is a nonnegative 
+
+7supermartingale under every distribution in the composite null Heff 0 : p ≤ p0. Consequently, 
+
+sup 
+
+> p≤p0
+
+Pp
+
+
+
+sup 
+
+> n≥1
+
+ELR  
+
+> n
+
+(p1, p 0) ≥ 1
+
+α
+
+
+
+≤ α. (4) 
+
+Similarly, the reverse process {F LR  
+
+> n
+
+(p0, p 1) : n ≥ 0} is a nonnegative supermartingale under every distribution in the composite null Hfut 0 : p ≥ p1. Consequently, 
+
+sup 
+
+> p≥p1
+
+Pp
+
+
+
+sup 
+
+> n≥1
+
+F LR  
+
+> n
+
+(p0, p 1) ≥ 1
+
+β
+
+
+
+≤ β. (5) The proof of Theorem 2.1 is provided in the Supplementary Material. The corresponding fixed-threshold binary monitoring rules are 
+
+τeff = inf 
+
+
+
+n ∈ N : ELR  
+
+> n
+
+(p1, p 0) ≥ 1
+
+α
+
+
+
+,τfut = inf 
+
+
+
+n ∈ N : F LR  
+
+> n
+
+(p0, p 1) ≥ 1
+
+β
+
+
+
+.
+
+Thus, once ( p0, p 1, α, β, N, N ) are prespecified, the fixed-threshold binary design is fully de-termined. At each planned look, the observed likelihood-ratio evidence is simply compared with the fixed thresholds 1 /α for efficacy and 1 /β for futility. The two threshold parame-ters play different roles and need not be equal: α controls the efficacy evidence threshold, whereas β controls the aggressiveness of the reverse-evidence futility rule. Larger values of β
+
+correspond to lower futility evidence thresholds and therefore more aggressive futility stop-ping. Because these thresholds are fixed in advance, this version does not require grid-search calibration of sample-size-dependent posterior-probability cutoff functions. A key practical feature of BOP2 and BOP2-FE is that stopping boundaries can be writ-ten as a table of counts before the trial starts. The likelihood-ratio e-process construction preserves this property. 
+
+Proposition 2.2 (Monotonicity and pretabulated binary boundaries) . Let 0 < p 0 < p 1 < 1.For fixed n and α, β ∈ (0 , 1) , ELR  
+
+> n
+
+(p1, p 0) is strictly increasing in Rn, whereas F LR  
+
+> n
+
+(p0, p 1)8is strictly decreasing in Rn. Hence there exist integer boundaries reff (n; α) and rfut (n; β),possibly outside {0, . . . , n }, such that 
+
+ELR  
+
+> n
+
+(p1, p 0) ≥ 1
+
+α ⇐⇒ Rn ≥ reff (n; α), (6) 
+
+and 
+
+F LR  
+
+> n
+
+(p0, p 1) ≥ 1
+
+β ⇐⇒ Rn ≤ rfut (n; β). (7) 
+
+Explicitly, 
+
+reff (n; α) = 
+
+&log(1 /α ) − n log  (1 − p1)/(1 − p0)
+
+log  p1(1 − p0)/(p0(1 − p1)) '
+
+, (8) 
+
+and 
+
+rfut (n; β) = 
+
+$log(1 /β ) − n log  (1 − p0)/(1 − p1)
+
+log  p0(1 − p1)/(p1(1 − p0)) %
+
+. (9) The proof of Proposition 2.2 is provided in the Supplementary Material. At look n, the continuation region is therefore 
+
+rfut (n; β) < R n < r eff (n; α). (10) If this interval is empty at some early look, then the pair ( α, β ) is too aggressive for the chosen (p0, p 1, N, N ). In that case, one may reduce β, reduce α, or postpone the first interim look. This is not a conceptual defect of the no-tuning design; it reflects the fact that very low evidence thresholds over a short horizon can make early efficacy and futility regions overlap. 92.2 Planned-look calibration of efficacy and futility thresholds 
+
+The fixed-threshold e-process version is simple and has a direct sequential-validity interpre-tation. In this version, α and β are prespecified evidence-threshold parameters, and the monitoring rules compare the observed likelihood-ratio evidence with 1 /α and 1 /β , respec-tively. This version is fully determined once ( p0, p 1, α, β, N, N ) are fixed and retains the direct optional-monitoring interpretation described in Theorem 2.1. For conventional phase II trials monitored only at prespecified interim looks, however, the fixed-threshold rule can be conservative at the planned looks. We therefore introduce planned-look calibrated CEVAM rules for such finite-look designs. These rules remain likelihood-ratio evidence rules, but their threshold parameters are selected at the design stage to obtain desirable operating characteristics for the prespecified monitoring sched-ule. This calibration is analogous in purpose to the grid-search calibration used in BOP2 and BOP2-FE, but the calibrated quantities are evidence-threshold parameters rather than posterior-probability cutoff-function parameters. Let α∗ denote the nominal type I error level for the efficacy claim. In the fixed-threshold anytime-valid version, the efficacy threshold is set directly by α∗. In the planned-look cal-ibrated implementation, however, we distinguish the nominal target α∗ from the efficacy evidence-threshold parameter αeff . Let A be a prespecified grid of candidate values for αeff 
+
+and let B be a prespecified grid of candidate futility-threshold parameters. For each candi-date ( αeff , β ), construct the count boundaries reff (n; αeff ) and rfut (n; β) using Proposition 2.2, and evaluate the planned-look operating characteristics under the design null p0 and design alternative p1:TypeI( αeff , β ) = Pp0 {reject Heff 0 },
+
+Pow( αeff , β ) = Pp1 {reject Heff 0 },
+
+EN 0(αeff , β ) = Ep0 (Nused ).
+
+(11) Here, the three quantities in (11) denote, respectively, the planned-look type I error under the design null, the rejection probability under the design alternative, and the expected sample 10 size under the design null, where Nused denotes the sample size at the time of stopping or at the final analysis if the trial is not stopped early. We consider two planned-look calibrated implementations. The first implementation fixes the reverse-evidence futility parameter at a prespecified value, rather than selecting it by calibration. We refer to this as the no-tuning futility implementation, abbreviated as CEVAM-NT. In CEVAM-NT, the reverse-evidence futility parameter is fixed at β0, and only the efficacy-threshold parameter αeff is calibrated over A. Thus, CEVAM-NT is “no-tuning” with respect to the futility parameter, but it is still planned-look calibrated for efficacy. The second implementation tunes both the efficacy and futility evidence thresholds. We refer to this tuned implementation as CEVAM-T. In CEVAM-T, both αeff and β are selected over A × B . Candidate designs are required to control the planned-look type I error at the nominal level α∗, up to a prespecified small tolerance used to accommodate discreteness of count boundaries. Among feasible candidates, the implementation first selects the design whose planned-look type I error is closest to α∗ without exceeding the allowed tolerance, then breaks ties by larger rejection probability under the design alternative, smaller expected sample size under the design null, and larger early-termination probability under the design null. This calibration step changes the interpretation of the design. The fixed-threshold version with efficacy threshold parameter α∗ retains the direct anytime-valid e-process guarantee. By contrast, the planned-look calibrated versions, CEVAM-NT and CEVAM-T, are cali-brated for the prespecified monitoring schedule, and their type I error control is established by design-stage operating-characteristic calculations. Therefore, these calibrated versions should not be described as providing arbitrary optional-monitoring validity. Despite this calibration step, the CEVAM implementation remains simple in three respects. The moni-toring statistic is a likelihood-ratio evidence process and does not require a beta or Dirichlet analysis prior. The resulting efficacy and futility rules are monotone in event counts, so they can be summarized as protocol-ready boundary tables. Moreover, the calibrated parameters 11 retain evidence-scale interpretations: αeff controls the planned-look efficacy threshold and β
+
+controls the reverse-evidence futility threshold. For complex endpoints, the same idea can be applied to clinically meaningful Bernoulli projections and combined according to the prespecified clinical OR/AND decision rule. Be-cause the main text focuses on the binary endpoint setting, the full construction and sim-ulation results for nested efficacy, co-primary efficacy, and joint efficacy–toxicity endpoints are provided in the Supplementary Material. The behavior of the likelihood-ratio evidence process can be understood through its expected log-growth. For a binary endpoint, the per-patient expected log-growth of the efficacy evidence under response rate p is 
+
+g(p; p1, p 0) = p log 
+
+p1
+
+p0
+
+
+
++ (1 − p) log 
+
+1 − p1
+
+1 − p0
+
+
+
+. (12) When this quantity is large and positive, efficacy evidence accumulates rapidly and early effi-cacy stopping is more likely. The reverse likelihood-ratio evidence has an analogous expected log-growth for futility. Thus, CEVAM is expected to reduce the sample size primarily when the data-generating distribution is clearly promising or clearly nonpromising relative to the prespecified benchmarks. Further discussion of these log-growth approximations for expected stopping times and sample-size reduction is provided in the Supplementary Material. 
+
+# 3 Simulation study 
+
+We conducted Monte Carlo simulation studies to evaluate the operating characteristics of the proposed CEVAM design. 
+
+# 3.1 Simulation configuration 
+
+The simulation study evaluated the binary efficacy endpoint setting, which corresponds to the one-dimensional likelihood-ratio construction developed in the main text. The simula-12 tion settings were chosen with reference to the binary endpoint examples in BOP2 (Zhou et al., 2017) and BOP2-FE (Xu et al., 2025), so that the proposed CEVAM design could be compared with existing protocol-ready phase II monitoring designs under clinically relevant benchmark configurations. For the binary efficacy endpoint setting, the maximum sample size was set to N =40, with planned interim looks at N = {10 , 15 , 20 , 25 , 30 , 35 , 40 }. The design null and design alternative were specified as p0 = 0 .20 and p1 = 0 .40, respectively, following the corresponding binary benchmark setting used in the BOP2-FE simulation examples. The nominal type I error level for the efficacy claim was set to α∗ = 0 .10. For CEVAM-NT, the reverse-evidence futility parameter was fixed at the prespecified value β0 = 0 .10, and the efficacy evidence-threshold parameter αeff was selected by grid search over A = {0.01 , 0.02 , . . . , 1.00 }. For CEVAM-T, both the efficacy evidence-threshold parameter αeff and the futility-threshold parameter β were selected by grid search over 
+
+A = {0.01 , 0.02 , . . . , 1.00 } and B = {0.01 , 0.02 , . . . , 1.00 }. Candidate designs were required to control the planned-look type I error at the nominal level α∗, allowing only the prespecified discreteness tolerance used in the calibration. Among feasible candidates, the final design was selected according to the calibration criterion described in Section 2.2. The numerical study compared five protocol-ready designs: (1) BOP2-F, the original futility-only BOP2 design (Zhou et al., 2017); (2) BOP2-FE-1, the BOP2-FE design with power-function futility and efficacy cutoffs (Xu et al., 2025); (3) BOP2-FE-2, the BOP2-FE design with a power-function futility cutoff and an O’Brien– Fleming-type efficacy cutoff (Xu et al., 2025); (4) CEVAM-NT, the planned-look calibrated e-value monitoring design with calibrated effi-cacy threshold and fixed reverse-evidence futility threshold; 13 (5) CEVAM-T, the planned-look calibrated e-value monitoring design with calibrated efficacy and futility thresholds. The primary operating characteristics were the probability of rejecting the null hypothe-sis (PRN), early termination for futility (ETF), early termination for efficacy (ETE), prob-ability of early termination (PET), and expected sample size (EN). The comparison was intentionally focused on planned-look calibrated rules because BOP2-F and BOP2-FE are also evaluated as pretabulated planned-look designs. In addition to the usual operating characteristics, we descriptively summarized how each design allocated false-positive probability over the planned looks. This analysis was per-formed only under the design null hypothesis and was not used to construct the stopping boundaries. For design m and planned looks n1 < · · · < n K , define 
+
+Am(k) = PH0 {the trial rejects H0 for efficacy at or before look k}, k = 1 , . . . , K. (13) The increment ∆m(k) = Am(k) − Am(k − 1) , Am(0) = 0 , (14) represents the additional false-positive probability allocated at look k. Although BOP2-type designs are not derived from the classical group-sequential alpha-spending framework, the curve Am(k) provides a useful descriptive analogue of an alpha-spending curve. In the present comparison, Am(k) was estimated by simulating trials under the binary design null 
+
+p = p0 only; details are given in the Supplementary Material. Supplementary analyses were also conducted to evaluate settings beyond the binary ef-ficacy endpoint. Specifically, the Supplementary Material reports additional simulations for nested efficacy endpoints, co-primary efficacy endpoints, and joint efficacy–toxicity monitor-ing, using componentwise projected CEVAM rules combined according to the corresponding clinical OR/AND decision structures. The Supplementary Material also reports optional-monitoring simulations under unplanned looks and optional continuation, which were con-14 ducted to evaluate the fixed-threshold anytime-valid CEVAM rule in the setting for which it is primarily intended and to contrast it with planned-look calibrated boundary-table de-signs. These supplementary analyses are intended to illustrate the extension of CEVAM to complex endpoint structures and the distinction between fixed-threshold e-process mon-itoring and planned-look calibrated boundary tables, rather than to redefine the primary comparison in the main text. 
+
+# 3.2 Simulation results 
+
+The stopping and efficacy boundaries used in the simulation are shown in Table 1, and the corresponding simulation results are presented in Table 2. Under the design null hypothesis with a true efficacy probability of 0.20, the proposed CEVAM designs, as well as the com-parator designs, maintained the nominal type I error level of 0.10. Among the evaluated designs, CEVAM-T achieved the smallest expected sample size under the null setting. As the true efficacy probability increased, CEVAM-T consistently achieved the smallest expected sample size among the evaluated designs while maintaining rejection probabilities close to those of BOP2-FE. This pattern shows that the tuned likelihood-ratio evidence rule can improve trial efficiency across the evaluated binary benchmark settings without materi-ally compromising the probability of detecting a promising regimen. Although the rejection probability of CEVAM-T was slightly lower than that of BOP2-FE in some alternative set-tings, the reduction in expected sample size was substantial, supporting the use of the tuned CEVAM rule as an efficient planned-look monitoring design in this binary endpoint setting. Figure 1 displays the resulting cumulative false-positive probability curves. The proposed CEVAM designs tended to spend the type I error probability earlier than the comparator designs. In particular, CEVAM-NT and CEVAM-T allocated a larger fraction of the total false-positive probability at the early interim looks, whereas BOP2-F spent almost no type I error probability until the final look and BOP2-FE showed a more gradual accumulation. By the final analysis, all designs were close to the nominal type I error level. 15 4 Application to the TREND trial 
+
+We illustrate the proposed binary CEVAM design using the published TREND trial Zhang et al. (2025). This was a prospective single-arm phase II study of neoadjuvant tislelizumab plus chemotherapy for triple-negative breast cancer. The primary endpoint was pathological complete response (pCR), defined as ypT0/Tis ypN0. The protocol specified a maximum sample size of 65 patients and one interim efficacy and safety analysis after enrollment of 48 patients. Under the original Bayesian optimal phase II monitoring rule, the trial would be terminated for futility if 20 or fewer patients achieved pCR, whereas accrual could be terminated early for success if at least 30 patients achieved pCR. The null and target pCR rates were 0.41 and 0.56, respectively. This design was reported to have a one-sided type I error rate of 0.05 and 80.0% power when the true pCR rate was 0.56. The final publication reported that 53 patients were enrolled, 44 patients were included in the efficacy-evaluable set, and 30 of 44 patients achieved pCR. The report also states that the trial was terminated early because the primary endpoint was met. Because the exact aggregate pCR count at the protocol-specified 48-patient interim analysis was not reported, we used the published efficacy-evaluable result, x = 30 pCRs among n = 44 patients, as a retrospective re-analysis point. This application is therefore intended to illustrate how CEVAM would classify the reported early-termination result under the same benchmark rates and maximum sample size, rather than to reconstruct the original trial conduct. Using p0 = 0 .41, p1 = 0 .56, α∗ = 0 .05, and N = 65, we constructed binary CEVAM boundaries at n = 44 and n = 65. Table 3 shows two planned-look CEVAM implementations, using the same notation as in the simulation studies. CEVAM-NT fixes the reverse-evidence futility parameter at β = 0 .20 and calibrates the efficacy threshold, whereas CEVAM-T jointly calibrates the efficacy and futility evidence thresholds over the specified analysis looks. At the retrospective re-analysis point, the published result was x = 30 pCRs among 
+
+n = 44 efficacy-evaluable patients. Under CEVAM-NT, the efficacy boundary at n = 44 16 was 25 responses, and under CEVAM-T it was 24 responses. The reported result exceeded both efficacy boundaries. Therefore, both CEVAM implementations would have classified the reported aggregate result as sufficient evidence of efficacy and would have supported early termination for success. The tuned CEVAM-T rule produced more permissive futility boundaries than CEVAM-NT at both analysis looks. At n = 44, the futility boundary was 21 for CEVAM-T and 18 for CEVAM-NT; at n = 65, the corresponding boundaries were 31 and 28. The efficacy boundary was also slightly lower for CEVAM-T at the retrospective look, 24 versus 25 re-sponses, whereas both implementations had the same final efficacy boundary of 35 responses at n = 65. This behavior is consistent with the role of CEVAM-T in the simulation studies: CEVAM-NT retains a simpler implementation by fixing the reverse-evidence futility param-eter, whereas CEVAM-T further tunes both efficacy and futility thresholds for the specified finite set of looks. This application illustrates how the proposed CEVAM rules can be applied using the benchmark rates and maximum sample size reported for a published phase II oncology trial. Although the original TREND protocol planned its interim analysis after enrollment of 48 patients and the published report provides the aggregate efficacy-evaluable result at 
+
+n = 44, the observed pCR count of 30 exceeded both CEVAM efficacy boundaries at this retrospective re-analysis point. Thus, under the same benchmark rates and maximum sample size, the proposed likelihood-ratio evidence monitoring rules would have supported early success stopping for the reported TREND trial result. 
+
+# 5 Discussion 
+
+We proposed CEVAM, a calibrated e-value monitoring framework for benchmark-based phase II oncology trials. In the binary efficacy endpoint setting, CEVAM uses likelihood-ratio evi-dence and reverse likelihood-ratio evidence to construct simple response-count boundaries for 17 early efficacy and futility monitoring. The method was motivated by the practical strengths of BOP2 and BOP2-FE, including explicit operating-characteristic calibration, early stop-ping, and protocol-ready boundary tables. CEVAM preserves this implementation format but changes the evidence scale: monitoring evidence is defined directly relative to prespec-ified clinical benchmarks through likelihood ratios, without requiring a Bayesian analysis prior or sample-size-dependent posterior-probability cutoff functions. The main contribution of CEVAM is to connect likelihood-ratio e-processes with pretab-ulated count-boundary designs for early-phase oncology trials. The efficacy likelihood-ratio process is valid under the composite null p ≤ p0, and the reverse likelihood-ratio process is valid for the futility claim under p ≥ p1. Because both processes are monotone functions of the cumulative response count, the resulting rules can be expressed as integer futility and efficacy boundaries at each interim look. This property is essential for clinical proto-col implementation and makes the design directly comparable with established BOP2-type boundary-table designs. We distinguished the fixed-threshold e-process construction from the planned-look cal-ibrated implementations used for comparison in conventional finite-look trials. The fixed-threshold version provides the direct anytime-valid implementation of the likelihood-ratio e-process rule and is suited to settings in which additional reviews, irregular monitoring, or optional continuation may occur. By contrast, CEVAM-NT and CEVAM-T are planned-look calibrated versions intended for prespecified monitoring schedules. CEVAM-NT fixes the reverse-evidence futility parameter and calibrates the efficacy threshold, whereas CEVAM-T tunes both efficacy and futility thresholds over the specified finite set of looks. Thus, the CEVAM framework provides two practically distinct implementations: an anytime-valid fixed-threshold rule for flexible monitoring and calibrated finite-look boundary-table rules for conventional phase II trial designs. In the binary endpoint simulation, CEVAM-T achieved the smallest expected sample size among all evaluated designs across the full set of true response probabilities while maintain-18 ing the planned-look type I error at the nominal level. These efficiency gains were obtained with rejection probabilities close to those of BOP2-FE, indicating that the likelihood-ratio evidence scale can improve trial efficiency without materially compromising power. This behavior reflects the design objective of CEVAM-T: the futility threshold is tuned together with the efficacy threshold so that decisive evidence can lead to earlier stopping under the prespecified monitoring schedule. The results therefore support CEVAM-T as an efficient likelihood-ratio evidence alternative to posterior-cutoff monitoring, particularly when inves-tigators value interpretable evidence thresholds and protocol-ready count boundaries. The TREND trial application illustrates how CEVAM can be applied to a published binary oncology endpoint. Using the reported pCR benchmarks and maximum sample size, CEVAM-NT and CEVAM-T classified the reported aggregate result of 30 pCRs among 44 efficacy-evaluable patients as sufficient evidence for early success stopping. This application does not reconstruct the exact conduct of the original trial, because the published report did not provide the exact pCR count at the protocol-specified 48-patient interim analysis. Rather, it demonstrates that the proposed likelihood-ratio evidence rules can be specified from clinically reported design parameters and can support an early-success decision using the reported aggregate pCR result. Several extensions are natural. First, the main text focused on immediate binary endpoint monitoring. Delayed or pending outcomes, which are common in oncology trials, could be incorporated by combining the proposed evidence process with prediction, weighting, or im-putation methods for incomplete response information. Second, the planned-look calibrated CEVAM rules are designed for the monitoring schedule used during calibration, whereas the fixed-threshold e-process version provides the corresponding implementation when addi-tional or irregular reviews are anticipated. Third, the Supplementary Material shows that the same projected-evidence principle can be extended to nested efficacy, co-primary efficacy, and joint efficacy–toxicity endpoints. These extensions preserve the protocol-ready compo-nentwise boundary format used in BOP2-type designs and provide a foundation for further 19 development in multicomponent phase II monitoring. In conclusion, CEVAM provides an analysis-prior-free, protocol-ready likelihood-ratio evidence framework for benchmark-based monitoring in early-phase oncology trials. By converting likelihood-ratio e-processes into monotone response-count boundaries, CEVAM retains the practical boundary-table format required for clinical protocols while replacing posterior-probability cutoffs with interpretable evidence thresholds defined relative to pre-specified clinical benchmarks. In the binary benchmark setting, the tuned planned-look im-plementation, CEVAM-T, improved trial efficiency by reducing expected sample size across all evaluated scenarios while controlling type I error at the nominal level and preserving rejection probabilities close to those of established BOP2-FE designs. The fixed-threshold e-process version further extends the framework to settings in which unplanned reviews, ir-regular monitoring, or optional continuation are anticipated. These features make CEVAM a flexible and practically implementable likelihood-ratio evidence alternative to posterior-cutoff monitoring for early-phase oncology trials. Future work should address delayed out-comes, threshold calibration under alternative look schedules, and integration with dose-optimization and multi-arm early-phase trial designs. 
+
+# Acknowledgments 
+
+This work was supported by JSPS KAKENHI (Grant Number JP26K21185). ChatGPT was used only to assist with English language proofreading. The author reviewed and verified the final manuscript and takes full responsibility for its content. 
+
+# Data availability 
+
+No individual patient-level data were analyzed in this methodological study. The TREND trial application used only aggregate information reported in the published article and pro-tocol. The R code used to generate the CEVAM boundary tables, simulation results, and 20 TREND trial re-analysis is available at https://github.com/masahikoji/cevam-phase2-monitoring .21 References 
+
+Chunyan Cai, Suyu Liu, and Ying Yuan. A Bayesian design for phase II clinical trials with delayed responses based on multiple imputation. Statistics in Medicine , 33(23):4017–4028, 2014. doi: 10.1002/sim.6200. Peter Gr¨ unwald, Rianne de Heide, and Wouter M. Koolen. Safe testing. Journal of the Royal Statistical Society Series B: Statistical Methodology , 86(5):1091–1128, 2024. doi: 10.1093/jrsssb/qkae011. Aaditya Ramdas, Peter Gr¨ unwald, Vladimir Vovk, and Glenn Shafer. Game-theoretic statistics and safe anytime-valid inference. Statistical Science , 38(4):576–601, 2023. doi: 10.1214/23-STS894. Valeria Sambucini. A Bayesian predictive two-stage design for phase II clinical trials. Statis-tics in Medicine , 27(8):1199–1224, 2008. doi: 10.1002/sim.3021. Richard Simon. Optimal two-stage designs for phase II clinical trials. Controlled Clinical Trials , 10(1):1–10, 1989. doi: 10.1016/0197-2456(89)90015-9. Peter F. Thall and Richard Simon. Practical Bayesian guidelines for phase IIB clinical trials. 
+
+Biometrics , 50(2):337–349, 1994. doi: 10.2307/2533377. Vladimir Vovk and Ruodu Wang. E-values: Calibration, combination, and applications. The Annals of Statistics , 49(3):1736–1754, 2021. doi: 10.1214/20-AOS2020. Xinling Xu, Atsuki Hashimoto, Belay B. Yimer, and Kentaro Takeda. BOP2-FE: Bayesian optimal phase II design with futility and efficacy-stopping boundaries. Journal of Bio-pharmaceutical Statistics , 2025. doi: 10.1080/10543406.2025.2558142. Advance online publication. Qiang Zhang, Mozhi Wang, Yumeng Li, Hengjun Zhang, Yusong Wang, Xiuyun Chen, et al. Efficacy, safety and exploratory analysis of neoadjuvant tislelizumab (a pd-1 inhibitor) plus 22 nab-paclitaxel followed by epirubicin/cyclophosphamide for triple-negative breast cancer: a phase 2 trend trial. Signal Transduction and Targeted Therapy , 10:169, 2025. doi: 10.1038/s41392-025-02254-3. Heng Zhou, J. Jack Lee, and Ying Yuan. BOP2: Bayesian optimal design for phase II clinical trials with simple and complex endpoints. Statistics in Medicine , 36(21):3302–3314, 2017. doi: 10.1002/sim.7338. 23 Supplementary Material 
+
+Web Appendices, Web Tables, Web Figures, and R code referenced in Sections 2–5 are available with this paper at the Biometrics website on Oxford Academic. The R code used to generate the boundary tables, simulation results, alpha-spending plots, and TREND trial re-analysis is also available at the public GitHub repository listed in the Data Availability statement. Table 1: Stopping and efficacy boundaries Method Rule 10 15 20 25 30 35 40 BOP2-F Futility: # eff ≤ 1 2 4 5 7 9 10 BOP2-FE-1 Futility: # eff ≤ 1 2 3 5 7 8 11 Efficacy: # eff ≥ 6 8 9 9 10 11 12 BOP2-FE-2 Futility: # eff ≤ 1 2 4 5 7 8 11 Efficacy: # eff ≥ 7 7 8 9 10 11 12 CEVAM-NT Futility: # eff ≤ 0 2 3 4 6 7 9Efficacy: # eff ≥ 5 6 8 9 11 12 14 CEVAM-T Futility: # eff ≤ 1 3 4 5 7 8 10 Efficacy: # eff ≥ 5 6 8 9 11 12 13  
+
+> ORR, objective response rate. Pair 1 corresponds to the BOP2-FE Table 1 binary setting.
+
+24 Table 2: Operating characteristics for Scenario 1, pair 1. True eff prob Method PRN (%) ETF (%) ETE (%) PET (%) EN 0.20 BOP2-F 9.6 88.9 0.0 88.9 20.3 BOP2-FE-1 10.1 82.6 9.0 91.6 20.4 BOP2-FE-2 9.9 83.7 8.8 92.5 19.2 CEVAM-NT 10.1 70.1 10.0 80.0 23.2 CEVAM-T 10.1 83.2 9.4 92.6 17.1 0.30 BOP2-F 52.1 46.0 0.0 46.0 31.1 BOP2-FE-1 53.6 37.5 49.1 86.6 24.9 BOP2-FE-2 52.4 40.1 48.5 88.6 23.1 CEVAM-NT 49.4 23.5 47.8 71.2 24.7 CEVAM-T 47.9 41.9 44.6 86.5 19.8 0.40 BOP2-F 88.3 11.4 0.0 11.4 37.7 BOP2-FE-1 89.2 8.9 86.9 95.8 21.7 BOP2-FE-2 87.8 10.2 86.0 96.2 20.4 CEVAM-NT 87.3 4.2 85.8 90.0 18.6 CEVAM-T 84.2 12.9 81.8 94.7 16.6 0.50 BOP2-F 98.2 1.8 0.0 1.8 39.5 BOP2-FE-1 98.4 1.5 98.1 99.6 16.7 BOP2-FE-2 98.5 1.5 98.2 99.7 16.3 CEVAM-NT 98.8 0.5 98.5 99.1 13.3 CEVAM-T 97.4 2.4 97.0 99.4 13.0 
+
+> PRN, probability of rejecting the null; ETF, early termination for futility; ETE, early termination for efficacy; PET, probability of early termination; EN, expected sample size.
+
+25 10 15 20 25 30 35 40 0.00  0.02  0.04  0.06  0.08  0.10 
+
+> Cumulative false−positive probability under the design null
+> Number of patients treated Cumulative false−positive probability  BOP2−F BOP2−FE−1 BOP2−FE−2 CEVAM−NT CEVAM−T
+
+Figure 1: Descriptive cumulative false-positive probability curves under the binary design null hypothesis. The vertical axis shows the estimated cumulative false-positive probability, 
+
+bAm(k), by planned look. These curves are descriptive analogues of alpha-spending curves and are not used to construct the stopping boundaries. 
+
+Alt text: Line plot showing cumulative false-positive probability by planned interim look for five phase II monitoring designs under the binary design null. The CEVAM-NT and CEVAM-T curves allocate more false-positive probability at earlier looks than the comparator designs, whereas all designs approach the nominal type I error level by the final analysis. 26 Table 3: CEVAM boundaries for the TREND trial re-analysis. The null and target pCR rates were p0 = 0 .41 and p1 = 0 .56, respectively, with nominal one-sided type I error level 
+
+α∗ = 0 .05 and maximum sample size N = 65. Method Look n αeff β Futility boundary Efficacy boundary CEVAM-NT 44 0.13 0.20 18 25 CEVAM-NT 65 0.13 0.20 28 35 CEVAM-T 44 0.20 0.82 21 24 CEVAM-T 65 0.20 0.82 31 35 27

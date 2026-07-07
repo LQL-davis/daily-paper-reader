@@ -1,0 +1,1217 @@
+Title: Elastically safeguarded augmented Lagrangian methods
+
+URL Source: https://arxiv.org/pdf/2607.02697v1
+
+Published Time: Tue, 07 Jul 2026 00:07:25 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# Elastically safeguarded augmented Lagrangian methods 
+
+## Ernesto G. Birgin ∗ Alberto De Marchi † Patrick Mehlitz ‡
+
+Abstract 
+
+We investigate, theoretically and numerically, a class of elastically safeguarded augmented La-grangian methods for nonlinear optimization problems with inequality and equality constraints. Safe-guarded augmented Lagrangian methods are known to exhibit substantially stronger global conver-gence guarantees than their non-safeguarded counterparts, making them attractive in practice. Apersistent limitation, however, is that existing methods rely on a fixed safeguard, whose a priori selection can be difficult and inherently limits adaptivity, e.g., with respect to problem scaling. We propose an adaptive safeguarding mechanism that allows the safeguard to grow dynamically, overcom-ing these drawbacks while preserving the desirable global convergence properties of variants with a fixed safeguard. We further establish complexity bounds in terms of worst-case iteration counts. Nu-merical experiments comparing ALGENCAN, a state-of-the-art solver with rigid safeguard, against an elastically safeguarded variant thereof confirm that elastic safeguarding yields consistent practical benefits. 
+
+Keywords. Augmented Lagrangian method, complexity analysis, convergence analysis, nonlinear programming, safeguarding. 
+
+AMS MSC. 49M20, 65K05, 65Y20, 90C30. 
+
+# 1 Introduction 
+
+We are concerned with the standard nonlinear optimization problem minimize  
+
+> x
+
+f (x) subject to g(x) ≤ 0, h(x) = 0 (NLP) where f : Rn → R, g : Rn → Rm, and h : Rn → Rℓ are continuously differentiable functions. Lower-level constraints of the form x ∈ Ω for some closed set Ω ⊆ Rn can also be considered in (NLP), as in [1, 6]. Including such constraints would not affect the theoretical analysis, but it would make the notation more technical — we prefer to drop them for simplicity and clarity of presentation. Augmented Lagrangian methods (ALMs) are among the most successful approaches for solving non-linear programming problems of type (NLP). Introduced independently by Hestenes [15] and Powell [18], and extended to convex programs by Rockafellar [19, 20], these methods augment the Lagrangian with a quadratic penalty term and alternate between primal minimization and multiplier updates, achieving exact stationarity for finite values of the penalty parameter (under mild conditions). The theoretical properties of ALMs depend critically on the multiplier update rule. The classi-cal Powell–Hestenes–Rockafellar (PHR) scheme uses an unconstrained update and typically holds the penalty parameter fixed, but its convergence theory requires either convexity of the model problem or 
+
+> ∗
+
+Institute of Mathematics and Statistics, University of S˜ ao Paulo, Brazil. email egbirgin@ime.usp.br, orcid 0000-0002-7466-7663. 
+
+> †
+
+Institute of Applied Mathematics and Scientific Computing, Department of Aerospace Engineering, University of the Bundeswehr Munich, Germany. email alberto.demarchi@unibw.de, orcid 0000-0002-3545-6898. 
+
+> ‡
+
+Department of Mathematics and Computer Science, Marburg University, Germany. email mehlitz@uni-marburg.de, 
+
+orcid 0000-0002-9355-850X. This work has been partially supported by the Brazilian agencies FAPESP (grants 2013/07375-0, 2022/05803-3, 2023/08706-1, and 2024/22384-0) and CNPq (grant 302073/2022-1). 
+
+1
+
+> arXiv:2607.02697v1 [math.OC] 2 Jul 2026
+
+boundedness of the multiplier sequence. Without an additional safeguarding mechanism, global conver-gence typically fails [17]. The safeguarding scheme of Andreani, Birgin, Mart´ ınez, and Schuverdt [1, 6] clips the multiplier estimates to a prescribed compact set at every iteration. The mechanism of Conn, Gould, and Toint [8] updates the multiplier estimates only when some other conditions are satisfied. Both algorithms, implemented respectively in the software packages ALGENCAN and LANCELOT, are designed in such a way that the multiplier estimates do not “behave too badly” [8, §4], yielding global convergence for nonconvex problems. However, these safeguards can slow down dual convergence and lead to strictly weaker guarantees than the classical PHR update. 
+
+Contribution The present work resolves this tension. We propose an ALM whose multiplier update is based on the elastic safeguarding scheme of [9, §6], in which the safeguarding bound is adaptively relaxed so that it becomes inactive near regular limit points, restoring PHR-type dual convergence precisely where it is most beneficial while retaining the robustness of safeguarding elsewhere. We extend this mechanism from the convex composite setting of [9] to nonconvex nonlinear programming, and contribute two further analytical results. First, we provide a global convergence analysis showing that accumulation points are approximately stationary in the classical sense of Karush–Kuhn–Tucker (KKT) [6, Def. 3.1] and, under weak constraint qualifications, even stationary for (NLP). Second, we establish worst-case complexity bounds on the number of (outer and total inner) iterations needed to produce either an ϵ-approximate solution or a certificate of local infeasibility, in the spirit of Birgin and Mart´ ınez [7] for ALGENCAN. 
+
+Outline The paper is organized as follows. After surveying the relevant literature and introducing notation, Section 2 describes the proposed algorithm. Sections 3 and 4 present the global convergence and complexity results, respectively. Section 5 reports some results of numerical experiments on the CUTEst collection [13]. Some final remarks conclude the paper in Section 6. 
+
+## 1.1 Literature review 
+
+Origins and the connection to the proximal point algorithm The augmented Lagrangian method was introduced by Hestenes [15] and Powell [18] for equality constraints and extended to inequal-ity constraints and convex programs by Rockafellar [19], who also established the landmark equivalence between ALMs and the proximal point algorithm applied in dual space [20]. This connection is central to the convergence theory of convex ALMs and carries over to inexact variants and beyond [9,21,22], see the monographs of Bertsekas [3] and Rockafellar and Wets [23] for comprehensive treatments. 
+
+Safeguarded ALMs for nonconvex problems For nonconvex problems, unbounded multiplier growth in the classical PHR scheme can cause dual divergence even when primal iterates converge to a feasible point. Conn, Gould, and Toint [8] gave an early and influential resolution: multiplier estimates are updated only when the inner subproblem achieves sufficient reduction of infeasibility, and the penalty parameter is decreased otherwise. This conditional update rule keeps the penalty parameter bounded away from zero under a strong regularity condition and was implemented in the LANCELOT package. Andreani, Birgin, Mart´ ınez, and Schuverdt [1,6] later introduced a safeguarding mechanism based on im-posing uniform bounds on the multiplier estimates, which underpins the widely used ALGENCAN solver. Birgin, Castillo, and Mart´ ınez [4] defined a general class of 65 safeguarded ALM variants and proved primal-dual global convergence under a strong regularity condition, establishing safeguarded ALMs as the standard for nonconvex programming. 
+
+Global convergence under weak regularity Birgin, Haeser, Maculan, and Ramirez [5] generalized [4] to include non-safeguarded updates within a single convergence theory, covering the classical PHR method as a special case. Their key contribution is a weak regularity condition that does not require the Lagrange multiplier set to be bounded. Under it, every qualifying limit point is a stationary point, and non-safeguarded methods may keep the penalty parameter fixed throughout, even without convexity. The present work builds on [5], showing that elastic safeguarding preserves these conclusions while sharpening them in the regular case. 2Complexity analysis Birgin and Mart´ ınez [7] established the first rigorous worst-case complexity bounds for ALGENCAN, giving O(log 2(1 /ϵ )) outer iterations to reach either an approximately station-ary point or a certificate of local infeasibility. Complexity bounds for the number of inner iterations, function evaluations, and derivative evaluations were also established under some Lipschitz continuity assumptions. Our complexity analysis extends this framework to the elastic safeguarding setting. The adaptive safeguarding bound introduces additional case distinctions depending on whether the bound is active, but the logarithmic outer iteration count is preserved, with constants depending explicitly on the elasticity parameters. 
+
+Elastic safeguarding The elastic scheme we employ originates in [9, §6], which studies ALMs for fully convex composite problems. That work extends the ALM–proximal point correspondence to the inexact safeguarded setting and distinguishes the regular case (a stationary minimizer exists) from the irregular case (all minimizers are nonstationary). Standard safeguarding leads to weaker convergence guarantees than the ones for the classical ALM in the regular convex case, where bounds for the multiplier estimates are superfluous, if not an impediment. The elastic modification of [9] remedies this by allowing the safeguarding bound to expand as the iterates approach a regular solution, recovering PHR behavior in the limit while preserving primal convergence guarantees in the irregular case. We adapt this mechanism to the nonconvex programming setting, where the proximal point correspondence is unavailable, and establish global convergence results under a hierarchy of assumptions. 
+
+Composite optimization The methodology and analysis investigated in this paper can be extended to problems of type minimize  
+
+> x
+
+f (x) + φ(F (x)) subject to x ∈ Rn
+
+where f : Rn → R and F : Rn → Rq are continuously differentiable and φ : Rq → R ∪ { +∞} is lower semicontinuous and prox-friendly, see [9–11] where safeguarded ALMs for such problems have been studied. Obviously, problem (NLP) is covered by this abstract setting as φ can be chosen to be the indicator function of a closed set. 
+
+## 1.2 Notation 
+
+The ceiling function takes as input a real number α ∈ R and returns the least integer greater than or equal to α, written ⌈α⌉. The signum function takes α as input and returns −1, 0, or 1 if α < 0, 
+
+α = 0, or α > 0, respectively, written sgn( α). By N, R, Rn, and Rn
+
+> +
+
+, we denote the natural numbers including 0, the real numbers, the set of all vectors with n real components, and the nonnegative orthant in Rn. Throughout, Rn is equipped with the Euclidean norm ∥ · ∥ and the Euclidean inner product ⟨· , ·⟩ .The infinity norm is represented by ∥ · ∥ ∞. Given a set A ⊆ Rn and a scalar α ∈ R, their product is 
+
+αA := {αx | x ∈ A}. For a nonempty, bounded set B ⊆ Rn, we use ext( B) := sup x∈B ∥x∥ to denote the extent of B, i.e., the radius of the smallest closed ball around the origin that contains B. For u, v ∈ Rn,vectors max {u, v }, min {u, v } ∈ Rn are defined by applying the max and min operation componentwise, respectively, and [ u, v ] := {x ∈ Rn | u ≤ x ≤ v} is the box induced by the lower bound u and the upper bound v. For a sequence {xk} ⊆ Rn of vectors and x ∈ Rn, xk → x indicates convergence of {xk} to x.Given an infinite set K ⊆ N, xk →K x is used to express that the subsequence {xk}k∈K converges to x.For a real sequence {tk} and t ∈ R, tk → t indicates convergence of {tk} to t. We use tk ↘ 0 to express that {tk} converges to t from above, and tk ↓ t additionally indicates that tk̸ = t holds for all k ∈ N.Given a continuously differentiable vector function Ψ : Rn → Rm and x ∈ Rn, Ψ ′(x) ∈ Rm×n is the Jacobian of Ψ at x. For a continuously differentiable scalar function ψ : Rn → R, ∇ψ(x) := ψ′(x)⊤
+
+represents the gradient of ψ at x. Partial Jacobians and gradients with respect to certain blocks of variables are denoted in the canonical way. 
+
+# 2 Augmented Lagrangian framework 
+
+We review some foundations of augmented Lagrangian methods in Section 2.1 before presenting the elastically safeguarded variant in Section 2.2. 32.1 Foundations of augmented Lagrangian techniques 
+
+Throughout, let L : Rn × Rm × Rℓ → R be the Lagrangian function of (NLP), defined by 
+
+L(x, μ, λ ) := f (x) + ⟨μ, g (x)⟩ + ⟨λ, h (x)⟩,
+
+and recall that a feasible point x ∈ Rn of (NLP) is referred to as stationary if there exist Lagrange multipliers μ ∈ Rm and λ ∈ Rℓ such that 
+
+∇xL(x, μ, λ ) = 0 , μ ≥ 0, μ⊤g(x) = 0 .
+
+When additionally equipped with the feasibility conditions g(x) ≤ 0 and h(x) = 0, the above system is referred to as the KKT conditions of (NLP). It is well known that local minimizers of (NLP) are stationary in the presence of suitable qualification conditions like the Mangasarian–Fromovitz constraint qualification (MFCQ), which claims that 
+
+g′(x)⊤μ + h′(x)⊤λ = 0 , μ ≥ 0, μ⊤g(x) = 0 merely possesses the trivial solution ( μ, λ ) = (0 , 0). For some penalty parameter υ > 0, we also make use of the so-called augmented Lagrangian (AL) function La 
+
+> υ
+
+: Rn × Rm × Rℓ → R of (NLP) which is defined by 
+
+La 
+
+> υ
+
+(x, μ, λ ) := f (x) + 12υ ∥ max {0, g (x) + υμ }∥ 2 + 12υ ∥h(x) + υλ ∥2.
+
+Given an iteration index k ∈ N, the associated AL subproblem is minimize  
+
+> x
+
+La 
+
+> υk
+
+(x, ˆμk, ˆλk) subject to x ∈ Rn (SP k)for some given multiplier estimates ˆ μk ∈ Rm, ˆλk ∈ Rℓ and penalty parameter υk > 0. We assume throughout the existence of solutions for (SP k), which can result from certain boundedness assumptions. In practice, this can be guaranteed, e.g., by including in (SP k) simple constraints of the form x ∈ [xl, x u]with xl, x u ∈ Rn such that xl ≤ xu, see [7, (1)–(2)]. Given some tolerance εk ≥ 0, what can be expected is that an iterate xk obeys the approximate global optimality 
+
+∀x ∈ Rn : La 
+
+> υk
+
+(xk, ˆμk, ˆλk) ≤ L a 
+
+> υk
+
+(x, ˆμk, ˆλk) + εk (2.1) for (SP k) whenever the data functions f and g1, . . . , g m are convex and h is affine. In the absence of these additional properties of the data, it is still reasonable to require the approximate stationarity condition 
+
+∥∇ xLa 
+
+> υk
+
+(xk, ˆμk, ˆλk)∥ ≤ εk (2.2) for the next iterate. Both criteria may be referred to as demanding that xk is an εk-approximate solution of (SP k) in the following. After tackling the AL subproblem (SP k), one can compute new estimates for the Lagrange multipliers 
+
+μk and λk and then update the penalty parameter υk. A common rule for the multiplier update is to set 
+
+μk = ˆ μk + [ g(xk) − zk]/υ k and λk = ˆλk + h(xk)/υ k (2.3) where 
+
+zk = min {0, g (xk) + υk ˆμk}. (2.4) The specific rule (2.3) was adopted in [6, 8] and guarantees that 
+
+∇xL(xk, μ k, λ k) = ∇xLa 
+
+> υk
+
+(xk, ˆμk, ˆλk)holds, by design, for each k ∈ N, so that stationarity for (NLP) can be monitored by means of stationarity for (SP k), see (2.2). 
+
+Remark 2.1. Combining (2.3) and (2.4) leads to the classical formula 
+
+μk = ˆ μk + [ g(xk) − zk]/υ k = ˆ μk + max {g(xk)/υ k, −ˆμk} = max {0, ˆμk + g(xk)/υ k}
+
+for the update rule of the Lagrange multipliers associated with inequality constraints. 42.2 Elastic safeguarding 
+
+The safeguarded ALM in [6, §4.1] demands all multiplier estimates to lie in prescribed nonempty, compact safeguarding sets Y g 
+
+> sg
+
+⊆ Rm and Y h 
+
+> sg
+
+⊆ Rℓ. For this purpose, one typically exploits 
+
+Y g 
+
+> sg
+
+= [0 , μ max ], Y h 
+
+> sg
+
+= [ λmin , λ max ], (2.5) where μmax ∈ Rm and λmin , λ max ∈ Rℓ satisfy μmax > 0, λmin < 0, and λmax > 0 in componentwise fashion, but other choices might be reasonable as well. Better behavior can be expected when the safeguarding sets Y g 
+
+> sg
+
+and Y h 
+
+> sg
+
+are “large enough” to cover a Lagrange multiplier (in case of existence). The pseudocode of a prototypical safeguarded ALM can be found in Algorithm 2.1. 
+
+Algorithm 2.1: Safeguarded ALM for (NLP) with rigid safeguard. 
+
+Data: υ0 > 0; nonempty, compact sets Y g 
+
+> sg
+
+⊆ Rm and Y h 
+
+> sg
+
+⊆ Rℓ; τ, γ ∈ (0 , 1)  
+
+> 1
+
+Set V−1 ← +∞. 
+
+> 2
+
+for k = 0 , 1, 2 . . . do  
+
+> 3
+
+Select ˆ μk ∈ Y g 
+
+> sg
+
+and ˆλk ∈ Y h
+
+> sg
+
+. 
+
+> 4
+
+Find an εk-approximate solution xk ∈ Rn of (SP k).  
+
+> 5
+
+Set zk ← min {0, g (xk) + υk ˆμk} and Vk ← max {∥ g(xk) − zk∥, ∥h(xk)∥} . 
+
+> 6
+
+Set μk ← ˆμk + [ g(xk) − zk]/υ k and λk ← ˆλk + h(xk)/υ k. 
+
+> 7
+
+if Vk ≤ τ V k−1 then  
+
+> 8
+
+Set υk+1 ← υk. 
+
+> 9
+
+else  
+
+> 10
+
+Set υk+1 ← γυ k.In order to avoid a deliberate choice of Y g 
+
+> sg
+
+and Y h
+
+> sg
+
+, since the Lagrange multiplier set is usually unknown a priori, and to make the AL scheme more adaptive, we consider Algorithm 2.2, where the safeguarding sets are allowed to grow. This scheme is called “elastic” as opposed to the “rigid” strategy of Algorithm 2.1 with prefixed safeguarding bounds. We note that the nonempty, compact safeguarding sets Y g 
+
+> sg
+
+and Y h 
+
+> sg
+
+in Algorithm 2.2 are rather arbitrary, but a natural choice would again be given by (2.5). In Algorithm 2.2, the changes relative to Algorithm 2.1 are highlighted in orange. 
+
+Algorithm 2.2: Safeguarded ALM for (NLP) with elastic safeguard. 
+
+Data: υ0 > 0; nonempty, compact sets Y g 
+
+> sg
+
+⊆ Rm and Y h 
+
+> sg
+
+⊆ Rℓ; τ, γ ∈ (0 , 1); η ∈ (γ, √γ) 
+
+> 1
+
+Set V−1 ← +∞ and ϱ0 ← 1.  
+
+> 2
+
+for k = 0 , 1, 2 . . . do  
+
+> 3
+
+Select ˆ μk ∈ ϱkY g 
+
+> sg
+
+and ˆλk ∈ ϱkY h
+
+> sg
+
+. 
+
+> 4
+
+Find an εk-approximate solution xk ∈ Rn of (SP k).  
+
+> 5
+
+Set zk ← min {0, g (xk) + υk ˆμk} and Vk ← max {∥ g(xk) − zk∥, ∥h(xk)∥} . 
+
+> 6
+
+Set μk ← ˆμk + [ g(xk) − zk]/υ k and λk ← ˆλk + h(xk)/υ k. 
+
+> 7
+
+if Vk ≤ τ V k−1 then  
+
+> 8
+
+Set υk+1 ← υk and ϱk+1 ← ϱk. 
+
+> 9
+
+else  
+
+> 10
+
+Set υk+1 ← γυ k and ϱk+1 ← ηϱ k/γ .Let us motivate the precise implementation of elastic safeguarding in Algorithm 2.2. In fact, what really matters in the global convergence analysis [6, 11], which addresses the rigidly safeguarded ALM stated in Algorithm 2.1, is that the condition 
+
+υk∥(ˆ μk, ˆλk)∥ → 0 as υk ↓ 0 (2.6) remains guaranteed. Indeed, we can work with elastic safeguarding sets ϱkY g 
+
+> sg
+
+and ϱkY h
+
+> sg
+
+, which grow with scaling factor ϱk > 0, as long as υkϱk ↓ 0 whenever υk ↓ 0. This observation has been incorporated 5into Algorithm 2.2. The particular update at Line 2 allows to enlarge the safeguarding sets, rendering a debatable choice of Y g 
+
+> sg
+
+and Y h 
+
+> sg
+
+unnecessary, while perpetuating control over the terms υk ˆμk and υk ˆλk.In fact, by selecting η ∈ (γ, 1), the scaling factor ϱk+1 > ϱ k increases but the product υk+1 ϱk+1 =
+
+ηυ kϱk < υ kϱk decreases. For η = γ, which is excluded in Algorithm 2.2, the safeguarding mechanism in Algorithm 2.2 would coincide with the rigid one from Algorithm 2.1, since ϱk+1 = ϱk for all k ∈ N.Furthermore, with η < γ , which is also prohibited in Algorithm 2.2, the scaling factor ϱk+1 would decrease at Line 2, effectively shrinking the safeguarding sets instead of enlarging them. Let us also note that choosing η < √γ, Line 2 guarantees υk+1 ϱ2 
+
+> k+1
+
+= η2
+
+/γ υkϱ2 
+
+> k
+
+< υ kϱ2
+
+> k
+
+, so that we even have 
+
+υk∥(ˆ μk, ˆλk)∥2 → 0 as υk ↓ 0. (2.7) The latter will be exploited in some but not all of the results within our global convergence analysis. 
+
+# 3 Convergence analysis 
+
+In this section, we analyze the global convergence properties of Algorithm 2.2. As we will see, we are in position to recover the results from [6] for the rigidly safeguarded ALM. We study two situations separately. In Section 3.1, we suppose that the iterates computed in Line 2 satisfy the approximate global optimality condition stated in (2.1). Section 3.2 is concerned with the setting where all iterates obey the approximate stationarity condition (2.2). Section 3.3 puts some special emphasis on the situation where qualification conditions are employed to guarantee feasibility and stationarity of primal accumulation points. The proofs presented here follow similar ones for the rigidly safeguarded ALM with only minor deviations. Nevertheless, they are presented in order to illustrate where the safeguarding properties (2.6) and (2.7) are required. To start, let us state a general result which presents sufficient criteria for the feasibility of primal accumulation points associated with Algorithm 2.2. It neither requires (2.1) nor (2.2) to hold for all 
+
+k ∈ N, and is an adaptation of [6, Ex. 4.12]. 
+
+Lemma 3.1. Let {xk} be a sequence generated by Algorithm 2.2. Furthermore, let one of the following conditions be valid: (i) {υk} remains bounded away from zero; (ii) {L a 
+
+> υk
+
+(xk, ˆμk, ˆλk)} is upper bounded. Then each accumulation point of {xk} is feasible for (NLP) .Proof. Let ¯ x ∈ Rn be an accumulation point of {xk}, and pick an infinite index set K ⊆ N such that 
+
+xk →K ¯x.Assume that condition (i) is valid. Then, for all sufficiently large k ∈ N, Vk ≤ τ V k−1 holds by construc-tion of Algorithm 2.2. Hence, Vk → 0 follows, and this yields the convergences max {g(xk), −υk ˆμk} → 0and h(xk) → 0. The continuity of g and h yields g(¯ x) ≤ 0 and h(¯ x) = 0, i.e., ¯ x is feasible for (NLP). Now let condition (ii) be valid. Without loss of generality, we assume that υk ↓ 0 as, otherwise, feasibility of ¯ x already follows from (i). Condition (ii) implies the existence of a constant c > 0 such that 
+
+La 
+
+> υk
+
+(xk, ˆμk, ˆλk) ≤ c is valid for all k ∈ N. The definition of the augmented Lagrangian function yields 12 ∥ max {0, g (xk) + υk ˆμk}∥ 2 + 12 ∥h(xk) + υk ˆλk∥2 ≤ υk(c − f (xk)) for each k ∈ N. Taking the limit k →K +∞ in this estimate while keeping (2.6), continuity of f , g, as well as h, and the boundedness of {f (xk)}k∈K in mind, we find 12 ∥ max {0, g (¯ x)}∥ 2 + 12 ∥h(¯ x)∥2 ≤ 0,
+
+which is equivalent to g(¯ x) ≤ 0 and h(¯ x) = 0, i.e., ¯ x is feasible for (NLP). A second preliminary result addresses the multiplier sequence {μk} produced by Algorithm 2.2. 6Lemma 3.2. Let {(xk, μ k, λ k)} be a primal-dual sequence generated by Algorithm 2.2, let ¯x ∈ Rn be an accumulation point of {xk}, and let K ⊆ N be an infinite index set such that xk →K ¯x. Then, for each 
+
+i ∈ { 1, . . . , m } such that gi(¯ x) < 0, μki = 0 holds for all large enough k ∈ K.Proof. First, assume that {υk} remains bounded away from zero. As in the proof of Theorem 3.1, this implies Vk → 0 and, particularly, max {g(xk), −υk ˆμk} → 0. Due to gi(¯ x) < 0, υk ˆμki →K 0 follows. However, as {υk} remains bounded away from zero, ˆ μki →K 0 is obtained, which yields ˆ μki +gi(xk)/υ k < 0for all large enough k ∈ K. Hence, Theorem 2.1 implies μki = 0 for all large enough k ∈ K.Second, let us assume that υk ↓ 0. Then (2.6) implies υk ˆμki → 0, so gi(xk) + υk ˆμki < 0 and, thus, ˆμki + gi(xk)/υ k < 0 hold for all large enough k ∈ K. Again, due to Theorem 2.1, this implies μki = 0 for all large enough k ∈ K.
+
+## 3.1 Approximate global minimization approach 
+
+In this subsection, we assume that the primal iterates of Algorithm 2.2 obey the approximate global optimality condition (2.1) for each k ∈ N.To start, let us inspect feasibility of primal accumulation points associated with Algorithm 2.2. This result is a counterpart of [6, Thm 5.1] for the rigidly safeguarded ALM. 
+
+Theorem 3.3. Let {εk} be bounded, and let {xk} be a sequence generated by Algorithm 2.2 such that 
+
+(2.1) holds for each k ∈ N. Finally, let ¯x ∈ Rn be an accumulation point of {xk}. Then ¯x is a global minimizer of 
+
+minimize  
+
+> x
+
+F(x) := 12 ∥ max {0, g (x)}∥ 2 + 12 ∥h(x)∥2 subject to x ∈ Rn. (3.1) 
+
+Particularly, if (NLP) is feasible, then lim inf k→+∞ Vk = 0 and ¯x is feasible for (NLP) .Proof. For the proof, we proceed by distinguishing two cases. Assume that {υk} stays bounded away from zero. Then ¯ x is a feasible point of (NLP) by Theorem 3.1 and, trivially, a global minimizer of (3.1). Next, we assume that υk ↓ 0. Pick an arbitrary point x ∈ Rn. For each k ∈ N, (2.1) and the definition of the augmented Lagrangian function yield 
+
+υk f (xk) + 12 ∥ max {0, g (xk) + υk ˆμk}∥ 2 + 12 ∥h(xk) + υk ˆλk∥2
+
+≤ υk f (x) + 12 ∥ max {0, g (x) + υk ˆμk}∥ 2 + 12 ∥h(x) + υk ˆλk∥2 + υk εk.
+
+Recalling the safeguarding property (2.6), we know υk ˆμk → 0 and υk ˆλk → 0, and the boundedness of 
+
+{εk} yields υk εk → 0. Pick an infinite set K ⊆ N such that xk →K ¯x. Taking the limit k →K +∞ in the above estimate while respecting the continuity of f , g, and h, we end up with 12 ∥ max {0, g (¯ x)}∥ 2 + 12 ∥h(¯ x)∥2 ≤ 12 ∥ max {0, g (x)}∥ 2 + 12 ∥h(x)∥2,
+
+i.e., ¯ x is a global minimizer of (3.1). To show the final statement, let (NLP) be feasible. Then, due to the above arguments, ¯ x must be feasible for (NLP). Recalling Line 2 of Algorithm 2.2, we find that, for each 
+
+k ∈ N, Vk = max {∥ max {g(xk), −υk ˆμk}∥ , ∥h(xk)∥} is valid. Exploiting the convergences xk →K ¯x and (2.6) as well as feasibility of ¯ x, taking the limit k →K +∞ yields Vk →K 0, i.e., lim inf k→+∞ Vk = 0. Our next result, a counterpart of [6, Thm 5.2], proves global optimality of primal accumulation points associated with Algorithm 2.2. For its proof, which adapts the one of [11, Thm 4.3], we will make use of the following lemma, see, e.g., [11, Lem. 3.2] or [16, Lem. 2.6]. 
+
+Lemma 3.4. Let (NLP) be feasible. Fix μ ∈ Rm, λ ∈ Rℓ, υ > 0, and a feasible point x ∈ Rn of (NLP) .Then we have 
+
+La 
+
+> υ
+
+(x, μ, λ ) ≤ f (x) + υ
+
+2
+
+ ∥μ∥2 + ∥λ∥2.
+
+7Proof. Using the definition of the augmented Lagrangian and h(x) = 0, we find 
+
+La 
+
+> υ
+
+(x, μ, λ ) = f (x) + 12υ ∥ max {0, g (x) + υμ }∥ 2 + υ
+
+2 ∥λ∥2.
+
+Hence, in order to prove the assertion, it is enough to show 
+
+∥ max {0, μ + g(x)/υ }∥ 2 ≤ ∥ μ∥2.
+
+The latter clearly holds if max 2{0, μ i + gi(x)/υ } ≤ μ2 
+
+> i
+
+(3.2) is valid for all i ∈ { 1, . . . , m }, and this will be shown in the remainder of this proof. Let i ∈ { 1, . . . , m }
+
+be fixed. If μi + gi(x)/υ ≤ 0 is valid, (3.2) follows trivially. If μi + gi(x)/υ > 0 is true, gi(x) ≤ 0 implies 0 < μ i + gi(x)/υ ≤ μi, and monotonicity of the square on the positive real line verifies (3.2). 
+
+Theorem 3.5. Let (NLP) be feasible, let {εk} be a null sequence, and let {xk} be a sequence generated by Algorithm 2.2 such that (2.1) holds for each k ∈ N. Finally, let ¯x ∈ Rn be an accumulation point of 
+
+{xk}. Then ¯x is a global minimizer of (NLP) .Proof. To start, observe that ¯ x is a feasible point of (NLP) according to Theorem 3.3. Throughout, let K ⊆ N be an infinite index set such that xk →K ¯x. For some feasible point x ∈ Rn of (NLP) and arbitrary k ∈ N, (2.1) and Theorem 3.4 guarantee 
+
+La 
+
+> υk
+
+(xk, ˆμk, ˆλk) − υk
+
+2
+
+ ∥ˆμk∥2 + ∥ˆλk∥2 ≤ f (x) + εk. (3.3) Now, we proceed by a distinction of cases. First, assume that {υk} remains bounded away from zero. As in the proof of Theorem 3.3, this implies 
+
+Vk → 0, i.e., g(xk) − zk → 0 and h(xk) → 0. Furthermore, {ϱk} remains bounded by construction, and so do {ˆμk} and {ˆλk}. We rewrite (3.3) according to 
+
+f (xk) + 12υk
+
+∥g(xk) − zk∥2 + ⟨ˆμk, g (xk) − zk⟩ + 12υk
+
+∥h(xk)∥2 + ⟨ˆλk, h (xk)⟩ ≤ f (x) + εk.
+
+Recalling that {υk} remains bounded away from zero while εk ↘ 0, we can take the limit k →K +∞ in order to find f (¯ x) ≤ f (x), owing to feasibility of ¯ x and continuity of f , g, and h. The claim follows as 
+
+x ∈ Rn is an arbitrary feasible point of (NLP). Second, assume that υk ↓ 0. Then the definition of the augmented Lagrangian and (3.3) imply validity of 
+
+f (xk) − υk
+
+2
+
+ ∥ˆμk∥2 + ∥ˆλk∥2 ≤ f (x) + εk
+
+for each k ∈ N. Taking the limit k →K +∞ while recalling εk ↘ 0, (2.7), and the continuity of f , we find f (¯ x) ≤ f (x). Since x ∈ Rn was an arbitrary feasible point of (NLP), the assertion is validated. Let us note that the proof of Theorem 3.5 does not exploit a componentwise sign of {ˆμk} and, thus, in principle, allows Y g 
+
+> sg
+
+to be quite arbitrary in Algorithm 2.2. This is in contrast to the proof of [6, Thm 5.2] which exploits {ˆμk} ⊆ Rm 
+
+> +
+
+, i.e., Y g 
+
+> sg
+
+⊆ Rm 
+
+> +
+
+.
+
+## 3.2 Approximate stationarity approach 
+
+In this subsection, we consider the situation where the primal iterates of Algorithm 2.2 satisfy (2.2) for each k ∈ N. Typically, this condition can be guaranteed by invoking standard solvers for the treatment of the unconstrained subproblems (SP k), such as gradient descent or Newton methods. We start our analysis by investigating feasibility of primal accumulation points associated with (NLP). Our first result is an analogue of Theorem 3.3 and a counterpart of [6, Thm 6.3]. 
+
+Theorem 3.6. Let {εk} be bounded, and let {xk} be a sequence generated by Algorithm 2.2 such that 
+
+(2.2) holds for each k ∈ N. Finally, let ¯x ∈ Rn be an accumulation point of {xk}. Then ¯x is a stationary point of the feasibility problem (3.1) .
+
+8Proof. Throughout, let K ⊆ N be an infinite index set such that xk →K ¯x. Again, we proceed by a distinction of cases. Let {υk} be bounded away from zero. Then, according to Theorem 3.1, ¯ x is feasible for (NLP) and, thus, a global minimizer of (3.1). Particularly, ¯ x is a stationary point of (3.1). Next, we assume that υk ↓ 0. For each k ∈ N, due to validity of (2.2), we find ξk ∈ Rn such that 
+
+∥ξk∥ ≤ 1 and 
+
+εk ξk = ∇f (xk) + g′(xk)⊤ max 0, ˆμk + g(xk)/υ k + h′(xk)⊤ ˆλk + h(xk)/υ k
+
+
+
+(3.4) are valid. Multiplying the latter identity by υk shows that 
+
+υk εk ξk = υk ∇f (xk) + g′(xk)⊤ max {0, g (xk) + υk ˆμk} + h′(xk)⊤(h(xk) + υk ˆλk)is valid for all k ∈ N. Taking the limit k →K +∞ in this identity while respecting the boundedness of 
+
+{εk} and {ξk}, (2.6), and the continuity of f , g, h, g′, and h′, we find 0 = g′(¯ x)⊤ max {0, g (¯ x)} + h′(¯ x)⊤h(¯ x),
+
+and the latter means that ¯ x is stationary for (3.1). Let us recall the notion of approximately stationary points of (NLP) in the sense of [6, Def. 3.1]. 
+
+Definition 3.7. A feasible point ¯ x ∈ Rn of (NLP) is referred to as an approximately stationary point of (NLP) whenever there exist sequences {xk} ⊆ Rn, {μk} ⊆ Rm 
+
+> +
+
+, and {λk} ⊆ Rℓ such that the convergences 
+
+xk → ¯x, 
+
+∇xL(xk, μ k, λ k) → 0,
+
+max {gi(xk), −μki } → 0 ∀i ∈ { 1, . . . , m }
+
+hold. It is well known that local minimizers of (NLP) are approximately stationary points, even in the absence of any constraint qualification, see, e.g., [6, Thm 3.1], and that very mild constraint qualifications like the so-called cone-continuity property, introduced and studied in [2], are enough to ensure that an approximately stationary point is already stationary. Our next result, an adaptation of [6, Thm 6.2], validates that primal accumulation points associated with Algorithm 2.2 are approximately stationary. Keeping the above in mind, Algorithm 2.2 is, thus, in position to compute stationary points of (NLP) in the presence of mild constraint qualifications. 
+
+Theorem 3.8. Let {εk} be a null sequence, and let {xk} be a sequence generated by Algorithm 2.2 such that (2.2) holds for each k ∈ N. Finally, let ¯x be an accumulation point of {xk} which is feasible for 
+
+(NLP) . Then ¯x is approximately stationary. Proof. Throughout, let K ⊆ N be an infinite index set such that xk →K ¯x. For each k ∈ N, validity of (2.2) guarantees the existence of ξk ∈ Rn with ∥ξk∥ ≤ 1 and (3.4). Hence, Theorem 2.1 and the multiplier update rule from Line 2 yield εk ξk = ∇xL(xk, μ k, λ k) for each k ∈ N, so that εk ↘ 0 implies 
+
+∇xL(xk, μ k, λ k) → 0. Let us also note that {μk} ⊆ Rm 
+
+> +
+
+holds by Theorem 2.1. As we already know xk →K ¯x, it remains to prove the convergences max {gi(xk), −μki } → K 0 for all 
+
+i ∈ { 1, . . . , m } in order to verify the claim. For i ∈ { 1, . . . , m } such that gi(¯ x) = 0, this convergence is immediate from gi(xk) →K 0 and {μki } ⊆ R+. Hence, it remains to consider the case where gi(¯ x) < 0holds. In this situation, according to Theorem 3.2, μki = 0 is valid for all large enough k ∈ K, and max {gi(xk), −μki } → K 0 follows trivially. 
+
+## 3.3 The presence of qualification conditions 
+
+Though common in nonconvex optimization, an obvious drawback of Theorem 3.8 is that feasibility of the primal accumulation point under consideration has to be assumed. Only in that case is one guaranteed to find an approximately stationary point. In order to ensure feasibility and stationarity of 9primal accumulation points, one typically postulates validity of qualification conditions that apply not only to feasible points, but to infeasible points as well. For the rigidly safeguarded ALM, a suitable qualification condition has been shown to be the so-called extended MFCQ, see [4, Thm 2] for the origin of this result. In [5], it has been shown that a weaker qualification condition called (extended) strong quasinormality is sufficient if the standard (without safeguarding) or safeguarded ALM is considered. As Algorithm 2.2 bridges between both methods, there is reasonable hope that the results from [5] carry over to the situation on hand. Let us start our considerations by recalling the definitions of extended MFCQ and extended strong quasinormality, see [17, Def. 2.1] and [5, Def. 2.1]. 
+
+Definition 3.9. Let some point ¯ x ∈ Rn be fixed, not necessarily feasible for (NLP). 1. We say that extended MFCQ holds at ¯ x if there does not exist a nonvanishing tuple ( μ, λ ) ∈ Rm ×Rℓ
+
+such that 
+
+g′(¯ x)⊤μ + h′(¯ x)⊤λ = 0 , μ ≥ 0, μ⊤ min {0, g (¯ x)} = 0 . (3.5) 2. We say that extended strong quasinormality holds at ¯ x if there do not exist a nonvanishing tuple (μ, λ ) ∈ Rm × Rℓ and, for each i ∈ { 1, . . . , m } such that μi̸ = 0 and each j ∈ { 1, . . . , ℓ } such that 
+
+λj̸ = 0, sequences {yi,k } ⊆ Rn and {zj,k } ⊆ Rn such that yi,k → ¯x and zj,k → ¯x as k → +∞,
+
+gi(yi,k ) > 0 and λj hj (zj,k ) > 0 for all k ∈ N, and (3.5). Note that, in contrast to [5], we use the term extended strong quasinormality here as, even for feasible points, extended strong quasinormality is more restrictive than just quasinormality. Our first result, which is an adaptation of [17, Thm 2.4], investigates an accumulation point ¯ x ∈ Rn
+
+of a sequence {xk} generated by Algorithm 2.2 where extended MFCQ holds. 
+
+Theorem 3.10. Let {εk} be a null sequence, and let {(xk, μ k, λ k)} be a primal-dual sequence generated by Algorithm 2.2 such that (2.2) holds for each k ∈ N. Let ¯x ∈ Rn be an accumulation point of {xk} where extended MFCQ is valid, and let K ⊆ N be an infinite index set such that xk →K ¯x. Then {(μk, λ k)}k∈K
+
+is bounded. Furthermore, ¯x is stationary for (NLP) , and each accumulation point of {(μk, λ k)}k∈K is a multiplier certificating stationarity of ¯x.Proof. As in the proof of Theorem 3.8, we find ∇xL(xk, μ k, λ k) → 0. Assuming that {(μk, λ k)}k∈K is not bounded, we may suppose ∥μk∥+∥λk∥ → K +∞ without loss of generality. Let us define {(˜ μk, ˜λk)}k∈K ⊆
+
+Rm × Rℓ by 
+
+∀k ∈ K : (˜ μk, ˜λk) := (μk, λ k)
+
+∥μk∥ + ∥λk∥ . (3.6) Along yet another subsequence (without relabeling), {(˜ μk, ˜λk)}k∈K converges to a nonvanishing tuple (˜ μ, ˜λ) ∈ Rm × Rℓ. By construction, we have ˜ μ ≥ 0, see Theorem 2.1, and for each i ∈ { 1, . . . , m }
+
+such that gi(¯ x) < 0, ˜ μi = 0 follows from Theorem 3.2, i.e., ˜ μ⊤ min {0, g (¯ x)} = 0 is obtained. From 
+
+∇xL(xk, μ k, λ k) → 0 and ∥μk∥ + ∥λk∥ → K +∞ we find g′(¯ x)⊤ ˜μ + h′(¯ x)⊤ ˜λ = 0. Recalling that (˜ μ, ˜λ)does not vanish, extended MFCQ is violated at ¯ x, contradicting the assumptions of the theorem. Hence, 
+
+{(μk, λ k)}k∈K is bounded. Let ( μ, λ ) ∈ Rm × Rℓ be an accumulation point of {(μk, λ k)}k∈K , and let us assume without loss of generality that the convergences μk →K μ and λk →K λ hold. Clearly, ∇xL(¯ x, λ, μ ) = 0 follows from 
+
+∇xL(xk, μ k, λ k) → 0. Furthermore, similarly as above, μ ≥ 0 and μ⊤ min {0, g (¯ x)} = 0 are obtained from Theorem 2.1 and Theorem 3.2. It remains to prove that ¯ x is feasible. Whenever {υk} remains bounded away from zero, this is an immediate consequence of Theorem 3.1. Hence, let us assume that υk ↓ 0. From Theorem 2.1 and Line 2 of Algorithm 2.2 we find 
+
+υkμk = max {0, υ k ˆμk + g(xk)}, υkλk = υk ˆλk + h(xk) (3.7) for each k ∈ K. Due to boundedness of {(μk, λ k)}k∈K , we have υkμk →K 0 and υkλk →K 0. Further-more, the convergences υk ˆμk → 0 and υk ˆλk → 0 follow from (2.6). Thus, taking the limit k →K +∞ in (3.7) while respecting continuity of g and h, we end up with 0 = max {0, g (¯ x)} and 0 = h(¯ x), i.e., ¯ x is feasible for (NLP). Hence, ¯ x is a stationary point of (NLP) with associated multiplier ( μ, λ ). 10 Our second result is concerned with a primal accumulation point ¯ x ∈ Rn of some primal-dual sequence 
+
+{(xk, μ k, λ k)} generated by Algorithm 2.2 where extended strong quasinormality holds. In this situation, an additional assumption is needed to verify boundedness of the associated Lagrange multipliers ( μk, λ k). 
+
+Assumption 3.11. Let {(xk, μ k, λ k)} be a primal-dual sequence generated by Algorithm 2.2 such that 
+
+(2.2) holds for each k ∈ N. Let K ⊆ N be a given infinite index set such that xk →K ¯x. For each infinite index set L ⊆ K, we assume that the following conditions hold. 1. For each i ∈ { 1, . . . , m }, whenever μki →L +∞, then there is an infinite index set Li ⊆ K such that gi(xk) > 0 holds for all k ∈ Li.2. For each j ∈ { 1, . . . , ℓ }, whenever λkj →L ±∞ , then there is an infinite index set Lj ⊆ L such that 
+
+λkj hj (xk) > 0 holds for all k ∈ Lj .
+
+Now, we are in position to prove an adaptation of [5, Thm 2.1] that applies to Algorithm 2.2. 
+
+Theorem 3.12. Let {εk} be a null sequence, and let {(xk, μ k, λ k)}k∈K be a primal-dual sequence gen-erated by Algorithm 2.2 such that (2.2) holds for each k ∈ N. Let ¯x ∈ Rn be an accumulation point of 
+
+{xk} where extended strong quasinormality is valid. Let K ⊆ N be an infinite index set such that xk → ¯x
+
+and assume that Theorem 3.11 holds for this index set K. Then {(μk, λ k)}k∈K is bounded. Furthermore, 
+
+¯x is stationary for (NLP) , and each accumulation point of {(μk, λ k)}k∈K is a multiplier certificating stationarity of ¯x.Proof. As before, we have ∇xL(xk, μ k, λ k) → 0 by construction. Assuming that {(μk, λ k)} is not bounded, we may proceed as in the proof of Theorem 3.10 in order to find, via construction (3.6), a nonvanishing tuple (˜ μ, ˜λ) ∈ Rm × Rℓ such that ˜ μ ≥ 0, ˜ μ⊤ min {0, g (¯ x)} = 0, and g′(¯ x)⊤ ˜μ + h′(¯ x)⊤ ˜λ = 0. Throughout, let L ⊆ K be an infinite index set such that ∥μk∥ + ∥λk∥ → L +∞ and (˜ μk, ˜λk) →L (˜ μ, ˜λ). For each i ∈ { 1, . . . , m } such that ˜ μi̸ = 0, we know μki →L +∞. Hence, Theorem 3.11 equips us with an infinite index set Li ⊆ K such that gi(xk) > 0 holds for all k ∈ Li. We define yi,k := xk for each 
+
+k ∈ Li and observe that yi,k →Li ¯x.For each j ∈ { 1, . . . , ℓ } such that ˜λj̸ = 0, we know λkj →L ±∞ , and sgn( λkj ) = sgn( ˜λj ) holds for all large enough k ∈ L. Hence, Theorem 3.11 equips us with an infinite index set Lj ⊆ L such that 
+
+λkj hj (xk) > 0 holds for all k ∈ Lj . Hence, for large enough k ∈ Lj , we have ˜λj hj (xk) > 0. We define 
+
+zj,k := xk for each k ∈ Lj and observe that zj,k →Lj ¯x.By construction, extended strong quasinormality is violated at ¯ x, contradicting the assumptions of the theorem. Hence, {(μk, λ k)}k∈K is bounded. The remainder of the proof parallels the one of Theorem 3.10. 
+
+Remark 3.13. Inspecting the proof of Theorem 3.12, it is apparent that, for j ∈ { 1, . . . , ℓ } such that ˜λj̸ = 0 (i.e., λkj → ±∞ ), Theorem 3.11 requires Lj ⊆ L, and not merely Lj ⊆ K as might be expected from the treatment of the inequality constraints. This stronger condition is needed to ensure validity of the sign conditions required in the definition of extended strong quasinormality. The upcoming example presents an instance of Algorithm 2.2 where Theorem 3.11 holds for K = N,see [5, Thm 3.2] as well, i.e., it applies if the produced primal sequence converges as a whole. 
+
+Example 3.14. Let us assume that the safeguarding sets Y g 
+
+> sg
+
+and Y h 
+
+> sg
+
+are given as in (2.5), and pick ˆμk ∈ ρkY g 
+
+> sg
+
+and ˆλk ∈ ρkY h 
+
+> sg
+
+in Line 2 such that ˆμk = max {0, min {μk−1, ρ k μmax }} ,
+
+ˆλk = max {− ¯ρk λmin , min {λk−1, ¯ρk λmax }} , (3.8) where ¯ ρk := min {ρk, ¯ρ} is used for some given ¯ ρ > 0. Note that this implies that {ˆλk} ⊆ ¯ρY h
+
+> sg
+
+, i.e., equality constraints are effectively treated with a rigid safeguard. Let {(xk, μ k, λ k)} be a primal-dual sequence generated by Algorithm 2.2, and assume that xk → ¯x
+
+holds for some ¯ x ∈ Rn. We show that Theorem 3.11 holds for K = N. Therefore, we pick an arbitrary infinite index set L ⊆ N.Pick i ∈ { 1, . . . , m } such that μki →L +∞. Observe that μki = ˆ μki + gi(xk)/υ k holds for each large enough k ∈ L, see Theorem 2.1. From μki →L +∞ there must exist an infinite index set Li ⊆ N
+
+11 such that μki > μ k−1 
+
+> i
+
+holds for all k ∈ Li as, otherwise, μki ≤ μk−1 
+
+> i
+
+holds for all large enough k ∈ N,yielding boundedness of {μki } and, thus, a contradiction. Thus, for each k ∈ Li, we have μk−1 
+
+> i
+
+< μ ki =ˆμki + gi(xk)/υ k ≤ μk−1 
+
+> i
+
++ gi(xk)/υ k, i.e., gi(xk) > 0 due to υk > 0. Pick j ∈ { 1, . . . , ℓ } such that λkj →L ±∞ . As we have λkj = ˆλkj + hj (xk)/υ k for all k ∈ L while 
+
+{ˆλkj }k∈L remains bounded, we find |hj (xk)/υ k| → L +∞ and, due to υk > 0, sgn( λkj ) = sgn( hj (xk)) for all large enough k ∈ L. Hence, there is an infinite index set Lj ⊆ L, a suitable tail of L, exemplary, such that λkj hj (xk) > 0 must be valid for all k ∈ Lj .Taking everything together, we see that Theorem 3.11 holds for K = N.We end this section with two remarks. 
+
+Remark 3.15. Inspecting the arguments in Theorem 3.14 that addressed the inequality constraints, it appears that, for i ∈ { 1, . . . , m }, we only need to guarantee ˆ μki ≤ μk−1 
+
+> i
+
+in Line 2 of Algorithm 2.2, which trivially holds for selection rules of type 
+
+∀i ∈ { 1, . . . , m } : ˆμki
+
+(
+
+= μk−1 
+
+> i
+
+if 0 ≤ μk−1 
+
+> i
+
+≤ ρk μmax ,i ,
+
+∈ [0 , ρ k μmax ,i ] otherwise, due to {μk} ⊆ Rm 
+
+> +
+
+. Exemplary, one may choose ˆ μki = 0 if μk−1 
+
+> i
+
+> ρ k μmax ,i , as suggested in [6, §5.3]. 
+
+Remark 3.16. For equality constraints, instead, the argument in Theorem 3.14 seems to fail when projecting onto ρkY h 
+
+> sg
+
+(rather than ¯ ρkY h
+
+> sg
+
+). It remains an open question whether the result holds or not when adopting the update rule ˆλk = max {− ρk λmin , min {λk−1, ρ k λmax }} for the multipliers of equality constraints. Regardless, since equality constraints were not considered in [5], Theorem 3.12 provides a more general result. 
+
+# 4 Complexity analysis 
+
+This section is devoted to the derivation of worst-case complexity results related to Algorithm 2.2, which remain analogous to those valid for Algorithm 2.1. A complexity result for the case where {υk}
+
+remains bounded away from zero directly follows from [7, Thm 3.1] under mild assumptions. In general, though, Algorithm 2.2 may stop at an iterate xk that appears to be infeasible and, at the same time, a local minimizer of the feasibility measure. Note that the possibility υk ↓ 0 must be considered since it necessarily takes place, for example, when the feasible region of (NLP) is empty. The following result establishes that, before the number of iterations given by (4.2) is reached, we necessarily find an approximate stationary point (up to preliminarily chosen tolerances) for (NLP) or we find an infeasible point that is an approximate stationary point (up to preliminarily chosen tolerances) for the feasibility problem (3.1). To prove the result, we rely on some boundedness assumptions. In particular, we assume that there exist constants cf > 0, cg > 0, ch > 0, and cviol > 0 such that 
+
+∥∇ f (xk)∥ ≤ cf , (4.1a) 
+
+∥g′(xk)∥ ≤ cg , ∥h′(xk)∥ ≤ ch, (4.1b) 
+
+Vk ≤ cviol (4.1c) hold along all iterations k ∈ N of Algorithm 2.2. Conditions (4.1a) and (4.1b) are analogous to the assertions of [7, Lem. 3.3], that result from the continuity of the functions ∇f , g′, and h′, and the assumed boundedness of x, ˆ μ, and ˆλ therein. Condition (4.1c) was adopted also in [7, Thm 3.1] for the case where {υk} remains bounded away from zero. Since we have 
+
+Vk = max {∥ g(xk) − zk∥, ∥h(xk)∥} = max {∥ max {g(xk), −υk ˆμk}∥ , ∥h(xk)∥} 
+
+while (2.6) holds, (4.1c) boils down to bounded constraint violation along the iterates. A sufficient condition to satisfy (4.1) is that the iterates {xk} remain in a compact set Ω ⊆ Rn, for instance, by imposing lower-level box constraints of type x ∈ [xl, x u] which are not augmented, see Section 2.1. For notational convenience, let us introduce the constant cD := cg ext( Y g
+
+> sg
+
+) + ch ext( Y h
+
+> sg
+
+) > 0. 12 Theorem 4.1. Let ϵ, δ > 0 and δlow ∈ (0 , δ ] be given, let {εk} be a null sequence, and let {(xk, μ k, λ k)}
+
+be a primal-dual sequence generated by Algorithm 2.2 such that (2.2) holds for each k ∈ N. Assume that 
+
+K(ϵ, δ low ) is such that εk ≤ min {ϵ, δ low /4} for all k ≥ K(ϵ, δ low ). Suppose conditions (4.1) hold for all 
+
+k ∈ N. Then, after at most 
+
+Nout (ϵ, δ, δ low ) := 
+
+
+
+max 
+
+
+
+K(ϵ, δ low ), log( δ/c viol )log( τ ) Nupd (δ, δ low )
+
+ 
+
+(4.2) 
+
+iterations, where 
+
+Nupd (δ, δ low ) := 
+
+max 
+
+
+
+log 
+
+ δlow 
+
+> 2cD
+
+
+
+log η ,
+
+log 
+
+ min {1,δ low /(4 cf )}
+
+> υ0
+
+
+
+log γ ,
+
+log 
+
+ δ 
+
+> ext( Yg
+> sg )υ0ϱ0
+
+
+
+log η
+
+ , (4.3) 
+
+we obtain an iteration k such that one of the following mutually exclusive situations is on hand. (i) The multipliers μk ∈ Rm 
+
+> +
+
+and λk ∈ Rℓ are such that 
+
+∥∇ f (xk) + g′(xk)⊤μk + h′(xk)⊤λk∥ ≤ ϵ, (4.4a) 
+
+∥ max {0, g (xk)}∥ ∞ ≤ δ, ∥h(xk)∥∞ ≤ δ, (4.4b) 
+
+gi(xk) < −δ =⇒ μki = 0 ∀i ∈ { 1, . . . , m }. (4.4c) 
+
+(ii) The iterate xk verifies 
+
+∥∇F (xk)∥ ≤ δlow , (4.5a) max {∥ max {0, g (xk)}∥ ∞, ∥h(xk)∥∞} > δ, (4.5b) 
+
+where F is the feasibility measure defined in (3.1) .Proof. We proceed in three steps, considering only iterations k ≥ K(ϵ, δ low ). First, it is shown that either (4.4) is satisfied or the number of iterations between two consecutive penalty updates (at Line 2) is bounded above by log( δ/c viol )/ log( τ ). Second, we prove that a number Nupd (δ, δ low ) of penalty updates guarantees that (4.5a) is satisfied. Third, we demonstrate also that either (4.5b) or (4.4b)–(4.4c) must hold after Nupd (δ, δ low ) penalty updates. 
+
+▷ After the first K(ϵ, δ low ) iterations, (2.2) and εk ≤ ϵ guarantee that (4.4a) is satisfied. As shown in [7, Lem. 3.1], condition Vk ≤ δ implies (4.4b) and (4.4c). Owing to (4.1c), the condition at Line 2 indicates that it takes at most log( δ/c viol )/ log( τ ) consecutive iterations without penalty updates to reach 
+
+Vk ≤ δ. This means that, after the first K(ϵ, δ low ) iterations, either conditions (4.4) are satisfied or the difference between iterations with a penalty decrease is at most log( δ/c viol )/ log( τ ). 
+
+▷ We now show that, after the first K(ϵ, δ low ) iterations, there can be at most Nupd (δ, δ low ) penalty updates before satisfying (4.5a). Let u(k) ∈ N denote the number of penalty updates up to the k-th iteration. The update rule at Line 2 gives υk = γu(k)υ0 and υkϱk = ηu(k)υ0ϱ0. Then u(k) ≥ Nupd (δ, δ low )implies 
+
+u(k) ≥ log ( δlow /(2 cD)) / log η, (4.6a) 
+
+υk ≤ min {1, δ low /(4 cf )}, (4.6b) 
+
+υkϱk ≤ δ/ ext( Y g
+
+> sg
+
+), (4.6c) where condition (4.6a) follows from the first term in the max operator within (4.3), (4.6b) from the second, and (4.6c) from the third. We now proceed by showing that k ≥ K(ϵ, δ low ) and (4.6) yield (4.5a). For notational convenience, let us define, for each k ∈ N, the perturbed feasibility measure 
+
+∀x ∈ Rn : Pk(x) := 12 ∥ max {0, g (x) + υk ˆμk}∥ 2 + 12 ∥h(x) + υk ˆλk∥2.
+
+13 Then, by (2.2), for all k ≥ 1, we have that 
+
+εk ≥ ∥∇ xLa 
+
+> υk
+
+(xk, ˆμk, ˆλk)∥ = ∇f (xk) + 1
+
+υk
+
+∇P k(xk) ≥ ∥ υk∇f (xk) + ∇P k(xk)∥,
+
+where the last inequality follows from (4.6b) (particularly, υk ≤ 1), and then 
+
+∥∇P k(xk)∥ ≤ εk + cf υk ≤ δlow /4 + cf υk ≤ δlow /2, (4.7) where the first inequality is due to (4.1a), the second to the definition of K(ϵ, δ low ) and k ≥ K(ϵ, δ low ), and the third to (4.6b) (particularly, cf υk ≤ δlow /4). Now we bound the difference between the gradient of Pk and that of F, obtaining 
+
+∥∇P k(xk) − ∇F (xk)∥ = ∥g′(xk)⊤ max {0, g (xk) + υk ˆμk} + h′(xk)⊤υk ˆλk − g′(xk)⊤ max {0, g (xk)}∥ ≤ ∥ g′(xk)∥∥ max {0, g (xk) + υk ˆμk} − max {0, g (xk)}∥ + ∥h′(xk)∥∥ υk ˆλk∥≤ cg ∥υk ˆμk∥ + ch∥υk ˆλk∥,
+
+where the last estimate follows from the Lipschitzness of s 7 → max {0, s } with Lipschitz constant 1 and (4.1b). Therefore, from (4.7) we obtain that 
+
+∥∇F (xk)∥ ≤ δlow 
+
+2 + cg ∥υk ˆμk∥ + ch∥υk ˆλk∥
+
+for each k. By counting the number u(k) of penalty updates, Line 2 gives 
+
+∥υk ˆμk∥ ≤ ηu(k) ext( Y g
+
+> sg
+
+), ∥υk ˆλk∥ ≤ ηu(k) ext( Y h
+
+> sg
+
+),
+
+for each k, hence 
+
+∥∇F (xk)∥ ≤ δlow 
+
+2 + cg ext( Y g
+
+> sg
+
+) + ch ext( Y h
+
+> sg
+
+) ηu(k) = δlow 
+
+2 + cDηu(k).
+
+Since (4.6a) implies ηu(k) ≤ δlow /(2 cD), it leads to (4.5a). 
+
+▷ Finally, we prove that, after Nupd (δ, δ low ) penalty updates, if (4.5b) does not hold, then (4.4b) and (4.4c) are valid. If (4.5b) fails, (4.4b) clearly holds. Therefore, gi(xk) ≤ δ for all i ∈ { 1, . . . , m }. Now, if 
+
+gi(xk) < −δ, we can exploit (4.6c) to find 
+
+gi(xk) + υk ˆμki < −δ + υk ˆμki ≤ − δ + υkϱk ext( Y g
+
+> sg
+
+) < 0,
+
+so μki = 0 follows from Theorem 2.1. Therefore, (4.4c) is valid, too. Combining these observations, we have shown that before the number of iterations given by (4.2) is reached — and Nupd (δ, δ low ) penalty updates are done — either (4.4) or (4.5) is satisfied. This concludes the proof. We now derive a bound on the total number of iterations and function evaluations which are required to find an iteration k of Algorithm 2.2 such that the qualitative properties discussed in Theorem 4.1 hold for the primal-dual triplet ( xk, μ k, λ k). Therefore, we combine estimates for outer and inner iteration numbers (and function evaluations). Estimating the outer complexity is possible via Theorem 4.1. To address the inner complexity, we rely on [7, Thm 4.3], which requires that 
+
+• the iterates {xk} remain in a bounded set Ω ⊆ Rn, and 
+
+• for fixed penalty parameter and multiplier estimates, the augmented Lagrangian function has a Lipschitz continuous gradient over Ω. Then, adopting a gradient-based method for solving (SP k), there exists a constant cin > 0 such that the number of iterations and function evaluations necessary to satisfy (2.2) is bounded above by 
+
+Nin (υk, ε k) = cin υ−2 
+
+> k
+
+ε−2 
+
+> k
+
+. (4.8) 14 Departing from [7], where the safeguarding mechanism is rigid, the multiplier estimates are not necessarily bounded in Algorithm 2.2. Nevertheless, the safeguarding condition (2.6) allows us to use the inner complexity bound (4.8) from [7, Thm 4.3]. In fact, since ∥ˆμk∥ and ∥ˆλk∥ become smaller than 1 /υ k as 
+
+υk ↓ 0, the Lipschitz constant of ∇xLa 
+
+> υk
+
+(·, ˆμk, ˆλk) is asymptotically dominated by 1 /υ k.The following result is inspired by [7, Thm 3.6] and provides a total complexity bound for Algo-rithm 2.2 under analogous Lipschitz assumptions. Moreover, to obtain a concrete bound, we specify the sequence of inner tolerances {εk}.
+
+Theorem 4.2. Consider the assumptions of Theorem 4.1 and suppose, additionally, that 
+
+• there exists cin > 0 such that establishing (2.2) in Line 2 of Algorithm 2.2 requires a number of inner iterations (and function evaluations) that is at most Nin (υk, ε k) given in (4.8) ,
+
+• for some ε0 > 0 and γε ∈ (0 , 1) , εk = max {min {ϵ, δ low /4}, γ kε ε0} holds for each k ∈ N.Let Nout := Nout (ϵ, δ, δ low ) be the number of outer iterations defined by (4.2) and set θ := ( γγ ε)−2.Then K(ϵ, δ low ) = ⌈log(min {ϵ, δ low /4}/ε 0)/ log( γε)⌉, and an upper bound on the total number of inner iterations (and function evaluations) required to obtain an outer iteration k such that the qualitative properties claimed in Theorem 4.1 hold is given by 
+
+Ntot (ϵ, δ, δ low ) := 
+
+ cin 
+
+(υ0ε0)2
+
+θNout +1 − 1
+
+θ − 1
+
+
+
+.
+
+Proof. The first assertion on K(ϵ, δ low ) is obvious from the precise choice of {εk} considered here. The second assertion immediately follows from 
+
+> Nout
+
+X
+
+> k=0
+
+Nin (υk, ε k) = 
+
+> Nout
+
+X
+
+> k=0
+
+cin 
+
+(υkεk)2 ≤
+
+> Nout
+
+X
+
+> k=0
+
+cin 
+
+(υ0γkε0γkε )2 = cin 
+
+(υ0ε0)2
+
+> Nout
+
+X
+
+> k=0
+
+θk = cin 
+
+(υ0ε0)2
+
+θNout +1 − 1
+
+θ − 1where the first equality is due to (4.8) and the inequality follows from υk ≥ γkυ0 and εk ≥ γkε ε0 which are valid for each k ∈ N.In Theorem 4.2, note that the function evaluations g(xk) and h(xk) at Line 2 of Algorithm 2.2 are included in the total count since they are performed already by the inner solver to certificate that xk is an εk-approximate solution of (SP k) in the sense of (2.2). 
+
+# 5 Numerical experiments 
+
+In this section, we analyze the practical performance of Algorithm 2.2 based on the benchmark collection CUTEst [13]. First, we comment on some implementation details in Section 5.1. Second, in Section 5.2, the precise setup is presented, and associated results are documented and analyzed. 
+
+## 5.1 Implementation details 
+
+We implemented Algorithm 2.2 as a variant of ALGENCAN [1, 6, 7], which is a special instance of Algorithm 2.1 with the safeguards from (2.5). The only difference between the two methods lies in the way they handle the safeguards Y g 
+
+> sg
+
+and Y h 
+
+> sg
+
+defined in (2.5). Since μmax , λmin , and λmax are fixed vectors in ALGENCAN, we refer to it as Rigid ALGENCAN hereafter, or ralm for short. In practice, one typically sets λmin = −ϵ−1mach e and μmax = λmax = ϵ−1mach e, where ϵmach ≈ 10 −16 denotes machine precision and e is the all-ones vector of suitable dimension. In contrast, the safeguards are dynamic and their update depends on the parameter η in Algorithm 2.2, which we refer to as Elastic ALGENCAN, or ealm for short. By default, ALGENCAN uses γ = 0 .1 when updating the penalty parameter. The relation η ∈ (γ, √γ) suggests that 0.2 and 0.3 are reasonable choices for η in Algorithm 2.2. In the experiments, we also tested different choices for the parameter vectors μmax , λmin , and λmax . Specifically, we always considered λmin = −ζe and μmax = λmax = ζe, and tested ζ ∈ { 1, 10 3, 10 6, 10 12 }.ALGENCAN is an ALM that incorporates several additional mechanisms to enhance its efficiency and robustness. Two such features are the feasibility restoration (attempting to find a feasible point 15 by minimizing the constraint violation) and the use of acceleration strategies (attempting to solve the nonlinear KKT system using Newton’s method). In the experiments reported in this section, our objective was to analyze a specific aspect of the ALM itself. For this reason, both of the aforementioned strategies, which are enabled by default in ALGENCAN, were disabled. All tests reported below were conducted on a computer with a 5.1 GHz Intel Core i9-12900K processor and 128GB 3200 MHz DDR4 RAM memory, running Ubuntu 22.04.3 LTS. Codes were written in Fortran and compiled by the GNU Fortran compiler of GCC (version 11.4.0) with the -O3 optimization directive enabled. 
+
+## 5.2 Results on CUTEst benchmark collection 
+
+In our experiments, we considered all problems from the CUTEst collection [13] featuring inequality or equality constraints, or both. This resulted in a total of 774 test problems. For each problem, we used the default dimensions and the provided starting point. The collected instances have n ∈ { 1, . . . , 250997 }
+
+variables, m ∈ { 0, . . . , 570781 } inequality constraints, and ℓ ∈ { 0, . . . , 250498 } equality constraints. The distribution of problem sizes is shown in Figure 1. 10 0 10 1 10 2 10 3 10 4 10 5
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+10 4
+
+10 5
+
+m ineq. constraints 
+
+> n variables
+
+10 0 10 1 10 2 10 3 10 4 10 5
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+10 4
+
+10 5
+
+ℓ eq. constraints 
+
+10 0 10 1 10 2 10 3 10 4 10 5
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+10 4
+
+10 5
+
+m + ℓ constraints 
+
+Figure 1: Distribution of test instances’ size: number of variables n against number of inequality con-straints m (left), number of equality constraints ℓ (middle), and total number of constraints m+ℓ (right). Our comparisons focused primarily on robustness, namely the ability of the competing variants to identify feasible points with the lowest possible objective function values. As a secondary criterion, we assessed their ability to compute points satisfying the KKT conditions. For those problems in which the methods under comparison produced feasible points with similar objective function values, we com-pared their efficiency. Since the methods being compared were merely variants of the same algorithm, we adopted the total number of objective function evaluations plus constraint evaluations as the perfor-mance metric. Because all variants performed exactly the same linear algebra computations, this metric provided a fair and reliable measure of computational effort, avoiding the measurement inaccuracies often associated with CPU-time comparisons. To evaluate and compare efficiency of various methods, we use (relative) performance profiles [12]. Exercising the caution warranted by Gould and Scott [14], we adopt also absolute performance profiles. For a given method i ∈ { 1, . . . , n meth }, the absolute and 
+
+relative performance profiles are given by Γa 
+
+> i
+
+(τ ) := | { j ∈ { 1, . . . , n prob } | tij ≤ τ } | 
+
+nprob 
+
+and Γi(κ) := | j ∈ { 1, . . . , n prob } | tij ≤ κt ⋆j |
+
+nprob 
+
+,
+
+respectively, where nprob is the number of considered problems, |S| denotes the cardinality of the set S,
+
+tij is the performance metric for method i when applied to problem j, and t⋆j := min s∈{ 1,...,n meth }{tsj } is the best performance among the nmeth methods on problem j.ALGENCAN declares success when it finds a primal iterate together with associated Lagrange multi-pliers that satisfy feasibility, complementarity, and optimality criteria within tolerances ϵfeas , ϵcompl , and 
+
+ϵopt , respectively. The precise stopping criterion is described in [7]. In practice, we set all three tolerances equal to 10 −8 and a CPU time limit of 10 minutes on each run. From this point onward we refer to a 16 stationary point as any point that satisfies this stopping criterion, and to a feasible point as any point that satisfies at least the feasibility criterion. Suppose that, for a given problem, by running different methods, we obtain nfeas feasible points x1, . . . , x nfeas with objective function values f (x1), . . . , f (xnfeas ). We say that xp, p ∈ { 1, . . . , n feas }, is a solution if 
+
+f (xp) ≤ fbest + ftol max {1, |fbest |} ,
+
+where fbest := min {f (x1), . . . , f (xnfeas )} and ftol > 0 is a prescribed tolerance. When comparing different methods on a given problem, any method that fails to find a feasible point is considered unsuccessful whenever at least one competing method succeeds in finding one. Among the methods that do find feasible points, those that fail to find a solution, as defined above, are also considered unsuccessful. Efficiency is compared only among the methods that successfully find a solution. Considering Rigid ALGENCAN ( ralm ) and the eight combinations of η and ζ for Elastic AL-GENCAN ( ealm ), we applied nine variants of ALGENCAN to the 774 CUTEst problems. Our first observation is that the nine variants behaved identically on 424 of the 774 problems. Therefore, the comparison that follows focuses on the remaining 350 problems. On these problems, with the exception of the two variants using ζ = 1, the other seven variants found between 164 and 167 points satisfying the KKT conditions. The variants with ζ = 1 found 93 stationary points when η = 0 .2 and 131 stationary points when η = 0 .3. With respect to finding feasible points, all nine variants found between 296 and 302 feasible points. Up to this stage, no substantial differences can be observed among the methods. The comparison in terms of finding a solution depends on the value chosen for ftol . Table 1 reports the results for values of ftol ranging from 10 −1 to 10 −8. For relatively loose tolerances, no significant differences can be observed among the methods. However, for ftol = 10 −8, for example, the difference between the variants using ζ ∈ { 1, 10 3} and those using ζ ∈ { 10 6, 10 12 } is approximately ten problems. In other words, the variants with smaller values of ζ find roughly ten fewer solutions than the other variants. ralm is consistently among the variants that find the largest number of solutions, regardless of the value of ftol . Overall, considering the criteria of finding stationary points, finding feasible points, and finding solutions, the ealm variants with η = 0 .3 exhibit a marginal advantage over those using 
+
+η = 0 .2. Among the ealm variants with η = 0 .3, those using ζ ∈ { 10 6, 10 12 } appear to exhibit a minor advantage over ralm .
+
+η ζ ftol 
+
+10 −1 10 −2 10 −3 10 −4 10 −5 10 −6 10 −7 10 −8
+
+> Elastic ALGENCAN
+
+0.21 289 287 281 274 269 265 255 233 10 3 288 284 280 275 270 262 246 234 10 6 291 286 279 277 272 263 250 240 10 12 290 286 279 277 273 264 251 241 0.31 291 290 281 273 267 261 252 234 10 3 290 286 280 275 270 261 248 235 10 6 292 288 281 279 274 265 252 242 
+
+10 12 291 287 280 278 274 265 252 242 
+
+Rigid ALGENCAN 290 286 279 277 273 264 251 241 Table 1: Number of solutions found by Rigid ALGENCAN ( ralm ) and Elastic ALGENCAN ( ealm )for different values of η and ζ, for varying values of ftol . For each column, the best performance is highlighted in boldface .If, motivated by their slightly superior robustness, we restrict the comparison to ralm and the ealm 
+
+variants with η = 0 .3 and ζ ∈ { 10 6, 10 12 }, the three methods behave identically on 745 of the 774 problems, leaving only 29 problems on which their performance differs. On these problems, they find essentially the same number of stationary points (either none or one), the same number of feasible points (between 11 and 13), and the same number of solutions (between 8 and 10). On 7 problems, all three methods find equivalent solutions. For each of these 7 problems, ealm with η = 0 .3 and ζ = 10 6 is the most efficient variant. On the other hand, for any value of ftol strictly greater than 10 −8, Table 1 shows 17 that there are no significant differences in the number of solutions found by the nine variants. Moreover, among the 350 problems on which the variants do not behave identically, there are 286 for which all nine variants find a solution. Figure 2 compares the efficiency of the nine variants on these 286 problems using profiles that consider, as performance measure, the number of objective function evaluations plus constraint evaluations performed by each method. The figure shows that all variants exhibit very similar efficiency, with a slight disadvantage for ealm with η = 0 .2 and ζ = 1 and, perhaps surprisingly, a slight advantage for ealm with η = 0 .3 and ζ = 1. 10 0 10 1 10 2 10 3 10 4 10 5 10 6
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+τ (log scale)         
+
+> Γa(τ )
+> ealm (0 .2,1)
+> ealm (0 .2,10 3)
+> ealm (0 .2,10 6)
+> ealm (0 .2,10 12 )
+> ealm (0 .3,1)
+> ealm (0 .3,10 3)
+> ealm (0 .3,10 6)
+> ealm (0 .3,10 12 )
+> ralm (ϵ−1mach )
+
+10 0 10 1 10 2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+κ (log scale)         
+
+> Γ( κ)
+> ealm (0 .2,1), Γ(1) = 0 .32
+> ealm (0 .2,10 3), Γ(1) = 0 .45
+> ealm (0 .2,10 6), Γ(1) = 0 .46
+> ealm (0 .2,10 12 ), Γ(1) = 0 .46
+> ealm (0 .3,1), Γ(1) = 0 .38
+> ealm (0 .3,10 3), Γ(1) = 0 .46
+> ealm (0 .3,10 6), Γ(1) = 0 .46
+> ealm (0 .3,10 12 ), Γ(1) = 0 .45
+> ralm (ϵ−1mach ), Γ(1) = 0 .46
+
+Figure 2: Comparison of the eight variants of Elastic ALGENCAN (denoted ealm (η, ζ )) and the default version of Rigid ALGENCAN (denoted ralm (ζ)), considering the 286 problems in which all nine methods found similar solutions. Absolute (top) and relative (bottom) performance profiles. At this point, it is clear that the performance of ealm is very similar to that of ralm and that ealm 
+
+is largely insensitive to the choice of η and ζ. A closer assessment of ealm with η = 0 .3 and ζ = 1 relative to ralm is depicted in Figure 3, considering the 173 problems for which the two methods found comparable solutions. These profiles indicate that there is a small yet perceptible benefit with ealm 
+
+over ralm .By contrast, we now consider ralm variants with ζ ∈ { 0, 1, 10 3, 10 6, 10 12 , ϵ −1mach }. The first corre-sponds to the pure quadratic penalty method, while the last corresponds to the default version of ralm .These six variants behave identically on only 50 of the 774 problems. Considering the remaining 724 problems, the variants with ζ = 0, ζ = 1, and ζ = 10 3 find 136, 309, and 457 stationary points, re-spectively, whereas each of the remaining variants finds 483 stationary points. The number of feasible points found across the six variants ranges from 662 to 670. Similarly, when ftol = 0 .1, the number of solutions found ranges from 648 to 654. For the 645 problems on which all six variants find a solution, their efficiency can be meaningfully compared. Figure 4 presents the corresponding performance profiles, revealing that ralm is more sensitive to the choice of safeguard bounds than ealm .18 10 0 10 1 10 2 10 3 10 4 10 5 10 6
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+τ (log scale)  
+
+> Γa(τ )
+> ealm (0 .3,1)
+> ralm (ϵ−1mach )
+
+10 0 10 1 10 2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+κ (log scale)  
+
+> Γ( κ)
+> ealm (0 .3,1), Γ(1) = 0 .50
+> ralm (ϵ−1mach ), Γ(1) = 0 .53
+
+Figure 3: Comparison of Elastic ALGENCAN with η = 0 .3 and ζ = 1 (denoted ealm (η, ζ )) and the default Rigid ALGENCAN (denoted ralm (ζ)), considering the 173 problems in which the two methods found similar solutions. Absolute (left) and relative (right) performance profiles. 
+
+# 6 Conclusions 
+
+In this work, we investigated elastic safeguarding in augmented Lagrangian methods (ALM) and studied it through the lens of ALGENCAN, a state-of-the-art solver against which its elastically safeguarded variant was compared. From a practical standpoint the main finding is that the elastic ALM achieves robustness and efficiency nearly indistinguishable from those of its rigidly safeguarded counterpart, while being largely insensitive to the choice of its parameters. The latter property is not shared by the rigid variant, whose performance deteriorates when small safeguarding bounds are used. The elastic ALM is therefore the preferable alternative. As illustrated in this paper, from a theoretical standpoint both methods share essentially the same global convergence and complexity guarantees when considering standard nonlinear optimization problems, confirming that the added flexibility of elastic safeguarding incurs no theoretical cost. In [9, § 6], it has been illustrated that, when restricting to fully convex optimization problems, the elastic ALM possesses some advantages over its rigid analogue. Thus, the elastic mechanism is recommended when implementing safeguarded ALMs. 
+
+# References 
+
+[1] R. Andreani, E. G. Birgin, J. M. Mart´ ınez, and M. L. Schuverdt. On augmented Lagrangian methods with general lower–level constraints. SIAM Journal on Optimization , 18(4):1286–1309, 2008. doi:10.1137/060654797. [2] R. Andreani, J. M. Mart´ ınez, A. Ramos, and P. J. S. Silva. A cone-continuity constraint qual-ification and algorithmic consequences. SIAM Journal on Optimization , 26(1):96–110, 2016. doi:10.1137/15M1008488. [3] D. P. Bertsekas. Constrained Optimization and Lagrange Multiplier Methods . Athena Scientific, 1996. [4] E. G. Birgin, R. A. Castillo, and J. M. Mart´ ınez. Numerical comparison of augmented Lagrangian algorithms for nonconvex problems. Computational Optimization and Applications , 31:31–55, 2005. doi:10.1007/s10589-005-1066-7. [5] E. G. Birgin, G. Haeser, N. Maculan, and L. M. Ramirez. On the global convergence of a general class of augmented Lagrangian methods. Journal of Optimization Theory and Applications , 206:57, 2025. doi:10.1007/s10957-025-02734-0. [6] E. G. Birgin and J. M. Mart´ ınez. Practical Augmented Lagrangian Methods for Constrained Opti-mization . SIAM, Philadelphia, 2014. doi:10.1137/1.9781611973365. [7] E. G. Birgin and J. M. Mart´ ınez. Complexity and performance of an augmented Lagrangian algorithm. Optimization Methods and Software , 35(5):885–920, 2020. doi:10.1080/10556788.2020.1746962. 19 10 0 10 1 10 2 10 3 10 4 10 5 10 6
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+τ (log scale) 
+
+> Γa(τ )
+> ralm (0)
+> ralm (1)
+> ralm (10 3)
+> ralm (10 6)
+> ralm (10 12 )
+> ralm (ϵ−1mach )
+
+10 0 10 1 10 2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+κ (log scale) 
+
+> Γ( κ)
+> ralm (0), Γ(1) = 0 .26
+> ralm (1), Γ(1) = 0 .45
+> ralm (10 3), Γ(1) = 0 .60
+> ralm (10 6), Γ(1) = 0 .69
+> ralm (10 12 ), Γ(1) = 0 .69
+> ralm (ϵ−1mach ), Γ(1) = 0 .69
+
+Figure 4: Comparison of six variants of Rigid ALGENCAN (denoted ralm (ζ)), including pure quadratic penalty ( ζ = 0), considering the 645 problems in which all six methods found similar solutions. Absolute (top) and relative (bottom) performance profiles. [8] A. R. Conn, N. I. M. Gould, and P. L. Toint. A globally convergent augmented Lagrangian algorithm for optimization with general constraints and simple bounds. SIAM Journal on Numerical Analysis ,28(2):545–572, 1991. doi:10.1137/0728030. [9] A. De Marchi, T. Hoheisel, and P. Mehlitz. Augmented Lagrangian methods for fully convex composite optimization, 2025, 2511.07117. [10] A. De Marchi, X. Jia, C. Kanzow, and P. Mehlitz. Constrained composite optimiza-tion and augmented Lagrangian methods. Mathematical Programming , 201(1):863–896, 2023. doi:10.1007/s10107-022-01922-4. [11] A. De Marchi and P. Mehlitz. Local properties and augmented Lagrangians in fully nonconvex com-posite optimization. Journal of Nonsmooth Analysis and Optimization , 5, 2024. doi:10.46298/jnsao-2024-12235. [12] E. D. Dolan and J. J. Mor´ e. Benchmarking optimization software with performance profiles. Math-ematical Programming , 91(2):201–213, 2002. doi:10.1007/s101070100263. [13] N. I. M. Gould, D. P. Orban, and P. L. Toint. CUTEst: a constrained and unconstrained testing environment with safe threads for mathematical optimization. Computational Optimization and Applications , 60(3):545–557, 2014. doi:10.1007/s10589-014-9687-3. [14] N. I. M. Gould and J. Scott. A note on performance profiles for benchmarking software. ACM Transactions on Mathematical Software , 43(2), 2016. doi:10.1145/2950048. [15] M. R. Hestenes. Multiplier and gradient methods. Journal of Optimization Theory and Applications ,4(5):303–320, 11 1969. doi:10.1007/BF00927673. [16] C. Kanzow, F. Kr¨ amer, P. Mehlitz, G. Wachsmuth, and F. Werner. Variational Poisson denoising via augmented Lagrangian methods. Electronic Transactions on Numerical Analysis , 63:33–62, 2025. doi:10.1553/etna vol63s33. 20 [17] C. Kanzow and D. Steck. An example comparing the standard and safeguarded augmented La-grangian methods. Operations Research Letters , 45(6):598–603, 2017. doi:10.1016/j.orl.2017.09.005. [18] M. J. D. Powell. A method for nonlinear constraints in minimization problems , pages 283–298. Academic Press, 1969. [19] R. T. Rockafellar. The multiplier method of Hestenes and Powell applied to convex programming. 
+
+Journal of Optimization Theory and Applications , 12(6):555–562, 1973. doi:10.1007/BF00934777. [20] R. T. Rockafellar. Augmented Lagrangians and applications of the proximal point algorithm in con-vex programming. Mathematics of operations research , 1(2):97–116, 1976. doi:10.1287/moor.1.2.97. [21] R. T. Rockafellar. Monotone operators and the proximal point algorithm. SIAM Journal on Control and Optimization , 14(5):877–898, 1976. doi:10.1137/0314056. [22] R. T. Rockafellar. Convergence of augmented Lagrangian methods in extensions beyond nonlinear programming. Mathematical Programming , 199(1):375–420, 2023. doi:10.1007/s10107-022-01832-5. [23] R. T. Rockafellar and R. J. Wets. Variational Analysis , volume 317. Springer, 1998. doi:10.1007/978-3-642-02431-3. 21

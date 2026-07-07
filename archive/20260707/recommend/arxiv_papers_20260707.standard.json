@@ -1,0 +1,197 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-07T21:49:50.138449+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2607.01169v2",
+      "source": "arxiv",
+      "title": "Vector-valued smoothing for finite Sidon sets",
+      "abstract": "Let $F(N)$ denote the largest cardinality of a Sidon subset of $\\{0,1,\\ldots,N-1\\}$. We prove \\[ F(N)\\le N^{1/2}+0.9435N^{1/4}+O(1). \\] The argument uses a vector-valued convolution inequality in which several smoothing kernels cooperate to produce a boundary majorant while their $L^2$ energies are averaged. For fixed kernels and mixing weights, the boundary optimization is a strictly convex quadratic program with an explicit dual. An eight-kernel numerical candidate is converted into a finite rational certificate and verified using exact arithmetic only.",
+      "authors": [
+        "Jianfeng Hou",
+        "Hongbin Zhao"
+      ],
+      "primary_category": "math.CO",
+      "categories": [
+        "math.CO"
+      ],
+      "published": "2026-07-01T16:59:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.01169v2",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Boundary optimization via convex quadratic programming applied to Sidon sets",
+      "llm_evidence_cn": "通过凸二次规划进行边界优化应用于Sidon集",
+      "llm_evidence": "通过凸二次规划进行边界优化应用于Sidon集",
+      "canonical_evidence": "通过凸二次规划进行边界优化应用于Sidon集",
+      "llm_tldr_en": "Improves the upper bound for Sidon sets by solving a boundary optimization problem via vector-valued smoothing and convex quadratic programming with exact arithmetic verification.",
+      "llm_tldr_cn": "本文利用向量值光滑化和凸二次规划求解边界优化问题，将Sidon集的最大基数F(N)的上界改进为N^{1/2}+0.9435N^{1/4}+O(1)。通过多个光滑核协作产生边界控制函数，并将其优化表述为严格凸的二次规划，然后利用有理数精确算术验证八核数值候选解，最终给出了严格证明。该工作展示了边界优化方法在加性组合学中的有效应用。",
+      "llm_tldr": "本文利用向量值光滑化和凸二次规划求解边界优化问题，将Sidon集的最大基数F(N)的上界改进为N^{1/2}+0.9435N^{1/4}+O(1)。通过多个光滑核协作产生边界控制函数，并将其优化表述为严格凸的二次规划，然后利用有理数精确算术验证八核数值候选解，最终给出了严格证明。该工作展示了边界优化方法在加性组合学中的有效应用。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "boundary optimization algorithms and their applications",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.05220v1",
+      "source": "arxiv",
+      "title": "A Transform Pair for Doubly Connected Domains",
+      "abstract": "A new transform-based technique that generalizes the unified transform method is developed for bounded doubly connected domains as a novel way to numerically solve boundary value problems for holomorphic functions and solutions to the Laplacian. This work builds on the transform methods for multiply connected circular domains developed by Crowdy (2015, IMA J., 80) and the methods for simply connected bounded domains developed by H., Lanzani, Llewellyn Smith, and Luca (2025, Proc. A, 481). The Szegö kernel of the annulus and a corresponding transformation law is pivotal in the derivation of this new technique. The modified Schwarz problem for two domains is implemented to demonstrate the effectiveness of this new method.",
+      "authors": [
+        "Jesse J. Hulse"
+      ],
+      "primary_category": "math.CV",
+      "categories": [
+        "math.CV"
+      ],
+      "published": "2026-07-06T15:34:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.05220v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "transform method numerically solves boundary value problems for doubly connected domains",
+      "llm_evidence_cn": "用于求解双连通域边界值问题的变换方法",
+      "llm_evidence": "用于求解双连通域边界值问题的变换方法",
+      "canonical_evidence": "用于求解双连通域边界值问题的变换方法",
+      "llm_tldr_en": "Develops a new transform technique for numerically solving boundary value problems in doubly connected domains, extending the unified transform method using the Szegö kernel of the annulus.",
+      "llm_tldr_cn": "针对双连通有界域中的边界值问题，提出一种新的基于变换的数值求解技术。该方法推广了统一变换法，并利用圆环的 Szegö 核和变换律实现。通过在修正 Schwarz 问题上的实现，验证了方法的有效性。该工作为多连通域中的拉普拉斯方程和全纯函数边界值问题提供了新的计算工具，对边界优化问题有直接应用价值。",
+      "llm_tldr": "针对双连通有界域中的边界值问题，提出一种新的基于变换的数值求解技术。该方法推广了统一变换法，并利用圆环的 Szegö 核和变换律实现。通过在修正 Schwarz 问题上的实现，验证了方法的有效性。该工作为多连通域中的拉普拉斯方程和全纯函数边界值问题提供了新的计算工具，对边界优化问题有直接应用价值。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.04571v1",
+      "source": "arxiv",
+      "title": "Likelihood-Ratio E-Value Monitoring for Benchmark-Based Decisions in Early-Phase Oncology Trials",
+      "abstract": "Early-phase oncology trials often require protocol-ready interim rules for deciding whether an experimental regimen shows sufficient activity relative to prespecified clinical benchmarks. Existing Bayesian optimal phase II designs provide calibrated count boundaries for such decisions, but evidence is quantified through posterior probabilities and sample-size-dependent cutoff functions. We propose calibrated e-value monitoring (CEVAM), a likelihood-ratio evidence framework that defines monitoring evidence directly relative to prespecified clinical benchmarks, without requiring a Bayesian analysis prior or sample-size-dependent posterior-probability cutoff functions. For a binary efficacy endpoint, CEVAM constructs efficacy and reverse-futility e-processes targeted to clinically meaningful benchmark rates and converts them into monotone response-count boundaries. We distinguish a fixed-threshold e-process version, which has an anytime-valid interpretation under optional monitoring, from planned-look calibrated versions designed for conventional finite-look phase II trials. In simulations based on binary benchmark settings used in existing posterior-cutoff phase II designs, the proposed tuned planned-look rule controlled the nominal type I error and achieved the smallest expected sample size across all evaluated settings while retaining similar rejection probabilities. In an application to an actual phase II breast cancer trial, CEVAM classified the reported pathological complete response result as sufficient evidence for early success stopping. Extensions to categorical and multicomponent endpoints are provided in the Supplementary Material. CEVAM offers an analysis-prior-free, protocol-ready likelihood-ratio evidence scale for binary benchmark monitoring in early-phase oncology trials.",
+      "authors": [
+        "Masahiro Kojima"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME"
+      ],
+      "published": "2026-07-06T00:46:37+00:00",
+      "link": "https://arxiv.org/pdf/2607.04571v1",
+      "tags": [
+        "keyword:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "calibrated e-value monitoring optimizes decision boundaries for clinical benchmarks",
+      "llm_evidence_cn": "校准的E值监测优化临床基准决策边界",
+      "llm_evidence": "校准的E值监测优化临床基准决策边界",
+      "canonical_evidence": "校准的E值监测优化临床基准决策边界",
+      "llm_tldr_en": "Develops calibrated e-value monitoring (CEVAM), a likelihood-ratio framework that constructs optimal efficacy and futility boundaries for early-phase oncology trials relative to prespecified benchmarks, avoiding Bayesian priors.",
+      "llm_tldr_cn": "针对早期肿瘤试验需要基于预设临床基准做出是否继续的判断，现有贝叶斯设计使用后验概率和样本量相关截断函数提供计数边界，但证据量化形式受限。本文提出校准E值监测（CEVAM）框架，利用似然比证据直接相对于基准定义监测边界，无需贝叶斯先验。该方法为二分类疗效终点构建了有效性和无效性边界，简化了试验决策过程，其贡献在于为边界优化决策提供了通用的证据框架。",
+      "llm_tldr": "针对早期肿瘤试验需要基于预设临床基准做出是否继续的判断，现有贝叶斯设计使用后验概率和样本量相关截断函数提供计数边界，但证据量化形式受限。本文提出校准E值监测（CEVAM）框架，利用似然比证据直接相对于基准定义监测边界，无需贝叶斯先验。该方法为二分类疗效终点构建了有效性和无效性边界，简化了试验决策过程，其贡献在于为边界优化决策提供了通用的证据框架。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "boundary optimization algorithms and their applications",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.02697v1",
+      "source": "arxiv",
+      "title": "Elastically safeguarded augmented Lagrangian methods",
+      "abstract": "We investigate, theoretically and numerically, a class of elastically safeguarded augmented Lagrangian methods for nonlinear optimization problems with inequality and equality constraints. Safeguarded augmented Lagrangian methods are known to exhibit substantially stronger global convergence guarantees than their non-safeguarded counterparts, making them attractive in practice. A persistent limitation, however, is that existing methods rely on a fixed safeguard, whose a priori selection can be difficult and inherently limits adaptivity, e.g., with respect to problem scaling. We propose an adaptive safeguarding mechanism that allows the safeguard to grow dynamically, overcoming these drawbacks while preserving the desirable global convergence properties of variants with a fixed safeguard. We further establish complexity bounds in terms of worst-case iteration counts. Numerical experiments comparing ALGENCAN, a state-of-the-art solver with rigid safeguard, against an elastically safeguarded variant thereof confirm that elastic safeguarding yields consistent practical benefits.",
+      "authors": [
+        "Ernesto G. Birgin",
+        "Alberto De Marchi",
+        "Patrick Mehlitz"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2026-07-02T18:38:43+00:00",
+      "link": "https://arxiv.org/pdf/2607.02697v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive safeguarded augmented Lagrangian for optimization under constraints",
+      "llm_evidence_cn": "适用于约束优化的自适应保护增广拉格朗日方法",
+      "llm_evidence": "适用于约束优化的自适应保护增广拉格朗日方法",
+      "canonical_evidence": "适用于约束优化的自适应保护增广拉格朗日方法",
+      "llm_tldr_en": "Proposes elastically safeguarded augmented Lagrangian methods with adaptive safeguard growth for nonlinear constrained optimization, improving global convergence.",
+      "llm_tldr_cn": "针对非线性约束优化问题，提出一种弹性保护增广拉格朗日方法，通过自适应调整保护参数克服固定保护的局限性，改善全局收敛性能。现有 safeguarded augmented Lagrangian 方法依赖固定保护参数，难以适应问题缩放。本文提出一种弹性保护机制，允许保护参数动态增长，在保持全局收敛性的同时增强适应性。理论分析和数值实验验证了方法的有效性。对于边界约束优化等实际问题，该方法提供了更鲁棒的求解工具。",
+      "llm_tldr": "针对非线性约束优化问题，提出一种弹性保护增广拉格朗日方法，通过自适应调整保护参数克服固定保护的局限性，改善全局收敛性能。现有 safeguarded augmented Lagrangian 方法依赖固定保护参数，难以适应问题缩放。本文提出一种弹性保护机制，允许保护参数动态增长，在保持全局收敛性的同时增强适应性。理论分析和数值实验验证了方法的有效性。对于边界约束优化等实际问题，该方法提供了更鲁棒的求解工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.05183v1",
+      "source": "arxiv",
+      "title": "Adaptive direct search algorithms with relaxable and quantifiable constraints",
+      "abstract": "This work introduces ADS-PB, an extension of the Adaptive Direct Search (ADS) framework for solving constrained blackbox optimization problems. With ADS, iterates progress without relying on mesh structures or sufficient decrease conditions on the objective function value. Unlike the extreme barrier approach used in ADS, where only unrelaxable constraints are considered, the proposed method also handles quantifiable and relaxable constraints using a Progressive Barrier (PB) mechanism that exploits both constraint and objective function values. A convergence analysis of the proposed framework under mild assumptions is presented. The performance of the proposed method is assessed using sets of analytical and simulation-based constrained test problems and is compared with state-of-the-art blackbox optimization solvers, including the PB approach within the Mesh Adaptive Direct Search (MADS) framework.",
+      "authors": [
+        "Charles Audet",
+        "Théo Denorme",
+        "Youssef Diouane",
+        "Sébastien Le Digabel",
+        "Christophe Tribes"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2026-07-06T15:00:40+00:00",
+      "link": "https://arxiv.org/pdf/2607.05183v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "ADS-PB handles boundary constraints via a Progressive Barrier mechanism in constrained blackbox optimization.",
+      "llm_evidence_cn": "ADS-PB通过渐进障碍机制处理边界约束进行约束黑盒优化",
+      "llm_evidence": "ADS-PB通过渐进障碍机制处理边界约束进行约束黑盒优化",
+      "canonical_evidence": "ADS-PB通过渐进障碍机制处理边界约束进行约束黑盒优化",
+      "llm_tldr_en": "Extends the Adaptive Direct Search framework with a Progressive Barrier to handle relaxable and quantifiable constraints, enabling efficient constrained blackbox optimization with proven convergence.",
+      "llm_tldr_cn": "提出ADS-PB算法，通过渐进障碍机制处理可量化和可放松的约束，克服了传统极端障碍法仅能处理不可放松约束的局限。该算法适用于仿真和解析约束黑盒问题，收敛性在温和假设下得到分析，并在基准测试集上展现出竞争性能，为边界约束优化提供了实用的无导数求解工具。",
+      "llm_tldr": "提出ADS-PB算法，通过渐进障碍机制处理可量化和可放松的约束，克服了传统极端障碍法仅能处理不可放松约束的局限。该算法适用于仿真和解析约束黑盒问题，收敛性在温和假设下得到分析，并在基准测试集上展现出竞争性能，为边界约束优化提供了实用的无导数求解工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
