@@ -1,0 +1,1816 @@
+Title: Stability Annealing Selects the Implicit Bias of Smoothed Sign Descent: A Rate-Indexed Barrier Path on Separable Data
+
+URL Source: https://arxiv.org/pdf/2607.06013v1
+
+Published Time: Wed, 08 Jul 2026 00:43:31 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# Stability Annealing Selects the Implicit Bias of Smoothed Sign Descent: A Rate-Indexed Barrier Path on Separable Data 
+
+## Xiangwu Wang 1, Chengwei Cao 2, Yicheng Song 3, Ran Bi 1, Peilin Yu 1
+
+> 1
+
+The University of Hong Kong 
+
+> 2
+
+University of California, San Diego 
+
+> 3
+
+Beijing University of Aeronautics and Astronautics 
+
+Abstract 
+
+Adaptive gradient methods can favor max-margin separators that differ from gradient descent, yet a fixed positive nu-merical stability constant eventually changes the update ge-ometry again. This paper studies the rate-controlled middle case for full-batch linear classification on separable data. For memoryless stability-annealed smoothed-sign descent with weighted exponential loss, we prove that the normalized it-erates converge to the minimizer of a convex Burg-type bar-rier over a margin slice. The proof rewrites the dynamics exactly as entropic mirror ascent on a concave dual objective, controls the dual gap by a KL recursion, and yields an ex-plicit S−1/2 
+
+> t
+
+normalized-iterate envelope. The static barrier geometry is fully characterized, including KKT conditions and both endpoint limits. Experiments validate the exact dual identities to floating-point error, illustrate the predicted path and rate diagram, and show an empirical fixed-ϵ crossover scaling in cumulative time. We further report robustness and boundary diagnostics for logistic tails, fixed-ϵ crossover, and adaptive-method variants, delineating the scope of the proved smoothed-sign theory. 
+
+## Introduction 
+
+Implicit bias results for separable classification usually com-pare endpoints: gradient descent converges in direction to an 
+
+ℓ2-margin separator, while sign-like, normalized, and adap-tive methods are linked to non-Euclidean or ℓ∞-type geom-etry (Soudry et al. 2018; Nacson, Srebro, and Soudry 2019; Lyu and Li 2020; Kingma and Ba 2015; Wilson et al. 2017; Zhang, Zou, and Cao 2024; Fan, Schmidt, and Thrampoulidis 2025). The numerical stability constant in Adam-like updates complicates that endpoint story. When the stability term is absent or negligible, the update resembles a sign direction. When it is fixed and positive, sufficiently small gradients eventually see a more gradient-descent-like denominator. The motivating contradiction is that both endpoints are plau-sible, but neither specifies what separator is selected when the stability term is deliberately annealed at a prescribed exponential rate. We study this question first for the memoryless smoothed-sign proxy 
+
+wt+1 = wt + ηt
+
+−∇ L(wt)
+
+|∇ L(wt)| + ϵt
+
+, ϵt = ϵ0 exp( −κS t),
+
+(1) −1.0 −0.5 0.0 0.5 1.0   
+
+> u1
+> −1.00
+> −0.75
+> −0.50
+> −0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> u2
+> v2direction
+> feasible slice: γ(u) ≥ 0.5 γ∞
+> Rate-indexed barrier path
+> u∞
+> 0.1
+> 0.5
+> 0.9
+> κ/γ∞
+
+Figure 1: Two-dimensional barrier geometry. Contours show the Burg-type barrier, the shaded region is one feasible mar-gin slice, markers are uκ colored by κ/γ ∞, the arrow shows the small-κ Euclidean direction, and the star is the ℓ∞-margin endpoint. The selected dataset is illustrative only and is ex-cluded from aggregate statistics. where St = Pt−1 
+
+> s=0
+
+ηs, and absolute values and divisions are coordinatewise. Equation (1) removes Adam’s exponential moving averages while retaining the coordinatewise compe-tition between gradient magnitude and stability. The central object is not a generic transition curve. It is the rate-indexed constrained barrier path shown in Figure 1. This paper makes four contributions. First, it gives an ex-act rate-indexed implicit-bias theorem for stability-annealed smoothed-sign descent under weighted exponential loss. Sec-ond, it identifies the limiting separator as a Burg-barrier minimizer over a margin slice and characterizes the end-point geometry. Third, it proves convergence through an ex-act entropic mirror-ascent representation and a KL recur-sion. Fourth, it reports theorem-compatible numerical diag-nostics, including floating-point dual residuals and a long-horizon showcase, together with boundary diagnostics for logistic tails, fixed-ϵ crossover, and adaptive-method vari-arXiv:2607.06013v1 [cs.LG] 7 Jul 2026 ants. The scope is precise: the theorem is for exponential-loss smoothed-sign dynamics, logistic behavior is empirical, the critical rate κ = γ∞ remains outside Theorem 1, and Adam/RMSProp are boundary diagnostics rather than theo-rem claims. 
+
+## Related Work and Problem Setup 
+
+For separable linear classification, exponential or logistic tails make unregularized gradient descent diverge in norm while its direction approaches the ℓ2 hard-margin sepa-rator (Soudry et al. 2018; Nacson et al. 2019b); boost-ing and margin-path analyses connect such tails, shrink-age, and relaxed constraints to margin maximization (Rosset, Zhu, and Hastie 2004; Telgarsky 2013). Nonseparable and regularization-path results extend this picture for general de-creasing losses (Ji and Telgarsky 2019; Ji et al. 2020). We use this literature for the baseline lesson that exponential tails select margin geometry without explicit regularization. Which margin geometry appears depends on the update. Steepest- and mirror-descent views tie the separator to the norm or potential defining the algorithm (Gunasekar et al. 2018; Beck and Teboulle 2003), and generalized-margin or mirror-flow analyses make this dependence explicit on sep-arable data (Sun et al. 2022; Pesme, Dragomir, and Flam-marion 2024). Homogeneous and wide-network analyses likewise show that margin or KKT-type limits can depend on architecture, parameterization, and function-space geom-etry (Nacson et al. 2019a; Chizat and Bach 2020; Vardi, Shamir, and Srebro 2021; Lyu et al. 2021). We use stan-dard convex-duality and Bregman tools (Rockafellar 1970; Bregman 1967); the new object is the rate-indexed selector induced by stability annealing, not a new barrier. Adaptive and sign-like methods motivate the opposing endpoint. AdaGrad and Adam use coordinatewise scaling (Duchi, Hazan, and Singer 2011; Kingma and Ba 2015); adaptive methods can generalize differently from SGD, and AMSGrad addresses Adam convergence pathologies (Wil-son et al. 2017; Reddi, Kale, and Kumar 2018). Sign-based optimization isolates the coordinatewise sign geometry be-hind our memoryless proxy (Bernstein et al. 2018; Balles and Hennig 2018), while Adam/AdaGrad convergence anal-yses in smooth bounded-gradient settings address a com-plementary optimization question (Défossez et al. 2020). Work on AdaGrad, adaptive methods on homogeneous net-works, finite-step Adam/RMSProp, and Adam on separable data shows optimizer-dependent implicit bias, including ℓ∞-margin behavior (Qian and Qian 2019; Wang et al. 2021; Cattaneo, Klusowski, and Shigida 2024; Zhang, Zou, and Cao 2024). We cite Fan, Schmidt, and Thrampoulidis (2025) only as normalized/spectral/Muon context, not as an Adam theorem. Most closely, Wang and Klabjan (2025) study smoothed sign descent with a fixed stability constant through a mirror-descent lens, giving dual dynamics and a Bregman/KKT interpretation for fixed-ε regression. Our theorem instead studies separable classification with ϵt = ϵ0e−κS t , where 
+
+κ acts as a margin constraint. The transformed dynamics is exactly entropic mirror ascent on a concave dual objective, and the primal limit is the Burg-barrier minimizer over Zu ≥
+
+κ1. The contribution is therefore a rate-indexed implicit-bias theorem, not another fixed-ε smoothed-sign interpretation. Let zi = yixi ∈ Rd be signed examples. We write 
+
+γ(u) = min  
+
+> i∈[n]
+
+z⊤ 
+
+> i
+
+u, γ∞ = max  
+
+> ∥u∥∞≤1
+
+γ(u). (2) Here γ(wt) is the raw margin of the iterate, while γ(wt/S t)
+
+and γ(wt/∥wt∥∞) are normalized margins on different scales. Throughout, t-time denotes iteration count and St-time denotes cumulative learning-rate time. The experiments compare trajectories primarily in St-time because the stabil-ity schedule is defined through St.
+
+Static assumptions. The barrier program uses only the signed examples zi = yixi, separability in the ℓ∞ sense 
+
+γ∞ > 0, and an interior rate 0 < κ < γ ∞. The margin func-tion and max-margin value are those in (2). The cumulative time and annealed stability are 
+
+St =
+
+> t−1
+
+X
+
+> s=0
+
+ηs, ϵt = ϵ0 exp( −κS t). (3) These assumptions are sufficient for the static convex pro-gram and endpoint statements below. They do not assert dynamic convergence of the iterates. 
+
+Dynamic theorem assumptions. The exact dynamic theo-rem is stated for weighted exponential loss 
+
+L(w) = 
+
+> n
+
+X
+
+> i=1
+
+aie−z⊤ 
+
+> iw
+
+, ai > 0. (4) It assumes ηt > 0, St → ∞ , P 
+
+> t
+
+η2 
+
+> t
+
+< ∞, and 
+
+ηtG ≤ 1, G = max  
+
+> i
+
+(κ + ∥zi∥1). (5) The initialization w0 is arbitrary but finite. No active-set regularity, residual-prefactor convergence, coordinate non-cancellation, bounded normalized iterate assumption, dual multiplier uniqueness, strict complementarity, or generic-position condition is imposed. Logistic loss is evaluated only as an empirical robustness extension unless a separate per-turbation theorem is proved. 
+
+Procedure. The memoryless stability-annealed update used throughout the main experiments is: 1. choose w0, stepsizes ηt > 0, ϵ0 > 0, and 0 < κ < γ ∞;2. compute St and ϵt from (3); 3. evaluate the full-batch gradient ∇L(wt);4. update wt+1 = wt + ηt(−∇ L(wt)) /(|∇ L(wt)| + ϵt)
+
+coordinatewise. For completeness we also record the full-batch Adam con-vention tested in the transfer experiment: 
+
+mt = β1mt−1 + (1 − β1)∇L(wt), (6) with second-moment accumulator 
+
+vt = β2vt−1 + (1 − β2)∇L(wt)⊙2, (7) with update 
+
+wt+1 = wt − ηt
+
+mt
+
+√vt + ϵt
+
+. (8) Bias-corrected and uncorrected variants are both evaluated. Equations (6), (7), and (8) are used only for empirical transfer diagnostics in this paper. The smoothed-sign proxy can also be read as an interpo-lating coordinate map. If |∇ j L(wt)| ≫ ϵt, the jth update is close to a sign step. If |∇ j L(wt)| ≪ ϵt, it is close to a scaled gradient step. The annealing rate therefore asks which coordinates cross this comparison at the same exponential scale as the margin tail. The barrier program below is the static object obtained when this coordinatewise comparison is compatible across all active support vectors. 
+
+## Rate-Indexed Barrier Geometry 
+
+Barrier Properties 
+
+For u ∈ (−1, 1) d, define 
+
+B(u) = 
+
+> d
+
+X
+
+> j=1
+
+[−| uj | − log(1 − | uj |)] . (9) Let b(r) = −r − log(1 − r) for r ∈ [0 , 1) . Then 
+
+b′(r) = r
+
+1 − r , b′′ (r) = 1(1 − r)2 . (10) Thus b(0) = 0 , b is nonnegative, and b is increasing and strictly convex away from the origin. The vector barrier is differentiable at zero because the one-sided coordinate derivatives agree there. For every coordinate, 
+
+[∇B(u)] j = uj
+
+1 − | uj | . (11) Moreover, B is convex and 1-strongly convex on the open cube in the Euclidean sense. The coordinate second deriva-tive away from zero is 1/(1 − | uj |)2, and the lower bound by 
+
+1 extends through the origin by convexity. 
+
+Well-posedness and KKT 
+
+Let Z be the matrix with rows z⊤ 
+
+> i
+
+. The static candidate at rate 0 < κ < γ ∞ is 
+
+uκ = arg min 
+
+> u∈(−1,1) d
+
+B(u) s.t. z⊤ 
+
+> i
+
+u ≥ κ ∀i. (12) 
+
+Proposition 1 (Well-posedness and KKT). Under separa-bility with γ∞ > 0 and 0 < κ < γ ∞, program (12) attains a unique minimizer uκ. It satisfies γ(uκ) = κ, so at least one margin constraint is active. There are multipliers λi ≥ 0
+
+such that 
+
+Zu κ ≥ κ1, λ ≥ 0,λi(z⊤ 
+
+> i
+
+uκ − κ) = 0 , ∇B(uκ) = Z⊤λ. (13) Conversely, any feasible point satisfying (13) is the unique minimizer. 
+
+Proof idea. Let u∞ maximize γ over ∥u∥∞ ≤ 1. Since 
+
+0 < κ < γ ∞, the inward scaling ˜u = 12 (1 + κ/γ ∞)u∞
+
+is strictly feasible and lies in the open cube. Minimize the extended-value version of B, equal to +∞ on the boundary, over the compact closed feasible set {u : ∥u∥∞ ≤ 1, Zu ≥
+
+κ1}. The strict feasible point makes the infimum finite, and divergence at |uj | = 1 forces any optimizer into the open cube. Strict convexity gives uniqueness. Slater’s condition gives KKT necessity, and convexity gives KKT sufficiency. Finally, if γ(uκ) > κ , then αu κ, with α = κ/γ (uκ) ∈ (0 , 1) ,remains feasible and has smaller barrier value along the ray from the origin. This contradiction proves γ(uκ) = κ. KKT multipliers need not be unique when active examples are linearly dependent, but the primal minimizer is unique. 
+
+Endpoint Geometry 
+
+Let 
+
+v2 = arg min 
+
+> v
+
+12 ∥v∥22 s.t. z⊤ 
+
+> i
+
+v ≥ 1 ∀i. (14) Also let U∞ = arg max ∥u∥∞≤1 γ(u).
+
+Proposition 2 (Static endpoints). As κ ↓ 0,
+
+uκ/κ → v2 (15) As κ ↑ γ∞,
+
+dist( uκ, U ∞) → 0. (16) If U∞ = {u∞}, then 
+
+uκ → u∞. (17) 
+
+Proof idea. For the small-rate endpoint, set u = κv . The barrier expansion gives 
+
+B(κv ) = κ2
+
+2 ∥v∥22 + O(κ3∥v∥3), (18) uniformly on bounded v-sets. Comparing the optimizer with 
+
+κv 2 bounds uκ/κ , and every subsequential limit solves the Euclidean hard-margin problem (14). For the upper end-point, compactness of the closed cube gives convergent sub-sequences as κ ↑ γ∞. Passing the inequalities Zu κ ≥ κ1
+
+to the limit places every cluster point in U∞, which gives set-valued convergence. A singleton U∞ gives the pointwise limit in (17). Without uniqueness, the correct statement is (16); the data do not specify a single named u∞ without an additional tie-breaking rule. The critical case κ = γ∞
+
+remains excluded from the open-domain path. 
+
+## Dual Mirror Ascent Gives the Path 
+
+The dynamic theorem avoids active-set asymptotics by changing variables. Define the scaled potential Φ( u) =
+
+ϵ0B(u). Its conjugate is 
+
+Φ⋆(q) = 
+
+> d
+
+X
+
+> j=1
+
+
+
+|qj | − ϵ0 log 
+
+
+
+1 + |qj |
+
+ϵ0
+
+ 
+
+,
+
+∇Φ⋆(q) = q
+
+|q| + ϵ0
+
+.
+
+(19) The equality holds coordinatewise, including value zero when qj = 0 . The corresponding concave dual objective is 
+
+D(λ) = κ1⊤λ − Φ⋆(Z⊤λ), λ ≥ 0. (20) Strong duality holds for the static program with Φ. Dual multipliers may be nonunique, but all dual optimizers have the same image 
+
+qκ = Z⊤λ⋆ = ∇Φ( uκ) = ϵ0
+
+uκ
+
+1 − | uκ| . (21) Theorem 1 (Discrete smoothed-sign convergence). As-sume 0 < κ < γ ∞, the weighted exponential loss (4), the schedule (3), and the stepsize conditions (5) with ηt > 0,
+
+St → ∞ , and P 
+
+> t
+
+η2 
+
+> t
+
+< ∞. Then the memoryless smoothed-sign iterates (1) satisfy 
+
+wt
+
+St
+
+→ uκ, eκS t (−∇ L(wt)) → qκ, dt → uκ,
+
+(22) where dt = ( −∇ L(wt)) /(|∇ L(wt)| + ϵt). Moreover, for finite constants CΦ, C D ,
+
+wt
+
+St
+
+− uκ
+
+> 2
+
+≤ ∥w0∥2
+
+St
+
++
+
+r CΦCD
+
+St
+
+. (23) Consequently γ(wt/S t) → κ, with a finite-time margin bound obtained by multiplying (23) by max i ∥zi∥2.
+
+Principal proof chain. Introduce the exact dual variables 
+
+λi,t = ai exp( κS t − z⊤ 
+
+> i
+
+wt). (24) Then 
+
+eκS t (−∇ L(wt)) = Z⊤λt, dt = ∇Φ⋆(Z⊤λt), (25) and the primal update is equivalent to 
+
+λt+1 = λt ⊙ exp( ηt∇D(λt)) . (26) Thus the dynamics is entropic mirror ascent on (20). Fix any dual optimizer λ⋆. Let 
+
+Vt = X
+
+> i
+
+
+
+λ⋆i log λ⋆i
+
+λi,t 
+
+− λ⋆i + λi,t 
+
+
+
+,
+
+∆t = D⋆ − D(λt).
+
+(27) The update (26) gives the exact one-step identity 
+
+Vt+1 − Vt = ηt⟨λt − λ⋆, ∇D(λt)⟩
+
++ X
+
+> i
+
+λi,t 
+
+h
+
+eηt∇iD(λt) − 1 − ηt∇iD(λt)
+
+i
+
+.
+
+(28) Concavity gives the first term at most −ηt∆t. Since 
+
+∥∇ D(λ)∥∞ ≤ G, ηtG ≤ 1 and ex − 1 − x ≤ (e/ 2) x2
+
+imply 
+
+Vt+1 − Vt ≤ − ηt∆t + e
+
+2 η2 
+
+> t
+
+G2∥λt∥1. (29) The scalar inequality 
+
+∥λ∥1 ≤ 2Dh(λ⋆, λ ) + 2 log 2 ∥λ⋆∥1 (30) controls the noncompact positive orthant, including zero co-ordinates of λ⋆. Since P 
+
+> t
+
+η2 
+
+> t
+
+< ∞, (29) and (30) imply 
+
+sup t Vt < ∞, sup t ∥λt∥1 < ∞, and 
+
+X
+
+> s<t
+
+ηs∆s ≤ CD . (31) The dual gap controls the unique primal direction. Using KKT and Fenchel equality, 
+
+∆t = DΦ⋆ (Z⊤λt, q κ) + λ⊤ 
+
+> t
+
+(Zu κ − κ1). (32) The feasibility term is nonnegative. Bounded dual mass places Z⊤λt in a compact box where Φ⋆ is uniformly strongly convex, while ∇Φ⋆ is globally 1/ϵ 0-Lipschitz. Hence 
+
+∥dt − uκ∥22 ≤ CΦ∆t. (33) Finally, 
+
+wt = w0 + X
+
+> s<t
+
+ηsds. (34) Jensen’s inequality, (31), and (33) give (23). A spike-exclusion lemma using |∆t+1 − ∆t| ≤ Cη t upgrades the averaged control to ∆t → 0, yielding the last two limits in (22). Complete constants and the spike lemma are in the appendix. 
+
+Rate diagram scope. Theorem 1 proves the interior regime 
+
+0 < κ < γ ∞ for weighted exponential loss. The endpoint regimes κ = 0 and κ > γ ∞, logistic-loss perturbations, and the critical case κ = γ∞ are not included in the theorem. Experiments below keep those diagnostics separate. 
+
+## Adam as a Boundary Case 
+
+Perturbation lemma. The deterministic lemma behind this diagnostic is simple. If 
+
+xt+1 = xt + ηtdt, yt+1 = yt + ηt(dt + et), (35) with x0 = y0, and 
+
+1
+
+St
+
+X
+
+> s<t
+
+ηs∥es∥ → 0, (36) then ∥xt − yt∥
+
+St
+
+→ 0. (37) Indeed, the triangle inequality gives ∥xt − yt∥ ≤P 
+
+> s<t
+
+ηs∥es∥. This makes the Adam-transfer residual scien-tifically relevant: it is the empirical version of (36). However, E3 did not satisfy the required small averaged residual con-dition under the prespecified runs. Adam therefore remains a documented empirical boundary case, not part of the main claim or title. 
+
+E3 transfer diagnostic. The broad Adam-transfer target re-quired 
+
+1
+
+St
+
+X
+
+> s<t
+
+ηs
+
+−ms
+
+√vs + ϵs
+
+− −∇ L(ws)
+
+|∇ L(ws)| + ϵs
+
+→ 0. (38) If (38) held under the same assumptions as Theorem 1, the perturbation lemma would transfer the smoothed-sign limit. The prespecified E3 experiments did not support (38) under the tested schedules, so no Adam theorem is claimed. 
+
+## Fixed-ϵ Crossover 
+
+Definition and numerical target. For fixed ϵ > 0, define the primary transition 
+
+τϵ(c) = min {t : ∥ − ∇ L(wt)∥∞ ≤ cϵ }, c ∈ { 0.5, 1, 2}.
+
+(39) The target law is 
+
+Sτϵ(c)/ log(1 /ϵ ) → 1/γ ∞. (40) Equation (40) is numerically supported; the upper and lower proof bounds for the fixed-ϵ dynamics remain open. For clarity, τϵ(c) in (39) is a gradient threshold for the fixed-ϵ memoryless smoothed-sign dynamics. It is not an Adam second-moment threshold and does not involve √vt.
+
+Conditional crossover implication. Suppose that, uniformly up to the transition window, 
+
+c0e−γ∞St ≤ ∥ − ∇ L(wt)∥∞ ≤ Ce −γ∞St . (41) Then the threshold relation ∥−∇ L(wt)∥∞ ≤ cϵ occurs only after the lower bound can fall below cϵ , and occurs once the upper bound falls below cϵ . Thus, up to the St-mesh, 
+
+1
+
+γ∞
+
+log 1
+
+ϵ + 1
+
+γ∞
+
+log c0
+
+c ≤ Sτϵ(c) ≤ 1
+
+γ∞
+
+log 1
+
+ϵ + 1
+
+γ∞
+
+log Cc .
+
+(42) For fixed c, this implies 
+
+Sτϵ(c) = 1
+
+γ∞
+
+log 1
+
+ϵ + O(1) , Sτϵ(c)
+
+log(1 /ϵ ) → 1
+
+γ∞
+
+. (43) This is a conditional implication, not a proved tail bound. 
+
+Proof gap. The unresolved obstacles are changes in the lead-ing coordinate and lack of uniform tail bounds up to the transition time. 
+
+## Experiments 
+
+Protocol and Metrics 
+
+The primary evidence uses only saved outputs generated from deterministic seeds, float64 arithmetic, numerical separabil-ity checks, positive exponential-loss weights, configuration hashes, solver-status logging, and KKT residual reporting. Figures are generated from saved data with metadata side-cars; plotted values are not edited by hand. The illustrative two-dimensional dataset in Figure 1 is excluded from all aggregate statistics. The theorem-compatible validation suite uses three syn-thetic families: isotropic random separable data, controlled-support-vector data, and correlated ill-conditioned data. The aggregate grid has n = 4 d, d ∈ { 10 , 25 , 50 , 100 }, twenty unfiltered seeds per setting, weights ai = 1 and bounded log-uniform positive weights, and 
+
+κ/γ ∞ ∈ { 0.10 , 0.25 , 0.50 , 0.75 , 0.90 }.
+
+The primary schedule is ηt = η0(t + t0)−0.75 with η0 =0.5/G , so ηtG ≤ 0.5, St → ∞ , and P 
+
+> t
+
+η2 
+
+> t
+
+< ∞. Secondary theorem-compatible powers 0.60 and 0.90 are used only for schedule checks. The numerical barrier solve uses the open-domain proxy 
+
+|uj | ≤ 1 − δ, δ = 10 −7. (44) Convex-program failures are retained in the output and sep-arated from dynamic path errors; only successful barrier solves are used as primary evidence for Theorem 1. The main theorem diagnostics are evaluated at multiple cumulative-time checkpoints. We report 
+
+Eabs (t) = wt
+
+St
+
+− uκ
+
+> 2
+
+, Ed(t) = ∥dt − uκ∥2, (45) along with 
+
+Eq (t) = eκS t (−∇ L(wt)) − qκ 2 ,Eγ (t) = γ
+
+ wt
+
+St
+
+
+
+− κ . (46) The relative and angular errors are reported in the appendix. The exact dual-transformation residuals are 
+
+rq (t) = eκS t (−∇ L(wt)) − Z⊤λt 2 ,rλ(t) = ∥log λt+1 − log λt − ηt∇D(λt)∥∞ . (47) For the fixed-ϵ crossover, each threshold family fits 
+
+Sτϵ(c) = b0 + b1 log(1 /ϵ ), ρcross = b1
+
+1/γ ∞
+
+= b1γ∞.
+
+(48) The reported crossover slope ratio ρcross should be close to one under the empirical scaling law. 
+
+Direct Validation of Theorem 1 
+
+The primary run completed all 3200 dynamic trajectories and obtained 2716 successful barrier targets. Panels (a,b) therefore emphasize breadth: the aggregate distribution is shown across successful theorem-compatible targets rather than through a selected seed. The remaining 484 primary records are retained as numerical barrier-boundary cases and are excluded from the theorem-evidence aggregation. Exact dual residuals remain at floating-point scale. Panels (c,d) add depth using the separate long-horizon showcase. That run attempted 90 theorem-compatible con-figurations, retained one failed barrier solve, and used the 
+
+89 successful targets for evidence panels. The saved horizon extends the maximum cumulative time from St = 1 .09 in the primary grid to St = 4 .38 , and the final/first diagnos-tic factors and replicate-level normalized-margin movements continue to point in the theorem-predicted direction over that finite window. The certified finite-time constants remain con-servative and are treated as an appendix envelope diagnostic. We do not claim that the empirical rate is S−1/2 
+
+> t
+
+or that the proof constants are sharp. 
+
+Mechanism Diagnostics 
+
+Figure 3 tests whether the observed path behavior is tied to the annealing clock and target geometry rather than only to post-hoc fitting. The exponential St-schedule is the ref-erence; alternatives are compared by paired finite-window error ratios. The ϵ0 panel shows target invariance with finite-window speed differences and partial shifted-time alignment. The family/rate panel is a robustness scorecard. The square-root smoothing-map cross-fit is mixed and remains in the appendix as a boundary diagnostic; no square-root-map the-orem is claimed. 
+
+Fixed-ϵ Crossover 
+
+The crossover suite uses d ∈ { 10 , 25 , 50 }, all three syn-thetic families, twenty seeds, ϵ ∈ { 10 −2, 10 −3, . . . , 10 −12 },
+
+c ∈ { 0.5, 1, 2}, and powers a ∈ { 0.25 , 0.50 , 0.75 }. Thresh-olds were reached in 99 .23% of saved transition records. The 0.08 0.14 0.26 0.52  
+
+> checkpoint mean St
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> Epc  = ‖ wt/St − uκ‖2/√ d
+
+(a) Normalized iterate error, N = 2716              
+
+> median
+> 0.08 0.14 0.26 0.52
+> checkpoint mean St
+> 10 −16
+> 10 −15
+> 10 −14
+> 10 −13
+> exact identity residual  max rq= 3.5 e− 13
+> max rel. rq= 6.7 e− 16
+> max rλ= 4.7 e− 15
+
+(b) Exact dual algebra residuals    
+
+> rq
+> rλ
+> 0.03 0.10 0.30 1.0
+> final / first checkpoint factor
+> Epc
+> Ed
+> Eq
+
+(c) 
+
+> median 0.43
+> median 0.19
+> median 0.07
+> left of 1 indicates progress
+
+Long-horizon improvement factors    
+
+> 0.25 0.50 0.75
+> predicted κ/γ∞
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> observed  γ(wt/St)/ γ∞
+
+(d) Replicate margin movement 
+
+> identity
+> first checkpoint
+> final checkpoint
+
+Figure 2: Theorem validation dashboard. All panels use theorem-compatible weighted exponential loss, 0 < κ < γ ∞, square-summable schedules, and ηtG ≤ 0.5. Panels (a,b) use the primary aggregate suite with 2716 successful barrier targets: panel (a) displays the distribution of Epc = Eabs /√d rather than a selected seed, and panel (b) checks exact dual algebra residuals rq and 
+
+rλ at floating-point scale. Panels (c,d) use the saved 89 -target long-horizon showcase without additional runs: panel (c) reports final-over-first improvement-factor distributions for Epc , Ed, and Eq , where values below 1 indicate finite-window progress, and panel (d) overlays replicate-level first/final normalized margins with median movement arrows against the predicted κ/γ ∞
+
+identity line. No sharp empirical rate is claimed; certified-envelope and shorter-horizon margin diagnostics are reported in the appendix. residual panel supports Sτϵ = γ−1 
+
+> ∞
+
+log(1 /ϵ ) + O(1) empiri-cally. Across all ϵ values and c = 1 , mean slope ratios were 
+
+0.994 , 0.987 , and 0.985 for a = 0 .25 , 0.50 , 0.75 , with sub-group confidence intervals centered near one. Changing c
+
+primarily changed the intercept, and the normalized shifts move in the direction predicted by − log c. Sensitivity anal-yses that remove the largest or smallest ϵ are kept in the appendix and are not used to tune the reported range. 
+
+Robustness and Boundary Diagnostics 
+
+Beyond the theorem-compatible exponential-loss runs, the remaining sweeps delineate scope rather than enlarge The-orem 1. Logistic-loss runs test whether the observed exponential-tail behavior is numerically stable under an-other common classification tail, but they are not covered by the theorem. Schedule, ϵ0, data-family, dimension, support-vector, rescaling, and boundary-pathology sweeps are re-ported in the appendix as finite-horizon diagnostics. They found no numerical counterexample within the prespecified grid, but they are not used to claim convergence outside the weighted-exponential, memoryless smoothed-sign setting. The adaptive-method diagnostics serve a different pur-pose. The perturbation lemma shows that Adam or RMSProp would inherit the smoothed-sign limit only if the averaged di-rection residual were small on the St-scale. The prespecified E3 comparison measured both path error to the same uκ and the weighted perturbation residual S−1
+
+> t
+
+P 
+
+> s<t
+
+ηsRdyn (s).Mean final path error was 0.0886 for smoothed-sign descent, 
+
+0.8432 for RMSProp, and 0.8443 for Adam; mean weighted transfer residuals were 3.8404 for RMSProp and 3.8668 for Adam. These results do not support broad Adam transfer un-der the tested grid, but they do not prove an impossibility theorem for every adaptive variant. The fixed-ϵ crossover should be read in the same boundary-diagnostic spirit. Figure 4 supports the empirical law Sτϵ =
+
+γ−1 
+
+> ∞
+
+log(1 /ϵ )+ O(1) for the memoryless proxy, but the proof e−κS t 
+
+> e−κt
+> poly-St
+> fixed ε
+> 10 0
+> 9 × 10 −1
+> 1.1 × 10 0
+> 1.2 × 10 0
+> 1.3 × 10 0
+> 1.4 × 10 0
+> final  Epc  / St-clock
+
+(a) Annealing-clock score    
+
+> −2 02
+> St− log( ε0)/ κ
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> Epc
+
+(b) ε0 shifted-time collapse          
+
+> ε0= 0.01
+> ε0= 0.1
+> ε0= 1
+> ε0= 10
+> ε0= 100
+> 0.10 0.25 0.50 0.75 0.90
+> κ/γ∞
+> isotropic
+> controlled SV
+> correlated
+
+(c) Family-rate scorecard 
+
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> median final  Epc
+
+Figure 3: Mechanism scorecard. Panel (a) compares final finite-window error ratios against the proposed exponential St-clock reference. Panel (b) shows shifted-time transients across ϵ0 values, indicating partial alignment rather than an exact time translation. Panel (c) summarizes median final Epc by data family and rate. These are empirical mechanism diagnostics, not new theorems. 10 20 
+
+> log(1/ ε)
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> 14
+> γ∞Sτε(1)  − log(1/ ε)
+
+(a) Residual collapse              
+
+> median; IQR
+> 0.95 1.00 1.05
+> ρ=b1γ∞
+> a= 0.25 , isotropic
+> a= 0.25 , controlled SV
+> a= 0.25 , correlated
+> a= 0.50 , isotropic
+> a= 0.50 , controlled SV
+> a= 0.50 , correlated
+> a= 0.75 , isotropic
+> a= 0.75 , controlled SV
+> a= 0.75 , correlated
+
+(b) Slope-ratio forest    
+
+> c= 0.5 c= 2
+> −1.0
+> −0.5
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> γ∞[b0(c) −  b0(1)]
+
+(c) Threshold intercept shift  
+
+> −log c
+> observed
+
+Figure 4: Fixed-ϵ crossover scaling for the memoryless proxy, with τϵ(c) = min {t : ∥ − ∇ L(wt)∥∞ ≤ cϵ }. Panel (a) shows residual collapse for the empirical law Sτϵ = γ−1 
+
+> ∞
+
+log(1 /ϵ ) + O(1) . Panel (b) reports ρ = b1γ∞ by learning-rate power and family, and panel (c) compares normalized threshold-induced intercept shifts with − log c. This remains empirical and conditional; the two-sided tail bound needed for a proof is open. would require two-sided gradient-tail control up to the thresh-old window. The appendix records these missing obliga-tions explicitly. Thus the crossover evidence clarifies how long fixed-stability transients can look sign-like; it does not broaden the annealed-stability theorem. 
+
+## Limitations and Conclusions 
+
+The theorem isolates 0 < κ < γ ∞ for weighted exponen-tial loss and memoryless stability-annealed smoothed-sign descent. The endpoint regimes κ = 0 and κ > γ ∞, the crit-ical case κ = γ∞, logistic perturbation theory, fixed-ϵ tail bounds, and full Adam transfer require separate arguments. Numerically, the horizon is finite, endpoint barrier solves can fail, and aggregate experiments are synthetic separable linear-classification instances matching the theorem setting. Within this scope, the result gives a concrete answer to the stability-annealing question. The exponential decay rate of the stability constant becomes a margin constraint, and the coordinatewise smoothing map induces the Burg-type barrier that selects the point on that margin slice. The static program is well posed, and the dynamic theorem follows by rewriting the iterates as entropic mirror ascent with a KL recursion. This separates the proved selector from adjacent empirical phenomena: logistic tails, fixed-ϵ crossover, and adaptive-method behavior remain informative diagnostics rather than theorem claims. The cumulative-time clock is essential: theorem and ex-periments compare the gradient tail and stability constant on the same exponential St-scale, where schedules similar in iteration time can differ over finite St-windows. The exper-iments target exact dual algebra, the rate-indexed path, and boundary behavior; they are not large-scale benchmarks. References 
+
+Balles, L.; and Hennig, P. 2018. Dissecting Adam: The Sign, Magnitude and Variance of Stochastic Gradients. In Dy, J.; and Krause, A., eds., Proceedings of the 35th International Conference on Machine Learning , volume 80 of Proceedings of Machine Learning Research , 404–413. PMLR. Beck, A.; and Teboulle, M. 2003. Mirror Descent and Non-linear Projected Subgradient Methods for Convex Optimiza-tion. Operations Research Letters , 31(3): 167–175. Bernstein, J.; Wang, Y.-X.; Azizzadenesheli, K.; and Anand-kumar, A. 2018. signSGD: Compressed Optimisation for Non-Convex Problems. In Dy, J.; and Krause, A., eds., Pro-ceedings of the 35th International Conference on Machine Learning , volume 80 of Proceedings of Machine Learning Research , 560–569. PMLR. Bregman, L. M. 1967. The Relaxation Method of Finding the Common Point of Convex Sets and Its Application to the So-lution of Problems in Convex Programming. USSR Compu-tational Mathematics and Mathematical Physics , 7(3): 200– 217. Cattaneo, M. D.; Klusowski, J. M.; and Shigida, B. 2024. On the Implicit Bias of Adam. In Salakhutdinov, R.; Kolter, Z.; Heller, K.; Weller, A.; Oliver, N.; Scarlett, J.; and Berkenkamp, F., eds., Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceed-ings of Machine Learning Research , 5862–5906. PMLR. Chizat, L.; and Bach, F. 2020. Implicit Bias of Gradient Descent for Wide Two-layer Neural Networks Trained with the Logistic Loss. In Abernethy, J.; and Agarwal, S., eds., 
+
+Proceedings of Thirty Third Conference on Learning Theory ,volume 125 of Proceedings of Machine Learning Research ,1305–1338. PMLR. Défossez, A.; Bottou, L.; Bach, F.; and Usunier, N. 2020. A Simple Convergence Proof of Adam and Adagrad. arXiv preprint arXiv:2003.02395 .Duchi, J.; Hazan, E.; and Singer, Y. 2011. Adaptive Sub-gradient Methods for Online Learning and Stochastic Opti-mization. Journal of Machine Learning Research , 12(61): 2121–2159. Fan, C.; Schmidt, M.; and Thrampoulidis, C. 2025. Implicit Bias of Spectral Descent and Muon on Multiclass Separable Data. In Advances in Neural Information Processing Systems ,volume 38. Gunasekar, S.; Lee, J.; Soudry, D.; and Srebro, N. 2018. Char-acterizing Implicit Bias in Terms of Optimization Geometry. In Dy, J.; and Krause, A., eds., Proceedings of the 35th In-ternational Conference on Machine Learning , volume 80 of Proceedings of Machine Learning Research , 1832–1841. PMLR. Ji, Z.; Dudík, M.; Schapire, R. E.; and Telgarsky, M. 2020. Gradient Descent Follows the Regularization Path for Gen-eral Losses. In Abernethy, J.; and Agarwal, S., eds., Pro-ceedings of Thirty Third Conference on Learning Theory ,volume 125 of Proceedings of Machine Learning Research ,2109–2136. PMLR. Ji, Z.; and Telgarsky, M. 2019. The Implicit Bias of Gradient Descent on Nonseparable Data. In Beygelzimer, A.; and Hsu, D., eds., Proceedings of the Thirty-Second Conference on Learning Theory , volume 99 of Proceedings of Machine Learning Research , 1772–1798. PMLR. Kingma, D. P.; and Ba, J. 2015. Adam: A Method for Stochas-tic Optimization. In International Conference on Learning Representations .Lyu, K.; and Li, J. 2020. Gradient Descent Maximizes the Margin of Homogeneous Neural Networks. In International Conference on Learning Representations .Lyu, K.; Li, Z.; Wang, R.; and Arora, S. 2021. Gradient Descent on Two-layer Nets: Margin Maximization and Sim-plicity Bias. arXiv preprint arXiv:2110.13905 .Nacson, M. S.; Gunasekar, S.; Lee, J. D.; Srebro, N.; and Soudry, D. 2019a. Lexicographic and Depth-Sensitive Mar-gins in Homogeneous and Non-Homogeneous Deep Models. 
+
+arXiv preprint arXiv:1905.07325 .Nacson, M. S.; Lee, J.; Gunasekar, S.; Savarese, P. H. P.; Srebro, N.; and Soudry, D. 2019b. Convergence of Gra-dient Descent on Separable Data. In Chaudhuri, K.; and Sugiyama, M., eds., Proceedings of the Twenty-Second Inter-national Conference on Artificial Intelligence and Statistics ,volume 89 of Proceedings of Machine Learning Research ,3420–3428. PMLR. Nacson, M. S.; Srebro, N.; and Soudry, D. 2019. Stochas-tic Gradient Descent on Separable Data: Exact Conver-gence with a Fixed Learning Rate. In Chaudhuri, K.; and Sugiyama, M., eds., Proceedings of the Twenty-Second Inter-national Conference on Artificial Intelligence and Statistics ,volume 89 of Proceedings of Machine Learning Research ,3051–3059. PMLR. Pesme, S.; Dragomir, R.-A.; and Flammarion, N. 2024. Im-plicit Bias of Mirror Flow on Separable Data. In Advances in Neural Information Processing Systems , volume 37. Qian, Q.; and Qian, X. 2019. The Implicit Bias of AdaGrad on Separable Data. arXiv preprint arXiv:1906.03559 .Reddi, S. J.; Kale, S.; and Kumar, S. 2018. On the Conver-gence of Adam and Beyond. In International Conference on Learning Representations .Rockafellar, R. T. 1970. Convex Analysis . Princeton Univer-sity Press. Rosset, S.; Zhu, J.; and Hastie, T. 2004. Boosting as a Reg-ularized Path to a Maximum Margin Classifier. Journal of Machine Learning Research , 5: 941–973. Soudry, D.; Hoffer, E.; Nacson, M. S.; Gunasekar, S.; and Srebro, N. 2018. The Implicit Bias of Gradient Descent on Separable Data. Journal of Machine Learning Research ,19(70): 1–57. Sun, H.; Ahn, K.; Thrampoulidis, C.; and Azizan, N. 2022. Mirror Descent Maximizes Generalized Margin and Can Be Implemented Efficiently. arXiv preprint arXiv:2205.12808 .Telgarsky, M. 2013. Margins, Shrinkage, and Boosting. In Dasgupta, S.; and McAllester, D., eds., Proceedings of the 30th International Conference on Machine Learning , vol-ume 28 of Proceedings of Machine Learning Research , 307– 315. Atlanta, Georgia, USA: PMLR. Vardi, G.; Shamir, O.; and Srebro, N. 2021. On Margin Maximization in Linear and ReLU Networks. arXiv preprint arXiv:2110.02732 .Wang, B.; Meng, Q.; Chen, W.; and Liu, T.-Y. 2021. The Implicit Bias for Adaptive Optimization Algorithms on Ho-mogeneous Neural Networks. In Meila, M.; and Zhang, T., eds., Proceedings of the 38th International Conference on Machine Learning , volume 139 of Proceedings of Machine Learning Research , 10849–10858. PMLR. Wang, S.; and Klabjan, D. 2025. A Mirror Descent Per-spective of Smoothed Sign Descent. In Chiappa, S.; and Magliacane, S., eds., Proceedings of the Forty-First Confer-ence on Uncertainty in Artificial Intelligence , volume 286 of Proceedings of Machine Learning Research , 4515–4542. PMLR. Wilson, A. C.; Roelofs, R.; Stern, M.; Srebro, N.; and Recht, B. 2017. The Marginal Value of Adaptive Gradient Methods in Machine Learning. In Advances in Neural Information Processing Systems , volume 30. Zhang, C.; Zou, D.; and Cao, Y. 2024. The Implicit Bias of Adam on Separable Data. In Advances in Neural Information Processing Systems , volume 37. A. Complete Assumptions and Notation 
+
+The main paper gives a shorter assumption block for read-ability. This appendix repeats the full ledger so that the sup-plement can be read independently. 
+
+Proof-tool references. The static proof uses standard KKT, Slater, and Fenchel-duality facts for convex programs. The dynamic proof uses standard Bregman, mirror-descent, exponentiated-gradient, and multiplicative-weights notation. 
+
+Signed data and margins. The signed examples are fixed vectors zi = yixi ∈ Rd, collected as rows of Z ∈ Rn×d.The raw margin and ℓ∞ max-margin value are 
+
+γ(u) = min  
+
+> i∈[n]
+
+z⊤ 
+
+> i
+
+u, γ∞ = max  
+
+> ∥u∥∞≤1
+
+γ(u). (49) The static barrier program assumes separability in the form 
+
+γ∞ > 0 and uses rates 0 < κ < γ ∞. The critical case 
+
+κ = γ∞ is excluded unless stated separately. 
+
+Dynamic theorem assumptions. The exact dynamic the-orem is for weighted exponential loss 
+
+L(w) = 
+
+> n
+
+X
+
+> i=1
+
+aie−z⊤ 
+
+> iw
+
+, ai > 0. (50) The cumulative learning-rate time and annealed stability schedule are 
+
+St =
+
+> t−1
+
+X
+
+> s=0
+
+ηs, ϵt = ϵ0 exp( −κS t). (51) It assumes ηt > 0, St → ∞ , and P 
+
+> t
+
+η2 
+
+> t
+
+< ∞. With 
+
+G = max  
+
+> i
+
+(κ + ∥zi∥1),
+
+it also assumes ηtG ≤ 1 for every t. A finite-prefix relax-ation is not used in the submitted theorem. Logistic loss is an empirical robustness check only; no logistic perturbation theorem is claimed. 
+
+Memoryless smoothed-sign theorem. The central dy-namics is 
+
+wt+1 = wt + ηt
+
+−∇ L(wt)
+
+|∇ L(wt)| + ϵt
+
+, (52) where absolute values and divisions are coordinatewise. 
+
+Static barrier assumptions. The barrier is 
+
+B(u) = 
+
+> d
+
+X
+
+> j=1
+
+[−| uj | − log(1 − | uj |)] , u ∈ (−1, 1) d.
+
+(53) The theoretical domain is open. Numerical solves use the prespecified closed approximation |uj | ≤ 1 − δ, with δ =10 −7, and record solver status and KKT residuals. 
+
+Non-assumptions of the dynamic theorem. The proof does not assume bounded normalized iterates, active-set sta-bility, active-prefactor convergence, absence of coordinate cancellation, subsequence identification, strict complemen-tarity, unique dual multipliers, or generic-position data. The dual mirror-ascent proof below replaces those heuristic re-quirements. 
+
+Adam and RMSProp scope. Full-batch Adam and RM-SProp are used as prespecified diagnostics. No full-Adam theorem is claimed. The broad transfer target from the mem-oryless proxy to Adam is not supported by E3 under the tested schedules. Future Adam claims would need a narrower state-ment and a new proof. 
+
+Fixed-ϵ crossover scope. For fixed ϵ > 0, the primary transition definition is 
+
+τϵ(c) = min {t : ∥−∇ L(wt)∥∞ ≤ cϵ }, c ∈ { 0.5, 1, 2}.
+
+(54) This is a gradient-threshold definition for the fixed-ϵ mem-oryless smoothed-sign proxy. It is not an Adam second-moment threshold and does not involve √vt.
+
+## B. Static Barrier Geometry and Endpoint Proofs 
+
+Scalar barrier facts. Let b(r) = −r − log(1 − r) for 
+
+r ∈ [0 , 1) . Then 
+
+b′(r) = r
+
+1 − r , b′′ (r) = 1(1 − r)2 . (55) Thus b(0) = b′(0) = 0 , b(r) ≥ 0, b is increasing, and b
+
+is strictly convex away from the origin. Since b′′ (r) ≥ 1,the coordinate potential u 7 → b(|u|) is 1-strongly convex on 
+
+(−1, 1) . The one-sided first derivatives at zero agree, so B
+
+is differentiable on the open cube and 
+
+[∇B(u)] j = uj
+
+1 − | uj | , (56) with value zero at uj = 0 . Consequently B is convex and 
+
+1-strongly convex on (−1, 1) d in the Euclidean sense. 
+
+Proof of Proposition 1 (Well-posedness and KKT) 
+
+The program is 
+
+min 
+
+> u∈(−1,1) d
+
+B(u) s.t. Zu ≥ κ1. (57) Let u∞ be any maximizer of γ over the closed cube. Because 
+
+0 < κ < γ ∞, the scaled point 
+
+˜u = 12
+
+
+
+1 + κγ∞
+
+
+
+u∞ (58) satisfies ∥˜u∥∞ < 1 and 
+
+Z ˜u ≥ γ∞ + κ
+
+2 1 > κ 1.
+
+Hence Slater’s condition holds for the margin constraints. To handle the open domain cleanly, define the extended-value closure 
+
+¯B(u) = 
+
+B(u), ∥u∥∞ < 1,
+
++∞, ∥u∥∞ = 1 ,
+
+and minimize ¯B over the compact convex set 
+
+Kκ = {u : ∥u∥∞ ≤ 1, Zu ≥ κ1}.The strictly feasible point ˜u gives a finite objective value. Boundary points have infinite value because at least one term 
+
+− log(1 − | uj |) diverges, so every minimizer of the closed extended-value problem lies in the open cube. It is therefore a minimizer of the original open-domain program. Strict convexity of B on the convex feasible set gives uniqueness; call the unique minimizer uκ.The margin of uκ is exactly κ. If instead γ(uκ) > κ ,choose α = κ/γ (uκ) ∈ (0 , 1) . Then αu κ remains feasible because γ(αu κ) = κ. Since uκ̸ = 0 and every nonzero co-ordinate has b(|αu j |) < b (|uj |), we get B(αu κ) < B (uκ),contradicting optimality. This radial-scaling argument proves that at least one margin constraint is active; it does not assert that every constraint is active. Writing the inequality as κ1 − Zu ≤ 0, the Lagrangian is 
+
+L(u, λ ) = B(u) + λ⊤(κ1 − Zu ), λ ≥ 0.
+
+Slater’s condition and differentiability of B at the optimizer imply KKT necessity: 
+
+Zu κ ≥ κ1, λ ≥ 0,λi(z⊤ 
+
+> i
+
+uκ − κ) = 0 , ∇B(uκ) = Z⊤λ. (59) Conversely, if a feasible u and multiplier λ ≥ 0 satisfy (59), then for any feasible v,
+
+B(v) ≥ B(u) + ⟨∇ B(u), v − u⟩
+
+= B(u) + λ⊤Z(v − u) ≥ B(u),
+
+where complementarity gives λ⊤(Zu − κ1) = 0 and fea-sibility gives λ⊤(Zv − κ1) ≥ 0. Thus the KKT system is sufficient, and strict convexity gives the unique primal solu-tion. 
+
+Proof of Proposition 2 (Static endpoints) 
+
+Small-rate endpoint. Let 
+
+v2 = arg min 
+
+> v
+
+12 ∥v∥22 s.t. Zv ≥ 1. (60) The minimizer is unique because the objective is strictly convex and the feasible set is closed and convex. With u =
+
+κv , the constraints Zu ≥ κ1 become Zv ≥ 1. Near the origin, 
+
+B(κv ) = κ2
+
+2 ∥v∥22 + κ3
+
+3
+
+X
+
+> j
+
+|vj |3 + O(κ4∥v∥4), (61) uniformly on bounded v-sets. Optimality of uκ against κv 2
+
+gives B(uκ) ≤ B(κv 2) = O(κ2). Since b′′ (r) ≥ 1 and 
+
+b(0) = b′(0) = 0 , B(u) ≥ 12 ∥u∥22; hence vκ = uκ/κ is bounded. Take any convergent subsequence vκm → ¯v with κm ↓ 0.Feasibility gives Z ¯v ≥ 1. For any feasible v, compare uκ
+
+with κv and divide by κ2. Passing to the limit using (61) gives 12 ∥¯v∥22 ≤ 12 ∥v∥22.
+
+Thus ¯v = v2. Every subsequential limit is v2, so 
+
+uκ
+
+κ → v2 as κ ↓ 0. (62) 
+
+Upper endpoint. Let 
+
+U∞ = arg max  
+
+> ∥u∥∞≤1
+
+γ(u).
+
+For any sequence κm ↑ γ∞, compactness of the closed cube gives a convergent subsequence uκm → ¯u. Since Zu κm ≥
+
+κm1, continuity gives Z ¯u ≥ γ∞1, hence γ(¯ u) ≥ γ∞. By definition of γ∞, γ(¯ u) ≤ γ∞, so ¯u ∈ U∞. Therefore 
+
+dist( uκ, U ∞) → 0 as κ ↑ γ∞. (63) If U∞ = {u∞}, then every cluster point equals u∞, and 
+
+uκ → u∞. If U∞ is not a singleton, convergence to a pres-elected point u∞ is not valid; only the set-valued statement (63) is claimed. 
+
+## C. Exact Dual Mirror-Ascent Dynamic Proof 
+
+This section gives the complete discrete proof for (52) under the theorem assumptions in Appendix A. The proof is for weighted exponential loss (50). It does not rely on the fixed-ϵ
+
+crossover proof program in Appendix E. 
+
+Fenchel conjugate and dual objective. Let Φ( u) =
+
+ϵ0B(u). Its Fenchel conjugate is 
+
+Φ⋆(q) = X
+
+> j
+
+
+
+|qj | − ϵ0 log 
+
+
+
+1 + |qj |
+
+ϵ0
+
+ 
+
+,
+
+∇Φ⋆(q) = q
+
+|q| + ϵ0
+
+.
+
+(64) The Hessian is diagonal with entries 
+
+∇2Φ⋆(q)jj = ϵ0
+
+(ϵ0 + |qj |)2 . (65) The dual objective is the concave function 
+
+D(λ) = κ1⊤λ − Φ⋆(Z⊤λ), λ ≥ 0. (66) Strong duality follows from Slater’s condition for the primal program. If λ⋆ is any dual optimizer, then 
+
+Z⊤λ⋆ = qκ = ∇Φ( uκ) = ϵ0
+
+uκ
+
+1 − | uκ| . (67) The multiplier λ⋆ may be nonunique, but the image qκ is unique. 
+
+Exact dynamic transformation. Define 
+
+λi,t = ai exp( κS t − z⊤ 
+
+> i
+
+wt), qt = Z⊤λt. (68) Then 
+
+eκS t (−∇ L(wt)) = qt, dt = ∇Φ⋆(qt). (69) Moreover, 
+
+λt+1 = λt ⊙ exp( ηt∇D(λt)) . (70) This is entropic mirror ascent on the nonnegative orthant for the entropy h(λ) = P 
+
+> i
+
+λi(log λi − 1) .KL one-step identity and inequality. Fix a dual optimizer 
+
+λ⋆, and write 
+
+Vt = Dh(λ⋆, λ t)= X
+
+> i
+
+
+
+λ⋆i log λ⋆i
+
+λi,t 
+
+− λ⋆i + λi,t 
+
+
+
+,
+
+∆t = D⋆ − D(λt).
+
+(71) Zero coordinates of λ⋆ contribute only λi,t . With gt =
+
+∇D(λt), (70) gives 
+
+Vt+1 − Vt = ηt⟨λt − λ⋆, g t⟩
+
++ X
+
+> i
+
+λi,t [eηtgi,t − 1 − ηtgi,t ] . (72) Concavity of D gives ⟨λt − λ⋆, g t⟩ ≤ − ∆t. Since 
+
+∇iD(λ) = κ − z⊤ 
+
+> i
+
+∇Φ⋆(Z⊤λ),
+
+and ∥∇ Φ⋆(q)∥∞ < 1, we have 
+
+∥∇ D(λ)∥∞ ≤ G. 
+
+Using ηtG ≤ 1 and ex − 1 − x ≤ (e/ 2) x2 for |x| ≤ 1,
+
+Vt+1 − Vt ≤ − ηt∆t + e
+
+2 η2 
+
+> t
+
+G2∥λt∥1. (73) 
+
+Noncompact dual-mass control and summed gap. For 
+
+x ≥ 0 and y > 0,
+
+y ≤ 2[ x log( x/y ) − x + y] + 2(log 2) x, 
+
+where the bracket is y when x = 0 . Summing gives 
+
+∥λ∥1 ≤ 2Dh(λ⋆, λ ) + 2 log 2 ∥λ⋆∥1. (74) Let 
+
+E2 = X
+
+> t
+
+η2 
+
+> t
+
+, L⋆ = ∥λ⋆∥1, V0 = Dh(λ⋆, λ 0),
+
+and define 
+
+¯V =  V0 + eG 2(log 2) L⋆E2
+
+ eeG 2E2 ,
+
+¯M = 2 ¯V + 2(log 2) L⋆. (75) Equations (73) and (74), together with discrete Gronwall, imply 
+
+sup 
+
+> t
+
+Vt ≤ ¯V , sup 
+
+> t
+
+∥λt∥1 ≤ ¯M . (76) Rearranging (73) and summing gives 
+
+X
+
+> s<t
+
+ηs∆s ≤ CD := V0 + e
+
+2 G2 ¯M E 2. (77) 
+
+Dual gap controls the primal direction. KKT conditions and Fenchel equality give 
+
+∆t = DΦ⋆ (qt, q κ) + λ⊤ 
+
+> t
+
+(Zu κ − κ1). (78) The feasibility term is nonnegative. Let 
+
+Z∞ = max  
+
+> i
+
+∥zi∥∞, Q = max {∥ qκ∥∞, ¯M Z ∞}.
+
+Then qt and qκ lie in ∥q∥∞ ≤ Q, where (65) gives 
+
+∇2Φ⋆(q) ⪰ mI, m = ϵ0
+
+(ϵ0 + Q)2 .
+
+Thus 
+
+DΦ⋆ (qt, q κ) ≥ m
+
+2 ∥qt − qκ∥22.
+
+The global upper Hessian bound gives 
+
+∥∇ Φ⋆(qt) − ∇ Φ⋆(qκ)∥2 ≤ ϵ−10 ∥qt − qκ∥2.
+
+Since dt = ∇Φ⋆(qt) and uκ = ∇Φ⋆(qκ),
+
+∥dt − uκ∥22 ≤ CΦ∆t, CΦ = 2
+
+ϵ20m = 2( ϵ0 + Q)2
+
+ϵ30
+
+.
+
+(79) 
+
+Jensen normalized-iterate bound. The primal recursion is 
+
+wt = w0 + X
+
+> s<t
+
+ηsds.
+
+Jensen’s inequality, (77), and (79) give 
+
+wt − w0
+
+St
+
+− uκ
+
+> 22
+
+≤ CΦCD
+
+St
+
+. (80) Therefore 
+
+wt
+
+St
+
+− uκ
+
+> 2
+
+≤ ∥w0∥2
+
+St
+
++
+
+r CΦCD
+
+St
+
+. (81) 
+
+Spike exclusion, last iterate, and rescaled gradient. The dual gap has bounded variation. Since ∥∇ D∥∞ ≤ G and 
+
+|ex − 1| ≤ e|x| for |x| ≤ 1,
+
+|∆t+1 − ∆t| ≤ eG 2 ¯M η t.
+
+We use the elementary spike-exclusion lemma: if at ≥ 0,P 
+
+> t
+
+ηt = ∞, ηt → 0, P 
+
+> t
+
+ηtat < ∞, and |at+1 − at| ≤ Cη t,then at → 0. Otherwise infinitely many spikes at ≥ 2ϵ pro-duce disjoint intervals of cumulative stepsize at least ϵ/ (2 C)
+
+on which as ≥ ϵ, contradicting weighted summability. Ap-plying the lemma to at = ∆ t gives ∆t → 0. Hence qt → qκ,
+
+dt → uκ, and by (69) 
+
+eκS t (−∇ L(wt)) → qκ.
+
+Margin and loss tails. With Z2 = max i ∥zi∥2, γ is Z2-Lipschitz, so (81) implies 
+
+|γ(wt/S t) − κ| ≤ Z2
+
+"
+
+∥w0∥2
+
+St
+
++
+
+r CΦCD
+
+St
+
+#
+
+.
+
+Also 
+
+L(wt) = e−κS t ∥λt∥1.
+
+The upper bound follows from ∥λt∥1 ≤ ¯M . For the lower bound, any dual optimizer is nonzero because D⋆ =Φ( uκ) > 0. Choose i0 with λ⋆i0 > 0. Since Vt ≤ ¯V ,
+
+λi0,t ≥ λ⋆i0 exp 
+
+
+
+−1 − ¯Vλ⋆i0
+
+
+
+> 0.
+
+Thus inf t ∥λt∥1 > 0, and 
+
+L(wt) = Θ( e−κS t ).D. Perturbation Argument and Adam/RMSProp Diagnostics 
+
+Deterministic perturbation lemma. Let 
+
+xt+1 = xt + ηtdt, yt+1 = yt + ηt(dt + et),
+
+with St = P 
+
+> s<t
+
+ηs. If ∥x0 − y0∥/S t → 0 and 
+
+1
+
+St
+
+X
+
+> s<t
+
+ηs∥es∥ → 0, (82) then 
+
+∥xt − yt∥
+
+St
+
+≤ ∥x0 − y0∥
+
+St
+
++ 1
+
+St
+
+X
+
+> s<t
+
+ηs∥es∥ → 0.
+
+This lemma is complete. Its role is to show why the Adam-transfer residual is scientifically relevant. 
+
+Adam/RMSProp convention. The full-batch Adam up-date tested in E3 uses 
+
+mt = β1mt−1 + (1 − β1)∇L(wt),vt = β2vt−1 + (1 − β2)∇L(wt)⊙2,
+
+with optional bias correction and update direction 
+
+− mt
+
+√vt + ϵt
+
+.
+
+RMSProp is the β1 = 0 variant under the same denominator convention. 
+
+Prespecified transfer residuals. E3 records 
+
+Rm(t) = ∥mt − ∇ L(wt)∥2
+
+∥∇ L(wt)∥2 + ϵt
+
+,Rv (t) = ∥√vt − |∇ L(wt)|∥ 2
+
+∥∇ L(wt)∥2 + ϵt
+
+,Rdyn (t) = −mt
+
+√vt + ϵt
+
+− −∇ L(wt)
+
+|∇ L(wt)| + ϵt 2
+
+,
+
+and the weighted average S−1
+
+> t
+
+P 
+
+> s<t
+
+ηsRdyn (s). If this aver-aged residual vanished, the perturbation lemma would trans-fer the main dynamic theorem to the tested adaptive trajec-tory. Under the prespecified E3 runs, the residual did not vanish and the adaptive methods followed different paths. Mean final path error was 0.0886 for smoothed-sign de-scent, 0.8432 for RMSProp, and 0.8443 for Adam. Mean weighted transfer residuals were 3.8404 for RMSProp and 
+
+3.8668 for Adam. The least-bad tested variants still had path errors 0.4516 for RMSProp with β2 = 0 .9 and 0.4226 for Adam with β1 = 0 .9, β 2 = 0 .9 and bias correction. These diagnostics do not support the broad Adam-transfer target un-der the tested conditions; they do not prove an impossibility result for every adaptive variant. 
+
+## E. Fixed-ϵ Crossover Proof Program 
+
+The transition definition is (54). The numerically supported target is Sτϵ(c)
+
+log(1 /ϵ ) → 1
+
+γ∞
+
+,
+
+with c ∈ { 0.5, 1, 2}. The proof program requires two-sided gradient-tail bounds for the fixed-ϵ trajectory, uniformly up to the transition window: 
+
+c0e−γ∞St ≤ ∥ − ∇ L(wt)∥∞ ≤ Ce −γ∞St . (83) 
+
+Conditional upper implication. If the upper bound in (83) holds, then the threshold is satisfied whenever 
+
+Ce −γ∞St ≤ cϵ, 
+
+or 
+
+St ≥ 1
+
+γ∞
+
+log 1
+
+ϵ + 1
+
+γ∞
+
+log Cc .
+
+Up to the St-mesh of the schedule, this gives 
+
+Sτϵ(c) ≤ 1
+
+γ∞
+
+log 1
+
+ϵ + O(1) .
+
+Conditional lower implication. If the lower bound in (83) holds before the transition, then for 
+
+St ≤ 1
+
+γ∞
+
+log 1
+
+ϵ − M
+
+we have 
+
+∥ − ∇ L(wt)∥∞ ≥ c0eγ∞M ϵ. 
+
+Choosing M so that c0eγ∞M > c prevents the transition before that scale and yields 
+
+Sτϵ(c) ≥ 1
+
+γ∞
+
+log 1
+
+ϵ − O(1) .
+
+The two inequalities imply 
+
+Sτϵ(c) = 1
+
+γ∞
+
+log 1
+
+ϵ + O(1) , Sτϵ(c)
+
+log(1 /ϵ ) → 1
+
+γ∞
+
+.
+
+This is only a conditional implication. The unresolved obli-gations are a uniform upper tail, a uniform noncanceling lower tail, control of changes in the leading coordinate, pre-transition proximity to the ℓ∞-margin geometry, and sched-ule mesh control. The stronger O(log log(1 /ϵ )) secondary target is not proved. 
+
+## F. Numerical Solvers and Algorithms 
+
+The core library implements guaranteed-separable synthetic data generation, numerical separability checks, exponen-tial and logistic losses with stable evaluations, cumula-tive learning-rate schedules, stability schedules, memoryless smoothed-sign dynamics, RMSProp, Adam with optional bias correction, margin solvers, the barrier solver, KKT resid-uals, and trajectory metrics. All public numerical routines document their mathematical conventions. 
+
+Margin solvers. The ℓ2-separator v2 is solved as a convex quadratic program, and feasibility is checked by the minimum residual of Zv − 1. The ℓ∞-margin value is solved over the closed cube ∥u∥∞ ≤ 1, with status and feasibility residuals recorded. Solver failures are written to the processed result files rather than filtered silently. 
+
+Barrier solver. The theoretical barrier program is open-domain. Numerically, the solver uses |uj | ≤ 1 − δ with 
+
+δ = 10 −7, and, where needed for disciplined convex model-ing, an auxiliary magnitude variable rj satisfying rj ≥ uj ,
+
+rj ≥ −uj , and 0 ≤ rj ≤ 1 − δ. The objective is P 
+
+> j
+
+[−rj − log(1 − rj )] . KKT residuals include primal feasi-bility, complementarity, and stationarity residuals computed from ∇B(u) = u/ (1 −| u|). The static program distinguishes solver error from dynamic trajectory error in all summaries. Smoothed sign RMSProp Adam 
+
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> ‖wT/ST − uκ‖2
+
+(a) Final path error   
+
+> Smoothed sign RMSProp Adam
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> S−1
+> T ∑
+> t < T
+> ηtRdyn (t)
+
+(b) Weighted transfer residual   
+
+> Smoothed sign RMSProp Adam
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> 7
+> late-window  Rdyn
+
+(c) Late-window dynamic residual   
+
+> Smoothed sign RMSProp Adam
+> 10 −3
+> 10 −2
+> 10 −1
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> effective constant  ceff
+
+(d) Effective constant Figure 5: Adaptive-method boundary diagnostics. The main paper reports a compact summary; these appendix panels show replicate-level distributions for (a) final path error to uκ, (b) the weighted transfer residual, (c) late-window Rdyn , and (d) the effective-constant diagnostic. Open circles and vertical bars mark medians and interquartile ranges, translucent points are replicate-level configurations, and diamonds mark optimizer-variant medians over the tested β and bias-correction settings. The tested adaptive methods do not satisfy the transfer-residual condition under the prespecified grid; these diagnostics do not establish an impossibility theorem for all adaptive variants. 
+
+Data and serialization. All experiments use float64 arith-metic and deterministic seeds. The artifact package records configuration hashes, solver statuses, saved trajectory arti-facts, and metadata sidecars for all generated figures. 
+
+## G. Complete Experimental Protocol and Hyperparameter Grids 
+
+The aggregate synthetic datasets use n = 4 d signed exam-ples and unfiltered seeds. The two-dimensional dataset used for conceptual path visualization is deliberately labeled il-lustrative and is excluded from aggregate statistics. 
+
+Primary theorem-compatible validation suite. The strengthened primary suite uses weighted exponential loss and checks every theorem assumption before including a run in the main Theorem 1 evidence. It uses three syn-thetic families: isotropic random separable data, controlled-support-vector data with varied support counts, and cor-related ill-conditioned data. The aggregate grid is d ∈{10 , 25 , 50 , 100 }, n = 4 d, twenty unfiltered seeds per set-ting, κ/γ ∞ ∈ { 0.10 , 0.25 , 0.50 , 0.75 , 0.90 }, ai = 1 and bounded log-uniform positive weights, and ηt = η0(t +
+
+t0)−0.75 with η0 = 0 .5/G . Secondary schedule checks use powers 0.60 and 0.90 . The main aggregate reports only records with 0 < κ < γ∞, St → ∞, P 
+
+> t
+
+η2 
+
+> t
+
+< ∞,
+
+ηtG ≤ 0.5, successful barrier optimization, and successful trajectory completion. 
+
+E1: barrier path recovery. E1 uses d ∈ { 10 , 25 , 50 }, n =4d, at least five unfiltered random seeds per configuration, and 
+
+κ/γ ∞ ∈ { 0.10 , 0.20 , 0.35 , 0.50 , 0.65 , 0.80 , 0.90 }.
+
+Reported metrics include path error, margin error, directional error, KKT residual, and gradient exponent diagnostics. 
+
+E2: rate diagram and endpoints. E2 uses the grid 
+
+0, 0.05 , . . . , 0.90 , 0.95 , 0.99 , 1.01 , 1.20 , 1.50 times γ∞. It tests the normalized margin diagram, small-κ convergence toward v2, and near-endpoint convergence toward U∞ when the endpoint is unique. 1.00 1.05 1.10                              
+
+> ρ=b1γ∞
+> a= 0.25 ,c= 2
+> a= 0.25 ,c= 1
+> a= 0.25 ,c= 0.5
+> a= 0.5 ,c= 2
+> a= 0.5 ,c= 1
+> a= 0.5 ,c= 0.5
+> a= 0.75 ,c= 2
+> a= 0.75 ,c= 1
+> a= 0.75 ,c= 0.5
+
+(a) Threshold subgroup forest                
+
+> 0.00 0.05 0.10
+> ρ− 1
+> a= 0.25 , all eps
+> a= 0.25 , drop largest
+> a= 0.25 , drop smallest
+> a= 0.25 , drop both
+> a= 0.5 , all eps
+> a= 0.5 , drop largest
+> a= 0.5 , drop smallest
+> a= 0.5 , drop both
+> a= 0.75 , all eps
+> a= 0.75 , drop largest
+> a= 0.75 , drop smallest
+> a= 0.75 , drop both
+
+(b) ε-range removal    
+
+> 0.4 0.6 0.8
+> Sτεslope
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> τ1 −  aε slope
+
+(c) Iteration-time check    
+
+> a= 0.25
+> a= 0.5
+> a= 0.75
+
+Figure 6: Expanded fixed-ϵ crossover diagnostics. These panels stress-test the empirical slope relation by threshold subgroup, 
+
+ϵ-range removal, and secondary iteration-time scaling. They are empirical sensitivity checks; the two-sided tail bound remains open. 
+
+E3: optimizer boundary. E3 compares memoryless smoothed-sign dynamics, RMSProp, full Adam, and Adam with and without bias correction. The prespecified grid is β1 ∈ { 0, 0.9}, β2 ∈ { 0.9, 0.99 , 0.999 }, and κ/γ ∞ ∈{0.20 , 0.50 , 0.65 }, using the same aggregate dimensions and seeds as E1/E2 where applicable. 
+
+E4: fixed-ϵ crossover. E4 uses d = 10 , ϵ ∈{10 −2, 10 −3, . . . , 10 −12 }, thresholds c ∈ { 0.5, 1, 2}, and learning-rate schedules 
+
+ηt = η0(t + t0)−a, a ∈ { 0.25 , 0.50 , 0.75 }.
+
+The primary fit is Sτϵ = b0 + b1 log(1 /ϵ ), and the reported slope ratio is b1/(1 /γ ∞). Sensitivity is reported after remov-ing the largest and smallest ϵ values. 
+
+E5: robustness and failure boundaries. E5 tests expo-nential and logistic losses, multiple schedules aligned by 
+
+St, multiple ϵ0 values, dimensions up to d = 100 , varying support-vector counts, near-nonunique ℓ∞ solutions, nearly zero gradient coordinates, data rescaling, coordinate rescal-ing, and nonzero initialization scales. Outcomes are clas-sified as supported within assumptions, supported outside current assumptions, finite-time ambiguity, numerical fail-ure, or genuine counterexample. 
+
+## H. Extended Results and Ablations 
+
+Figures promoted to the main paper are not duplicated here unless the appendix version adds information. The following panels are expanded diagnostics relative to the main sum-maries. 
+
+Family Runs Within Outside Error Loss 12 12 0 0.104 Schedules 9 9 0 0.097 
+
+ϵ0 18 18 0 0.107 Support vectors 12 12 0 0.087 High dimension 2 2 0 0.130 Boundary pathologies 16 0 16 0.106 
+
+Table 1: Finite-horizon robustness classification relative to theorem scope. “Within” and “Outside” are finite-horizon classifications relative to the exact theorem assumptions, not new theorem statuses. No numerical failure or genuine coun-terexample was observed in the prespecified grid. 10 −1 10 0 10 1
+
+Erel 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> fraction of targets
+
+(a) Relative-error ECDFs    
+
+> St
+> 0.08
+> 0.14
+> 0.26
+> 0.52
+> 0.08 0.14 0.26 0.52
+
+checkpoint mean St
+
+> 10 0
+> 10 1
+> ‖wt/St − uκ‖2
+
+(b) Absolute ℓ2 path error    
+
+> 0.08 0.14 0.26 0.52
+
+checkpoint St
+
+> 4.0
+> 4.5
+> 5.0
+> 5.5
+> log 10  (bound / error)
+
+(c) Conservative proof envelope     
+
+> 0.10 0.25 0.50 0.75 0.90
+
+predicted κ/γ∞
+
+> 10 −2
+> 10 −1
+> margin error to identity
+
+(d) Finite-window margin movement  
+
+> first final
+
+Figure 7: Extended Theorem 1 validation diagnostics. These panels expand the main theorem-validation dashboard by showing relative-error ECDFs, absolute-error scales, a conservative certified-envelope quantile trend, and paired first-to-final margin-error movement. They use theorem-compatible weighted exponential-loss records. The certified envelope is not a tight empirical-rate estimate, and the margin diagnostic is not used to claim sharp rate matching. 0.10 0.25 0.50 0.75 0.90 
+
+predicted κ/γ∞
+
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> observed  γ(wt/St)/ γ∞
+
+(a) Observed margins      
+
+> first final
+> −0.2 −0.1 0.0 0.1 0.2
+
+final - first margin error 
+
+> 0.10
+> 0.25
+> 0.50
+> 0.75
+> 0.90
+> κ/γ∞
+
+(b) Movement toward identity 
+
+> 0.08
+> 0.14
+> 0.26
+> 0.52
+
+St
+
+> 0.10
+> 0.25
+> 0.50
+> 0.75
+> 0.90
+
+κ/γ∞
+
+> 10
+> 25
+> 50
+> 100
+
+d
+
+(c) 3D median margin error 
+
+> 0.07
+> 0.10
+> 0.30
+> 0.70
+> median margin error
+
+Figure 8: Primary-window finite-horizon margin diagnostics. Complementing the main dashboard and the extended validation figure, these panels show replicate-level first/final observed normalized margins, final-minus-first margin-error distributions, and a 3D heatmap of median margin error across checkpoint St, rate κ/γ ∞, and dimension d. All panels use theorem-compatible weighted exponential-loss records from the primary aggregate suite. The diagnostics describe saved-horizon behavior and are not used to claim sharp margin-rate matching. 0.03 0.10 0.30 1.0 
+
+final / first checkpoint factor 
+
+> Epc
+> Ed
+> Eq
+> 0.88
+> 0.76
+> 0.25
+> left of 1: improvement
+
+(a) Primary aggregate, N = 2716    
+
+> 0.03 0.10 0.30 1.0
+
+final / first checkpoint factor 
+
+> 0.43
+> 0.19
+> 0.07
+> left of 1: improvement
+
+(b) Long horizon, N = 89 
+
+Figure 9: Finite-window convergence-factor scorecard. The two panels compare final/first factors for Epc , Ed, and Eq in (a) the primary aggregate suite and (b) the long-horizon showcase. Values below one indicate movement between saved checkpoints. Median factors and improvement fractions are retained in the figure metadata; the plotted distributions are finite-horizon diagnostics and are not used as sharp-rate claims.

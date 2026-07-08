@@ -1,0 +1,2074 @@
+Title: A Geometric Local Parameterization Method for Generalized Hele-Shaw Free Boundary Problems with Source Terms
+
+URL Source: https://arxiv.org/pdf/2607.02880v1
+
+Published Time: Tue, 07 Jul 2026 00:29:04 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# A G EOMETRIC LOCAL PARAMETERIZATION METHOD FOR 
+
+# GENERALIZED HELE –S HAW FREE BOUNDARY PROBLEMS WITH 
+
+# SOURCE TERMS 
+
+A P REPRINT 
+
+Zengyan Zhang and Wenrui Hao 
+
+Department of Mathematics The Pennsylvania State University, University Park, PA 16802, USA 
+
+zzz5527@psu.edu and wxh64@psu.edu 
+
+John Harlim 
+
+Department of Mathematics, Institute for Computational and Data Sciences The Pennsylvania State University, University Park, PA 16802, USA 
+
+jharlim@psu.edu 
+
+July 7, 2026 
+
+# ABSTRACT 
+
+We develop a meshfree numerical framework for Hele–Shaw free boundary problems with sur-face tension and source terms based on geometric local parameterization and boundary integral methods. By decomposing the pressure into a particular solution and a harmonic component, the problem is reformulated into a boundary-only system, avoiding volumetric meshing of the evolving domain. For general source terms, we propose an eigenfunction-based approximation on a fixed domain and establish error estimates for both the truncation and coefficient approx-imation. Numerical experiments verify the accuracy and convergence of the proposed method, and an application to a tumor growth model demonstrates its effectiveness for coupled moving-boundary problems. 
+
+# 1 Introduction 
+
+Free boundary problems arise in a broad range of scientific applications, including fluid dynamics, porous media flow, and tumor growth [9, 11, 15]. Among them, the generalized Hele-Shaw problem with surface tension serves as a fundamental model for interface motion driven by pressure gradients under the influence of surface tension [3, 7, 30]. This problem has been extensively studied since the seminal work of Saffman and Taylor [33], following Hele-Shaw’s pioneering experimental studies of viscous flow between two closely spaced plates [18]. In its classical form, the pressure satisfies Laplace’s equation in the evolving domain, and the interface velocity is determined by Darcy’s law through the pressure gradient. Owing to the coupling between the pressure field and the evolving interface, the development of accurate and efficient numerical methods for Hele-Shaw problems remains a challenging task[35]. A variety of numerical methods have been developed for Hele-Shaw free boundary problems and their applica-tions, including finite difference methods, finite element methods, level-set methods, and phase field methods [6, 26, 31, 32]. Although these approaches have been successfully applied to a wide range of free boundary prob-lems, they generally require discretization of the computational domain together with repeated interface recon-struction or mesh generation as the free boundary evolves, leading to increased computational cost. Boundary integral methods provide an attractive alternative for Hele-Shaw problems because they exploit the Green’s function of the governing equation to reduce the problem to the evolving interface, thereby avoiding vol-
+
+> arXiv:2607.02880v1 [math.NA] 3 Jul 2026
+
+A PREPRINT - J ULY 7, 2026 umetric discretization and reducing the dimensionality of the computation by one [20, 29]. Moreover, rigorous convergence studies of boundary integral methods for free boundary problems have been established [16], pro-viding a solid theoretical foundation for their application. For example, we recently introduced a geometric local parameterization method based on generalized moving least squares (GMLS) for solving classical Hele–Shaw prob-lems directly on point clouds [36]. By reconstructing local manifold parameterizations from unorganized bound-ary points, the method accurately approximates geometric quantities and boundary integrals without requiring global parameterization or remeshing. Nevertheless, most existing formulations (including [36]) are limited to homogeneous equations or rely on pa-rameterized interfaces and body-fitted meshes. When nonzero source terms are present, as in tumor growth and reactive porous media models, the resulting boundary integral formulation involves volume integrals over the evolving domain. Directly approximating the volume integral arising from the nontrivial source term eliminates the dimensionality reduction advantage offered by the boundary integral formulation. Furthermore, evaluating the time dependent volume integral term generally requires repeated interior discretization or mesh generation when the geometry is complex, resulting in significant computational cost. In this work, we develop a numerical framework for generalized Hele–Shaw free boundary problems with source terms. By decomposing the pressure into a particular solution and a harmonic component, we reformulate the original problem as a boundary-only system, thereby eliminating repeated volume integration over evolving do-mains. For source terms whose particular solutions are not available in closed form, we propose an eigenfunction approximation based on Laplacian eigenfunctions defined on a fixed domain [5, 34]. The associated Poisson prob-lem is solved offline, enabling the subsequent free-boundary evolution of the harmonic component to be com-puted entirely through boundary integrals and solved using the geometric local parameterization method that we recently developed [36]. We further establish error estimates for the eigenfunction approximation and the numer-ical evaluation of the expansion coefficients. A series of numerical experiments validates the proposed framework through spatial and temporal convergence studies, demonstrates the convergence behavior of the eigenfunction approximation, and confirms that the pressure approximation converges at a higher rate than the source approxi-mation. Finally, we apply the proposed method to a nutrient-driven tumor growth model, illustrating its capability for solving coupled moving-boundary problems with source terms without repeated volumetric remeshing. The remainder of the paper is organized as follows. In Section 2, we briefly review the geometric local parame-terization method developed in [36] for solving the Hele-Shaw free boundary problems with zero source terms. Section 3 presents the numerical method for generalized Hele-Shaw problems with non-zero source terms. Sec-tion 4 introduces the eigenfunction approximation for the source term and establishes the corresponding error estimates. Finally, Section 5 presents numerical results, including applications to a tumor growth model and ex-tensions to more general source terms. 
+
+# 2 Overview of the Hele-Shaw problem with surface tension and geometric local parameterization method 
+
+Consider a tissue or material that behaves as a porous medium. The velocity field V is described by Darcy’s law, 
+
+V = − σμ ∇p, where p denotes the pressure, σ is the permeability of the medium, and μ is the dynamic viscosity of the fluid. Combining with the conservation of mass, ∇ · V = f , where f : Ω(t ) → R represents distributed sources or sinks, leads to the following PDE system with a free boundary, 
+
+
+
+− σμ ∆p = f in Ω(t ), 
+
+p = τκ on Γ(t ),  
+
+> σμ∂p
+> ∂n
+
+= −Vn on Γ(t ). (1) Here, Ω(t ) denotes the fluid-filled region, and Γ(t ) denotes its moving boundary. In this paper, we consider a bounded two-dimensional domain Ω(t ) ⊂ R2 with a closed curve boundary Γ(t ) at any fixed time t ≥ 0. In (1), κ
+
+denotes the mean curvature (for instance, κ = r (t )−1 if Ω(t ) is a disk of radius r (t )). The boundary condition p = τκ 
+
+models the effect of surface tension: the pressure jump across the interface is proportional to the local curvature, which acts to stabilize and regularize the evolving boundary. In classical Hele–Shaw problems without surface tension, the pressure on the boundary is typically prescribed as a constant or a given potential function [16]. The inclusion of surface tension distinguishes the present model, as the boundary pressure is not known a priori but instead couples dynamically to the evolving geometry through curvature. For simplicity, we normalize the parameters by setting σ = μ and τ = 1 throughout the remainder of the paper. We assume the kinematic boundary condition on the free boundary Γ(t ), which states that the boundary moves in 2A PREPRINT - J ULY 7, 2026 accordance with the velocity V, such that its component in the direction of the outward normal n is given by 
+
+Vn = V · n = − ∂p
+
+∂n on Γ(t ), with n pointing out of Ω(t ). 
+
+2.1 Boundary integral formulation 
+
+Denote G(x, y) as the Green’s function for the Laplacian operator, −∆. Specifically, G(x, y) = − 12π ln ∥x − y∥ for two-dimensional cases. Then from the Green’s third identity [8, 23], we have 
+
+−
+
+Z
+
+> Ω
+
+G(x, y)∆p(y)dV y − p(x) = − 
+
+Z
+
+> Γ
+
+³
+
+G(x, y) ∂p(y)
+
+∂n(y) − p(y) ∂G(x, y)
+
+∂n(y)
+
+´
+
+dS y, ∀x ∈ Ω(t )Setting −∆p = f , incorporating the jump condition and the boundary condition, we arrive at 
+
+κ(x)2 −
+
+Z
+
+> Ω
+
+G(x, y) f (y)dV y =
+
+Z
+
+> Γ
+
+³
+
+−G(x, y)Vn (y) − κ(y) ∂G(x, y)
+
+∂n(y)
+
+´
+
+dS y, x, y ∈ Γ(t ), where n = ∇Γ 
+
+> |∇ Γ|
+
+with n(y) referring to the unit outer normal vector at y ∈ Γ(t ), and κ = ∇ · n.Therefore, we have reformulated the Hele-Shaw free boundary problem (1) as the following system, 
+
+Z
+
+> Γ
+
+G(x, y)Vn (y)dS y = − κ(x)2 −
+
+Z
+
+> Γ
+
+κ(y) ∂G(x, y)
+
+∂n(y) dS y +
+
+Z
+
+> Ω
+
+G(x, y) f (y)dV y, x, y ∈ Γ(t ), (2a) 
+
+dx
+
+d t = Vn (x)n(x), x ∈ Γ(t ), (2b) where the solution to (2a) gives the unknown normal velocity Vn on Γ(t ), which is represented by point clouds with-out parameterization information, and the kinematic condition (2b) enables the free boundary to evolve forward in time. In particular, when f = 0, corresponding to the classical Hele-Shaw free boundary problem, (2a) reduces to a boundary integral equation (BIE), allowing the governing equations to be formulated solely on the free boundary. In the following section, we briefly summarize our previous work [36] that handles the homogeneous case f = 0, which serves as the foundation for the development of the present work on problems with nontrivial source terms 
+
+f̸ = 0. 
+
+2.2 Review of geometric local parameterization method 
+
+Now, we briefly summarize the numerical framework developed in our previous work [36] for the classical Hele-Shaw free boundary problem. With f (x) = 0, the system in (2a)-(2b) reduces to the following system, 
+
+Z
+
+> Γ
+
+G(x, y)Vn (y)dS y = − κ(x)2 −
+
+Z
+
+> Γ
+
+κ(y) ∂G(x, y)
+
+∂n(y) dS y, x, y ∈ Γ(t ), (3a) 
+
+dx
+
+d t = Vn (x)n(x), x ∈ Γ(t ), (3b) where Γ is a free boundary that will be characterized by x ∈ Γ(t ). Throughout the discussion below, we assume that 
+
+Γ is smooth. 
+
+2.2.1 Generalized Moving Least Squares approximation of the manifold parameterization 
+
+First, we construct a local representation of the manifold through the Generalized Moving Least Squares (GMLS) method [21, 27, 36]. This approximation allows one to estimate higher-order geometric quantities, such as the mean curvature κ along moving boundaries and naturally allows one to approximate the integration on the bound-ary directly. Given a set of point cloud data X = {xi }Ni =1 ⊂ Rn sampled from a manifold Γ of dimension d, let K (i ) = {xi1 , . . . , xik }with xi = xi1 denote the set of k-nearest neighbors for any point xi in X . In this work, we focus on the case d = 1and n = 2. The GMLS algorithm approximates a local parameterization of Γ around xi by the embedding map, ˆιi : Txi Γ ≡ R → Γ ⊂ R2, defined by ˆιi (s) = xi + ˆti s + ˆni pi (s), (4) 3A PREPRINT - J ULY 7, 2026 where ˆ ti and ˆ ni are estimates of tangent and normal vectors at xi , respectively. See Appendix A for details on how to construct these basis vectors. Also, pi (s) is an intrinsic polynomial of degree ℓ,
+
+pi (s) = αi ,1 s + αi ,2 s2 + · · · + αi ,ℓsℓ
+
+whose coefficients are determined via a local least-squares fit using the data pairs from T (i ) = {t1 = ˆti · (xi1 −
+
+xi1 ), . . . , tk = ˆti · (xik − xi1 )} ⊂ Txi Γ and N (i ) = {n1 = ˆni · (xi1 − xi1 ), . . . , nk = ˆni · (xik − xi1 )}, (αi ,1 , . . . , αi ,ℓ) = arg min 
+
+> k
+
+X 
+
+> j=1
+
+³
+
+pi (t j ) − n j
+
+´2
+
+.Let γi (s) = (s, pi (s)) be the coordinates in (4), which is a local parametric representation of Γ(t ) near the point xi .The curvature near xi is then approximated by, 
+
+κi (s) = − det( γ′, γ′′ )
+
+|| γ′|| 3 = − p′′  
+
+> i
+
+(s)
+
+³
+
+1 + ¡p′ 
+
+> i
+
+(s)¢2´ 32
+
+, (5) with the estimated curvature at xi denoted by κi = κi (0). 
+
+2.2.2 Spatial and temporal discretization 
+
+Once the GMLS approximation of the local manifold parameterization and curvature have been constructed, we can discretize the BIE (2a) in space, which can be written as a linear system AV n (x) = b(x), with 
+
+AV n (x) =
+
+Z
+
+> Γ
+
+G(x, y)Vn (y)dS y, (6) 
+
+b(x) = − κ(x)2 −
+
+Z
+
+> Γ
+
+κ(y)∇G(x, y) · n(y)dS y, (7) where G(x, y) = − 12π ln ∥x − y∥ and ∇G(x, y) = 12π 
+
+> x−y
+> ∥x−y∥2
+
+.Locally, near xj , we approximate 
+
+dS y =
+
+q
+
+|ι′ 
+
+> j
+
+(s)|d s ≈
+
+q
+
+|ˆι′ 
+
+> j
+
+(s)|d s =
+
+r
+
+1 + ¡p′ 
+
+> j
+
+(s)¢2d s , (8) where we use the local parameterization y = ˆιj (s) in (4) near xj for all j = 1, . . . , N . In terms of the local coordinate system through a change of variables, at x = xi ∈ Γ(t ), 
+
+AV n (xi ) ≈
+
+Z ∆si
+
+> ∆s−i
+
+G¡xi ,ˆ ιi (s)¢Vn
+
+¡ˆιi (s)¢q
+
+1 + ¡p′ 
+
+> i
+
+(s)¢2d s 
+
++ X  
+
+> j̸=i−1, i
+
+Z ∆s j
+
+> 0
+
+G¡xi ,ˆ ιj (s)¢Vn
+
+¡ˆιj (s)¢r
+
+1 + ¡p′ 
+
+> j
+
+(s)¢2d s , (9) where ∆si = ˆt⊤ 
+
+> i
+
+(xi +1 − xi ) > 0, ∆s−i = ˆt⊤ 
+
+> i
+
+(xi −1 − xi ) < 0. Next, we formulate b(xi ) with the local parameterized volume in (8) and write the integral in terms of the local coordinate system through a change of variables, 
+
+b(xi ) ≈ − κ(xi )2 − 12
+
+· Z ∆si
+
+> ∆s−i
+
+κ¡ˆιi (s)¢ ·
+
+³
+
+∇G¡xi ,ˆ ιi (s)¢ · ˆn¡ˆιi (s)¢´q 
+
+1 + ¡p′ 
+
+> i
+
+(s)¢2d s 
+
++ X 
+
+> j̸=i
+
+Z ∆s j 
+
+> ∆s−j
+
+κ¡ˆιj (s)¢³
+
+∇G¡xi ,ˆ ιj (s)¢ · ˆn¡ˆιj (s)¢´r
+
+1 + ¡p′ 
+
+> j
+
+(s)¢2d s 
+
+¸
+
+.(10) Subsequently, we employ standard quadrature rules to derive a discrete approximation of AV n (xi ) and b(xi ). In the numerical implementation, Simpson’s rule is used to approximate b(x) yielding the vector b, while the trapezoidal rule is used to approximate AV n (x), resulting in the matrix A. Notice that the first integrals in (9) and (10) are singular when s = 0, because ˆ ιi (0) = xi . For additional details on the treatment of the singularities, we refer to our previous work [36]. Therefore, we obtain the linear system A ˜Vn = b, which can be solved for the discrete approximate ˜ Vn of the normal velocity. Here, ˜ Vn is an approximation to Vn , whose i th component is ( Vn )i = Vn (xi ). Finally, we apply to time integration schemes to discretize (2b), dx 
+
+> d t
+
+= ˜Vn ˆn with ˜ Vn = A−1b. In the following numer-ical experiments, we will consider both the Forward Euler scheme and the second-order Runge-Kutta scheme. 4A PREPRINT - J ULY 7, 2026 
+
+# 3 Numerical method for non-zero source problems 
+
+For the Hele-Shaw free boundary problem with f̸ = 0, the BIE (2a) contains a volume integral over the evolving domain Ω(t ). A direct quadrature approximation to this term will require the construction of a mesh on Ω(t )at every time step as the boundary evolves, which is computationally expensive. In this section, we introduce an alternative method to circumvent this difficulty. Specifically, we consider the following reformulation to the original system (1). Let us decompose p = p1 + p2 such that, 
+
+−∆p1 = f on Ω, (11) and 
+
+−∆p2 = 0 on Ω(t ), 
+
+p2 = κ − p1
+
+¯¯Γ on Γ(t ),  
+
+> ∂p2
+> ∂n
+
+= −Vn − ∂p1
+
+> ∂n
+
+¯¯¯Γ on Γ(t ), (12) where Ω(t ) ⊂ Ω for all t ≥ 0 and Ω is independent of time. This decomposition allows one to solve (11) for p1 on Ω once, which can be done offline, since this is a standard Poisson problem with a fixed domain. Subsequently, we can apply the boundary integral formulation to (12), yielding following system, 
+
+Z
+
+> Γ
+
+G(x, y)
+
+μ
+
+Vn + ∂p1(y)
+
+∂n(y)
+
+¯¯¯¯Γ
+
+¶
+
+dS y = − κ(x) − p1(x)¯¯Γ
+
+2 −
+
+Z
+
+> Γ
+
+¡κ(y) − p1(y)¯¯Γ
+
+¢ ∂G(x, y)
+
+∂n(y) dS y, x, y ∈ Γ(t ), (13a) 
+
+dx
+
+d t = Vn (x)n(x), x ∈ Γ(t ). (13b) Then, we can apply the numerical scheme discussed in Section 2.2 to solve (13b) to obtain Vn .
+
+Remark 3.1. We don’t specify the boundary conditions for p 1 in the system (11) . Indeed, for a given source term f , the volume potential is uniquely determined by f and is independent of the particular boundary conditions used to define p 1. Subtracting (13a) from (2a) yields 
+
+Z
+
+> Ω
+
+G(x, y) f (y)dV y = p1(x)¯¯Γ
+
+2 +
+
+Z
+
+> Γ
+
+p1(y)¯¯Γ
+
+∂G(x, y)
+
+∂n(y) dS y −
+
+Z
+
+> Γ
+
+G(x, y) ∂p1(y)
+
+∂n(y)
+
+¯¯¯¯Γ
+
+dS y,
+
+which indicates that any change in p 1 is determined by the volume potential, which depends solely on the source term f . 
+
+Next, we present a numerical example for which (11) admits analytical solutions for the corresponding source term 
+
+f . More general cases, where (11) does not admit analytical solutions, are discussed in Section 4. 
+
+Free boundary problem with radial source term. We consider the free boundary equation with a radial source term, 
+
+−∆p = r 2 in Ω(t ), 
+
+p = κ on Γ(t ),  
+
+> ∂p
+> ∂n
+
+= −Vn on Γ(t ), (14) where r =
+
+q
+
+x21 + x22 is the radial coordinate. By decomposition, p = p1 + p2, we reformulate (14) as 
+
+−∆p1 = r 2 on Ω, (15) where p1(r ) = − 116 r 4 is a particular solution of the system (15), and 
+
+
+
+−∆p2 = 0 on Ω(t ), 
+
+p2 = κ − p1
+
+¯¯Γ on Γ(t ),  
+
+> ∂p2
+> ∂n
+
+= −Vn − ∂p1
+
+> ∂n
+
+¯¯¯Γ on Γ(t ). (16) We consider the initial condition in which Ω(t ) is a disk of radius 2 at t = 0 and Ω is a disk of radius R = 3, both centered at the origin. Then the corresponding initial point clouds are defined as 
+
+x(0) =
+
+³
+
+x1(0), x2(0) 
+
+´
+
+=
+
+³
+
+2 cos( θj ), 2 sin( θj )
+
+´
+
+, θj ∈ [0, 2 π], (17) 5A PREPRINT - J ULY 7, 2026 where θj = 2π jN and N is the number of sampling points. For the circular case, the general solution of −∆p2 = 0is p2(r ) = C1 log( r ) + C2. To ensure p2(r ) is finite at r = 0, we have C1 = 0 and p2(r ) = C2 = κ − p1
+
+¯¯Γ which implies 
+
+Vn + ∂p1
+
+> ∂n
+
+¯¯¯Γ = 0. Therefore, dR (t ) 
+
+> d t
+
+= Vn = − ∂p1
+
+> ∂n
+
+¯¯¯Γ = R(t )3 
+
+> 4
+
+, where R(t ) denotes the radius of the evolving domain Ω(t ). Therefore, the solution to (16) at any time t is given by 
+
+R(t ) =
+
+μ 14 − 12 t
+
+¶− 12
+
+, t < 0.5, 
+
+x(t ) =
+
+³
+
+x1(t ), x2(t )
+
+´
+
+=
+
+³
+
+R(t ) cos( θ), R(t ) sin( θ)
+
+´
+
+, θ ∈ [0, 2 π]. Then we conduct the mesh refinement tests to check the order of spatial convergence and temporal convergence. First, we apply our method to discretize (16) directly on point clouds with N = 100, 200, 400, 800, and use the Forward Euler with time step ∆t = 10 −5. We quantify the numerical error in approximating Vn (x) with, 
+
+∥eV ∥L2 =
+
+s
+
+1
+
+|Γ|
+
+Z
+
+> Γ
+
+∥ ˜Vn (x) − Vn (x)∥2dS x ≈
+
+vuut 1
+
+N
+
+> N
+
+X 
+
+> i=1
+
+³
+
+( ˜ Vn )i − Vn (xi )
+
+´2
+
+,at the time t = 5 × 10 −2. In Figure 1(a), we show the error rate is dominated by the error induced by the quadrature rule in the estimation of b, consistent with the results obtained in our previous work in [36] for no source term, 
+
+f = 0. Next, we conduct the time convergence studies with N = 400 and calculate the numerical solutions to 
+
+t = 5 × 10 −2 with various time steps. We define the error for radius of the disk with ∥eR ∥ℓ2 = ∥ ˜R − R(t )∥2, where ˜ R
+
+denotes approximate radius in time. Figure 1(b) indicates the first-order accuracy in time with the Forward Euler method. Also, the evolution dynamics with N = 400, ∆t = 10 −5, and Forward Euler method are shown in Figure 2(a) which depicts the boundary at various times, t = 0, 0.05, and 0.1. The absolute error in the radius over time using the forward Euler and second-order Runge-Kutta time integration schemes is shown in Figure 2(b).    
+
+> (a) Spatial mesh refinement test for Vn.(b) Temporal mesh refinement test for radius of the circle.
+
+Figure 1: Mesh refinement tests. 
+
+# 4 Eigenfunction approximation of the source term 
+
+In this section, we consider the case in which the system (11) does not admit an analytical solution. To approximate the radial source function f (r ) on the disk Ω of radius R with r ∈ [0, R], we employ the eigenfunction expansion method. The resulting eigenfunction expansion yields an approximation of f , while the corresponding approxi-mation of the solution p1 is obtained through the associated eigenvalue relation. We then establish approximation error estimates for the proposed eigenfunction-based approximation. 6A PREPRINT - J ULY 7, 2026  
+
+> (a) Evolution of the circle boundary over time. (b) Error for the circle radius over time.
+
+Figure 2: The evolution dynamics for the circular case. In (a), the profiles of x(t ) at t = 0, 0.05, 0.1 are shown; (b) The errors for radius R(t ) are plotted at a time interval [0, 0.1]. 
+
+4.1 Eigenfunction expansion 
+
+To construct the eigenfunction-based approximation, we consider the following homogeneous Neumann eigen-value problem associated with the negative Laplacian on the disk Ω of radius R,
+
+−∆φm = λm φm , ∂φ m
+
+∂n = 0 on ∂Ω,where ∆ denotes the two-dimensional radial Laplacian. For radial functions, the eigenfunctions are given by 
+
+φm (r ) = J0
+
+μ βm rR
+
+¶
+
+, λm =
+
+μ βm
+
+R
+
+¶2
+
+, m = 1, 2, · · · , (18) where J0 is the Bessel function of the first kind of order zero and βm denotes the m-th positive root of J1. The eigenfunctions { φm }∞ 
+
+> m=1
+
+form an orthogonal basis of the mean-zero subspace of L2 
+
+> r
+
+(0, R), which is a weighted space with inner product defined as 〈φi , φj 〉L2 
+
+> r
+
+= R R 
+
+> 0
+
+φi (r )φj (r )r dr .Since the Neumann eigenfunctions span only the mean-zero subspace, the source function must satisfy the com-patibility condition, 
+
+Z R
+
+> 0
+
+f (r )r dr = 0. (19) To accommodate a general source function f , we decompose 
+
+p1 = bp1 + p1, f = f0 + f , (20) where f = 2
+
+> R2
+
+R R 
+
+> 0
+
+f (r )r dr . By construction, R R 
+
+> 0
+
+f0(r )r dr = 0. Then the Poisson problem in (11) with radial function f becomes 
+
+−∆ bp1 = f0, −∆p1 = f .Since f is a constant, p1(r ) = − f 
+
+> 4
+
+r 2 is a particular solution. Therefore, it remains to approximate bp1. By construc-tion, f0 satisfies the compatibility condition and hence it can be approximated by the truncated eigenfunction expansion 
+
+f0(r ) ≈ f0, M (r ) =
+
+> M
+
+X
+
+> m=1
+
+bm φm (r ), where bm =
+
+R R 
+
+> 0
+
+f0(r )φm (r )r dr 
+
+R R 
+
+> 0
+
+φ2 
+
+> m
+
+(r )r dr 
+
+(21) 7A PREPRINT - J ULY 7, 2026 In the numerical implementation, the integrals are approximated using Gauss-Legendre quadrature. Together, we effectively approximate the source term as, 
+
+f ≈ fM := f0, M + f .Then the approximation of the solution bp1 follows directly from the eigenvalue relation 
+
+bp1 ≈ bp1, M =
+
+> M
+
+X
+
+> m=1
+
+am φm , am = bm
+
+λm
+
+. (22) Finally, we have 
+
+p1(r ) ≈ p1, M (r ) = bp1, M (r ) + p1(r ) =
+
+> M
+
+X
+
+> m=1
+
+bm
+
+λm
+
+φm (r ) − f
+
+4 r 2.
+
+Free boundary problem with radial source term f (r ) = r 2. We next examine the effectiveness of the eigenfunc-tion approximation. To facilitate comparison with the previous example, we consider the same system (14) with source term f (r ) = r 2. Instead of using the exact source term, we approximate f0 = f − f by the truncated eigen-function expansion, where f = 2
+
+> R2
+
+R R 
+
+> 0
+
+f (r )r dr = R2 
+
+> 2
+
+is the weighted radial mean. Similar to previous experiment, we set R = 3. We apply the proposed eigenfunction approximation using Gauss-Legendre quadrature with Nr = 2000 quadrature points and consider M = 50, 100, 200, 400 eigenfunctions. To assess the approximation accuracy, we evaluate the numerical error in the source function f and the corresponding solution p1 using the weighted L2-norm, 
+
+∥e f ∥L2 
+
+> r
+
+=
+
+ÃZ R
+
+> 0
+
+¡ f (r ) − fM (r )¢2 r dr 
+
+! 12
+
+, ∥ep ∥L2 
+
+> r
+
+=
+
+ÃZ R
+
+> 0
+
+¡p1(r ) − p1, M (r )¢2 r dr 
+
+! 12
+
+.We note that the Neumann problem determines bp1 only up to an additive constant. Therefore, we impose the normalization condition R R 
+
+> 0
+
+bp1(r )r dr = 0. The same normalization is applied to the approximation bp1, M to have zero weighted mean before computing the approximation error. First, we investigate the convergence behavior of ∥e f ∥L2 
+
+> r
+
+and ∥ep ∥L2 
+
+> r
+
+as the number of eigenfunctions functions M increases. As shown in Figure 3, the source approximation error ∥e f ∥L2 
+
+> r
+
+decays approximately as M −1.5 while the solution error ∥ep ∥L2 
+
+> r
+
+decays approximately as M −3.5 . The factor of M 2 faster convergence for ∥ep ∥L2 
+
+> r
+
+will be clarified in the next section.  
+
+> (a) (b)
+
+Figure 3: Weighted L2 errors for the approximation of the source function r 2 and the corresponding solution p1.Next, we investigate the dominant error contribution by comparing the total numerical error produced by the pro-posed eigenfunction approximation with that obtained when the exact source term is used in the computation. The total error in solving (14) by approximating f is measured by the difference between the numerical radius and the exact radius. We first fix the number of eigenfunctions at M = 200. Figure 4(a) shows that the time dis-cretization error dominates when Forward Euler scheme is employed. In contrast, Figure 4(b) indicates that the error associated with the eigenfunction approximation becomes dominant when the second-order Runge-Kutta 8A PREPRINT - J ULY 7, 2026 method is used. The resulting radius error exhibits an oscillatory behavior in time, reflecting the truncation er-ror introduced by the Bessel eigenfunction approximation. When the number of eigenfunctions is increased to 
+
+M = 1500, the eigenfunction approximation error continues to dominate the total error, while the oscillatory be-havior is substantially reduced.   
+
+> (a) Radius errors using the Forward Euler scheme. (b) Radius error using the second-order Runge-Kutta scheme.
+
+Figure 4: Comparison of the radius errors obtained using the exact source term and the eigenfunction approxima-tion. The Forward Euler scheme is shown in (a), while the second-order Runge-Kutta scheme is shown in (b). Although r 2 is analytic, it does not satisfy the Neumann boundary conditions. To investigate the influence of these compatibility conditions on the convergence rate, we next consider the source term which satisfies the homoge-neous Neumann boundary condition at r = R.
+
+Free boundary problem with radial source term f (r ) = cos 
+
+³ 2πr 2
+
+> R2
+
+´
+
+. Since f (r ) = cos 
+
+³ 2πr 2
+
+> R2
+
+´
+
+is already mean-zero, we approximate f by the truncated eigenfunction expansion. We use the same numerical settings as in the previ-ous example, namely R = 3, Nr = 2000 Gauss-Legendre quadrature points, and M = 50, 100, 200, and 400 eigen-functions. The corresponding solution is bp1 = − R2 
+
+> 8π
+
+Si 
+
+³ 2πr 2
+
+> R2
+
+´
+
++ C where Si (x) = R x   
+
+> 0sin zz
+
+d z is the sine integral and the constant C is determined by the normalization condition R R 
+
+> 0
+
+bp1(r )r dr = 0. We then investigate the conver-gence behaviour of the source approximation error ∥e f ∥L2 
+
+> r
+
+and the corresponding solution error ∥ep ∥L2 
+
+> r
+
+, where the latter is computed with respect to the reference solution evaluated in MATLAB. As shown in Figure 5, the source approximation error decays at an approximate rate of M −3.5 , which is two orders higher than that observed for 
+
+f (r ) = r 2. The corresponding solution error exhibits an approximate convergence rate of M −5.5 . These numerical results indicate that the convergence rate depends on whether the source term satisfies the compatibility condi-tions associated with the Neumann Laplacian. A theoretical explanation is provided in Section 4.2. 
+
+4.2 Error analysis 
+
+The error analysis of the geometric local parameterization method for solving BIE with f = 0 has already been established in our previous work [36]. Here, we provide an error analysis for eigenfunction approximation. 
+
+Theorem 4.1. Let s ≥ 2 be an even integer. Assume that f ∈ Ds/2 −1, where, for s = 2,D0 :=
+
+n
+
+u ∈ H 2 
+
+> r
+
+(0, R) : ( −∆)i u ∈ L2 
+
+> r
+
+(0, R), i = 0, 1 
+
+o
+
+,
+
+and, for every even integer s ≥ 4,Ds/2 −1 :=
+
+n
+
+u ∈ H sr (0, R) : ( −∆)i u ∈ L2 
+
+> r
+
+(0, R), i = 0, 1, · · · , s
+
+2 , ∂r
+
+³
+
+(−∆)j u
+
+´
+
+(R) = 0, j = 0, 1, · · · , s
+
+2 − 2
+
+o
+
+.
+
+Let f = f0 + f , where f 0 is the mean zero component and f is a constant defined as in (20) . Let bp1 be the corresponding mean-zero radial solution of 
+
+−∆ bp1 = f0 in (0, R), ∂r bp1(R) = 0, 
+
+Z R1
+
+> 0
+
+bp1(r )r dr = 0, 9A PREPRINT - J ULY 7, 2026 
+
+(a) (b) 
+
+Figure 5: Weighted L2 errors for the approximation of the source function cos 
+
+³ 2πr 2
+
+> R2
+
+´
+
+and the corresponding solu-tion p1.
+
+and let bp1, M and f 0, M be defined as in (22) and (21) , respectively. where {λm , φm }m≥1 are the Neumann eigenfunc-tions of −∆ on the disk of radius R as defined in (18) . Then 
+
+∥ f0 − f0, M ∥L2  
+
+> r(0, R)
+
+≤ C1Rs M −s+ 12 ,
+
+and 
+
+∥ bp1 − bp1, M ∥L2  
+
+> r(0, R)
+
+≤ C2Rs+2M −(s+ 32 ),
+
+as M → ∞ , where C 1 = ∥ (−∆)s/2 f0∥L2 
+
+> r
+
++
+
+¯¯¯∂r
+
+¡(−∆)s/2 −1 f0
+
+¢ (R)
+
+¯¯¯ and C 2 = π2C1.Proof. With bm ∥φm ∥2
+
+> L2
+> r
+
+= f0, φm
+
+® 
+
+> L2
+> r
+
+, ( −∆)s/2 φm = λs/2  
+
+> m
+
+φm , and φ′ 
+
+> m
+
+(R) = J1(βm ) = 0, repeated integration by parts yields 
+
+bm ∥φm ∥2 
+
+> L2
+
+= λ−s/2  
+
+> m
+
+〈 f0, ( −∆)s/2 φm 〉L2 
+
+> r
+
+= λ−s/2 
+
+> m
+
+³
+
+〈(−∆)s/2 f0, φm 〉L2 
+
+> r
+
++ R∂r
+
+¡(−∆)s/2 −1 f0
+
+¢ (R)φm (R)
+
+´
+
+.By the triangle inequality and the Cauchy-Schwarz inequality, we obtain 
+
+|bm | ≤ 
+
+λ−s/2 
+
+> m
+
+³¯ ¯¯〈(−∆)s/2 f0, φm 〉L2
+
+> r
+
+¯¯¯ + R
+
+¯¯¯∂r
+
+¡(−∆)s/2 −1 f0
+
+¢ (R)
+
+¯¯¯¯¯¯φm (R)
+
+¯¯¯´
+
+∥φm ∥2
+
+> L2
+> r
+
+≤
+
+λ−s/2 
+
+> m
+
+³
+
+∥(−∆)s/2 f0∥L2 
+
+> r
+
+∥φm ∥L2 
+
+> r
+
++ R
+
+¯¯¯∂r
+
+¡(−∆)s/2 −1 f0
+
+¢ (R)
+
+¯¯¯¯¯¯φm (R)
+
+¯¯¯´
+
+∥φm ∥2
+
+> L2
+> r
+
+.From the classical result, the McMahon’s asymptotic expansions (see §10.21(vi) of [28]) for large zeros in (18), we have 
+
+βm = mπ + π
+
+4 + O(m−1), as m → ∞ , which implies that, 
+
+λm ≍ m2
+
+R2 , (23) for large m. By Lommel’s integrals (see §94 of [1]) and asymptotic expansions (see §80 of [1]), we have ∥φm ∥2
+
+> L2
+> r
+
+= 
+
+> R2
+> 2
+
+J 20 (βm ) and J0(βm ) ≍
+
+q 2 
+
+> πβ m
+
+cos( βm − π 
+
+> 4
+
+), which implies 
+
+∥φm ∥L2 
+
+> r
+
+≍ Rm −1/2 ,
+
+¯¯¯φm (R)
+
+¯¯¯ = ¯¯J0(βm )¯¯ ≍ m−1/2 .10 A PREPRINT - J ULY 7, 2026 By orthogonality, we have 
+
+∥ f0 − f0, M ∥L2 
+
+> r
+
+=
+
+Ã X
+
+> m>M
+
+|bm |2∥φm ∥2
+
+> L2
+> r
+
+! 12
+
+=
+
+Ã X
+
+> m>M
+
+λ−sm λsm |bm |2∥φm ∥2
+
+> L2
+> r
+
+! 12
+
+≤ C1
+
+Ã X
+
+> m>M
+
+λ−sm
+
+! 12
+
+≤ C1Rs
+
+Ã X
+
+> m>M
+
+m−2s
+
+! 12
+
+, (24) where C1 = ∥ (−∆)s/2 f0∥L2 
+
+> r
+
++
+
+¯¯¯∂r
+
+¡(−∆)s/2 −1 f0
+
+¢ (R)
+
+¯¯¯.Using the fact that Pm>M m−2s = R ∞ 
+
+> M
+
+x−2s d x + O(M −2s ) = 12s−1 M −2s+1 + O(M −2s ), we obtain 
+
+∥ f0 − f0, M ∥L2 
+
+> r
+
+≤ C1Rs M −s+ 12 . (25) Now consider −∆ bp1 = f0, we have by orthogonality and the equality in (24), 
+
+∥ bp1 − bp1, M ∥2
+
+> L2
+> r
+
+= X
+
+> m>M
+
+|bm |2
+
+λ2
+
+> m
+
+∥φm ∥2
+
+> L2
+> r
+
+≤ λ−2 
+
+> M+1
+
+X
+
+> m>M
+
+|bm |2∥φm ∥2
+
+> L2
+> r
+
+= λ−2 
+
+> M+1
+
+∥ f0 − f0, M ∥2
+
+> L2
+> r
+
+.Using (23), (25), the proof is complete. 
+
+Remark 4.1. The convergence rates observed in the numerical examples are consistent with the error estimates es-tablished in Theorem 4.1. Specifically, for the source term f (r ) = r 2, we have f ∈ D0, corresponding to s = 2. The observed convergence rate agrees with the estimate in Theorem 4.1, ∥e f ∥L2 
+
+> r
+
+= O(M −s+1/2 ) = O(M −1.5 ). Similarly, for f (r ) = cos 
+
+³ 2πr 2
+
+> R2
+
+´
+
+, we have f ∈ D1, corresponding to s = 4. Theorem 4.1 predicts ∥e f ∥L2 
+
+> r
+
+= O(M −3.5 ), which is in agreement with the observed convergence rate. 
+
+Numerically, since we approximate bm with Gauss-Legendre with Nr quadrature, we have the following quadrature error for each coefficient. 
+
+Lemma 4.1. Define g 0(r ) = r f 0(r ) and ϕm (r ) = pr φm (r ), where f 0 ∈ Ds/2 −1 is defined as in Theorem 4.1. Let b m ,defined in (21) , be approximated using an order-q Gauss-Legendre quadrature rule Q Nr with N r quadrature points, 
+
+ebm = QNr (g0φm )
+
+QNr (ϕ2 
+
+> m
+
+) ,
+
+where q < s − 12 . Then, 
+
+|bm − ebm | ≤ Cs,q R−(s+3/2) m(s+1) N −qr ∥ f0∥H sr ,
+
+where C s,q > 0 is a constant depends on q and s, but independent of R , Nr , and m. Proof. We first review the asymptotic rates for the Gauss quadrature rule. Specifically, for any f ∈ C q [0, R] function, we have 
+
+¯¯I ( f ) −QNr ( f )¯¯ ≤ Cq N −qr ∥ f ∥C q , (26) where I ( f ) = R R 
+
+> 0
+
+f (r ) dr and QNr ( f ) denotes Gauss-Legendre approximation of the integral with Nr quadrature points. If f ∈ C ∞, then we have exponential convergence, 
+
+¯¯I ( f ) −QNr ( f )¯¯ ≤ C ρ−2Nr ,where ρ > 1. From the definitions in the lemma, 
+
+|bm − ebm | = 
+
+¯¯¯¯
+
+I (g0φm )
+
+I (ϕ2 
+
+> m
+
+) − QNr (g0φm )
+
+QNr (ϕ2 
+
+> m
+
+)
+
+¯¯¯¯ ≤ 1
+
+|QNr (ϕ2 
+
+> m
+
+)|
+
+¡¯ ¯I (g0φm ) −QNr (g0φm )¯¯ + | bm | ¯¯I (ϕ2 
+
+> m
+
+) −QNr (ϕ2 
+
+> m
+
+)¯¯¢ .Since ϕm is analytic, the second term on the right hand side decays exponentially and the error is dominated by the first term. Then for large m, QNr (ϕ2 
+
+> m
+
+) ≍ ∥ φm ∥2
+
+> L2
+> r
+
+≍ R2 
+
+> m
+
+. Together with (26), we obtain 
+
+|bm − ebm | ≤ mR2 Cq N −qr ∥g0φm ∥C q . (27) 11 A PREPRINT - J ULY 7, 2026 With the assumption f0 ∈ Ds/2 −1 and Ds/2 −1 ⊂ H sr , f0 ∈ H sr and g0(r ) = r f 0(r ) ∈ H s , and the fact that φm ∈ C ∞, we have g0φm ∈ C q , when s > q + 1/2, by the Sobolev embedding theorem. That is, 
+
+∥g0φm ∥C q ≤ Cs ∥g0φm ∥H s .Since, 
+
+∥g0φm ∥2 
+
+> L2
+
+=
+
+Z R
+
+> 0
+
+g 20 (r )φ2 
+
+> m
+
+(r ) dr ≤ R
+
+Z R
+
+> 0
+
+f 20 (r )φ2 
+
+> m
+
+(r )r dr = R∥ f0φm ∥2
+
+> L2
+> r
+
+.With similar argument, ∥g0φm ∥H s ≤ R1/2 ∥ f0φm ∥H sr . This implies that , 
+
+∥g0φm ∥C q ≤ Cs R1/2 ∥ f0φm ∥H sr ≤ Cs
+
+μ mR
+
+¶s
+
+R1/2 ∥ f0∥H sr ,where we have used ∥∂ℓ 
+
+> r
+
+φm ∥L∞ ≤
+
+³ mR
+
+´ℓ
+
+. Inserting this to (27), the proof is complete. With these results, we deduce the following error estimate. 
+
+Theorem 4.2. Let the assumptions in Theorem 4.1 be valid. Let ef0, M be the discretization of f 0, M defined as 
+
+ef0, M =
+
+> M
+
+X
+
+> m=1
+
+ebm φm ,
+
+where ebm are coefficients approximated as in Lemma 4.1 for all m = 1, . . . , M . Then, as M → ∞ ,
+
+∥ f0 − ef0, M ∥L2 
+
+> r
+
+≤ C1Rs M −s+ 12 +Cs,q R−(s+1/2) M s+1N −qr ∥ f0∥H sr , (28) 
+
+For the corresponding Poisson approximation, ep1, M = PMm=1 
+
+> ebm
+> λm
+
+φm , we have 
+
+∥ bp1 − ep1, M ∥L2 
+
+> r
+
+≤ C2Rs+2M −(s+ 32 ) +Cs,q R−(s−3/2) M s−1N −qr ∥ f0∥H sr . (29) 
+
+Proof. By the triangle inequality, 
+
+∥ f0 − ef0, M ∥L2 
+
+> r
+
+≤ ∥ f0 − f0, M ∥L2 
+
+> r
+
++ ∥ f0, M − ef0, M ∥L2 
+
+> r
+
+.The first term is bounded by Theorem 4.1. For the second term, 
+
+f0, M − ef0, M =
+
+> M
+
+X
+
+> m=1
+
+(bm − ebm )φm .Using orthogonality and Lemma 4.1, 
+
+∥ f0, M − ef0, M ∥2
+
+> L2
+> r
+
+=
+
+> M
+
+X
+
+> m=1
+
+|bm − ebm |2∥φm ∥2
+
+> L2
+> r
+
+≤ C 2 
+
+> s,q
+
+R−2( s+3/2) N −2qr ∥ f0∥2 
+
+> Hsr
+
+Ã MX
+
+> m=1
+
+m2( s+1) ∥φm ∥2
+
+> L2
+> r
+
+!
+
+.Since ∥φm ∥2
+
+> L2
+> r
+
+≍ R2 
+
+> m
+
+, we have 
+
+∥ f0, M − ef0, M ∥L2 
+
+> r
+
+≤ Cs,q R−(s+1/2) M s+1N −qr ∥ f0∥H sr ,where we use the fact that PMm=1 m2s+1 = M 2s+2 
+
+> 2s+2
+
++ O(M 2s+1). Combining with the basis error in Theorem 4.1, we obtain (28). For the corresponding solution bp1, using the scalings of λm in (23) and the norm of the eigenbasis φm , we have 
+
+∥ bp1, M − ep1, M ∥2
+
+> L2
+> r
+
+=
+
+> M
+
+X
+
+> m=1
+
+|bm − ebm |2
+
+λ2
+
+> m
+
+∥φm ∥2
+
+> L2
+> r
+
+≤ C 2 
+
+> s,q
+
+R−2( s+3/2) N −2qr ∥ f0∥2 
+
+> Hsr
+
+ MX
+
+> m=1
+
+m2( s+1) ∥φm ∥2
+
+> L2
+> r
+
+λ2
+
+> m
+
+ .Using the scalings of λm in (23) and the norm of the eigenbasis φm , we have, 
+
+∥ bp1, M − ep1, M ∥L2 
+
+> r
+
+≤ Cs,q R−(s−3/2) M s−1N −qr ∥ f0∥H sr ,where we use the fact that PMm=1 m2s−3 = M 2s−2 
+
+> 2s−2
+
++ O(M 2s−3). Combining with the basis error in Theorem 4.1, we obtain (29). 12 A PREPRINT - J ULY 7, 2026 
+
+Remark 4.2. Although this result is tailored to the Gauss-Legendre method that we used in our numerical imple-mentation, the result can easily be modified for arbitrary quadrature rules. Additionally, we have several notes: 1. The result in Theorem 4.2 shows the projection error rate (first term) and the coefficient approximation error (second term). In our numerical experiments, we use a large number of quadrature points, N r , to suppress the coefficient approximation error. The results in Figure 3 correspond to the projection error rate, where one can see that the error in approximating bp1 decays M 2 faster than that of f 0.2. We should point out that while we focus on expansion of radial functions, one can also consider the Bessel expansion for nonradial functions. In fact, if the domain is arbitrary, the natural basis is to use eigenfunc-tions of the Laplace associated with the domain under the prescribed boundary conditions. On a disk, these eigenfunctions are given by the Fourier-Bessel eigenfunctions, which provide a natural basis for approxi-mating nonradial source terms. In Section 5, we present a numerical example based on the Fourier-Bessel expansion to illustrate the applicability of the proposed framework to nonradial source terms. 3. In Theorem 4.2, the solution bp1, M is defined with the exact λm = β2 
+
+> m
+
+/R2, where βm are zeros of the Bessel function J 1. Practically, we approximate these roots with the Newton scheme. While we believe that the error induced by this approximation is smaller than the one reported in Theorem 4.2, one can always add this error rate for completeness. 
+
+# 5 Applications and extensions 
+
+In this section, we demonstrate the applicability of the proposed method to a free-boundary tumor growth model which describes the interactions among tumor cells. We then demonstrate the extension of the proposed method to free boundary problems with more general source terms and present a numerical example with a nonradial source term. 
+
+5.1 Application to tumor growth 
+
+Let Ω ⊂ R2 denote a vascularized tissue region and let Ω(t ) ⊂ Ω denote the tumor domain. We assume that tumor cells occupy the evolving domain Ω(t ) and that their local proliferation rate is proportional to the nutrient concen-tration [12, 4]. Since nutrients are supplied through the surrounding vascular network formed by angiogenesis, the nutrient concentration is modeled on the entire tissue domain Ω rather than only within the tumor [22, 19]. As-suming that nutrient diffusion occurs on a much faster time scale than tumor growth, the nutrient concentration is governed by the quasi-steady reaction–diffusion equation 
+
+½ −∆c = −c in Ω,
+
+c = c0 on Γ, (30) where c0 denotes the constant nutrient concentration supplied at the boundary. Cell proliferation induces a ve-locity field V describing the motion of tumor cells, which is assumed to obey Darcy’s law [2, 13, 14, 10]. Under the assumption of constant cell density, conservation of mass together with Darcy’s law yields 
+
+
+
+−∆p = η(c − ˜c) in Ω(t ), 
+
+p = κ on Γ(t ),  
+
+> ∂p
+> ∂n
+
+= −Vn on Γ(t ), (31) where p is the pressure of the fluid-like cells in Ω(t ), η is a positive parameter, and ˜ c denotes the threshold nutrient concentration. In many continuum tumor growth models, the nutrient concentration is defined on the evolving tumor domain Ω(t ) and is coupled with the free boundary through the moving interface [25, 24]. Consequently, the nutrient field must be recomputed as the tumor boundary evolves, leading to a fully coupled moving-boundary problem. In this paper, our primary objective is to develop and validate an accurate numerical method for the generalized Hele–Shaw free boundary problem arising from the pressure equation in tumor growth, rather than for the coupled nutrient–tumor system. To this end, we prescribe the nutrient field by solving (30) on a larger fixed tissue domain Ω, which is motivated by nutrient supply from the surrounding vascular network. The resulting nutrient distribution provides a spatially varying source term in the pressure equation (31), allowing us to isolate the numerical treatment of the free boundary evolution while retaining a biologically meaningful forcing. We consider the nutrient equation (30) posed on a disk Ω of radius R. Due to the radial symmetry of Ω, the nutrient concentration admits the analytical solution 
+
+c(r ) = c0
+
+I0(r )
+
+I0(R) ,13 A PREPRINT - J ULY 7, 2026 where I0 denotes the modified Bessel function of the first kind of order zero. The corresponding source term in the free boundary equation (31) is then obtained from this nutrient distribution, −∆p = η (c(r ) − ˜c). By decomposition, 
+
+p = p1 + p2, we reformulate (31) as 
+
+−∆p1 = η (c(r ) − ˜c) on Ω, and 
+
+
+
+−∆p2 = 0, on Ω(t ), 
+
+p2 = κ − p1
+
+¯¯Γ , on Γ(t ),  
+
+> ∂p2
+> ∂n
+
+= −Vn − ∂p1
+
+> ∂n
+
+¯¯¯Γ , on Γ(t ). (32) Combining with (30), we have −∆(p1+ηc) = − η ˜c which implies that p1(r ) = − ηc0 I0(r ) 
+
+> I0(R)
+
++ η ˜c 
+
+> 4
+
+r 2 is a particular solution. For the numerical experiments, we set R = 3, c0 = 1, η = 10, and ˜ c = 0.1. 
+
+Remark 5.1. Here we consider the nutrient equation (30) on a fixed disk Ω of radius R. Due to the radial symmetry of Ω, the nutrient concentration admits the analytical solution, which allows the source term in the tumor model to be evaluated directly. This assumption is made solely for the purpose of validating the proposed framework. For a general tissue domain, an analytical solution is generally unavailable. However, the nutrient equation can be reformulated as a boundary integral equation using the Green’s function denoted as bG(x, y) associated with the modified Helmholtz operator (−∆ + 1) . Specifically, bG(x, y) = 12π K0
+
+¡∥x − y∥¢ for two-dimensional cases, where K 0 is the modified Bessel function of the second kind of order zero. Applying the Green’s third identity yields c(x) =
+
+Z
+
+> Γ
+
+μbG(x, y) ∂c(y)
+
+∂n(y) − c(y) ∂ bG(x, y)
+
+∂n(y)
+
+¶
+
+dS y, ∀x ∈ Ω (33) 
+
+Incorporating the jump condition and the boundary condition c = c0 on Γ, we have 
+
+Z
+
+> Γ
+
+bG(x, y) ∂c(y)
+
+∂n(y) dS y = − c0
+
+2 −
+
+Z
+
+> Γ
+
+c0
+
+∂ bG(x, y)
+
+∂n(y) dS y, x, y ∈ Γ
+
+from which the unknown normal derivative ∂c
+
+> ∂n
+
+¯¯¯Γ can be determined. The nutrient concentration c is then recovered from the boundary integral equation (33) and the boundary condition. Therefore, the proposed framework naturally extends to general tissue domain without requiring volumetric discretization. 
+
+Radial source term on a disk. In this example, we consider the tumor region Ω(t ) to be a disk whose initial boundary is a circle with radius 2, 
+
+x(0) =
+
+³
+
+x1(0), x2(0) 
+
+´
+
+=
+
+³
+
+2 cos( θ), 2 sin( θ)
+
+´
+
+, θ ∈ [0, 2 π]. (34) For the circular case, the general solution of −∆p2 = 0 is p2(r ) = κ − p1
+
+¯¯Γ which implies that Vn + ∂p1
+
+> ∂n
+
+¯¯¯Γ = 0. There-fore, dR (t ) 
+
+> d t
+
+= Vn = − ∂p1
+
+> ∂n
+
+¯¯¯Γ = ηc0 I1(R(t ))  
+
+> I0(R)
+
+− η ˜c 
+
+> 2
+
+R(t ), where I1 denotes the modified Bessel function of the first kind of order one, and R(t ) denotes the radius of the evolving domain Ω(t ). Numerically, we first approximate f0 = f (r )− f
+
+by the truncated eigenfunction expansion, where f (r ) = η (c(r ) − ˜c), and f = 2
+
+> R2
+
+R R 
+
+> 0
+
+f (r )r dr = ηc0 2I1(R) 
+
+> R I 0(R)
+
+− ˜c is the weighted radial mean. We employ Gauss–Legendre quadrature with Nr = 2000 points and M = 200 eigenfunctions. Equation (32) is then solved using the proposed geometric local parameterization method with N = 400, ∆t = 10 −5,and forward Euler time stepping. The resulting evolution of Ω(t ) is shown in Figure 6(a), where snapshots at t = 0, 0.05, and 0.2 are displayed. For validation, the ODE for R(t ) is solved using MATLAB’s ode45 solver as a reference solution. Figure 6(b) shows the absolute error in the radius over time. 
+
+Radial source term on a perturbed disk. Next, we consider a tumor region Ω(t ) whose initial boundary is a perturbed disk given by, 
+
+x(0) =
+
+³
+
+x1(0), x2(0) 
+
+´
+
+=
+
+³
+
+r (θ) cos( θ), r (θ) sin( θ)
+
+´
+
+, r (θ) = 1 + D1 cos( D2θ), θ ∈ [0, 2 π], (35) where D1 and D2 are parameters. We set D1 = 0.1 and D2 = 5, while all other numerical parameters are kept the same as in the previous example. As shown in Figure 7, the interface initially relaxes toward a circular shape due to surface tension effects. At later times, the forcing induced by the source term dominates, leading to overall tumor growth. 14 A PREPRINT - J ULY 7, 2026  
+
+> (a) Interface evolution for a radial source term on a disk. (b) Radius error over time.
+
+Figure 6: The evolution dynamics for a radial source term on a disk with initial radius 2. In (a), the profiles of x(t )at t = 0, 0.05, 0.2. In (b), The error for radius R(t ) is plotted at a time interval [0, 0.2].       
+
+> (a) Interface evolution for a radial source term on a per-turbed disk with D1=0.1, D2=5.
+> (b) Evolution of then maximum and minimum distances from the boundary points to the center.
+
+Figure 7: The evolution dynamics for a radial source term on a perturbed circle with D1 = 0.1 and D2 = 5. In (a), the profiles of x(t ) at t = 0, 0.05, 0.25 are shown. In (b), The maximum and minimum distances from the boundary points to the center are shown. 
+
+5.2 Extension to nonradial source term 
+
+The numerical examples presented in the previous sections focus on radial source terms, for which only the radial Bessel eigenfunctions are required. We now demonstrate that the proposed method can be naturally extended to free boundary problems with nonradial source terms. The eigenfunction-based approximation is then con-structed using the full Fourier-Bessel basis associated with the homogeneous Neumann eigenvalue problem for the negative Laplacian on the disk Ω of radius R. The eigenfunctions are given by 
+
+ψ1, nm (r, θ) = cos( nθ)Jn
+
+μ βnm rR
+
+¶
+
+, ψ2, nm (r, θ) = sin( nθ)Jn
+
+μ βnm rR
+
+¶
+
+,where Jn is the Bessel function of the first kind of order n, and βnm is the m-th positive zero of J ′ 
+
+> n
+
+. The positive zeros βnm are computed numerically by first locating intervals containing successive roots through sign changes of J ′ 
+
+> n
+
+, followed by refinement using MATLAB’s fzero routine. For a general source function f (r, θ), as in Section 4.1, we decompose f = f0 + f , where f = 1
+
+> πR2
+
+R 2π
+
+> 0
+
+R R 
+
+> 0
+
+f (r, θ)r dr d θ,so that f0 belongs to the mean-zero subspace spanned by the Neumann eigenfunctions. We then approximate f0
+
+15 A PREPRINT - J ULY 7, 2026 by the truncated eigenfunction expansion 
+
+f0(r, θ) ≈ f0, Nθ ,M (r, θ) =
+
+> Nθ
+
+X
+
+> n=0
+> M
+
+X
+
+> m=1
+
+(Anm cos( nθ) + Bnm sin( nθ)) Jn
+
+μ βnm rR
+
+¶
+
+,where Nθ is the maximal number of angular modes, and M is the maximal number of radial modes. The coeffi-cients are given by the corresponding weighted L2 projections. For n ≥ 1, 
+
+Anm =
+
+R 2π
+
+> 0
+
+R R 
+
+> 0
+
+f0(r, θ)Jn
+
+³ βnm rR
+
+´
+
+cos( nθ)r dr d θ
+
+R 2π
+
+> 0
+
+R R
+
+> 0
+
+³
+
+Jn
+
+³ βnm rR
+
+´
+
+cos( nθ)
+
+´2
+
+r dr d θ
+
+, Bnm =
+
+R 2π
+
+> 0
+
+R R 
+
+> 0
+
+f0(r, θ)Jn
+
+³ βnm rR
+
+´
+
+sin( nθ)r dr d θ
+
+R 2π
+
+> 0
+
+R R
+
+> 0
+
+³
+
+Jn
+
+³ βnm rR
+
+´
+
+sin( nθ)
+
+´2
+
+r dr d θ
+
+.Then the approximation of the corresponding solution bp1 follows directly from the eigenvalue relation 
+
+bp1 ≈ bp1, Nθ ,M =
+
+> Nθ
+
+X
+
+> n=0
+> M
+
+X
+
+> m=1
+
+μ Anm 
+
+λnm 
+
+cos( nθ) + Bnm 
+
+λnm 
+
+sin( nθ)
+
+¶
+
+Jn
+
+μ βnm rR
+
+¶
+
+, λnm =
+
+μ βnm 
+
+R
+
+¶2
+
+.We illustrate this extension with the following numerical example, 
+
+f (r, θ) = r 2e r cos( θ)2R , r ∈ [0, R], θ ∈ [0, 2 π]. We set R = 3 and apply the proposed eigenfunction approximation using Gauss-Legendre quadrature with Nr =
+
+2000 quadrature points in the radial direction and Na = 256 uniformly distributed points in the angular direction. We first investigate the convergence of the proposed approximation with respect to the number of radial modes. The number of angular modes is fixed at Nθ = 10, while the number of radial modes is taken as M = 100, 200, 400, and 800. As shown in Figure 8(a), the approximation error ∥e f ∥L2 =
+
+³R 2π
+
+> 0
+
+R R
+
+> 0
+
+¡ f (r, θ) − fM (r, θ)¢2 r dr d θ
+
+´ 12
+
+decays approximately as M −1.5 . Next, we examine the convergence with respect to the number of angular modes. The number of radial modes is fixed at M = 1600, while the number of angular modes is varied as Nθ = 1, 2, 3, and 4. Figure 8(b) demonstrates exponential convergence with increasing Nθ . 
+
+> (a) (b)
+
+Figure 8: Weighted L2 errors for the approximation of the source function f .Having verified the convergence of the proposed eigenfunction approximation, we next solve the free boundary problem with the nonradial source term, 
+
+−∆p1 = f (r, θ) on Ω, and 
+
+
+
+−∆p2 = 0, on Ω(t ), 
+
+p2 = κ − p1
+
+¯¯Γ , on Γ(t ),  
+
+> ∂p2
+> ∂n
+
+= −Vn − ∂p1
+
+> ∂n
+
+¯¯¯Γ , on Γ(t ), (36) where the initial boundary of Ω(t ) is a perturbed disk given by, 
+
+r (θ) = 2 + D1 cos( D2θ), 
+
+x(0) =
+
+³
+
+x1(0), x2(0) 
+
+´
+
+=
+
+³
+
+r (θ) cos( θ), r (θ) sin( θ)
+
+´
+
+, θ ∈ [0, 2 π], (37) 16 A PREPRINT - J ULY 7, 2026 where D1 and D2 are parameters with values D1 = 0.1 and D2 = 5. We apply the proposed eigenfunction approxi-mation using M = 600 radial terms and Nθ = 6 angular terms. (36) is then solved by the proposed geometric local parameterization method with N = 400, ∆t = 10 −5, and the Forward Euler method. The evolution dynamics of 
+
+Ω(t ) is shown in Figure 9(a), while Figure 9(b) depicts the evolution of then maximum and minimum distances from the boundary points to the center of mass.       
+
+> (a) Interface evolution for a nonradial source term on a perturbed disk with D1=0.1, D2=5.
+> (b) Evolution of the maximum and minimum distances from the boundary points to the center of mass.
+
+Figure 9: The evolution dynamics for a nonradial source term on a perturbed circle with D1 = 0.1 and D2 = 5. In (a), the profiles of x(t ) at t = 0, 0.05, 0.15 are shown. In (b), The maximum and minimum distances from the boundary points to the center of mass are shown. 
+
+# 6 Conclusion 
+
+In this work, we have presented a meshfree numerical framework for solving Hele-Shaw free boundary problems with surface tension and source terms. By combining geometric local parameterization with boundary integral methods, the governing equations are reformulated as a boundary-only system, eliminating the need for volumet-ric discretization of the evolving domain. To efficiently treat general source terms, we introduced an eigenfunction-based approximation on a fixed auxiliary domain and established rigorous error estimates for both the basis trun-cation and coefficient approximation, providing a theoretical foundation for the proposed approach. The numerical results demonstrate that the proposed method accurately captures the free-boundary evolution while achieving the predicted convergence rates. In particular, the approximation error for the particular solu-tion is observed to decay faster than that of the source function. The proposed framework is further applied to a coupled free boundary tumor growth model, demonstrating its flexibility in handling coupled moving-boundary problems without remeshing. The proposed approach naturally extends to more general source terms and geometries. In particular, future work includes the construction of Laplacian eigenfunction approximations on arbitrary domains, the extension to three-dimensional free boundary problems, and applications to more complex biological and multiphysics systems. 
+
+# Acknowledgments 
+
+ZZ was supported by the ICDS seed grant and National Institute of General Medical Sciences (NIGMS) grant 1R35GM146894. JH was partially supported by NSF grant DMS-2505605, WH was supported by NIGMS 1R35GM146894 and the Huck Chair in AI Mathematical Modeling from Penn State University’s Huck Institutes of the Life Sciences. 
+
+# Conflicts of interest / Competing interests 
+
+The authors declare that they have no competing interests. 17 A PREPRINT - J ULY 7, 2026 
+
+# Availability of data and materials 
+
+No datasets were generated or analyzed during the current study. Data sharing is not applicable to this article. 
+
+# References 
+
+[1] Frank Bowman. Introduction to Bessel functions . Courier Corporation, 2012. [2] HM Byrne and M A_ J Chaplain. Growth of nonnecrotic tumors in the presence and absence of inhibitors. 
+
+Mathematical biosciences , 130(2):151–181, 1995. [3] X. Chen and A. Friedman. A free boundary problem for an elliptic-hyperbolic system: an application to tumor growth. SIAM J. Math. Anal. , 35(4):974–986, 2003. [4] Ying Chen and John S Lowengrub. Tumor growth in complex, evolving microenvironmental geometries: a diffuse domain approach. Journal of theoretical biology , 361:14–30, 2014. [5] Richard Courant and David Hilbert. Methods of mathematical physics, volume 2 . John Wiley & Sons, 2024. [6] Xiaobing Feng and Andreas Prohl. Analysis of a fully discrete finite element method for the phase field model and approximation of its sharp interface limits. Mathematics of computation , 73(246):541–567, 2004. [7] A. Friedman and J. Spruck. Variational and free boundary problems , volume 53. Springer Science & Business Media, 2012. [8] Avner Friedman. Generalized functions and partial differential equations . Prentice Hall, 1963. [9] Avner Friedman. Free boundary problems in science and technology. Notices of the AMS , 47(8):854–861, 2000. [10] Avner Friedman. A hierarchy of cancer models and their mathematical challenges. Discrete and Continuous Dynamical Systems-B , 4(1):147–159, 2003. [11] Avner Friedman. Free boundary problems in biology. Philosophical Transactions of the Royal Society A: Math-ematical, Physical and Engineering Sciences , 373(2050):20140368, 2015. [12] Avner Friedman and Bei Hu. Bifurcation from stability to instability for a free boundary problem arising in a tumor model. Archive for rational mechanics and analysis , 180(2):293–330, 2006. [13] Harvey P Greenspan. Models for the growth of a solid tumor by diffusion. Studies in Applied Mathematics ,51(4):317–340, 1972. [14] Harvey P Greenspan. On the growth and stability of cell cultures and solid tumors. Journal of theoretical biology , 56(1):229–242, 1976. [15] W. Hao, J. Hauenstein, B. Hu, and A. Sommese. A three-dimensional steady-state tumor system. Appl. Math. Comput. , 218(6):2661–2669, 2011. [16] Wenrui Hao, Bei Hu, Shuwang Li, and Lingyu Song. Convergence of boundary integral method for a free boundary system. J. Comput. Appl. Math. , 334:128–157, 2018. [17] John Harlim, Shixiao Willing Jiang, and John Wilson Peoples. Radial basis approximation of tensor fields on manifolds: from operator estimation to manifold learning. J. Mach. Learn. Res. , 24(345):1–85, 2023. [18] H. Hele-Shaw. Flow of water. Nature , 58:520, 1898. [19] J Holash, SJ Wiegand, and GD Yancopoulos. New model of tumor angiogenesis: dynamic balance between vessel regression and growth mediated by angiopoietins and vegf. Oncogene , 18(38):5356–5362, 1999. [20] Thomas Y Hou, John S Lowengrub, and Michael J Shelley. Removing the stiffness from interfacial flows with surface tension. Journal of Computational Physics , 114(2):312–338, 1994. [21] Shixiao Willing Jiang, Rongji Li, Qile Yan, and John Harlim. Generalized finite difference method on unknown manifolds. J. Comput. Phys. , 502:112812, 2024. [22] Robert S Kerbel. Tumor angiogenesis. New England Journal of Medicine , 358(19):2039–2049, 2008. [23] Rainer Kress. Linear integral equations , volume 82. Springer, 1989. [24] John S Lowengrub, Hermann B Frieboes, Fang Jin, Yao-Li Chuang, Xiangrong Li, Paul Macklin, Steven M Wise, and Vittorio Cristini. Nonlinear modelling of cancer: bridging the gap between cells and tumours. 
+
+Nonlinearity , 23(1):R1–R91, 2010. [25] Min-Jhe Lu, Wenrui Hao, Bei Hu, and Shuwang Li. Bifurcation analysis of a free boundary model of vascular tumor growth with a necrotic core and chemotaxis. Journal of mathematical biology , 86(1):19, 2023. 18 A PREPRINT - J ULY 7, 2026 [26] Paul Macklin and John Lowengrub. Nonlinear simulation of the effect of microenvironment on tumor growth. 
+
+Journal of theoretical biology , 245(4):677–704, 2007. [27] Davoud Mirzaei, Robert Schaback, and Mehdi Dehghan. On generalized moving least squares and diffuse derivatives. IMA J. Numer. Anal. , 32(3):983–1000, 2012. [28] Frank W. J. Olver, Daniel W. Lozier, Ronald F. Boisvert, and Charles W. Clark, editors. NIST Handbook of Math-ematical Functions . Cambridge University Press, 2010. [29] Constantine Pozrikidis. Boundary integral and singularity methods for linearized viscous flow . Cambridge university press, 1992. [30] Stanley Richardson. Hele shaw flows with a free boundary produced by the injection of fluid into a narrow channel. Journal of Fluid Mechanics , 56(4):609–618, 1972. [31] G Ryskin and LG Leal. Numerical solution of free-boundary problems in fluid mechanics. part 1. the finite-difference technique. Journal of fluid mechanics , 148:1–17, 1984. [32] Phillip A Sackinger, Peter Randall Schunk, and Rekha R Rao. A newton–raphson pseudo-solid domain map-ping technique for free and moving boundary problems: a finite element implementation. Journal of compu-tational physics , 125(1):83–103, 1996. [33] Philip Geoffrey Saffman and Geoffrey Ingram Taylor. The penetration of a fluid into a porous medium or hele-shaw cell containing a more viscous liquid. Proceedings of the Royal Society of London. Series A. Mathematical and Physical Sciences , 245(1242):312–329, 1958. [34] Jie Shen. Efficient spectral-galerkin method ii. direct solvers of second-and fourth-order equations using chebyshev polynomials. SIAM Journal on Scientific Computing , 16(1):74–87, 1995. [35] Gretar Tryggvason and Hassan Aref. Numerical experiments on hele shaw flow with a sharp interface. Journal of Fluid Mechanics , 136:1–30, 1983. [36] Zengyan Zhang, Wenrui Hao, and John Harlim. Geometric local parameterization for solving hele-shaw prob-lems with surface tension. SIAM J. Sci. Comput. (to appear) , 2026. 
+
+# A Generalized Moving Least Squares Approximation for the Local Parametrization 
+
+In this appendix, we review the Generalized Moving Least Squares (GMLS) method and its application to approx-imate a local parameterization of smooth manifolds, which subsequently yields a higher-order approximation of the local tangent space. We first employ a classical local singular value decomposition (SVD) method based on neighboring point cloud data to approximate the local tangent space at each point on the manifold Γ ⊂ Rd ,. More specifically, for each point xi in the point cloud X ⊂ Rn , we construct a local distance matrix Di = [Di1 , . . . , Dik ] ∈ Rn×k , where k > d and 
+
+Di j := xi j − xi , j = 1, . . . , k, using its k-nearest neighbors. The approximated tangent space Txi Γ is then obtained by taking the SVD of Di , yielding an orthonormal basis {˜ t(1)  
+
+> i
+
+, . . . ,˜ t(d) 
+
+> i
+
+}. We should point out that, for uniformly sampled random data of size N , the SVD approximation converges at order N −1/ d , provided that a sufficiently large number of k-nearest points is used (see Remark 9 in [17]). To attain a higher-order approximation of the local tangent space, we consider the Generalized Moving Least Square method. Generally, we use an intrinsic polynomial to approximate smooth function g : Γ → R over the neighborhood of xi which is the optimal solution for the following least-squares problem, min   
+
+> ˆg∈Pl,d
+> xi
+> k
+
+X 
+
+> j=1
+
+³
+
+g (xi j ) − ˆg (xi j )
+
+´2
+
+,where Pl ,d 
+
+> xi
+
+is the space of intrinsic polynomial with degree up to l at the point xi ∈ Γ ⊂ Rd . We refer to ˆ g as the Generalized Moving Least Squares (GMLS) estimate of g .In the tangent space approximation, the function g will be the local parameterization of the manifold, with the tangent space represented by its Jacobian. In this work, we restrict our attention to the case d = 1 and n = 2. Let ˜ti and ˜ ni denote the approximate tangent and normal vectors obtained from the local SVD method. The GMLS approximation for the local parametrization over a neighborhood of each base point xi is stated as follows, 1. Obtain the intrinsic polynomial ˜ pi : Txi Γ → R through a least-square fitting procedure, ˜pi ( ˜ s) = ˜αi ,1 ˜s + ˜αi ,2 ˜s2 + · · · + ˜αi ,ℓ ˜sℓ,19 A PREPRINT - J ULY 7, 2026 where ˜ s ∈ {˜ ti ·(xi1 −xi1 ), . . . ,˜ ti ·(xik −xi1 )} ⊂ Txi Γ, and the coefficients are obtained by a least squares fit, i.e., ( ˜ αi ,1 , . . . , ˜ αi ,ℓ) = arg min 
+
+> k
+
+X 
+
+> j=1
+
+³
+
+˜pi ( ˜ s) − ˜ni · (xi j − xi1 )
+
+´2
+
+.This defines a local coordinate chart for the manifold near xi using the embedding map ˜ ιi : Txi Γ → R2,˜ιi ( ˜ s) = xi + ˜ti ˜s + ˜ni ˜pi ( ˜ s). (38) 2. Refine the local tangent vectors approximation using the Jacobian of ˜ ιi defined in (38). The GMLS approx-imation of the tangent vectors over the neighborhood of xi is ˆti ( ˜ s) = ˜ti + ˜ni ˜p′ 
+
+> i
+
+( ˜ s), (39) with the estimated tangent vector at xi denoted by ˆ ti = ˆti (0), as a GMLS approximation to the underlying tangent vector t(xi ). The corresponding unit normal vector ˆ ni is constructed such that ˆ ti · ˆni = 0 with ˆni oriented outward from Ω(t ). The GMLS fitting procedure is subsequently repeated using the updated local coordinates (ˆ ti , ˆ ni ), yielding the refined local embedding map ˆ ιi : Txi Γ → R2,ˆιi (s) = xi + ˆti s + ˆni pi (s), (40) where pi (s) = αi ,1 s +αi ,2 s2 +· · · + αi ,ℓsℓ and αi ,1 , αi ,2 , · · · , αi ,ℓ are obtained via GMLS fitting using the data pairs from s ∈ T (i ) = {ˆ ti · (xi1 − xi1 ), . . . ,ˆ ti · (xik − xi1 )} ⊂ Txi Γ and N (i ) = { ˆ ni · (xi1 − xi1 ), . . . , ˆ ni · (xik − xi1 )}. 
+
+Remark A.1. (Iterative refinement). The additional normal correction term in (40) yields a refinement of the estima-tion for the local parameterization by applying the GMLS procedure iteratively on the local coordinates (ˆ ti , ˆ ni ). We iterate this process multiple times, updating tangent vector estimate with the Jacobian of ˆιi (0) , and stop when the polynomial linear coefficient p ′ 
+
+> i
+
+(0) falls below a desired tolerance as a stopping criterion, as further iterations provide negligible improvement. In our numerical simulations, we take this stopping criterion to be p ′ 
+
+> i
+
+(0) = αi ,1 ≈ 10 −12 , and denote the resulting estimated local tangent and normal vectors as (ˆ ti , ˆ ni ) for notational simplicity. As a result, p i (s)
+
+effectively has no linear term, i.e., p i (s) = αi ,2 s2 + · · · + αi ,ℓsℓ.
+
+Remark A.2. (Order of convergence). The GMLS tangent vector estimate ˆti converges at rate (N −1 log N )ℓ, which indicates an improved estimate for ℓ > 1 compared to the SVD approximation, ˜ti , and the GMLS approximation of the curvature converges at rate (N −1 log N )ℓ−1 for uniformly sampled random data of size N . For further details of the convergence results, we refer to the previous work [36]. 
+
+20

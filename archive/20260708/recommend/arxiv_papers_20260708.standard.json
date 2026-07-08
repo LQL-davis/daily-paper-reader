@@ -1,0 +1,355 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-08T21:35:17.911879+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 7,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.31764v1",
+      "source": "arxiv",
+      "title": "NURBS Splatting: A Unified Differentiable Rendering Framework for Vector Graphics",
+      "abstract": "Differentiable rendering of planar rational splines remains largely underexplored, despite their widespread use in vector graphics and design. Existing differentiable vector renderers primarily focus on Bézier curves and rely on analytic rasterization, which can suffer from gradient instability and limited flexibility. We propose NURBS Splatting, a unified framework that represents planar rational curves as continuous Gaussian fields. By sampling Gaussians along the curve parameter domain and inside closed regions, rendering is reformulated as a smooth accumulation process with stable gradients. Our method naturally supports long splines, rational weights, non-uniform knots, and closed-region filling. We demonstrate its effectiveness in calligraphy reconstruction, vectorization frameworks, and long-spline image abstraction, showing improved stability and reconstruction quality over existing approaches.",
+      "authors": [
+        "Jingye Qiu",
+        "Shizhe Zhou"
+      ],
+      "primary_category": "cs.GR",
+      "categories": [
+        "cs.GR",
+        "cs.CV"
+      ],
+      "published": "2026-06-30T14:51:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.31764v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Differentiable rendering enables gradient-based optimization of NURBS curve boundaries",
+      "llm_evidence_cn": "可微渲染支持基于梯度的NURBS曲线边界优化",
+      "llm_evidence": "可微渲染支持基于梯度的NURBS曲线边界优化",
+      "canonical_evidence": "可微渲染支持基于梯度的NURBS曲线边界优化",
+      "llm_tldr_en": "NURBS Splatting provides a unified differentiable rendering framework for vector graphics, representing curves as Gaussian fields to achieve stable gradients, enabling shape boundary optimization.",
+      "llm_tldr_cn": "针对矢量图形中可微渲染的梯度不稳定问题，提出NURBS Splatting框架，将平面有理曲线表示为连续高斯场，通过沿曲线和区域采样实现平滑累积渲染与稳定梯度。该方法支持长样条、有理权重和非均匀节点，在形状优化、字体生成等任务中可有效调整边界，实现高质量设计优化，为矢量图形学习提供了新通路。",
+      "llm_tldr": "针对矢量图形中可微渲染的梯度不稳定问题，提出NURBS Splatting框架，将平面有理曲线表示为连续高斯场，通过沿曲线和区域采样实现平滑累积渲染与稳定梯度。该方法支持长样条、有理权重和非均匀节点，在形状优化、字体生成等任务中可有效调整边界，实现高质量设计优化，为矢量图形学习提供了新通路。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01015v1",
+      "source": "arxiv",
+      "title": "SuperFlex: Deformable Superquadrics for Point Cloud Decomposition",
+      "abstract": "Superquadrics have proven to provide a compact, geometrically meaningful representation for 3D objects. However, existing methods suffer from limited reconstruction accuracy, are restricted to rigid primitives, and lack robustness to partial point clouds. In this work, we present SuperFlex, an enhanced framework that expands the expressive power and applicability of superquadric decompositions. First, we introduce a novel loss formulation which significantly improves reconstruction accuracy. Second, we include bending and tapering deformations, enabling high-fidelity representation of curved and asymmetric geometries. Finally, we leverage these high-quality decompositions as supervision to train a model that is robust to partial real-world point clouds. Experiments demonstrate substantial improvements in reconstruction accuracy over both optimization- and learning-based baselines while maintaining a highly compact primitive representation.",
+      "authors": [
+        "Gabriel Tavernini",
+        "Elisabetta Fedele",
+        "Tiago Novello",
+        "Leonidas Guibas",
+        "Marc Pollefeys",
+        "Francis Engelmann"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-01T14:51:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.01015v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "deformable superquadrics optimize shape parameters to fit point clouds",
+      "llm_evidence_cn": "利用可变形超二次曲面优化形状参数以拟合点云",
+      "llm_evidence": "利用可变形超二次曲面优化形状参数以拟合点云",
+      "canonical_evidence": "利用可变形超二次曲面优化形状参数以拟合点云",
+      "llm_tldr_en": "Introduces deformable superquadrics with bending and tapering for high-fidelity shape representation from point clouds, optimizing shape parameters to adjust boundaries.",
+      "llm_tldr_cn": "针对超二次曲面重构精度有限且局限于刚体的问题，本文提出SuperFlex框架，引入弯曲和渐缩变形，并设计新的损失函数以提升重建精度。通过优化形状参数调整表面边界，实现对弯曲和不对称几何的高保真表示。利用高质量分解进行监督训练，使模型对部分点云具有鲁棒性。",
+      "llm_tldr": "针对超二次曲面重构精度有限且局限于刚体的问题，本文提出SuperFlex框架，引入弯曲和渐缩变形，并设计新的损失函数以提升重建精度。通过优化形状参数调整表面边界，实现对弯曲和不对称几何的高保真表示。利用高质量分解进行监督训练，使模型对部分点云具有鲁棒性。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02880v1",
+      "source": "arxiv",
+      "title": "A Geometric Local Parameterization Method for Generalized Hele-Shaw Free Boundary Problems with Source Terms",
+      "abstract": "We develop a meshfree numerical framework for Hele--Shaw free boundary problems with surface tension and source terms based on geometric local parameterization and boundary integral methods. By decomposing the pressure into a particular solution and a harmonic component, the problem is reformulated into a boundary-only system, avoiding volumetric meshing of the evolving domain. For general source terms, we propose an eigenfunction-based approximation on a fixed domain and establish error estimates for both the truncation and coefficient approximation. Numerical experiments verify the accuracy and convergence of the proposed method, and an application to a tumor growth model demonstrates its effectiveness for coupled moving-boundary problems.",
+      "authors": [
+        "Zengyan Zhang",
+        "Wenrui Hao",
+        "John Harlim"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA"
+      ],
+      "published": "2026-07-03T02:25:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.02880v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "develops numerical method for Hele-Shaw free boundary problems, directly optimizing shape boundaries",
+      "llm_evidence_cn": "针对Hele-Shaw自由边界问题发展数值方法，直接优化边界形状",
+      "llm_evidence": "针对Hele-Shaw自由边界问题发展数值方法，直接优化边界形状",
+      "canonical_evidence": "针对Hele-Shaw自由边界问题发展数值方法，直接优化边界形状",
+      "llm_tldr_en": "Proposes a meshfree geometric local parameterization method for Hele-Shaw free boundary problems with surface tension and source terms, using boundary integrals and eigenfunction approximations for accurate boundary-only solutions, demonstrated on tumor growth.",
+      "llm_tldr_cn": "针对含表面张力和源项的Hele-Shaw自由边界问题，提出一种基于几何局部参数化和边界积分方法的无网格数值框架。通过将压力分解为特解和调和分量，将问题转化为仅含边界的系统，避免体积网格划分。对一般源项采用定域特征函数逼近，并建立误差估计。数值实验验证了方法的精度与收敛性，并应用于肿瘤生长模型，展示了其在耦合自由边界问题中的有效性。该方法为优化边界形状提供了高效计算工具。",
+      "llm_tldr": "针对含表面张力和源项的Hele-Shaw自由边界问题，提出一种基于几何局部参数化和边界积分方法的无网格数值框架。通过将压力分解为特解和调和分量，将问题转化为仅含边界的系统，避免体积网格划分。对一般源项采用定域特征函数逼近，并建立误差估计。数值实验验证了方法的精度与收敛性，并应用于肿瘤生长模型，展示了其在耦合自由边界问题中的有效性。该方法为优化边界形状提供了高效计算工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04491v1",
+      "source": "arxiv",
+      "title": "Generalizable turbulence closures across bluff-body shapes by PINN-based solver-agnostic training",
+      "abstract": "Data-driven turbulence closures are usually calibrated by inverse methods that place a CFD solver inside the optimization loop, tying the learned model to a particular discretization and requiring every intermediate iterate to converge. We instead train closures inside a physics-informed neural network (PINN): the RANS residual is imposed by automatic differentiation, making the inverse problem mesh-free, differentiable, and solver-agnostic. Because no forward solve runs during training, only the final closure must be solver-stable, arbitrary neural closures are admitted without deriving adjoints, and iterative solver costs are avoided. Each constitutive hypothesis trains in minutes on a single GPU, enabling rapid screening of closure forms. We develop four closures: three model the Reynolds stress on a tensor basis with built-in realizability (a local map, a non-local model transporting turbulent kinetic energy, and the same with a learned length scale l), while a fourth models the Reynolds force F = -\\nabla \\cdot τdirectly, free of realizability constraints. The closures are trained across six 2D bluff-body wakes at Re = 10^4 and deployed frozen in a finite-element solver. Coupled stability is enhanced by input-gradient smoothing and a Lipschitz constraint. We assess closures in-sample and under a strict leave-one-shape-out (LOSO) protocol. All four improve substantially on a steady SST k-ωbaseline. The learned-length-scale stress closure is most accurate on stress fields, while transporting kinetic energy is decisive for generalization. Notably, the force model generalizes best and attains the lowest out-of-sample error on mean velocity and drag (LOSO drag error ~8.5%). Finally, we show these closures can be efficiently trained on PIV data, enabling data-driven modeling for geometries intractable for DNS.",
+      "authors": [
+        "Zhen Zhang",
+        "Theo Käufer",
+        "Louise Ronglan",
+        "Michael S. Triantafyllou",
+        "George Em Karniadakis"
+      ],
+      "primary_category": "physics.flu-dyn",
+      "categories": [
+        "physics.flu-dyn"
+      ],
+      "published": "2026-07-05T20:31:44+00:00",
+      "link": "https://arxiv.org/pdf/2607.04491v1",
+      "tags": [
+        "keyword:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Trains generalizable turbulence closures via PINNs for bluff-body shapes, directly optimizing boundary layer prediction models in aerodynamics.",
+      "llm_evidence_cn": "通过PINN训练可泛化的湍流封闭模型，用于钝体形状，直接优化空气动力学中的边界层预测模型。",
+      "llm_evidence": "通过PINN训练可泛化的湍流封闭模型，用于钝体形状，直接优化空气动力学中的边界层预测模型。",
+      "canonical_evidence": "通过PINN训练可泛化的湍流封闭模型，用于钝体形状，直接优化空气动力学中的边界层预测模型。",
+      "llm_tldr_en": "Trains turbulence closures via PINN for solver-agnostic, differentiable optimization, enabling generalizable boundary layer models for bluff-body aerodynamics. Rapid training allows quick screening, directly advancing boundary layer optimization.",
+      "llm_tldr_cn": "传统数据驱动湍流封闭模型需将CFD求解器嵌入优化循环，计算代价高且泛化性差。本文提出在物理信息神经网络(PINN)内训练封闭模型，通过自动微分施加RANS残差，实现无网格、可微分、求解器无关的反演。该方法训练迅速，支持任意神经网络，能快速筛选可泛化的湍流封闭模型，为空气动力学边界层模拟提供了高效优化工具。",
+      "llm_tldr": "传统数据驱动湍流封闭模型需将CFD求解器嵌入优化循环，计算代价高且泛化性差。本文提出在物理信息神经网络(PINN)内训练封闭模型，通过自动微分施加RANS残差，实现无网格、可微分、求解器无关的反演。该方法训练迅速，支持任意神经网络，能快速筛选可泛化的湍流封闭模型，为空气动力学边界层模拟提供了高效优化工具。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary layers in aerodynamics",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.06013v1",
+      "source": "arxiv",
+      "title": "Stability Annealing Selects the Implicit Bias of Smoothed Sign Descent: A Rate-Indexed Barrier Path on Separable Data",
+      "abstract": "Adaptive gradient methods can favor max-margin separators that differ from gradient descent, yet a fixed positive numerical stability constant eventually changes the update geometry again. This paper studies the rate-controlled middle case for full-batch linear classification on separable data. For memoryless stability-annealed smoothed-sign descent with weighted exponential loss, we prove that the normalized iterates converge to the minimizer of a convex Burg-type barrier over a margin slice. The proof rewrites the dynamics exactly as entropic mirror ascent on a concave dual objective, controls the dual gap by a KL recursion, and yields an explicit S_t^{-1/2} normalized-iterate envelope. The static barrier geometry is fully characterized, including KKT conditions and both endpoint limits. Experiments validate the exact dual identities to floating-point error, illustrate the predicted path and rate diagram, and show an empirical fixed-epsilon crossover scaling in cumulative time. We further report robustness and boundary diagnostics for logistic tails, fixed-epsilon crossover, and adaptive-method variants, delineating the scope of the proved smoothed-sign theory.",
+      "authors": [
+        "Xiangwu Wang",
+        "Chengwei Cao",
+        "Yicheng Song",
+        "Ran Bi",
+        "Peilin Yu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.OC"
+      ],
+      "published": "2026-07-07T08:55:35+00:00",
+      "link": "https://arxiv.org/pdf/2607.06013v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "optimizing decision boundaries via implicit bias of smoothed sign descent",
+      "llm_evidence_cn": "通过平滑符号下降的隐式偏差优化决策边界",
+      "llm_evidence": "通过平滑符号下降的隐式偏差优化决策边界",
+      "canonical_evidence": "通过平滑符号下降的隐式偏差优化决策边界",
+      "llm_tldr_en": "Shows that stability-annealed smoothed sign descent converges to a max-margin separator, revealing how optimization dynamics implicitly optimize decision boundaries in linear classification.",
+      "llm_tldr_cn": "在可分数据上，全批量线性分类中记忆性稳定性退火的平滑符号下降归一化迭代收敛到Burg型障碍函数在间隔切片上的最小值。该结果揭示了速率控制的隐式偏差如何选择最大间隔分离器，显式给出了迭代包络。这为优化算法对决策边界的影响提供了理论见解。",
+      "llm_tldr": "在可分数据上，全批量线性分类中记忆性稳定性退火的平滑符号下降归一化迭代收敛到Burg型障碍函数在间隔切片上的最小值。该结果揭示了速率控制的隐式偏差如何选择最大间隔分离器，显式给出了迭代包络。这为优化算法对决策边界的影响提供了理论见解。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31342v1",
+      "source": "arxiv",
+      "title": "Domain-Decomposed Randomized Neural Networks for Partial Differential Equations in Unbounded Domains",
+      "abstract": "Partial differential equations on unbounded domains are challenging because the exterior region must be represented without excessive truncation error. Truncation-based methods often require problem-dependent artificial boundary conditions, while global spectral bases may be inefficient for localized structures, irregular geometries, or solutions with different near-field and far-field behaviors. We propose a domain-decomposed randomized neural network framework for such problems. Different randomized subnetworks are assigned to different spatial regimes: a near-field subnetwork captures local and geometric features, whereas a far-field subnetwork represents exterior decay. The subnetworks are coupled by boundary and interface conditions, and only the output-layer coefficients are solved from linear least-squares systems arising from Petrov--Galerkin or collocation formulations. We develop a Petrov--Galerkin method for semi-unbounded elliptic problems and a collocation method for fully unbounded, perforated, and time-dependent problems. A conditional bounded-parameter approximation result is proved in a broken Sobolev norm, together with an error decomposition covering approximation, empirical-consistency/quadrature, and least-squares optimization errors. Numerical experiments for Poisson and time-dependent Schrödinger equations demonstrate the accuracy and flexibility of the proposed method.",
+      "authors": [
+        "Haixin Wang",
+        "Haoning Dang",
+        "Fei Wang",
+        "Shimin Guo"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA",
+        "cs.LG"
+      ],
+      "published": "2026-06-30T08:41:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.31342v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Optimizes randomized neural networks to solve PDEs with boundary conditions via domain decomposition",
+      "llm_evidence_cn": "通过域分解优化随机神经网络求解带边界条件的偏微分方程",
+      "llm_evidence": "通过域分解优化随机神经网络求解带边界条件的偏微分方程",
+      "canonical_evidence": "通过域分解优化随机神经网络求解带边界条件的偏微分方程",
+      "llm_tldr_en": "The paper proposes domain-decomposed randomized neural networks to solve PDEs on unbounded domains, optimizing subnetworks coupled at boundaries to avoid artificial conditions.",
+      "llm_tldr_cn": "针对无界域偏微分方程需人工边界条件或全局基函数效率低的问题，提出域分解随机神经网络框架。将求解域划分为近场和远场区域，分别用随机子网络近似，通过边界与界面条件耦合，仅优化线性读出参数。该方法避免问题依赖的截断，在保持精度的同时提升效率，为无界域边界值问题提供了一种灵活且收敛的优化解法。",
+      "llm_tldr": "针对无界域偏微分方程需人工边界条件或全局基函数效率低的问题，提出域分解随机神经网络框架。将求解域划分为近场和远场区域，分别用随机子网络近似，通过边界与界面条件耦合，仅优化线性读出参数。该方法避免问题依赖的截断，在保持精度的同时提升效率，为无界域边界值问题提供了一种灵活且收敛的优化解法。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.02739v1",
+      "source": "arxiv",
+      "title": "On the sharpness of bounds on the rate of growth of Lebesgue norms of the velocity in Navier-Stokes flows",
+      "abstract": "In this paper we consider solutions $\\boldsymbol{u}$ of the three-dimensional Navier-Stokes system and investigate sharpness of the a priori bound \\begin{align*} \\frac{d}{dt}\\|\\boldsymbol{u}\\|_q^q \\leq C\\|\\boldsymbol{u}\\|_q^{q\\frac{q-1}{q-3}}, \\qquad q > 3. \\end{align*} This bound is closely related to the Ladyzhenskaya-Prodi-Serrin conditions characterizing classical solutions of the Navier-Stokes system. Velocity fields maximizing the rate of growth $(d/dt)\\|\\boldsymbol{u}\\|_q^q$ under certain constraints are found as solutions of a suitable optimization problem which is solved numerically using a Riemannian conjugate gradient approach. The results obtained for different $q$ and increasing values of $\\|\\boldsymbol{u}\\|_q$ indicate that the bound is indeed sharp, up to a numerical prefactor, and therefore cannot be fundamentally improved. Additionally, the results also suggest that the rate of growth $(d/dt)\\|\\boldsymbol{u}\\|_q^q$ diverges as $q\\to 3$.",
+      "authors": [
+        "Fabian Bleitner",
+        "Bartosz Protas"
+      ],
+      "primary_category": "math.AP",
+      "categories": [
+        "math.AP",
+        "physics.flu-dyn"
+      ],
+      "published": "2026-07-02T20:20:01+00:00",
+      "link": "https://arxiv.org/pdf/2607.02739v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "optimization problem to maximize bound sharpness for Navier-Stokes velocity norms, solved via Riemannian conjugate gradient",
+      "llm_evidence_cn": "通过优化问题最大化Navier-Stokes速度范数的界尖锐性，使用黎曼共轭梯度法求解",
+      "llm_evidence": "通过优化问题最大化Navier-Stokes速度范数的界尖锐性，使用黎曼共轭梯度法求解",
+      "canonical_evidence": "通过优化问题最大化Navier-Stokes速度范数的界尖锐性，使用黎曼共轭梯度法求解",
+      "llm_tldr_en": "Investigates sharpness of a priori bounds for Navier-Stokes norm growth by formulating and numerically solving an optimization problem using Riemannian conjugate gradient, revealing velocity fields that saturate the bound.",
+      "llm_tldr_cn": "针对三维Navier-Stokes方程速度场Lebesgue范数增长速率先验界的尖锐性，本文将该问题构造为一个优化问题：在满足Navier-Stokes系统的约束下，寻找最大化范数增长率的速度场。采用黎曼流形上的共轭梯度法进行数值求解，获得不同q和范数阈值下的最优速度场。结果揭示了范数增长率接近理论界的构型，验证了界的紧致性，为理解Navier-Stokes方程正则性准则提供了新见解。",
+      "llm_tldr": "针对三维Navier-Stokes方程速度场Lebesgue范数增长速率先验界的尖锐性，本文将该问题构造为一个优化问题：在满足Navier-Stokes系统的约束下，寻找最大化范数增长率的速度场。采用黎曼流形上的共轭梯度法进行数值求解，获得不同q和范数阈值下的最优速度场。结果揭示了范数增长率接近理论界的构型，验证了界的紧致性，为理解Navier-Stokes方程正则性准则提供了新见解。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.04310v1",
+      "source": "arxiv",
+      "title": "GPU-Accelerated Polygonal Signed Distance Functions for Real-Time Collision Avoidance",
+      "abstract": "Optimization-based local planning and control require high-rate collision-avoidance constraint evaluation over a prediction horizon. In obstacle-dense environments, where feasible space is limited and the constraints become increasingly complex, the computational workload often dominates the control-cycle runtime. The resulting bottleneck motivates collision-avoidance constraints that combine computational efficiency with geometric fidelity. The proposed Polygonal Signed Distance Function (PSDF) is a geometry-exact signed distance function between a convex polygonal robot footprint and obstacles represented by their boundary edges. It is implemented as a weight-free, branch-free tensorized geometric pipeline enabling batched GPU execution and automatic differentiation. The PSDF is embedded into model predictive control by locally linearizing the stage-wise safety constraints within a sequential quadratic programming-based real-time iteration scheme, yielding the PSDF-embedded model predictive controller (PSDF-MPC). The design separates CPU/GPU computation so that the GPU evaluates batched PSDF values and gradients while the CPU solves a sparse quadratic program whose dimension is determined by system dimensions and horizon length, not by obstacle features. Microbenchmarks show that PSDF scales favorably against signed-distance query baselines. Closed-loop simulated and real-world navigation experiments, including comparisons with optimization-based baselines, demonstrate that PSDF-MPC maintains real-time feasibility and robust collision avoidance in dense polygonal environments.",
+      "authors": [
+        "Taekwon Ga",
+        "Jongeun Choi"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-07-05T13:46:59+00:00",
+      "link": "https://arxiv.org/pdf/2607.04310v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "GPU-accelerated signed distance function using obstacle boundary edges for real-time collision avoidance, enabling efficient optimization under boundary constraints.",
+      "llm_evidence_cn": "利用障碍物边界边的GPU加速有符号距离函数，实现实时碰撞避免，使能了边界约束下的高效优化。",
+      "llm_evidence": "利用障碍物边界边的GPU加速有符号距离函数，实现实时碰撞避免，使能了边界约束下的高效优化。",
+      "canonical_evidence": "利用障碍物边界边的GPU加速有符号距离函数，实现实时碰撞避免，使能了边界约束下的高效优化。",
+      "llm_tldr_en": "Proposes a GPU-accelerated polygonal signed distance function for real-time collision avoidance in optimization-based planning. It efficiently evaluates boundary constraints using obstacle edges, enabling fast optimization under boundary constraints.",
+      "llm_tldr_cn": "面向优化规划中实时碰撞避免需求，提出多边形有符号距离函数(PSDF)，利用障碍物边界边和机器人多边形精确计算有符号距离。该函数实现为无权重、无分支的GPU张量化流水线，显著加速边界约束下的碰撞检测，为优化问题中高效处理边界约束提供了关键使能技术。",
+      "llm_tldr": "面向优化规划中实时碰撞避免需求，提出多边形有符号距离函数(PSDF)，利用障碍物边界边和机器人多边形精确计算有符号距离。该函数实现为无权重、无分支的GPU张量化流水线，显著加速边界约束下的碰撞检测，为优化问题中高效处理边界约束提供了关键使能技术。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.06048v1",
+      "source": "arxiv",
+      "title": "Separation Capacity of Scattering Networks on Low-Dimensional Datasets",
+      "abstract": "We aim to identify scattering network architectures that maximize the separation capacity on data with low intrinsic dimension. The networks we consider employ a fixed monomial nonlinearity and no pooling, so that the only design variable is the frame generated by the network filters. For data modeled as rectifiable sets, we first characterize and bound the separation capacity of general feature extractors in terms of the geometry of the dataset. We then particularize to scattering networks and obtain two design criteria: (i) the filters should meet the data on sufficiently many frequencies, and (ii) the matrices coupling the frame to the geometry of the data should be well-conditioned.",
+      "authors": [
+        "Konstantin Häberle",
+        "Helmut Bölcskei"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.IT",
+        "cs.LG",
+        "math.CA"
+      ],
+      "published": "2026-07-07T09:25:58+00:00",
+      "link": "https://arxiv.org/pdf/2607.06048v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Optimizes scattering network architectures to maximize separation capacity, thereby enhancing decision boundaries for classification.",
+      "llm_evidence_cn": "优化散射网络架构以最大化分离能力，从而增强分类的决策边界。",
+      "llm_evidence": "优化散射网络架构以最大化分离能力，从而增强分类的决策边界。",
+      "canonical_evidence": "优化散射网络架构以最大化分离能力，从而增强分类的决策边界。",
+      "llm_tldr_en": "Characterizes separation capacity of scattering networks on low-dimensional data, deriving design criteria to maximize separation. By optimizing filter frequencies and conditioning, it effectively enhances decision boundaries for classification.",
+      "llm_tldr_cn": "为最大化散射网络在低维数据上的分离能力，本文将数据建模为可整定集，首先刻画通用特征提取器的分离能力界，然后具体到散射网络，得出两个设计准则：滤波器需在足够多频率上匹配数据，且耦合矩阵应良态。这些准则指导网络架构优化，间接提升分类决策边界的质量。",
+      "llm_tldr": "为最大化散射网络在低维数据上的分离能力，本文将数据建模为可整定集，首先刻画通用特征提取器的分离能力界，然后具体到散射网络，得出两个设计准则：滤波器需在足够多频率上匹配数据，且耦合矩阵应良态。这些准则指导网络架构优化，间接提升分类决策边界的质量。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

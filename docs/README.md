@@ -6,35 +6,49 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-07
-- 运行时间：2026-07-07 21:56:59 UTC
+- 最新运行日期：2026-07-08
+- 运行时间：2026-07-08 21:42:24 UTC
 - 运行状态：成功
-- 本次总论文数：5
-- 精读区：2
+- 本次总论文数：9
+- 精读区：6
 - 速读区：3
 
 ### 今日简报（AI）
-今日精读两篇满分数学力作，揭示有限Sidon集的向量值光滑化技术与双连通域的变换对偶原理。最值得关注：调和分析中Sidon集的光滑化构造与复分析里双连通域的共形映射新工具。建议普通读者先从这两项结构优美的纯数学突破入手，感受抽象框架如何重塑具体问题。
-- 详情：[/202607/07/README](/202607/07/README)
+矢量渲染与点云分解双满分突破：今日精读《NURBS Splatting》和《SuperFlex》，前者用可微NURBS曲面统一矢量图形渲染，后者以可变形超二次曲面精准拆解复杂点云。  
+速读中流体方程范数增长的理论界也值得关注，但最亮眼的还是实时避碰中GPU加速的有号距离场方法。  
+若你对三维重建或图形引擎感兴趣，建议从这两篇满分论文入手，体验几何建模与可微框架碰撞出的新工具。
+- 详情：[/202607/08/README](/202607/08/README)
 
 ### 精读区论文标签
-1. [Vector-valued smoothing for finite Sidon sets](/202607/07/2607.01169v2-vector-valued-smoothing-for-finite-sidon-sets)  
-   标签：评分：10.0/10、query:boundary-opt
-   evidence：通过凸二次规划进行边界优化应用于Sidon集
-2. [A Transform Pair for Doubly Connected Domains](/202607/07/2607.05220v1-a-transform-pair-for-doubly-connected-domains)  
-   标签：评分：10.0/10、query:boundary-opt
-   evidence：用于求解双连通域边界值问题的变换方法
+1. [NURBS Splatting: A Unified Differentiable Rendering Framework for Vector Graphics](/202607/08/2606.31764v1-nurbs-splatting-a-unified-differentiable-rendering-framework-for-vector-graphics)  
+   标签：评分：9.0/10、query:boundary-opt
+   evidence：可微渲染支持基于梯度的NURBS曲线边界优化
+2. [SuperFlex: Deformable Superquadrics for Point Cloud Decomposition](/202607/08/2607.01015v1-superflex-deformable-superquadrics-for-point-cloud-decomposition)  
+   标签：评分：9.0/10、query:boundary-opt
+   evidence：利用可变形超二次曲面优化形状参数以拟合点云
+3. [A Geometric Local Parameterization Method for Generalized Hele-Shaw Free Boundary Problems with Source Terms](/202607/08/2607.02880v1-a-geometric-local-parameterization-method-for-generalized-hele-shaw-free-boundary-problems-with-source-terms)  
+   标签：评分：9.0/10、query:boundary-opt
+   evidence：针对Hele-Shaw自由边界问题发展数值方法，直接优化边界形状
+4. [Generalizable turbulence closures across bluff-body shapes by PINN-based solver-agnostic training](/202607/08/2607.04491v1-generalizable-turbulence-closures-across-bluff-body-shapes-by-pinn-based-solver-agnostic-training)  
+   标签：评分：9.0/10、query:boundary-opt
+   evidence：通过PINN训练可泛化的湍流封闭模型，用于钝体形状，直接优化空气动力学中的边界层预测模型。
+5. [Stability Annealing Selects the Implicit Bias of Smoothed Sign Descent: A Rate-Indexed Barrier Path on Separable Data](/202607/08/2607.06013v1-stability-annealing-selects-the-implicit-bias-of-smoothed-sign-descent-a-rate-indexed-barrier-path-on-separable-data)  
+   标签：评分：9.0/10、query:boundary-opt
+   evidence：通过平滑符号下降的隐式偏差优化决策边界
+6. [Domain-Decomposed Randomized Neural Networks for Partial Differential Equations in Unbounded Domains](/202607/08/2606.31342v1-domain-decomposed-randomized-neural-networks-for-partial-differential-equations-in-unbounded-domains)  
+   标签：评分：8.0/10、query:boundary-opt
+   evidence：通过域分解优化随机神经网络求解带边界条件的偏微分方程
 
 ### 速读区论文标签
-1. [Likelihood-Ratio E-Value Monitoring for Benchmark-Based Decisions in Early-Phase Oncology Trials](/202607/07/2607.04571v1-likelihood-ratio-e-value-monitoring-for-benchmark-based-decisions-in-early-phase-oncology-trials)  
+1. [On the sharpness of bounds on the rate of growth of Lebesgue norms of the velocity in Navier-Stokes flows](/202607/08/2607.02739v1-on-the-sharpness-of-bounds-on-the-rate-of-growth-of-lebesgue-norms-of-the-velocity-in-navier-stokes-flows)  
+   标签：评分：8.0/10、query:boundary-opt
+   evidence：通过优化问题最大化Navier-Stokes速度范数的界尖锐性，使用黎曼共轭梯度法求解
+2. [GPU-Accelerated Polygonal Signed Distance Functions for Real-Time Collision Avoidance](/202607/08/2607.04310v1-gpu-accelerated-polygonal-signed-distance-functions-for-real-time-collision-avoidance)  
    标签：评分：7.0/10、query:boundary-opt
-   evidence：校准的E值监测优化临床基准决策边界
-2. [Adaptive direct search algorithms with relaxable and quantifiable constraints](/202607/07/2607.05183v1-adaptive-direct-search-algorithms-with-relaxable-and-quantifiable-constraints)  
+   evidence：利用障碍物边界边的GPU加速有符号距离函数，实现实时碰撞避免，使能了边界约束下的高效优化。
+3. [Separation Capacity of Scattering Networks on Low-Dimensional Datasets](/202607/08/2607.06048v1-separation-capacity-of-scattering-networks-on-low-dimensional-datasets)  
    标签：评分：7.0/10、query:boundary-opt
-   evidence：ADS-PB通过渐进障碍机制处理边界约束进行约束黑盒优化
-3. [Elastically safeguarded augmented Lagrangian methods](/202607/07/2607.02697v1-elastically-safeguarded-augmented-lagrangian-methods)  
-   标签：评分：6.0/10、query:boundary-opt
-   evidence：适用于约束优化的自适应保护增广拉格朗日方法
+   evidence：优化散射网络架构以最大化分离能力，从而增强分类的决策边界。
 
 
 <div class="dpr-home-promo-card">

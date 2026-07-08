@@ -1,0 +1,4126 @@
+Title: Domain-Decomposed Randomized Neural Networks for Partial Differential Equations in Unbounded Domains
+
+URL Source: https://arxiv.org/pdf/2606.31342v1
+
+Published Time: Wed, 01 Jul 2026 00:47:49 GMT
+
+Number of Pages: 41
+
+Markdown Content:
+# Domain-Decomposed Randomized Neural Networks for Partial Differential Equations in Unbounded Domains 
+
+Haixin Wang 1, Haoning Dang 2, Fei Wang 3 and Shimin Guo 4
+
+Abstract. Partial differential equations on unbounded domains are challenging because the exterior region must be represented without excessive truncation error. Truncation-based methods often require problem-dependent artificial boundary conditions, while global spectral bases may be inefficient for localized structures, irregular geometries, or solutions with different near-field and far-field behaviors. We propose a domain-decomposed randomized neural network framework for such problems. Different randomized subnetworks are assigned to different spatial regimes: a near-field subnetwork captures local and geometric features, whereas a far-field subnetwork represents exterior decay. The subnetworks are coupled by boundary and interface conditions, and only the output-layer coefficients are solved from linear least-squares systems arising from Petrov–Galerkin or collocation formulations. We develop a Petrov–Galerkin method for semi-unbounded elliptic problems and a collocation method for fully un-bounded, perforated, and time-dependent problems. A conditional bounded-parameter approximation result is proved in a broken Sobolev norm, together with an error decomposition covering approxima-tion, empirical-consistency/quadrature, and least-squares optimization errors. Numerical experiments for Poisson and time-dependent Schr¨ odinger equations demonstrate the accuracy and flexibility of the proposed method. 
+
+Keywords. Randomized neural networks; domain decomposition; unbounded domains; far-field approximation; least-squares methods 
+
+# 1 Introduction 
+
+Partial differential equations posed on unbounded domains arise naturally in wave propagation, quantum me-chanics, diffusion, potential theory, and exterior-domain elliptic problems. Their numerical approximation is dif-ficult because the infinite spatial extent cannot be represented by a finite mesh without additional modeling or approximation. As a result, traditional finite element, finite difference, and finite volume methods usually require domain truncation, coordinate mappings, absorbing layers, or other exterior-domain treatments before they can be implemented in practice. The difficulty is not only geometric but also analytic. The numerical method must preserve the influence of the exterior region, represent the far-field behavior of the solution, and remain accurate near physical boundaries, ob-stacles, or localized structures. For example, Schr¨ odinger equations on unbounded domains involve complex-valued solutions evolving in both space and time, while exterior elliptic problems may exhibit algebraic or exponential decay. These different behaviors motivate numerical methods that can treat near-field and far-field regimes in a flexible but computationally efficient way. Existing numerical methods for PDEs on unbounded domains can be broadly classified into two main categories. The first category consists of truncation-based approaches, including artificial boundary conditions, absorbing                             
+
+> 1School of Mathematics and Statistics, Xi’an Jiaotong University, Xi’an, Shaanxi 710049, P.R. China. Email:
+> wanghaixin@stu.xjtu.edu.cn .
+> 2School of Mathematics and Statistics, Xi’an Jiaotong University, Xi’an, Shaanxi 710049, P.R. China. Email:
+> haoningdang.xjtu@stu.xjtu.edu.cn .
+> 3School of Mathematics and Statistics & State Key Laboratory of Multiphase Flow in Power Engineering, Xi’an Jiaotong University, Xi’an, Shaanxi 710049, China. The work of this author was partially supported by the National Natural Science Foundation of China (Grant No. 92470115). Email: feiwang.xjtu@xjtu.edu.cn
+> 4School of Mathematics and Statistics, Xi’an Jiaotong University, Xi’an, Shaanxi 710049, P.R. China. The work of this author was partially supported by the National Natural Science Foundation of China (Grant No. 12271427). Email: shiminguo@mail.xjtu.edu.cn .
+
+1
+
+> arXiv:2606.31342v1 [math.NA] 30 Jun 2026
+
+layers, and finite element, finite difference, or finite volume discretizations on bounded computational domains; representative works include [2, 3, 5, 8, 12, 13, 14, 16, 18, 20, 32, 36, 39]. These methods are flexible and compatible with standard discretizations, but their performance often depends on the quality of the exterior-domain treatment and on the choice of truncation or absorption parameters. The second category uses global or mapped basis functions on unbounded domains, with spectral methods based on Laguerre, Hermite, or related functions being representative examples [15, 21, 23, 30, 38, 41, 43]. Such methods can achieve high accuracy for smooth solutions, but they may be less flexible for localized structures, complicated geometries, discontinuities, or solutions with different near-field and far-field behaviors. These observations suggest that an effective method for unbounded-domain problems should combine far-field representation, geometric flexibility, and computational tractability. The central difficulty is not merely how to truncate the domain, but how to represent the exterior region in a way that remains coupled to the near-field solu-tion. This motivates the use of separate trial spaces for different spatial regimes: a flexible near-field representation for local structures and a far-field representation for decay or asymptotic behavior. The proposed method follows this principle by assigning different randomized neural subnetworks to different subdomains and coupling them through interface equations. In recent years, neural-network-based methods have provided an alternative perspective for the numerical so-lution of partial differential equations. Instead of relying exclusively on mesh-based trial spaces, these methods use neural networks as flexible function approximators and determine the network parameters through collocation, residual minimization, variational principles, or physics-informed loss functions. Representative developments in-clude early neural-network solvers for differential equations ([9, 17]), physics-informed neural networks ([26, 24, 25]), deep Ritz and deep Galerkin type methods ([11, 33]), and related approaches for complex geometries, nonlinear PDEs, variational formulations, and residual minimization ([1, 37, 31]). These works demonstrate the flexibility of neural-network trial spaces, while also motivating further study of accuracy, stability, conditioning, and efficient training for PDE problems on challenging domains. Although neural-network-based methods are flexible, they usually require nonlinear optimization over a large number of trainable parameters, and the resulting training process may be sensitive to initialization, sampling strategies, and hyperparameter choices. Randomized neural networks (RaNNs) provide an efficient alternative by randomly assigning and then freezing the hidden-layer parameters, so that only the output-layer coefficients are determined from the numerical formulation. Consequently, the computation is often reduced to a linear least-squares problem rather than a fully nonlinear training problem. This idea has been shown to be effective for a variety of PDE problems; see, for example, [10, 29, 34, 4, 28, 6, 19, 42, 27, 35, 22] and the references therein. More recently, Dang, Wang, and Jiang introduced adaptive-growth RaNNs for PDE approximation ([7]), in which the randomized trial space is enriched progressively, while Yang and Wang proposed adaptive-distribution RaNNs ([40]), where low-dimensional sampling distributions for random parameters are learned to reduce the sensitivity to parameter selection. These developments demonstrate the efficiency of RaNN-based discretizations, but they do not by themselves resolve the additional difficulties caused by unbounded domains. A single randomized neural trial space with one parameter scale may not approximate both near-field structures and far-field decay accurately. These issues motivate a domain-decomposed RaNN framework in which different subnetworks are assigned to different spatial regimes and coupled by physically motivated interface conditions. In this way, the exterior region is represented by a far-field randomized trial space rather than being removed from the numerical formulation. The main contributions of this paper are summarized as follows. 
+
+• We propose a domain-decomposed RaNN framework for PDEs on unbounded domains. The method uses different randomized subnetworks for different parts of the domain, for example a near-field network and a far-field network, so that local structures and far-field decay can be represented by different random feature spaces. 
+
+• We develop two complementary discretizations. The first one is a domain-decomposed RaNN Petrov–Galerkin 2method (DD-RaNN-PG) for semi-unbounded elliptic problems, where the test space is constructed from piece-wise polynomial functions and the unbounded direction is treated by Gauss-type quadrature. The second one is a domain-decomposed RaNN collocation method (DD-RaNN-CM) for fully unbounded or geometri-cally complicated domains, including perforated domains and time-dependent Schr¨ odinger equations. Both formulations lead to linear least-squares systems for the output-layer coefficients. 
+
+• We provide a theoretical justification of the proposed framework. In particular, we establish a condi-tional bounded-parameter broken Sobolev approximation result for domain-decomposed randomized neu-ral trial spaces on unbounded domains. We also decompose the total error into approximation, empirical-consistency/quadrature, and least-squares optimization components under suitable stability and consistency assumptions. The rest of this paper is organized as follows. Section 2 introduces the general domain-decomposed RaNN framework, including randomized neural trial spaces, near–far decomposition, and the generic least-squares for-mulation. Section 3 develops the domain-decomposed RaNN Petrov–Galerkin method for semi-unbounded elliptic problems. Section 4 presents the domain-decomposed RaNN collocation method for fully unbounded and time-dependent problems, using a linear Schr¨ odinger equation as a representative example. Section 5 provides the approximation and error analysis. Section 6 reports numerical experiments for semi-unbounded, fully unbounded, and time-dependent problems. Finally, Section 7 concludes the paper. 
+
+# 2 General Domain-Decomposed RaNN Framework 
+
+In this section, we introduce the general domain-decomposed randomized neural network (DD-RaNN) frame-work used in this paper. The main idea is to represent different spatial regimes of an unbounded-domain solu-tion by different randomized neural subnetworks and to determine only their output-layer coefficients from linear least-squares systems. The concrete Petrov–Galerkin formulation for semi-unbounded elliptic problems and the domain-decomposed collocation formulation for fully unbounded and time-dependent problems will be developed in Sections 3 and 4, respectively. 
+
+## 2.1 Randomized Neural Trial Spaces 
+
+Let Ω ⊂ Rd be an unbounded domain, and let the input variable be x ∈ Ω. A fully connected tensor neural network with l hidden layers is written as Φ(1) (x) = ρ(W (1) x, b(1) ),
+
+Φ(j)(x) = ρ(W (j)Φ(j−1) (x), b(j)), j = 2 , . . . , l, U (x) = W (l+1) Φ(l)(x), ρ(x, b) = 
+
+> d
+
+Y
+
+> j=1
+
+ρj (xj + bj ),
+
+where Φ (j) denotes the output vector of the j-th hidden layer, W (j) and b(j) are the corresponding weight matrix and bias vector, and the tensor-product activation ρ is applied separately to each neuron. The output layer is taken as a bias-free linear map. In an RaNN, the hidden-layer parameters {W (j), b(j)}lj=1 are randomly generated and then fixed. Once these parameters are determined, the components of the last hidden layer define a finite-dimensional randomized trial space U(W , b, ρ ) := span {Φ(l)1 , . . . , Φ(l) 
+
+> m
+
+}, where m is the width of the last hidden layer. An RaNN approximation has the form 
+
+uh(x) = 
+
+> m
+
+X
+
+> k=1
+
+ˆukΦ(l) 
+
+> k
+
+(x).
+
+3Thus the unknowns are only the output-layer coefficients {ˆuk}mk=1 .In this paper, two randomization strategies are used. The first one samples both weights and biases from a uniform distribution, 
+
+W , b ∼ U (−r, r ),
+
+where r > 0 is a prescribed scale parameter. The second one samples W ∼ U (−r, r ) and constructs the bias vector by 
+
+b = ( −W ⊙ R)1, R ∼ U (−1, 1) ,
+
+where ⊙ denotes componentwise multiplication and 1 is the all-ones vector of compatible size. This second choice controls the location of feature centers and is useful for reducing far-field quadrature errors on unbounded domains. The essential computational feature of RaNNs is that the output-layer coefficients are not obtained by nonlinear training of all network parameters. Instead, they are determined by a global numerical formulation, such as a Petrov–Galerkin or collocation least-squares system. This leads to a linear algebraic problem for the output-layer coefficients. 
+
+## 2.2 Near–Far Domain Decomposition 
+
+For PDEs on unbounded domains, a single randomized feature space with one parameter scale may be inefficient. The solution may have localized structures near physical boundaries or obstacles, while exhibiting decay or different asymptotic behavior in the far field. To represent these different regimes, we decompose the domain into non-overlapping subregions in the sense that Ω = 
+
+> Nnet
+
+[
+
+> α=1
+
+Ωα, Ωα ∩ Ωβ = ∅ (α̸ = β)up to their common interfaces, and assign an independent randomized subnetwork to each subregion. The numerical solution is written as 
+
+uh(x) = 
+
+> Nnet
+
+X
+
+> α=1
+
+χα(x)u(α) 
+
+> h
+
+(x), u(α) 
+
+> h
+
+(x) = 
+
+> mα
+
+X
+
+> k=1
+
+ˆu(α) 
+
+> k
+
+ϕ(α) 
+
+> k
+
+(x),
+
+where χα is the indicator function of Ω α, and {ϕ(α) 
+
+> k
+
+}mα 
+
+> k=1
+
+are the randomized features generated by the α-th subnetwork. For a two-network near–far decomposition, one typically writes Ω = Ω 1 ∪ Ω2,
+
+where Ω 1 is a bounded near-field region and Ω 2 is an exterior unbounded region. The approximation becomes 
+
+uh(x) = 
+
+
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1)  
+
+> k
+
+ϕ(1)  
+
+> k
+
+(x), x ∈ Ω1,
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+ϕ(2)  
+
+> k
+
+(x), x ∈ Ω2.
+
+For one-dimensional whole-space problems, one may instead use a three-network decomposition consisting of the left far-field region, the central near-field region, and the right far-field region. The subregions are coupled by physical boundary equations and interface equations. For an interface Γ12 := ∂Ω1 ∩ ∂Ω2,
+
+4typical coupling conditions are 
+
+u(1)  
+
+> h
+
+= u(2)  
+
+> h
+
+, β1∇u(1)  
+
+> h
+
+· n12 + β2∇u(2)  
+
+> h
+
+· n21 = 0 on Γ 12 ,
+
+where β1 and β2 denote the traces of β from the two sides and n12 is the unit normal pointing from Ω 1 to Ω 2.When β is continuous and a single normal direction is fixed, this condition reduces to equality of the normal fluxes. These equations should be interpreted as coupling equations between two trial spaces. The artificial interface is therefore a domain-decomposition interface, not a truncation boundary where the exterior domain is discarded. 
+
+## 2.3 Generic Least-Squares Form 
+
+For convenience, consider the model elliptic equation 
+
+−∇ · (β∇u) + γu = f, β, γ : Ω → R, x ∈ Ω ⊂ Rd. (2.1) When Ω is unbounded, the solution is assumed to satisfy a prescribed far-field condition, for example 
+
+u(x) → 0 as ∥x∥2 → ∞ .
+
+If the domain has physical boundaries, boundary conditions may also be imposed. For example, one may prescribe (
+
+u(x) = gD (x), x ∈ ΓD ,β∇u(x) · n(x) = gN (x), x ∈ ΓN , (2.2) where ∂Ω = Γ D ∪ ΓN , Γ D ∩ ΓN = ∅, and n is the unit outward normal vector. Depending on the discretization, the PDE equations may be obtained either from a weak formulation or from strong-form collocation. In a Petrov–Galerkin formulation, the rows of A are generated by testing the PDE against prescribed test functions. In a collocation formulation, the rows of A are generated by enforcing the strong residual at sampling points. In both cases, once the hidden-layer parameters are fixed, the PDE equations are linear with respect to the output-layer coefficients. After the PDE equations, physical boundary or initial conditions, and interface coupling conditions are dis-cretized, they are assembled into the generic weighted least-squares system 
+
+
+
+A
+
+ξB
+
+ηC
+
+ U =
+
+
+
+L
+
+ξF
+
+ηZ
+
+ . (2.3) Here A represents the PDE equations, B represents physical boundary or initial conditions, C represents interface coupling conditions, and ξ, η > 0 are weighting parameters. Thus the proposed framework reduces the determination of all output-layer coefficients to a linear least-squares problem. The concrete construction of A, B, and C will be given in Sections 3 and 4. 
+
+# 3 Domain-Decomposed RaNN Petrov–Galerkin Method for Semi-Unbounded Elliptic Problems 
+
+In this section, we specialize the general domain-decomposed RaNN framework to semi-unbounded elliptic problems and derive a broken Petrov–Galerkin least-squares formulation, which we call the domain-decomposed RaNN Petrov–Galerkin method (DD-RaNN-PG). We consider 
+
+
+
+−∇ · (β(x)∇u(x)) + γ(x)u(x) = f (x), x ∈ Ω = Rd
+
+> +
+
+,
+
+lim 
+
+> ∥
+
+x∥2→+∞ u(x) = 0 . (3.1) 5The physical boundary conditions are 
+
+u(x) = gD (x) on Γ D , β(x)∇u(x) · n(x) = gN (x) on Γ N , ∂Ω = Γ D ∪ ΓN , ΓD ∩ ΓN = ∅. (3.2) A key difficulty in semi-unbounded problems is that the solution may exhibit different behavior near the physical boundary and in the far field. A single randomized feature distribution is often inefficient for both regimes. Therefore, we decompose the semi-infinite domain into a bounded near-field region and an exterior unbounded region, and use two randomized subnetworks with different parameter ranges. 
+
+## 3.1 Near–Far Decomposition and Quadrature Grid 
+
+Let xcut > 0 be a prescribed near–far separation parameter. In this Petrov–Galerkin construction, we use a tensor-product box-type decomposition of the half-space, Ω1 = [0 , x cut ]d, Ω2 = Ω \ Ω1, Ω = Rd
+
+> +
+
+.
+
+For d = 1, this reduces to the standard decomposition of the half-line into a bounded interval and an exterior interval. For d ≥ 2, the interface is the piecewise smooth box boundary ΓI := ∂Ω1 ∩ ∂Ω2.
+
+This tensor-product construction is convenient for the Petrov–Galerkin formulation and the associated quadra-ture. More general interface geometries, such as circular or spherical near–far interfaces, are treated below by the collocation formulation. We construct the quadrature and test-function grid dimension by dimension. For the near-field interval [0 , x cut ], we use a uniform partition 0 = x0 < x 1 < · · · < x N1 = xcut , h = xcut 
+
+N1
+
+.
+
+For the exterior interval ( xcut , +∞), we use shifted positive Hermite–Gauss nodes. Let 
+
+−yN2 < · · · < −y1 < y 1 < · · · < y N2
+
+be the 2 N2 Hermite–Gauss nodes. We retain the positive nodes and shift them to the exterior region: 
+
+xN1+k = xcut + S y k, k = 1 , . . . , N 2,
+
+where S > 0 is a scaling parameter. Thus the one-dimensional node sequence is 0 = x0 < x 1 < · · · < x N1 = xcut < x N1+1 < · · · < x N , N = N1 + N2.
+
+The tensor product of this node sequence gives the quadrature structure in Rd
+
+> +
+
+.The test space is chosen as the standard continuous piecewise linear finite element space associated with this tensor-product grid: 
+
+Vh = span {vj }Mj=1 .
+
+Since the physical domain is unbounded, the exterior integrals are evaluated numerically by Gauss-type quadrature. For the two subnetworks, define 
+
+U (1)  
+
+> h
+
+= span {ϕ(1)  
+
+> k
+
+}m1
+
+> k=1
+
+, U (2)  
+
+> h
+
+= span {ϕ(2)  
+
+> k
+
+}m2
+
+> k=1
+
+.
+
+The functions {ϕ(1)  
+
+> k
+
+} are used on Ω 1, and the functions {ϕ(2)  
+
+> k
+
+} are used on Ω 2. The broken trial function is represented as 
+
+uh(x) = 
+
+
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1)  
+
+> k
+
+ϕ(1)  
+
+> k
+
+(x), x ∈ Ω1,
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+ϕ(2)  
+
+> k
+
+(x), x ∈ Ω2.
+
+(3.3) Before the interface equations are imposed, uh should be regarded as a broken trial function. 63.2 Broken Petrov–Galerkin Discretization 
+
+For a sufficiently smooth exact solution, integration by parts gives the weak formulation 
+
+a(u, v ) = l(v), ∀v ∈ V, 
+
+where, for test functions satisfying v|ΓD = 0, 
+
+a(u, v ) = 
+
+Z
+
+> Ω
+
+β∇u · ∇ v dx +
+
+Z
+
+> Ω
+
+γuv dx, (3.4) 
+
+l(v) = 
+
+Z
+
+> Ω
+
+f v dx +
+
+Z
+
+> ΓN
+
+gN v ds. (3.5) Since the numerical trial function (3.3) is constructed piecewise, it is not globally conforming before the interface equations are imposed. We therefore assemble the PDE part by using the broken bilinear form 
+
+ah(uh, v h) = 
+
+> 2
+
+X
+
+> α=1
+
+Z 
+
+> Ωα
+
+β∇u(α) 
+
+> h
+
+· ∇ vh dx +
+
+Z
+
+> Ωα
+
+γu (α) 
+
+> h
+
+vh dx
+
+
+
+.
+
+For a smooth exact solution satisfying continuity of the solution and the normal flux across Γ I , this broken formu-lation is consistent with the original weak formulation. For the numerical solution, these transmission conditions are imposed separately through the interface equations in Section 3.3. Thus the PDE equations and the interface equations should be viewed as two coupled components of one least-squares system. The Petrov–Galerkin equations for the PDE part are 
+
+ah(uh, v j ) = l(vj ), j = 1 , . . . , M. 
+
+Substituting (3.3) gives 
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1) 
+
+> k
+
+Z 
+
+> Ω1
+
+β∇ϕ(1)  
+
+> k
+
+· ∇ vj dx +
+
+Z
+
+> Ω1
+
+γϕ (1)  
+
+> k
+
+vj dx
+
+
+
++
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2) 
+
+> k
+
+Z 
+
+> Ω2
+
+β∇ϕ(2)  
+
+> k
+
+· ∇ vj dx +
+
+Z
+
+> Ω2
+
+γϕ (2)  
+
+> k
+
+vj dx
+
+
+
+= l(vj ). (3.6) Thus the Petrov–Galerkin equations can be written as 
+
+AU = L, A = ( A(1) , A(2) ), U ⊤ = (( U (1) )⊤, (U (2) )⊤), (3.7) where 
+
+A(α) 
+
+> jk
+
+= ah(ϕ(α) 
+
+> k
+
+, v j ), Lj = l(vj ), U (α) = (ˆ u(α)1 , . . . , ˆu(α) 
+
+> mα
+
+)⊤, α = 1 , 2.
+
+## 3.3 Boundary and Interface Conditions 
+
+The Dirichlet boundary condition is enforced at boundary sampling points {yj }Nb 
+
+> j=1
+
+⊂ ΓD . If yj ∈ ΓD ∩ Ωα, we impose mαX
+
+> k=1
+
+ˆu(α) 
+
+> k
+
+ϕ(α) 
+
+> k
+
+(yj ) = gD (yj ).
+
+Collecting these equations gives 
+
+BU = F . (3.8) Next, we impose interface coupling between the near-field and far-field subnetworks. Let {zj }Nc 
+
+> j=1
+
+⊂ ΓI be interface sampling points. We enforce 
+
+u(1)  
+
+> h
+
+(zj ) = u(2)  
+
+> h
+
+(zj ), β1(zj )∇u(1)  
+
+> h
+
+(zj ) · n = β2(zj )∇u(2)  
+
+> h
+
+(zj ) · n, j = 1 , . . . , N c,
+
+7where n is a fixed unit normal vector on Γ I , taken to point from Ω 1 to Ω 2. Equivalently, 
+
+
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1)  
+
+> k
+
+ϕ(1)  
+
+> k
+
+(zj ) −
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+ϕ(2)  
+
+> k
+
+(zj ) = 0 ,
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1)  
+
+> k
+
+β1(zj )∇ϕ(1)  
+
+> k
+
+(zj ) · n −
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+β2(zj )∇ϕ(2)  
+
+> k
+
+(zj ) · n = 0 .
+
+(3.9) The corresponding interface matrix equation is 
+
+CU = Z, C ∈ R2Nc×(m1+m2), Z = 0. (3.10) Combining (3.7), (3.8), and (3.10), we obtain the final least-squares system 
+
+
+
+A
+
+ξB
+
+ηC
+
+ U =
+
+
+
+L
+
+ξF
+
+ηZ
+
+ , (3.11) where ξ and η are penalty parameters for the boundary and interface equations, respectively. Solving (3.11) by least–squares yields the output-layer coefficients of the two subnetworks. 
+
+Remark 3.1 (Difference from artificial boundary conditions) The interface equations in (3.10) should not be interpreted as conventional artificial boundary conditions used to close a truncated problem. In classical trun-cation methods, the exterior domain is removed and its effect must be approximated by an absorbing, transparent, or asymptotic boundary condition imposed on the artificial boundary. In the present method, the exterior region is still represented by a separate randomized neural subnetwork. The interface conditions only couple the near-field and far-field trial spaces. Thus, the role of the interface is to connect two representations, rather than to replace the exterior problem by a prescribed boundary operator. 
+
+# 4 Domain-Decomposed RaNN Collocation Method for Fully Unbounded Time-Dependent Problems 
+
+In this section, we develop a domain-decomposed RaNN collocation method (DD-RaNN-CM) for fully un-bounded time-dependent problems. The method is particularly useful when the domain has more than one far-field direction, as in whole-space problems. We present the formulation using a one-dimensional time-dependent Schr¨ odinger equation as a representative example: 
+
+
+
+iu t + uxx = f, x ∈ Ω = R, t ∈ [0 , T ],u(x, 0) = g(x), x ∈ R,u(x, t ) → 0, |x| → ∞ .
+
+(4.1) 
+
+## 4.1 Fully Unbounded Spatio-Temporal Decomposition 
+
+For fully unbounded problems, a single randomized neural network with one parameter scale may have difficulty resolving both the localized core of the solution and the two far-field tails. We therefore adopt a three-network decomposition. Let 
+
+x(1) cut < x (2) cut 
+
+be two interface locations. The whole line is decomposed into Ω1 = ( −∞ , x (1) cut ), Ω2 = [ x(1) cut , x (2) cut ], Ω3 = ( x(2) cut , +∞).
+
+8The left and right subnetworks represent the far-field tails, while the middle subnetwork represents the near-field region. The spatio-temporal numerical solution is written as 
+
+uh(x, t ) = 
+
+
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1)  
+
+> k
+
+ϕ(1)  
+
+> k
+
+(x, t ), x ∈ (−∞ , x (1) cut ), t ∈ [0 , T ],
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+ϕ(2)  
+
+> k
+
+(x, t ), x ∈ [x(1) cut , x (2) cut ], t ∈ [0 , T ],
+
+> m3
+
+X
+
+> k=1
+
+ˆu(3)  
+
+> k
+
+ϕ(3)  
+
+> k
+
+(x, t ), x ∈ (x(2) cut , +∞), t ∈ [0 , T ].
+
+(4.2) Here {ϕ(α) 
+
+> k
+
+}mα 
+
+> k=1
+
+are randomized spatio-temporal features generated by the α-th subnetwork. 
+
+## 4.2 Collocation Discretization 
+
+For each subregion, let 
+
+{(x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+)}Nα
+
+> j=1
+
+, α = 1 , 2, 3,
+
+be the collocation points. In practice, the spatial coordinates are sampled from distributions adapted to the corresponding subregion, while the temporal coordinates are sampled in [0 , T ]. At the collocation points, the Schr¨ odinger equation (4.1) gives 
+
+i∂ tuh(x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+) + ∂xx uh(x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+) = f (x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+), j = 1 , . . . , N α, α = 1 , 2, 3. (4.3) Substituting (4.2) yields 
+
+> mα
+
+X
+
+> k=1
+
+ˆu(α)
+
+> k
+
+h
+
+i∂ tϕ(α) 
+
+> k
+
+(x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+) + ∂xx ϕ(α) 
+
+> k
+
+(x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+)
+
+i
+
+= f (x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+), (4.4) for j = 1 , . . . , N α and α = 1 , 2, 3. Thus each subnetwork contributes a linear block 
+
+A(α)U (α) = L(α), U (α) = (ˆ u(α)1 , . . . , ˆu(α) 
+
+> mα
+
+)⊤,
+
+where 
+
+A(α) 
+
+> jk
+
+= i∂ tϕ(α) 
+
+> k
+
+(x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+) + ∂xx ϕ(α) 
+
+> k
+
+(x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+), L(α) 
+
+> j
+
+= f (x(α) 
+
+> j
+
+, t (α) 
+
+> j
+
+).
+
+Stacking the three blocks gives 
+
+AU = L, A = diag( A(1) , A(2) , A(3) ), U ⊤ = (( U (1) )⊤, (U (2) )⊤, (U (3) )⊤), (4.5) with 
+
+L⊤ = (( L(1) )⊤, (L(2) )⊤, (L(3) )⊤).
+
+Since the Schr¨ odinger equation is complex-valued, the matrices and vectors in (4.5) are generally complex-valued. One may either solve the resulting complex least-squares problem directly or rewrite it as an equivalent real least-squares problem by separating the real and imaginary parts. The numerical experiments below use the latter implementation. 94.3 Initial and Interface Conditions 
+
+The initial condition u(x, 0) = g(x) is enforced at sampled points 
+
+{(yj , 0) }Nb
+
+> j=1
+
+.
+
+If yj ∈ Ωα, we impose mαX
+
+> k=1
+
+ˆu(α) 
+
+> k
+
+ϕ(α) 
+
+> k
+
+(yj , 0) = g(yj ).
+
+Collecting all initial-condition equations gives 
+
+BU = F . (4.6) Next, the subnetworks are coupled at the two near–far interfaces 
+
+x = x(1) cut , x = x(2) cut .
+
+For the second-order equation (4.1), we impose continuity of both the solution and its first spatial derivative. At sampled temporal points 
+
+{t(1)  
+
+> j
+
+}N (1)  
+
+> c
+> j=1
+
+on x = x(1) cut , {t(2)  
+
+> j
+
+}N (2)  
+
+> c
+> j=1
+
+on x = x(2) cut ,
+
+we impose 
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1)  
+
+> k
+
+ϕ(1)  
+
+> k
+
+(x(1) cut , t (1)  
+
+> j
+
+) −
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+ϕ(2)  
+
+> k
+
+(x(1) cut , t (1)  
+
+> j
+
+) = 0 ,
+
+> m1
+
+X
+
+> k=1
+
+ˆu(1)  
+
+> k
+
+∂xϕ(1)  
+
+> k
+
+(x(1) cut , t (1)  
+
+> j
+
+) −
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+∂xϕ(2)  
+
+> k
+
+(x(1) cut , t (1)  
+
+> j
+
+) = 0 , j = 1 , . . . , N (1)  
+
+> c
+
+,
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+ϕ(2)  
+
+> k
+
+(x(2) cut , t (2)  
+
+> j
+
+) −
+
+> m3
+
+X
+
+> k=1
+
+ˆu(3)  
+
+> k
+
+ϕ(3)  
+
+> k
+
+(x(2) cut , t (2)  
+
+> j
+
+) = 0 ,
+
+> m2
+
+X
+
+> k=1
+
+ˆu(2)  
+
+> k
+
+∂xϕ(2)  
+
+> k
+
+(x(2) cut , t (2)  
+
+> j
+
+) −
+
+> m3
+
+X
+
+> k=1
+
+ˆu(3)  
+
+> k
+
+∂xϕ(3)  
+
+> k
+
+(x(2) cut , t (2)  
+
+> j
+
+) = 0 , j = 1 , . . . , N (2)  
+
+> c
+
+. (4.7) Stacking all interface equations gives 
+
+CU = Z, C ∈ R(2 N (1)    
+
+> c+2 N(2)
+> c)×(m1+m2+m3)
+
+, Z = 0. (4.8) Combining the PDE collocation equations, the initial condition, and the interface conditions, we obtain 
+
+
+
+A
+
+ξB
+
+ηC
+
+ U =
+
+
+
+L
+
+ξF
+
+ηZ
+
+ , (4.9) where ξ and η are penalty parameters for the initial and interface equations, respectively. The least-squares solution of (4.9) gives all output-layer coefficients of the three subnetworks. 
+
+Remark 4.1 The three-network construction is not restricted to the linear Schr¨ odinger equation. It can also be used for other fully unbounded problems with different left and right far-field behavior. For more complicated solution profiles, the number of subnetworks can be increased. One may also replace the sharp domain partition by smooth window functions, although this leads to a different coupling formulation. 
+
+10 5 Numerical Analysis 
+
+In this section, the theoretical analysis is formulated in a broken Sobolev framework. This is necessary because the domain-decomposed ansatz uses characteristic functions. A piecewise function of the form 
+
+uN = χ1uN1 + χ2uN2 , χi = 1Ωi , i = 1 , 2,
+
+need not belong to the global space Hs(Rd) for s ≥ 1 unless exact trace matching conditions are imposed on the interface. Therefore, the approximation theorem below is stated in a broken Sobolev norm. Interface compatibility is treated separately through a broken graph norm and an interface jump functional. Let Ω1 = {x ∈ Rd : ∥x∥2 < M }, Ω2 = {x ∈ Rd : ∥x∥2 > M }, Γ = {x ∈ Rd : ∥x∥2 = M }.
+
+Then 
+
+Rd = Ω 1 ∪ Γ ∪ Ω2.
+
+Here Ω 1 denotes the near-field region and Ω 2 denotes the far-field region. The same analysis applies to more general decompositions with a sufficiently regular interface. 
+
+Definition 5.1 (Broken Sobolev space) For s ≥ 0, define 
+
+Hs
+
+> br
+
+(Ω 1 ∪ Ω2) := {v = ( v1, v 2) : vi ∈ Hs(Ω i), i = 1 , 2},
+
+with norm 
+
+∥v∥2 
+
+> Hs
+> br
+
+:= ∥v1∥2 
+
+> Hs(Ω 1)
+
++ ∥v2∥2
+
+> Hs(Ω 2)
+
+.
+
+When a piecewise function is written as v = χ1v1 + χ2v2, it is identified with the pair (v1, v 2) in Hs
+
+> br
+
+(Ω 1 ∪ Ω2). No trace matching across Γ is imposed in the definition of the broken space. 
+
+Remark 5.2 If v = χ1v1 + χ2v2 and [v] := v1|Γ − v2|Γ̸ = 0 , then the distributional derivative contains an interface measure of the form [v]nδΓ. Hence v generally fails to belong to H1(Rd), and consequently cannot be used in a global Hs(Rd) approximation theorem for s ≥ 1. The broken norm avoids this difficulty by measuring the Sobolev regularity separately on each subdomain. Interface compatibility is then measured by a separate jump functional. 
+
+We use the following broken randomized neural trial space: 
+
+N br  
+
+> ρ, N
+
+:= 
+
+n
+
+u = χ1u1 + χ2u2 : ul(x) = 
+
+> Nl
+
+X
+
+> k=1
+
+c(l)
+
+> kd
+
+Y
+
+> j=1
+
+ρ(w(l)
+
+> j,k
+
+xj + b(l)
+
+> j,k
+
+), l = 1 , 2,
+
+> Nl
+
+X
+
+> k=1
+
+|c(l) 
+
+> k
+
+| ≤ CNl , Rmin ≤ | w(l)
+
+> j,k
+
+| ≤ Rmax , |b(l)
+
+> j,k
+
+| ≤ Bl
+
+o
+
+.
+
+Here N = ( N1, N 2) denotes the subnetwork sizes together with the chosen coefficient budgets CN1 and CN2 .The coefficient budgets are part of the trial-space specification. In approximation statements below, they are chosen large enough to contain the finite-sum approximants obtained from the representing measures. Thus the approximation theorem is a bounded-coefficient result on a sufficiently large coefficient ball, not a claim for an arbitrarily prescribed small coefficient budget. This notation is separated from the decomposition radius M in the definition of Ω 1, Ω 2, and Γ. The functions in N br  
+
+> ρ, N
+
+are not assumed to belong to global Hs(Rd). The coefficient bound in the definition of N br  
+
+> ρ, N
+
+is part of the theoretical stability framework. Consequently, the least-squares error estimate below applies to a constrained, regularized, or a posteriori bounded least-squares solution whose output-layer coefficients remain in this coefficient ball. If an unconstrained least-squares system is 11 solved in practice, the estimate should be interpreted after verifying such a coefficient bound a posteriori, or after enlarging the coefficient ball so that it contains the computed solution. Let V be a broken Hilbert space, and let 
+
+Gbr v = ( G1v1, G2v2)be the piecewise differential operator. We define the population broken loss by 
+
+Lbr (v) := ∥G br v − f ∥2 
+
+> Y
+
++ JΓ(v), (5.1) where JΓ(v) is an interface jump functional compatible with the chosen broken space. Its empirical counterpart is denoted by eLbr (v). 
+
+Assumption 5.3 (Broken graph norm equivalence) Assume that the boundary, decay, normalization, or trans-mission conditions needed to remove the kernel of the operator have been imposed. More precisely, the estimate below is required on the admissible error space associated with the PDE. Assume that there exist constants CL, C U > 0
+
+such that, for all admissible error functions v in the chosen broken graph space V ,
+
+CL∥v∥2 
+
+> V
+
+≤ ∥G br v∥2 
+
+> Y
+
++ JΓ(v) ≤ CU ∥v∥2 
+
+> V
+
+. (5.2) 
+
+The space V , the residual space Y , and the interface functional JΓ must be chosen consistently. This assumption is a stability statement for the error equation; it is not meant to assert coercivity on a larger space containing nontrivial kernels. 
+
+Remark 5.4 (Examples of broken graph norms) For the elliptic operator 
+
+Gu = −∇ · (β∇u) + γu, 
+
+assume that β is uniformly elliptic and sufficiently regular, and that γ ≥ γ0 > 0. We fix a unit normal vector n on 
+
+Γ, pointing from Ω1 to Ω2, and use the scalar jump convention 
+
+[v] = v1|Γ − v2|Γ, [∂nv] = ∇v1 · n − ∇ v2 · n.
+
+For conormal fluxes, if ni denotes the outward normal of Ωi, then the transmission residual is 
+
+FΓ(v) := [( β∇v) · n]flux := ( β1∇v1) · n1 + ( β2∇v2) · n2.
+
+Equivalently, with the fixed normal n from Ω1 to Ω2, this residual may be written as 
+
+FΓ(v) = ( β1∇v1) · n − (β2∇v2) · n.
+
+The notation FΓ(v) is used below for the conormal-flux transmission residual, independently of which equivalent normal convention is adopted. The same convention is used in the interface functional JΓ. If Γ is an artificial interface inside a medium with globally smooth coefficients, a strong broken H2 estimate may be formulated with 
+
+V = H2br (Ω 1 ∪ Ω2), Y = L2(Ω 1) × L2(Ω 2),
+
+and 
+
+JΓ(v) = ∥[v]∥2 
+
+> H3/2(Γ)
+
++ ∥[∂nv]∥2
+
+> H1/2(Γ)
+
+.
+
+Under piecewise H2 elliptic regularity and a compatible transmission stability estimate, Assumption 5.3 gives a broken H2 error estimate. For a genuine transmission problem with discontinuous coefficients, the normal derivative jump should be replaced by the conormal-flux residual FΓ(v).
+
+12 A weaker energy framework should be understood in a graph space rather than in the whole space H1br . For instance, one may use a space of the form 
+
+V1,br = {v = ( v1, v 2) : vi ∈ H1(Ω i), Givi ∈ H−1(Ω i), (β∇vi) · ni ∈ H−1/2(Γ) },
+
+where the conormal trace is understood in the weak sense induced by Green’s identity. More precisely, for a trace datum ψ ∈ H1/2(Γ) and any lifting Ψ ∈ H1(Ω i) with Ψ|Γ = ψ, one may define the weak conormal trace by 
+
+⟨(β∇vi) · ni, ψ ⟩Γ =
+
+Z
+
+> Ωi
+
+(β∇vi) · ∇ Ψ d x − ⟨G ivi − γv i, Ψ⟩Ωi ,
+
+where ni is the outward normal of Ωi. If the opposite normal convention is used, the sign of the conormal trace must be changed accordingly. This definition is independent of the chosen lifting provided 
+
+Givi − γv i = −∇ · (β∇vi) in H−1(Ω i) := ( H1(Ω i)) ′.
+
+Indeed, if two liftings have the same trace on Γ, then their difference Φ belongs to H10 (Ω i), and 
+
+Z
+
+> Ωi
+
+(β∇vi) · ∇ Φ d x − ⟨G ivi − γv i, Φ⟩Ωi =
+
+Z
+
+> Ωi
+
+(β∇vi) · ∇ Φ d x − ⟨−∇ · (β∇vi), Φ⟩Ωi = 0 .
+
+In this case one may take 
+
+Y = H−1(Ω 1) × H−1(Ω 2),
+
+and 
+
+JΓ(v) = ∥[v]∥2 
+
+> H1/2(Γ)
+
++ ∥F Γ(v)∥2
+
+> H−1/2(Γ)
+
+.
+
+The conormal-flux jump is needed for a genuine broken energy estimate. The pointwise or L2(Γ) interface penalties used in the numerical implementation should be regarded as computable surrogates of these trace norms, rather than as uniformly equivalent quantities, unless additional finite-dimensional sampling or inverse estimates are imposed. 
+
+We next record the precise conditional error decomposition used in the sequel. Assume that Gbr is linear and that the exact solution u∗ satisfies 
+
+Gbr u∗ = f, 
+
+together with the homogeneous transmission conditions appearing in JΓ. Thus, for every trial function u,
+
+Gbr (u − u∗) = Gbr u − f, JΓ(u − u∗) = JΓ(u).
+
+We also assume that the errors u − u∗, for u ∈ N br 
+
+> ρ, N
+
+, belong to the admissible error space in Assumption 5.3. Let uρ ∈ N br  
+
+> ρ, N
+
+be a computed empirical least-squares solution satisfying 
+
+eLbr (uρ) ≤ inf  
+
+> u∈N br
+> ρ, N
+
+eLbr (u) + ηopt ,
+
+where ηopt ≥ 0 denotes the optimization suboptimality. Define the empirical-consistency gap on the same coefficient-bounded trial space by 
+
+Sbr := sup  
+
+> u∈N br
+> ρ, N
+
+|L br (u) − eLbr (u)|.
+
+The coefficient-bounded trial space is fixed throughout this estimate. The comparison functions, the computed least-squares solution, and the uniform consistency quantity Sbr are all taken over this same coefficient ball. If the coefficient budgets are enlarged to improve approximation accuracy, then the constants in the empirical-consistency estimates may also change. 13 For any ua ∈ N br 
+
+> ρ, N
+
+, set eρ = uρ − u∗. By Assumption 5.3, 
+
+CL∥uρ − u∗∥2 
+
+> V
+
+= CL∥eρ∥2 
+
+> V
+
+≤ ∥G br eρ∥2 
+
+> Y
+
++ JΓ(eρ) = Lbr (uρ)
+
+≤ eLbr (uρ) + Sbr ≤ eLbr (ua) + ηopt + Sbr 
+
+≤ L br (ua) + ηopt + 2 Sbr 
+
+≤ CU ∥ua − u∗∥2 
+
+> V
+
++ ηopt + 2 Sbr .
+
+Taking the infimum over ua ∈ N br  
+
+> ρ, N
+
+yields 
+
+∥uρ − u∗∥2 
+
+> V
+
+≤ CU
+
+CL
+
+inf  
+
+> u∈N br
+> ρ, N
+
+∥u − u∗∥2 
+
+> V
+
++ 2
+
+CL
+
+Sbr + 1
+
+CL
+
+ηopt . (5.3) It is important to distinguish the stability norm V from the approximation norm used later. The broken Hs
+
+approximation theorem below directly controls the approximation term in (5.3) when V = Hs
+
+> br
+
+, for instance in the broken H2 framework with s = 2. If V is a stronger graph space containing additional interface traces or fluxes, then approximation in that stronger V -norm must be assumed separately. 
+
+## 5.1 Approximation Error 
+
+We now prove the approximation result in the broken Sobolev norm. The conclusion is weakened from a global 
+
+Hs(Rd) estimate to a broken Hs estimate, which is the natural statement for characteristic-function-based domain decomposition. 
+
+Assumption 5.5 The target function u∗ ∈ Hs+εC (Rd) ∩ L1(Rd) satisfies 
+
+|u∗(x)| ≤ Cf
+
+(1 + ∥x∥2)d+ϵf , x ∈ Rd,
+
+where Cf > 0, ϵf > 0, and εC > 0.
+
+Assumption 5.6 (Activation admissibility) Throughout the approximation analysis, s ∈ N0 is fixed. The activation function satisfies: (A1) ρ ∈ Cs+1 (R).(A2) ρ(j) ∈ L1(R) for j = 0 , . . . , s + 1 and bρ′(1) ̸ = 0 .(A3) There exist kρ > 1/2 and Cρ > 0 such that 
+
+|ρ(j)(x)| ≤ Cρ
+
+(1 + |x|)kρ , j = 0 , . . . , s + 1 .
+
+The decay condition is chosen sufficiently strong to ensure that, for bounded parameter sets with |wj | ≥ Rmin > 0, the tensor-product feature map 
+
+θ 7 → ϕθ , ϕθ (x) = 
+
+> d
+
+Y
+
+> j=1
+
+ρ(wj xj + bj ),
+
+is continuous and uniformly bounded as a map from the parameter set into Hs(Ω l), l = 1 , 2. The lower bound 
+
+|wj | ≥ Rmin > 0 is essential for the far-field subdomain; without it, the decay of the rescaled features may degenerate and uniform Hs(Ω 2) bounds may fail. This property is used below in the Bochner quadrature and randomized-parameter arguments. 14 In numerical implementations, one may also use tensor-product features of the form 
+
+ϕθ (x) = 
+
+> d
+
+Y
+
+> j=1
+
+ρj (wj xj + bj ),
+
+where the one-dimensional activation functions ρj are allowed to be different. In the experiments, we sometimes use non-decaying activations such as tanh. These choices are empirical variants and are not directly covered by the decay-based approximation estimates above. The theoretical estimates below apply to decay-admissible activations, or to trial spaces for which the far-field tail-control assumptions can be verified. We use the Fourier convention 
+
+bg(ξ) = 
+
+Z
+
+> Rd
+
+g(x)e−iξ⊤xdx, g(x) = (2 π)−d
+
+Z
+
+> Rd
+
+bg(ξ)eiξ⊤x dξ.
+
+For the fixed integer s ∈ N0 used in the approximation analysis, set 
+
+∥g∥2 
+
+> s, Rd
+
+:= 
+
+Z
+
+> Rd
+
+(1 + ∥ξ∥22)s|bg(ξ)|2 dξ.
+
+This norm is equivalent to the standard Sobolev norm. Constants depending on the Fourier normalization are absorbed into generic constants. 
+
+Lemma 5.7 (Band-limited approximation) Let v ∈ Hs+εC (Rd) ∩ L1(Rd) with εC > 0. Let mR,a ∈ C∞ 
+
+> c
+
+(Rd)
+
+satisfy 0 ≤ mR,a ≤ 1,
+
+mR,a (ξ) = 1 if Rmin + a ≤ | ξj | ≤ Rmax − a, j = 1 , . . . , d, 
+
+and 
+
+mR,a (ξ) = 0 if |ξj | ≤ Rmin for some j or |ξj | ≥ Rmax for some j. 
+
+Define vR = PR,a v by 
+
+cvR(ξ) = mR,a (ξ)bv(ξ).
+
+Assume Rmax ≥ 1, 0 < a ≤ Rmax /2, Rmin + a < R max − a, and 
+
+Rmin + a ≤ R−(2 s+d−1+2 εR)max .
+
+The lower cutoff Rmin is therefore not fixed independently of Rmax ; it must tend to zero as Rmax → ∞ . Otherwise, neighborhoods of the coordinate hyperplanes in frequency space would be permanently removed and a general function in Hs(Rd) ∩ L1(Rd) could not be approximated. Then 
+
+∥v − vR∥s, Rd ≤ CR −εC 
+
+> max
+
+∥v∥s+εC ,Rd + CR −εR 
+
+> max
+
+∥v∥L1(Rd). (5.4) 
+
+Consequently, by restriction continuity, 
+
+∥v − vR∥Hs 
+
+> br
+
+≤ Cbr ∥v − vR∥s, Rd .
+
+Proof. Since 0 ≤ mR,a ≤ 1, the error is supported where the multiplier is not equal to one. We cover this set by the following high-frequency, low-frequency, and coordinate-hyperplane regions. The high-frequency part is 
+
+Ahigh = {ξ : |ξj | > R max − a for some j},
+
+a low-frequency box near the origin, 
+
+Alow = {ξ : |ξj | < R min + a for all j},
+
+15 and a mixed region near the coordinate hyperplanes, 
+
+Amix = {ξ : |ξj | < R min + a for at least one j, |ξk| ≥ Rmin + a for at least one k, |ξm| ≤ Rmax − a for all m}.
+
+By construction, 
+
+{ξ : mR,a (ξ)̸ = 1 } ⊂ Ahigh ∪ Alow ∪ Amix .
+
+Hence it is sufficient to estimate the error over these three regions. On Ahigh ,(1 + ∥ξ∥22)s ≤ CR −2εC 
+
+> max
+
+(1 + ∥ξ∥22)s+εC ,
+
+where a ≤ Rmax /2 is used. This gives the first term in (5.4). On Alow ∪ Amix , use |bv(ξ)| ≤ ∥ v∥L1(Rd). Moreover, 
+
+|Amix | ≤ Cd(Rmin + a)( Rmax − a)d−1 ≤ CdR−2s−2εR 
+
+> max
+
+,
+
+and 
+
+|Alow | ≤ Cd(Rmin + a)d.
+
+On Amix one has (1 + ∥ξ∥22)s ≤ CR 2s
+
+> max
+
+. Hence 
+
+Z
+
+> Amix
+
+(1 + ∥ξ∥22)s|bv(ξ)|2 dξ ≤ CR 2s
+
+> max
+
+|Amix |∥ v∥2 
+
+> L1(Rd)
+
+≤ CR −2εR 
+
+> max
+
+∥v∥2
+
+> L1(Rd)
+
+.
+
+On Alow , (1 + ∥ξ∥22)s ≤ C for Rmin + a sufficiently small, and therefore 
+
+Z
+
+> Alow
+
+(1 + ∥ξ∥22)s|bv(ξ)|2 dξ ≤ C|Alow |∥ v∥2 
+
+> L1(Rd)
+
+≤ C(Rmin + a)d∥v∥2
+
+> L1(Rd)
+
+.
+
+Using Rmin + a ≤ CR −(2 s+d−1+2 εR)max , and taking Rmax ≥ 1, we have (Rmin + a)d ≤ CR −d(2 s+d−1+2 εR)max ≤ CR −2εR 
+
+> max
+
+,
+
+since d(2 s + d − 1 + 2 εR) ≥ 2εR. Therefore 
+
+Z
+
+> Alow
+
+(1 + ∥ξ∥22)s|bv(ξ)|2 dξ ≤ CR −2εR 
+
+> max
+
+∥v∥2
+
+> L1(Rd)
+
+.
+
+After combining the estimates on Ahigh , Amix , and Alow , we take square roots and use √a + b ≤ √a + √b to obtain (5.4). The broken estimate follows from the continuity of the restriction map Hs(Rd) → Hs(Ω i) for each subdomain. We first verify the local bounded-parameter representation on the bounded subdomain. The argument is based on the Fourier representation of the band-limited function and a truncation of the bias variables. Since the subdomain is bounded, the truncation error is controlled only by the L1-tails of the one-dimensional activation derivatives. 
+
+Theorem 5.8 (Near-field bounded-parameter representation) Let vR be the band-limited approximation from Lemma 5.7. Assume that supp cvR ⊂ bΩR := w ∈ Rd : Rmin ≤ | wj | ≤ Rmax , j = 1 , . . . , d , where 0 < R min <Rmax < ∞. Let 
+
+Ω1 ⊂ x ∈ Rd : ∥x∥2 < M 
+
+be a bounded subdomain. Suppose that 
+
+ρ ∈ Cs+1 (R), ρ(j) ∈ L1(R), j = 1 , . . . , s + 1 , bρ′(1) ̸ = 0 .
+
+Then, for every εF > 0, there exist B1 > 0 and a finite signed Borel measure ν1 supported on 
+
+Θ1 = {(w, b) : Rmin ≤ | wj | ≤ Rmax , |bj | ≤ B1, j = 1 , . . . , d }
+
+16 such that 
+
+vR −
+
+Z
+
+> Θ1
+> d
+
+Y
+
+> j=1
+
+ρ(wj xj + bj ) d ν1(w, b)
+
+> Hs(Ω 1)
+
+≤ εF /√2.
+
+Moreover, 
+
+∥ν1∥TV ≤ CT1 (Rmin , R max , B 1, d, ρ )∥vR∥0,Rd .
+
+Here B1 may depend on vR, M , and the requested accuracy εF .
+
+Proof. By Fourier inversion and the support condition on cvR,
+
+vR(x) = Re 
+
+ 1(2 π)d
+
+Z
+
+> bΩR
+
+cvR(w)eiw⊤x dw
+
+
+
+.
+
+For each coordinate, Z
+
+> R
+
+ρ′(wj xj + bj )e−ib j dbj = eiw j xj bρ′(1) .
+
+Since bρ′(1) ̸ = 0, we obtain 
+
+vR(x) = Re 
+
+
+
+1(2 π bρ′(1)) d
+
+Z
+
+> bΩR
+
+cvR(w)
+
+> d
+
+Y
+
+> j=1
+
+Z
+
+> R
+
+ρ′(wj xj + bj )e−ib j dbj dw
+
+ .
+
+The interchange of integrals is justified by ρ′ ∈ L1(R) and the boundedness of bΩR.For B1 > R max M , let vR,B 1 be the same expression with each bj -integral restricted to |bj | ≤ B1. For |α| ≤ s,using 
+
+Rd \ [−B1, B 1]d ⊂
+
+> d
+
+[
+
+> k=1
+
+{b : |bk| > B 1}, and |wj xj + bj | ≥ B1 − Rmax M
+
+we have, for x ∈ Ω1,
+
+|∂α
+
+xvR(x) − ∂α
+
+xvR,B 1 (x)| ≤ Cρ,d 
+
+Z
+
+> bΩR
+
+|cvR(w)|
+
+Z
+
+> Rd\[−B1,B 1]d
+> d
+
+Y
+
+> j=1
+
+wαj 
+
+> j
+
+ρ(1+ αj )(wj xj + bj )e−ib j db dw
+
+≤ Cα,R,ρ,d 
+
+Z
+
+> bΩR
+
+|cvR(w)|
+
+> d
+
+X
+
+> k=1
+
+Z 
+
+> |bk|>B 1
+
+ρ(1+ αk )(wkxk + bk) dbk dw
+
+≤ Cα,R,ρ,d ∥vR∥0,Rd
+
+> d
+
+X
+
+> k=1
+
+η1+ αk (B1 − Rmax M ),
+
+where 
+
+ηm(L) := 
+
+Z
+
+> |t|>L
+
+|ρ(m)(t)| dt. 
+
+Since ρ(m) ∈ L1(R), m = 1 , . . . , s +1, we have ηm(L) → 0 as L → ∞ . Therefore, after integrating over Ω 1, summing over all |α| ≤ s, and choosing B1 sufficiently large, 
+
+∥vR − vR,B 1 ∥Hs(Ω 1) ≤ εF
+
+√2 .
+
+It remains to rewrite vR,B 1 by the original feature ρ. By integration by parts, 
+
+Z B1
+
+> −B1
+
+ρ′(wj xj + bj )e−ib j dbj = ρ(wj xj + B1)e−iB 1 − ρ(wj xj − B1)eiB 1 + i
+
+Z B1
+
+> −B1
+
+ρ(wj xj + bj )e−ib j dbj .
+
+17 Thus there exists a finite complex measure μB1 supported on [ −B1, B 1], with ∥μB1 ∥TV ≤ 2 + 2 B1, such that 
+
+Z B1
+
+> −B1
+
+ρ′(wj xj + bj )e−ib j dbj =
+
+Z
+
+> [−B1,B 1]
+
+ρ(wj xj + bj ) d μB1 (bj ).
+
+Substituting this identity into vR,B 1 and taking the real part of the resulting complex measure gives a finite signed Borel measure ν1 supported on Θ 1 such that 
+
+vR,B 1 (x) = 
+
+Z
+
+> Θ1
+
+ϕθ (x) d ν1(θ).
+
+Moreover, 
+
+∥ν1∥TV ≤ (2 + 2 B1)d
+
+(2 π| bρ′(1) |)d
+
+Z
+
+> bΩR
+
+|cvR(w)| dw ≤ CT1 (Rmin , R max , B 1, d, ρ )∥vR∥0,Rd .
+
+Combining this representation with the preceding Hs(Ω 1)-estimate proves the result. We next verify the far-field part. The proof requires control of the Sobolev tail of vR on the exterior domain. We use the following derivative-decay lemma for this purpose. 
+
+Lemma 5.9 (Decay preservation for the band-limited approximation) Let vR = PR,a v be the band-limited approximation defined in Lemma 5.7. Assume that 
+
+|v(x)| ≤ C
+
+(1 + ∥x∥2)k , x ∈ Rd,
+
+for some C > 0 and k > d . Then, for every multi-index α with |α| ≤ s, there exists CR, α > 0 such that 
+
+|∂α
+
+xvR(x)| ≤ CR, α
+
+(1 + ∥x∥2)k , x ∈ Rd.
+
+Proof. Since 
+
+cvR(ξ) = mR,a (ξ)bv(ξ),
+
+we have 
+
+∂α
+
+xvR = Kα ∗ v, Kα = F−1 [( iξ)αmR,a (ξ)] .
+
+Because mR,a ∈ C∞ 
+
+> c
+
+(Rd), the kernel Kα is a Schwartz function. Hence, for any N > 0, 
+
+|Kα(y)| ≤ Cα,N (1 + ∥y∥2)−N .
+
+Using the decay assumption on v, we obtain 
+
+|∂α
+
+xvR(x)| ≤ C
+
+Z
+
+> Rd
+
+|Kα(y)|(1 + ∥x − y∥2)−k dy
+
+≤ C(1 + ∥x∥2)−k
+
+Z
+
+> Rd
+
+(1 + ∥y∥2)−N +k dy.
+
+Here we used (1 + ∥x − y∥2)−k ≤ C(1 + ∥x∥2)−k(1 + ∥y∥2)k.
+
+Choosing N > d + k makes the last integral finite. Therefore, 
+
+|∂α
+
+xvR(x)| ≤ CR, α
+
+(1 + ∥x∥2)k , x ∈ Rd.
+
+This proves the lemma. 18 Theorem 5.10 (Far-field bounded-parameter representation) Let vR be the band-limited approximation from Lemma 5.7. Assume that supp cvR ⊂ bΩR := ξ ∈ Rd : Rmin ≤ | ξj | ≤ Rmax , j = 1 , . . . , d , where 0 < R min <Rmax < ∞. Assume also that 
+
+|v(x)| ≤ C
+
+(1 + ∥x∥2)d+ϵf , x ∈ Rd,
+
+for some C > 0 and ϵf > 0. Let Assumption 5.6 hold. Then, for every fixed B2 > 0 and every εF > 0, there exists 
+
+M > 0 such that, with 
+
+Ω2 = x ∈ Rd : ∥x∥2 > M ,
+
+there is a finite signed Borel measure ν2 supported on 
+
+Θ2 = {(w, b) : Rmin ≤ | wj | ≤ Rmax , |bj | ≤ B2, j = 1 , . . . , d }
+
+satisfying 
+
+vR −
+
+Z
+
+> Θ2
+> d
+
+Y
+
+> j=1
+
+ρ(wj xj + bj ) d ν2(w, b)
+
+> Hs(Ω 2)
+
+≤ εF /√2.
+
+Moreover, 
+
+∥ν2∥TV ≤ CT2 (Rmin , R max , B 2, d, ρ )∥vR∥0,Rd .
+
+Proof. By Lemma 5.9, applied with k = d + ϵf , and polar-coordinate integration, the far-field Sobolev tail of 
+
+vR satisfies ∥vR∥2 
+
+> Hs(Ω 2)
+
+≤ CM −d−2ϵf . Hence, after increasing M if necessary, 
+
+∥vR∥Hs(Ω 2) ≤ εF
+
+2√2 . (5.5) By Fourier inversion, 
+
+vR(x) = Re 
+
+ 1(2 π)d
+
+Z
+
+> bΩR
+
+cvR(w)eiw⊤x dw
+
+
+
+.
+
+Since bρ′(1) ̸ = 0, for each coordinate, 
+
+Z
+
+> R
+
+ρ′(wj xj + bj )e−ib j dbj = eiw j xj bρ′(1) ,
+
+and therefore 
+
+eiw⊤x = 1( bρ′(1)) ddY
+
+> j=1
+
+Z
+
+> R
+
+ρ′(wj xj + bj )e−ib j dbj .
+
+Since ρ′ ∈ L1(R) and cvR is supported in the bounded set bΩR, Fubini’s theorem applies. For the fixed bias bound B2 > 0, define 
+
+vR,B 2 (x) := Re 
+
+
+
+1(2 π bρ′(1)) d
+
+Z
+
+> bΩR
+
+cvR(w)
+
+> d
+
+Y
+
+> j=1
+
+Z 
+
+> |bj|≤ B2
+
+ρ′(wj xj + bj )e−ib j dbj
+
+!
+
+dw
+
+ .
+
+We estimate vR,B 2 on Ω 2. For |α| ≤ s, differentiating under the integral is justified by Assumption 5.6 and the boundedness of bΩR × [−B2, B 2]d. The factors wαj 
+
+> j
+
+are uniformly bounded by Rαj
+
+> max
+
+, and ρ′ is replaced by ρ(1+ αj ).Hence it is enough to estimate 
+
+Gj (xj , w j ) := 
+
+Z B2
+
+> −B2
+
+|ρ(1+ αj )(wj xj + bj )|2 dbj .
+
+19 Using Cauchy–Schwarz in the w-integral, we obtain 
+
+|∂α
+
+xvR,B 2 (x)|2 ≤ C∥vR∥20,Rd
+
+Z
+
+> bΩR
+> d
+
+Y
+
+> j=1
+
+Gj (xj , w j ) d w,
+
+where C is independent of M .Set 
+
+Em := 
+
+n
+
+x ∈ Rd : |xm| > M/ √d
+
+o
+
+, m = 1 , . . . , d. 
+
+Since Ω 2 ⊂ Sdm=1 Em, it suffices to estimate the integral over each Em. Since Em only restricts the coordinate xm,Fubini’s theorem gives Z
+
+> Em
+
+Z
+
+> bΩR
+> d
+
+Y
+
+> j=1
+
+Gj (xj , w j ) d w dx = Itail 
+
+> m
+
+Y 
+
+> j̸=m
+
+Ifull  
+
+> j
+
+,
+
+where 
+
+Itail  
+
+> m
+
+:= 
+
+Z
+
+> |xm|>M/ √d
+
+Z
+
+> Rmin ≤| wm|≤ Rmax
+
+Gm(xm, w m) d wm dxm
+
+and 
+
+Ifull  
+
+> j
+
+:= 
+
+Z
+
+> R
+
+Z 
+
+> Rmin ≤| wj|≤ Rmax
+
+Gj (xj , w j ) d wj dxj .
+
+For j̸ = m, the change of variable u = wj xj + bj gives a factor 1 /|wj |, and since Rmin ≤ | wj | ≤ Rmax , we have 
+
+Ifull  
+
+> j
+
+≤ C < ∞.
+
+For the distinguished coordinate m, assume M ≥ B2
+
+√d/R min . Then, whenever |xm| > M/ √d, Rmin ≤ | wm| ≤ 
+
+Rmax , and |bm| ≤ B2, we have 
+
+|wmxm + bm| ≥ Rmin |xm| − B2 ≥ Rmin M/ √d − B2.
+
+Using the decay condition in Assumption 5.6 and the one-dimensional tail integral with 2 kρ > 1, we obtain 
+
+Itail  
+
+> m
+
+≤ C
+
+
+
+1 + Rmin M/ √d − B2
+
+1−2kρ
+
+.
+
+Combining the preceding estimates and summing over m = 1 , . . . , d , we get 
+
+Z
+
+> Ω2
+
+|∂α
+
+xvR,B 2 (x)|2 dx ≤ CB2,α
+
+
+
+1 + Rmin M/ √d − B2
+
+1−2kρ
+
+,
+
+where 
+
+CB2,α = CB2,α
+
+ d, ∥vR∥0,Rd , R min , R max , bρ′(1) , C ρ, k ρ, B 2, s .
+
+Since 2 kρ > 1, the right-hand side tends to zero as M → ∞ . Therefore, after increasing M if necessary, 
+
+∥vR,B 2 ∥Hs(Ω 2) ≤ εF
+
+2√2 . (5.6) Combining (5.5) and (5.6), we obtain 
+
+∥vR − vR,B 2 ∥Hs(Ω 2) ≤ εF /√2.
+
+It remains to rewrite vR,B 2 using ρ instead of ρ′. For each coordinate, integration by parts gives 
+
+Z B2
+
+> −B2
+
+ρ′(wj xj + bj )e−ib j dbj = ρ(wj xj + B2)e−iB 2 − ρ(wj xj − B2)eiB 2 + i
+
+Z B2
+
+> −B2
+
+ρ(wj xj + bj )e−ib j dbj .
+
+20 Thus vR,B 2 can be written as 
+
+vR,B 2 (x) = 
+
+Z
+
+> Θ2
+> d
+
+Y
+
+> j=1
+
+ρ(wj xj + bj ) d ν2(w, b),
+
+for a finite signed Borel measure ν2 supported on Θ 2. Moreover, since bΩR is bounded, 
+
+∥ν2∥TV ≤ C(B2, d, ρ )
+
+Z
+
+> bΩR
+
+|cvR(w)| dw ≤ C(B2, d, ρ )|bΩR|1/2∥vR∥0,Rd .
+
+Therefore 
+
+∥ν2∥TV ≤ CT2 (Rmin , R max , B 2, d, ρ )∥vR∥0,Rd .
+
+The proof is complete. The near-field and far-field results above provide local bounded-parameter integral representations on Ω 1 and Ω 2,respectively. In the far-field result, the exterior radius M is chosen sufficiently large, depending on the prescribed tolerance and the fixed bias bound B2, so that the far-field tail error is controlled. Once this radius is fixed, the representations have finite total variation on bounded parameter sets. The following lemma then discretizes these local integral representations into finite randomized-feature sums in the broken Sobolev norm. 
+
+Lemma 5.11 (Bochner finite-sum approximation) Under Assumptions 5.5 and 5.6, let vR = PR,a u∗ be the band-limited approximation constructed in Lemma 5.7. Then, for every εD > 0, there exist bounded parameter sets 
+
+Θl, nodes θ(l) 
+
+> k
+
+∈ Θl, and real coefficients c(l) 
+
+> k
+
+, l = 1 , 2, such that 
+
+vR − χ1
+
+> N1
+
+X
+
+> k=1
+
+c(1)  
+
+> k
+
+ϕθ(1) 
+
+> k
+
+− χ2
+
+> N2
+
+X
+
+> k=1
+
+c(2)  
+
+> k
+
+ϕθ(2) 
+
+> k
+> Hs
+> br
+
+≤ εD .
+
+Moreover, NlX
+
+> k=1
+
+|c(l) 
+
+> k
+
+| ≤ ∥ νl∥TV , l = 1 , 2,
+
+where νl are the finite signed Borel measures obtained from the local representation results on Ωl.
+
+Proof. By Theorems 5.8 and 5.10, there exist bounded parameter sets Θ l and finite signed Borel measures νl,
+
+l = 1 , 2, such that, after choosing the local representation accuracies sufficiently small, 
+
+vR −
+
+Z
+
+> Θl
+
+ϕθ dνl(θ)
+
+> Hs(Ω l)
+
+≤ εD
+
+2√2 , l = 1 , 2.
+
+By Assumption 5.6, the map θ 7 → ϕθ is continuous and uniformly bounded from Θ l into Hs(Ω l). Hence the Bochner integral Z
+
+> Θl
+
+ϕθ dνl(θ)is well-defined in Hs(Ω l). Choose a finite Borel partition {A(l) 
+
+> k
+
+}Nl 
+
+> k=1
+
+of Θ l with sufficiently small diameter and select 
+
+θ(l) 
+
+> k
+
+∈ A(l) 
+
+> k
+
+. Set 
+
+c(l) 
+
+> k
+
+= νl(A(l) 
+
+> k
+
+).
+
+By the uniform continuity of θ 7 → ϕθ in Hs(Ω l), the Riemann-type sum 
+
+> Nl
+
+X
+
+> k=1
+
+c(l) 
+
+> k
+
+ϕθ(l)
+
+> k
+
+21 approximates the Bochner integral in Hs(Ω l). We choose the partition sufficiently fine so that 
+
+Z
+
+> Θl
+
+ϕθ dνl(θ) −
+
+> Nl
+
+X
+
+> k=1
+
+c(l) 
+
+> k
+
+ϕθ(l)
+
+> k
+> Hs(Ω l)
+
+≤ εD
+
+2√2 , l = 1 , 2.
+
+Therefore, for each l = 1 , 2, 
+
+vR −
+
+> Nl
+
+X
+
+> k=1
+
+c(l) 
+
+> k
+
+ϕθ(l)
+
+> k
+> Hs(Ω l)
+
+≤ εD
+
+√2 .
+
+The broken norm identity gives 
+
+vR −
+
+> N1
+
+X
+
+> k=1
+
+χ1c(1)  
+
+> k
+
+ϕθ(1) 
+
+> k
+
+−
+
+> N2
+
+X
+
+> k=1
+
+χ2c(2)  
+
+> k
+
+ϕθ(2) 
+
+> k
+> 2
+> Hs
+> br
+
+= vR −
+
+> N1
+
+X
+
+> k=1
+
+c(1)  
+
+> k
+
+ϕθ(1) 
+
+> k
+> 2
+> Hs(Ω 1)
+
++ vR −
+
+> N2
+
+X
+
+> k=1
+
+c(2)  
+
+> k
+
+ϕθ(2) 
+
+> k
+> 2
+> Hs(Ω 2)
+
+≤ ε2 
+
+> D
+
+.
+
+Moreover, NlX
+
+> k=1
+
+|c(l) 
+
+> k
+
+| =
+
+> Nl
+
+X
+
+> k=1
+
+|νl(A(l) 
+
+> k
+
+)| ≤ | νl|(Θ l) = ∥νl∥TV , l = 1 , 2.
+
+This proves the result. 
+
+Theorem 5.12 (Bounded-parameter broken Hs approximation) Under Assumptions 5.5 and 5.6, the fol-lowing finite-sum approximation result holds. For any εA > 0, there exist Rmin > 0, Rmax > 0, a sufficiently large exterior radius M > 0, bias bounds B1 > 0, B2 > 0, coefficient budgets CN1 and CN2 , and two single-hidden-layer networks uN1 and uN2 with bounded inner parameters such that 
+
+∥u∗ − χ1uN1 − χ2uN2 ∥Hs 
+
+> br
+
+≤ εA.
+
+The inner parameters satisfy 
+
+Rmin ≤ | w(l)
+
+> j,k
+
+| ≤ Rmax , |b(l)
+
+> j,k
+
+| ≤ Bl, l = 1 , 2,
+
+and NlX
+
+> k=1
+
+|c(l) 
+
+> k
+
+| ≤ CNl , l = 1 , 2.
+
+Here the coefficient budgets may depend on the requested accuracy through the total-variation bounds of the repre-senting measures. 
+
+Proof. Choose vR = PR,a u∗ by Lemma 5.7 so that 
+
+∥u∗ − vR∥Hs 
+
+> br
+
+≤ εA/2.
+
+This is possible by the full-space band-limited estimate and restriction continuity. By Assumption 5.5 and Lemma 5.9, the band-limited approximation vR and its derivatives up to order s have the required far-field decay. Hence the hypotheses of the near-field and far-field representation results are satisfied after choosing a sufficiently large exterior radius M . Applying Lemma 5.11 with εD = εA/2, we obtain finite sums 
+
+uN1 and uN2 such that 
+
+∥vR − χ1uN1 − χ2uN2 ∥Hs 
+
+> br
+
+≤ εA/2.
+
+22 The triangle inequality in Hs 
+
+> br
+
+gives 
+
+∥u∗ − χ1uN1 − χ2uN2 ∥Hs 
+
+> br
+
+≤ εA.
+
+The parameter bounds follow from the bounded parameter sets in the near-field and far-field representations. The coefficient bounds are obtained by choosing CNl ≥ ∥ νl∥TV , l = 1 , 2, after the representing measures have been selected. The result should be interpreted in the broken Sobolev setting associated with the chosen domain decomposition. In particular, the exterior radius M is selected to control the far-field tail, and the coefficient budgets may depend on the requested accuracy. 
+
+Assumption 5.13 For each l = 1 , 2, there exists Ll > 0 such that 
+
+∥ϕθ − ϕθ′ ∥Hs(Ω l) ≤ Ll|θ − θ′|, θ, θ ′ ∈ Θl.
+
+This property follows, for compact parameter sets, from the smoothness and decay assumptions on ρ, but it is stated explicitly to make the randomized-parameter argument transparent. 
+
+The randomized-parameter result below is an existence and consistency statement, not a sharp sampling-complexity estimate. The required sampling radius depends on the coefficient variation P 
+
+> k
+
+|c(l) 
+
+> k
+
+|, which is controlled by the total variation of the representing measure and may grow as the requested representation accuracy increases. Consequently, the number of sampled hidden parameters may grow rapidly as εA → 0. 
+
+Theorem 5.14 (Random-parameter broken Hs approximation) Let uN = χ1uN1 + χ2uN2 be a determinis-tic approximant from Theorem 5.12 satisfying 
+
+∥u∗ − uN ∥Hs 
+
+> br
+
+≤ εA/2.
+
+For l = 1 , 2, let θ(l)1 , . . . , θ (l) 
+
+> Nl
+
+be the target parameters. Assume that the hidden parameters in the l-th randomized subnetwork are sampled independently from the uniform distribution on Θl. Define 
+
+pl, min := min 
+
+> 1≤k≤Nl
+
+|Θl ∩ B(θ(l) 
+
+> k
+
+, δ r )||Θl| .
+
+Assume that δr > 0 is chosen so that 
+
+> 2
+
+X
+
+> l=1
+
+LlδrNlX
+
+> k=1
+
+|c(l) 
+
+> k
+
+|
+
+!2
+
+≤ (εA/2) 2.
+
+Here pl, min depends on this accuracy-driven radius δr . Since the target parameters belong to the bounded sampling set Θl, one has pl, min > 0, although it may be small when δr is small or when some target parameters are close to the boundary of Θl. If the number of randomly sampled hidden parameters in the l-th subnetwork satisfies 
+
+Ml ≥ p−1 
+
+> l, min
+
+ln 2Nl
+
+δp
+
+, l = 1 , 2,
+
+then, with probability at least 1 − δp, every deterministic target parameter lies within distance δr of at least one sampled hidden parameter. By selecting such nearby sampled parameters, possibly with repetition, and by using the same output coefficients, one obtains randomized subnetworks such that 
+
+∥u∗ − χ1ua1 − χ2ua2 ∥Hs 
+
+> br
+
+≤ εA.
+
+23 Proof. For each subnetwork, the probability that a fixed target parameter ball is missed by Ml independent samples is at most (1 − pl, min )Ml ≤ e−Mlpl, min . Hence the probability that some target ball in the l-th subnetwork is missed is bounded by Nle−Mlpl, min ≤ δp/2. A union bound over l = 1 , 2 gives probability at least 1 − δp.On this event, for each target parameter θ(l) 
+
+> k
+
+there exists a sampled parameter eθ(l) 
+
+> k
+
+such that |θ(l) 
+
+> k
+
+− eθ(l) 
+
+> k
+
+| ≤ δr . We allow the same sampled hidden parameter to be used for more than one matched deterministic term; equivalently, repeated hidden parameters may be merged by summing their output coefficients. Thus no distinct matching argument is needed. Keeping the same output coefficients gives 
+
+∥uN − ua∥2 
+
+> Hs
+> br
+
+=
+
+> 2
+
+X
+
+> l=1
+> Nl
+
+X
+
+> k=1
+
+c(l)
+
+> k
+
+
+
+ϕθ(l)
+
+> k
+
+− ϕeθ(l)
+
+> k
+
+ 2
+
+> Hs(Ω l)
+
+≤
+
+> 2
+
+X
+
+> l=1
+
+LlδrNlX
+
+> k=1
+
+|c(l) 
+
+> k
+
+|
+
+!2
+
+≤ (εA/2) 2.
+
+Therefore, 
+
+∥u∗ − ua∥Hs 
+
+> br
+
+≤ ∥ u∗ − uN ∥Hs 
+
+> br
+
++ ∥uN − ua∥Hs 
+
+> br
+
+≤ εA.
+
+## 5.2 Quadrature Consistency of the Empirical Broken Loss 
+
+The abstract error estimate (5.3) only requires the uniform consistency quantity 
+
+Sbr = sup  
+
+> u∈N br
+> ρ, N
+
+|L br (u) − eLbr (u)|.
+
+We next give a deterministic quadrature-consistency estimate for the practical broken loss used in the numerical method. The result is deliberately stated for an L2-type residual and an L2(Γ)-type interface surrogate. It should not be interpreted as a full sampling theorem for the negative Sobolev loss or for the strong trace norms H3/2(Γ) and H1/2(Γ) appearing in the abstract graph norm. The term empirical in this subsection means a finite quadrature or collocation approximation of a population loss. The estimate below is deterministic; it is not a probabilistic concentration bound for independently sampled points. A probabilistic version would require additional covering-number or concentration arguments for the sampled quadrature rules. For a truncation radius R > M , set Ω1,R := Ω 1, Ω2,R := Ω 2 ∩ BR.
+
+For the practical interface residual, set 
+
+IΓ(u) = 
+
+(
+
+[∂nu], for a smooth artificial interface with matching coefficients ,
+
+FΓ(u), for a conormal transmission problem .
+
+Thus, in a discontinuous-coefficient transmission problem, the normal-derivative jump in the practical loss should be replaced by the conormal-flux residual. In both cases, IΓ is a linear interface residual. Hence, if the exact solution satisfies [ u∗] = 0 and IΓ(u∗) = 0, then [ u] = [ u − u∗] and IΓ(u) = IΓ(u − u∗) in the error equation. For clarity, we distinguish the inhomogeneous data-residual loss from the homogeneous error-residual loss. For a trial function u = χ1u1 + χ2u2, define the truncated practical data loss 
+
+Lqdata ,R (u) := 
+
+> 2
+
+X
+
+> l=1
+
+Z
+
+> Ωl,R
+
+|G lul − fl|2 dx +
+
+Z
+
+> Γ
+
+
+
+|[u]|2 + |I Γ(u)|2
+
+ds. (5.7) 24 The corresponding full-domain practical data loss is 
+
+Lqdata (u) := 
+
+> 2
+
+X
+
+> l=1
+
+Z
+
+> Ωl
+
+|G lul − fl|2 dx +
+
+Z
+
+> Γ
+
+
+
+|[u]|2 + |I Γ(u)|2
+
+ds. (5.8) For an admissible error function v, define the associated homogeneous error loss 
+
+Lqerr (v) := 
+
+> 2
+
+X
+
+> l=1
+
+Z
+
+> Ωl
+
+|G lvl|2 dx +
+
+Z
+
+> Γ
+
+
+
+|[v]|2 + |I Γ(v)|2
+
+ds. (5.9) The empirical quadrature version of the truncated practical data loss is 
+
+eLqdata ,R (u) := 
+
+> 2
+
+X
+
+> l=1
+
+Ql
+
+ |G lul − fl|2 + QΓ
+
+ |[u]|2 + |I Γ(u)|2
+
+=
+
+> 2
+
+X 
+
+> l=1
+> Nq
+> l
+
+X
+
+> q=1
+
+ωl,q |G lul(xl,q ) − fl(xl,q )|2 +
+
+> NΓ
+
+X
+
+> q=1
+
+ωΓ,q 
+
+
+
+|[u]( xΓ,q )|2 + |I Γ(u)( xΓ,q )|2
+
+.
+
+(5.10) Here Ql denotes a quadrature rule on Ω l,R and QΓ denotes a quadrature rule on the interface Γ. 
+
+Assumption 5.15 (Far-field tail control) There exists a function Etail (R) → 0 as R → ∞ such that 
+
+sup  
+
+> u∈N br
+> ρ, N
+
+Z
+
+> Ω2\BR
+
+|G 2u2 − f2|2 dx ≤ Etail (R).
+
+This assumption is needed because a finite quadrature rule only acts on a truncated computational region. It is a uniform tail assumption over the coefficient-bounded trial space. It is generally valid only for trial spaces with sufficient far-field decay, or after imposing an appropriate weighted-loss or truncation strategy; it is not guaranteed for non-decaying activations such as tanh, unless the stated tail-control assumption can be verified. In particular, it also requires the forcing tail Z
+
+> Ω2\BR
+
+|f2|2 dx
+
+to vanish as R → ∞ . Hence it is a condition on both the far-field trial features and the data. If a mapped or weighted quadrature rule is used instead of a hard truncation, then Etail (R) should be replaced by the corresponding mapping or weight-induced tail error. 
+
+Assumption 5.16 (Uniform quadrature accuracy) For some integer mq ≥ 1, the quadrature rules satisfy 
+
+Z
+
+> Ωl,R
+
+g dx − Ql(g) ≤ CQ,l (R)hmq 
+
+> l
+
+∥g∥W mq , ∞(Ω l,R ), l = 1 , 2,
+
+for all g ∈ W mq ,∞(Ω l,R ), and Z
+
+> Γ
+
+q ds − QΓ(q) ≤ CQ, Γhmq 
+
+> Γ
+
+∥q∥W mq , ∞(Γ) 
+
+for all q ∈ W mq ,∞(Γ) . Here hl and hΓ denote the quadrature resolution parameters on Ωl,R and Γ, respectively, such as mesh sizes or fill distances. The constants associated with the exterior truncated region, such as CQ, 2(R),may depend on the truncation radius R.
+
+This is an assumption on the chosen deterministic quadrature or cubature rule. For randomly sampled colloca-tion points, such an estimate must be replaced by a probabilistic uniform law of large numbers or a concentration bound. 25 Assumption 5.17 (Uniform integrand regularity) There exist constants Cg, 1, Cg, 2(R), and CΓ such that 
+
+sup  
+
+> u∈N br
+> ρ, N
+
+|G 1u1 − f1|2  
+
+> Wmq , ∞(Ω 1)
+
+≤ Cg, 1,
+
+sup  
+
+> u∈N br
+> ρ, N
+
+|G 2u2 − f2|2  
+
+> Wmq , ∞(Ω 2,R )
+
+≤ Cg, 2(R),
+
+and 
+
+sup  
+
+> u∈N br
+> ρ, N
+
+|[u]|2 + |I Γ(u)|2  
+
+> Wmq , ∞(Γ)
+
+≤ CΓ.
+
+Lemma 5.18 (A sufficient condition for uniform integrand regularity) Assume that each second-order op-erator has the form 
+
+Glv = −∇ · (βl∇v) + γlv, 
+
+with coefficients sufficiently smooth so that 
+
+βl ∈ W mq +1 ,∞(Ω l,R ), γl ∈ W mq ,∞(Ω l,R ), fl ∈ W mq ,∞(Ω l,R ).
+
+Assume also that the bounded parameter sets and the activation function satisfy the uniform feature bounds 
+
+sup 
+
+> θ∈Θl
+
+∥ϕθ ∥W mq +2 ,∞(Ω l,R ) ≤ Cϕ,l (R),
+
+and, on the interface, 
+
+sup 
+
+> θ∈Θl
+
+∥ϕθ ∥W mq +1 ,∞(Γ) ≤ Cϕ, Γ,l .
+
+In the conormal case IΓ(u) = FΓ(u), assume also that the coefficient traces entering the conormal flux are bounded in W mq ,∞(Γ) ; for smooth interfaces this follows from the stated interior regularity of βl.Then Assumption 5.17 holds, with constants depending on the coefficient bounds CNl , the parameter bounds, the activation bounds, the PDE coefficients, fl, and the geometry, but not on the particular trial function u.
+
+Proof. For ul = P 
+
+> k
+
+c(l) 
+
+> k
+
+ϕθ(l)
+
+> k
+
+and P 
+
+> k
+
+|c(l) 
+
+> k
+
+| ≤ CNl , the feature bound gives 
+
+∥ul∥W mq +2 ,∞(Ω l,R ) ≤ CNl Cϕ,l (R).
+
+The assumed W mq +1 ,∞-smoothness of βl and W mq ,∞-smoothness of γl imply, by standard product estimates in 
+
+W mq ,∞,
+
+∥G lul∥W mq , ∞(Ω l,R ) ≤ C C Nl Cϕ,l (R).
+
+Hence 
+
+∥G lul − fl∥W mq , ∞(Ω l,R ) ≤ C CNl Cϕ,l (R) + ∥fl∥W mq , ∞(Ω l,R )
+
+.
+
+Since W mq ,∞ is an algebra for integer mq ≥ 1, we obtain the subdomain bounds in the form used in Assumption 5.17. For the interior subdomain, the constants are independent of the exterior truncation radius and 
+
+|G 1u1 − f1|2  
+
+> Wmq , ∞(Ω 1)
+
+≤ Cg, 1.
+
+For the truncated exterior subdomain, the constants may depend on R and 
+
+|G 2u2 − f2|2  
+
+> Wmq , ∞(Ω 2,R )
+
+≤ Cg, 2(R).
+
+The interface estimate follows similarly from the trace feature bounds on Γ and the coefficient bounds: 
+
+∥[u]∥W mq , ∞(Γ) + ∥I Γ(u)∥W mq , ∞(Γ) ≤ C, 
+
+and another use of the algebra property gives the asserted bound for the interface integrand. 26 Theorem 5.19 (Quadrature consistency of the empirical broken loss) Under Assumptions 5.15, 5.16, and 5.17, the practical empirical broken loss satisfies 
+
+sup  
+
+> u∈N br
+> ρ, N
+
+Lqdata (u) − eLqdata ,R (u)
+
+≤ CQ, 1Cg, 1hmq 
+
+> 1
+
++ CQ, 2(R)Cg, 2(R)hmq 
+
+> 2
+
++ CQ, ΓCΓhmq 
+
+> Γ
+
++ Etail (R),
+
+(5.11) 
+
+where 
+
+Lqdata (u) := 
+
+> 2
+
+X
+
+> l=1
+
+Z
+
+> Ωl
+
+|G lul − fl|2 dx +
+
+Z
+
+> Γ
+
+
+
+|[u]|2 + |I Γ(u)|2
+
+ds. 
+
+The constants associated with the truncated exterior region may depend on R. Therefore convergence of the right-hand side requires balancing the quadrature resolution h2 on Ω2,R with the far-field tail Etail (R).
+
+Proof. For each u ∈ N br 
+
+> ρ, N
+
+, write 
+
+gl(u) = |G lul − fl|2, qΓ(u) = |[u]|2 + |I Γ(u)|2.
+
+Then 
+
+Lqdata (u) − eLqdata ,R (u)
+
+≤
+
+> 2
+
+X
+
+> l=1
+
+Z
+
+> Ωl,R
+
+gl(u) d x − Ql(gl(u)) +
+
+Z
+
+> Γ
+
+qΓ(u) d s − QΓ(qΓ(u)) 
+
++
+
+Z
+
+> Ω2\BR
+
+|G 2u2 − f2|2 dx. 
+
+Assumptions 5.16 and 5.17 bound the two subdomain quadrature terms and the interface quadrature term by 
+
+CQ, 1Cg, 1hmq 
+
+> 1
+
++ CQ, 2(R)Cg, 2(R)hmq 
+
+> 2
+
++ CQ, ΓCΓhmq 
+
+> Γ
+
+,
+
+while Assumption 5.15 bounds the far-field tail by Etail (R) uniformly over the coefficient-bounded trial space. Taking the supremum over u gives (5.11). Since the exact solution satisfies the practical strong-form and transmission conditions, the practical data loss and the homogeneous error loss are related by 
+
+Lqdata (u) = Lqerr (u − u∗) for all u ∈ N br 
+
+> ρ, N
+
+.
+
+Applying the same least-squares argument as in (5.3), but now to the practical loss Lqdata , and then using the quadrature-consistency bound (5.11), yields the following consequence. 
+
+Corollary 5.20 Assume that the operators Gl and the interface operator IΓ are linear, and that the exact solution satisfies 
+
+Glu∗ 
+
+> l
+
+= fl in Ωl, l = 1 , 2, [u∗] = 0 , IΓ(u∗) = 0 .
+
+Assume also that, for every u ∈ N br 
+
+> ρ, N
+
+, the error u − u∗ belongs to the admissible error space, and that the practical error loss 
+
+Lqerr (v) := 
+
+> 2
+
+X
+
+> l=1
+
+∥G lvl∥2 
+
+> L2(Ω l)
+
++
+
+Z
+
+> Γ
+
+
+
+|[v]|2 + |I Γ(v)|2
+
+ds
+
+satisfies the stability estimate 
+
+CL∥v∥2 
+
+> V
+
+≤ L qerr (v) ≤ CU ∥v∥2 
+
+> V
+
+for all admissible v. 
+
+27 Let uρ ∈ N br  
+
+> ρ, N
+
+be a constrained, regularized, or a posteriori coefficient-bounded least-squares solution satisfying 
+
+eLqdata ,R (uρ) ≤ inf  
+
+> u∈N br
+> ρ, N
+
+eLqdata ,R (u) + ηopt ,
+
+where the infimum and the consistency supremum in Theorem 5.19 are taken over the same fixed coefficient-bounded trial space. Then, under Assumptions 5.15, 5.16, and 5.17, 
+
+∥uρ − u∗∥2 
+
+> V
+
+≤ CU
+
+CL
+
+inf  
+
+> ua∈N br
+> ρ, N
+
+∥ua − u∗∥2
+
+> V
+
++ 2
+
+CL
+
+
+
+CQ, 1Cg, 1hmq 
+
+> 1
+
++ CQ, 2(R)Cg, 2(R)hmq 
+
+> 2
+
++ CQ, ΓCΓhmq 
+
+> Γ
+
++ Etail (R)
+
+
+
++ 1
+
+CL
+
+ηopt .
+
+The stability assumption in Corollary 5.20 is a stability assumption for the practical loss itself. It should not be read as an automatic consequence of a stability theory formulated with stronger trace norms or negative Sobolev residual norms. For example, pointwise or L2(Γ)-type interface penalties do not, by themselves, provide uniform control of strong trace quantities such as H3/2(Γ), H1/2(Γ), or H−1/2(Γ) flux norms. Similarly, a collocation residual should not be interpreted as a direct discretization of H−1(Ω 1) × H−1(Ω 2) unless a corresponding duality-based, spectral, or mesh-dependent realization is specified. Thus the preceding theorem and corollary establish a deterministic consistency and error estimate for the computable L2-type practical broken loss used in the coefficient-bounded least-squares analysis. If one wishes to work with an abstract broken H2 or broken H1 graph norm involving stronger trace, flux, or negative Sobolev terms, an additional surrogate-stability, finite-dimensional inverse, or sampling estimate is required to connect that abstract stability theory to the practical empirical loss. The conclusion is therefore conditional but precise: once the practical loss is stable on the admissible error space and the empirical consistency gap is controlled on the same coefficient-bounded trial space, the least-squares DD–RaNN solution satisfies the broken-space error estimate. The approximation term is controlled by Theorem 5.12 when the stability norm V coincides with the corresponding broken Hs norm; for stronger graph norms involving additional trace or flux quantities, approximation in that stronger V -norm must be imposed separately. 
+
+# 6 Numerical Examples 
+
+In this section, we test the proposed domain-decomposed RaNN methods on several representative unbounded-domain problems. Unless otherwise specified, the degrees of freedom are defined as the total number of randomized features over all subnetworks. Some numerical tests use activations such as tanh, which have finite one-dimensional limits at infinity but do not decay to zero. These experiments are intended to assess the practical performance and robustness of the DD-RaNN construction, and should not be interpreted as direct instances of the decaying-activation approximation theorem proved in Section 5. When considering the L2 and H1 errors, the error calculation is performed using the Laguerre-Gaussian quadra-ture formula and the Hermite-Gaussian quadrature formula for the half-unbounded and unbounded domains. When 
+
+H1 errors are reported for domain-decomposed solutions, they should be understood as broken H1 errors, com-puted by summing the subdomain H1 contributions. Interface mismatches are controlled through the least-squares interface equations and are not included in the broken H1 norm unless stated otherwise. In some cases, we use the mapped error which is calculated as follows: For the bounded domain [ −1, 1], the Legendre-Gauss quadrature formula is given by: 
+
+Z 1
+
+> −1
+
+f (x) d x ≈
+
+> n
+
+X
+
+> k=0
+
+f (xk)wk.
+
+28 Set x = s y 
+
+p1 − y2 so that dx
+
+dy = s
+
+(1 − y2)3/2 , where s is a scaling parameter, often set to 1. Then 
+
+Z +∞−∞ 
+
+f (x) d x =
+
+Z 1
+
+> −1
+
+f s y 
+
+p1 − y2
+
+!
+
+s
+
+(1 − y2)3/2 dy. 
+
+In 2D, Z Z 
+
+> R2
+
+f (x, y ) d x dy ≈ X
+
+> j,k
+
+f
+
+ s p k
+
+p1 − p2
+
+> k
+
+, s q j
+
+q
+
+1 − q2
+
+> j
+
+ s2
+
+(1 − p2
+
+> k
+
+)3/2(1 − q2 
+
+> j
+
+)3/2 wj wk, (6.1) where pk, q j are Legendre-Gauss points, and wk, w j are the corresponding Gaussian weights. The use of mapped error is due to the fact that, in certain cases, with the same number of Gaussian points, the point distribution resulting from the mapping technique can cover a larger area, which can demonstrate the accuracy of the solution of RaNNs. A similar integral computation scheme of L2 error and H1 error can be given for higher dimensions. Thus, taking R2 as an example, we have two ways to compute the L2 and H1 errors, respectively: 
+
+Mapped Legendre on R2. Let e = uh − u. With the mapping in (6.1), 
+
+∥e∥2 
+
+> L2(R2)
+
+≈ X
+
+> j,k
+
+e
+
+ s p k
+
+p1 − p2
+
+> k
+
+, s q j
+
+q
+
+1 − q2
+
+> j
+
+
+
+> 2
+
+s2
+
+(1 − p2
+
+> k
+
+)3/2(1 − q2 
+
+> j
+
+)3/2 wkwj ,
+
+and analogously for ∥e∥H1 with |e|2 + |∇ e|2.
+
+Hermite–Gauss on R2. Let e = uh − u. Then 
+
+∥e∥2 
+
+> L2(R2)
+
+≈ X
+
+> j,k
+
+|e(pk, q j )|2 wkwj , ∥e∥2 
+
+> H1(R2)
+
+≈ X
+
+> j,k
+
+ |e|2 + |∇ e|2(pk, q j ) wkwj ,
+
+where pk, q j are Hermite-Gauss points, and wk, w j are the corresponding Gaussian weights, where the compensation for the Hermite weight function e−x2
+
+has already been incorporated. The computation method depends on the size of the coverage interval of the current sampling points. When there is a significant difference between the two computed results, we adopt the method with a larger sampling range to compute the error, which is usually the method that yields a larger error. This allows for a better assessment of the computational results in the unbounded domain. When computing errors on a semi-unbounded domain, similarly, we use the Laguerre-Gaussian quadrature formula: 
+
+Laguerre–Gauss on R2+. Let e = uh − u. Then 
+
+∥e∥2 
+
+> L2(R2+)
+
+≈ X
+
+> j,k
+
+e(pk, q j )2 wkwj , ∥e∥2 
+
+> H1(R2+)
+
+≈ X
+
+> j,k
+
+ e2 + |∇ e|2(pk, q j ) wkwj , (6.2) where pk, q j are Laguerre-Gaussian points, and wk, w j are the corresponding Gaussian weights, where the com-pensation for the Laguerre weight function e−x has already been incorporated. 
+
+Example 6.1 In this example, we consider the equation (3 .1) with Ω = [0 , +∞), β = 1 and γ = 1 . The exact solution is 
+
+u(x) = 1
+
+x + 1 , (6.3) 29 and the source term f can be set by calculation. The Dirichlet boundary condition is given as 
+
+u(0) = 1 . (6.4) This example is used to test whether the proposed near–far DD-RaNN-PG decomposition can approximate algebraically decaying solutions on a semi-unbounded interval. It also provides a comparison with a classical Laguerre spectral Galerkin discretization using a comparable number of degrees of freedom. In Example 6.1, we use the DD-RaNN-PG method with two single-hidden-layer RaNNs. For a single-hidden-layer RaNN, the weight matrix W and the bias matrix b are sampled from a uniform distribution U (−r, r ). The activation function is ρ(x) = tanh( x), and the near–far interface xcut is 45 and scaling parameter S is 10. The activation tanh does not satisfy the decaying activation assumption used in the conditional approximation theorem of Section 5. Hence the following computation should be interpreted as a numerical demonstration of the DD-RaNN strategy, rather than as a direct instance covered by that theorem. For the near-field subnetwork and the far-field subnetwork, the parameter r1 = 0 .7 and r2 = 0 .2. The number of neurons m1 and m2 vary from 10 to 200. Unless otherwise noted, we define the degrees of freedom (DoF) as 
+
+m1 + m2. The number of points used to construct the test function is the same as the number of neurons. The errors shown in Table 1 and Figure 1 are directly computed using the Laguerre-Gaussian quadrature formula with 180 points, and we use 5 quadrature points per element.                                                               
+
+> 
+> 
+> 
+> 
+> 
+> 
+> l    
+>   L 
+>   L 
+>   H 
+>   H                            
+> 
+> 
+>  
+>  
+> 
+> 
+> 
+> l    
+>   L 
+>   L 
+>   H 
+>   H 
+
+Figure 1: Logarithmic errors of the DD-RaNN–PG (left) and the Laguerre-Spectral-Galerkin method (right) for Example 6.1. As shown in Figure 1, when m1 and m2 increase simultaneously, the DD-RaNN-PG error decreases significantly. Eventually, all four types of errors stabilize at the order of 10 −5.On the other hand, the Laguerre-Spectral-Galerkin method, which is naturally constructed to satisfy the bound-ary conditions, is formulated as 
+
+u = ˆL1 +
+
+> DoF
+
+X
+
+> k=1
+
+˜uk( ˆLk+1 − ˆLk),
+
+where ˆLk represents the k-th order Laguerre function. By matching the number of basis functions to that of DD-RaNN-PG and setting the number of Gauss points for calculating the global error to 180, the results are shown in the right panel of Figure 1. It can be observed that as the DoF increases, the convergence rate of the spectral method slows down gradually, and eventually, all four types of errors stabilize at the order of 10 −1.30 Table 1: Relative L2 and H1 errors for Example 6.1 using DD-RaNN-PG and Laguerre-Spectral-Galerkin methods DD-RaNN-PG (2 networks) Laguerre-Spectral-Galerkin 
+
+DoF Relative L2 Error Relative H1 Error Relative L2 Error Relative H1 Error 20 1.6157 2.7195 1.7160 × 10 −1 1.6130 × 10 −1
+
+80 1.3286 × 10 −2 4.8716 × 10 −2 1.4500 × 10 −1 1.4030 × 10 −1
+
+140 1.0085 × 10 −3 6.5099 × 10 −3 1.4060 × 10 −1 1.3690 × 10 −1
+
+200 2.2786 × 10 −4 1.3465 × 10 −3 1.3940 × 10 −1 1.3600 × 10 −1
+
+260 4.9253 × 10 −5 4.2275 × 10 −4 1.4040 × 10 −1 1.3680 × 10 −1
+
+320 6.9469 × 10 −5 1.9778 × 10 −4 1.4190 × 10 −1 1.3800 × 10 −1
+
+380 3.0954 × 10 −5 7.2287 × 10 −5 1.4420 × 10 −1 1.3980 × 10 −1
+
+From Table 1, it can be further observed that for Example 6.1, increasing the number of basis functions leads to a slow decrease in the spectral method’s error, and its accuracy remains relatively poor. In contrast, the DD-RaNN-PG achieves better accuracy as the number of neurons increases. 
+
+Example 6.2 In this example, we consider the equation (3 .1) with β = 1 and γ = 1 . The domain Ω is defined as: 
+
+Ω = Ω D1 \ (Ω D2 ∪ ΩN ),
+
+ΩD1 = {(x, y ); x ≥ 0, y ≥ 0}, ΓD1 = ∂ΩD1,
+
+ΩD2 =
+
+
+
+(x, y ); (x + y − 9) 2
+
+9 + ( y − x + 1) 2 ≤ 2
+
+
+
+, ΓD2 = ∂ΩD2,
+
+ΩN = {(x, y ); ( x − 1) 2 + ( y − 1) 2 ≤ 1}, ΓN = ∂ΩN .
+
+(6.5) 
+
+The exact solution is 
+
+u(x, y ) = exp 
+
+
+
+− x
+
+2 − y
+
+2
+
+
+
+sin( x + y), (6.6) 
+
+and the source term f can be set by calculation. The boundary conditions are given as 
+
+(
+
+u(x) = g1(x), x ∈ ΓD = Γ D1 ∪ ΓD2,
+
+∇u(x) · n = g2(x), x ∈ ΓN , (6.7) 
+
+where g1 and g2 can be set by calculation. 
+
+This example is designed to examine the geometric flexibility of the proposed DD-RaNN-CM on a semi-unbounded domain with both interior holes and mixed boundary conditions. The purpose is to test whether the domain-decomposed randomized trial space can handle a near-field region with complicated geometry together with an exterior unbounded region. In Example 6.2, we use the DD-RaNN-CM with two single-hidden-layer RaNNs. For a single-hidden-layer RaNN, the weight matrix W is sampled from the uniform distribution U (−r, r ) and the bias matrix b is constructed by the second strategy: 
+
+b = ( −W ⊙ R)1, R ∼ U (−1, 1) ,
+
+where R is a sequence of numbers sampled from the uniform distribution U (−1, 1) entry-wise, and ⊙ represents the element-wise multiplication, and 1 is the all-ones matrix. The activation function is ρ(x, y ) = e−x2−y2
+
+.In this example, the near–far interface is a quarter-circle boundary with a radius of 18 centered at the origin. For the near-field subnetwork (NFs), the parameter r1 = 0 .5, and the number of neurons m1 varies from 50 to 450. For the far-field subnetwork, the parameter r2 = 1, and the number of neurons m2 = 50. Unless otherwise noted, “DoF” is defined as m1 + m2. Each boundary is sampled with 500 points, and the interior of both networks is sampled with 4000 points. When assembling the linear equations, the penalty parameters ξ and η are set to 10. 31 0 0 0 0 0 0 
+
+0
+
+0 
+
+0 
+
+0 
+
+0 
+
+0     
+
+    
+
+  D    
+
+  D    
+
+  
+
+  D    
+
+  N                         
+
+>  
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> l     
+>   L 
+>   L 
+>   H 
+>   H 
+
+Figure 2: Scatter plot of sampling points (SPs) in DD-RaNN-CM (left) and logarithmic errors for DD-RaNN-CM (right) for Example 6.2. The left figure in Figure 2 illustrates the point distribution from one of the experiments. The interior points are sampled in polar coordinates. The radial distance is sampled from the normal distribution N (20 , 10), and the angle is sampled from the uniform distribution U (0 , π/ 2). If the radius is negative, its absolute value is taken. Each sampled point is checked to determine whether it falls within an interior hole; if so, the point is resampled. 00  0  00  0   00 
+
+00 
+
+ 
+
+0 
+
+ 
+
+00 
+
+ 
+
+0 
+
+  
+
+00   
+
+00  0  00  0   00 
+
+00 
+
+ 
+
+0 
+
+ 
+
+00 
+
+ 
+
+0 
+
+  
+
+00   
+
+  0     0   
+
+00  0  00  0   00 
+
+00 
+
+ 
+
+0 
+
+ 
+
+00 
+
+ 
+
+0 
+
+  
+
+00   
+
+0 0  0 0   
+
+Figure 3: Computational solution obtained using the DD-RaNN-CM (left), exact solution (middle), and absolute error plot (right) for m1 = 450 in Example 6.2. The elliptical boundary and circular boundary are also sampled in polar coordinates, with angles sampled from the uniform distribution U (0 , 2π). For the quarter-circle boundary, angles are sampled from the uniform distribution 
+
+U (0 , π/ 2). On the boundaries along the coordinate axes, points are uniformly distributed within [0 , 50]. The errors presented in Table 2 and Figure 2 are the averages obtained from 30 experiments for each parameter, while Figure 3 shows the results of a single experiment. The error for each experiment is directly computed using the Laguerre-Gaussian quadrature formula with 50 points. We can observe that as the number of neurons in RaNN1 increases, the error gradually decreases and eventually stabilizes at the order of 10 −4.32 Table 2: L2 error, relative L2 error, H1 error, and relative H1 error for different numbers of neurons in Example 6.2. 
+
+DoF L2 Error Relative L2 Error H1 Error Relative H1 Error 100 1.1508 × 10 −1 2.7280 × 10 −1 2.0963 × 10 −1 2.4116 × 10 −1
+
+150 1.1544 × 10 −2 2.7365 × 10 −2 2.3338 × 10 −2 2.6847 × 10 −2
+
+200 1.8685 × 10 −3 4.4292 × 10 −3 3.9191 × 10 −3 4.5084 × 10 −3
+
+250 2.7824 × 10 −4 6.5956 × 10 −4 6.4622 × 10 −4 7.4340 × 10 −4
+
+300 1.2818 × 10 −4 3.0384 × 10 −4 2.0511 × 10 −4 2.3596 × 10 −4
+
+350 1.1627 × 10 −4 2.7563 × 10 −4 1.7061 × 10 −4 1.9627 × 10 −4
+
+400 1.0034 × 10 −4 2.3786 × 10 −4 1.5957 × 10 −4 1.8356 × 10 −4
+
+450 1.2516 × 10 −4 2.9670 × 10 −4 1.8114 × 10 −4 2.0838 × 10 −4
+
+500 1.0873 × 10 −4 2.5775 × 10 −4 1.6988 × 10 −4 1.9542 × 10 −4
+
+Example 6.3 In this example, we consider the equation (2 .1) with β = 1 and γ = 1 . The domain Ω is set as: 
+
+Ω = R2 \ (Ω D ∪ ΩN ),
+
+ΩD =
+
+
+
+(x, y ); (x + y − 9) 2
+
+9 + ( y − x + 1) 2 ≤ 2
+
+
+
+, ΓD = ∂ΩD ,
+
+ΩN = (x, y ); ( x + 2) 2 + ( y + 2) 2 ≤ 4 , ΓN = ∂ΩN .
+
+(6.8) 
+
+The exact solution is 
+
+u(x, y ) = exp 
+
+
+
+− x2
+
+10 − y2
+
+10 
+
+
+
+sin( x + y) sin( x − y), (6.9) 
+
+and the source term f can be set by calculation. The boundary conditions are given as 
+
+(
+
+u(x) = g1(x), x ∈ ΓD ,
+
+∇u(x) · n = g2(x), x ∈ ΓN , (6.10) 
+
+where g1 and g2 can be set by calculation. 
+
+This example tests the fully unbounded two-dimensional setting. In contrast to the semi-unbounded case, there is no physical outer boundary. The exterior network is therefore used to represent the far-field behavior beyond the near-field region, and the interface equations couple the two randomized representations. In Example 6.3, we use the DD-RaNN-CM with two single-hidden-layer RaNNs. For a single-hidden-layer RaNN, the weight matrix W is sampled from a uniform distribution U (−r, r ) and the bias matrix b is constructed by the second strategy. The activation function is ρ(x, y ) = e−x2−y2
+
+.In this example, the near–far interface is a circle boundary with a radius of 9 centered at the origin. For the near-field subnetwork, the parameter r1 = 0 .5, and the number of neurons m1 varies from 50 to 450. For the far-field subnetwork, the parameter r2 = 10, and the number of neurons m2 = 50. Unless otherwise noted, “DoF” is defined as m1 + m2. Each boundary is sampled with 500 points, and the interior of both networks is sampled with 4000 points. When assembling the linear equations, the penalty parameter ξ and η are set to 10. 33 − − − −     
+
+− 
+
+− 
+
+− 
+
+
+
+
+
+ 
+
+       
+
+     
+
+ 
+
+ D     
+
+ D     
+
+ N                          
+
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> l     
+>   L 
+>   L 
+>   H 
+>   H 
+
+Figure 4: Scatter plot of sampling points (SPs) for DD-RaNN-CM (left) and the logarithmic errors for DD-RaNN-CM in Example 6.3. The left panel in Figure 4 illustrates the point distribution from one of the experiments. The interior points are sampled in polar coordinates. The radial distance is sampled from the normal distribution N (2 , 5), and the angle is sampled from the uniform distribution U (0 , 2π). If the radius is negative, its absolute value is taken. Each sampled point is checked to determine whether it falls within a interior hole; if so, the point is resampled. The elliptical boundary, circular boundary and near–far interface are also sampled in polar coordinates, with angles sampled from the uniform distribution U (0 , 2π). − −  − −      
+
+− 
+
+−  
+
+− 
+
+− 
+
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+− −  − −      
+
+− 
+
+−  
+
+− 
+
+− 
+
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+− − −     
+
+− −  − −      
+
+− 
+
+−  
+
+− 
+
+− 
+
+ 
+
+ 
+
+ 
+
+ 
+
+   
+
+         − 
+
+Figure 5: Computational solution obtained using the DD-RaNN-CM (left), exact solution (middle), and absolute error plot (right) for m1 = 450 in Example 6.3. The errors shown in Table 3 and Figure 4 are the averages obtained from 5 experiments for each parameter, while Figure 5 shows the results of a single experiment. The error for each experiment is computed using (6.1) with 50 points. We can observe that as the number of neurons in the near-field subnetwork increases, the error gradually decreases and eventually stabilizes around the order of 10 −4.34 Table 3: L2 error, relative L2 error, H1 error, and relative H1 error for different numbers of neurons in Example 6.3. 
+
+DoF L2 Error Relative L2 Error H1 Error Relative H1 Error 150 1.9628 1.1126 3.0959 7.6921 × 10 −1
+
+200 4.6616 × 10 −1 2.6425 × 10 −1 8.6752 × 10 −1 2.1555 × 10 −1
+
+250 1.1675 × 10 −1 6.6178 × 10 −2 2.5078 × 10 −1 6.2309 × 10 −2
+
+300 1.8335 × 10 −2 1.0393 × 10 −2 4.4201 × 10 −2 1.0982 × 10 −2
+
+350 5.5675 × 10 −3 3.1560 × 10 −3 1.4104 × 10 −2 3.5042 × 10 −3
+
+400 1.6209 × 10 −3 9.1883 × 10 −4 3.7460 × 10 −3 9.3074 × 10 −4
+
+450 1.4142 × 10 −3 8.0165 × 10 −4 2.8613 × 10 −3 7.1091 × 10 −4
+
+500 1.2081 × 10 −3 6.8481 × 10 −4 2.5960 × 10 −3 6.4499 × 10 −4
+
+Example 6.4 In this example, we consider the equation (2 .1) with Ω = R3, β = 1 and γ = 1 . The exact solution is 
+
+u(x) = e−∥ x∥22 sin( x1 + x2 + x3), x = ( x1, x 2, x 3), (6.11) 
+
+and the source term f can be set by calculation. 
+
+This example is used to evaluate the scalability of the proposed collocation framework in a three-dimensional whole-space problem. It tests whether the near–far RaNN decomposition remains effective when the number of spatial dimensions and sampling points increases. In Example 6.4, we use the DD-RaNN-CM with two single-hidden-layer RaNNs. For a single-hidden-layer RaNN, the weight matrix W is sampled from a uniform distribution U (−r, r ) and the bias matrix b is constructed by the second strategy. The activation function is ρ(x) = e−x21−x22−x23 .                       
+
+> 
+> 
+> 
+> 
+> 
+> 
+> l     
+>   L 
+>   L 
+>   H 
+>   H 
+
+Figure 6: Scatter plot of sampling points (SPs) for RaNN1 and RaNN2 within a cube ranging from -10 to 10 (left) and the logarithmic errors for DD-RaNN-CM in Example 6.4. In this example, the near–far interface is a spherical surface with a radius of 5, centered at the origin. For the near-field subnetwork, the parameter r1 = 2, and the number of neurons m1 varies from 100 to 6100. For the far-field subnetwork, the parameter r2 = 10, and the number of neurons m2 = 50. Unless otherwise noted, “DoF” is defined as m1 + m2. Each boundary is sampled with 5000 points, and the interior of both networks is sampled 35 with 50000 points. When assembling the linear equations, the boundary conditions are enforced with a penalty parameter of 10. The left figure in Figure 6 illustrates the point distribution from one of the experiments. The interior points are sampled in spherical coordinates. The radial distance is sampled from the normal distribution N (2 , 5), and the angles are sampled from the uniform distribution U (0 , 2π). If the radius is negative, its absolute value is taken. The points on the near–far interface are also sampled in polar coordinates, with angles sampled from the uniform distribution U (0 , 2π). Table 4: L2 error, relative L2 error, H1 error, and relative H1 error for different numbers of neurons in Example 6.4. 
+
+DoF L2 Error Relative L2 Error H1 Error Relative H1 Error 150 5.8198 × 10 −1 6.6552 × 10 −1 1.1962 5.7939 × 10 −1
+
+1150 5.2012 × 10 −3 5.9478 × 10 −3 1.4717 × 10 −2 7.1281 × 10 −3
+
+2150 5.4472 × 10 −4 6.2291 × 10 −4 1.7545 × 10 −3 8.4978 × 10 −4
+
+3150 1.1572 × 10 −4 1.3233 × 10 −4 4.0190 × 10 −4 1.9465 × 10 −4
+
+4150 3.5105 × 10 −5 4.0144 × 10 −5 1.1777 × 10 −4 5.7042 × 10 −5
+
+5150 9.7874 × 10 −6 1.1192 × 10 −5 3.5030 × 10 −5 1.6966 × 10 −5
+
+6150 3.5790 × 10 −6 4.0928 × 10 −6 1.2777 × 10 −5 6.1884 × 10 −6
+
+The errors shown in Table 4 and Figure 6 are the averages obtained after performing 5 experiments for each parameter. The error for each experiment is calculated using the three-dimensional form of equation (6.1), with 50 Gaussian points in each dimension, totaling 125,000 quadrature points. We can observe that as the number of neurons in RaNN1 increases, the error gradually decreases to the order of 10 −6.
+
+Example 6.5 In this example, we consider a linear Schr¨ odinger equation: 
+
+
+
+iu t + uxx = f, x ∈ R, t ∈ [0 , 2] ,u(x, 0) = g(x), x ∈ R,u(x, t ) → 0, ∥x∥2 → ∞ ,
+
+(6.12) 
+
+The exact solution is 
+
+u(x, t ) = e−x2
+
+cos( t) + ie −x2
+
+sin( t). (6.13) 
+
+The source term f and the initial condition g(x) can be set by calculation. 
+
+This example demonstrates that the proposed DD-RaNN-CM framework can also be applied to time-dependent complex-valued equations. This complex-valued time-dependent example is not directly covered by the elliptic broken graph-norm theory in Section 5; it is included to illustrate the flexibility of the domain-decomposed RaNN construction. The three-network decomposition separates the left far-field, central region, and right far-field, while the spatio-temporal random features allow the output coefficients to be determined from one global least-squares system. In Example 6.5, we use the DD-RaNN-CM with three single-hidden-layer RaNNs, and each network is spatiotem-poral. For a single-hidden-layer RaNN, the weight matrix W and the bias matrix b are sampled from the uniform distribution U (−r, r ). The activation function is ρ(x, t ) = tanh( x) cos( t) + i tanh( x) sin( t). As above, the use of tanh-based non-decaying features in this numerical example lies outside the direct scope of the decaying-activation approximation theorem. 36 −  − −    
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+   
+
+  
+
+  
+
+ 
+
+ 
+
+ 
+
+ 
+
+ Figure 7: Scatter plot of the sampling points (SPs) distribution for Example 6.5. After applying the activation function, we obtain a trial function space U(W , b, ρ ) over the complex domain. Therefore, in this example, we can set the corresponding coefficients in (4.2) to be real-valued for convenience. A simple approach is to decompose the equation (4.9) into two sub-equations based on its real and imaginary parts. In this example, the near–far interfaces are x = ±2.5. We use three spatio-temporal networks. For the near-field subnetwork we vary the neuron number m2 ∈ { 40 , 60 , · · · , 240 , 260 , 280 } and set the parameter r2 = 0 .5, while the left/right far-field subnetworks are fixed at m1 = m3 = 50 and r1 = r3 = 3. On the near–far interface, 500 points were sampled. For the initial condition, 1,500 points were sampled, and 4,000 points were sampled across the entire plane. Unless otherwise noted, “DoF” is defined as m1 + m2 + m3.Figure 7 illustrates the point distribution from one of the experiments. The interior points are sampled in Euclidean coordinates, where x is sampled from the Gaussian distribution N (2 , 5), and t is sampled from the uniform distribution U (0 , 2). For the near–far interfaces, the vertical coordinates of the sampled points are selected according to the uniform distribution U (0 , 2). For the initial condition, the samples are selected according to the Gaussian distribution N (0 , 10).                                                 
+
+> 
+> 
+> 
+> 
+> 
+> l    
+>   L 
+>   L 
+>   H 
+>   H                     
+> 
+> 
+> 
+> 
+> 
+> l    
+>   L 
+>   L 
+>   H 
+>   H 
+
+Figure 8: Logarithmic errors for the real part (left) and imaginary part (right) of Example 6.5. The errors shown in Table 5, Table 6 and Figure 8 are the averages obtained after performing 20 experiments 37 for each parameter. The error for each experiment is computed using (6.1) with 50 points. We observe that, as the number of neurons in the near-field subnetwork increases, the error gradually decreases and eventually stabilizes at around 10 −5.Table 5: Real part: L2 error, relative L2 error, H1 error, and relative H1 error for different numbers of neurons in Example 6.5. 
+
+DoF L2 Error Relative L2 Error H1 Error Relative H1 Error 140 1.2630 × 10 −1 1.2529 × 10 −1 2.8668 × 10 −1 1.5274 × 10 −1
+
+160 2.4298 × 10 −2 2.4104 × 10 −2 5.6828 × 10 −2 3.0277 × 10 −2
+
+180 3.6085 × 10 −3 3.5797 × 10 −3 9.3133 × 10 −3 4.9620 × 10 −3
+
+200 2.2255 × 10 −4 2.2077 × 10 −4 8.6775 × 10 −4 4.6232 × 10 −4
+
+260 5.3400 × 10 −5 5.2973 × 10 −5 8.5319 × 10 −5 4.5457 × 10 −5
+
+320 2.8557 × 10 −5 2.8329 × 10 −5 4.3179 × 10 −5 2.3005 × 10 −5
+
+380 2.8741 × 10 −5 2.8511 × 10 −5 4.1830 × 10 −5 2.2287 × 10 −5
+
+Table 6: Imaginary part: L2 error, relative L2 error, H1 error, relative H1 error for different numbers of neurons in Example 6.5. 
+
+DoF L2 Error Relative L2 Error H1 Error Relative H1 Error 140 1.2771 × 10 −1 1.0461 × 10 −1 2.9943 × 10 −1 1.4977 × 10 −1
+
+160 2.3186 × 10 −2 1.8992 × 10 −2 5.5233 × 10 −2 2.7626 × 10 −2
+
+180 3.5856 × 10 −3 2.9370 × 10 −3 9.6100 × 10 −3 4.8067 × 10 −3
+
+200 1.8994 × 10 −4 1.5558 × 10 −4 8.3564 × 10 −4 4.1797 × 10 −4
+
+260 9.7435 × 10 −5 7.9810 × 10 −5 1.4920 × 10 −4 7.4625 × 10 −5
+
+320 3.6912 × 10 −5 3.0235 × 10 −5 5.0672 × 10 −5 2.5345 × 10 −5
+
+380 2.5823 × 10 −5 2.1152 × 10 −5 3.8834 × 10 −5 1.9424 × 10 −5
+
+# 7 Summary 
+
+In this paper, we proposed a domain-decomposed randomized neural network framework for solving partial differential equations on unbounded domains. The main idea is to represent different spatial regimes by different randomized subnetworks: a near-field subnetwork captures local structures, boundary effects, and geometric com-plexity, while a far-field subnetwork represents the exterior decay. The subnetworks are coupled through boundary and interface equations, and all output-layer coefficients are determined from linear least-squares systems. Two complementary discretizations were developed. The DD-RaNN Petrov–Galerkin method treats semi-unbounded elliptic problems by combining randomized trial spaces with piecewise polynomial test functions and Gauss-type quadrature. The DD-RaNN collocation method handles fully unbounded domains, geometrically com-plicated exterior domains, and a time-dependent Schr¨ odinger equation. In both cases, the method avoids nonlinear optimization over all neural-network parameters. The theoretical analysis is formulated in a broken Sobolev framework, which is the natural setting for characteristic-function-based domain decomposition. Under suitable decay, activation, local representation, and stability assump-tions, we proved a conditional bounded-parameter broken Sobolev approximation result and derived least-squares error estimates. The total error is decomposed into approximation, empirical-consistency/quadrature, and alge-braic optimization components. For a practical L2-type broken empirical loss, we also established a deterministic quadrature-consistency estimate. More general losses, such as negative Sobolev losses and strong trace-norm losses, 38 require additional consistency arguments, and the decaying-activation theorem does not directly cover numerical tests using non-decaying activations such as tanh. The numerical experiments demonstrate the effectiveness of the proposed methods for one-, two-, and three-dimensional unbounded-domain Poisson problems and for a one-dimensional time-dependent Schr¨ odinger equation. The results indicate that the combination of near–far randomized trial spaces, interface coupling, and linear least-squares solvers can provide accurate approximations for the tested unbounded-domain PDEs. Several issues remain for future work. The interface location, random-parameter ranges, and penalty parameters should be further optimized, possibly by adaptive strategies. It is also important to improve far-field representations for oscillatory or slowly decaying solutions and to extend the analysis to more general nonlinear, time-dependent, and multi-domain settings. 
+
+# References 
+
+[1] Jens Berg and Kaj Nystr¨ om. A unified deep artificial neural network approach to partial differential equations in complex geometries. Neurocomputing , 317:28–41, 2018. [2] Carolin Birk, Maximilian Reichel, and J¨ org Schr¨ oder. Magnetostatic simulations with consideration of exterior domains using the scaled boundary finite element method. Computer Methods in Applied Mechanics and Engineering , 399:115362, 2022. [3] Chuanjun Chen, Yuzhi Lou, and Hanzhang Hu. Two-grid finite volume element method for the time-dependent Schr¨ odinger equation. Computers & Mathematics with Applications , 108:185–195, 2022. [4] Jingrun Chen, Xurong Chi, Weinan E, and Zhouwang Yang. Bridging traditional and machine learning-based algorithms for solving PDEs: the random feature method. Journal of Machine Learning , 1(3):268–298, 2022. [5] Siyu Chen, Lin Liu, Jiajia Li, Jingyu Yang, Libo Feng, and Jiangshan Zhang. Analysis of absorbing boundary conditions for the anomalous diffusion in comb model on unbounded domain by finite volume method. Applied Mathematics Letters , 144:108712, 2023. [6] Haoning Dang and Fei Wang. Local randomized neural networks with hybridized discontinuous Petrov– Galerkin methods for Stokes–Darcy flows. Physics of Fluids , 36(8):087138, 2024. [7] Haoning Dang, Fei Wang, and Song Jiang. Adaptive-growth randomized neural networks for PDEs: Algorithms and numerical analysis. arXiv preprint arXiv:2408.17225 , 2024. [8] Peng Ding, Yubin Yan, Zongqi Liang, and Yuyuan Yan. Finite difference method for time-fractional Klein– Gordon equation on an unbounded domain using artificial boundary conditions. Mathematics and Computers in Simulation , 205:902–925, 2023. [9] M. W. M. G. Dissanayake and N. Phan-Thien. Neural-network-based approximations for solving partial differential equations. Communications in Numerical Methods in Engineering , 10(3):195–201, 1994. [10] Suchuan Dong and Zongwei Li. Local extreme learning machines and domain decomposition for solving linear and nonlinear partial differential equations. Computer Methods in Applied Mechanics and Engineering ,387:114129, 2021. [11] Weinan E and Bing Yu. The deep Ritz method: a deep learning-based numerical algorithm for solving variational problems. Communications in Mathematics and Statistics , 6(1):1–12, 2018. [12] Silvia Falletta, Giovanni Monegato, and Letizia Scuderi. Two FEM-BEM methods for the numerical solution of 2D transient elastodynamics problems in unbounded domains. Computers & Mathematics with Applications ,114:132–150, 2022. 39 [13] Feng Guo and Weizhong Dai. A new absorbing layer approach for solving the nonlinear Schr¨ odinger equation. 
+
+Applied Numerical Mathematics , 189:88–106, 2023. [14] Shimin Guo, Yaping Chen, Liquan Mei, and Yining Song. Finite difference/generalized Hermite spectral method for the distributed-order time-fractional reaction-diffusion equation on multi-dimensional unbounded domains. Computers & Mathematics with Applications , 93:1–19, 2021. [15] Shimin Guo, Wenjing Yan, Can Li, and Liquan Mei. Dissipation-preserving rational spectral-Galerkin method for strongly damped nonlinear wave system involving mixed fractional Laplacians in unbounded domains. 
+
+Journal of Scientific Computing , 93(2):53, 2022. [16] T Kuhn, H Gravenkamp, and C Birk. Explicit time-domain analysis of wave propagation in unbounded domains using the scaled boundary finite element method. Engineering Analysis with Boundary Elements ,168:105891, 2024. [17] I. E. Lagaris, A. Likas, and D. I. Fotiadis. Artificial neural networks for solving ordinary and partial differential equations. IEEE Transactions on Neural Networks , 9(5):987–1000, 1998. [18] Hongwei Li, Xin Zhao, and Yunxia Hu. Numerical solution of the regularized logarithmic Schr¨ odinger equation on unbounded domains. Applied Numerical Mathematics , 140:91–103, 2019. [19] Yunlong Li and Fei Wang. Local randomized neural networks with finite difference methods for interface problems. Journal of Computational Physics , 529:113847, 2025. [20] Jitong Lin, Yanping Chen, and Yunqing Huang. A finite element method for elliptic optimal control problem in the unbounded domain. Journal of Applied Mathematics and Computing , 71(3):4375–4396, 2025. [21] Dan Ling and Zhiping Mao. Analysis and Hermite spectral approximation of diffusive-viscous wave equations in unbounded domains arising in geophysics. Journal of Scientific Computing , 95:51, 2023. [22] Xinliang Liu, Tong Mao, and Jinchao Xu. Integral representations of Sobolev spaces via Relu k activation function and optimal error estimates for linearized networks. arXiv preprint arXiv:2505.00351 , 2025. [23] Dina Mostafa, Mahmoud A Zaky, Ramy M Hafez, Ahmed S Hendy, Mohamed A Abdelkawy, and Ahmed A Aldraiweesh. Tanh Jacobi spectral collocation method for the numerical simulation of nonlinear Schr¨ odinger equations on unbounded domain. Mathematical Methods in the Applied Sciences , 46(1):656–674, 2023. [24] Maziar Raissi, Paris Perdikaris, and George Em Karniadakis. Physics informed deep learning (part i): Data-driven solutions of nonlinear partial differential equations. arXiv preprint arXiv:1711.10561 , 2017. [25] Maziar Raissi, Paris Perdikaris, and George Em Karniadakis. Physics informed deep learning (part ii): Data-driven discovery of nonlinear partial differential equations. arXiv preprint arXiv:1711.10566 , 2017. [26] Maziar Raissi, Paris Perdikaris, and George Em Karniadakis. Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations. 
+
+Journal of Computational Physics , 378:686–707, 2019. [27] Yong Shang, Alexander Heinlein, Siddhartha Mishra, and Fei Wang. Overlapping Schwarz preconditioners for randomized neural networks with domain decomposition. Computer Methods in Applied Mechanics and Engineering , 442:118011, 2025. [28] Yong Shang and Fei Wang. Randomized neural networks with Petrov–Galerkin methods for solving linear elasticity and Navier–Stokes equations. Journal of Engineering Mechanics , 150(4):04024010, 2024. [29] Yong Shang, Fei Wang, and Jingbo Sun. Randomized neural network with Petrov–Galerkin methods for solving linear and nonlinear partial differential equations. Communications in Nonlinear Science and Numerical Simulation , 127:107518, 2023. 40 [30] Jie Shen and Lilian Wang. Some recent advances on spectral methods for unbounded domains. Communications in Computational Physics , 5(2-4):195–241, 2009. [31] Jonathan W Siegel, Qingguo Hong, Xianlin Jin, Wenrui Hao, and Jinchao Xu. Greedy training algorithms for neural networks and applications to PDEs. Journal of Computational Physics , 484:112084, 2023. [32] Mehakpreet Singh. Rate of convergence of two moments consistent finite volume scheme for non-classical divergence coagulation equation. Applied Numerical Mathematics , 187:120–137, 2023. [33] Justin Sirignano and Konstantinos Spiliopoulos. Dgm: A deep learning algorithm for solving partial differential equations. Journal of Computational Physics , 375:1339–1364, 2018. [34] Jingbo Sun, Suchuan Dong, and Fei Wang. Local randomized neural networks with discontinuous Galerkin methods for partial differential equations. Journal of Computational and Applied Mathematics , 445:115830, 2024. [35] Jingbo Sun and Fei Wang. Randomized neural networks for partial differential equation on static and evolving surfaces. arXiv preprint arXiv:2603.01689 , 2026. [36] Yinong Tai, Hongwei Li, Zhaojie Zhou, and Ziwen Jiang. Numerical solution of coupled nonlinear Klein-Gordon equations on unbounded domains. Physical Review E , 106(2):025317, 2022. [37] Siping Tang, Xinlong Feng, Wei Wu, and Hui Xu. Physics-informed neural networks combined with polynomial interpolation to solve nonlinear partial differential equations. Computers & Mathematics with Applications ,132:48–62, 2023. [38] Yassine Tissaoui, James F Kelly, and Simone Marras. Efficient spectral element method for the Euler equations on unbounded domains. Applied Mathematics and Computation , 487:129080, 2025. [39] Jiangming Xie and Maojun Li. A fast BDF2 Galerkin finite element method for the one-dimensional time-dependent Schr¨ odinger equation with artificial boundary conditions. Applied Numerical Mathematics , 187:89– 106, 2023. [40] You Yang and Fei Wang. Adaptive-distribution randomized neural networks for PDEs: A low-dimensional distribution-learning framework. arXiv preprint arXiv:2604.23999 , 2026. [41] Chao Zhang, Dongya Tao, and Pan Ding. Spectral method for multi-dimensional problems of high order on unbounded domains using generalized Laguerre functions. International Journal of Computer Mathematics ,98(10):2040–2059, 2021. [42] Zezhong Zhang, Feng Bao, Lili Ju, and Guannan Zhang. Transferable neural networks for partial differential equations. Journal of Scientific Computing , 99(1):2, 2024. [43] Hongyi Zhu and Chuanju Xu. A highly efficient numerical method for the time-fractional diffusion equation on unbounded domains. Journal of Scientific Computing , 99(2):47, 2024. 41
