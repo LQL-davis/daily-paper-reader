@@ -1,0 +1,248 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-09T20:53:25.102997+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2607.01423v1",
+      "source": "arxiv",
+      "title": "On Reconstructing a Convex Polygon from Partial Information",
+      "abstract": "The reconstruction problem asks to construct a (convex) polygon that has a specified set of features, such as an ordered set of edge-lengths or an ordered set of polygon-angles. In this paper, we do a systematic exploration of the reconstruction problem in all scenarios where one or two sets of features have been specified. Some of these scenarios were well-studied already, for some we develop testing-algorithms and/or hardness results, and many give rise to interesting open problems for future study.",
+      "authors": [
+        "Alexander Baumann",
+        "Therese Biedl",
+        "Mahmoud Elashmawi",
+        "Simon D. Fink",
+        "Maria Saumell",
+        "André Schulz"
+      ],
+      "primary_category": "cs.CG",
+      "categories": [
+        "cs.CG",
+        "cs.DM"
+      ],
+      "published": "2026-07-01T19:34:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.01423v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "reconstructs polygon boundary by optimizing match to features",
+      "llm_evidence_cn": "通过优化匹配特征来调整多边形边界",
+      "llm_evidence": "通过优化匹配特征来调整多边形边界",
+      "canonical_evidence": "通过优化匹配特征来调整多边形边界",
+      "llm_tldr_en": "Systematically explores reconstructing a convex polygon from partial specifications like edge lengths or angles, developing testing algorithms and proving hardness results. This directly addresses shape optimization by adjusting boundaries to match features, with implications for computational geometry and design.",
+      "llm_tldr_cn": "系统研究从部分特征（如边长或角度）重建凸多边形的问题，提出测试算法并证明困难性结果。该方法通过调整边界以匹配给定特征，直接解决形状优化问题，为边界调整的形状优化提供了新的理论工具和算法基础。",
+      "llm_tldr": "系统研究从部分特征（如边长或角度）重建凸多边形的问题，提出测试算法并证明困难性结果。该方法通过调整边界以匹配给定特征，直接解决形状优化问题，为边界调整的形状优化提供了新的理论工具和算法基础。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.06947v1",
+      "source": "arxiv",
+      "title": "Faber Krahn inequality of Robin eigenvalue of the Weighted Laplacian",
+      "abstract": "In this paper, we prove two Faber-Krahn-type inequalities for the first eigenvalue of the weighted Laplacian with Robin boundary conditions on $\\mathbb{R}^{n}$ and $\\mathbb{H}^{n}$. In both settings, the optimal domain is shown to be a ball centered at the origin.",
+      "authors": [
+        "Daguang Chen",
+        "Kui Wang",
+        "Anqiang Zhu"
+      ],
+      "primary_category": "math.SP",
+      "categories": [
+        "math.SP",
+        "math.DG"
+      ],
+      "published": "2026-07-08T03:16:39+00:00",
+      "link": "https://arxiv.org/pdf/2607.06947v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Proves optimal domain for weighted Laplacian with Robin boundary is a ball, directly optimizing boundary shape.",
+      "llm_evidence_cn": "证明加权Laplacian在Robin边界条件下最优域为球体，直接优化边界形状。",
+      "llm_evidence": "证明加权Laplacian在Robin边界条件下最优域为球体，直接优化边界形状。",
+      "canonical_evidence": "证明加权Laplacian在Robin边界条件下最优域为球体，直接优化边界形状。",
+      "llm_tldr_en": "The paper proves Faber-Krahn inequalities for the first Robin eigenvalue of the weighted Laplacian, showing the optimal domain is a ball. This is a classic shape optimization result under boundary conditions.",
+      "llm_tldr_cn": "本文针对加权拉普拉斯算子的第一Robin特征值，证明了Faber-Krahn型不等式，表明无论是在欧氏空间还是双曲空间，最优域均为以原点为中心的球体。该结果通过等周型论证，将域的形状优化归结为边界几何的调整，是谱形状优化中的基础性结论。",
+      "llm_tldr": "本文针对加权拉普拉斯算子的第一Robin特征值，证明了Faber-Krahn型不等式，表明无论是在欧氏空间还是双曲空间，最优域均为以原点为中心的球体。该结果通过等周型论证，将域的形状优化归结为边界几何的调整，是谱形状优化中的基础性结论。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.07233v1",
+      "source": "arxiv",
+      "title": "HPG-Diff: Hierarchical physics-guided diffusion with differentiable connectivity constraints for topology optimization",
+      "abstract": "Deep generative models offer a promising paradigm for topology optimization, enabling rapid design exploration. However, these approaches lack intrinsic physics guidance, often leading to poor generalizability across unseen boundary conditions and the formation of floating material artifacts. To address these limitations, we propose Hierarchical Physics-Guided Diffusion (HPG-Diff), a novel diffusion framework that enforces physics consistency through two synergistic mechanisms. First, we introduce a hierarchical physics-guided strategy that aligns different precomputed physics features with the denoising process, guiding material distribution toward optimal load paths to enhance generalizability. Second, we propose a floating material suppression loss as a differentiable connectivity constraint inspired by thermal conduction to improve topological connectivity. By simulating a virtual heat propagation process from load positions, this mechanism explicitly penalizes floating material during training. Quantitative evaluations demonstrate that HPG-Diff achieves average compliance errors of 0.87% (in-distribution) and 5.29% (out-of-distribution), while reducing floating material ratios to 2.90% and 2.44%, respectively. Furthermore, case studies on a 3:1 rectangular domain, including cantilever and bridge benchmarks, provide preliminary evidence that lightweight LoRA fine-tuning with a small dataset can support the adaptation of HPG-Diff to rectangular non-square domains.",
+      "authors": [
+        "Jinbo Yang",
+        "Mingyue Yuan",
+        "Boyuan Zhang",
+        "Yoshifumi Kitamura",
+        "Shikai Jing"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CE"
+      ],
+      "published": "2026-07-08T10:15:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.07233v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "topology optimization adjusts material boundaries under physics guidance",
+      "llm_evidence_cn": "拓扑优化在物理引导下调整材料边界",
+      "llm_evidence": "拓扑优化在物理引导下调整材料边界",
+      "canonical_evidence": "拓扑优化在物理引导下调整材料边界",
+      "llm_tldr_en": "Proposes HPG-Diff, a diffusion-based framework for topology optimization that incorporates hierarchical physics features and differentiable connectivity constraints, improving generalizability across boundary conditions and eliminating floating material.",
+      "llm_tldr_cn": "针对拓扑优化中缺乏物理引导、泛化性差及浮动物料问题，提出分层物理引导扩散框架HPG-Diff。通过分层物理特征对齐和可微连接约束，引导材料分布遵循载荷路径。实验表明，该方法在不同边界条件下泛化能力强，有效消除浮动物料，实现高质量拓扑优化设计。",
+      "llm_tldr": "针对拓扑优化中缺乏物理引导、泛化性差及浮动物料问题，提出分层物理引导扩散框架HPG-Diff。通过分层物理特征对齐和可微连接约束，引导材料分布遵循载荷路径。实验表明，该方法在不同边界条件下泛化能力强，有效消除浮动物料，实现高质量拓扑优化设计。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.07154v1",
+      "source": "arxiv",
+      "title": "Nonlocal minimal surfaces are generically unique, and smooth in one extra dimension",
+      "abstract": "We study the fractional Plateau problem for $s$-minimal sets with prescribed exterior datum. For fixed exterior data, minimizers need not be unique, and singularities may occur beyond the critical dimension. We first prove a generic uniqueness theorem: along any strictly increasing family of exterior data, nonuniqueness occurs for at most countably many parameters. We then show that one can make arbitrarily small perturbations for which the interior regularity theory improves by one dimension.",
+      "authors": [
+        "Serena Dipierro",
+        "Xavier Fernández-Real",
+        "Enrico Valdinoci"
+      ],
+      "primary_category": "math.AP",
+      "categories": [
+        "math.AP"
+      ],
+      "published": "2026-07-08T08:47:58+00:00",
+      "link": "https://arxiv.org/pdf/2607.07154v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "minimal surface problem with prescribed boundary data",
+      "llm_evidence_cn": "具有指定边界数据的极小曲面问题",
+      "llm_evidence": "具有指定边界数据的极小曲面问题",
+      "canonical_evidence": "具有指定边界数据的极小曲面问题",
+      "llm_tldr_en": "Proves generic uniqueness of nonlocal minimal surfaces with prescribed boundary data and shows that small perturbations improve interior regularity by one dimension, advancing theory of boundary optimization problems.",
+      "llm_tldr_cn": "该论文研究分数阶Plateau问题，针对固定外部位移边界下的极小曲面，证明其解在典型意义下唯一。此外，表明通过微小扰动可提升一维内部正则性。该理论结果为边界优化问题中的极小曲面理论提供重要进展。",
+      "llm_tldr": "该论文研究分数阶Plateau问题，针对固定外部位移边界下的极小曲面，证明其解在典型意义下唯一。此外，表明通过微小扰动可提升一维内部正则性。该理论结果为边界优化问题中的极小曲面理论提供重要进展。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.02400v1",
+      "source": "arxiv",
+      "title": "From Ham-Sandwich to Centerpoints: Semialgebraic Algorithms for Cutting Polytopal Measures",
+      "abstract": "We design exact algorithms for the ham-sandwich and centerpoint theorems for polytopal measures. Our key observation is that the cap-volume function of such a measure, i.e., the volume cut off by a halfspace, is piecewise rational on a natural decomposition of the space of oriented hyperplanes. This lets us recast prescribed-proportion cutting problems as semialgebraic feasibility problems. For fixed ambient dimension, this yields polynomial-time algorithms to decide the existence of cuts, describe the full solution set, and sample or enumerate solutions. We extend this framework to the center transversal theorem, showing that spaces of deep affine flats are semialgebraic, which holds for centerpoints. We further show that the set of centerpoints of a convex polytope coincides with its floating body at level $1/(d+1)$, a useful semialgebraic description.",
+      "authors": [
+        "Marie-Charlotte Brandenburg",
+        "Jesús A. De Loera",
+        "Chiara Meroni"
+      ],
+      "primary_category": "cs.CG",
+      "categories": [
+        "cs.CG",
+        "math.CO",
+        "math.MG"
+      ],
+      "published": "2026-07-02T16:33:31+00:00",
+      "link": "https://arxiv.org/pdf/2607.02400v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Algorithms for finding optimal cutting hyperplanes for polytopal measures, relevant to decision boundary optimization",
+      "llm_evidence_cn": "寻找多面体测度最优切割超平面的算法，与决策边界优化相关",
+      "llm_evidence": "寻找多面体测度最优切割超平面的算法，与决策边界优化相关",
+      "canonical_evidence": "寻找多面体测度最优切割超平面的算法，与决策边界优化相关",
+      "llm_tldr_en": "Designs exact algorithms for ham-sandwich and centerpoint theorems using semialgebraic feasibility, enabling polynomial-time solutions for cutting problems that can optimize decision boundaries in classification.",
+      "llm_tldr_cn": "针对多面体测度的火腿三明治定理和中心点定理，本文设计了基于半代数可行性的精确算法。通过将指定比例切割问题转化为半代数可行性问题，在固定维度下获得多项式时间算法，可描述完整解集并进行采样。该框架为分类中决策边界的优化提供了算法基础。",
+      "llm_tldr": "针对多面体测度的火腿三明治定理和中心点定理，本文设计了基于半代数可行性的精确算法。通过将指定比例切割问题转化为半代数可行性问题，在固定维度下获得多项式时间算法，可描述完整解集并进行采样。该框架为分类中决策边界的优化提供了算法基础。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.04288v1",
+      "source": "arxiv",
+      "title": "Mass weighting algorithm optimizes Fourier-based physics-informed neural network in adhesive contact mechanics",
+      "abstract": "Physics-informed neural networks (PINNs) for elastic contact mechanics suffer from a spectral stiffness imbalance,that is, the elastic kernel grows linearly with wave number, causing short-wavelength modes to dominate gradient updates and stall convergence of the macroscopic deformation. We introduce a spectral preconditioning strategy that reweights displacement gradients in Fourier space before back-propagation, amplifying low wavenumber components through a mass weighting (MW) function while suppressing sub-grid noise via a built-in low-pass filter. Applied to adhesive line contact problems, the mass weighted PINN reaches machine-zero residual loss within 400 Adam iterations for specified benchmark, whereas the reference benchmark stalls at three orders of magnitude higher loss. The converged displacement and contact stress fields agree quantitatively with Green's function molecular dynamics (GFMD) solutions for both smooth Hertz contact at pressures spanning tension to compression and rough surfaces with roughness covering several decades of wavelength. The method operates directly on a uniform real-space grid, requires no explicit Green's function integration or quadrature rules, and is formulated entirely in terms of minimising a scalar energy function. Extension to two-dimensional rough surfaces is direct, as both the Fourier elastic energy and the spectral preconditioner depend only on the wave-number magnitude.",
+      "authors": [
+        "Yunong Zhou",
+        "Kaifeng Huang",
+        "Chaofan Du",
+        "Yang Xu",
+        "Hengxu Song"
+      ],
+      "primary_category": "cond-mat.soft",
+      "categories": [
+        "cond-mat.soft"
+      ],
+      "published": "2026-07-05T13:03:09+00:00",
+      "link": "https://arxiv.org/pdf/2607.04288v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "mass weighting algorithm optimizes Fourier-based PINN for adhesive contact mechanics, a boundary value problem",
+      "llm_evidence_cn": "质量加权算法优化傅里叶基物理信息神经网络求解粘着接触力学边界值问题",
+      "llm_evidence": "质量加权算法优化傅里叶基物理信息神经网络求解粘着接触力学边界值问题",
+      "canonical_evidence": "质量加权算法优化傅里叶基物理信息神经网络求解粘着接触力学边界值问题",
+      "llm_tldr_en": "Introduces spectral preconditioning via mass weighting to overcome stiffness imbalance in Fourier-based PINNs for contact mechanics, achieving rapid convergence to machine-zero residual.",
+      "llm_tldr_cn": "针对物理信息神经网络求解弹性接触力学时出现的谱刚度不平衡问题，本文提出一种谱预条件策略，通过质量加权函数在傅里叶空间重新加权位移梯度，放大低频分量并抑制高频噪声。在粘着线接触基准问题上，质量加权PINN在400次Adam迭代内达到机器零点残差损失，显著优于未加权方法。该方法为解决接触力学边界值问题提供了高效的神经网络求解途径。",
+      "llm_tldr": "针对物理信息神经网络求解弹性接触力学时出现的谱刚度不平衡问题，本文提出一种谱预条件策略，通过质量加权函数在傅里叶空间重新加权位移梯度，放大低频分量并抑制高频噪声。在粘着线接触基准问题上，质量加权PINN在400次Adam迭代内达到机器零点残差损失，显著优于未加权方法。该方法为解决接触力学边界值问题提供了高效的神经网络求解途径。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "algorithms for solving boundary optimization problems",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -1,0 +1,806 @@
+Title: From Ham-Sandwich to Centerpoints: Semialgebraic Algorithms for Cutting Polytopal Measures
+
+URL Source: https://arxiv.org/pdf/2607.02400v1
+
+Published Time: Fri, 03 Jul 2026 01:32:10 GMT
+
+Number of Pages: 24
+
+Markdown Content:
+# From Ham-Sandwich to Centerpoints: Semialgebraic Algorithms for Cutting Polytopal Measures 
+
+Marie-Charlotte Brandenburg, Jesús A. De Loera, and Chiara Meroni 
+
+Abstract 
+
+We design exact algorithms for the ham-sandwich and centerpoint theorems for poly-topal measures. Our key observation is that the cap-volume function of such a measure, i.e., the volume cut off by a halfspace, is piecewise rational on a natural decomposition of the space of oriented hyperplanes. This lets us recast prescribed-proportion cutting problems as semialgebraic feasibility problems. For fixed ambient dimension, this yields polynomial-time algorithms to decide the existence of cuts, describe the full solution set, and sample or enumerate solutions. We extend this framework to the center transversal theorem, showing that spaces of deep affine flats are semialgebraic, which holds for cen-terpoints. We further show that the set of centerpoints of a convex polytope coincides with its floating body at level 1/(d + 1) , a useful semialgebraic description. 
+
+# 1 Introduction 
+
+In this article, we develop computational versions of the ham-sandwich theorem [ST42] and the centerpoint theorem [Rad46]. These classical results establish the existence of hyper-planes that partition measures, or point sets, into balanced pieces. Together, they underlie a remarkably rich line of work in computational geometry on efficient equipartitioning, with ex-citing direct applications to economics, fair-division problems, gerrymandering, and statistics [BT96; Su99; Sob17; FG23; FLMN24]. In this paper, we discuss algorithmic variations of these two classical problems. The difficulty is already visible in the ham-sandwich setting illustrated in Figure 1: given three ingredients, say bread, ham, and cheese, can one cut the sandwich with a single plane so that each ingredient is divided exactly in half? A key contribution of this paper is an algorithm that solves this tasty sandwich problem and finds all possible fair bisections; see Figure 1. 
+
+Figure 1: All possible ways to cut this ham-cheese-sandwich into two equal parts. 
+
+Keywords: ham-sandwich theorem, centerpoint theorem, center transversal theorem, polyhedral geom-etry, computational real algebraic geometry, floating bodies, equipartitions 
+
+MSC classes: Primary 52B55; Secondary 52A35, 52A38, 14P10, 14Q30, 68Q25, 68W30. 
+
+1
+
+> arXiv:2607.02400v1 [cs.CG] 2 Jul 2026
+
+The existence of such bisecting cuts follows from famous and elegant proofs, but these proofs are typically non-constructive, relying on tools from algebraic topology or convex geometry. Consequently, many partition results remain mysterious from the point of view of computation. Here we present algorithms for both the ham-sandwich theorem and the centerpoint theorem, as well as for several of their generalizations. Our algorithms apply when the input measures are finite unions of convex polytopes. More precisely: 
+
+Definition 1.1. We call a measure P in Rd polytopal if it is the restriction of the Lebesgue measure to a union of finitely many full-dimensional convex polytopes Q1, . . . , Q n ⊂ Rd. We refer to Qj as subpolytopes of P . We say that such a measure is rational if the vertices of all Qi have rational coordinates. Our first key observation is that for rational polytopal measures one can compute ham-sandwich cuts and centerpoints exactly, using techniques from computational semialgebraic geometry [BPR06; BCR98]. For polytopal measures, the sets of bisecting hyperplanes are natural semialgebraic sets, and, in fact, most problems of partitioning polytopes or polytopal measures can also be reframed as feasibility problems in semialgebraic geometry [BPR06]. For all our algorithmic results, the input size includes the number of vertices and the bit-size of their coordinates. Throughout the algorithmic complexity statements, the ambient dimension d is fixed unless explicitly stated otherwise. Outputs are semialgebraic descriptions or real algebraic sample points. In the rest of the paper we write polytopal measure to mean rational polytopal measure. 
+
+1.1 Ham-Sandwich Contributions 
+
+The ham-sandwich theorem states that for any d Lebesgue-measurable sets S1, . . . , S d ⊂ Rd
+
+of finite measure, there exists an oriented hyperplane H that simultaneously bisects them: each of the two open halfspaces determined by H contains exactly half the measure of each 
+
+Si. This is also sometimes called the equipartition problem. The classical proof of Stone and Tukey [ST42] proceeds via the Borsuk–Ulam theorem: After parameterizing oriented directions by the sphere Sd−1, one constructs an antipodal map whose zeros correspond to simultaneous bisections. See, e.g., [Mat03] for details. The ham-sandwich theorem is a cornerstone of combinatorial and convex geometry, but its elegant existence proof leaves open a natural computational challenge: how hard is it to find a bisecting hyperplane? We denote the corresponding computational problem by Ham-Sandwich : given the sets S1, . . . , S d as input, find a hyperplane that simultaneously bisects them. We call such a hyperplane a ham-sandwich cut , or simply an HS cut .The classical ham-sandwich theorem requires a bisection : exactly half of each set on each side. A natural and more flexible question is whether one can prescribe arbitrary proportions instead. Bárány, Hubard, and Jerónimo [BHJ08, Theorem 2] showed that if S1, . . . , S d ⊂ Rd
+
+are convex, well-separated sets (i.e., any sub-collection can be strictly separated from the remaining sets by a hyperplane), then for any target fractions α1, . . . , α d ∈ (0 , 1) there is a 
+
+unique oriented hyperplane H such that the measure of Si lying in the negative halfspace is equal to αi · μ(Si) for every i. Their proof uses Brouwer’s Fixed-Point Theorem, while uniqueness follows from the well-separation condition. Steiger and Zhao [SZ10] studied the discrete case, where one has d finite, well-separated point sets P1, . . . , P d ⊂ Rd in weak general position, and target integers αi ∈ [|Pi|]. They showed that there exists a unique oriented hyperplane H passing through one point of each Pi such that there are αi points of Pi in the negative halfspace, for every i ∈ [d]. We refer to these continuous and discrete results as the α-ham-sandwich theorem , and to the corresponding computational search problem as 2α-HS . More generally, given finite measures μ = {μ1, . . . , μ k} supported on Rd, we say that a halfspace H ⊂ Rd is an α-cut of μ if 
+
+μi(H) = αi μi(Rd) for all i = 1 , . . . , k. 
+
+Our first main result is the following. 
+
+Theorem 1.2 (HS algorithm) . Let P = {P1, . . . , P d} be a d-tuple of rational polytopal mea-sures on Rd. There exists an algorithm that takes as input the vertices of the subpolytopes of all Pi and outputs the set of all HS cuts of P. For fixed d, the complexity of the algorithm is polynomial in the total number of input vertices. 
+
+More precisely, the algorithm outputs a quantifier-free semialgebraic description of all HS cuts of P. From this description, the algorithm can compute its dimension, decide whether it is empty, and produce one sample point in each connected component. In zero-dimensional instances, it outputs all HS cuts, represented by real algebraic numbers. The same approach applies more generally to arbitrary target proportions and to any number of measures. In particular, when the number of measures exceeds the ambient dimension, an α-cut need not exist; nevertheless, our algorithm decides existence and, when cuts do exist, describes the entire space of them. 
+
+Theorem 1.3 (α-HS algorithm) . Let P = {P1, . . . , P k} be a k-tuple of rational polytopal measures on Rd. Let α1, . . . , α k ∈ (0 , 1) ∩ Q. There exists an algorithm that takes as input the vertices of the subpolytopes of all Pi and outputs the set of all α-cuts of P. For fixed d,the complexity of the algorithm is polynomial in the total number of input vertices. 
+
+1.2 Centerpoint Contributions 
+
+The second classical result we study is the centerpoint theorem [Rad46]. Let μ be a finite measure on Rd; in the discrete setting, one may take μ to be the uniform measure over a finite point set. For a point x ∈ Rd, the Tukey halfspace depth of x with respect to μ is 
+
+depth μ(x) = inf {μ(H≥0) | H≥0 ⊂ Rd is a closed halfspace with x ∈ H≥0}.
+
+A centerpoint , also called a Tukey point , is any point x⋆ ∈ Rd satisfying 
+
+depth μ(x⋆) ≥ μ(Rd)
+
+d + 1 .
+
+The existence of such a point is guaranteed by the centerpoint theorem : For every finite Borel measure μ on Rd, and in particular for every finite point set, there exists a point x ∈ Rd such that every closed halfspace containing x has μ-mass at least μ(Rd)/(d + 1) .Centerpoints are fundamental objects in discrete and computational geometry, optimiza-tion, and robust statistics. They provide a high-dimensional analogue of the median, are invariant under affine transformations, and yield provably robust representatives of data, with breakdown point at least 1/(d + 1) . They also serve as key tools in geometric algorithms and existence proofs, including Helly-type theorems, weak ε-nets, and various partition re-sults. We refer to [DGMM19; Mat02] for further details and applications. Already when μ is the uniform measure on a finite set X ⊂ Rd of n points, computing a centerpoint is algorithmically nontrivial. In fixed dimension d, the depth function is piecewise constant on a hyperplane arrangement determined by X, and exact computation can be performed in polynomial time in n, although typically an exponential in d. Our algorithm fits into this general framework and extends it from point sets to polytopal measures. 3Theorem 1.4 (Centerpoint algorithm) . Let P ⊂ Rd be a rational polytopal measure. There exists an algorithm that takes as input the vertices of all subpolytopes defining P and outputs at least one centerpoint for P . For fixed dimension, the complexity of the algorithm is poly-nomial in the total number of input vertices. Moreover, the set of all centerpoints of P is semialgebraic, and a defining semialgebraic description can be recovered in polynomial time. 
+
+The geometric starting point of our algorithm is that the set of centerpoints of a convex polytopes can be viewed as a convex floating body [BL88; SW90; MW19]. Informally, these bodies capture the deep core of a convex body after removing intersections with halfspaces cutting away a prescribed proportion of volume. We show that, for polytopes, these objects admit natural semialgebraic descriptions and can therefore be computed using the same tools of real algebraic geometry that underlie our ham-sandwich algorithms. More generally, this perspective leads to a common framework for studying not only cen-terpoints but also higher-dimensional analogues of depth. We prove in Theorem 5.3 that, in fact, the intersections with flats are also semialgebraic sets over the affine Grassmannian. This gives a common algorithmic framework for results interpolating between the ham-sandwich and centerpoint theorems, such as the center transversal theorem [Dol92; ŽV90]. 
+
+Organization Our paper is organized as follows. We start by reviewing prior compu-tational work in Section 2, and in Section 3 we recall real algebraic geometry tools and algorithms used throughout. Section 4 contains the main construction used in the algorithm for hyperplane cuts of polytopal measures. The proofs of Theorem 1.3 and Theorem 1.2 are given in this section. In Section 5, our real algebraic geometry setup allows us to algorithmi-cally interpolate from the ham-sandwich theorem to the centerpoint theorem via the center transversal theorem, see Theorem 5.3 and Proposition 5.5. Finally, Section 5.2 develops the connection between centerpoints of convex polytopes and convex floating bodies. 
+
+Acknowledgments We thank Melissa Daniele for contributions to the code behind this project. MB is supported by the SPP 2458 “Combinatorial Synergies”, funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation). JDL is grateful for the finan-cial support received through NSF grants 2348578 and 2434665. CM is supported by Dr. Max Rössler, the Walter Haefner Foundation, and the ETH Zürich Foundation. 
+
+# 2 Prior Algorithmic Work 
+
+What is known about the computational complexity of these problems? We summarize this below. However, most existing work on concrete algorithms has focused on discrete measures (clouds of points), and only a few works discuss polygons. 
+
+Complexity of ham-sandwich problems The complexity of HS problems varies sig-nificantly with the dimension and the type of constraints. In fixed dimension, HS cuts for polygons [EW86; Sto91] and finite point sets [LMS94] are solvable in polynomial time. Steiger and Zhao [SZ10] provided an O(n(log n)d−3) algorithm, later refined by Bereg [Ber12] to n · 2O(d). This remains linear in the input size n but exponential in d.On the other hand, equipartitioning becomes NP-hard when the number of measures 
+
+k exceeds the dimension d, or when multiple simultaneous hyperplanes are required; see [RS22]. Because the bisecting hyperplane is guaranteed to exist for every valid input, 
+
+Ham-Sandwich , as a computational problem, belongs to the class TFNP (Total Func-tion NP) of search problems that always admit a solution [Pap94]. Since the standard 4proof routes through the Borsuk–Ulam Theorem, whose discrete version, Tucker’s Lemma ,is PPA -complete [ABB20], one obtains containment of Ham-Sandwich in PPA for free. The question of completeness remained open for some time, until Filos-Ratsikas and Goldberg [FG19; FG23] proved that Ham-Sandwich and its discrete analogs (Necklace Splitting and Consensus-Halving) are indeed PPA -complete [FG19; FG23; ABB20]. While efficient algo-rithms exist for low dimensions, the gap for general dimension d remains a central challenge, recently addressed by Chiu, Choudhary, and Mulzer [CCM20]. As we discuss in Section 5, one can interpolate between the ham-sandwich theorem and the centerpoint theorem, and Jadhav and Mukhopadhyay [JM94] used a ham-sandwich subroutine to compute planar centerpoints. 
+
+Complexity of computing centerpoints In general, when d is part of the input, com-puting the Tukey depth and computing a deepest point are known to be computationally hard problems. Testing whether a given point is a centerpoint is coNP-complete in general dimension. Because of this, much work has focused either on fixed-dimensional algorithms or on approximation. For fixed d, exact algorithms for finite point sets run in time polyno-mial in the number n of points, though with a dependence on the dimension that becomes prohibitive as d grows. In higher-dimensional settings, randomized and deterministic ap-proximation algorithms compute points with provable halfspace-depth guarantees, typically below the centerpoint threshold n/ (d + 1) but still sufficient for many applications [CEM+93; MS10]. More recent work gives near-optimal algorithms for several geometric center prob-lems, including Tukey medians and centerpoints, in fixed dimension [CHJ22]. Such approxi-mate or fixed-dimensional methods are often useful in applications such as robust estimation and geometric data analysis, where computing exact deepest points may be computationally expensive [MRR+03; FLMN24]. 
+
+# 3 Key Tools from Real Algebraic Geometry 
+
+In this paper, we rely on methods from real algebraic geometry. Such tools have already been of great importance in computational geometry and economics (see e.g., [BPR06; DGMM19; SCM26] and the reference to applications therein). Here we rely on these techniques for our problems. As we see later, the sets of all hyperplanes partitioning measures in certain proportions are in fact semialgebraic sets. A semialgebraic set in Rn is a subset defined by finitely many polynomial equalities and inequalities, combined using Boolean operations (finite unions, finite intersections, and complements). Equivalently, it is any set obtained from basic sets of the form 
+
+{x ∈ Rn : f (x) = 0 , g 1(x) > 0, . . . , g r(x) > 0},
+
+where f, g 1, . . . , g r ∈ R[x1, . . . , x n], by finitely many Boolean operations. Thus, algebraic sets, polyhedra, balls, and many regions bounded by polynomial curves or surfaces are semi-algebraic; see [BPR06, Chapter 2], [BCR98, Chapter 2], [BR90, Chapter 1]. Semialgebraic sets form a remarkably robust class. They are closed under finite union, finite intersection, complement, Cartesian product, closure, interior, and boundary; see [BCR98, Section 2.3] and [BPR06, Chapter 2]. Every semialgebraic set has only finitely many connected components, each of which is again semialgebraic. More generally, semialge-braic sets admit finite stratifications into smooth semialgebraic manifolds and triangulations by finite simplicial complexes [BCR98, Chapter 9], [BR90, Chapter 2]. Consequently, their topology is tame: they have finite Betti numbers and a well-defined Euler characteristic. 5In what follows, we will make use of Quantifier Elimination . Consider a set of the form 
+
+S =
+
+x ∈ Rn : ( Q1y1 ∈ R) · · · (Qkyk ∈ R) _
+
+> i∈I
+
+^
+
+> j∈J
+
+gi,j (x, y ) σi,j 0
+
+
+
+where each Qℓ is either ∃ or ∀ and is called a quantifier , I, J are finite sets, all gi,j are polynomials, and σi,j ∈ { =, >, <, ≥, ≤,̸ =}. Then, the quantifier elimination theorem states that S is a semialgebraic set, or in other words, there exists another representation of S
+
+which does not require any quantifier Qℓ. There is no known easy proof for this result, and we refer the reader to [BCR98, Proposition 2.2.4], [BPR06, Theorem 2.77]. The theorem is fundamental in real algebraic geometry because it shows that semialgebraic sets remain within the same category under one of the most important operations in mathematics: elimination of variables. It is also the starting point for many algorithmic applications in the area. In particular, we will use it several times in this paper. 
+
+Computational Aspects In this paper we will be computing with specific semialgebraic sets that arise as sets of all hyperplanes that divide a convex polytope into proportional pieces. We briefly touch on different techniques that may provide concrete algorithms. There are several approaches from real algebraic geometry that can be applied to actually compute a point inside a semialgebraic set S, to show it is empty, or to describe it explicitly. A classical method to describe semialgebraic sets S as a union of topological balls is cylin-drical algebraic decomposition or CAD [BPR06, Chapter 11]. CAD recursively projects and decomposes Rn into cells where the sign of each polynomial defining S is constant. Inher-ently, it provides at least one sample point in every connected component of S. CAD runs in doubly-exponential time in general, and in polynomial time for fixed dimension d. However, much of the complexity of CAD lies in the quantifiers describing S. In our case, there are no quantifiers, so one can aim for a better bound. If the interest focuses mainly on samples (such as finding a single ham-sandwich cut), then the so-called critical point methods , developed by Grigoriev and Vorobjov [GV88; GV92], and later improved by many other researchers, provide single-exponential algorithms. One such algorithm can compute a finite set of points that meets every connected component of the solution set. The critical point method effectively avoids exploring all cells of a full CAD and instead finds the relevant boundary and intersection points by solving lower-dimensional polynomial systems (e.g., by computing resultants or Gröbner bases for projection) and deforming possibly singular varieties. A third family of relevant algorithms, again singly-exponential, is the family of roadmap 
+
+methods, first introduced by Canny [Can93], whose idea is to build a 1-dimensional “spine” inside the set S. This is a more sophisticated development of critical point methods, which gives additional information about the connectivity of S, recording which sampled points belong to the same connected component. For details, see [BPR06, Algorithm 16.13]. Finally, an algorithm with a different flavor is provided by the homotopy continuation 
+
+methods. These methods solve a polynomial system by continuously deforming a system with known solutions into the target system, and numerically tracking the corresponding solution paths using Newton-type iterations, with complexity governed by the conditioning of the path. A fundamental result shows that for random inputs the expected complexity is polynomial in the input size and the degrees; in particular, see [BC13, Theorem 17.1]. 64 Ham-sandwich algorithm for polytopal measures 
+
+For any a ∈ Rd, b ∈ R, denote an associated halfspace by 
+
+H(a ≤ b) = {x ∈ Rd | ⟨ a, x ⟩ ≤ b},
+
+where ⟨· , ·⟩ defines the standard scalar product on Rd. H(a ≥ b) and H(a = b) are defined analogously. We denote a cap , namely the intersection of a set S with the halfspace H(a ≤ b),by S(a ≤ b). We use analogous notation for intersections with H(a ≥ b) and H(a = b). Given a d-dimensional compact set S ⊂ Rd, for each direction u ∈ Sd−1 and value t ∈ R, consider the associated cap-volume function 
+
+CapVol S (u, t ) = vol d(S(u ≤ t)) = vol d(S ∩ H(u ≤ t)) ,
+
+where vol d is the standard Euclidean volume in Rd. For a fixed u, the map t 7 → CapVol S (u, t )
+
+is continuous, nondecreasing, and since S is compact there exist t0(u), t 1(u) < ∞ such that 
+
+t0(u) = inf {t ∈ R | CapVol S (u, t ) > 0}, t1(u) = sup {t ∈ R | CapVol S (u, t ) < vol d(S)}.
+
+Hence, for every α ∈ [0 , 1] and every unit vector u ∈ Sd−1 there exist tα(u) such that 
+
+CapVol S (u, t α(u)) = α vol d(S) for α ∈ (0 , 1) , with t0 and t1 defined as above. We want to record such values in the following set. 
+
+Definition 4.1 (α-quantile locus) . Let S ⊂ Rd be a full-dimensional compact set and let 
+
+α ∈ (0 , 1) . The α-quantile locus of S is the set 
+
+Vα(S) = {(u, t ) ∈ Sd−1 × R : CapVol S (u, t ) = α vol d(S)}.
+
+In particular, for α = 12 the set V1/2(S) describes those values of (u, t ) for which the corresponding halfspace “halves” the set S. If S is a set with connected interior, then for every unit vector u ∈ Sd−1 and every α ∈ (0 , 1) there is a unique value tα(u) such that 
+
+CapVol S (u, t α(u)) = α vol d(S). Moreover, the map u 7 → tα(u) is continuous [BHJ08, Lemma 1]. In this case Vα(S) is the graph of this continuous function, and hence has dimension d − 1.
+
+Remark 4.2 . In the spirit of constructions associated with convex bodies, such as intersection bodies [Lut88; BBMS22], one can also visualize Vα(S) through the signed radial map 
+
+Φα,S : Sd−1 → Rd, Φα,S (u) = tα(u)u. 
+
+The image of this map is a geometric object in Rd associated with the α-quantile locus; see Figure 2c for an example. However, this representation should be interpreted with care. Away from the origin, a point y = Φ α,S (u)̸ = 0 determines the corresponding hyperplane, since its normal direction is the line spanned by y, and |tα(u)| = ∥y∥. However, the point y
+
+alone does not determine the oriented pair (u, t α(u)) unless the parametrization is retained. At the origin, several directions may be identified, so recovering the corresponding normals requires keeping track of the local branches of Φα,S , rather than only its image in Rd.
+
+Example 4.3 ( 12 -quantile locus of a triangle) . We illustrate the α-quantile locus of the triangle 
+
+P = conv {(−1, −1) , (−1, 2) , (2 , −1) }
+
+for α = 12 . A generic hyperplane intersecting P meets exactly two of its edges, giving rise to three combinatorially distinct types of partitions. These are illustrated in Figure 2a by the three representative lines. Fix an edge of P with endpoints a and b. The intersection point 7(−1, −1) (2 , −2)              
+
+> (−1,2)
+> (a) The triangle Pwith three hy-perplane cuts.
+> (b) The 12-quantile locus V12
+> (P).(c) The curve Φ12,P (S1).
+
+Figure 2: The objects described in Example 4.3. The locus V 12
+
+(P ) is the black curve shown in Figure 2b, parametrized by {(cos θ, sin θ, t )} within the (θ, t )-plane. The colorful regions in Figure 2b are the regions of the parameter space on which the rational expression for CapVol P is fixed. of this edge with a hyperplane H(u = t) can be expressed as a rational function of variables 
+
+u, t and coefficients depending on a and b. Consequently, CapVol P (u, t ) is itself a rational function when restricted to hyperplanes intersecting a fixed pair of edges. As we shall see later, this generalizes to polytopes and hyperplanes in any dimension. For example, let u ∈ S1 and suppose that 
+
+t + u1 + u2 ≥ 0, t − 2u1 + u2 ≤ 0, t + u1 − 2u2 ≤ 0. (4.1) Under these conditions, the cap P (u ≤ t) consists of three vertices: the point (−1, −1) ,together with one point on the edge conv {(−1, −1) , (2 , −1) } and one point on the edge 
+
+conv {(−1, −1) , (−1, 2) } (corresponding to the red line in Figure 2a). In this case, the cap volume function can be written as 
+
+CapVol P (u1, u 2, t ) = (t + u1 + u2)2
+
+2 u1u2
+
+.
+
+Solving the quadratic equation CapVol P (u1, u 2, t ) = 12 vol 2(P ) subject to the above con-straints yields a unique solution 
+
+t 12
+
+(u) = −u1 − u2 + 3 
+
+r u1u2
+
+2 .
+
+The set of points (u, t ) ∈ R3 with u ∈ S1 and t = t 12
+
+(u) satisfying (4.1) forms a portion of the 12 -quantile locus. This portion corresponds to the part of the black curve shown in Figure 2b that lies within the two red regions. Different regions in this figure correspond to combinatorially distinct intersections of P with a hyperplane. We parametrize S1 as 
+
+(cos( θ), sin( θ)) , and identify (θ, t ) with (π + θ, −t), since for α = 12 the upper and lower caps have equal volume and hence define the same hyperplane. Thus, regions in Figure 2b with similar color correspond to the same unoriented hyperplanes. Accordingly, the hyperplanes in the left panel are colored according to the regions of the (θ, t )-parameter space shown in the central panel. Figure 2c shows the image of the map Φ 12 ,P from Remark 4.2. ⋄
+
+In the rest of the paper we will focus on the behavior of the α-quantile locus of a convex polytope, or a union of such, in terms of semialgebraic geometry. The following lemma is a 8special version of Theorems 1.1 and 1.3 in [BDM25], where we proved that given a polytope 
+
+P ⊂ Rd, there exists a decomposition of the space of all affine hyperplanes in Rd into finitely many cells, called slicing chambers , with the properties that: (a) Two affine hyperplanes H1, H 2 belong to the same slicing chamber if and only if H1, H 2
+
+intersect the same set of faces of P . In particular, P ∩ H1 is combinatorially equivalent to P ∩ H2 and they admit a combinatorially identical triangulation. (b) For fixed dimension d, the number of slicing chambers is bounded by a polynomial in the number of vertices of P .(c) Restricted to a fixed slicing chamber, the integral R  
+
+> P∩H
+
+g(x)dx of any given polynomial 
+
+g : Rd → R is a rational function, whose variables are the coefficients of the defining equation of the hyperplane H. In particular, this holds for the volume of P ∩ H+
+
+for the oriented halfspace defined by H. This rational function depends only on the combinatorial information described in (a). Following exactly the same methods we show that the cap-volume function of a union of polytopes is semialgebraic. When the dimension of the space is fixed, it is not restrictive to assume that the polytopes have disjoint interior, since one can always, in polynomial time, rewrite a union of (possibly intersecting) polytopes as a union of polytopes with disjoint interior. We comment on this well-known procedure in the following remark. 
+
+Remark 4.4 . Consider the polytopes Q1, . . . , Q m, let P = Smi=1 Qi and suppose first that the 
+
+Qi are given by finite systems of linear inequalities. In fixed dimension, such an inequality description can be computed from the vertex description of each Qi in polynomial time. Let H be the collection of all affine hyperplanes supporting inequalities appearing in these descriptions. The arrangement induced by H subdivides Rd into polyhedral cells. Since each cell has a fixed sign pattern with respect to all inequalities defining the Qi, the closure of every full-dimensional cell is either contained in a given Qi or is disjoint from its interior. Hence, by taking the closures of those full-dimensional cells which are contained in at least one Qi, we obtain polytopes R1, . . . , R s with pairwise disjoint interiors such that P = Ssj=1 Rj . When the dimension d is fixed, the number of cells in an arrangement of N hyperplanes in Rd is 
+
+O(N d), and such an arrangement can be constructed in polynomial time in the input size. Thus, this preprocessing step has polynomial complexity in fixed dimension. 
+
+Remark 4.5 . In what follows, we consider unions of polytopes. As input, we will assume that the union P = Q1 ∪ · · · ∪ Qm is presented as some list (Q1, . . . , Q m) of convex polytopes. The 
+
+set of vertices vert( P ) or set of edges of P is the disjoint union of the sets of vertices or edges of Q1, . . . , Q m. In particular, even if Qi, Q j have overlapping or nested edges, we still treat these as distinct objects. The total number of vertices or edges of P is the sum of vertices or edges of the subpolytopes Q1, . . . , Q m. Note that with this convention, these numbers depend on the non-unique decomposition into subpolytopes Q1, . . . , Q m. If P = ( P1, . . . , P k)
+
+is a tuple of unions of polytopes, then the set of vertices vert( P) is the union of all vertices of all subpolytopes of P1, . . . , P k, after fixing a decomposition for every single one of them. 
+
+Lemma 4.6 (Semialgebraicity of the cap-volume function) . Let P = Q1 ∪ . . . ∪ Qm ⊂ Rd
+
+be a union of finitely many full-dimensional polytopes. There exists a central hyperplane arrangement HP ⊂ Rd+1 whose restriction to Sd−1 × R partitions Sd−1 × R into finitely many full-dimensional cells. For each such cell Ω we have 
+
+CapVol P Ω(u, t ) = pΩ(u, t )
+
+qΩ(u, t ) ,
+
+9for some polynomials pΩ, q Ω ∈ R[x1, . . . , x d+1 ] such that qΩ does not vanish on Ω. In other words, the function CapVol P is a piecewise rational function. In fixed dimension, the number of pieces is polynomial in the total number of vertices of P . If Q1, . . . , Q m have pairwise disjoint interiors, then the number of pieces is at most O(| vert( P )|d) and the degrees of 
+
+pΩ(u, t ) and qΩ(u, t ) are at most the total number of edges of P .
+
+This result is analogous to [BBMS22, Proposition 5.5] and [BDM25, Proposition 3.3], but we write the proof here for completeness. 
+
+Proof. By Remark 4.4, we can assume, without loss of generality, that the convex polytopes 
+
+Qi have disjoint interior. Let vert( P ) be the set of vertices of P , namely the set of vertices of all convex subpolytopes Qi of P . Define the slicing arrangement, i.e., the hyperplane arrangement 
+
+HP = {(v, −1) ⊥ | v ∈ vert( P )} ⊂ Rd × R,
+
+with coordinates (u, t ). Denote by Ω a full-dimensional connected component of (Sd−1 ×
+
+R) \ H P ; we call it a chamber. A point (u, t ) ∈ Ω corresponds to a halfspace H(u ≤ t).By construction, the two sets P (u1 ≤ t1) and P (u2 ≤ t2) with (u1, t 1), (u2, t 2) ∈ Ω are combinatorially equivalent, since the hyperplanes H(ui = ti) induce the same partition of the points in vert( P ). Since the convex polytopes Qi have disjoint interior, we can prove our statement for a single one of them. We can then conclude by the fact that rational functions are closed under addition. Fix the index i ∈ [m]. The vertices of Qi(u ≤ t) that are not vertices of Qi itself arise as the intersection of an edge [v, w ] with the bounding hyperplane H(u = t), and their coordinates are rational functions in (u, t ):
+
+[v, w ] ∩ H(u = t) = v + t − ⟨ u, v ⟩⟨u, w − v⟩ (w − v), (4.2) where the denominator is nonzero precisely because the edge crosses the hyperplane trans-versely. Choose a fixed triangulation scheme from the vertex set of each cap Qi(u ≤ t) (for instance, a pulling triangulation with a fixed vertex order). Since the combinatorial type does not change while (u, t ) ∈ Ω, the same abstract triangulation applies to all Qi(u ≤ t). The cap-volume is then a finite sum of volumes of the simplices in the triangulation, each given by the determinant of a matrix whose columns are the vertices of the simplices, namely those in (4.2) and the vertices of Qi on the considered side of the hyperplane. Each such determi-nant is a rational function in (u, t ) defined over Ω. Thus, CapVol Qi is a piecewise rational function, where the pieces are chambers Ω. Therefore, after taking the union, CapVol P is also a piecewise rational function. Let EΩ denote the set of edges of P intersected by a hyperplane with parameters in Ω,and let nΩ denote its cardinality. After clearing denominators, the cap-volume function can be written as 
+
+CapVol P (u, t ) Ω = pΩ(u, t )
+
+qΩ(u) ,
+
+where 
+
+qΩ(u) = Y
+
+> [v,w ]∈EΩ
+
+⟨u, w − v⟩.
+
+Thus deg qΩ ≤ nΩ. Since each determinant appearing in a fixed triangulation is multilinear in the vertices, after clearing this common denominator, the numerator has degree at most 
+
+nΩ. See [BDM25, Proposition 3.3] for details. In particular, nΩ is at most the total number of edges of P , and for fixed dimension this is polynomial in the number of vertices of P .10 Lower-dimensional cells of HP correspond to nongeneric slices passing through vertices or higher-dimensional faces. As CapVol is a continuous function, the rational function on a low-dimensional cell of the arrangement is a specialization of the rational functions on adjacent full-dimensional chambers. To conclude the bound on the number of pieces, note that HP is a central arrange-ment with | vert( P )| hyperplanes, hence the number of full-dimensional chambers is at most 
+
+O(| vert( P )|d) for fixed d (cf. [Zas75]). Intersecting this arrangement with Sd−1 × R gives at most the same order of cells. A piecewise rational function is, in particular, semialgebraic. As a direct consequence, the 
+
+α-quantile locus of a union of polytopes is a semialgebraic subset of Rd+1 . Moreover, recall from the beginning of this section that for convex d-dimensional sets P , the locus Vα(P ) is the graph of a continuous function. This yields the following statement. 
+
+Corollary 4.7. Let P = Q1 ∪ . . . ∪ Qm ⊂ Rd be a union of finitely many full-dimensional polytopes with disjoint interior and let α ∈ (0 , 1) . Then, the α-quantile locus Vα(P ) is a semialgebraic set. If, in addition, P is convex, then Vα(P ) is the graph of a continuous semialgebraic function, and hence has dimension d − 1.
+
+In principle, we can repeat an analogous construction for the extreme values α = 0 , 1.However, in this case, the space of hyperplanes that do not intersect the compact set P is full-dimensional, and hence dim( Vα(P )) = d.
+
+Definition 4.8 (α-cuts) . Consider α = ( α1, . . . , α k) ∈ (0 , 1) k. We say that a hyperplane 
+
+H(u = t) is an α-cut of the sets S1, . . . , S k ⊂ Rd if CapVol Si (u, t ) = αi vol d(Si) for all 
+
+i = 1 , . . . , k . We denote the set of all α-cuts by 
+
+HS α(S1, . . . , S k) = {(u, t ) ∈ Sd−1 × R | H(u = t) is an α-cut }.
+
+In the polytopal case, we can construct the α-quantile loci of multiple unions of polytopes to obtain their α-cuts. Indeed, let P = ( P1, . . . , P k) be a tuple of unions of polytopes, where each Pi ⊂ Rd is itself the union of finitely many full-dimensional polytopes. For any 
+
+α ∈ (0 , 1) k, the set of α-cuts of P equals 
+
+HS α(P) = 
+
+> k
+
+\
+
+> i=1
+
+Vαi (Pi).
+
+If k ≤ d and αi = 12 for all i ∈ [k], then HS α(P)̸ = ∅ according to the ham-sandwich theorem. We note the following feature of the dimension of the set of α-cuts. 
+
+Proposition 4.9. Let P = ( P1, . . . , P k) where each Pi ⊂ Rd is the union of finitely many full-dimensional polytopes, and α = ( α1, . . . , α k) ∈ (0 , 1) k. The set HS α(P) of its α-cuts is semialgebraic. Moreover, allowing the number k of measures to vary, every integer between 
+
+−1 and d can occur as the dimension of such a set HS α(P).Proof. Since Vαi (Pi) is semialgebraic by Corollary 4.7, and since this property is preserved by finite intersections, HS α(P) is also semialgebraic for any α ∈ (0 , 1) k. There exist instances, in any dimension d, of tuples with empty α-cuts. For this, consider any tuple P with symmetric convex bodies P1 = −P1 and P2 = λP 1 for some λ̸ = 1 , both containing the origin in their interior. Then, if α1 = 12 and α2̸ = 12 , there are no α-cuts. Indeed, the hyperplanes that cut P1 in half are all and only those that contain the origin. Since this is also the center of 11 symmetry of P2, it is impossible to obtain a simultaneous cut of the two bodies with different proportions. This implies 
+
+HS α(P) = ∅, dim HS α(P) = −1.
+
+Next, we construct P and α ∈ (0 , 1) k with dim( HS α(P)) = m for any m = 0 , . . . , d − 1.For any given m, let l = d − m and k ≥ l. For i = 1 , . . . , l , choose Pi = [ −1, 1] d + vi where 
+
+v1, . . . , v l are linearly independent vectors. For i = l + 1 , . . . , k , choose Pi = λi[−1, 1] d + vl
+
+with pairwise distinct λi. For all i = 1 , . . . , k let αi = 12 . Then, the 12 -quantile locus of Pi
+
+consists of all pairs (u, t ) such that H(u = t) contains the point vi, namely 
+
+V 12
+
+(Pi) = {(u, t ) ∈ Sd−1 × R | ⟨ u, v i⟩ = t} = {(u, ⟨u, v i⟩) ∈ Sd−1 × R} ,
+
+which is a (d − 1) -dimensional sphere. The equations ⟨u, v i − v1⟩ = 0 , for i = 2 , . . . , l , cut 
+
+Sd−1 by l − 1 independent linear equations. Hence the solution set is a sphere of dimension 
+
+(d − 1) − (l − 1) = d − l = m. 
+
+Finally, let Pi = ( 12 [−1, 1] d + ( ie 1 + ed)) ∪ ( 12 [−1, 1] d + ( ie 1 − ed)) be the union of two cubes, appropriately shifted for all i = 1 , . . . , k . Then, there is a d-dimensional set of hyperplanes around (u, t ) = ( ed, 0) that belong to HS α(P) for α1 = . . . = αk = 1 /2.In the remainder of this section, we focus on the α-HS algorithm, namely on Theorem 1.3. As input, it takes rational polytopal measures P1, . . . , P k, and computes the set of all their 
+
+α-cuts, for α = ( α1, . . . , α k) ∈ (0 , 1) k ∩ Qk. We sketch the algorithm in Algorithm 1. 
+
+Algorithm 1 α-HS Algorithm 
+
+Input: A tuple P = ( P1, . . . , P k) of rational polytopal measures in Rd, where each Pi is given as a finite union of full-dimensional rational polytopes, and target values α =(α1, . . . , α k) ∈ (0 , 1) k ∩ Qk.
+
+Output: A quantifier-free semialgebraic description of HS α(P), and sample points in its connected components.  
+
+> 1:
+
+for i = 1 , . . . , k do  
+
+> 2:
+
+Construct the slicing arrangement HPi = {(v, −1) ⊥ | v ∈ vert( Pi)} ⊂ Rd+1 in the parameter space with coordinates (u, t ). 
+
+> 3:
+
+for each cell Ω of HPi do  
+
+> 4:
+
+Compute the rational expression CapVol Pi (u, t ) for (u, t ) ∈ Ω 
+
+> 5:
+
+Define the piecewise rational set Vαi (Pi). 
+
+> 6:
+
+Apply a semialgebraic-set algorithm to HS α(P) = ∩Vαi (Pi) to decide emptiness, dimen-sion, and sample one point in each connected component. We now show the correctness of the algorithm, and that the complexity of this algorithm is polynomial in the total number of input vertices. 
+
+Proof of Theorem 1.3. Let n be the total number of vertices of all input subpolytopes of 
+
+P1, . . . , P k after the disjoint-interior refinement (cf. Remarks 4.4 and 4.5). The common slicing arrangement HP = {(v, −1) ⊥ | v ∈ vert( P)} is a central arrangement of at most n
+
+hyperplanes in Rd+1 . Although Algorithm 1 constructs the arrangements HPi separately, for the complexity analysis we may equivalently refine them to the common arrangement HP .On this refinement, for every i ∈ [k], the function CapVol Pi has a fixed rational function expression on each cell. The number of full-dimensional cells of HP is at most O(nd) for 12 fixed d (cf. Lemma 4.6 for the case where P is the union of all subpolytopes). On each cell 
+
+Ω, each cap-volume function CapVol Pi (u, t ) is represented by a rational function 
+
+CapVol Pi (u, t ) Ω = pi, Ω(u, t )
+
+qi, Ω(u)
+
+with, as shown in Lemma 4.6, deg pi, Ω, deg qi, Ω ≤ ei ≤ O(n2), where ei is the total number of edges of the subpolytopes supporting Pi. Thus, the equation 
+
+CapVol Pi (u, t ) = αi vol d(Pi)
+
+is, when restricted to Ω, equivalent to a polynomial equation of degree at most O(n2). The inequalities defining Ω are linear, and the sphere condition ∥u∥2 = 1 has degree 2.Consequently, HS α(P) is described by a quantifier-free formula (cf. Proposition 4.9) in 
+
+d + 1 variables using s = O(nd(n + k)) polynomials, all of degree at most D = O(n2). Since 
+
+d is fixed, standard algorithms for semialgebraic sets have complexity (sD )O(d). Therefore, they run in polynomial time in the input parameters n and k.
+
+Proof of Theorem 1.2. This is Theorem 1.3 for k = d and α1 = · · · = αd = 12 .
+
+Example 4.10 (The set of α-cuts of two measures in dimension 2). Let P = {P1, P 2}, where 
+
+P1 is the triangle from Example 4.3, and 
+
+P2 = conv {(−1, 0) , (2 , 0) , (1 , −3) } ∪ conv {(1 , 0) , (1 , 1) , (0 , 1) , (0 , 0) }.
+
+We run our algorithm with α = ( 12 , 14 ) and construct the associated piecewise rational func-tions CapVol Pi . The regions on which these functions are fixed rational functions are depicted in different colors in Figure 2b (for P1) and Figure 3a (for P2). These regions are not polyhe-dral, as we visualize them in (θ, t )-coordinates rather than in the three-dimensional embedding 
+
+(cos θ, sin θ, t ). In both Figures 2b and 3a, the black curves represent the αi-quantile loci for 
+
+α1 = 12 and α2 = 14 , respectively. To determine the lines that simultaneously cut both sets in the prescribed proportions, we intersect these two curves (see Figure 3b). This yields two red intersection points, corresponding to the two red lines in Figure 3c.              
+
+> (a) The cell decomposition for
+> CapVol P2together with the black
+> 14-quantile locus V14
+> (P2).
+> (b) The red intersection points of the curves V12
+> (P1)and V14
+> (P2).
+
+P1
+
+P2    
+
+> (c) The two α-cuts of P1and P2.
+
+Figure 3: The α-cuts of P1 and P2 from Example 4.10. 13 We can also derive an explicit algebraic description of these intersection points. For instance, the leftmost intersection point is the unique feasible solution of the following poly-nomial system of equations and inequalities: 
+
+−u1u2 + 8 u1t − 4u2t + u21 − 2u22 − 2t2 = 0 ,
+
+33 u1u2 + 24 u1t − 10 u21 + 12 t2 = 0 ,u21 + u22 = 1 ,
+
+−u2 + t ≤ 0, t ≤ 0, −u1 + 3 u2 + t ≤ 0, −u1 − u2 − t ≤ 0, −u1 + 2 u2 − t ≤ 0.
+
+Up to four-digit precision, the unique solution is (u, t ) = (0 .9449 , 0.3272 , −0.0580) . This solution can be computed, for example, using the CylindricalDecomposition command in 
+
+Mathematica , which returns the result in 0.007 seconds. ⋄
+
+Example 4.11 (The set of α-cuts of three measures in dimension 3). Consider two slices of bread, obtained as the convex hulls of the two sets of vertices 
+
+{(0 , 0, −3) , (8 , 0, −3) , (0 , 5, −3) , (0 , 0, −1) , (8 , 0, −1) , (0 , 5, −1) } ,
+
+{(0 , 0, 3) , (8 , 0, 3) , (0 , 5, 3) , (0 , 0, 1) , (8 , 0, 1) , (0 , 5, 1) } ,
+
+a slice of ham, the convex hull of 
+
+{(1 , −1, 0) , (1 , −1, 1) , (7 , 1, 0) , (6 , 1, 1) , (1 , 5, 0) , (1 , 4, 1) , (−1, 4, 0) , (−1, 4, 1) } ,
+
+and a piece of cheese, namely the polytope with vertices 
+
+{(0 , 0, 0) , (0 , 0, −1) , (7 , 0, 0) , (7 , 0, −1) , (0 , 4, 0) , (0 , 4, −1) , (7 , 4, 0) , (7 , 4, −1) }
+
+as displayed in Figure 4. Then, there exist exactly three hyperplanes that split each ingredient 
+
+Figure 4: The polytopal bread, ham, and cheese, from Example 4.11. of the sandwich into two equal parts. One of these cuts, in Figure 1, left, is the unique feasible point in the intersection V 12
+
+(bread) ∩ V 12
+
+(ham) ∩ V 12
+
+(cheese) restricted to the chamber 
+
+5u2 − u3 − t ≤ 0, 8u1 − 3u3 − t ≤ 0, −3u3 + t ≤ 0,u3 − t ≤ 0, −8u1 + u3 + t ≤ 0, −5u2 − u3 + t ≤ 0,
+
+where V 12
+
+(bread) is the set of points (u, t ) ∈ S2 × R such that 
+
+4t3u1 + t2(−60 u1u2 − 12 u1u3 + 15 u2u3) + t  480 u21u2 − 120 u1u2u3 + 12 u1u23
+
+ − 1280 u31u2
+
++ 1440 u21u2u3 − 600 u1u22u3 − 60 u1u2u23 − 4u1u33 + 5 u2u33 = 20(3 u1u2u3(8 u1 − 5u2)) ,
+
+14 and V 12
+
+(ham) and V 12
+
+(cheese) have similar expressions. The hyperplane corresponding to such a feasible point is then, up to four-digit precision, 
+
+0.5144 x + 0 .2474 y + 0 .8210 z = 1 .8848 .
+
+The associated slice of the sandwich is shown in Figure 5, left. The central and right slices correspond to the central and right cuts in Figure 1, and they are given respectively by the hyperplanes 
+
+0.6043 x − 0.3527 y + 0 .7144 z = 1 .0524 ,
+
+0.5127 x − 0.7863 y + 0 .3444 z = 0 .0498 . ⋄
+
+Figure 5: The three cuts of the ham-cheese-sandwich from Example 4.11. There is a straightforward generalization of Theorems 1.2 and 1.3 to measures with poly-nomial densities, as follows. Let μ = ( μ1, . . . , μ k) be a k-tuple of finite measures on Rd with densities p1, . . . , p k, respectively. Assume that, for each i ∈ [k], μi is supported on a finite union Smi 
+
+> j=1
+
+Qi,j of polytopes such that 
+
+pi Qi,j = pi,j ∈ Q[x1, . . . , x d] (4.3) for all j ∈ [mi], where pi,j ≥ 0 on Qi,j . Then, the proof of Theorem 1.3 combined with [BDM25, Theorem 1.1 (iii )] gives the following complexity statement. The corresponding algorithm follows the steps of Algorithm 1, with the cap-volume function replaced by the exact parametric integration of the polynomial density over the corresponding polytopal cap. See [BDM25] for further details. 
+
+Corollary 4.12. Let μ = ( μ1, . . . , μ k) be a k-tuple of finite measures on Rd with densities 
+
+pi satisfying (4.3) . Let α1, . . . , α k ∈ (0 , 1) ∩ Q. There exists an algorithm that takes as input the vertices of the polytopes Qi,j and the polynomials pi,j and outputs the set of all α-cuts of μ. For fixed dimension d, the complexity of the algorithm is polynomial in the input size, including the degrees and coefficient bit-size of the input polynomials. 
+
+# 5 A semialgebraic interpolation from ham-sandwich cuts to centerpoints 
+
+In the previous section, we studied cuts by halfspaces whose boundaries are (d−1) -dimensional hyperplanes. We now extend this point of view to lower-dimensional affine subspaces. Given 15 a flat, i.e., an affine subspace F ⊂ Rd of any dimension, we measure its depth, i.e., the proportion of a set that must be contained in every halfspace containing F . If F is a point, then this recovers the Tukey halfspace depth from the introduction. If F is a hyperplane, then its depth records the smaller of the two cap volumes determined by F . In particular, 
+
+F is a ham-sandwich cut precisely when this depth is one half of the total volume for each measure. This framework allows an interpolation between the centerpoint theorem and the ham-sandwich theorem, which is provided from a theoretical point of view by the center transversal theorem .In this section, we develop a semialgebraic and computational framework for this interpo-lation. We first study spaces of affine subspaces satisfying prescribed depth inequalities, and show that these spaces are semialgebraic and effectively computable for polytopal measures. We then specialize to centerpoints of polytopes and relate the resulting semialgebraic sets to convex floating bodies, a classical construction in convex geometry. 
+
+5.1 Semialgebraic spaces of deep flats and centerpoints 
+
+The center transversal theorem gives a common generalization of the ham-sandwich theorem and the centerpoint theorem [Dol92; ŽV90]; for a modern reference and computational as-pects, see [Mat02, Section 1.4] and [Sch19]. In this section, we extend our framework from the space of ham-sandwich cuts to the space of solutions to the center transversal theorem. As a special case, we obtain a description of the space of solutions to the centerpoint theorem. 
+
+Theorem 5.1 (Center transversal theorem) . Let 1 ≤ k ≤ d and let μ1, . . . , μ k be finite Borel measures on Rd that vanish on hyperplanes. Then there exists an affine subspace F ⊂ Rd of dimension k − 1 such that for every closed halfspace H ⊂ Rd with F ⊆ H one has 
+
+μi(H) ≥ 1
+
+d − k + 2 μi(Rd) for all i = 1 , . . . , k. 
+
+For k = d, the subspace F is a hyperplane. Since the measures vanish on hyperplanes, the two closed halfspaces bounded by F both have at least one half of the total measure and hence exactly one half. Thus, Theorem 5.1 recovers the ham-sandwich theorem. For k = 1 ,the subspace F is a point, and Theorem 5.1 recovers the centerpoint theorem. In the case of polytopal measures, each μi is the restriction of the Lebesgue measure to a polytopal set Pi. Hence, the conclusion of the center transversal theorem can be written in terms of cap volumes as follows: there exists a (k − 1) -dimensional affine subspace F ⊂ Rd
+
+such that, for every (u, t ) ∈ Sd−1 × R with F ⊆ H(u ≤ t), one has 
+
+CapVol Pi (u, t ) ≥ 1
+
+d − k + 2 vol d(Pi) for all i = 1 , . . . , k. 
+
+Definition 5.2. Let S ⊂ Rd be a full-dimensional compact set and let F ⊂ Rd be an affine subspace. The depth of F with respect to S is 
+
+depth S (F ) = inf 
+
+n
+
+CapVol S (u, t ) (u, t ) ∈ Sd−1 × R, F ⊆ H(u ≤ t)
+
+o
+
+.
+
+We now show that, for polytopal measures, the set of affine subspaces satisfying such depth inequalities is semialgebraic. Let Gr aff (r, d ) denote the affine Grassmannian, i.e., the space of all r-dimensional affine subspaces of Rd.
+
+Theorem 5.3 (Semialgebraicity of the space of α-deep flats) . Let P = Q1 ∪ · · · ∪ Qm ⊂ Rd
+
+be a union of finitely many full-dimensional polytopes, and let α ∈ (0 , 1) . For 1 ≤ ℓ ≤ d, the set 
+
+Fℓα(P ) = {F ∈ Gr aff (ℓ − 1, d ) | depth P (F ) ≥ α vol d(P )}
+
+16 is semialgebraic. Proof. We use the standard semialgebraic model of the affine Grassmannian. Namely, we write an affine (ℓ − 1) -dimensional subspace F ⊂ Rd as 
+
+F = p + L, 
+
+where L ∈ Gr( ℓ − 1, d ) is a linear subspace and p ∈ L⊥. With this representation, 
+
+Gr aff (ℓ − 1, d ) = {(L, p ) | L ∈ Gr( ℓ − 1, d ), p ∈ L⊥}
+
+is semialgebraic. We first characterize the halfspaces containing F = p + L. For u ∈ Sd−1,one has 
+
+F ⊆ H(u ≤ t) ⇐⇒ u ∈ L⊥ and ⟨u, p ⟩ ≤ t. 
+
+Indeed, if u / ∈ L⊥, then the map x 7 → ⟨ u, x ⟩ is not constant in the affine space p + L, and therefore is unbounded on it. Hence, F cannot be contained in any halfspace of the form 
+
+H(u ≤ t) with u̸ ∈ L⊥. If u ∈ L⊥, then ⟨u, p + l⟩ = ⟨u, p ⟩ for all l ∈ L, so F ⊆ H(u ≤ t)
+
+if and only if ⟨u, p ⟩ ≤ t. Since t 7 → CapVol P (u, t ) does not decrease for fixed u ∈ L⊥, the infimum over all admissible t is attained at t = ⟨u, p ⟩. Therefore, depth P (p + L) ≥ α vol d(P )
+
+is equivalent to 
+
+CapVol P (u, ⟨u, p ⟩) ≥ α vol d(P ) for all u ∈ Sd−1 ∩ L⊥.
+
+Thus 
+
+Fℓα(P ) = 
+
+n
+
+(p, L ) ∈ Gr aff (ℓ − 1, d ) ∀u ∈ Sd−1 ∩ L⊥, CapVol P (u, ⟨u, p ⟩) ≥ α vol d(P )
+
+o
+
+.
+
+By Lemma 4.6, the cap-volume function CapVol P is semialgebraic. The conditions u ∈ Sd−1
+
+and u ∈ L⊥ are given by polynomial equations, and the map (p, u ) 7 → ⟨ u, p ⟩ is polynomial. Hence the relation 
+
+CapVol P (u, ⟨u, p ⟩) ≥ α vol d(P )
+
+is semialgebraic in (p, L, u ). By quantifier elimination, Fℓα(P ) is semialgebraic as well. As a corollary of Theorem 5.3, we get that the set of simultaneous α-deep flats of finitely many polytopal measures is semialgebraic. 
+
+Corollary 5.4. Let P = ( P1, . . . , P k) be a k-tuple of polytopal measures in Rd, and let 
+
+α = ( α1, . . . , α k) ∈ (0 , 1) k. Then, for every ℓ ∈ [d],
+
+Fℓα(P) = 
+
+> k
+
+\
+
+> i=1
+
+Fℓαi (Pi) ⊆ Gr aff (ℓ − 1, d )
+
+is semialgebraic. 
+
+The preceding corollary is effective: using the explicit semialgebraic description of the cap-volume functions from Lemma 4.6, one can compute defining equations and inequalities for these sets. Next, we make these computational aspects more explicit. 
+
+Proposition 5.5. Let P = ( P1, . . . , P k) be a k-tuple of rational polytopal measures in Rd,and let α = ( α1, . . . , α k) ∈ (0 , 1) k ∩ Qk. For fixed d and ℓ, the set Fℓα(P) can be computed in polynomial time. 
+
+17 Proof. By Lemma 4.6, the cap-volume functions appearing in the definition of Fℓα(P) have semialgebraic descriptions of polynomial size, when the dimension d is fixed. The affine Grassmannian Gr aff (ℓ − 1, d ) has fixed dimension, and the defining formula for Fℓα(P) uses a fixed number of quantified variables when d and ℓ are fixed. Therefore, quantifier elimination and standard algorithms for semialgebraic sets compute a quantifier-free description, decide emptiness, and produce sample points in polynomial time in the input size. 
+
+Proof of Theorem 1.4. For ℓ = 1 , the points (p, L ) ∈ Gr aff (0 , d ) with L ∈ Gr(0 , d ), p ∈ L⊥ (as in the proof of Theorem 5.3) necessarily satisfies that L is the trivial linear space of dimension 
+
+0, and p ∈ Rd. We can thus identify Gr aff (0 , d ) with Rd. To obtain the centerpoints, we consider Proposition 5.5 for k = 1 and α = ( 1 
+
+> d+1
+
+). Then F11
+
+> d+1
+
+(P ) is precisely the set of all centerpoints, and is non-empty by the centerpoint theorem. By Proposition 5.5, this set can be computed in polynomial time. Algorithmically, one first computes the piecewise rational representation of CapVol P (see Steps 1–4 in Algorithm 1), applies quantifier elimination to obtain a quantifier-free semialgebraic description of F11
+
+> d+1
+
+(P ), and computes a sample point of this semialgebraic set. 
+
+5.2 Centerpoints of polytopes via floating bodies 
+
+We now focus on the second extremal case of the center transversal theorem, namely the computation of centerpoints. In this subsection we restrict our discussion to a single full-dimensional convex polytope P ⊂ Rd, and show that the set of centerpoints of P is a floating body of P . We use the term floating body for what is often called the convex floating body, in order to distinguish it from Dupin’s floating body; see [BL88; SW90; MW19]. Figure 6 shows the floating body of a triangle (computed with methods from this subsection). Figure 6: The triangle P and its floating body P 13
+
+, as computed in Example 5.9 using the method of this section. 
+
+Definition 5.6. Let K ⊂ Rd be a convex body and let α ∈ (0 , 1) . The floating body Kα is 
+
+Kα = \  
+
+> u∈Sd−1, t ∈R
+> CapVol K(u,t )≤αvol d(K)
+
+H(u ≥ t).
+
+Equivalently, since t 7 → CapVol K (u, t ) is nondecreasing, and since K is convex and full-dimensional, the intersection above may be taken over the boundary values where the cap-volume function is equal to α vol d(K). Thus 
+
+Kα = \
+
+> (u,t )∈Vα(K)
+
+H(u ≥ t).
+
+18 Replacing (u, t ) by (−u, −t) gives the equivalent form 
+
+Kα = \
+
+> (u,t )∈V1−α(K)
+
+H(u ≤ t).
+
+This last description connects floating bodies directly to the quantile loci studied in the previous section. We now use it to show that, for polytopes, floating bodies remain within the semialgebraic category. 
+
+Proposition 5.7. Let P ⊂ Rd be a full-dimensional polytope and let α ∈ (0 , 1) . Then the floating body Pα is semialgebraic. Proof. Using the previous description, we can write 
+
+Pα = {x ∈ Rd | ⟨ u, x ⟩ ≤ t for all (u, t ) ∈ V1−α(P )}.
+
+Equivalently, x ∈ Pα if and only if for all (u, t ) ∈ Sd−1 × R
+
+CapVol P (u, t ) = (1 − α) vol d(P ) ⇒ ⟨ u, x ⟩ ≤ t. 
+
+By Corollary 4.7, the set V1−α(P ) is semialgebraic. Hence, by quantifier elimination, Pα is semialgebraic. We next identify the floating body parameter that corresponds to centerpoints. The number 1/(d + 1) is exactly the depth threshold appearing in the centerpoint theorem. 
+
+Proposition 5.8. Let P ⊂ Rd be a full-dimensional convex body. Then the set of centerpoints of P is precisely P 1
+
+> d+1
+
+.Proof. For x ∈ Rd, the halfspace depth of x with respect to P is 
+
+depth P (x) = inf  
+
+> u∈Sd−1
+
+CapVol P (u, ⟨u, x ⟩).
+
+Indeed, among all halfspaces of the form H(u ≤ t) containing x, the smallest cap volume is obtained when t = ⟨u, x ⟩, because t 7 → CapVol P (u, t ) is nondecreasing. Thus x is a centerpoint if and only if 
+
+CapVol P (u, ⟨u, x ⟩) ≥ 1
+
+d + 1 vol d(P ) for all u ∈ Sd−1.
+
+By the definition of the floating body, this is equivalent to x ∈ P1/(d+1) .Combining the previous two propositions gives an effective description of the set of center-points of a rational polytope. This is the centerpoint analogue of the ham-sandwich algorithm developed above. We showcase our method in two examples. 
+
+Example 5.9. Consider the triangle P from Example 4.3. Its floating body P 13
+
+, equivalently its set of centerpoints, is the semialgebraic set defined by 
+
+4xy + 4 x + 4 y + 1 ≥ 0, 4x2 + 4 xy + 4 y − 1 ≤ 0, 4xy + 4 y2 + 4 x − 1 ≤ 0.
+
+This description can be obtained from V 23
+
+(P ) by quantifier elimination. We performed this in Mathematica in 0.2 seconds, and plotted the sets in Figure 6. ⋄
+
+19 Figure 7: Two points of view of the blue tetrahedron P and its green floating body P 14
+
+, from Example 5.10. Finally, we remark that the space of α-deep flats of P = ( P1, . . . , P k), when the Pi are all convex polytopes, can be interpreted using floating bodies also when k > 1. This is made explicit in the following example. 
+
+Example 5.10. Consider the tetrahedra 
+
+P = conv {(0 , 0, 0) , (6 , 0, 0) , (0 , 6, 0) , (0 , 0, 6) }
+
+and 
+
+Q = conv {(3 , 3, 3) , (−3, 3, 3) , (3 , −3, 3) , (3 , 3, −3) }.
+
+We describe the set of lines of depth at least 14 with respect to both tetrahedra, namely 
+
+Fℓα(P, Q ) for ℓ = 2 , α1 = α2 = 14 . Working in the affine chart of Gr aff (1 , 3) consisting of lines whose direction has nonzero third coordinate, we write such an affine line as 
+
+Lm,n,p,q = {(p + mt, q + nt, t ) | t ∈ R}.
+
+Consider the 14 -floating bodies of P and Q, namely the sets of their centerpoints. P 14
+
+is the semialgebraic set defined by (x, y, z ) ∈ P and 
+
+xyz ≥ 2, yz (6 − x − y − z) ≥ 2, xz (6 − x − y − z) ≥ 2, xy (6 − x − y − z) ≥ 2.
+
+Figure 7 displays P in blue and P 14
+
+in green. Analogously, Q 14
+
+consists of points (x, y, z ) ∈ Q
+
+such that 
+
+(3 − x)(3 − y)(3 − z) ≥ 2, (x + y + z − 3)(3 − y)(3 − z) ≥ 2,
+
+(x + y + z − 3)(3 − x)(3 − z) ≥ 2, (x + y + z − 3)(3 − x)(3 − y) ≥ 2.
+
+A line has depth at least 14 for both P and Q if and only if it intersects both floating bodies. Therefore, in the affine chart above, the set of such lines is the semialgebraic set 
+
+F2
+
+> 14
+
+(P, Q ) = 
+
+n
+
+(m, n, p, q ) ∈ R4 | Lm,n,p,q ∩ P 14̸ = ∅ and Lm,n,p,q ∩ Q 14̸ = ∅
+
+o
+
+.
+
+This description uses two existential quantifiers hidden in the non-empty conditions. By restricting ourselves to vertical lines, namely to the two-dimensional subspace of R4
+
+with m = n = 0 , we can derive the quantifier-free description of the set of vertical lines that belong to F2
+
+> 14
+
+(P, Q ). This is 
+
+{(p, q ) ∈ R2 | p(6 − p − q)2 ≥ 8, q (6 − p − q)2 ≥ 8, (3 − p)( p + q)2 ≥ 8, (3 − q)( p + q)2 ≥ 8},
+
+and it is displayed in Figure 8. In particular, one can check that at the point (0 , 0, 3/2, 3/2) 
+
+the inequalities defining F2
+
+> 14
+
+(P, Q ) are all strict, hence the latter is full-dimensional. ⋄
+
+20 Figure 8: Set of vertical lines in F2
+
+> 14
+
+(P, Q ), from Example 5.10. 
+
+# 6 Conclusions 
+
+We presented a methodology for solving several fair or proportional partition problems when we partition polytopal measures using one hyperplane cut. Our method expresses cutting conditions as semialgebraic constraints and then uses the power of algebraic computation to give polynomial-time algorithms (for fixed dimension). We provide efficient semialgebraic descriptions of “quantile bodies” or “ α-partition loci” with controlled degree and number of inequalities in terms of the complexity of the input polytopes. In our setup of exact algebraic computation one can ask for a rational/algebraic description of a bisecting hyperplane and receive verifiable certificates as well. Despite this, several open problems remain: 
+
+• Are there other families of measures that are particularly amenable to computation? Here we showed that partitioning polytopal measures is semialgebraic and thus ef-ficiently computable. Since polytopes can approximate other convex bodies, is the extension by approximation efficient? 
+
+• Practical computation was possible in small instances. A natural future direction is to obtain faster practical algorithms for polytopal ham-sandwich cuts or centerpoints. If approximation is sufficient, one can investigate quantified numerical approximations of the semialgebraic sets presented here. 
+
+• A different generalization of these problems asks for which triples (d, m, k ) m polytopal measures in Rd can be equipartitioned by k hyperplanes. Here we solve the case k = 1 ;the case k > 1 is challenging. Concretely, what is the computational complexity of finding such partitions when existence is guaranteed? For various hardness results in this direction, see [Sch22]. 
+
+• Given a polytope, it is also interesting to study the set of points lying on hyperplanes that cut off a prescribed fraction of volume, or the envelope of those hyperplanes. In a forthcoming paper we will consider the geometry of α-quantile bodies for polytopes and the envelopes of those hyperplanes. 
+
+# References           
+
+> [ABB20] James Aisenberg, Maria Luisa Bonet, and Sam Buss. “2-D Tucker is PPA-complete”. In: Journal of Computer and System Sciences 108 (2020), pp. 92–103. doi :10.1016/ j.jcss.2019.09.002 .[BBMS22] Katalin Berlow, Marie-Charlotte Brandenburg, Chiara Meroni, and Isabelle Shankar. “Intersection bodies of polytopes”. In: Beiträge zur Algebra und Geometrie. Contribu-tions to Algebra and Geometry 63.2 (2022), pp. 419–439. doi :10.1007/s13366-022-00621-7 .
+
+21 [BC13] Peter Bürgisser and Felipe Cucker. Condition . Vol. 349. Grundlehren der mathematis-chen Wissenschaften [Fundamental Principles of Mathematical Sciences]. The geometry of numerical algorithms. Springer, Heidelberg, 2013, pp. xxxii+554. doi : 10.1007/978-3-642-38896-5 .[BCR98] Jacek Bochnak, Michel Coste, and Marie-Françoise Roy. Real Algebraic Geometry .Vol. 36. Ergebnisse der Mathematik und ihrer Grenzgebiete. 3. Folge / A Series of Modern Surveys in Mathematics. Springer-Verlag, 1998. isbn : 978-3-540-64663-1. [BDM25] Marie-Charlotte Brandenburg, Jesús A. De Loera, and Chiara Meroni. “The best ways to slice a Polytope”. In: Mathematics of Computation 94.352 (2025), pp. 1003–1042. [Ber12] Sergey Bereg. “Computing generalized ham-sandwich cuts”. In: Information Processing Letters 112.13 (2012), pp. 532–534. doi : 10.1016/j.ipl.2012.03.011 .[BHJ08] Imre Bárány, Alfredo Hubard, and Jesús Jerónimo. “Slicing convex sets and measures by a hyperplane”. In: Discrete & Computational Geometry 39.1 (2008), pp. 67–75. doi :
+
+10.1007/s00454-007-9021-2 .[BL88] Imre Bárány and David G. Larman. “Convex bodies, economic cap coverings, random polytopes”. In: Mathematika. A Journal of Pure and Applied Mathematics 35.2 (1988), pp. 274–291. doi : 10.1112/S0025579300015266 .[BPR06] Saugata Basu, Richard Pollack, and Marie-Françoise Roy. Algorithms in Real Algebraic Geometry . 2nd ed. Vol. 10. Algorithms and Computation in Mathematics. Springer-Verlag, 2006. isbn : 978-3-540-33098-1. [BR90] Riccardo Benedetti and Jean-Jacques Risler. Real Algebraic and Semi-Algebraic Sets .Actualités Mathématiques. Hermann, 1990. isbn : 2-7056-6144-1. [BT96] Steven J. Brams and Alan D. Taylor. Fair Division: From Cake-Cutting to Dispute Resolution . Cambridge University Press, 1996. doi : 10.1017/CBO9780511598975 .[Can93] John Canny. “Computing Roadmaps of General Semi-Algebraic Sets”. In: The Computer Journal 36.5 (1993), pp. 504–514. doi : 10.1093/comjnl/36.5.504 .[CCM20] Man-Kwun Chiu, Aruni Choudhary, and Wolfgang Mulzer. “Computational Complex-ity of the α-Ham-Sandwich Problem”. In: 47th International Colloquium on Automata, Languages, and Programming (ICALP 2020) . Vol. 168. Leibniz International Proceed-ings in Informatics (LIPIcs). 2020, 31:1–31:18. doi : 10.4230/LIPIcs.ICALP.2020.31 .[CEM+93] Kenneth L. Clarkson, David Eppstein, Gary L. Miller, Carl Sturtivant, and Shang-Hua Teng. “Approximating center points with iterated Radon points”. In: Proceedings of the 9th Annual ACM Symposium on Computational Geometry . 1993, pp. 91–98. [CHJ22] Timothy M. Chan, Sariel Har-Peled, and Mitchell Jones. “Optimal Algorithms for Geo-metric Centers and Depth”. In: SIAM Journal on Computing 51.3 (2022), pp. 627–663. 
+
+doi : 10.1137/21M1423324 .[DGMM19] Jesús A. De Loera, Xavier Goaoc, Frédéric Meunier, and Nabil Mustafa. “The discrete yet ubiquitous theorems of Carathéodory, Helly, Sperner, Tucker, and Tverberg”. In: 
+
+Bulletin of the American Mathematical Society 56.3 (2019), pp. 415–511. doi : 10.1090/ bull/1653 .[Dol92] Vladimir L. Dol’nikov. “A generalization of the sandwich theorem”. In: Matematicheskie Zametki 52.2 (1992), pp. 27–37, 155. doi : 10.1007/BF01236771 .[EW86] Herbert Edelsbrunner and Roman Waupotitsch. “Computing a Ham-Sandwich Cut in Two Dimensions”. In: Journal of Symbolic Computation 2.2 (1986), pp. 171–178. doi :
+
+10.1016/S0747-7171(86)80020-7 .[FG19] Aris Filos-Ratsikas and Paul W. Goldberg. “The complexity of splitting necklaces and bisecting ham sandwiches”. In: Proceedings of the 51st Annual ACM SIGACT Sympo-sium on Theory of Computing (STOC) . 2019, pp. 638–649. doi : 10.1145/3313276. 3316334 .
+
+22 [FG23] Aris Filos-Ratsikas and Paul W. Goldberg. “The Complexity of Necklace Splitting, Consensus-Halving, and Discrete Ham Sandwich”. In: SIAM Journal on Computing 
+
+52.2 (2023), pp. 200–268. doi : 10.1137/20M1312678 .[FLMN24] Vít Fojtík, Petra Laketa, Pavlo Mozharovskyi, and Stanislav Nagy. “On Exact Compu-tation of Tukey Depth Central Regions”. In: Journal of Computational and Graphical Statistics 33.2 (2024), pp. 699–713. doi : 10.1080/10618600.2023.2257781 .[GV88] Dmitri Y. Grigor’ev and Nicolai N. Vorobjov Jr. “Solving systems of polynomial in-equalities in subexponential time”. In: Journal of Symbolic Computation 5.1-2 (1988), pp. 37–64. doi : 10.1016/S0747-7171(88)80005-1 .[GV92] Dmitri Y. Grigor’ev and Nicolai N. Vorobjov Jr. “Counting connected components of a semialgebraic set in subexponential time”. In: Computational Complexity 2.2 (1992), pp. 133–186. doi : 10.1007/BF01202001 .[JM94] Shreesh Jadhav and Asish Mukhopadhyay. “Computing a Centerpoint of a Finite Planar Set of Points in Linear Time”. In: Discrete & Computational Geometry 12.3 (1994), pp. 291–312. doi : 10.1007/BF02574382 .[LMS94] Chi-Yuan Lo, Jiří Matoušek, and William L. Steiger. “Algorithms for Ham-sandwich cuts”. In: Discrete & Computational Geometry 11.4 (1994), pp. 433–452. doi : 10.1007/ BF02574017 .[Lut88] Erwin Lutwak. “Intersection bodies and dual mixed volumes”. In: Advances in Mathe-matics 71.2 (1988), pp. 232–261. doi : 10.1016/0001-8708(88)90077-1 .[Mat02] Jiří Matoušek. Lectures on discrete geometry . Vol. 212. Graduate Texts in Mathematics. Springer-Verlag, New York, 2002, pp. xvi+481. isbn : 0-387-95373-6. doi : 10.1007/978-1-4613-0039-7 .[Mat03] Jiří Matoušek. Using the Borsuk–Ulam Theorem: Lectures on Topological Methods in Combinatorics and Geometry . Universitext. Springer, 2003. doi : 10.1007/978-3-540-76649-0 .[MRR+03] Kim Miller, Suneeta Ramaswami, Peter J. Rousseeuw, J. Antoni Sellarès, Diane Sou-vaine, Ileana Streinu, and Anja Struyf. “Efficient computation of location depth con-tours by methods of computational geometry”. In: Statistics and Computing 13.2 (2003), pp. 153–162. doi : 10.1023/A:1023208625954 .[MS10] Gary L. Miller and Donald R. Sheehy. “Approximate Centerpoints with Proofs”. In: 
+
+Computational Geometry: Theory and Applications 43.8 (2010), pp. 647–654. doi : 10. 1016/j.comgeo.2010.04.006 .[MW19] Olaf Mordhorst and Elisabeth M. Werner. “Floating and illumination bodies for poly-topes: duality results”. In: Discrete Analysis 11 (2019), p. 22. doi : 10.19086/da.8973 .[Pap94] Christos H. Papadimitriou. “On the complexity of the parity argument and other inef-ficient proofs of existence”. In: Journal of Computer and System Sciences 48.3 (1994), pp. 498–532. doi : 10.1016/S0022-0000(05)80063-7 .[Rad46] Richard Rado. “A theorem on general measure”. In: The Journal of the London Math-ematical Society 21 (1946), 291–300 (1947). doi : 10.1112/jlms/s1-21.4.291 .[RS22] Edgardo Roldán-Pensado and Pablo Soberón. “A Survey of Mass Partitions”. In: Bul-letin of the American Mathematical Society 59.2 (2022), pp. 227–267. doi : 10.1090/ bull/1725 .[Sch19] Patrick Schnider. “Ham-Sandwich Cuts and Center Transversals in Subspaces”. In: 35th International Symposium on Computational Geometry, SoCG 2019 . Ed. by Gill Bare-quet and Yusu Wang. Vol. 129. LIPIcs. Schloss Dagstuhl - Leibniz-Zentrum für Infor-matik, 2019, 56:1–56:15. doi : 10.4230/LIPICS.SOCG.2019.56 .[Sch22] Patrick Schnider. “The Complexity of Sharing a Pizza”. In: Computing in Geometry and Topology 1.1 (2022), p. 4. doi : 10.57717/CGT.V1I1.5 .
+
+23 [SCM26] Marcus Schaefer, Jean Cardinal, and Tillmann Miltzow. “The Existential Theory of the Reals as a Complexity Class: A Compendium”. In: Courses in Discrete and Computa-tional Geometry . Springer Nature Switzerland, 2026, pp. 167–313. isbn : 9783032105035. 
+
+doi : 10.1007/978-3-032-10503-5_5 .[Sob17] Pablo Soberón. “Gerrymandering, Sandwiches, and Topology”. In: Notices of the Amer-ican Mathematical Society 64.9 (2017), pp. 1010–1013. doi : 10.1090/noti1582 .[ST42] Arthur H. Stone and John W. Tukey. “Generalized “Sandwich” theorems”. In: Duke Mathematical Journal 9.2 (1942), pp. 356–359. doi : 10.1215/S0012-7094-42-00925-6.[Sto91] Ivan Stojmenović. “Bisections and ham-sandwich cuts of convex polygons and polyhe-dra”. In: Information Processing Letters 38.1 (1991), pp. 15–21. doi : 10.1016/0020-0190(91)90209-Z .[Su99] Francis E. Su. “Rental Harmony: Sperner’s Lemma in Fair Division”. In: The American Mathematical Monthly 106.10 (1999), pp. 930–942. doi : 10 . 1080 / 00029890 . 1999 . 12005142 .[SW90] Carsten Schütt and Elisabeth M. Werner. “The convex floating body”. In: Mathematica Scandinavica 66.2 (1990), pp. 275–290. doi : 10.7146/math.scand.a-12311 .[SZ10] William Steiger and Jihui Zhao. “Generalized Ham-sandwich cuts”. In: Discrete & Com-putational Geometry 44.3 (2010), pp. 535–545. doi : 10.1007/s00454-009-9225-8 .[Zas75] Thomas Zaslavsky. “Facing up to arrangements: face-count formulas for partitions of space by hyperplanes”. In: Memoirs of the American Mathematical Society 1 (1975), pp. vii+102. doi : 10.1090/memo/0154 .[ŽV90] Rade T. Živaljević and Siniša T. Vrećica. “An extension of the ham sandwich theorem”. In: The Bulletin of the London Mathematical Society 22.2 (1990), pp. 183–186. doi :
+
+10.1112/blms/22.2.183 .
+
+Marie-Charlotte Brandenburg Ruhr-Universität Bochum 
+
+marie-charlotte.brandenburg@rub.de 
+
+Jesús A. De Loera University of California, Davis 
+
+jadeloera@ucdavis.edu 
+
+Chiara Meroni ETH Institute for Theoretical Studies 
+
+chiara.meroni@eth-its.ethz.ch 
+
+24

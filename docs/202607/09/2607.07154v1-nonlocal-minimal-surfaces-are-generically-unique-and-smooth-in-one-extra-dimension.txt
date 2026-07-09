@@ -1,0 +1,1609 @@
+Title: Nonlocal minimal surfaces are generically unique, and smooth in one extra dimension
+
+URL Source: https://arxiv.org/pdf/2607.07154v1
+
+Published Time: Thu, 09 Jul 2026 00:37:53 GMT
+
+Number of Pages: 23
+
+Markdown Content:
+NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE, AND SMOOTH IN ONE EXTRA DIMENSION    
+
+> SERENA DIPIERRO, XAVIER FERN ´ANDEZ-REAL, AND ENRICO VALDINOCI
+> Abstract. We study the fractional Plateau problem for s-minimal sets with prescribed exterior datum. For fixed exterior data, minimizers need not be unique, and singularities may occur beyond the critical dimension. We first prove a generic uniqueness theorem: along any strictly increasing family of exterior data, nonuniqueness occurs for at most countably many parameters. We then show that one can make arbitrarily small perturbations for which the interior regularity theory improves by one dimension.
+
+1. Introduction 
+
+Nonlocal minimal surfaces arise as the natural generalization of classical minimal surfaces when long-range interactions are taken into account. While classical minimal surfaces are local minimizers of the classical perimeter functional, nonlocal minimal surfaces minimize a nonlocal version of perimeter, in which the interaction between points extends over the entire space. This framework has been introduced and extensively studied by Caffarelli, Roquejoffre, and Savin in [5]. For disjoint (measurable) sets E, F ⊆ Rn and a fractional parameter s ∈ (0 , 1), the 
+
+s-interaction between E and F is defined as 
+
+Is(E, F ) := 
+
+Z Z 
+
+> E×F
+
+dx dy 
+
+|x − y|n+s .
+
+Given a reference domain Ω, the s-perimeter of E in Ω is Per s(E, Ω) := Is(E ∩ Ω, E c ∩ Ω) + Is(E ∩ Ω, E c ∩ Ωc) + Is(E ∩ Ωc, E c ∩ Ω) ,
+
+where the superscript “ c” denotes the complement set in Rn.A set E is called s-minimal in Ω (and ∂E is called an s-minimal surface in Ω) if, for every set F
+
+such that F \ Ω= E \ Ω, we have that Per s(E, Ω) ≤ Per s(F, Ω). As s ↗ 1, the fractional perimeter converges (after suitable normalization) to the classical perimeter, and nonlocal minimal surfaces converge to classical minimal surfaces (see [1, 2, 7, 15]). Nonlocal minimal surfaces are also related to front propagation (see [6]) and long-range phase coexistence models (see [29]). Despite several similarities to their classical counterparts, nonlocal minimal surfaces often exhibit peculiar behaviors: for example, they tend to stick at the boundary of the domain, thereby producing boundary jump discontinuities and the sudden divergence of the boundary derivative (see [16]). The goal of this paper is to establish the genericity of the uniqueness and smoothness of minimiz-ers with respect to the external data. For nonlocal minimal surfaces, this is far from obvious and certainly cannot be taken for granted: in fact, the only generic result currently available for non-local minimal surfaces is that of [17], which shows that stickiness and boundary discontinuity are generic and can be produced by arbitrarily small perturbations of the external data, thus suggesting a “robust behavior” of the specific “pathologies” created by long-range interactions. It is therefore particularly interesting that, in contrast, properties related to well-posedness and regularity, such as uniqueness and interior smoothness, also turn out to be generic.     
+
+> 2020 Mathematics Subject Classification. 53A10, 35R11.
+> Key words and phrases. Nonlocal minimal surfaces, uniqueness, regularity, genericity.
+> 1arXiv:2607.07154v1 [math.AP] 8 Jul 2026 2S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI
+
+1.1. Generic uniqueness of nonlocal minimal surfaces. We recall that multiplicity for nonlo-cal minimal sets can occur, namely there exist simple cases of domains and external data for which there are at least two different s-minimal sets, see e.g. [3, Theorem 1.6] for an explicit example. We show, however, that uniqueness of minimizers is a generic property and can be recovered up to arbitrarily small modifications of the external data. More precisely, we have: 
+
+Theorem 1.1. Let Ω ⊂ Rn be a bounded domain. Let I ⊆ R and, for all t ∈ I, consider a family of sets G(t) ⊆ Rn and assume that, for each t ∈ I, there is an admissible set of finite s-perimeter with exterior datum G(t). Assume, moreover, that for all t1, t2 ∈ I with t1 < t 2, it holds that G(t1) \ Ω ⊊ G(t2) \ Ω.Then, there exists a countable set N ⊂ I such that, for all t ∈ I \N , there is a unique s-perimeter minimizer in Ω with exterior datum G(t).
+
+We remark that, throughout the paper, all identities between sets (equalities, inclusions, and strict inclusions) are assumed to hold up to sets of measure zero. As it will be clear from its proof, Theorem 1.1 actually works for a very wide class of anisotropic nonlocal minimal surfaces as well, since it only relies on the weak maximum principle (in particular, general nonnegative and symmetric interaction kernels can be taken into account; see e.g. [13] and the references therein for nonlocal minimal surfaces in anisotropic settings). We refer to Proposition 2.6 for a more precise statement in this direction. 1.2. Generic regularity of nonlocal minimal surfaces. We now present our formulation of the generic regularity statement proved in this paper. The statement is modeled on the classical generic regularity theorems for the Plateau problem, starting from the work of Hardt–Simon in the first singular dimension [26]. In the nonlocal Plateau problem, however, the prescribed object is not a codimension-two boundary, but rather the exterior datum outside the domain. Accordingly, the perturbations that we will consider below are small modifications of this exterior datum. The critical dimension for nonlocal minimal cones is 
+
+n∗ 
+
+> s
+
+:= max m ∈ N such that every s-minimal cone in Rm is a halfspace . (1.1) Due to improvement of flatness results, the dimension n∗ 
+
+> s
+
+is the one ensuring interior regularity of s-minimal surfaces. The exact value of n∗ 
+
+> s
+
+is not known in general. We recall that n∗ 
+
+> s
+
+≥ 2 for all 
+
+s ∈ (0 , 1) and that n∗ 
+
+> s
+
+≥ 7 for s sufficiently close to 1; see [8, 30]. The point of the theorem below is that this estimate improves by one dimension along a generic perturbation of the exterior datum, and gives complete regularity in the first dimension above the critical one. 
+
+Theorem 1.2 (Generic regularity for n = n∗ 
+
+> s
+
++1) . Let s ∈ (0 , 1) , let n = n∗ 
+
+> s
+
++1 , and let G ⊆ Rn \B1
+
+be an exterior datum such that ∂(G ∪ B1) has locally finite (n − 1) -Minkowski content. Then, there are L1loc small perturbations G′ of G (see Definition 1.3) with the property that there exists a smooth s-perimeter minimizer E′ in B1 with E′ = G′ in Rn \ B1.Moreover, E′ is the unique minimizer. 
+
+The terminology used in the statement of Theorem 1.2 can be made precise, according to the following definitions. 
+
+Definition 1.3 (Perturbations) . Let Ω ⊂ Rn be a bounded domain. Given ε > 0 and G ⊂ Rn \ Ω,we say that Gε ⊂ Rn \ Ω is a perturbation of G in L1loc of size ε if it holds 
+
+Z
+
+> Rn
+
+|χG − χGε |dγ ≤ ε, NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 3
+
+where χA is the characteristic function of a set A ⊂ Rn, and γ is a given Gaussian measure 1. We say that {Gεk }k∈N is a family of small perturbations if each of them is a perturbation of size εk with 
+
+εk ↘ 0.
+
+Definition 1.4 (Minkowski content) . We recall that a set E ⊂ Rn has locally finite (n − 1) -dimensional upper Minkowski content if, for any R > 1,
+
+lim sup 
+
+> δ↘0
+
+|Eδ ∩ BR|
+
+δ < +∞, where Eδ := [
+
+> p∈E
+
+Bδ(p).
+
+In particular, given the above settings, Theorem 1.2 ensures that there are generic perturbations of the exterior datum yielding smooth minimizers (which are also unique). More generally, to discuss interior regularity, it is customary to divide the boundary of a set E
+
+into two portions, namely Reg( ∂E ), consisting of points where ∂E is locally a hypersurface of class C∞ (or equivalently of Lipschitz class, see [25, Theorem 1.1]) and Sing( ∂E ) := ∂E \ Reg( ∂E ). Then, Theorem 1.2 says that, up to small perturbations of the exterior datum, the boundary of the minimizer is formed exclusively of regular points in dimension n = n∗ 
+
+> s
+
++ 1. For higher dimensions, the general dimension-reduction theory for nonlocal minimal surfaces gives singular sets of Hausdorff dimension at most n − n∗ 
+
+> s
+
+− 1; see [5, Theorems 10.3 and 10.4] (or [8, page 871]). By allowing arbitrarily small perturbations, we can improve this size by one full dimension as well: 
+
+Theorem 1.5 (Generic regularity for n ≥ n∗ 
+
+> s
+
++2) . Let s ∈ (0 , 1) , let n ≥ n∗ 
+
+> s
+
++2 , and let G ⊆ Rn \B1
+
+be an exterior datum such that ∂(G ∪ B1) has locally finite (n − 1) -Minkowski content. Then, there are L1loc small perturbations G′ of G (see Definition 1.3) with the property that there exists an s-perimeter minimizer E′ in B1 with E′ = G′ in Rn \ B1 such that 
+
+dim H
+
+ Sing( ∂E ′) ∩ B1
+
+ ≤ n − n∗ 
+
+> s
+
+− 2.
+
+Moreover, E′ is the unique minimizer. 
+
+We refer the reader to Theorem 3.14 below for the more precise construction and result yielding such an estimate. From a technical perspective, the perturbation is constructed by combining two simple operations simultaneously: adding a small ball to the exterior datum and performing a homothety that is close to the identity. Throughout, “generic” is meant in the perturbative sense: given any admissible exterior datum 
+
+G and any L1loc -neighborhood of G, there exists G′ in that neighborhood such that every minimizer with exterior datum G′ satisfies the stated conclusion. The proof obtains this by constructing a monotone one-parameter family G(t) → G and proving the conclusion for all t outside a count-able/null exceptional set. Quite interestingly, comparing the results presented here with those in [17, Theorem 1.1], one can say that, while interior regularity for nonlocal minimal surfaces is, in this sense, generic, boundary regularity is not .The result presented here may be viewed as a nonlocal counterpart of a classical theorem of Hardt and Simon (see [26]), which states that, for generic choices of boundary data, the correspond-ing area-minimizing hypersurface in R8 is smooth. This is particularly striking because complete regularity of area-minimizing hypersurfaces is guaranteed only up to ambient dimension 7, while singularities may occur starting in ambient dimension 8. See also [32], where an analogous result is established for generic ambient metrics rather than boundary data. The result of Hardt–Simon has also been recently improved first in dimensions 9 and 10, and then up to 11, in recent works [10–12].    
+
+> 1One may also choose other metrics characterizing small L1loc perturbations. We chose this setting since it allows a clear and simple statement. 4S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI
+
+The study of regularity properties in a generic setting for elliptic equations also dates back to [31] and has extended to several related topics, including the classical obstacle problem (see [24, 27]), the thin obstacle problem (see [14, 20, 21]), and a large class of free boundary problems including those of Alt-Caffarelli and Alt-Phillips (see [19, 22, 23]). In particular, the methods and proofs we present here are adapted from the Bernoulli setting in [22], which at the same time are inspired by the breakthroughs in [24]. In this spirit, the proof of the generic regularity results relies on the construction of a monotone perturbation that produces a family of minimizers whose singular points form a space–time set 
+
+S := {(x, t ) : x ∈ Sing( ∂E (t)) ∩ B1},
+
+where the “time” t here is the parameter describing the perturbation of the original exterior datum. The separation estimate for the family implies that this set is, up to the exceptional nonunique-ness and discontinuity parameters, the graph of a Lipschitz time function. Blow-ups at accumulation points of equal density then produce monotone s-minimal cones. The cone-splitting argument rules out such configurations in the critical dimension and gives the sharp bound on the projection of S
+
+in higher dimensions. A slicing argument in the parameter variable then yields the one-dimensional improvement for almost every exterior datum in the family. 1.3. Organization of the paper. The forthcoming Sections 2 and 3 contain the proofs, respec-tively, of Theorems 1.1 and of Theorems 1.2 and 1.5. 2. Generic uniqueness: proof of Theorem 1.1 
+
+The goal of this section is to prove Theorem 1.1. To accomplish this goal, we need some ancillary results related to the maximum principle for nonlocal minimal surfaces. 2.1. Auxiliary results of maximum principle type. We recall a simple, but useful, “submod-ularity” observation: 
+
+Lemma 2.1. We have that 
+
+Per s(E ∩ F, Ω) + Per s(E ∪ F, Ω) ≤ Per s(E, Ω) + Per s(F, Ω) , (2.1) 
+
+with equality holding if and only if, for a.e. (x, y ) ∈ R2n \ (Ω c)2,
+
+(χE (x) − χE (y))( χF (x) − χF (y)) ≥ 0. (2.2) 
+
+Proof. Given u, v : Rn → R, we set m(x) := min {u(x), v (x)} and M (x) := max {u(x), v (x)} and we have (see e.g. equations (40) and (41) in [28]) that, for all x, y ∈ Rn,
+
+|m(x) − m(y)|2 + |M (x) − M (y)|2 ≤ | u(x) − u(y)|2 + |v(x) − v(y)|2,
+
+with equality holding if and only if (u(x) − u(y))( v(x) − v(y)) ≥ 0.
+
+In particular, taking u := χE and v := χF , we find that 
+
+|χE∩F (x) − χE∩F (y)|2 + |χE∪F (x) − χE∪F (y)|2 ≤ | χE (x) − χE (y)|2 + |χF (x) − χF (y)|2, (2.3) with equality holding if and only if (2.2) holds true for these x and y.Thus, integrating (2.3) over ( x, y ) ∈ R2n \ (Ω c)2, one obtains the inequality in (2.1), as well as the fact that equality holds in (2.1) if and only if (2.2) holds true for a.e. ( x, y ) ∈ R2n \ (Ω c)2. □
+
+We stress that the result in Lemma 2.1 is genuinely nonlocal, and the classical perimeter does not satisfy properties of this type (not even for connected domains Ω, and not even in the plane, see Figures 1 and 2 for explicit counterexamples). We deduce from Lemma 2.1 the following weak maximum principle for nonlocal minimal surfaces. We recall that throughout the paper, all identities between sets (equalities, inclusions, and strict inclusions) are assumed to hold up to sets of measure zero: NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 5E F
+
+Figure 1. Examples of two sets E and F for which Per( E ∩ F, Ω) + Per( E ∪ F, Ω) = Per( E, Ω) + Per( F, Ω) . Notice that taking x ∈ E \ F and y ∈ F \ E we have that (χE (x) − χE (y))( χF (x) − χF (y)) ≤ 0, in contrast with (2.2) , showing that the analogue of Lemma 2.1 is false in the classical case. 
+
+Corollary 2.2. Let E0, F0 ⊆ Rn and suppose that E0 \ Ω ⊆ F0 \ Ω.Let E be s-minimal in Ω with E \ Ω = E0 \ Ω.Let F be s-minimal in Ω with F \ Ω = F0 \ Ω.Then, either 
+
+E ⊆ F
+
+or 
+
+E0 \ Ω = F0 \ Ω and F ⊆ E. (2.4) 
+
+Proof. By construction, ( E ∪ F ) \ Ω = ( E0 ∪ F0) \ Ω = F0 \ Ω and therefore, by the minimality of F , we have that Per s(F, Ω) ≤ Per s(E ∪ F, Ω). Similarly, ( E ∩ F ) \ Ω = ( E0 ∩ F0) \ Ω = E0 \ Ω and therefore, by the minimality of E, we have that Per s(E, Ω) ≤ Per s(E ∩ F, Ω). These observations and (2.1) yield that (2.2) holds true for a.e. ( x, y ) ∈ R2n \ (Ω c)2.Suppose now that E̸ ⊆ F and pick x ∈ Rn such that x ∈ E \ F (up to removing a set of measure zero). From our assumptions on E0 and F0 it follows that x ∈ Ω. Note that χE (x) = 1 and χF (x) = 0, which, combined with (2.2) yields that, for a.e. y ∈ Rn,0 ≥ − (χE (x) − χE (y))( χF (x) − χF (y)) = (1 − χE (y)) χF (y) = χEc (y)χF (y),
+
+that is 
+
+χEc (y)χF (y) = 0 .
+
+Consequently, for a.e. y ∈ F , we have that χEc (y) = 0, giving that F ⊆ E (in the measure-theoretic sense), which leads us to (2.4). □
+
+It is interesting to observe that, as a byproduct of Corollary 2.2, minimizers of the fractional perimeter preserve the symmetries of the domain and boundary data, for example, for a rotation invariant domain with a rotation invariant external datum, the fractional perimeter minimizers are necessarily rotation invariant (and same with respect to translations, reflections, etc.): see [16, Lemma A.1] for a general result in this sense. Note that this symmetry property is specific for nonlocal minimizers, since minimizers of the classical perimeter do not inherit the symmetries of the boundary and the boundary data, see Figure 2 for a counterexample (in particular, this shows that not every minimizer of the classical perimeter can be obtained as a limit of nonlocal minimizers). From the weak maximum principle in Corollary 2.2, we actually obtain an “inclusion principle”, which is also conceptually interesting since it highlights that generic uniqueness is implied by the property that one set is contained in the other which allows for weaker assumptions on the boundary data compared e.g. with the counterpart in the free boundary case [22]. In our setting, the details on this topic go as follows: 6 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI FE
+
+Figure 2. Examples of two minimizers E and F of the classical perimeter in a planar, connected domain. Notice that neither of them is contained in the other, showing that the analogue of Corollary 2.2 is false in the classical case. Notice also that in this case Per( E ∩ F, Ω) + Per( E ∪ F, Ω) = Per( E, Ω) + Per( F, Ω) ,but taking x ∈ E\F and y ∈ F \E we have that (χE (x)−χE (y))( χF (x)−χF (y)) ≤ 0,in contrast with (2.2) , showing that the analogue of Lemma 2.1 is false in the classical case. 
+
+Proposition 2.3. Let I ⊆ R and, for all t ∈ I, consider a family of sets G(t) ⊆ Rn such that, for all t1, t2 ∈ I with t1 < t 2, it holds that G(t1) \ Ω ⊊ G(t2) \ Ω.Assume that t⋆ ∈ I is such that there exist at least two s-minimal sets in Ω coinciding with G(t⋆)\Ω
+
+outside Ω.Then, there exists a set S(t⋆) ⊆ Ω of positive Lebesgue measure such that if I ∋ t > t ⋆ and G(t)
+
+> ⋄
+
+is an s-minimal set in Ω with G(t) 
+
+> ⋄
+
+\ Ω = G(t) \ Ω, then 
+
+S(t⋆) ⊆ G(t) 
+
+> ⋄
+
+. (2.5) 
+
+Furthermore, if I ∋ τ < t ⋆ and G(τ ) 
+
+> ⋄
+
+is an s-minimal set in Ω with G(τ ) 
+
+> ⋄
+
+\ Ω = G(τ ) \ Ω, then 
+
+S(t⋆) ∩ G(τ ) 
+
+> ⋄
+
+= ∅. (2.6) 
+
+Finally, there exists an s-minimal set in Ω coinciding with G(t⋆)\Ω outside Ω which contains S(t⋆).Proof. By assumption, we can find two different s-minimal sets in Ω, say ˆE and ˆF , such that ˆE \Ω = ˆF \ Ω = G(t⋆) \ Ω. By Corollary 2.2 (applied here with E0 := F0 := G(t⋆), E := ˆE, and F := ˆF ), we know that either ˆE ⊆ ˆF or ˆF ⊆ ˆE. Up to swapping ˆE and ˆF , we can assume that ˆF ⊆ ˆE. Hence, since sets here are identified up to sets of null measure, we have that S(t⋆) := ˆE \ ˆF has positive measure. We stress that 
+
+S(t⋆) \ Ω = ˆE ∩ ˆF c ∩ Ωc = ( ˆE ∩ Ωc) ∩ ( ˆF c ∩ Ωc) = ( G(t⋆) ∩ Ωc) ∩ (Ω c \ G(t⋆)) = ∅
+
+and therefore S(t⋆) ⊆ Ω. Let now t ∈ I with t > t ⋆ and pick an s-minimal set G(t) 
+
+> ⋄
+
+in Ω with G(t) 
+
+> ⋄
+
+\ Ω = G(t) \ Ω. It follows from Corollary 2.2 (applied here with E0 := G(t⋆), F0 := G(t), E := ˆE, and F now equal to G(t) 
+
+> ⋄
+
+)that either ˆE ⊆ G(t) 
+
+> ⋄
+
+(2.7) NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 7
+
+or 
+
+G(t⋆) \ Ω = G(t) \ Ω and G(t) 
+
+> ⋄
+
+⊆ ˆE. (2.8) But the first set equality in (2.8) cannot hold, and accordingly (2.7) must be satisfied. As a byproduct of (2.7) we obtain that 
+
+S(t⋆) = ˆE \ ˆF ⊆ G(t) 
+
+> ⋄
+
+\ ˆF ⊆ G(t) 
+
+> ⋄
+
+,
+
+establishing (2.5). Now we pick τ ∈ I with τ < t ⋆ and we consider any s-minimal set G(τ ) 
+
+> ⋄
+
+in Ω with G(τ ) 
+
+> ⋄
+
+\ Ω = 
+
+G(τ ) \ Ω. We employ once more Corollary 2.2 (here with E0 := G(τ ), F0 := G(t⋆), E := G(τ ) 
+
+> ⋄
+
+,and F := ˆF ) and we gather that either 
+
+G(τ ) 
+
+> ⋄
+
+⊆ ˆF (2.9) or 
+
+G(τ ) \ Ω = G(t⋆) \ Ω and ˆF ⊆ G(τ ) 
+
+> ⋄
+
+. (2.10) But the first set equality in (2.10) cannot hold, and accordingly (2.9) must be satisfied, which in turn gives that ˆF c ⊆ (G(τ ) 
+
+> ⋄
+
+)c.Consequently, 
+
+S(t⋆) ∩ G(τ ) 
+
+> ⋄
+
+= ˆE ∩ ˆF c ∩ G(τ ) 
+
+> ⋄
+
+⊆ ˆF c ∩ G(τ ) 
+
+> ⋄
+
+⊆ (G(τ ) 
+
+> ⋄
+
+)c ∩ G(τ ) 
+
+> ⋄
+
+= ∅.
+
+The claim in (2.6) is thereby proven. The last claim in the statement of Proposition 2.3 is obvious, since S(t⋆) = ˆE \ ˆF ⊆ ˆE. □
+
+We observe that Proposition 2.3 is genuinely nonlocal, since its counterpart is false in the case of classical minimal surfaces, as highlighted in Figure 2. 2.2. Completion of the proof of Theorem 1.1. We denote by I the set of the parameters t ∈ I
+
+for which there are at least two s-minimal sets in Ω coinciding with G(t) \ Ω outside Ω and we aim at showing that I is at most countable. To this end, for each t⋆ ∈ I , we consider S(t⋆) as in Proposition 2.3. We stress that if t⋆, t♯ ∈ I and t⋆̸ = t♯, then 
+
+S(t⋆) ∩ S(t♯) = ∅. (2.11) To check this, suppose, up to exchanging them, that t⋆ > t ♯. Then, by virtue of (2.6), given any 
+
+s-minimizer G(t♯) 
+
+> ⋄
+
+in Ω such that G(t♯) 
+
+> ⋄
+
+\ Ω = G(t♯) \ Ω, we have that 
+
+S(t⋆) ∩ G(t♯) 
+
+> ⋄
+
+= ∅.
+
+Also, by the last claim in the statement of Proposition 2.3, we may pick G(t♯) 
+
+> ⋄
+
+such that G(t♯) 
+
+> ⋄
+
+⊇ S(t♯).All in all, we have that S(t⋆) ∩ S(t♯) ⊆ S(t⋆) ∩ G(t♯) 
+
+> ⋄
+
+= ∅ and the proof of (2.11) is complete. Now, for all k ∈ N, we call Ik the subset of I collecting all the parameters t⋆ for which the Lebesgue measure of S(t⋆) is at least 1 
+
+> k+1
+
+. By construction, 
+
+I = [
+
+> k∈N
+
+Ik,
+
+hence the desired result is proven if we check that, for each k ∈ N, the set Ik is at most countable. In fact, we see that Ik is necessarily finite, because if ck ∈ N ∪ { +∞} denotes its cardinality and | · | is the Lebesgue measure, we deduce from (2.11) that 
+
+|Ω| ≥ [
+
+> t⋆∈I k
+
+S(t⋆) = X
+
+> t⋆∈I k
+
+|S(t⋆)| ≥ X
+
+> t⋆∈I k
+
+1
+
+k + 1 = ck
+
+k + 1 ,
+
+namely ck ≤ (k + 1) |Ω| < +∞. □8 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+2.3. More general kernels. We conclude this section by noticing that the method presented to prove generic uniqueness works for a wide variety of kernels. In particular, the proof does not use the precise form of the fractional kernel. It only uses compactness of minimizers, the submodularity observation, and a strict comparison principle coming from the positivity of the interaction between Ω and Ω c.Let Ω ⊂ Rn be bounded, and let K : Rn × Rn → [0 , +∞] be a measurable symmetric kernel. We define the relative K-perimeter in Ω by Per K (E, Ω) := 
+
+Z 
+
+> E∩Ω
+
+Z
+
+> Ec∩Ω
+
++
+
+Z
+
+> E∩Ω
+
+Z
+
+> Ec∩Ωc
+
++
+
+Z
+
+> E∩Ωc
+
+Z
+
+> Ec∩Ω
+
+
+
+K(x, y ) dy dx 
+
+= 12
+
+Z Z 
+
+> R2n\(Ω c)2
+
+|χE (x) − χE (y)|2K(x, y ) dx dy. 
+
+Given h ∈ L1(Ω), we then consider the energy 
+
+FK,h (E, Ω) := Per K (E, Ω) + 
+
+Z
+
+> Ω
+
+h(x)χE (x) dx. (2.12) 
+
+Definition 2.4 (Compactness property) . We say that K has the compactness property in Ω if the following holds. Let G ⊂ Ωc be an exterior datum, and let Ej be a sequence of sets such that 
+
+Ej \ Ω = G and sup 
+
+> j∈N
+
+Per K (Ej , Ω) < +∞.
+
+Then, up to a subsequence, there exists a set E with E \ Ω = G such that 
+
+χEj → χE in L1(Ω) ,
+
+and 
+
+Per K (E, Ω) ≤ lim inf  
+
+> j→+∞
+
+Per K (Ej , Ω) .
+
+We shall use the following lattice identity, for sets E and F , whenever the quantities below are finite: Per K (E, Ω)+Per K (F, Ω) −Per K (E ∩F, Ω) −Per K (E ∪F, Ω) = 2 
+
+Z Z   
+
+> (( E\F)×(F\E)) ∩(R2n\(Ω c)2)
+
+K(x, y ) dx dy. 
+
+(2.13) In particular, Per K (E ∩ F, Ω) + Per K (E ∪ F, Ω) ≤ Per K (E, Ω) + Per K (F, Ω) . (2.14) The lower-order term is exactly modular as well: 
+
+Z
+
+> Ω
+
+hχ E +
+
+Z
+
+> Ω
+
+hχ F =
+
+Z
+
+> Ω
+
+hχ E∩F +
+
+Z
+
+> Ω
+
+hχ E∪F . (2.15) 
+
+Proposition 2.5. Assume that K has the compactness property in Ω, and let h ∈ L1(Ω) . Let G ⊂
+
+Ωc be an exterior datum for which there exists an admissible set E with 
+
+E \ Ω = G and Per K (E, Ω) < +∞.
+
+Then, the minimization problem 
+
+inf FK,h (E, Ω) : E \ Ω = G
+
+admits a minimizer. Moreover, if MG denotes the family of all minimizers, then there exist E− 
+
+> G
+
+, E + 
+
+> G
+
+∈ M G such that 
+
+E− 
+
+> G
+
+⊆ E ⊆ E+ 
+
+> G
+
+in Ω, for every E ∈ M G.NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 9
+
+Proof. Let −∥ h∥L1(Ω) ≤ mG < +∞ be the infimum, and let ( Ej )j∈N be a minimizing sequence, which by the compactness property (Definition 2.4) satisfies 
+
+χEj → χE in L1(Ω) up to a subsequence, for some E with E \ Ω = G, and Per K (E, Ω) ≤ lim inf  
+
+> j→+∞
+
+Per K (Ej , Ω) .
+
+The convergence is a.e. in Ω (up to a subsequence) and dominated convergence therefore implies that E is, in fact, a minimizer. By (2.14) and (2.15), the class of minimizers is closed under unions and intersections. In partic-ular, taking unions of a maximizing sequence in MG for |E ∩ Ω| yields the existence of some E+
+
+> G
+
+as above, with 
+
+|E+ 
+
+> G
+
+∩ Ω| = sup {| E ∩ Ω| : E ∈ M G} ≥ | (E+ 
+
+> G
+
+∪ E) ∩ Ω| for any E ∈ M G.
+
+This implies E ⊆ E+ 
+
+> G
+
+in Ω, as we wanted. The construction for E− 
+
+> G
+
+is analogous with intersections and the infimum. □
+
+We can now prove the generic uniqueness statement for general perimeters: 
+
+Proposition 2.6 (Generic uniqueness for general kernels) . Assume that K has the compactness property in Ω (Definition 2.4), and that 
+
+K(x, y ) > 0 for a.e. (x, y ) ∈ Ω × Ωc. (2.16) 
+
+Let h ∈ L1(Ω) . Let I ⊂ R, and let {G(t)}t∈I be a family of exterior data in Ωc. Assume that, for each t ∈ I, there is an admissible set of finite K-perimeter with exterior datum G(t).Assume also that, whenever τ, t ∈ I and τ < t ,
+
+G(τ ) ⊊ G(t) in Ωc. (2.17) 
+
+Then the set of parameters t ∈ I for which the minimizer of (2.12) with exterior datum G(t) is not unique is at most countable. Proof. By Proposition 2.5, for each t ∈ I there are a minimal and maximal minimizer E− 
+
+> t
+
+, E+ 
+
+> t
+
+,associated to the exterior datum G(t).Let τ < t , let E be a minimizer with exterior datum G(τ ), and let F be a minimizer with exterior datum G(t): the set E ∩ F is admissible for the datum G(τ ), while E ∪ F is admissible for G(t).Hence, minimality gives 
+
+FK,h (E, Ω) + FK,h (F, Ω) ≤ F K,h (E ∩ F, Ω) + FK,h (E ∪ F, Ω) .
+
+The opposite inequality follows from (2.14)-(2.15), so that equality holds. In particular, 
+
+Z Z   
+
+> (( E\F)×(F\E)) ∩(R2n\(Ω c)2)
+
+K(x, y ) dx dy = 0 . (2.18) We claim that E ⊆ F in Ω. Otherwise, 
+
+A := ( E \ F ) ∩ Ωhas positive measure. On the other hand, 
+
+B := G(t) \ G(τ ) = ( F \ E) ∩ Ωc
+
+has positive measure by (2.17) (the strict inclusion is up to sets of measure zero). Since K > 0 a.e. on Ω × Ωc, we have 
+
+Z
+
+> A
+
+Z
+
+> B
+
+K(x, y ) dy dx > 0,10 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+which contradicts (2.18), since A × B ⊂ R2n \ (Ω c)2.In particular, we have shown that 
+
+E+ 
+
+> τ
+
+⊆ E− 
+
+> t
+
+in Ω whenever τ < t. (2.19) For each t ∈ I, define the gap 
+
+St := ( E+ 
+
+> t
+
+\ E− 
+
+> t
+
+) ∩ Ω.
+
+If τ < t , then (2.19) gives 
+
+Sτ ⊆ E+ 
+
+> τ
+
+∩ Ω ⊆ E− 
+
+> t
+
+∩ Ω and St ⊆ Ω \ E− 
+
+> t
+
+.
+
+Thus Sτ ∩ St = ∅. Hence the family {St}t∈I is pairwise disjoint in the finite-measure set Ω. The minimizer at time t is not unique if and only if |St| > 0. Since there are at most countably many pairwise disjoint measurable subsets of Ω with positive measure, the set of such parameters is at most countable. □
+
+The result in Proposition 2.6 holds, in particular, in the following cases: 
+
+Lemma 2.7 (Examples of kernels) . Let Ω ⊂ Rn be a bounded Lipschitz domain. Let K be mea-surable, symmetric, and nonnegative. Assume that 
+
+Z
+
+> Ω
+
+Z
+
+> Ωc
+
+K(x, y ) dy dx < +∞, (2.20) 
+
+that 
+
+K(x, y ) > 0 for a.e. (x, y ) ∈ Ω × Ωc, (2.21) 
+
+and that there exist s ∈ (0 , 1) , r0 > 0, and λ > 0 such that 
+
+K(x, y ) ≥ λ|x − y|−n−s for a.e. x, y ∈ Ω with 0 < |x − y| < r 0. (2.22) 
+
+Then K has the compactness property in Ω. Moreover, every exterior datum G ⊂ Ωc admits a finite-energy admissible competitor. Consequently, Proposition 2.6 applies to the energy (2.12) , for every h ∈ L1(Ω) and every family of exterior data satisfying (2.17) .Proof. Let G ⊂ Ωc, and let Ej be a sequence such that Ej \ Ω = G and sup 
+
+> j∈N
+
+Per K (Ej , Ω) < +∞.
+
+By the local lower bound (2.22), 
+
+Z Z 
+
+> (Ω ×Ω) ∩{| x−y|<r 0}
+
+|χEj (x) − χEj (y)||x − y|n+s dx dy ≤ C Per K (Ej , Ω) .
+
+The remaining part of the W s, 1(Ω) seminorm, corresponding to |x − y| ≥ r0, is bounded by a constant depending only on Ω, r0, and s. Hence χEj is bounded in W s, 1(Ω). Since Ω is bounded and Lipschitz, the embedding W s, 1(Ω) ,→ L1(Ω) is compact. Thus, up to a subsequence, 
+
+χEj → χE in L1(Ω) for some set E with E \ Ω = G. Passing to a further subsequence, we may assume a.e. convergence in Ω. Fatou’s lemma and the nonnegativity of K give Per K (E, Ω) ≤ lim inf  
+
+> j→+∞
+
+Per K (Ej , Ω) .
+
+Thus K has the compactness property. Assumption (2.20) provides a finite-energy competitor. Indeed, if E = Ω ∪ G, then Per K (E, Ω) = 
+
+Z
+
+> Ω
+
+Z
+
+> Ωc\G
+
+K(x, y ) dy dx ≤
+
+Z
+
+> Ω
+
+Z
+
+> Ωc
+
+K(x, y ) dy dx < +∞.
+
+This completes the proof. □NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 11 
+
+Remark 2.8. In particular, the assumptions in Lemma 2.7 are satisfied by the fractional kernels 
+
+K(x, y ) = a(x, y )
+
+|x − y|n+s ,
+
+and by the tempered fractional kernels 
+
+K(x, y ) = a(x, y ) e−m|x−y|
+
+|x − y|n+s , m ≥ 0,
+
+provided s ∈ (0 , 1), 
+
+a(x, y ) = a(y, x ), 0 < λ ≤ a(x, y ) ≤ Λ < +∞
+
+for a.e. x, y ∈ Rn.General kernels for nonlocal minimal surfaces have been studied, for example, in [13]. See also [9] for the corresponding parabolic problem. 3. Generic regularity: proof of Theorems 1.2 and 1.5 
+
+The goal of this section is to prove the generic regularity result stated in Theorems 1.2 and 1.5, constructing a family of arbitrarily small perturbations of the exterior datum (in a suitable sense) giving rise to smooth minimizers in one dimension more than guaranteed by the general theory of regularity. The blueprint of the argument takes inspiration from [22], but the specific arguments need to be adapted to the peculiar case of nonlocal minimal surfaces. 3.1. A monotone family of exterior data. We select a family of exterior data as an arbitrarily small perturbation of a given exterior datum G(0) , in such a way that we can ensure a strict quantitative separation of minimizers. To accomplish this goal, we let G(0) ⊆ Bc 
+
+> 1
+
+and set 
+
+A0 := B1 ∪ G(0) .
+
+For q ∈ [0 , 1], we define 
+
+Dq(A0) := (1 + q)A0 + Bq, (3.1) and, for t ∈ [0 , 1], 
+
+At := [
+
+> 0≤q≤t
+
+Dq(A0), G(t) := At \ B1. (3.2) Then At = B1 ∪ G(t), and we will assume that the set G(0) is such that the family {G(t)}t∈[0 ,1] is (strictly) increasing (at least, for t close to 0). For every t, we let E(t) be an s-minimal set in B1
+
+with exterior datum G(t), which satisfies (by Corollary 2.2) 
+
+E(τ ) ⊆ E(t) whenever 0 ≤ τ < t ≤ 1. (3.3) Theorem 1.1 implies that E(t) is the unique minimizer for all but countably many t ≥ 0. The following result gives the strict quantitative inclusion of minimizers with this exterior family of boundary data (and it is the counterpart of [22, Lemma 4.3] in our setting). We recall that we deal with representatives of sets up to removing sets of measure zero, and with essential boundaries. 
+
+Lemma 3.1. Let 0 ≤ τ < t < 1 and η ∈ (0 , 1) . Then, 
+
+B η  
+
+> 2(t−τ)
+
+(x) ⊆ E(t) for every x ∈ ∂E (τ ) ∩ B1−η. (3.4) 12 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+Proof. Let us denote 
+
+λ := 1 + t − τ
+
+1 + τ ∈ (1 , 2) , r := λ − 1 = t − τ
+
+1 + τ ∈ (0 , 1) .
+
+We first notice that 
+
+λA τ + Br ⊆ At. (3.5) Indeed, let q ∈ [0 , τ ] and set q′ := λ(1 + q) − 1. Then, we see that 0 ≤ q′ ≤ t, and, since q′ = λq + r,
+
+λD q(A0) + Br = λ(1 + q)A0 + Bλq +r = (1 + q′)A0 + Bq′ = Dq′ (A0) ⊆ At.
+
+Pick now a vector v ∈ Br and define 
+
+Tv(z) := λz + v. 
+
+Since λ > 1 + |v|, using (3.5) we see that 
+
+B1 ⊆ Tv(B1) = Bλ(v) and Tv(Aτ ) ⊆ At.
+
+By scale invariance, Tv(E(τ )) is minimizing in Tv(B1), and hence it is minimizing in B1 with exterior datum 
+
+Tv(E(τ )) \ B1 ⊊ G(t).
+
+Hence, 
+
+Tv(E(τ )) ⊆ E(t) ∀v ∈ Br.
+
+In particular, we have shown that 
+
+Br(λx ) ⊆ E(t), ∀x ∈ ∂E (τ )
+
+Finally, for x ∈ ∂E (τ ) ∩ B1−η, since |λx − x| ≤ r(1 − η) we have 
+
+Bηr (x) ⊆ Br(λx ) ⊆ E(t).
+
+Since r ≥ (t − τ )/2, we are done. □
+
+This gives: 
+
+Corollary 3.2. If 0 ≤ τ < t < 1, then 
+
+∂E (τ ) ∩ ∂E (t) ∩ B1 = ∅. (3.6) 
+
+Moreover, for η ∈ (0 , 1) , if 
+
+x ∈ ∂E (τ ) ∩ B1−η, y ∈ ∂E (t), τ < t, 
+
+then 
+
+|x − y| ≥ η
+
+2 (t − τ ). (3.7) 3.2. Conical results. Let us now state a sequence of preliminary results on general cones and 
+
+s-minimal cones to be used in the following: The first result is straightforward from the definition of cone (we include the simple proof for completeness): 
+
+Lemma 3.3. Let C, D ⊆ Rn be cones and let e ∈ Rn.
+
+(1) If C − e ⊆ D, then C − ρe ⊆ D for every ρ > 0.
+
+(2) If C − e ⊆ D and D is closed, then C ⊆ D.NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 13 
+
+Proof. To prove the first claim, we observe that 
+
+C − ρe = ρ
+
+ Cρ − e
+
+
+
+= ρ(C − e) ⊆ ρD = D. 
+
+To prove the second claim, we notice that, for all x ∈ C and ρ > 0, by the first claim we have that x − ρe ∈ D and, consequently, 
+
+x = lim  
+
+> ρ↘0
+
+x − ρe ∈ D = D, 
+
+as advertised. □
+
+Next is a useful observation about conical graphs. 
+
+Lemma 3.4. Let C be a cone, e ∈ Sn−1 and r > 0. Assume that 
+
+C − e ⊆ C. (3.8) 
+
+Assume also that 
+
+Br(−e) ⊆ C and Br(e) ⊆ Cc. (3.9) 
+
+Then, C has a graphical structure in the e-direction. Proof. Up to a rotation, we suppose that e = en := (0 , . . . , 0, 1). By (3.8) and Lemma 3.3(1), we know that 
+
+C − R+en ⊆ C. (3.10) Also, by (3.9), 
+
+
+
+xn > |x′|
+
+r
+
+
+
+= R+
+
+
+
+xn = 1 > |x′|
+
+r
+
+
+
+⊆ R+Br(en) ⊆ R+Cc = Cc
+
+and, similarly, 
+
+
+
+xn < − |x′|
+
+r
+
+
+
+= R+
+
+
+
+xn = −1 < − |x′|
+
+r
+
+
+
+⊆ R+Br(−en) ⊆ R+C = C. 
+
+As a consequence, 
+
+∂C ⊆
+
+
+
+|xn| ≤ |x′|
+
+r
+
+
+
+.
+
+Furthermore, by (3.8), we know that C is a subgraph, namely there exists u : Rn−1 → R such that 
+
+∂C = (x′, u (x′)) , x ′ ∈ Rn−1 ,
+
+with 
+
+u(x′) := sup {t ∈ R s.t. ( x′, τ ) ∈ C for all τ < t } ∈ 
+
+
+
+− |x′|
+
+r , |x′|
+
+r
+
+
+
+. □
+
+The following is the analogue of [22, Lemma 4.2] for nonlocal minimal cones (monotone cones are either halfspaces or invariant in the direction of monotonicity): 
+
+Lemma 3.5. Let C be an s-minimal cone and e ∈ Sn−1. Assume that 
+
+C − e ⊆ C. (3.11) 
+
+Then either C is e-invariant (namely, C + Re = C), or C is a halfspace. 14 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+Proof. We can assume that C̸ = Rn, otherwise we are done. Suppose that either e or −e belongs to ∂C . (3.12) If e ∈ ∂C , then 0 = e − e ∈ ∂(C − e), and so C and C − e touch at the origin. If −e ∈ ∂C , then 
+
+−e = 0 − e ∈ ∂(C − e), and they touch at −e. In both cases, C − e ⊆ C and the strict maximum principle of [18] gives 
+
+C − e = C, 
+
+and hence, also C + e = C.Thus, applying Lemma 3.3-(1) to the inclusions C − e ⊆ C and C + e ⊆ C, we obtain 
+
+C + Re ⊆ C ⊆ C + Re. 
+
+That is, C is e-invariant. Accordingly, we now suppose that (3.12) is violated, namely e̸ ∈ ∂C and −e̸ ∈ ∂C . Thus, since, by (3.11), 
+
+−e = 0 − e ∈ C − e = C − e ⊆ C
+
+and 
+
+e = 0 + e ∈ Cc + e = Cc + e = ( C + e)c ⊆ Cc,
+
+we conclude that −e lies in the interior of C and e lies in the interior of Cc.This allows us to use Lemma 3.4 and conclude that C is a nonlocal minimal graph. But then, by [4], we obtain that ∂C is a smooth graph. The conical structure of C thereby gives that C is a halfspace. □
+
+3.3. Blow-up across times. Let us recall the monotonicity formula of [5]. From the procedural point of view, given a set E ⊆ Rn, a point x ∈ ∂E , and r ∈ (0 , +∞), what we need is the existence of some “quantity”, say Ws(E, x, r ) = Ws(E − x, 0, r ), which: (P1) is increasing in r,(P2) is constant in r if and only if E − x is a cone, (P3) for all λ > 0, it holds that Ws(λE, 0, r ) = Ws
+
+ E, 0, rλ
+
+,(P4) Ws(Ek, x k, r ) → Ws(E, x 0, r ) as k → +∞ whenever Ek → E locally in L1(Rn) and xk → x0.Thus, if Φ E (r) is the function introduced at the beginning of Section 8 in [5], we define 
+
+Ws(E, x, r ) := Φ E−x(r)and we have that (P1) above follows from [5, Theorem 8.1], that (P2) is guaranteed by [5, Corol-lary 8.2], that (P3) is a consequence of scaling (see the proof of Theorem 9.2 in [5]), and (P4) follows from the last claim in [5, Proposition 9.1] (combined with the continuity of the translations in Lebesgue spaces). The monotonicity of Ws thus allows one to define 
+
+ωs(E, x ) := lim  
+
+> r↘0
+
+Ws(E, x, r ).
+
+The above setting also permits the following extension of (P4): 
+
+Lemma 3.6. Suppose that Ek → E locally in L1(Rn), that xk → x0, and that rk ↘ 0, as k → +∞.Assume also that 
+
+lim inf  
+
+> k→+∞
+
+ωs(Ek, x k) ≥ ωs(E, x 0). (3.13) 
+
+Then, Ws(Ek, x k, r k) → ωs(E, x 0).NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 15 
+
+Proof. Let ϵ > 0 and suppose that k is sufficiently large such that rk ∈ (0 , ϵ ). Then, using (P1), we know that Ws(Ek, x k, r k) ≤ Ws(Ek, x k, ϵ ) and accordingly, by (P4), lim sup 
+
+> k→+∞
+
+Ws(Ek, x k, r k) ≤ lim sup 
+
+> k→+∞
+
+Ws(Ek, x k, ϵ ) = Ws(E, x 0, ϵ ).
+
+Taking now ϵ ↘ 0, we obtain lim sup 
+
+> k→+∞
+
+Ws(Ek, x k, r k) ≤ ωs(E, x 0). (3.14) Moreover, using again (P1), for all k ∈ N and δ ∈ (0 , r k), we have that Ws(Ek, x k, r k) ≥
+
+Ws(Ek, x k, δ ) and therefore Ws(Ek, x k, r k) ≥ ωs(Ek, x k). We now use (3.13) and conclude that lim inf  
+
+> k→+∞
+
+Ws(Ek, x k, r k) ≥ lim inf  
+
+> k→+∞
+
+ωs(Ek, x k) ≥ ωs(E, x 0).
+
+This and (3.14) yield the desired result. □
+
+This setting entails the following result, which can be considered the analogue of [22, Lemma 4.5] for nonlocal minimal surfaces: 
+
+Lemma 3.7. Let 
+
+(xk, t k) → (x0, t 0), xk ∈ ∂E (tk ), x0 ∈ ∂E (t0) ∩ B1,
+
+with xk̸ = x0. Assume that, as k → +∞,
+
+ωs(E(tk ), x k) → ωs(E(t0), x 0), (3.15) 
+
+and that E(tk ) → E(t0) locally in L1(Rn).Then, up to a subsequence, 
+
+E(tk ) − xk
+
+|xk − x0| → C locally in L1(Rn),
+
+where C is an s-minimal cone. Additionally, if each xk ∈ Sing( ∂E (tk )), then 0 ∈ Sing( ∂C ). (3.16) 
+
+Proof. The proof is a technical modification of the one in [22, Lemma 4.5] (for instance, the as-sumption of uniform convergence in [22, Lemma 4.5] needs to be replaced here by local convergence in L1(Rn)). Let rk := |xk − x0| and Fk := E(tk )−xk  
+
+> |xk−x0|
+
+. We remark that Fk is s-minimal in B(1 −| x0|)/2rk for k
+
+large and, therefore, given R > 0, for large k, we have that B(1 −| x0|)/2rk ⊇ B2R and Per s(Fk, B 2R) ≤ Per s(Fk ∪ B2R, B 2R) ≤ Per s(B2R, B 2R) ≤ CR.
+
+Hence Z Z 
+
+> BR×BR
+
+|χFk (x) − χFk (y)||x − y|n+s dx dy ≤ CR.
+
+Since also ∥χFk ∥L1(BR) ≤ | BR|, the sequence χFk is bounded in W s, 1(BR). By the compact embed-ding W s, 1(BR) ⋐ L1(BR), up to a subsequence χFk converges locally in L1(Rn). We denote by C this limit. We know that C is s-minimal (by [5, Theorem 3.3]). Notice also that condition (3.13) is fulfilled, thanks to (3.15), therefore, by Lemma 3.6, for all r > 0 we have that lim  
+
+> k→+∞
+
+Ws(E(tk ), x k, r kr) = ωs(E(t0), x 0). (3.17) Moreover, in view of (P3), 
+
+Ws(Fk, 0, r ) = Ws
+
+E(tk ) − xk
+
+rk
+
+, 0, r 
+
+!
+
+= Ws(E(tk ) − xk, 0, r kr) = Ws(E(tk ), x k, r kr).16 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+It follows from this and (3.17) that lim  
+
+> k→+∞
+
+Ws(Fk, 0, r ) = lim  
+
+> k→+∞
+
+Ws(E(tk ), x k, r kr) = ωs(E(t0), x 0).
+
+Hence, by (P4), 
+
+Ws(C, 0, r ) = ωs(E(t0), x 0),
+
+and we stress that the latter quantity is independent of r. Consequently, by (P2), we conclude that C is a cone, as desired. It remains only to prove (3.16). To accomplish this goal, suppose that E(tk ) is singular at xk
+
+(and accordingly Fk is singular at the origin), but, for the sake of contradiction, that C is smooth at the origin. By uniform density estimates (see [5, Theorem 4.1]), we know that C̸ = ∅ and C̸ = Rn,therefore necessarily C is a halfspace. Then, by [5, Corollary 4.4(ii)], we have that Fk ∩ B1 lies in an arbitrarily small neighborhood of the halfspace C as soon as k is large enough. Consequently, by the improvement of flatness result in [5, Theorem 6.1], one finds that ∂F k ∩B1/2
+
+does not contain singular points, in contradiction with our assumptions. □
+
+3.4. Proof of generic regularity. We introduce the set of singular points (in “space-time”): 
+
+S := (x, t ) ∈ B1 × (0 , 1) : x ∈ Sing( ∂E (t)) .
+
+We denote by I the set of nonuniqueness times, i.e. the collection of t ∈ (0 , 1) for which the minimizer E(t) is not unique. We have, in light of Theorem 1.1, that I is at most countable. We also denote by D the set of discontinuity times for the local convergence in L1(Rn), that is we define 
+
+T := t ∈ (0 , 1) s.t. E(tk ) → E(t) locally in L1(Rn) whenever tk → t
+
+and D := (0 , 1) \ T . We have that: 
+
+Lemma 3.8. D is at most countable. Proof. For all m ∈ N, we define 
+
+Tm := t ∈ (0 , 1) s.t. E(tk ) → E(t) in L1(Bm) whenever tk → t
+
+and Dm := (0 , 1) \ T m. Since the countable union of countable sets is countable, it suffices to show that each Dm is countable. For this, for t ∈ (0 , 1) we define φm(t) := |E(t) ∩ Bm| and let Em be the set of discontinuity points for φm.By (3.3), we know that E(t) is an increasing family of sets with respect to t with respect to the notion of set inclusion. Accordingly, the function φm is monotone. Since monotone increasing functions have countably many discontinuities, we gather that Em is countable. Then, the desired result would be established if we knew that 
+
+Dm ⊆ E m. (3.18) We now check this. Let t ∈ D m. Then, there exist c > 0 and a sequence tk converging to t such that |(E(tk )△E(t)) ∩ Bm| ≥ c for all k ∈ N (here, the notation “ △” stands for symmetric difference of sets). Hence, 
+
+c ≤ |(E(tk ) \ E(t)) ∩ Bm| + |(E(t) \ E(tk )) ∩ Bm|
+
+=
+
+(
+
+|(E(tk ) \ E(t)) ∩ Bm| if tk > t, 
+
+|(E(t) \ E(tk )) ∩ Bm| if tk < t, 
+
+=
+
+(
+
+φm(tk) − φm(t) if tk > t, φm(t) − φm(tk) if tk < t, 
+
+= |φm(tk) − φm(t)|.NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 17 
+
+The proof of (3.18) is thereby complete. □
+
+Now we let 
+
+S′ := (x, t ) ∈ S s.t. t̸ ∈ (I ∪ D )
+
+and consider the projections πx(x, t ) := x and πt(x, t ) := t.It is useful to write the set of singular points as a graph: 
+
+Lemma 3.9. For each x ∈ πx(S) there exists a unique τ (x) such that (x, τ (x)) ∈ S . Moreover, the function τ : πx(S) → (0 , 1) is locally Lipschitz. Proof. Suppose, for the sake of contradiction, that ( x, t 1), ( x, t 2) ∈ S , for some t1̸ = t2 ∈ (0 , 1). Then, 
+
+x ∈ Sing( ∂E (t1)) ∩ Sing( ∂E (t2)) ∩ B1 ⊆ ∂E (t1) ∩ ∂E (t2) ∩ B1. (3.19) However, by (3.6) in Corollary 3.2, we have that ∂E (t1)∩∂E (t2)∩B1 = ∅, which is in contradiction with (3.19). To see τ is Lipschitz, let x ∈ πx(S) ⊆ B1 and ρ ∈ (0 , 1−| x|). Let also y ∈ πx(S)∩Bρ(x) ⊆ Bρ+|x|.We set η := min {1−| x|, 1−ρ−| x|} and we remark that x, y ∈ B1−η. Thus, by (3.7) in Corollary 3.2, we see that |x − y| ≥ η 
+
+> 2
+
+|τ (x) − τ (y)|. □
+
+Define now 
+
+f (x) := ωs(E(τ (x)) , x ). (3.20) Let us also denote by S∗,
+
+S∗ := (x, t ) ∈ S ′ : ∃(xk, t k) ∈ S ′ \ { (x, t )} with ( xk, t k) → (x, t ) and f (xk) → f (x) , (3.21) that is, the collection of points ( x, τ (x)) ∈ S ′ for which there exists a sequence xk ∈ πx(S′) \ { x}
+
+such that xk → x and f (xk) → f (x) as k → +∞. By [22, Lemma 2.28] (which corresponds to [24, Lemma 7.1]), we have that 
+
+πt(S′ \ S ∗) is at most countable. (3.22) The work done so far allows us to obtain the following result, which is the analogue of [22, Proposition 4.6] for nonlocal minimal surfaces (recall that n∗ 
+
+> s
+
+was introduced in (1.1)): 
+
+Proposition 3.10. Let n = n∗ 
+
+> s
+
++ 1 . Then 
+
+S∗ = ∅.
+
+Proof. Suppose, by contradiction, that S∗ is not empty. Let ( x0, t 0) ∈ S ∗. In particular, by Lemma 3.9, we have t0 = τ (x0). Then, x0 ∈ Sing( ∂E (t0)) and, by the definition of S∗ in (3.21), there exist points xk ∈ πx(S′)\{ x0}
+
+such that xk → x0 as k → +∞ and 
+
+ωs(E(τ (xk )) , x k) → ωs(E(t0), x 0). (3.23) By Lemma 3.9, we write tk := τ (xk), 
+
+rk := |xk − x0|, and ek := xk − x0
+
+rk
+
+.
+
+Up to a subsequence, we may suppose that ek → e ∈ Sn−1 and that one of the following three alternatives holds for every k: either tk = t0, or tk > t 0, or tk < t 0.Since τ is locally Lipschitz (recall again Lemma 3.9), we have that tk → t0. Also, since ( x0, t 0) ∈S′, we have that t0 /∈ D , thus E(tk ) → E(t0) locally in L1(Rn). Therefore, by Lemma 3.7, up to a subsequence, 
+
+Ck := E(tk ) − xk
+
+rk
+
+→ C locally in L1(Rn),18 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+where C is an s-minimal cone and 0 ∈ Sing( ∂C ). Similarly, up to a further subsequence we also have 
+
+Dk := E(t0) − x0
+
+rk
+
+→ D locally in L1(Rn),
+
+where D is an s-minimal cone. Moreover, 0 ∈ Sing( ∂D ), otherwise the improvement of flatness used in the proof of Lemma 3.7 would give that x0 is a regular point of ∂E (t0).In order to get a contradiction, the following observation will be used below. Let K be an s-minimal cone in Rn, singular at the origin, and suppose that either K − e ⊆ K or K + e ⊆ K. (3.24) Then, by Lemma 3.5, applied with e or with −e, the cone K is invariant in the direction e (since the origin is singular, it cannot be a halfspace). Hence, writing K = Re × K′ with K′ ⊂ e⊥ ≃ Rn−1,the set K′ is an s-minimal cone in Rn−1 (see e.g. the dimensional reduction in [5]) that is not a halfspace. Since n − 1 = n∗ 
+
+> s
+
+, this contradicts the definition of n∗ 
+
+> s
+
+in (1.1). It remains to show that one of the inclusions in (3.24) necessarily occurs. To this end, we distinguish the three alternatives for tk.If tk = t0, then 
+
+Ck = Dk − ek.
+
+Passing to the limit, we obtain C = D − e. In particular, D − e ⊆ C. Lemma 3.3-(2) gives D ⊆
+
+C = D − e, and therefore D + e ⊆ D; impossible by the observation after (3.24). Assume next that tk > t 0. By (3.3), we have E(t0) ⊆ E(tk ). Hence, 
+
+Dk − ek ⊆ Ck.
+
+Letting k → +∞, we find that D−e ⊆ C. Lemma 3.3-(2) then yields D ⊆ C, and since 0 ∈ ∂D ∩∂C ,the strict maximum principle in [18] gives D = C. Consequently, D − e ⊆ D, which is again impossible by the observation above. The case tk < t 0 is analogous, and so all three alternatives have led to a contradiction. Hence 
+
+S∗ = ∅, as desired. □
+
+In particular, since we know 
+
+πt(S) = I ∪ D ∪ πt(S′ \ S ∗) ∪ πt(S∗),
+
+combining Theorem 1.1, Lemma 3.8, (3.22), and Proposition 3.10, we have just shown that the set of times t for which there is singular set in dimension n = n∗ 
+
+> s
+
++ 1 is countable. We recall that the dimensional setting n = n∗ 
+
+> s
+
++ 1 also played a role in the Bernstein Theorem for nonlocal minimal surfaces obtained in [25]. In higher dimensions, we expect to reduce the size of the singular set generically as well. Specifically, setting 
+
+ms := n − n∗ 
+
+> s
+
+− 1,
+
+we have the following result: 
+
+Lemma 3.11. Let ms := n − n∗ 
+
+> s
+
+− 1 and C be an s-minimal cone in Rn. Suppose that there are 
+
+ms + 1 linearly independent vectors ξ1, . . . , ξ ms+1 ∈ Rn such that 
+
+C − ξj ⊆ C for every j = 1 , . . . , m s + 1 .
+
+Then C is a halfspace. Proof. By Lemma 3.3-(1), we have that C − tξ j ⊆ C for all t > 0 and all j = 1 , . . . , m s + 1, and hence, by Lemma 3.5 we know that C is invariant in each of the directions ξj (or C is a halfspace directly). NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 19 
+
+Let V := span {ξ1, . . . , ξ ms+1 } with dim V = ms +1. The invariance just proved gives C = V ×C′,with C′ ⊂ V ⊥ ≃ Rn−ms−1 = Rn∗ 
+
+> s
+
+where C′ is an s-minimal cone. By the definition of n∗ 
+
+> s
+
+in (1.1), we have that C′ is a halfspace, and so is C. □
+
+Let us also recall the following abstract GMT results from [24]: 
+
+Lemma 3.12 ([24, Proposition 7.3]) . Suppose that E ⊂ Rn and f : E → R satisfy the following: For each ε > 0 and x ∈ E, there exists ρ = ρ(x, ε ) > 0 such that for each r ∈ (0 , ρ ), we can find an m-dimensional subspace Πx,r , passing through x and satisfying 
+
+E ∩ Br(x) ∩ { y : f (x) − ρ < f (y) < f (x) + ρ} ⊂ { y : dist( y, Πx,r ) ≤ εr }.
+
+Then the Hausdorff dimension of E can be bounded from above as 
+
+dim H(E) ≤ m. 
+
+From which it follows: 
+
+Proposition 3.13. Assume that n ≥ n∗ 
+
+> s
+
++ 2 . Then 
+
+dim H
+
+ πx(S) ≤ n − n∗ 
+
+> s
+
+− 1.
+
+Proof. Let ms := n − n∗ 
+
+> s
+
+− 1. We first prove that dim H
+
+ πx(S∗) ≤ ms. (3.25) For this, we check the hypothesis of Lemma 3.12 for the set πx(S∗) and the function f in (3.20). Suppose, by contradiction, that this hypothesis fails at some point x0 ∈ πx(S∗), and write t0 := 
+
+τ (x0). Then, for some ε > 0, we can find rk ↘ 0 and points 
+
+x(1)  
+
+> k
+
+, . . . , x (ms+1)  
+
+> k
+
+∈ πx(S∗) ∩ Brk (x0)such that 
+
+f (x(j) 
+
+> k
+
+) − f (x0) < 1
+
+k for every j = 1 , . . . , m s + 1 , (3.26) and max  
+
+> j=1 ,...,m s+1
+
+dist  x(j) 
+
+> k
+
+, x 0 + Π  ≥ εr k (3.27) for every ms-dimensional vector subspace Π ⊂ Rn.In view of Lemma 3.9, we let t(j) 
+
+> k
+
+:= τ (x(j) 
+
+> k
+
+) and 
+
+y(j) 
+
+> k
+
+:= x(j) 
+
+> k
+
+− x0
+
+rk
+
+.
+
+By (3.27), y(j) 
+
+> k
+
+∈ B1 \ Bε and, up to a subsequence, 
+
+y(j) 
+
+> k
+
+→ y(j) ∈ B1 \ Bε for every j = 1 , . . . , m s + 1 .
+
+with y(1) , . . . , y (ms+1) linearly independent. Since τ is locally Lipschitz (recall again Lemma 3.9), we have that t(j) 
+
+> k
+
+→ t0 for all j. Also, since ( x0, t 0) ∈ S ∗, we know that t0 /∈ D , and therefore E(t(j)  
+
+> k)
+
+→ E(t0) locally in L1(Rn). From (3.26) we also have 
+
+ωs(E(t(j) 
+
+> k)
+
+, x (j) 
+
+> k
+
+) → ωs(E(t0), x 0).
+
+Using Lemma 3.7, we may assume, up to a further subsequence, that 
+
+Dk := E(t0) − x0
+
+rk
+
+→ D and C(j) 
+
+> k
+
+:= E(t(j)  
+
+> k)
+
+− x(j)
+
+> k
+
+rk
+
+→ C(j)
+
+locally in L1(Rn), for every j = 1 , . . . , m s + 1, where D and C(j)’s are s-minimal cones, and 0 ∈
+
+Sing( ∂D ) ∩ Sing( ∂C (j)) (otherwise, improvement of flatness would yield a contradiction). 20 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+We now claim that, for each j = 1 , . . . , m s + 1, one of the two inclusions 
+
+D − y(j) ⊆ D or D + y(j) ⊆ D (3.28) holds true. To prove this, we fix j and, taking a further subsequence, we distinguish the three alternatives t(j) 
+
+> k
+
+= t0, t(j) 
+
+> k
+
+> t 0, and t(j) 
+
+> k
+
+< t 0.If t(j) 
+
+> k
+
+= t0, then C(j) 
+
+> k
+
+= Dk − y(j) 
+
+> k
+
+, and consequently C(j) = D − y(j). Thus, Lemma 3.3-(2) gives D ⊆ C(j) = D − y(j). Thus D + y(j) ⊆ D.Assume next that t(j) 
+
+> k
+
+> t 0. By (3.3), we have E(t0) ⊆ E(t(j) 
+
+> k)
+
+, and therefore Dk − y(j) 
+
+> k
+
+⊆ C(j) 
+
+> k
+
+.Letting k → +∞, we get D−y(j) ⊆ C(j) and Lemma 3.3-(2) implies D ⊆ C(j). Since 0 ∈ ∂D ∩∂C (j),the strict maximum principle in [18] gives that D = C(j), and consequently D − y(j) ⊆ D. The case t(j) 
+
+> k
+
+< t 0 is analogous. This proves (3.28). Therefore, we find ms + 1 linearly independent vectors ξ1, . . . , ξ ms+1 with 
+
+D − ξj ⊆ D for every j = 1 , . . . , m s + 1 .
+
+Lemma 3.11 then implies that D is a halfspace, in contradiction with 0 ∈ Sing( ∂D ). It remains to pass from S∗ to S. We already know that I, D, and πt(S′ \ S ∗) are countable. Hence, 
+
+πx(S) ⊆ πx(S∗) ∪ [
+
+> t∈I∪D∪ πt(S′\S ∗)
+
+Sing( ∂E (t)).
+
+By a standard dimension-reduction estimate for singular sets of nonlocal minimal surfaces, based on [5, Theorems 10.3 and 10.4] and on the definition of n∗ 
+
+> s
+
+, each set Sing( ∂E (t)) in the union above has Hausdorff dimension at most ms.Since the union is countable, this and (3.25) give dim H
+
+ πx(S) ≤ ms = n − n∗ 
+
+> s
+
+− 1,
+
+as desired. □
+
+We now prove the following refined version of the main results, Theorems 1.2 and 1.5: 
+
+Theorem 3.14. Let G(0) ⊂ Rn \ B1, and let {G(t)}t∈[0 ,1] be a strictly increasing family of sets contained in Rn \ B1 given by (3.2) .Let E(t) be an s-minimal set in B1 with exterior datum G(t). Then, if n = n∗ 
+
+> s
+
++ 1 , there exists a countable subset J of [0 , 1] such that 
+
+Sing( ∂E (t)) = ∅ for all t ∈ [0 , 1] \ J . (3.29) 
+
+Also, if n ≥ n∗ 
+
+> s
+
++ 2 ,
+
+dim H(Sing( ∂E (t))) ≤ n − n∗ 
+
+> s
+
+− 2 for almost all t ∈ [0 , 1] . (3.30) This theorem will follow as a consequence of the previous results together with the following abstract observation: 
+
+Lemma 3.15 ([24, Corollary 7.8]) . Suppose that for some σ > 0 and γ ∈ [σ, n ], the set E ⊂
+
+Rn × [0 , 1) satisfies 
+
+(1) dim H(πx(E)) ≤ γ; and 
+
+(2) For each (x0, t 0) ∈ E and ε > 0, there exists ρ = ρ(x0, t 0, ε ) > 0 such that 
+
+E ∩ { (x, t ) ∈ Bρ(x0) × [0 , 1) : t − t0 > |x − x0|σ−ε} = ∅.
+
+Then, we have 
+
+dim H(E ∩ π−1 
+
+> t
+
+(t)) ≤ γ − σ for almost every t ∈ [0 , 1) .
+
+With this, we can argue in the following way: NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 21 
+
+Proof of Theorem 3.14. The case n = n∗ 
+
+> s
+
++ 1 now follows from Theorem 1.1, Lemma 3.8, (3.22), and Proposition 3.10, as already mentioned. The case n ≥ n∗ 
+
+> s
+
++ 2 is a consequence of Lemma 3.15, by relying on Proposition 3.13 and Corollary 3.2. □
+
+Finally, in order to obtain the desired result regarding L1loc small perturbations, we observe the following: 
+
+Lemma 3.16. If ∂A 0 has locally finite (n − 1) -dimensional upper Minkowski content in BR, then 
+
+(G(δ) \ G(0) ) ∩ BR ≤ OR(δ) as δ ↘ 0.
+
+In particular, 
+
+G(t) → G(0) in L1loc (Rn) as t ↘ 0.
+
+Proof. We claim that, for every R > 1 and every t ∈ [0 , 1], (G(t) \ G(0) ) ∩ BR ⊆ BR ∩ ∂(R+1) tA0. (3.31) Indeed, let 
+
+x ∈ (G(t) \ G(0) ) ∩ BR ⊂ At \ A0.
+
+By the definition of At, there exist q ∈ [0 , t ], y ∈ A0, and z ∈ Bq such that 
+
+x = (1 + q)y + z. 
+
+Since x ∈ BR, we have 
+
+|y| ≤ |x| + |z|
+
+1 + q ≤ R + q
+
+1 + q ≤ R. 
+
+Hence, 
+
+|x − y| ≤ q|y| + |z| ≤ (R + 1) q ≤ (R + 1) t. 
+
+Since y ∈ A0 and x / ∈ A0, this shows dist( x, ∂A 0) ≤ (R + 1) t, i.e., (3.31). In particular, 
+
+(G(δ) \ G(0) ) ∩ BR ≤ | BR ∩ ∂(R+1) δA0| ≤ CRδ, 
+
+where the last inequality holds by the definition of finite upper Minkowski content (recall Defini-tion 1.4). This is the desired result. □
+
+We finally have: 
+
+Proof of Theorems 1.2 and 1.5. These results now follow by Theorem 3.14 together with Lemma 3.16. We notice that the assumption that G(t) is strictly increasing in Theorem 3.14 is harmless: if for some 0 ≤ τ < t ≤ 1 we had G(t) = G(τ ), then Aτ = Rn (all up to sets of measure zero), and the minimizer is saturated. Indeed, as in the proof of Lemma 3.1, one has 
+
+λA τ + Br ⊆ At.
+
+Assume now that At = Aτ . Then, up to sets of measure zero, we have λA τ + Br ⊂ Aτ . Since 
+
+B1 ⊂ Aτ , this forces Bλ+r = λB 1 + Br ⊂ Aτ , and iteratively, BRk ⊂ Aτ where R0 = 1 and 
+
+Rk+1 = λR k + r. Since λ > 1, this implies Aτ = Rn. □
+
+Acknowledgments 
+
+The first author was supported by the Australian Research Council Future Fellowship FT230100333 “New perspectives on nonlocal equations”. The second author was supported by the Swiss National Science Foundation (SNF grant agree-ment PZ00P2 208930), the Swiss State Secretariat for Education, Research and Innovation (SERI) under contract number MB22.00034, and the AEI project PID2024-156429NB-I00 (Spain). The third author was supported by the Australian Laureate Fellowship FL190100081 “Minimal surfaces, free boundaries and partial differential equations”. 22 S. DIPIERRO, X. FERN ´ANDEZ-REAL, AND E. VALDINOCI 
+
+References 
+
+[1] Luigi Ambrosio, Guido De Philippis, and Luca Martinazzi, Gamma-convergence of nonlocal perimeter function-als , Manuscripta Math. 134 (2011), no. 3-4, 377–403, DOI 10.1007/s00229-010-0399-4. MR2765717 [2] Jean Bourgain, Haim Brezis, and Petru Mironescu, Another look at Sobolev spaces , Optimal control and partial differential equations, IOS, Amsterdam, 2001, pp. 439–455. MR3586796 [3] Claudia Bucur, Serena Dipierro, Luca Lombardini, and Enrico Valdinoci, Minimisers of a fractional semi-norm and nonlocal minimal surfaces , Interfaces Free Bound. 22 (2020), no. 4, 465–504, DOI 10.4171/ifb/447. MR4184583 [4] Xavier Cabr´ e and Matteo Cozzi, A gradient estimate for nonlocal minimal graphs , Duke Math. J. 168 (2019), no. 5, 775–848, DOI 10.1215/00127094-2018-0052. MR3934589 [5] Luis Caffarelli, Jean-Michel Roquejoffre, and Ovidiu Savin, Nonlocal minimal surfaces , Comm. Pure Appl. Math. 63 (2010), no. 9, 1111–1144, DOI 10.1002/cpa.20331. MR2675483 [6] Luis Caffarelli and Panagiotis Souganidis, Convergence of nonlocal threshold dynamics approximations to front propagation , Arch. Ration. Mech. Anal. 195 (2010), no. 1, 1–23, DOI 10.1007/s00205-008-0181-x. MR2564467 [7] Luis Caffarelli and Enrico Valdinoci, Uniform estimates and limiting arguments for nonlocal minimal sur-faces , Calc. Var. Partial Differential Equations 41 (2011), no. 1-2, 203–240, DOI 10.1007/s00526-010-0359-6. MR2782803 [8] , Regularity properties of nonlocal minimal surfaces via limiting arguments , Adv. Math. 248 (2013), 843–871, DOI 10.1016/j.aim.2013.08.007. MR3107529 [9] Antonin Chambolle, Massimiliano Morini, and Marcello Ponsiglione, Nonlocal curvature flows , Arch. Ration. Mech. Anal. 218 (2015), no. 3, 1263–1329, DOI 10.1007/s00205-015-0880-z. MR3401008 [10] Otis Chodosh, Christos Mantoulidis, and Felix Schulze, Improved generic regularity of codimension-1 minimizing integral currents , Ars Inven. Anal., posted on 2024, Paper No. 3, 16, DOI 10.15781/z70n-ed29. MR4753940 [11] , Generic regularity for minimizing hypersurfaces in dimensions 9 and 10 , Publ. Math. Inst. Hautes ´Etudes Sci. 143 (2026), 143–188. MR5082540 [12] Otis Chodosh, Christos Mantoulidis, Felix Schulze, and Zhihan Wang, Generic regularity for minimizing hy-persurfaces in dimension 11 , arXiv e-prints (2025), arXiv:2506.12852. [13] Eleonora Cinti, Joaquim Serra, and Enrico Valdinoci, Quantitative flatness results and BV -estimates for stable nonlocal minimal surfaces , J. Differential Geom. 112 (2019), no. 3, 447–504, DOI 10.4310/jdg/1563242471. MR3981295 [14] Matteo Carducci and Roberto Colombo, Generic regularity of free boundaries in the obstacle problem for the fractional Laplacian , arXiv e-prints (2024), arXiv:2412.16066. [15] Juan D´ avila, On an open question about functions of bounded variation , Calc. Var. Partial Differential Equations 
+
+15 (2002), no. 4, 519–527, DOI 10.1007/s005260100135. MR1942130 [16] Serena Dipierro, Ovidiu Savin, and Enrico Valdinoci, Boundary behavior of nonlocal minimal surfaces , J. Funct. Anal. 272 (2017), no. 5, 1791–1851, DOI 10.1016/j.jfa.2016.11.016. MR3596708 [17] , Nonlocal minimal graphs in the plane are generically sticky , Comm. Math. Phys. 376 (2020), no. 3, 2005–2063, DOI 10.1007/s00220-020-03771-8. MR4104542 [18] , A strict maximum principle for nonlocal minimal surfaces , To appear in J. Eur. Math. Soc., posted on 2025, DOI 10.4171/JEMS/1675. [19] Xavier Fern´ andez-Real and Florian Gruen, Continuity up to the boundary for minimizers of the one-phase Bernoulli problem , Calc. Var. Partial Differential Equations 64 (2025), no. 5, Paper No. 166, 15, DOI 10.1007/s00526-025-03040-3. MR4912448 [20] Xavier Fern´ andez-Real and Xavier Ros-Oton, Free boundary regularity for almost every solution to the Signorini problem , Arch. Ration. Mech. Anal. 240 (2021), no. 1, 419–466, DOI 10.1007/s00205-021-01617-8. MR4228865 [21] Xavier Fern´ andez-Real and Clara Torres-Latorre, Generic regularity of free boundaries for the thin obstacle problem , Adv. Math. 433 (2023), Paper No. 109323, 29, DOI 10.1016/j.aim.2023.109323. MR4649881 [22] Xavier Fern´ andez-Real and Hui Yu, Generic properties in free boundary problems , To appear in Amer. J. Math., posted on 2023, DOI 10.48550/arXiv.2308.13209. [23] , Linearized equation and generic regularity in the Alt-Caffarelli problem , arXiv e-prints (2025), arXiv:2510.18330. [24] Alessio Figalli, Xavier Ros-Oton, and Joaquim Serra, Generic regularity of free boundaries for the obstacle prob-lem , Publ. Math. Inst. Hautes ´Etudes Sci. 132 (2020), 181–292, DOI 10.1007/s10240-020-00119-9. MR4179834 [25] Alessio Figalli and Enrico Valdinoci, Regularity and Bernstein-type results for nonlocal minimal surfaces , J. Reine Angew. Math. 729 (2017), 263–273, DOI 10.1515/crelle-2015-0006. MR3680376 [26] Robert Hardt and Leon Simon, Area minimizing hypersurfaces with isolated singularities , J. Reine Angew. Math. 362 (1985), 102–129, DOI 10.1515/crll.1985.362.102. MR809969 NONLOCAL MINIMAL SURFACES ARE GENERICALLY UNIQUE AND SMOOTH 23 
+
+[27] R´ egis Monneau, On the number of singularities for the obstacle problem in two dimensions , J. Geom. Anal. 13 
+
+(2003), no. 2, 359–389, DOI 10.1007/BF02930701. MR1967031 [28] Giampiero Palatucci, Ovidiu Savin, and Enrico Valdinoci, Local and global minimizers for a variational energy involving a fractional norm , Ann. Mat. Pura Appl. (4) 192 (2013), no. 4, 673–718, DOI 10.1007/s10231-011-0243-9. MR3081641 [29] Ovidiu Savin and Enrico Valdinoci, Γ -convergence for nonlocal phase transitions , Ann. Inst. H. Poincar´ e C Anal. Non Lin´ eaire 29 (2012), no. 4, 479–500, DOI 10.1016/j.anihpc.2012.01.006. MR2948285 [30] , Regularity of nonlocal minimal cones in dimension 2 , Calc. Var. Partial Differential Equations 48 
+
+(2013), no. 1-2, 33–39, DOI 10.1007/s00526-012-0539-7. MR3090533 [31] David G. Schaeffer, An example of generic regularity for a non-linear elliptic equation , Arch. Rational Mech. Anal. 57 (1975), 134–141, DOI 10.1007/BF00248415. MR387810 [32] Nathan Smale, Generic regularity of homologically area minimizing hypersurfaces in eight-dimensional mani-folds , Comm. Anal. Geom. 1 (1993), no. 2, 217–228, DOI 10.4310/CAG.1993.v1.n2.a2. MR1243523 
+
+Serena Dipierro, Department of Mathematics and Statistics, University of Western Australia,, 35 Stirling Highway, WA 6009 Crawley, Australia 
+
+Email address : serena.dipierro@uwa.edu.au 
+
+Xavier Fern´ andez-Real, School of Basic Sciences, ´Ecole Polytechnique F´ ed´ erale de Lausanne, Station 8, 1015 Lausanne, Switzerland 
+
+Email address : xavier.fernandez-real@epfl.ch 
+
+Enrico Valdinoci, Department of Mathematics and Statistics, University of Western Australia,, 35 Stirling Highway, WA 6009 Crawley, Australia 
+
+Email address : enrico.valdinoci@uwa.edu.au

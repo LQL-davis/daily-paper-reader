@@ -1,0 +1,466 @@
+Title: HPG-Diff: Hierarchical physics-guided diffusion with differentiable connectivity constraints for topology optimization
+
+URL Source: https://arxiv.org/pdf/2607.07233v1
+
+Published Time: Thu, 09 Jul 2026 00:44:06 GMT
+
+Number of Pages: 43
+
+Markdown Content:
+# HPG-Diff: Hierarchical physics-guided diffusion with differentiable connectivity constraints for topology optimization 
+
+Jinbo Yang a,1 , Mingyue Yuan b,1 , Boyuan Zhang c, Yoshifumi Kitamura d,Shikai Jing a, ∗
+
+> a
+
+School of Mechanical Engineering, Beijing Institute of Technology, Beijing, 100081, China 
+
+> b
+
+Computer Science and Engineering, University of New South Wales, Sydney, 2052, Australia 
+
+> c
+
+College of Intelligence and Computing, Tianjin University, Tianjin, 300072, China 
+
+> d
+
+Research Institute of Electrical Communication, Tohoku University, Sendai, 980-8576, Japan 
+
+Abstract 
+
+Deep generative models offer a promising paradigm for topology optimiza-tion, enabling rapid design exploration. However, these approaches lack in-trinsic physics guidance, often leading to poor generalizability across un-seen boundary conditions and the formation of floating material artifacts. To address these limitations, we propose Hierarchical Physics-Guided Diffu-sion (HPG-Diff), a novel diffusion framework that enforces physics consis-tency through two synergistic mechanisms. First, we introduce a hierarchi-cal physics-guided strategy that aligns different precomputed physics features with the denoising process, guiding material distribution toward optimal load paths to enhance generalizability. Second, we propose a floating material sup-pression loss as a differentiable connectivity constraint inspired by thermal conduction to improve topological connectivity. By simulating a virtual heat propagation process from load positions, this mechanism explicitly penal-izes floating material during training. Quantitative evaluations demonstrate that HPG-Diff achieves average compliance errors of 0.87% (in-distribution) and 5.29% (out-of-distribution), while reducing floating material ratios to 
+
+> ∗
+
+Corresponding author. E-mail address: jingshikai@bit.edu.cn (S. Jing) 
+
+> 1
+
+These authors contributed equally to this work. arXiv:2607.07233v1 [cs.LG] 8 Jul 2026 2.90% and 2.44%, respectively. Furthermore, case studies on a 3:1 rectangu-lar domain, including cantilever and bridge benchmarks, provide preliminary evidence that lightweight LoRA fine-tuning with a small dataset can support the adaptation of HPG-Diff to rectangular non-square domains. 
+
+Keywords: Topology optimization, Diffusion models, Physics-guided generation, Connectivity constraints, Generative design 
+
+1. Introduction 
+
+Topology optimization (TO) has been widely used in various engineer-ing design scenarios due to its capacity to generate lightweight structures with high mechanical performance. To date, numerous TO designed struc-tures have been successfully applied in the aerospace [1, 2, 3], mechanical [4, 5, 6], civil [7, 8], and biomedical [9, 10, 11] fields. This iterative optimiza-tion approach typically relies on Finite Element Analysis (FEA). A common example is the Solid Isotropic Material with Penalization (SIMP) [12]. How-ever, it is computationally demanding, especially in large-scale optimization problems. Data-driven design methods have also been widely explored in broader engineering domains [13, 14, 15, 16, 17]. In topology optimization, deep learning has significantly reduced computational costs using surrogate mod-els [18, 19, 20, 21, 22]. However, they often suffer from a lack of physics consistency : the mechanical performance and manufacturability may vi-olate the physics principles. Since surrogate models approximate complex behavior by fitting input–output relationships, they may not effectively cap-ture the physics representation of optimization objectives and constraints, potentially resulting in generated structures with anomalous stress concen-trations or connectivity defects. For example, density-field surrogate pre-dictions may require additional physics-based correction or post-processing when the learned mapping does not fully preserve equilibrium, volume, or connectivity-related constraints [23, 24]. At the same time, practical engi-neering design demands a diverse set of high-performing alternatives. As illustrated in Fig. 1, this requires generating new designs, either by changing strict inputs for a fixed problem or by adjusting relaxable inputs to explore the design space. Strict inputs denote problem-defining conditions such as boundary conditions and loads, while relaxable inputs denote design-control variables such as volume fraction. The comparison in Fig. 1 is qualitative and 2used to illustrate typical design methods. However, mainstream TO meth-ods face clear limitations when acquiring new designs. Traditional SIMP is deterministic, offering no diversity under same inputs, and requires a com-plete rerun for modified arguments. For methods like PINN[25, 26] and solver-guided learning [23, 27], both generating diversity for a fixed prob-lem by changing random seeds and adapting to input changes require same time-consuming retraining process. Consequently, designers have to choose between efficiency and quality, highlighting the need for a TO framework that enables fast, diverse, and high-performing design generation.    
+
+> Figure 1: Performance vs Efficiency: Engineering design demands multiple high-performing alternatives. Comparison of mainstream TO methods in adaptabil-ity, performance, and computational cost. For a given TO design, strict inputs (boundary conditions, load) must always be satisfied, while relaxable inputs (volume fraction) allow adjustment, resulting in two modes of generating new designs.
+
+This trade-off is not only computational but also reflects different ways of enforcing physics constraints. PINN and solver-guided methods can impose relatively better physics consistency by embedding governing-equation resid-uals, energy terms, or online FEA feedback into optimization. However, this constraint hardness often reduces generative flexibility, because new bound-ary conditions, loads, or design requirements may require per-case optimiza-tion, retraining, or iterative solver interaction. Generative models provide a complementary route: after pretraining, they can efficiently sample diverse candidate designs, but their physics consistency depends on the design of conditioning signals and training objectives. Recently, advances in Generative Adversarial Network (GAN) [28] and diffusion models [29] have improved generation quality through more pre-cise modeling of data distributions. Meanwhile, these generative methods inherently have the capacity for fast and diverse generation. For TO, some 3physics-guided variants [30] further integrate physics knowledge to improve performance. While physics knowledge has been incorporated into these methods [31, 32, 33], several challenges remain in practical applications. The reasons are twofold: (1) These methods treat physics knowledge as either global inputs or external steering signals, overlooking the intrinsic correlation between hi-erarchical nature of the denoising process and distinct physical knowledge. Consequently, mechanical fidelity is limited due to the lack of generalizability, especially in out-of-distribution scenarios (2) Standard pixel-wise objectives are inherently topology-agnostic. Despite improvements, generative models still produce a higher proportion of floating material than traditional SIMP-like methods. This paper aims to address these challenges to develop an innovative method that improves mechanical fidelity and manufacturability in TO, while retaining the efficiency and diversity of generative methods. In order to replicate both the optimal material distribution goal and the connectivity constraint of classical topology optimization (e.g., SIMP) within a generative paradigm, we propose Hierarchical Physics-Guided Diffusion (HPG-Diff) , a diffusion framework that rapidly generates diverse high-performing designs (Fig. 2) through the synergistic integration of hierarchical feature guidance and differentiable connectivity constraints. Specifically, we introduce a hierarchical physics-guided strategy to guide the denoising process. By incorporating three key mechanical responses 
+
+Displacement (U) , Principal Stress Line (PSL) , and Strain Energy Density (SED) , we capture deformation magnitude, critical load paths, and stiffness-contributing regions, respectively. Building upon approaches that rely pri-marily on high-level features (e.g., SED ) [31], we introduce low-level U and mid-level PSL as novel contexts hierarchically injected across network lay-ers. This aligns the model’s receptive fields with distinct physics features, ensuring the optimal material distribution. Moreover, we impose a floating material suppression loss as a differentiable connectivity constraint to reg-ularize the output topology. This thermal-conduction-inspired mechanism ensures the material forms a continuous structure by explicitly penalizing disconnected regions during training, which effectively reduces floating ma-terial artifacts in the generated structures. Our main contributions are: 
+
+• A hierarchical physics-guidance strategy is proposed for topology opti-mization, which organizes distinct key physics features as layer-specific 4conditioning signals aligned with different stages of the denoising pro-cess. This strategy enhances mechanical fidelity and generalizability to unseen boundary conditions. 
+
+• The discrete topological connectivity problem is reformulated as a dif-ferentiable propagation process to derive a floating material suppression loss. This allows the connectivity constraint to be explicitly integrated into the gradient-based training loop in generative TO. 
+
+• Our diffusion framework HPG-Diff balances high mechanical perfor-mance with the generation efficiency. Notably, case studies demon-strate that the learned physics priors enable rapid adaptation to differ-ent design domains via lightweight LoRA fine-tuning.   
+
+> Figure 2: Example of HPG-Diff for rapid and diverse topology optimization design generation. Given the boundary conditions and volume fraction, the model generates diverse and high-performing structures. Note that LoRA fine-tuning is employed to adapt the model to non-square design domains.
+
+2. Related works 
+
+2.1. Physics-aware deep learning paradigms in topology optimization 
+
+Learning-based computational methods have been increasingly explored across constrained engineering domains, such as infrastructure assessment and energy-system operation [34, 35, 36, 37]. Topology optimization (TO) aims to compute optimal material distribution under given loads and bound-ary conditions, and it is widely used in industrial design. In real-world scenar-ios, designers require not only high-performing structures but also multiple alternative solutions to trade off manufacturability, cost, and aesthetics. 5Classical numerical methods such as SIMP [12] provide physically con-sistent results but are computationally expensive for diverse design explo-rations. To address this challenge, deep learning frameworks have emerged as promising alternatives [38, 39, 40, 41]. Recent work has emphasized integrating physics knowledge into learning pipelines. We roughly categorize existing approaches into three paradigms. 
+
+PINN methods (e.g., PINNTO [25] and CPINNTO [26]) embed governing equations or physics terms in the loss. Solver-guided learning methods (e.g., SOLO [23] and TOuNN [27]) incorporate online FEA feedback during training. These two paradigms improve mechanical performance, but typi-cally require per-case retraining or iterative FEA updates when the problem setting changes, which limits scalability in design-exploration workflows. In contrast, generative methods (GANs, diffusion models) [42, 31, 32, 33] emphasize rapid, diverse sample generation: after pretraining they can produce multiple candidate designs at inference without per-case retrain-ing. Table 1 summarizes a comparison of these physics-aware deep learning paradigms (per-case training, support for diverse outputs, and relative infer-ence cost). The inference-time multipliers are approximate ranges. They are summarized from the typical behavior of mainstream implementations, and may vary with detailed implementations or settings.           
+
+> Method PINN Methods Solver-Guided Learning Generative Methods Per-Case Training Required Yes Yes No
+> Supports Diverse Outputs No No Yes
+> Inference Time 50 ∼100X 2∼3X XTable 1: Comparison of physics-integration strategies for mainstream deep learning meth-ods. The method classifications reflect typical mainstream implementations, and inference time is reported as an approximate multiple of baseline Generative Methods (X).
+
+2.2. Physics-conditioning mechanisms in generative TO 
+
+The effectiveness of generative models for TO hinges on how physics guid-ance is integrated—a process known as conditioning. Current strategies for diffusion models fall into two main categories: 
+
+Architectural Modification approaches offer fine-grained control by altering the model’s structure, such as modifying the network backbone [43, 644, 45], adding new trainable modules [46], or using internal attention mech-anisms [47]. Sampling-Phase methods steer the generation process without changing the model, typically by using external classifiers [48] or adapting the sampling algorithm [49, 50]. In TO, diffusion model-based methods [31, 32, 33] belong to the second. This often involves using physics features like Strain Energy Density (SED) 
+
+and von Mises stress to represent input settings. While this strategy avoids issues with sparse data, such high-level features cannot fully capture the complex internal mechanics of a structure. Therefore, they often require complex multi-stage framework or auxiliary models, which actually lower the generation efficiency. From the perspective of physics features integration, existing diffusion-based TO methods mainly introduce physics information as an overall con-dition or steering signal for the generation process [31, 32, 33]. Such designs provide useful physical context, but they do not explicitly organize different physics features according to their distinct structural roles in TO. In this work, we implement an architecture-level, multi-level conditioning strategy that hierarchically aligns multi-level physics features with the denoising pro-cess, thereby providing richer mechanical context during generation while keeping an efficient pipeline. 
+
+2.3. Topological connectivity and design domain adaptation 
+
+For practical application, two issues remain challenging in generative TO. First, generated structures often contain disconnected or floating ma-terial that requires additional processing. Prior works typically rely on post-processing filters [51, 52, 53], auxiliary classifiers [31, 54], or extra loss terms [24, 55] to mitigate these defects. Second, generative TO studies train and validate on square domains, whereas industrial components often design under non-square domains. This domain mismatch often requires retraining or substantial fine-tuning on target-specific datasets [33]. To address domain adaptation with limited data, parameter-efficient fine-tuning methods (e.g. LoRA [56]) can adapt a pre-trained generative prior to new domain sizes or aspect ratios with small datasets. However, LoRA’s success depends on the generalizability of pre-trained diffusion model and the similarity between pretraining and target data distributions. In our work, we target these two problems in generative TO. For connec-tivity, existing differentiable connectivity losses in shape generation typically 7act on the generated occupancy, mask, or implicit field to reduce broken or separate components and improve object-level connectivity [57, 58, 59]. This objective is largely geometry-level: it measures whether the gener-ated shape is connected as an object. In contrast, our FMS addresses a topology-optimization-specific connectivity issue. It evaluates whether high-density material is reachable through the predicted material layout. Thus, the penalty is a load-seeded reachability penalty for TO. For domain adapta-tion, we evaluate LoRA-based adaptation in representative non-square cases in Section 4.6. Evaluation focuses on compliance error, connectivity, and design diversity to quantify applicability. 
+
+3. Method 
+
+In this section, we demonstrate the structure of HPG-Diff, which enables a single diffusion model to generate topological structures with high physics consistency. The section is organized as follows: Section 3.1 illustrates how we select physics information as features. Section 3.2 introduces the details of HPG-Diff and the hierarchical physics-guided strategy. Section 3.3 depicts the loss function designed to control floating material artifacts. 
+
+3.1. Representation TO with physics features 
+
+The minimum-compliance problem in TO can be written as: 
+
+min  
+
+> x
+
+c(x) = F T U = U T KU 
+
+subject to: V (x)
+
+V0
+
+= vf
+
+0 < x min ≤ x ≤ 1
+
+(1) where U and F are the global displacement and force vectors, respectively, 
+
+K is the global stiffness matrix, x is the design variables, xmin is the minimum relative density, V (x) and V0 are the material volume and design domain volume, respectively. vf is the prescribed volume fraction. The total potential energy of the structure is the difference between strain energy Estrain and potential energy of the external loads Eloads . In discrete form, this is: 
+
+Π = Estrain − Eloads = 12U T KU − U T F (2) 8Figure 3: Example of local feature enhancements driven by conditioning physics features in the denoising process. Notable enhancements can be observed in the red-circled regions as a result of this conditioning. 
+
+According to the Principle of Minimum Potential Energy, the equilibrium state is found when ∂Π 
+
+> ∂U
+
+= 0 , which yields the system equation: 
+
+KU = F (3) Solving Eq. 3 via FEA yields the displacement field U. While U is the most fundamental low-level feature representing displacement of all elements, we derive two higher-level features from it to provide more direct insight into the optimized structure. The first, Strain Energy Density (SED) , directly relates to the opti-mization objective. As compliance is twice the total strain energy ( c(x) = 
+
+U T KU = 2 Estrain ), SED pinpoints regions most critical to the structure’s stiffness. The second, Principal Stress Line (PSL) explains the structural mor-phology. Derived from the stress field, PSL visualizes the internal load paths, thereby revealing why the topology forms its specific shape. Fig. 3 provides an illustrative example of the impact of physics features on conditioning the denoising process. The red-circled regions highlight how 9Figure 4: (HPG-Diff) Hierarchical Physics-Guided Diffusion Framework. Col-ored lines depict how U (green), PSL (yellow), and SED (blue) hierarchically guide shal-low, mid, and deep layers via cross-attention modules. 
+
+these features enhance the UNet’s feature maps, improving the preservation of both details and overall structural integrity. Specifically, the corresponding conditioning physics features are: (1) Dis-placement (U) : Low-level feature that quantifies the element displacements within the design domain. Yellow and dark blue denote maximum and mini-mum displacements at the load and support points. The circled region shows the preserved thin rod structure, which is a critical load path. (2) Prin-cipal Stress Line (PSL) : Mid-level feature that visualizes internal load paths via tensile (red) and compressive (blue) stresses. The circles highlight the encoder preserves a thin rod structure and the decoder improves overall structural connectivity. (3) Strain Energy Density (SED) : High-level feature that indicates critical regions (yellow areas) related to stiffness. The circled region shows the encoder removes a redundant feature, thus enhancing structural integrity. 
+
+3.2. Hierarchical physics-guided strategy 
+
+Diffusion models with standard UNet architectures inherently process in-formation hierarchically. Through successive downsampling operations in the encoder path, the effective receptive field of convolutional kernels pro-gressively increases. As a result, deeper layers capture more abstract, global structural context from the input. Shallower layers work differently: they use smaller receptive fields and operate closer to the original input resolution. This allows them to primarily focus on preserving and refining fine-grained local details. 10 Crucially, this hierarchical nature is mirrored in the decoder path. As the network upsamples the latent features back to the pixel space, the denoising process progressively reconstructs the topology. In the context of topology optimization, this implies a functional separation: transitioning from deter-mining the global material layout (deep layers), through developing interme-diate structural components (mid layers), to finish the details of structural boundaries (shallow layers). We leverage this inherent architectural hierarchy by drawing a parallel to the distinct physics characteristics represented by our chosen physics features (Section 3.1). Specifically, Displacement (U) , which describes point-wise de-formation and local geometric changes, aligns naturally with the fine-grained and local feature processing capabilities of the shallower layers in the UNet. Conversely, Principal Stress Line (PSL) , depicting the global pathways of load transmission, and the Strain Energy Density (SED) , highlighting struc-turally significant regions of energy concentration, represent more global me-chanical characteristics. These align conceptually with the global structural context captured effectively by the deeper layers of the UNet. Based on this correspondence, we propose a hierarchical physics-guided strategy. The core principle is to condition the diffusion model’s denoising process by injecting these distinct physics features at specific, correspond-ing stages or layers within the UNet architecture, rather than providing all conditioning information uniformly. This means guiding the generation pro-cess with the type of physics features that best matches the abstraction level and receptive field size of the UNet features at that particular stage. As Fig. 4 shows, we employ a layer-specific cross-attention mechanism within the UNet’s encoder and decoder. At designated layers (e.g., shallow, mid, deep layers), cross-attention modules are introduced to dynamically attend to the feature representations of the corresponding injected physics features. The denoising process is illustrated as: 
+
+pθ(xt−1 | xt, c ) = N (xt−1 | μθ(xt, t, c ), Σθ(t)) (4) where c represents the physics guidance condition. This hierarchical injection combined with the cross-attention mechanism facilitates a dynamic coupling between the generated topology and the me-chanical principles represented by the physics features. Physics consistency is better maintained during the sampling process by aligning the physics guid-ance with the appropriate layers of the UNet, leading to generated topologies 11 that are more physically plausible. 
+
+3.3. Floating material suppression loss 
+
+Our proposed framework aims to replicate the rigorous physical consis-tency of classical topology optimization (e.g., SIMP) within a generative paradigm. In SIMP, FEA-driven sensitivity analysis serves dual purposes: it simultaneously guides material distribution to minimize compliance and inherently enforces connectivity, since disconnected elements carry no load and are eliminated by the optimization process. In contrast, standard diffusion models lack this intrinsic physical feed-back. While the hierarchical physics-guided strategy (Section 3.2) effectively directs material allocation by conditioning on physics fields, it functions pri-marily as a soft guidance mechanism rather than a strict constraint. Mean-while, the generative process is driven by pixel-wise denoising objectives (e.g., 
+
+L2 MSE). These losses treat pixels as statistically independent variables and are inherently topology-agnostic, making the model prone to generating float-ing material, such as isolated islands that degrade mechanical performance and manufacturability. To mitigate this issue, we propose a loss function inspired by the physical mechanism of thermal conduction [60], based on the intuition that heat-flow propagation from a prescribed source provides a continuous way to mea-sure reachability through connected material paths. Unlike standard discrete connectivity checks (e.g., Connected Component Labeling) which are non-differentiable, we formulate connectivity as a differentiable heat propagation process. The core logic operates by placing a virtual heat source at the load po-sition and simulating its propagation through the predicted material. Ef-fectively, any material that remains "cold" implies it is structurally discon-nected. This mechanism is implemented through three coupled stages: 1. Seeding: Initialize the propagation source with the binary seed mask 
+
+Sload ∈ { 0, 1}N ×N at the load position. Since the load position serves as the functional origin of the stress transmission path, only material connected to this source is recognized as part of the effective structure. 2. Differentiable Propagation: Allow a signal to iteratively propagate over the predicted material distribution ˆxpred to obtain the connectivity strength map Dfinal .12 3. Penalty: After propagation converges, penalize regions that exhibit high material density (approaching 1) but low connectivity signal (ap-proaching 0). This penalty encourages the model to suppress these isolated components that fail to receive the propagated signal. 
+
+Dfinal is computed via the differentiable propagation. Let Sload ∈ { 0, 1}N ×N
+
+be a binary seed mask indicating load location. Define the local maximum operator (equivalent to a 3 × 3 dilation) 
+
+ Max 3×3(D) 
+
+> ij
+
+= max  
+
+> (u,v )∈N 1(i,j )
+
+Duv (5) and initialize D(0) = Sload . We update 
+
+D(k+1)  
+
+> ij
+
+= max  D(k) 
+
+> ij
+
+, (Max 3×3(D(k))) ij (ˆ xpred )ij 
+
+ (6) and we iterate this process for k steps (where k covers the domain dimension) 
+
+Dfinal = D(k).This propagation provides a justification for FMS in topology optimiza-tion. In the binary-density limit, the predicted density field defines a solid mask Ωs, and the load mask Sload defines the source set. The max-propagation step can be interpreted as a masked reachability dilation: the connectivity signal is allowed to expand only through elements belonging to Ωs. Equiva-lently, the discrete reachable set follows R(0) = Sload , R(k+1) = R(k) ∪ { i ∈
+
+Ωs | i is adjacent to some j ∈ R (k)}. By induction, R(k) contains the solid elements that can be reached from the load seed through a continuous solid path of at most k steps. Therefore, when k covers the domain scale, the prop-agation converges to the reachable solid component. For continuous density predictions, the final connectivity map Dfinal can be viewed as a continuous approximation of this binary reachable component, where larger values indi-cate stronger reachability from the load seed through the predicted material field. Thus, high-density regions with low propagation values correspond to floating material that is not incorporated into the load-seeded material com-ponent. This is consistent with topology optimization, where disconnected solid regions consume the prescribed volume budget but do not effectively contribute to the main load-transfer structure. Thus we introduce the Floating Material Suppression Loss (FMS loss), denoted as Lfm , which penalizes floating material: 13 Lfm = Ex0,ϵ,t 
+
+w(t) 1
+
+|Ω|
+
+X
+
+> (i,j )∈Ω
+
+(ˆ xpred )ij 
+
+ 1 − (Dfinal )ij 
+
+ (7) where ˆxpred is the predicted material distribution, Dfinal ∈ [0 , 1] N ×N is the connectivity strength map obtained from the differentiable propagation, t is the diffusion timestep, T the maximal timestep, and c > 0 a scalar controlling the time weighting. We use an exponential time-weighting w(t) = exp( −c t/T ) so the connec-tivity prior acts mainly at late denoising steps (t → 0) , avoiding gradient conflict with Lnoise . This weighting improves the stability of FMS during early denoising stages. When t is large, the predicted density field is still highly noisy and may not provide a coherent propagation medium; the small value of w(t) prevents the FMS term from producing dominant gradients at this stage. As t approaches 0, the predicted density field becomes more structured, and FMS becomes active on high-density regions that remain unreachable from the load seed. Because the penalty is multiplied by ˆxpred ,near-void regions contribute little to the loss, while disconnected high-density regions receive stronger gradients. Therefore, the scalar c is defined relative to T . We further provide sensitivity analysis in Appendix C. The final train-ing objective combines Lfm , with λfm balancing denoising loss and topology regularization: 
+
+L = Lnoise + λfm Lfm (8) 
+
+4. Experiments 
+
+4.1. Dataset 
+
+We utilize the dataset from Mazé et al. [31], which was collected using the SIMP method and contains 30,000 training samples and two test sets. Test 1 
+
+includes 1,800 samples with in-distribution boundary conditions, while Test 2 contains 1,000 samples with out-of-distribution boundary conditions. The dataset was generated under varied conditions: the volume fraction ranges from 0.3 to 0.5 in 0.02 increments; loads are applied at random unconstrained boundary nodes with directions from [0 , π ] in π/ 6 intervals; and 42 bound-ary conditions were used for training versus 5 new boundary conditions for testing. Each sample in the dataset provides the optimal topology, minimum compliance, and details on loads, boundary conditions, and volume fraction. 14 The original data also includes preprocessed von Mises stress and strain en-ergy density . Moreover, we have supplemented this dataset with displacement 
+
+and principal stress line as additional physics features. 
+
+4.2. Evaluation metrics 
+
+Distinct from common metrics used for generative models which typically assess the quality, realism, and diversity of generated images, we use physics-based metrics adapted from [31]. Given the primary objective of topology optimization (TO) is to achieve minimum compliance, the following three metrics are employed. For all metrics, evaluations are performed on bina-rized results (threshold τ = 0 .5) using a standard FEA solver to ensure fair comparisons: 
+
+Compliance Error (CE) is the relative error in compliance compared to ground truth; 
+
+Volume Fraction Error (VFE) is the relative error in volume fraction compared to ground truth; 
+
+Floating Material (FM) is the proportion of samples containing float-ing materials. These evaluation metrics are applied to both the Test 1 and Test 2 .The evaluation on the Test 2 specifically aims to assess the model’s general-izability on unseen data distributions, thereby indicating whether the model has effectively learned the optimization physics mechanisms. 
+
+4.3. Implementation 
+
+We implement our HPG-Diff based on PyTorch using a single NVIDIA A100 for both training and inference. For training, we initiate the training process with diffusion steps 1000 for around 200 epochs. The AdamW [61] optimizer was utilized along with a batch size set to 64. We implemented the cosine noise schedule with an initial learning rate of 0.0001. 
+
+4.4. Baseline comparison 4.4.1. Setup 
+
+To better evaluate HPG-Diff, we compare HPG-Diff with three SOTA generative methods (TopologyGAN [42], TopoDiff [31], and DOM [32]). Us-ing the datasets and evaluation metrics mentioned in Section 4.1 and 4.2. 15 Method Avg CE ↓ Med CE ↓ Avg VFE ↓ FM ↓
+
+TopologyGAN [42] 48.51 2.06 11.87 46.78 TopoDiff-Guided [31] 4.39 0.83 1.85 5.54 DOM w/ TA [32] 4.44 0.74 1.52 6.72 
+
+HPG-Diff (Ours) 0.87 0.16 1.38 2.90    
+
+> Table 2: Baseline Comparison: Performance (in %) on the Test 1 (in-distribution)
+> dataset.
+
+4.4.2. In-Distribution 
+
+As Table 2 shows, compared to three baseline methods, HPG-Diff reduces the CE, achieving values of 0.87% in average and 0.16% in median. Further-more, HPG-Diff effectively suppresses the existence of FM to 2.90%. average VFE is reduced to 1.38%. When compared to the other generative methods, HPG-Diff reduces the Average CE by 80.18% relative to TopoDiff-Guided and by 80.41% relative to DOM w/ TA. The FM is also reduced by 47.65% and 56.85% compared to TopoDiff-Guided and DOM w/ TA, respectively. Compared with Topolo-gyGAN, our method improves Average CE, Median CE, and FM by approx-imately 98.21%, 92.23%, and 93.80%. 
+
+4.4.3. Out-of-Distribution 
+
+Method Avg CE ↓ Med CE ↓ Avg VFE ↓ FM ↓
+
+TopologyGAN [42] 143.08 6.82 14.31 67.90 TopoDiff-Guided [31] 18.40 1.82 1.80 6.21 DOM w/ TA [32] 32.19 3.69 1.78 14.20 
+
+HPG-Diff (Ours) 5.29 0.61 1.45 2.44             
+
+> Table 3: Baseline Comparison: Performance (in %) on the Test 2(out-of-distribution) dataset.
+
+Table 3 shows that HPG-Diff outperformed in Average CE, Median CE, and FM, achieving values of 5.29%, 0.61% and 2.44%, respectively. average VFE is reduced to 1.45%. Statistically, HPG-Diff substantially outperforms all baselines in the out-of-distribution tests. It reduces the key Average CE metric by 71.25% and 16 83.57% compared to TopoDiff-Guided and DOM w/ TA, respectively, while also improves Median CE and FM by 66.48% ∼83.47% and 60.71% ∼82.82% against these two methods. When compared to TopologyGAN, all major errors in CE and FM are reduced by over 91%. These results show the potential of generalizability of HPG-Diff for unseen design problems. Multi-stage methods often trade higher computational cost for perfor-mance gains. We investigate this by comparing our HPG-Diff with DOM fol-lowed by SIMP post-processing on out-of-distribution tests (Table 4). While increasing the number of SIMP steps from 5 to 10 improves the baseline’s scores, it does not surpass our method’s median CE and FM. Furthermore, this improvement comes at the direct cost of increased inference time, as each SIMP step requires an extra FEA calculation. HPG-Diff achieves competitive performance without this iterative overhead, demonstrating the effectiveness of our framework. Method Mdn CE (%) ↓ Avg VFE (%) ↓ FM (%) ↓
+
+DOM w/ TA 3.69 1.78 14.20 DOM w/ TA + SIMP 5 1.89 1.77 10.19 DOM w/ TA + SIMP 10 1.15 1.10 2.61 
+
+HPG-Diff 0.61 1.45 2.44    
+
+> Table 4: Comparison with multi-stage method in out-of-distribution tests. Subscript of SIMP denotes the number of iteration steps of SIMP.
+
+4.5. Ablation study 
+
+Table 5 and Table 6 show the ablations on Hierarchical Physics-Guided (HPG) strategy, Floating Material Suppression (FMS) loss and key physics features U, PSL , SED for the Test 1 (in-distribution) and the Test 2 (out-of-distribution) dataset. 
+
+4.5.1. Ablation on hierarchical physics-guided strategy 
+
+The "-HPG" variant in Table 5 and Table 6 keeps all three physics fea-tures, but removes the proposed hierarchical guidance. The three features are concatenated as a single non-hierarchical conditioning input and fed into the UNet without layer-specific cross-attention guidance. For in-distribution tests, the HPG strategy presents impressive enhancements across all metrics. Removing this strategy causes the Average CE and Median CE to increase 17 Metrics (%) HPG-Diff - HPG - FMS - U - PSL - SED Average CE ↓ 0.87 4.34 1.82 4.21 2.79 3.89 Median CE ↓ 0.16 0.48 0.13 0.41 0.24 0.33 Average VFE ↓ 1.38 1.92 1.51 1.66 1.56 1.68 FM ↓ 2.90 4.22 6.47 4.67 4.12 5.11   
+
+> Table 5: Ablation study on key components for the Test 1 (in-distribution) dataset.
+
+Metrics (%) HPG-Diff - HPG - FMS - U - PSL - SED Average CE ↓ 5.29 36.62 7.74 18.14 11.92 15.31 Median CE ↓ 0.61 1.26 0.88 1.05 0.68 0.74 Average VFE ↓ 1.45 1.88 1.53 1.75 1.68 1.72 FM ↓ 2.44 4.40 5.30 5.00 4.19 5.28   
+
+> Table 6: Ablation study on key components for the Test 2 (out-of-distribution) dataset.
+
+from 0.87% and 0.16% to 4.34% and 0.48%, respectively. VFE and FM also increase. This performance degradation is even more pronounced in out-of-distribution tests, where the Average CE dramatically raises from 5.29% to 36.62%. This result demonstrates that the HPG is the keypoint of our method’s generalizability to unseen conditions. Notably, the median CE is also less than 1%, which means majority of generated structures are close to optimal. 
+
+4.5.2. Ablation on floating material suppression loss 
+
+For in-distribution tests, incorporating FMS loss reduces FM from 6.47% to 2.90%. However, Average CE drops from 1.82% to 0.87% while the Me-dian CE rises from 0.13% to 0.16%, which means adding FMS loss reduces the high value errors. We believe that this happens because the FMS loss explicitly guides the diffusion process towards generating designs with better structural connectivity. In TO, abnormally high compliance errors typically arise from disconnectivity. By penalizing invalid artifacts, the FMS loss effec-tively mitigates the instances causing these outlier errors, thus lowering the mean, while having less impact on the typical, well-connected cases reflected by the median. For out-of-distribution tests, FMS loss improves all metrics, where Av-erage CE decreases from 7.74% to 5.29%, Median CE drops from 0.88% to 18 0.61% and FM drops from 5.30% to 2.44%. This shows FMS loss can effi-ciently encourage the generation towards connected designs. Fig. 5 presents examples for the comparison of generated results between HPG-Diff and HPG-Diff w/o FMS loss.      
+
+> Negative Samples Positive Samples
+> Figure 5: Negative (w/o FMS loss) vs Positive (w/ FMS loss) samples in out-of-distribution tests. Negative samples contain visible floating material artifacts, while positive samples show the corresponding FMS-enabled results with improved material connectivity.
+
+4.5.3. Ablation on key physics features 
+
+Furthermore, we investigate the individual contributions of the key physics features used in our guidance strategy: U, PSL , and SED . Removing any of these three features leads to a noticeable degradation in performance across all metrics compared to full model. Interestingly, the analysis reveals different contributions among these fea-tures, especially in the more challenging out-of-distribution tests. In Test 2, removing U and SED results in a larger performance drop than remov-ing PSL . For instance, the Average CE increases to 18.14% without U and 15.31% without SED , both of which are considerably higher than the 11.92% when removing PSL . A similar trend is observed in the other metrics. This suggests that while all three physics features are beneficial, U and SED ap-pear to be more critical than PSL for the model’s generalizability. 19 4.6. Case study 
+
+Most existing generative approaches for TO are image-based and thus in-herently constrained to square design domains, while in practical engineering non-square domains are very common. For adapting to non-square domains, we employ parameter-efficient fine-tuning with LoRA [56]. The success of this strategy is highly dependent on the generalizability of the pre-trained model. The pre-trained model must act as a strong generative prior, having learned the fundamental and transferable features of valid topologies from the initial square-domain data, which LoRA then specializes for problems with different size of design domains. To better validate the applicability of HPG-Diff in more common scenarios, we conduct three case studies. 
+
+> Figure 6: Case study 1: Application of HPG-Diff in shelf bracket design.
+
+Square Domain Study: A shelf bracket is considered within a stan-dard square design domain. Shelf brackets are common load-bearing compo-nents in furniture and mechanical assemblies. This case serves as an illus-trative baseline to demonstrate the performance of HPG-Diff in generating diverse, high-performing solutions under a regular design domain. As shown in Fig. 6, the ground truth solution obtained by SIMP achieves a compliance of 5.0506. Our method produces three alternative layouts with compliance values of 4.9962, 5.0398, and 5.0772, which are all comparable to or bet-ter than the ground truth. Notably, these alternatives differ in structural 20 characteristics—one with fewer voids, one with more distributed voids, and one with an intermediate configuration (featuring one, three, or two internal struts respectively). 
+
+Non-Square Domain Study: To evaluate the adaptation potential of HPG-Diff on non-square rectangular domains, we construct a small dataset of 1,000 samples with domain size 60 ×20 for fine-tuning the pretrained HPG-Diff using LoRA. Two representative structures are investigated as case stud-ies: the cantilever beam, which is widely used in mechanical and civil appli-cations such as overhanging platforms, and the classic bridge, a typical TO benchmark relevant to civil engineering. In both cases, structural diversity enables engineers to compare alternatives for secondary performance criteria, such as fatigue life and vibration modes. 
+
+> Figure 7: Case study 2: Application of HPG-Diff in cantilever beam design.
+
+For cantilever beam (Fig. 7), the ground truth compliance is 182.8988. Our method generates two designs with compliance values of 179.1958 and 185.5106. The first alternative, with lower compliance, introduces more voids and supporting struts, which may enhance stiffness distribution but increase manufacturing complexity. The second design closely matches the ground truth in both compliance and geometry, providing a reliable baseline solution. Together, these alternatives allow engineers to balance lightweighting with ease of fabrication. 21 Figure 8: Case study 3: Application of HPG-Diff in classic bridge design. 
+
+For classic bridge (Fig. 8), the ground truth compliance is 13.0730, while our two designs achieve 12.9581 and 12.9663. Both alternatives slightly out-perform the ground truth in compliance, but introduce more voids and in-ternal struts. From an engineering perspective, these variants offer potential advantages in load distribution and redundancy, though they may require more intricate manufacturing processes. To provide a quantitative evaluation in addition to the case studies, we additionally construct an independent 200-sample evaluation set with the same 60 ×20 rectangular-domain and boundary conditions. These samples are not used during previous LoRA fine-tuning. We evaluate the LoRA-adapted HPG-Diff model on this independent set using CE, VFE, and FM.  
+
+> Table 7: Quantitative evaluation of LoRA-adapted HPG-Diff on an independent 200-sample 60 ×20 rectangular-domain evaluation set.
+
+Avg CE (%) ↓ Med CE (%) ↓ Avg VFE (%) ↓ FM (%) ↓
+
+2.86 0.58 1.54 3.17 
+
+As shown in Table 7, the LoRA-adapted HPG-Diff achieves an Avg CE of 2.86%, a Med CE of 0.58%, an Avg VFE of 1.54%, and an FM ratio of 3.17% on the independent evaluation set. These results quantitatively support the 22 potential of lightweight LoRA fine-tuning for the 60 ×20 rectangular-domain adaptation. The cantilever and bridge cases above further illustrate repre-sentative generated layouts under this adapted domain. 
+
+Findings: Notably, several designs produced by HPG-Diff outperform the SIMP baseline in compliance. We attribute this to two complemen-tary factors: (1) stochastic sampling enables escape from local optima and thus broader exploration of the design space; (2) hierarchical physics guid-ance enforces basic topological correctness, keeping sampled solutions phys-ically plausible and relatively accurate. As a result, the generated solutions form a variety of structural layouts (different void patterns and strut counts) that achieve comparable or better stiffness while providing designers with actionable alternatives across performance, manufacturability, and aesthet-ics. LoRA-based adaptation further verifies this when transferring to new domains. 
+
+4.7. Discussion 4.7.1. Physic features orthogonality and redundancy 
+
+To explore the rationality of chosen physics features, we analyze the or-thogonality of these features to judge the redundancy. The primary metric for this analysis is the orthogonality score, calculated as 1 − | cos( θ)|, where 
+
+θ is the angle between the feature vectors. A score approaching 1 signifies high orthogonality, which represents strong independence. The orthogonality analysis was conducted on the training dataset. The results reveal varying degrees of orthogonality among the feature pairs. The highest degree of orthogonality was observed between SED and PSL (with a score of 0.8960 ±0.0527), followed by U and SED (0.7464 ±0.1048). In contrast, the U and PSL pair exhibited a significantly lower orthogonality score of 0.2065 ±0.1013. We also compute the orthogonality scores on Test 2 set. The same trend is observed: SED and PSL (0.899 ± 0.051 ), U and 
+
+SED (0.741 ± 0.107 ), U and PSL (0.202 ± 0.100 ). This suggests that the redundancy pattern among the physics features is stable under the evaluated unseen boundary conditions. Statistically, this high correlation implies that 
+
+PSL contains information largely overlapping with U.However, this statistical view does not fully explain the asymmetrical importance revealed in the ablation study. Although U and PSL are cor-related, they serve different roles in the hierarchical guidance process. U
+
+provides a dense, boundary- and load-conditioned deformation response for low-level structural refinement, whereas PSL explicitly represents internal 23 load-transmission paths and provides a localized mid-level structural-skeleton guidance. This explains why removing U causes the largest degradation, while removing PSL still leads to a consistent but smaller performance drop. We further support this interpretation with feature-map visualizations in Appendix B. The PSL -conditioned branch shows better relative concentra-tion on the predicted X-shaped structural skeleton than the U -conditioned branch, suggesting that PSL does not merely duplicate U but provides a more explicit mid-level skeleton cue. 
+
+Method Preprocess Sampling Postprocess Inference ∆Tinf 
+
+SIMP - - 23.93 23.93 0.00 TopoDiff 3.83 3.12 - 6.95 - 70.96 TopoDiff-Guided 3.83 22.65 - 26.48 + 10.66 DOM w/ TA 0.12 3.03 - 3.15 - 86.84 
+
+HPG-Diff 5.92 4.82 - 10.74 - 55.12  
+
+> Table 8: Inference time (s) comparison for different methods (64x64 domain, 100 steps). All methods were tested on a single GPU, except the SIMP on a multi-core CPU. ∆Tinf
+> (%) is the relative time difference compared with SIMP.
+
+4.7.2. Inference efficiency and generalizability 
+
+A key distinction of our work lies in the simplicity during the inference phase and effectiveness of the guidance mechanism during training phase. Deep learning methods try to avoid costly simulations within the inference phase. Specifically, guided-diffusion approaches like TopoDiff employ auxil-iary models trained with FEA generated physics features to guide the infer-ence phase. DOM refines this paradigm by substituting the expensive FEA preprocessing features with a fast kernel relaxation, and employing trajectory alignment that uses intermediate optimization results to guide the model’s training process. While this approach eliminates guidance in the inference phase and re-duces inference time, it results in a notable trade-off in performance. This strategy for reducing inference cost is instructive. However, the large degra-dation in performance highlights the critical importance of effective physics guidance in constrained generation tasks. In contrast, our approach computes initial key physics features via FEA. All finite elements are assigned the same initial density, and a single FEA 24 is solved under the prescribed boundary conditions and loads. Therefore, the physics features are computed from a uniform density field rather than from the optimized target topology. For HPG-Diff, the preprocessing time denotes one FEA solve together with the subsequent feature calculation. While TopoDiff and TopoDiff-Guided also involve FEA-based preprocessing to obtain the physics fields used for conditioning, DOM w/ TA replaces such FEA-based preparation with a lightweight kernel relaxation step. Therefore, the preprocessing column in Table 8 denotes the method-specific preparation required before diffusion sampling: FEA-based physics-feature preparation for TopoDiff/TopoDiff-Guided, kernel relaxation for DOM w/ TA, and one FEA solve plus feature calculation for HPG-Diff. This clarification ensures that the reported inference time reflects the full pipeline cost of each method rather than only the diffusion sampling time. As detailed in Table 8, our method HPG-Diff clocks in at 10.74 seconds. While not as fast as DOM, our method is approximately twice as fast as the classical SIMP method and out-performs methods like TopoDiff-Guided and DOM. This demonstrates that our "preprocess and hierarchically guide" paradigm strikes a more effective balance. It achieves better accuracy and generalizability with a practical inference time, avoiding both the performance trade-offs of overly simplified models and the computational cost of inference phase guidance. The out-of-distribution results support the generalization potential of HPG-Diff within the evaluated benchmark, particularly for unseen boundary conditions. Nevertheless, this claim remains limited under constraints of our experimental setup, and broader generalizability requires further validation across more diverse settings. However, we believe that the core approach of our hierarchical physics-guided diffusion is broadly applicable to other physics-based design problems. Indeed, diffusion-based generative frame-works have recently been successfully applied to complex challenges in other fields, such as fluid dynamics [62, 63] and aerodynamic optimization [64], suggesting the potential for adapting our specific guidance strategy to these domains as well. While we currently ignore certain advanced physics properties (such as non-linear material responses, fatigue behavior, or dynamic loading condi-tions) or manufacturing constraints for 3D printing (such as minimum and maximum length scales, overhang limitations, or surface roughness), our method takes a step towards precisely incorporating physics features that have implications for performance and manufacturability into data-driven methods. Aiming for enhanced physics consistency and more readily de-25 ployable designs in real-world scenarios, we seek to include a broader and more specific set of physics properties and manufacturing constraints with minimal additional costs in the future. This could involve designing novel loss functions that directly penalize violations of these specific constraints like our FMS loss, or exploring architectural modifications to better capture multi-scale physics principles. 
+
+4.7.3. Design diversity and engineering applicability 
+
+Besides efficiency and performance, design diversity and engineering ap-plicability are equally critical criteria. As shown in Section 4.6, HPG-Diff successfully generates diverse, high-performing solutions in both square and 
+
+3:1 rectangular domains. Design diversity is particularly important in prac-tice, as multiple alternatives allow engineers to balance performance with other factors such as manufacturability, cost, or even aesthetic considera-tions. Nevertheless, the current engineering validation remains bounded in two aspects. First, the domain-adaptation study is limited to relatively simple aspect-ratio changes. The quantitative benchmark follows the fixed 64 × 64 
+
+resolution of the TopoDiff [31] dataset. A multi-resolution study would re-quire rebuilding the dataset rather than simply resizing the outputs, since 
+
+128 × 128 and 256 × 256 domains contain 4 and 16 times more finite ele-ments per sample, respectively. More complex scenarios, such as L-shaped connectors, circular domains (e.g., bearing housings or pressure vessels), and fully irregular shapes (common in biomedical implants or customized me-chanical parts), have not yet been addressed. While LoRA-based fine-tuning shows adaptability for rectangular domains, its success relies heavily on task similarity. LoRA adaptation also still relies on target-domain samples gen-erated by conventional TO solvers. Therefore, this case study is intended to examine the convenience of lightweight adaptation from existing SIMP-generated data to AI-based rapid generation, rather than to remove the cost of obtaining data. Future work should investigate more robust and data-efficient adaptation strategies, such as incorporating multi-shape domains in the training dataset, proposing stronger geometry-aware conditioning, or reducing the cost of acquiring reliable training data. Second, the current benchmark contains single-load cases, and the FMS loss is therefore instantiated with heat propagation initialized from the pre-scribed load region. This design follows the role of FMS in our frame-work: the main load-bearing material distribution is guided by the boundary-26 conditioned physics features in HPG, which encourage the formation of a load-transfer structure between the applied load and the constrained sup-ports. However, the generated density field may still contain noisy floating material artifacts, such as disconnected islands or weakly connected frag-ments detached from the main load-transfer body. FMS mitigates this by propagating from the load region through the generated material layout to support regions and penalizing material that is not effectively incorporated into this load-transfer body. For problems with multiple prescribed loads, the seed mask can be extended as the union of all load regions. Future work should evaluate such multi-load settings. Besides these limitations, uncertainty quantification is also an impor-tant future direction for stochastic generative TO. Although the repeated-sampling analysis in Appendix D provides an empirical view of output vari-ability across inference seeds, it does not constitute formal uncertainty quan-tification. Future work could combine generative TO with Bayesian uncer-tainty modeling [65, 66]. 
+
+5. Conclusion 
+
+In this paper, we propose HPG-Diff, a novel diffusion framework for topol-ogy optimization. By synergizing a hierarchical physics-guided strategy with a differentiable connectivity constraint, HPG-Diff improves generation qual-ity under unseen boundary conditions and reduces floating material artifacts in generated density fields. Numerical results demonstrate that aligning key physics features with the denoising process helps capture structural mechan-ics, reducing the average compliance error to 5.29% in out-of-distribution tests and reducing the floating material ratio to 2.44%. Consequently, HPG-Diff achieves the best performance compared with representative generative TO baselines, without requiring external models or post-processing. The case studies further indicate the potential of lightweight LoRA fine-tuning for the adaptation of HPG-Diff to rectangular non-square domains. Overall, HPG-Diff provides an effective framework for integrating physics guidance into generative topology optimization. 
+
+Data availability 
+
+Data will be made available on request. 27 Funding 
+
+This research was supported by the National Key R&D Program of China (No. 2023YFB4604800). 
+
+Appendix A. Additional Ablations on HPG-Diff 
+
+To further clarify the contribution of the hierarchical physics-guided strat-egy, we conduct two additional ablation studies. First, "Bottleneck" concate-nates U, PSL, and SED and injects them only at the bottleneck layer as a single conditioning signal. This variant tests whether a single global injection of all physics features is sufficient without layer-specific assignment. Second, U-SED Swap variant keeps the same physics features and the same layer-specific cross-attention structure, but swaps the shallow-layer U guidance and the deep-layer SED guidance. This variant tests whether the feature-level matching is important while keeping other settings unchanged. As shown in Table A.9, HPG-Diff reduces Average CE from 3.70% and 2.43% to 0.87%, and reduces FM from 3.79% and 4.10% to 2.90%, com-pared with Bottleneck and U-SED Swap in Test 1, respectively. On the more challenging Test 2, the improvement is more pronounced: HPG-Diff re-duces Average CE from 16.42% and 13.18% to 5.29%, and reduces FM from 4.18% and 4.61% to 2.44%. The results suggest that the performance gain is not merely due to providing additional physics features, but also to orga-nizing these features according to the proposed hierarchical physics-guidance strategy.          
+
+> Table A.9: Additional ablations on hierarchical physics guidance. Bottleneck concate-nates U,PSL , and SED and injects them only at the bottleneck layer. U-SED Swap
+> keeps the layer-specific cross-attention structure but exchanges the shallow-layer Uguid-ance and deep-layer SED guidance.
+
+Dataset Variant Average CE ↓ Median CE ↓ Average VFE ↓ FM ↓
+
+Test 1 HPG-Diff 0.87 0.16 1.38 2.90 
+
+Bottleneck 3.70 0.35 1.68 3.79 U-SED Swap 2.43 0.27 1.58 4.10 Test 2 HPG-Diff 5.29 0.61 1.45 2.44 
+
+Bottleneck 16.42 0.97 1.73 4.18 U-SED Swap 13.18 0.82 1.65 4.61 28 Figure B.9: Feature-map visualization of cross-attention outputs. The upper row shows U -conditioned cross-attention output feature maps, and the lower row shows PSL -conditioned cross-attention output feature maps. 
+
+Appendix B. Feature Map Visualizations of U and PSL 
+
+To address the concern that PSL may be redundant with U due to their high correlation, we further examine whether PSL contributes a distinct rep-resentational role in the denoising process. Specifically, we visualize the cross-attention output feature maps conditioned on U and PSL during late denoising. Let OU and OP SL denote the output tensors of the corresponding cross-attention modules. For each timestep, we aggregate the output ten-sor over channels using the mean absolute value, and visualize the resulting feature map at the native resolution. We use the same example as in Fig. 4 for consistency with the previous sections, enabling a direct visual comparison among the conditioning signals, the cross-attention output feature maps, and the predicted topology. We focus on late denoising timesteps ( t = 50 to t = 0 , with T = 1000 ), since early-stage predictions are dominated by noise and do not yet provide a stable structural layout for visual comparison. As shown in Fig. B.9, the PSL -conditioned output feature maps ex-hibit more concentrated responses along the X-shaped structural skeleton 29 Table B.10: Concentration of cross-attention output feature responses on the predicted topology region. MX denotes the mean feature response inside the predicted topology mask, where the response map is computed as M (i, j ) = mean c(|Oc(i, j )|) from the corre-sponding cross-attention output tensor. MX /M bg denotes the ratio between the masked-region response and the background response, measuring the relative concentration on the structural skeleton. 
+
+Timestep Mean response MX Relative contrast MX /M bg 
+
+U -conditioned PSL -conditioned U -conditioned PSL -conditioned 50 0.215 0.396 0.777 1.065 
+
+40 0.214 0.395 0.785 1.063 
+
+30 0.213 0.394 0.776 1.060 
+
+20 0.213 0.392 0.783 1.057 
+
+10 0.211 0.390 0.770 1.049 
+
+0 0.207 0.380 0.739 1.032 
+
+and the central load-transfer region. In contrast, the U -conditioned fea-ture maps are more spatially diffuse. We further quantify this observation in Table B.10 by using the predicted X-shaped topology region as a mask. The PSL -conditioned result consistently achieves an MX /M bg ratio larger than 1.0 across late denoising timesteps, while the U -conditioned result re-mains below 1.0. These results suggest that PSL does not merely duplicate the U -conditioned response; instead, it provides a more explicit mid-level structural-skeleton cue for the denoising process. This observation is also consistent with the different physical roles of the two features in topology optimization. The displacement field U provides a dense, boundary- and load-conditioned deformation response, indicating how the domain tends to deform under the prescribed problem setting. Such in-formation is useful for low-level structural refinement, but it does not directly define the final load-bearing skeleton. In contrast, PSL explicitly represents internal load-transmission paths, which are more closely aligned with the structural skeleton formed by the optimized topology. 
+
+Appendix C. Sensitivity Analysis of FMS Loss 
+
+To further examine the proposed Floating Material Suppression (FMS) loss, we conduct sensitivity analyses on three parameters: the propagation step k, the time-weighting scalar c, and the FMS loss weight λfm . These 30 parameters play different roles in FMS. The propagation step k controls the spatial coverage of the differentiable propagation process. The scalar 
+
+c controls when the FMS regularization becomes effective during DDPM denoising process through w(t) = exp( −ct/T ), where T is the number of diffusion timesteps. The weight λfm balances the standard denoising objective and the connectivity regularization. Therefore, we vary one parameter at a time while keeping the others default in our experiments ( k = 64 , T = 1000 ,
+
+c = 5 , λfm = 0 .1). 
+
+Appendix C.1. Effect of propagation step k
+
+The parameter k is selected according to the coverage requirement of the propagation process. Since the local propagation in Eq. (6) expands the reachable region step by step, k should be large enough to cover the design domain; otherwise, connected material far from the load seed may be incorrectly treated as unreachable. As shown in Table C.11, a smaller k
+
+weakens floating-material suppression, while increasing k beyond the domain-covering range brings limited additional benefit. We therefore set k = 64 for the 64 × 64 design domain.                             
+
+> Table C.11: Sensitivity analysis of the propagation step kin the FMS loss on Test 2. Other parameters are fixed at c= 5 and λfm = 0 .1.
+> kAvg CE (%) ↓Med CE (%) ↓Avg VFE (%) ↓FM (%) ↓
+> 32 6.46 0.75 1.52 3.12 64 5.29 0.61 1.45 2.44 96 5.33 0.62 1.46 2.39
+
+Appendix C.2. Effect of time-weighting scalar c
+
+The scalar c controls the temporal schedule of the FMS loss. In the reverse DDPM process, larger t corresponds to noisier states, while late re-verse denoising corresponds to smaller, low-noise timesteps near zero. With 
+
+T = 1000 and the default c = 5 , the weight w(t) = exp( −5t/ 1000) is sup-pressed at high-noise timesteps, e.g., w(1000) = 0 .0067 and w(500) = 0 .082 ,and becomes much stronger at low-noise timesteps, e.g., w(100) = 0 .607 and 
+
+w(0) = 1 . This is consistent with the role of FMS: penalizing disconnected components is more meaningful after the predicted material distribution has 31 formed a relatively clear structure. As shown in Table C.12, the default setting achieves the best CE–FM balance. Removing the temporal decay (c = 0 ) applies the connectivity penalty too broadly across noisy denoising steps, while a larger value ( c = 10 ) delays the regularization excessively and weakens floating-material suppression.        
+
+> Table C.12: Sensitivity analysis of the time-weighting scalar cin the FMS loss on Test 2. Other parameters are fixed at k= 64 and λfm = 0 .1.
+
+c Avg CE (%) ↓ Med CE (%) ↓ Avg VFE (%) ↓ FM (%) ↓
+
+0 6.38 0.79 1.69 5.03 2.5 5.71 0.67 1.52 2.82 5 5.29 0.61 1.45 2.44 10 5.62 0.66 1.49 3.11 
+
+Appendix C.3. Effect of FMS weight λfm 
+
+The weight λfm controls the relative strength of the connectivity regu-larization. Its role is not to override the main denoising objective, but to suppress disconnected high-density regions while preserving low compliance. As shown in Table C.13, setting λfm = 0 removes the FMS regularization and leads to a higher FM ratio. Increasing λfm reduces floating material, but an overly large weight starts to degrade compliance and volume-fraction ac-curacy, indicating the expected trade-off between connectivity regularization and structural optimality. The default value λfm = 0 .1 lies near the knee of this CE–FM trade-off: it reduces FM while achieving the lowest Avg CE among the tested settings.        
+
+> Table C.13: Sensitivity analysis of the FMS loss weight λfm on Test 2. Other parameters are fixed at k= 64 and c= 5 .
+
+λfm Avg CE (%) ↓ Med CE (%) ↓ Avg VFE (%) ↓ FM (%) ↓
+
+0 7.74 0.88 1.53 5.30 0.05 6.12 0.71 1.49 3.36 0.10 5.29 0.61 1.45 2.44 0.20 5.97 0.69 1.61 2.41 0.40 7.08 0.93 1.80 2.18 
+
+32 Overall, these results show that the FMS loss remains stable under mod-erate parameter changes around the default setting, while extreme settings exhibit the expected trade-off between connectivity regularization and com-pliance accuracy. 
+
+Appendix D. Repeated Sampling across Inference Seeds 
+
+Since generative models are stochastic, we further evaluate HPG-Diff with repeated inference runs across multiple random seeds. We use the same trained checkpoint and inputs, and only vary the inference-time random seed.                              
+
+> Table D.14: Repeated inference results of HPG-Diff over five stochastic inference trials.
+> Set Metrics Repeated results Mean ±Std Test 1 Avg CE (%) ↓0.87, 0.93, 0.97, 1.01, 0.81 0.92 ±0.08 Med CE (%) ↓0.16, 0.17, 0.18, 0.16, 0.17 0.17 ±0.01 Avg VFE (%) ↓1.38, 1.42, 1.47, 1.48, 1.47 1.44 ±0.04 FM (%) ↓2.90, 3.50, 3.12, 2.70, 3.33 3.11 ±0.32 Test 2 Avg CE (%) ↓5.29, 5.58, 5.51, 8.32, 7.24 6.39 ±1.33 Med CE (%) ↓0.61, 0.58, 0.63, 0.58, 0.58 0.60 ±0.02 Avg VFE (%) ↓1.45, 1.45, 1.48, 1.42, 1.38 1.44 ±0.04 FM (%) ↓2.44, 3.40, 3.50, 2.32, 3.13 2.96 ±0.55
+
+As shown in Table D.14, HPG-Diff shows low variance on Test 1. On the more challenging Test 2, Med CE and Avg VFE remain stable across seeds while the standard deviation of Avg CE is 1.33%. This result indicates that most samples remain stable across inference seeds, but the average compli-ance error can be affected by difficult long-tail cases. 
+
+Appendix E. Tail-Distribution and Failure-Case Analysis 
+
+We analyze the tail distribution of compliance error (CE) and inspect rep-resentative failure cases. Following the high-error threshold used in TopoD-iff [31], we define failure cases as samples with CE larger than 30%. Ta-33 Table E.15: Tail-distribution statistics of HPG-Diff on Test 2 for the reference inference run reported in the main benchmark tables.                  
+
+> Method Avg CE (%) ↓Mdn CE (%) ↓Std CE (%) ↓Max CE (%) ↓CE >30% (%) ↓
+> HPG-Diff 5.29 0.61 31.76 791.07 2.70%
+
+ble E.15 reports the distributional statistics of per-sample CE on Test 2 for the reference inference run reported in the main benchmark tables. As shown in Table E.15, the error distribution is long-tailed. The median CE is 0.61%, and only 2.70% of samples exceed the 30% high-error thresh-old. However, the maximum CE reaches 791.07%, indicating that Avg CE is affected by some severe failure cases. This explains the variance of Avg CE. Fig. E.10 shows representative high-error cases with the corresponding boundary conditions overlaid. In these examples, high CE is associated with weak or incomplete load-transfer paths between the applied load and the con-strained boundaries. Some generated topologies contain overly thin members or disconnected material, leading to insufficient stiffness.  
+
+> Figure E.10: Representative high-error OOD cases with boundary conditions overlaid. Hollow triangular markers denote constrained boundary supports, and red arrows denote applied loads.
+
+Appendix F. Construction of Principal Stress Lines 
+
+The principal stress line (PSL) maps are constructed from the finite-element stress field following the standard principal-stress-line tracing proce-dure used in structural topology design [67]. For each element or grid point 34 in the design domain, the in-plane stress tensor is written as 
+
+σ =
+
+ σx τxy 
+
+τxy σy
+
+
+
+. (F.1) The two principal stresses and their corresponding directions are obtained by eigenvalue decomposition: 
+
+σvi = σivi, i = 1 , 2, (F.2) where σ1 and σ2 denote the maximum and minimum principal stresses, re-spectively, and v1 and v2 are the corresponding principal directions. Starting from uniformly sampled seed points in the solid design domain, PSLs are traced by integrating along the local principal stress directions. Tensile PSLs are traced along the maximum principal-stress direction v1,while compressive PSLs are traced along the minimum principal-stress direc-tion v2. Line tracing is terminated when the trajectory reaches the domain boundary, enters a void region, or reaches a region with negligible principal stress magnitude. The traced PSLs are then rasterized onto the same spatial resolution as the model input. In this work, tensile and compressive PSLs are represented as two separate feature channels to avoid ambiguity between line type and line intensity. The rasterized maps are normalized before being used as physics-guided input features. 
+
+Appendix G. Additional Benchmark Comparisons 
+
+We further compare HPG-Diff with NITO [68] and OAT [69]. NITO is a neural implicit field-based topology optimization model that represents boundary conditions with sparse point-based inputs. OAT is positioned as a foundation model for structural topology optimization and is trained on OpenTO, a large-scale dataset containing 2.2 million optimized structures and 2 million unique boundary-condition configurations. Since OAT is positioned as a foundation model trained on OpenTO, we report this comparison on the in-distribution Test 1 set. Retraining OAT only on our training data would not reflect its intended foundation-model setting, while directly comparing it on our Test 2 set would mix differences in training-data scope with the out-of-distribution evaluation. Therefore, 35 Table G.16: Additional benchmark comparison on in-distribution Test 1.                
+
+> Method Avg CE (%) ↓Med CE (%) ↓Avg VFE (%) ↓
+> NITO [68] 8.13 0.47 1.40 OAT [69] 1.74 0.32 0.25
+> HPG-Diff (Ours) 0.87 0.16 1.38
+
+Test 1 provides a more suitable reference for comparing generation quality under the same benchmark distribution. As shown in Table G.16, HPG-Diff achieves the lowest compliance errors on the in-distribution Test 1, with an Avg CE of 0.87% and a Med CE of 0.16%, compared with 8.13%/0.47% for NITO and 1.74%/0.32% for OAT. This suggests that the hierarchical physics-guided conditioning and FMS help the model generate layouts that better match the load-transfer struc-ture required for low compliance. In contrast, NITO uses a neural implicit representation with sparse boundary-condition inputs, which provides flexi-bility but may be less specialized for this benchmark. OAT, as a foundation model trained on a much broader OpenTO distribution, achieves the lowest Avg VFE of 0.25%, indicating better volume fraction preservation. How-ever, its broader training objective and cross-domain generalization setting may make it less specialized for minimizing compliance error on this specific dataset than HPG-Diff. 
+
+References 
+
+[1] J.-H. Zhu, W.-H. Zhang, L. Xia, Topology optimization in aircraft and aerospace structures design, Archives of computational methods in en-gineering 23 (2016) 595–622. [2] A. Dagkolu, I. Gokdag, O. Yilmaz, Design and additive manufacturing of a fatigue-critical aerospace part using topology optimization and l-pbf process, Procedia Manufacturing 54 (2021) 238–243. [3] S. Guanghui, G. Chengqi, Q. Dongliang, W. Dongtao, T. Lei, G. Tong, An aerospace bracket designed by thermo-elastic topology optimization and manufactured by additive manufacturing, Chinese Journal of Aero-nautics 33 (2020) 1252–1259. [4] M. N. Andersen, F. Wang, O. Sigmund, On the competition for ulti-36 mately stiff and strong architected materials, Materials & Design 198 (2021) 109356. [5] F. Ferrari, O. Sigmund, J. K. Guest, Topology optimization with lin-earized buckling criteria in 250 lines of matlab, Structural and Multi-disciplinary Optimization 63 (2021) 3045–3066. [6] J. M. Maestre, R. Hinchet, S. Coros, B. Thomaszewski, Toros: A topol-ogy optimization approach for designing robotic skins, ACM Transac-tions on Graphics (TOG) 42 (2023) 1–11. [7] M. Bi, P. Tran, L. Xia, G. Ma, Y. M. Xie, Topology optimization for 3d concrete printing with various manufacturing constraints, Additive Manufacturing 57 (2022) 102982. [8] W. Yang, L. Wang, G. Ma, P. Feng, An integrated method of topologi-cal optimization and path design for 3d concrete printing, Engineering Structures 291 (2023) 116435. [9] N. Ichihara, M. Ueda, 3d-print infill generation using the biological phase field of an optimized discrete material orientation vector field, Composites Part B: Engineering 232 (2022) 109626. [10] J. García-Ávila, C. P. González-Gallegos, V. Segura-Ibarra, E. Vazquez, E. Garcia-Lopez, C. A. Rodríguez, A. Vargas-Martínez, E. Cuan-Urquizo, E. Ramírez-Cedillo, Dynamic topology optimization of 3d-printed transtibial orthopedic implant using tunable isotropic porous metamaterials, Journal of the Mechanical Behavior of Biomedical Ma-terials 153 (2024) 106479. [11] H. Li, B. Yao, Z. Li, Y. Peng, H. Fan, Compressive properties and de-formation mechanism of selective laser melting of ti6al4v porous femoral implants based on topological optimization, Composite Structures 321 (2023) 117326. [12] M. P. Bendsøe, Optimal shape design as a material distribution problem, Structural optimization 1 (1989) 193–202. [13] S. M. A. Seyed Mahmoud, G. Faraji, M. Baghani, M. S. Hashemi, A. Sheidaei, M. Baniassadi, Design of refractory alloys for desired ther-mal conductivity via ai-assisted in-silico microstructure realization, Ma-terials 16 (2023) 1088. 37 [14] J. Xu, J. Xu, Y. Sheng, T. Xie, Z. Wang, M. Elchalakani, Database-enabled machine learning framework for predicting fire performance in reinforced concrete columns: Focus on fire resistance, spalling behavior, and comparative evaluation against existing codes, Structures 88 (2026) 111794. [15] Y. Bu, Z. Cai, J. Peng, Y. Yu, J. Xu, Data-driven compressive strength estimation and mix optimization for ultra-high-performance concrete, Journal of Building Engineering (2025) 114253. [16] W. Chen, J. Xu, K. Yu, J. Yu, M. Ma, Z. Ma, Performance-based design of frp-confined recycled aggregate concrete powered by machine learning techniques, Engineering Structures 336 (2025) 120478. [17] Y. Wang, S. Zhang, Z. Zhang, Y. Yu, J. Xu, Reverse design for mixture proportions of recycled brick aggregate concrete using machine learning-based meta-heuristic algorithm: A multi-objective driven study, Journal of CO2 Utilization 88 (2024) 102944. [18] L. Zheng, S. Kumar, D. M. Kochmann, Data-driven topology opti-mization of spinodoid metamaterials with seamlessly tunable anisotropy, Computer Methods in Applied Mechanics and Engineering 383 (2021) 113894. [19] N. A. Kallioras, N. D. Lagaros, Dl-scale: a novel deep learning-based model order upscaling scheme for solving topology optimization prob-lems, Neural Computing and Applications 33 (2021) 7125–7144. [20] W. Qian, Y. Xu, H. Li, A topology description function-enhanced neural network for topology optimization, Computer-Aided Civil and Infras-tructure Engineering 38 (2023) 1020–1040. [21] J. Yan, D. Geng, Q. Xu, H. Li, Real-time topology optimization based on convolutional neural network by using retrain skill, Engineering with Computers 39 (2023) 4045–4059. [22] J. Yan, Q. Zhang, Q. Xu, Z. Fan, H. Li, W. Sun, G. Wang, Deep learning driven real time topology optimisation based on initial stress learning, Advanced Engineering Informatics 51 (2022) 101472. 38 [23] C. Deng, Y. Wang, C. Qin, Y. Fu, W. Lu, Self-directed online machine learning for topology optimization, Nature communications 13 (2022) 388. [24] J. Luo, Y. Li, W. Zhou, Z. Gong, Z. Zhang, W. Yao, An improved data-driven topology optimization method using feature pyramid networks with physical constraints., CMES-Computer Modeling in Engineering & Sciences 128 (2021). [25] H. Jeong, J. Bai, C. P. Batuwatta-Gamage, C. Rathnayaka, Y. Zhou, Y. Gu, A physics-informed neural network-based topology optimization (pinnto) framework for structural optimization, Engineering Structures 278 (2023) 115484. [26] H. Jeong, C. Batuwatta-Gamage, J. Bai, C. Rathnayaka, Y. Zhou, Y. Gu, An advanced physics-informed neural network-based framework for nonlinear and complex topology optimization, Engineering Struc-tures 322 (2025) 119194. [27] A. Chandrasekhar, K. Suresh, Tounn: topology optimization using neu-ral networks, Structural and Multidisciplinary Optimization 63 (2021) 1135–1149. [28] I. J. Goodfellow, J. Pouget-Abadie, M. Mirza, B. Xu, D. Warde-Farley, S. Ozair, A. Courville, Y. Bengio, Generative adversarial nets, Advances in neural information processing systems 27 (2014). [29] J. Ho, A. Jain, P. Abbeel, Denoising diffusion probabilistic models, Advances in neural information processing systems 33 (2020) 6840–6851. [30] L. Regenwetter, A. H. Nobari, F. Ahmed, Deep generative models in engineering design: A review, Journal of Mechanical Design 144 (2022) 071704. [31] F. Mazé, F. Ahmed, Diffusion models beat gans on topology optimiza-tion, in: Proceedings of the AAAI conference on artificial intelligence, volume 37, 2023, pp. 9108–9116. [32] G. Giannone, A. Srivastava, O. Winther, F. Ahmed, Aligning optimiza-tion trajectories with diffusion models for constrained design generation, 39 Advances in Neural Information Processing Systems 36 (2023) 51830– 51861. [33] W. Zhang, G. Zhao, L. Su, Research on multi-stage topology optimiza-tion method based on latent diffusion model, Advanced Engineering Informatics 63 (2025) 102966. [34] Z. Bayat, S. Dindar, B. G. Erkal, Deep learning for post-earthquake road blockage and debris detection in resource-limited contexts, Journal of the Indian Society of Remote Sensing 54 (2026) 1257–1285. [35] Z. Li, P. Hilber, Z. Li, T. Laneryd, S. Ivanell, Temporally coordinated operation of green multi-energy airport microgrids with climatic correla-tions and flexible loads via decomposed stochastic programming, IEEE Transactions on Sustainable Energy 17 (2026) 1909–1922. [36] X. Zeng, X. Zheng, H. Chen, X. Yin, Z. Li, Y. Chen, Deriving the robust operating region for multistage dispatch of power systems: A decision-dependent uncertainties based modeling approach, IEEE Transactions on Sustainable Energy (2026) 1–12. [37] C. Feng, Z. Huang, J. Lin, L. Wang, Y. Zhang, F. Wen, Aggregation model and market mechanism for virtual power plant participation in inertia and primary frequency response, IEEE Transactions on Power Systems 41 (2026) 2101–2117. [38] C. Qiu, S. Du, J. Yang, A deep learning approach for efficient topology optimization based on the element removal strategy, Materials & Design 212 (2021) 110179. [39] C. Kim, J. Lee, J. Yoo, Machine learning-combined topology optimiza-tion for functionary graded composite structure design, Computer Meth-ods in Applied Mechanics and Engineering 387 (2021) 114158. [40] N. K. Brown, A. P. Garland, G. M. Fadel, G. Li, Deep reinforcement learning for engineering design through topology optimization of ele-mentally discretized design domains, Materials & Design 218 (2022) 110672. 40 [41] D. A. White, W. J. Arrighi, J. Kudo, S. E. Watts, Multiscale topology optimization using neural network surrogate models, Computer Methods in Applied Mechanics and Engineering 346 (2019) 1118–1135. [42] Z. Nie, T. Lin, H. Jiang, L. B. Kara, Topologygan: Topology optimiza-tion using generative adversarial networks based on physical fields over the initial domain, Journal of Mechanical Design 143 (2021) 031715. [43] L. Zhang, A. Rao, M. Agrawala, Adding conditional control to text-to-image diffusion models, in: Proceedings of the IEEE/CVF international conference on computer vision, 2023, pp. 3836–3847. [44] C. Mou, X. Wang, L. Xie, Y. Wu, J. Zhang, Z. Qi, Y. Shan, T2i-adapter: Learning adapters to dig out more controllable ability for text-to-image diffusion models, in: Proceedings of the AAAI conference on artificial intelligence, volume 38, 2024, pp. 4296–4304. [45] C. Zeng, Y. Dong, P. Peers, Y. Kong, H. Wu, X. Tong, Dilightnet: Fine-grained lighting control for diffusion-based image generation, in: ACM SIGGRAPH 2024 Conference Papers, 2024, pp. 1–12. [46] Y. Li, G. Baciu, Sg-gan: Adversarial self-attention gcn for point cloud topological parts generation, IEEE Transactions on Visualization and Computer Graphics 28 (2021) 3499–3512. [47] Y. Li, H. Liu, Q. Wu, F. Mu, J. Yang, J. Gao, C. Li, Y. J. Lee, Gli-gen: Open-set grounded text-to-image generation, in: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2023, pp. 22511–22521. [48] P. Dhariwal, A. Nichol, Diffusion models beat gans on image synthesis, Advances in neural information processing systems 34 (2021) 8780–8794. [49] J. Ho, T. Salimans, Classifier-free diffusion guidance, in: NeurIPS 2021 Workshop on Deep Generative Models and Downstream Applications, 2021. [50] A. Voynov, K. Aberman, D. Cohen-Or, Sketch-guided text-to-image diffusion models, in: ACM SIGGRApH 2023 conference proceedings, 2023, pp. 1–11. 41 [51] O. Sigmund, K. Maute, Topology optimization approaches: A compar-ative review, Structural and multidisciplinary optimization 48 (2013) 1031–1055. [52] J. D. Deaton, R. V. Grandhi, A survey of structural and multidisci-plinary continuum topology optimization: post 2000, Structural and Multidisciplinary Optimization 49 (2014) 1–38. [53] V. Cool, N. Aage, O. Sigmund, A practical review on promoting con-nectivity in topology optimization, Structural and Multidisciplinary Optimization 68 (2025) 73. [54] D. Patel, D. Bielecki, R. Rai, G. Dargush, Improving connectivity and accelerating multiscale topology optimization using deep neural network techniques, Structural and Multidisciplinary Optimization 65 (2022) 126. [55] M. M. Behzadi, H. T. Ilieş, Gantl: Toward practical and real-time topology optimization with conditional generative adversarial networks and transfer learning, Journal of Mechanical Design 144 (2022) 021711. [56] E. J. Hu, yelong shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang, L. Wang, W. Chen, LoRA: Low-rank adaptation of large language models, in: International Conference on Learning Representations, 2022. [57] A. Mosinska, P. Marquez-Neila, M. Koziński, P. Fua, Beyond the pixel-wise loss for topology-aware delineation, in: Proceedings of the IEEE conference on computer vision and pattern recognition, 2018, pp. 3136– 3145. [58] X. Hu, F. Li, D. Samaras, C. Chen, Topology-preserving deep image segmentation, Advances in neural information processing systems 32 (2019). [59] S. Shit, J. C. Paetzold, A. Sekuboyina, I. Ezhov, A. Unger, A. Zhylka, J. P. Pluim, U. Bauer, B. H. Menze, cldice-a novel topology-preserving loss function for tubular structure segmentation, in: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2021, pp. 16560–16569. 42 [60] K. Crane, C. Weischedel, M. Wardetzky, Geodesics in heat: A new approach to computing distance based on heat flow, ACM Transactions on Graphics (ToG) 32 (2013) 1–11. [61] I. Loshchilov, F. Hutter, Decoupled weight decay regularization, arXiv preprint arXiv:1711.05101 (2017). [62] D. Luo, J. Wu, J. Wang, H. Xie, X. Yue, S. Tang, Difffluid: Plain diffusion models are effective predictors of flow dynamics, arXiv preprint arXiv:2409.13665 (2024). [63] J. Qiu, J. Huang, X. Zhang, Z. Lin, M. Pan, Z. Liu, F. Miao, Pi-fusion: Physics-informed diffusion model for learning fluid dynamics, arXiv preprint arXiv:2406.03711 (2024). [64] S. Deng, Q. Zhang, Z. Cai, Generative method for aerodynamic opti-mization based on classifier-free guided denoising diffusion probabilistic model, arXiv preprint arXiv:2503.07056 (2025). [65] K. Bhattacharya, L. Cao, A. Stuart, Optimal experimental design for re-liable learning of history-dependent constitutive laws, Computer Meth-ods in Applied Mechanics and Engineering 457 (2026) 119022. [66] M. A. Seyed Mahmoud, D. Renner, A. Khosravani, S. R. Kalidindi, Sequential bayesian inference of the gtn damage model using multimodal experimental data, Acta Materialia 306 (2026) 121902. [67] T.-H. Kwok, Y. Li, Y. Chen, A structural topology design method based on principal stress line, Computer-Aided Design 80 (2016) 19–31. [68] A. H. Nobari, L. Regenwetter, G. Giannone, F. Ahmed, NITO: Neural implicit fields for resolution-free and domain-adaptable topology opti-mization, Transactions on Machine Learning Research (2025). [69] A. Heyrani Nobari, L. Regenwetter, C. Picard, L. Han, F. Ahmed, Op-timize any topology: A foundation model for shape-and resolution-free structural topology optimization, Advances in Neural Information Pro-cessing Systems 38 (2025) 153374–153419. 43

@@ -6,49 +6,38 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-08
-- 运行时间：2026-07-08 21:42:24 UTC
+- 最新运行日期：2026-07-09
+- 运行时间：2026-07-09 21:00:58 UTC
 - 运行状态：成功
-- 本次总论文数：9
-- 精读区：6
-- 速读区：3
+- 本次总论文数：6
+- 精读区：4
+- 速读区：2
 
 ### 今日简报（AI）
-矢量渲染与点云分解双满分突破：今日精读《NURBS Splatting》和《SuperFlex》，前者用可微NURBS曲面统一矢量图形渲染，后者以可变形超二次曲面精准拆解复杂点云。  
-速读中流体方程范数增长的理论界也值得关注，但最亮眼的还是实时避碰中GPU加速的有号距离场方法。  
-若你对三维重建或图形引擎感兴趣，建议从这两篇满分论文入手，体验几何建模与可微框架碰撞出的新工具。
-- 详情：[/202607/08/README](/202607/08/README)
+今日精读两篇满分论文，聚焦几何重建与特征值不等式；最值得关注凸多边形部分信息重建与加权拉普拉斯Robin特征值的Faber-Krahn不等式突破。建议明日优先复现几何重建算法，并探索加权Laplacian在谱几何中的应用边界。
+- 详情：[/202607/09/README](/202607/09/README)
 
 ### 精读区论文标签
-1. [NURBS Splatting: A Unified Differentiable Rendering Framework for Vector Graphics](/202607/08/2606.31764v1-nurbs-splatting-a-unified-differentiable-rendering-framework-for-vector-graphics)  
+1. [On Reconstructing a Convex Polygon from Partial Information](/202607/09/2607.01423v1-on-reconstructing-a-convex-polygon-from-partial-information)  
+   标签：评分：10.0/10、query:boundary-opt
+   evidence：通过优化匹配特征来调整多边形边界
+2. [Faber Krahn inequality of Robin eigenvalue of the Weighted Laplacian](/202607/09/2607.06947v1-faber-krahn-inequality-of-robin-eigenvalue-of-the-weighted-laplacian)  
+   标签：评分：10.0/10、query:boundary-opt
+   evidence：证明加权Laplacian在Robin边界条件下最优域为球体，直接优化边界形状。
+3. [HPG-Diff: Hierarchical physics-guided diffusion with differentiable connectivity constraints for topology optimization](/202607/09/2607.07233v1-hpg-diff-hierarchical-physics-guided-diffusion-with-differentiable-connectivity-constraints-for-topology-optimization)  
    标签：评分：9.0/10、query:boundary-opt
-   evidence：可微渲染支持基于梯度的NURBS曲线边界优化
-2. [SuperFlex: Deformable Superquadrics for Point Cloud Decomposition](/202607/08/2607.01015v1-superflex-deformable-superquadrics-for-point-cloud-decomposition)  
-   标签：评分：9.0/10、query:boundary-opt
-   evidence：利用可变形超二次曲面优化形状参数以拟合点云
-3. [A Geometric Local Parameterization Method for Generalized Hele-Shaw Free Boundary Problems with Source Terms](/202607/08/2607.02880v1-a-geometric-local-parameterization-method-for-generalized-hele-shaw-free-boundary-problems-with-source-terms)  
-   标签：评分：9.0/10、query:boundary-opt
-   evidence：针对Hele-Shaw自由边界问题发展数值方法，直接优化边界形状
-4. [Generalizable turbulence closures across bluff-body shapes by PINN-based solver-agnostic training](/202607/08/2607.04491v1-generalizable-turbulence-closures-across-bluff-body-shapes-by-pinn-based-solver-agnostic-training)  
-   标签：评分：9.0/10、query:boundary-opt
-   evidence：通过PINN训练可泛化的湍流封闭模型，用于钝体形状，直接优化空气动力学中的边界层预测模型。
-5. [Stability Annealing Selects the Implicit Bias of Smoothed Sign Descent: A Rate-Indexed Barrier Path on Separable Data](/202607/08/2607.06013v1-stability-annealing-selects-the-implicit-bias-of-smoothed-sign-descent-a-rate-indexed-barrier-path-on-separable-data)  
-   标签：评分：9.0/10、query:boundary-opt
-   evidence：通过平滑符号下降的隐式偏差优化决策边界
-6. [Domain-Decomposed Randomized Neural Networks for Partial Differential Equations in Unbounded Domains](/202607/08/2606.31342v1-domain-decomposed-randomized-neural-networks-for-partial-differential-equations-in-unbounded-domains)  
+   evidence：拓扑优化在物理引导下调整材料边界
+4. [Nonlocal minimal surfaces are generically unique, and smooth in one extra dimension](/202607/09/2607.07154v1-nonlocal-minimal-surfaces-are-generically-unique-and-smooth-in-one-extra-dimension)  
    标签：评分：8.0/10、query:boundary-opt
-   evidence：通过域分解优化随机神经网络求解带边界条件的偏微分方程
+   evidence：具有指定边界数据的极小曲面问题
 
 ### 速读区论文标签
-1. [On the sharpness of bounds on the rate of growth of Lebesgue norms of the velocity in Navier-Stokes flows](/202607/08/2607.02739v1-on-the-sharpness-of-bounds-on-the-rate-of-growth-of-lebesgue-norms-of-the-velocity-in-navier-stokes-flows)  
-   标签：评分：8.0/10、query:boundary-opt
-   evidence：通过优化问题最大化Navier-Stokes速度范数的界尖锐性，使用黎曼共轭梯度法求解
-2. [GPU-Accelerated Polygonal Signed Distance Functions for Real-Time Collision Avoidance](/202607/08/2607.04310v1-gpu-accelerated-polygonal-signed-distance-functions-for-real-time-collision-avoidance)  
-   标签：评分：7.0/10、query:boundary-opt
-   evidence：利用障碍物边界边的GPU加速有符号距离函数，实现实时碰撞避免，使能了边界约束下的高效优化。
-3. [Separation Capacity of Scattering Networks on Low-Dimensional Datasets](/202607/08/2607.06048v1-separation-capacity-of-scattering-networks-on-low-dimensional-datasets)  
-   标签：评分：7.0/10、query:boundary-opt
-   evidence：优化散射网络架构以最大化分离能力，从而增强分类的决策边界。
+1. [From Ham-Sandwich to Centerpoints: Semialgebraic Algorithms for Cutting Polytopal Measures](/202607/09/2607.02400v1-from-ham-sandwich-to-centerpoints-semialgebraic-algorithms-for-cutting-polytopal-measures)  
+   标签：评分：6.0/10、query:boundary-opt
+   evidence：寻找多面体测度最优切割超平面的算法，与决策边界优化相关
+2. [Mass weighting algorithm optimizes Fourier-based physics-informed neural network in adhesive contact mechanics](/202607/09/2607.04288v1-mass-weighting-algorithm-optimizes-fourier-based-physics-informed-neural-network-in-adhesive-contact-mechanics)  
+   标签：评分：6.0/10、query:boundary-opt
+   evidence：质量加权算法优化傅里叶基物理信息神经网络求解粘着接触力学边界值问题
 
 
 <div class="dpr-home-promo-card">

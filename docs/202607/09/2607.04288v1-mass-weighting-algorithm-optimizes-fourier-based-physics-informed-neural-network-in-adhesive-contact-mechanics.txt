@@ -1,0 +1,513 @@
+Title: Mass weighting algorithm optimizes Fourier-based physics-informed neural network in adhesive contact mechanics
+
+URL Source: https://arxiv.org/pdf/2607.04288v1
+
+Published Time: Tue, 07 Jul 2026 02:10:47 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+Springer Nature 2021 L ATEX template 
+
+# Mass weighting algorithm optimizes Fourier-based physics-informed neural network in adhesive contact mechanics 
+
+## Yunong Zhou 1* , Kaifeng Huang 1, Chaofan Du 1, Yang Xu 2,3 
+
+## and Hengxu Song 4,5* 1Department of Civil Engineering, Yangzhou University, Yangzhou, 225127, Jiangsu, China. 
+
+2School of Mechanical Engineering, Hefei University of Technology, Hefei, 230009, Anhui, China. 
+
+3Anhui Province Key Laboratory of Digital Design and Manufacturing, Hefei, 230009, Anhui, China. 
+
+4LNM, Chinese Academy of Sciences, Beijing, 100190, China. 
+
+5University of Chinese Academy of Sciences, Beijing, 100049, China. *Corresponding author(s). E-mail(s): yunong.zhou@yzu.edu.cn; songhengxu@imech.ac.cn; 
+
+Abstract 
+
+Physics-informed neural networks (PINNs) for elastic contact mechanics suffer from a spectral stiffness imbalance,that is, the elastic kernel grows linearly with wave number, causing short-wavelength modes to dominate gradient updates and stall convergence of the macroscopic deforma-tion. We introduce a spectral preconditioning strategy that reweights displacement gradients in Fourier space before back-propagation, ampli-fying low wavenumber components through a mass weighting (MW) function while suppressing sub-grid noise via a built-in low-pass fil-ter. Applied to adhesive line contact problems, the mass weighted PINN reaches machine-zero residual loss within 400 Adam iterations for specified benchmark, whereas the reference benchmark stalls at three orders of magnitude higher loss. The converged displacement and con-tact stress fields agree quantitatively with Green’s function molecular 
+
+1
+
+> arXiv:2607.04288v1 [cond-mat.soft] 5 Jul 2026
+
+Springer Nature 2021 L ATEX template 2 Fourier PINN adhesive contact mechanics           
+
+> dynamics (GFMD) solutions for both smooth Hertz contact at pres-sures spanning tension to compression and rough surfaces with roughness covering several decades of wavelength. The method operates directly on auniform real-space grid, requires no explicit Green’s function integration or quadrature rules, and is formulated entirely in terms of minimising a scalar energy function. Extension to two-dimensional rough surfaces is direct, as both the Fourier elastic energy and the spectral preconditioner depend only on the wave-number magnitude.
+> Keywords: Contact mechanics, Adhesion, PINN, Mass weighting
+
+# 1 Introduction 
+
+Contact between deformable bodies widely exists in both natural phenomena and engineering applications. For example, gecko adhesion relies on van der Waals contact interactions between spatula-shaped setae and substrate sur-faces [1–3]. In engineering practice, contact mechanics governs the performance and reliability of tires gripping road surfaces [4, 5], seals and gaskets prevent-ing fluid leakage [6, 7], micro-electromechanical systems where stiction between contacting components causes device failure [8], and nanoscale manufacturing processes such as nano-imprint lithography and transfer printing [9, 10]. A unifying feature across these disparate systems is that the contact behavior, including the real contact area, the stress distribution, the gap distribution, and the adhesion strength, is governed by competing elastic deformation and surface interaction forces at various length scales. The challenge of predicting these emergent quantities has driven the development of contact mechanics for decades. Hertz provided the first rig-orous solution for non-adhesive elastic spheres [11]. Johnson, Kendall and Roberts (JKR) [12] and Derjaguin, Muller, and Toporov (DMT) [13] incor-porated surface energy into the analysis, establishing two limiting regimes for adhesive contacts. Maugis [14] unified these limits through a Dugdale cohesive-zone model, and the resulting Maugis-Tabor parameter provides a standard framework for classifying adhesive contact behavior [15, 16]. These classi-cal solutions, however, apply exclusively to smooth, idealized geometries and cannot capture the effects of multi-scale surface roughness. Real engineering surfaces are rough across many length scales, and the statistical properties of surface topography fundamentally dominates the con-tact response. Greenwood and Williamson (GW) [17] introduced a statistical asperity model, relating the real contact area to the distribution of sum-mit heights. Persson [18] took a totally different approach: reformulating the rough contact problem as a diffusion process in contact pressure, which yielded closed-form predictions for the real contact area [19], the interfacial gap [20], and the elastic stiffness [21] that can be linked to the height power spectrum. Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 3The theory has been extensively validated against both finite-element simula-tions [22] and experiments [23], and has since been extended to adhesion [19], viscoelasticity [24], electroadhesion and friction [25, 26], and fluid leakage at interfaces [27, 28]. On the other hand, M¨ user established a rigorous field-theoretical frame-work for rough elastic contacts [29]. In this approach, the pressure distribution is obtained through a statistical cumulant expansion, which recasts Persson’s theory as the leading-order and provides a systematic route to higher-order corrections. Beyond contact forces, the same field-theoretical framework also characterizes the interfacial gap. Zhou et al. [30] extended the cumulant expan-sion to the gap field, deriving an explicit analytical relation between the mean gap and applied pressure together with a convection-diffusion equation for the scale-dependent gap distribution. Translating these theoretical insights into quantitative predictions requires numerical methods capable of resolving the elastic field at the contacting interface with sufficient resolution. The finite element method (FEM) [31] accommodates finite geometries and nonlinear constitutive laws but incurs prohibitive volumetric meshing costs for problems involving large substrates and fine surface discretizations. Boundary element methods (BEM) [32] reduce dimensionality by one through surface Green’s functions [33, 34], and the Green’s function molecular dynamics (GFMD) method further accelerates the computation to O(N log N ) scaling per iteration through fast Fourier trans-form, making it the method of choice for large-scale rough contact simulations on elastic slab [35, 36]. In recent years, machine learning has introduced new methods for contact mechanics problems. Specifically, artificial neural networks (ANNs) [37, 38] have been used to create data-driven mappings from surface topography to contact parameters, offering advantages in predicting real contact area and its relationship with load. However, purely data-driven models can violate fundamental mechanical laws due to a lack of physical consistency. This has motivated the development of algorithms that combine phys-ical constraints with machine learning. Physics-informed neural networks (PINNs) [39–41] address this by embedding physical principles, typically gov-erning equations, into the loss function during training [42, 43]. Zhou and Song demonstrated that PINNs can predict contact stress distributions and rela-tive contact areas for rough surfaces by using Persson’s diffusion equation as a physics constraint, achieving accuracy within 0 .5% of GFMD benchmarks, even when extrapolating beyond training data [44]. Later work extended this method to predict gap distributions under partial-contact conditions where analytical solutions are not available [45]. Furthermore, it has been demonstrated that the physical constraint imple-mented in loss function does not necessarily be a differential equation. Alternatively, it can also take the form of direct energy minimization [46]. Bai et al. provides a compelling example in this direction, addressing the Springer Nature 2021 L ATEX template 4 Fourier PINN adhesive contact mechanics 
+
+large deformation and material nonlinearity in finite-body contact problems involving smooth surfaces [47]. Despite this, energy-based PINNs often exhibit lower computational effi-ciency than traditional BEM when applied to contact mechanics. This inefficiency can be attribute to two factors. First, the composite energy-based loss, which sums the total potential energy and boundary-condition penalty terms, gives rise to stiff gradient-flow dynamics, producing strongly unbalanced back-propagation gradients across different loss components [48, 49]. Second, and more fundamentally, a spectral-level issue underlies this gradient imbal-ance. It has been mentioned that [50, 51] standard neural networks exhibit an inherent low-frequency bias, namely, the network parameterization itself causes high-frequency Fourier components to be learned far more slowly than low-frequency ones. In contact mechanics, this difficulty is further intensified by the Fourier-space structure of the elastic stiffness operator, which scales with the wave number and thus intrinsically amplifies short-wavelength modes while sup-pressing long-wavelength ones. Short-range adhesive interactions introduce additional sharply localized features, injecting yet higher-frequency content into the solution that further widens the gap between fast and slow convergence modes [36]. In this work, we would like to address the spectral stiffness challenge by introducing a mass weighting (MW) spectral preconditioner designed specif-ically for energy-minimizing PINN contact simulations. The preconditioner operates in Fourier space prior to gradient back-propagation: displacement gradients are transformed to the Fourier domain, reweighted by a carefully designed spectral mass weighting function that amplifies low-wavenumber con-tributions while attenuating sub-grid-scale noise through an embedded spectral low-pass filter, and then inverse-transformed back to real space before being passed to the optimizer. In the following, we will demonstrate the proposed mass weighting precon-ditioner on one-dimensional adhesive line-contact problems with a cylindrical indenter and randomly rough surfaces with Morse potential, using up to 
+
+nx = 2048 spatial discretization points, and compare its performance against unconditioned training. We expect that, through comparisons against uncon-ditioned training, the mass weighting optimization will significantly accelerate convergence of the macroscopic deformation field, yield smooth and oscillation-free contact-stress profiles on fine grids, and maintain robust training dynamics without manual tuning of the preconditioner parameters. The remainder of this paper is organized as follows: The model and methods investigated in this study are introduced in Section 2. The related results and discussions are presented in Section 3 and conclusions would be sketched in Section 4. Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 5
+
+# 2 Model and method 
+
+## 2.1 Model −0.5 0.0 0.5         
+
+> x/L
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> h(x), u(x)
+> aHertz contact
+> Rigid profile
+> Elastic displacement
+> −0.5 0.0 0.5
+> x/L
+> 0.00
+> 0.02
+> 0.04
+> 0.06
+> h(x), u(x)
+> bRough surface contact
+> Rough profile
+> Elastic displacement
+> 10 2
+> q
+> 10 −2
+> 10 −1
+> 10 0
+> C(q)/ C0
+> qrqs
+> ∝q−2 H− 1
+> cSurface PSD
+
+Fig. 1 Contact mechanics model. (a) Hertz contact: a rigid parabolic indenter (blue) and the corresponding elastic half-space (red) under a nominal pressure. (b) Random rough surface contact: the fractal surface profile (blue) and its elastic deformation (red) under a nominal pressure. (c) Power spectral density (PSD) of the rough surface, C(q) ∝ q−2H−1
+
+with H = 0 .5, shown on log-log scales over the wavenumber range [ qr , q s]. 
+
+We consider an adhesive line-contact problem in the plane-strain regime, as illustrated schematically in Fig. 1. The rigid counter-surface is either a smooth parabolic profile of radius Rc, representing the classical Hertz indenter, whose profile is 
+
+h(x) = x2
+
+2Rc
+
+, (1) or a randomly rough surface whose statistical topography is prescribed by the height power spectral density (PSD) 
+
+C(q) = C0
+
+ qqr
+
+−2H−1
+
+, (2) where H is the Hurst exponent, q the wave number restricted to the interval [qr, q s] with qr = 2 π/λ r the roll-off and qs = 2 π/λ s the short-wavelength cutoff, and C0 a prefactor fixed by the root-mean-square height or gradient. In this study, we would like to fix the root-mean-square gradient to unity by default. The Fourier coefficients of the rough surface height are constructed from ˜h(q) = pC(q)/L exp( i2πX q ) with Xq a random variable uniform in [0 , 1], and the real-space profile h(x) is obtained by inverse Fourier transform, which reads 
+
+h(r) = L
+
+2π
+
+Z
+
+dq ˜h(q) exp( iqx ) (3) Both surfaces are pressed into an elastic half-space under a nominal exter-nal pressure p0. The half-space is characterized by an effective contact modulus Springer Nature 2021 L ATEX template 6 Fourier PINN adhesive contact mechanics 
+
+E∗ = E/ (1 − ν2), where E represents the elastic modulus and ν the Pois-son ratio. The adhesive interaction between the two surfaces is described by a Morse potential. The surface of the half-space undergoes a normal dis-placement field u(x), defined on a one-dimensional domain x ∈ [−L/ 2, L/ 2] discretized into nx uniformly spaced grid points. If not mentioned explicitly, the system size L, effective modulus E∗ are fixed to unity by default. The total potential energy Π of the system comprises three contributions: Π = Uel + Uext + Uint , (4) where Uel is the elastic strain energy stored in the half-space, Uext the work done by the external pressure, and Uint the interaction energy across the inter-face. For a semi-infinite elastic solid, the elastic energy can be compactly expressed in Fourier space through the spectral stiffness operator [18, 52]: 
+
+Uel = L
+
+2
+
+X
+
+> q
+
+qE ∗
+
+2 |˜u(q)|2, (5) where ˜ u(q) denotes the Fourier transform of u(x). The factor qE ∗/2 is the Fourier representation of the elastic Green’s function for a half-space and encodes the scale-dependent stiffness of the substrate, that is, short-wavelength deformations (large q) incur higher elastic energy cost than long-wavelength ones (small q). The real-space elastic stress at the surface, σ(x), is recovered from the inverse Fourier transform of the spectral stress ˜ σ(q) = −(qE ∗/2)˜ u(q). The work performed by the nominal pressure p0 acting over the entire nominal contact area is 
+
+Uext = −p0L˜u(0) , (6) where ˜ u(0) denotes the center-of-mass mode of the elastic displacement. The interaction forces between the two surfaces are modeled by a Morse potential, which captures both short-range repulsion and long-range attraction [36]: 
+
+γ(g) = γ0
+
+
+
+exp 
+
+
+
+− 2gρ
+
+
+
+− 2 exp 
+
+
+
+− gρ
+
+ 
+
+, (7) where γ0 is the work of adhesion, ρ is the characteristic range of the interaction and g denotes the interfacial gap which is determined by 
+
+g(x) = h(x) − u(x). (8) The total interfacial energy is obtained by integrating the energy density over the domain: 
+
+Uint = L X
+
+> i
+
+γg(xi). (9) Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 7
+
+## 2.2 Method 
+
+The learning task is to find the displacement field u(x) that minimizes the total potential energy Π[ u] defined in Eq. 4, given the surface profile h(x), the nominal pressure p0, and the material parameters ( E∗, γ 0, ρ ). Formally, we seek the optimal network parameters θ∗ such that 
+
+θ∗ = arg min  
+
+> θ
+
+Π[ uθ ]. (10) Unlike conventional PINNs that balance PDE residuals with boundary-condition penalties, this energy-minimizing formulation requires only a single scalar loss function and does not require explicit enforcement of boundary conditions. The spatial coordinate x is encoded through a Fourier feature mapping, then passed through a feed-forward neural network to produce the displace-ment uθ (x). The total potential energy Π is assembled by evaluating the elastic energy in Fourier space (Eq. 5), the external work (Eq. 6), and the Morse potential (Eq. 9) in real space. Before back-propagation, the gradient 
+
+∂Π/∂u is transformed to Fourier space, reweighted by a mass-weighting factor and a spectral low-pass filter, and transformed back to real space. The pre-conditioned gradient then flows through the network via standard automatic differentiation, and the Adam optimizer updates θ.The displacement field u(x) is parameterized by a fully connected feed-forward neural network uθ (x) with trainable parameters θ. To resolve the sharp displacement gradients that arise near contact edges, the input coordinate x
+
+is first mapped to a set of Fourier features [51]: 
+
+ϕ(x) =  sin(2 πBx), cos(2 πBx), (11) where B is a random Gaussian matrix with entries drawn from N (0 , s 2) and 
+
+s is a scale factor set to the maximum wave number resolved by the grid, 
+
+s ≈ πL/n x. The Fourier feature vector ϕ(x) is then passed through nl hidden layers, each containing nh neurons with ReLU activation, and finally mapped to a scalar displacement output; the number of Fourier features is scaled linearly with the grid size to maintain sufficient spectral resolution. A direct gradient descent on Π with respect to θ suffers from a spectral stiffness imbalance, that is, short-wavelength displacement modes couple to the elastic energy through the factor qE ∗/2, which grows linearly with wave number, whereas the adhesive interaction stiffness is wavenumber-independent. Consequently, high-q modes dominate the gradient updates and stall con-vergence of the macroscopic deformation. To solve this problem, we apply a spectral preconditioner to the displacement gradient ∂Π/∂u before back-propagation. Let ˜g(q) = F[∂Π/∂u ] denote the Fourier transform of the real-space gradient. Each Fourier mode is reweighted by a mass-weighting Springer Nature 2021 L ATEX template 8 Fourier PINN adhesive contact mechanics 
+
+factor [36]: 
+
+w(q) = E∗qmax /2
+
+pk20 + ( qE ∗/2) 2
+
+!α
+
+, (12) where k0 = ξ(E∗qmax /2) is a low-q stiffness floor with ξ ≪ 1, and the exponent 
+
+α ∈ (0 , 1] controls the weighting strength, which is fixed to 0 .5 in this study. The reweighted factor w(q) is clamped to [ wmin , w max ] to prevent extreme gain values. Additionally, a built-in spectral low-pass filter suppresses sub-grid noise: 
+
+f (q) = 11 + ( q/q c)β , (13) where qc is set proportional to the reciprocal of the interaction range and β
+
+controls the filter roll-off steepness. The combined preconditioning weight is 
+
+G(q) = w(q) f (q), and the preconditioned real-space gradient is obtained by inverse transform: δΠ
+
+δu precond 
+
+= F−1G(q) ˜ g(q). (14) Back-propagation through the network then uses this preconditioned gradi-ent, effectively rebalancing the spectral contributions so that long-wavelength modes receive amplified gradient signals. The network is trained using the Adam optimizer with an initial learning rate of 10 −4. The displacement field is initialized to the uniform value u(x) = 
+
+−ρ ln 2. For large grids, the displacement is evaluated in mini-batches to reduce memory overhead, while the Fourier-space operations are performed on the full assembled field to preserve spectral accuracy. To ensure training stability, the preconditioner is activated only after a warm-up phase of Nwarm = 100 ∼ 200 plain-gradient steps. At convergence, the contact stress distribution is obtained from the spectral stress–displacement relation: 
+
+σ(x) = F−1 − (E∗/2) q ˜uθ (q), (15) with the zero-wavenumber component corrected by the nominal pressure, ˜σ(0) ← ˜σ(0) − p0. Computing the stress in Fourier space avoids the grid-sensitivity inherent in real-space numerical differentiation of uθ (x) and is consistent with the spectral form of the elastic energy. In summary, the present formulation is restricted to one-dimensional line-contact problems under plane-strain conditions with a uniform grid spacing ∆x. The elastic half-space is assumed semi-infinite and homogeneous, and the adhesive interaction is modeled by the Morse potential with a range ρ ≪ L.The spectral preconditioner assumes that the gradient spectrum is domi-nated by the elastic stiffness contribution; its effectiveness for other interaction potentials or three-dimensional geometries remains to be investigated. Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 9
+
+# 3 Results 
+
+The elastic energy expression reveals the central challenge for gradient-based training: in Fourier space the stiffness kernel E(q) = qE ∗/2 grows linearly with wave number q (Eq. 5). Figure 2 shows this kernel spanning across the spectral bandwidth [ qr, q s] of a multiscale rough surface. This spectral het-erogeneity means that high-q displacement modes experience elastic gradients that dominate those of long-wavelength modes by the same factor, causing Adam updates to be driven primarily by short-wavelength fluctuations while the macroscopic deformation geometry remains under-optimized. The mass-weighting function G(q) designed to compensate this imbalance, is depicted in Fig. 2 (red dashed): at low q it applies a gain of approximately 4 to 5, ampli-fying the signal for macroscopic modes, while at high q it decays to suppress spurious short-wavelength dynamics. 0 100 200 300 400 500 600 
+
+q
+
+10 0
+
+10 1
+
+10 2
+
+> Value
+
+Elastic kernel & mass weighting 
+
+qE * /2 
+
+G(q)     
+
+> Fig. 2 Elastic stiffness kernel and mass-weighting function. The elastic stiffness
+> qE ∗/2 (blue) increases linearly with wavenumber, spanning more than one order of magni-tude across the spectral band. The mass-weighting function G(q) (red dashed) compensates this imbalance by amplifying low-qgradients and attenuating high-qcontributions.
+
+To quantify the effect of spectral preconditioning on convergence, we trained the Fourier PINN for 600 Adam iterations on a Hertzian contact prob-lem with Rc = 1 .0, p0/E ∗ = −1.0×10 −3, γ0 = 1 .0×10 −3 and ρ/L = 2 .0×10 −3
+
+with mass weighting enabled and disabled. Figure 3 reports the rescaled total loss ( L − L n)/(L0 − L n), where L0 is the initial loss value, and Ln the final Springer Nature 2021 L ATEX template 10 Fourier PINN adhesive contact mechanics 
+
+loss value, on a logarithmic scale. Without preconditioning, the loss decreased to approximately 5 × 10 −4 of its initial value and then stalled; further itera-tions produced no meaningful improvement (red dashed). With mass weighting activated after a 200-step warm-up phase, the loss decayed monotonically and reached machine-zero residual within 400 iterations (blue solid). The visible kink in the convergence curve at iteration 200 coincides with activation of the preconditioner, confirming that the acceleration is directly attributable to the spectral rebalancing. 0 100 200 300 400 500 600 
+
+Iteration 
+
+10 −4 
+
+10 −3 
+
+10 −2 
+
+10 −1 
+
+10 0
+
+> Rescaled total loss
+
+Rescaled total loss 
+
+MW off 
+
+MW on       
+
+> Fig. 3 Rescaled total loss during training. Resccaled loss (log scale) versus Adam iteration for the Hertzian contact problem. Mass weighting off (red dashed): the loss stalls at ∼5×10 −4. Mass weighting on (blue solid): the loss converges to machine zero within 400 iterations. The preconditioner is activated at iteration 200 (warm-up).
+
+To understand why the unpreconditioned training stalls, we monitored the amplitude of the fastest Fourier mode, ˜ u(qmax )real /n x, which is the mode most strongly affected by spectral stiffness imbalance. Figure 4 shows this mode’s evolution throughout training. Without preconditioning, the fastest mode oscillated with persistent large amplitude and never settled to a steady value (red dashed), indicating that high-q gradient noise continuously per-turbed the displacement field and prevented the network from converging to the energy minimum. With preconditioning, the same mode amplitude decayed rapidly to zero within the warm-up phase and remained stable thereafter (blue solid), confirming that the mass weighting effectively suppresses the spurious high-frequency dynamics that would otherwise dominate the gradient signal. Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 11 0 100 200 300 400 500 600 
+
+Iteration 
+
+−1 
+
+0
+
+1
+
+2̃
+
+> u(qmax )real  / nx
+
+1e−6 
+
+Fastest displacement mode 
+
+MW off 
+
+MW on    
+
+> Fig. 4 Fastest Fourier mode amplitude during training. Amplitude of the highest-wavenumber Fourier component, eu(qmax )real /n x, versus Adam iteration. Mass weighting off (red dashed): persistent large-amplitude oscillations. Mass weighting on (blue solid): rapid decay to zero after warm-up.
+
+The physical consequence of stable spectral convergence is directly visi-ble in the spatial stress field. Figure 5 compares the contact stress σ(x)/E ∗
+
+obtained from the PINN trained with and without mass weighting. The unpre-conditioned solution exhibits a noisy, unphysical stress profile with spurious high-frequency oscillations spanning the entire domain (red dashed). In con-trast, the preconditioned solution yields a smooth stress field that correctly resolves compressive contact patch separated by stress-free non-contact regions (blue solid). The difference is not quantitative but qualitative: without spec-tral preconditioning, the PINN fails to learn the physically correct contact solution even though the energy functional is identical in both cases. Having established that spectral preconditioning is essential for stable training, we validate the accuracy of the converged PINN solution against the Green’s function molecular dynamics (GFMD) reference for the classical Hertz contact problem, that is, a smooth parabolic indenter on an elastic half-space (Fig. 1a). Three far-field pressure levels were tested: p0/E ∗ = −0.01 (tension), 
+
+p0/E ∗ = 0 (zero external load), and p0/E ∗ = 0 .01 (compression). Figure 6 shows the elastic displacement u(x) (top panel) and contact stress 
+
+σ(x)/E ∗ (bottom panel) for all three cases. Opacity encodes the pressure level, increasing from p0 = −0.01 (faint) to p0 = 0 .01 (opaque). The PINN pre-dictions (red dashed) are indistinguishable from the GFMD reference (blue Springer Nature 2021 L ATEX template 12 Fourier PINN adhesive contact mechanics −0.4 −0.2 0.0 0.2 0.4 
+
+x/L
+
+−0.3 
+
+−0.2 
+
+−0.1 
+
+0.0 
+
+0.1 
+
+0.2 
+
+> σ(x)/ E *
+
+Stress profile 
+
+MW off 
+
+MW on            
+
+> Fig. 5Contact stress profile with and without preconditioning. Spatial stress distribution σ(x)/E ∗for the Hertzian contact problem. Mass weighting off (red dashed): noisy, unphysical stress with spurious oscillations. Mass weighting on (blue solid): smooth, physically correct stress with resolved compressive contact patch.
+
+solid) across the entire spatial domain, for both displacement and stress, at all three pressure levels. This agreement demonstrates that the Fourier PINN with mass-weighted spectral preconditioning correctly solves the linear elastic contact problem with an imposed smooth rigid profile. We next apply the method to contact with a fractal rough surface whose PSD is given by Eq. 2 with H = 0 .5, containing roughness over two decades of wavelength from λr = 0 .25 L to λs = 0 .01 L (Fig. 1c). Three far-field pressures were applied, spanning the transition from tension ( p0/(E∗ ¯g) = −1.5 × 10 −3
+
+and −1.0 × 10 −3) to compression ( p0/(E∗ ¯g) = 1 .0 × 10 −2), where ¯ g denotes the root-mean-square gradient of height of rough surface. These pressures were chosen to sample the regime in which the real contact area is a small fraction of the nominal area, where multi-scale roughness effects are most pronounced. Figure 7 presents the elastic displacement u(x) (top row), full-domain contact stress σ(x)/E ∗ (middle row), and a zoomed-in stress profile over 
+
+x ∈ [−0.15 , −0.05] (bottom row) for all three pressures. Across the full pressure range, the PINN predictions (red dashed) closely track the GFMD reference (blue solid) in both the shape and amplitude of the elastic displacement field. The contact stress captures the defining feature of rough-surface contact: Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 13 0.00 
+
+0.01 
+
+0.02 
+
+0.03 
+
+0.04 
+
+0.05 
+
+0.06 
+
+> u(x)/ L
+
+p0/E * = −0.01 
+
+p0/E * = 0.00 
+
+p0/E * = 0.01 
+
+Hertz contact — PINN vs GFMD 
+
+GFMD 
+
+PINN 
+
+−0.4 −0.2 0.0 0.2 0.4 
+
+x/L
+
+−0.3 
+
+−0.2 
+
+−0.1 
+
+0.0          
+
+> σ(x)/ E *
+> Fig. 6 Hertz contact: PINN versus GFMD. Top panel: elastic displacement u(x)/L .Bottom panel: contact stress σ(x)/E ∗. Three far-field pressures p0/E ∗∈ {− 0.01 ,0,0.01 }are shown with increasing opacity. GFMD reference (blue solid); PINN prediction (red dashed).
+
+isolated compressive peaks separated by stress-free gaps at the two lower pres-sures, reflecting the sparse, asperity-level contact morphology, and a transition to a nearly continuous compressive stress distribution at the highest pressure. The zoomed view confirms that the PINN resolves individual contact patches with quantitative accuracy, correctly reproducing both the positions and amplitudes of stress peaks as predicted by GFMD. These results establish that the Fourier PINN with spectral preconditioning solves rough-surface con-tact mechanics with fidelity sufficient to capture the multi-scale stress structure that underpins tribological properties such as real contact area, friction, and interfacial stiffness. To provide a quantitative complement to the visual comparisons in Figs. 6 and 7, we define the root-mean-square error (RMSE) and the normalized Springer Nature 2021 L ATEX template 14 Fourier PINN adhesive contact mechanics 
+
+RMSE (NRMSE) for a field f ∈ { u, σ } as RMSE f =
+
+vuut 1
+
+nxnxX
+
+> i=1
+
+fPINN (xi) − fGFMD (xi)2, (16) NRMSE f = RMSE f
+
+max i fGFMD (xi) − min i fGFMD (xi) , (17) where nx = 2048 is the number of spatial grid points and fGFMD denotes the GFMD reference solution. Table 1 reports these metrics for displacement and stress across all six test cases. For the Hertz problem, the NRMSE of displace-ment lies between 2 .1 × 10 −6 and 1 .2 × 10 −4, while the stress NRMSE ranges from 1 .9 × 10 −5 to 4 .1 × 10 −4. For the fractal rough surface, the displacement NRMSE remains below 2 .6 × 10 −4 and the stress NRMSE below 1 .1 × 10 −3
+
+across all pressures. Across all six cases, the mean NRMSE is 6 .5×10 −5 for dis-placement and 2 .5 × 10 −4 for stress, confirming that the PINN predictions are quantitatively consistent with the GFMD reference to within a small fraction of one percent of the field range. The largest stress NRMSE (1 .0×10 −3, fractal case at p0/(E∗ ¯g) = −1.0 × 10 −3) coincides with the lowest applied pressure, where contact patches are sparse and the stress field is dominated by a few narrow peaks whose precise amplitude is most sensitive to the discretization of the Fourier representation.      
+
+> Table 1 Quantitative error of PINN predictions relative to GFMD. RMSE and NRMSE (RMSE normalized by the range of the GFMD field) for displacement uand contact stress σ.
+
+RMSE u NRMSE u RMSE σ NRMSE σ
+
+Hertz contact 
+
+p0/E ∗ = −0.01 1.68 × 10 −6 1.20 × 10 −4 1.41 × 10 −4 4.13 × 10 −4
+
+p0/E ∗ = 0 4.77 × 10 −8 2.15 × 10 −6 6.97 × 10 −6 1.88 × 10 −5
+
+p0/E ∗ = 0 .01 5.56 × 10 −8 1.88 × 10 −6 1.71 × 10 −5 4.35 × 10 −5
+
+Fractal rough surface 
+
+p0/(E∗ ¯g) = −1.5 × 10 −3 3.66 × 10 −9 5.56 × 10 −7 2.09 × 10 −6 2.26 × 10 −6
+
+p0/(E∗ ¯g) = −1.0 × 10 −3 6.17 × 10 −6 2.60 × 10 −4 1.66 × 10 −3 1.02 × 10 −3
+
+p0/(E∗ ¯g) = 1 .0 × 10 −2 3.16 × 10 −8 1.15 × 10 −6 1.70 × 10 −5 1.02 × 10 −5
+
+# 4 Conclusions 
+
+We have presented a Fourier PINN framework for one-dimensional adhesive contact mechanics that uses an energy-minimizing formulation and spectral mass-weighting preconditioning to overcome the stiffness imbalance inherent in elastic half-space problems. The key finding is that spectral preconditioning is not merely helpful but necessary for stable convergence: without it, training stalls at a finite residual loss and produces unphysical stress fields dominated Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 15 −0.4 −0.2 0.0 0.2 0.4                                       
+
+> 0.00
+> 0.02
+> 0.04
+> u(x)
+> p0/( E*̄g) = −1.5 × 10 −3
+> −0.4 −0.2 0.0 0.2 0.4
+> 0.00
+> 0.02
+> 0.04
+> p0/( E*̄g) = −1.0 × 10 −3
+> −0.4 −0.2 0.0 0.2 0.4
+> 0.00
+> 0.02
+> 0.04
+> p0/( E*̄g) = 1.0 × 10 −2
+> GFMD
+> PINN
+> −0.4 −0.2 0.0 0.2 0.4
+> −0.2
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> σ(x)/ E *
+> −0.4 −0.2 0.0 0.2 0.4
+> 0.0
+> 0.5
+> 1.0
+> −0.4 −0.2 0.0 0.2 0.4
+> 0.0
+> 0.5
+> 1.0
+> −0.14 −0.12 −0.10 −0.08 −0.06
+> x/L
+> −0.2
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> σ(x)/ E *
+> −0.14 −0.12 −0.10 −0.08 −0.06
+> x/L
+> 0.0
+> 0.5
+> 1.0
+> −0.14 −0.12 −0.10 −0.08 −0.06
+> x/L
+> 0.0
+> 0.5
+> 1.0
+> Rough surface contact — PINN vs GFMD
+
+Fig. 7 Rough surface contact: PINN versus GFMD. Top row: elastic displacement 
+
+u(x). Middle row: full-domain contact stress σ(x)/E ∗. Bottom row: zoomed stress over 
+
+x ∈ [−0.15 , −0.05]. Columns correspond to three far-field pressures p0/(E∗ ¯g) ∈ {− 1.5 ×
+
+10 −3, −1.0×10 −3, 1.0×10 −2}. GFMD reference (blue solid); PINN prediction (red dashed). 
+
+by high-frequency noise; with it, the loss reaches machine zero within a few hundred Adam iterations and the solution converges to the GFMD reference with quantitative accuracy. Monitoring the fastest Fourier mode amplitude during training directly confirms that the preconditioner acts by suppressing the spurious high-q dynamics that otherwise overwhelm the gradient signal. The method was validated on two complementary contact problems. For the Hertz indenter, the Fourier PINN reproduces the GFMD displacement and stress fields across three far-field pressures spanning tension to compres-sion (Fig. 6). For fractal rough surfaces with roughness defined by specified PSD, the PINN captures the multi-scale stress structure, isolated compressive peaks at low pressure, transitioning to a continuous stress distribution at high pressure, in quantitative agreement with GFMD (Fig. 7). In both cases the real-space predictions are indistinguishable from the reference solution, estab-lishing that energy-minimizing PINNs with spectral preconditioning can solve rough-surface contact problems without requiring the explicit Green’s function integration or all-to-all coupling that conventional boundary-element methods rely on. Springer Nature 2021 L ATEX template 16 Fourier PINN adhesive contact mechanics 
+
+The present work is limited to one-dimensional line-contact geometries, the moderate Hurst exponent H = 0 .5, and adhesive interactions modeled by the Morse potential. Extension to two-dimensional rough surfaces is the natural next step: the Fourier-space formulation of the elastic energy gen-eralizes directly to 2D, while the spectral preconditioner depends only on the wave-number q and should transfer without structural modification. The interaction-potential independence of the preconditioner also suggests appli-cability to a broader class of interface models, including Lennard-Jones-based adhesion and rate-dependent friction laws, provided the non-elastic energy contributions remain smooth in real space. 
+
+Acknowledgments. YZ acknowledges the financial supports from the National Natural Science Foundation of China (Grant No.12402116) and the Opening fund of State Key Laboratory of Nonlinear Mechanics (Grant No. LNM202510). HS acknowledges the financial support from the Strategic Pri-ority Research Program of the Chinese Academy of Science through grant No. XDB0620101. YX acknowledges the financial support from the Natural Science Foundation of Anhui Province (Grant No. 2508085ME101). 
+
+# Declarations 
+
+The author declares that he has no conflict interest. 
+
+# Data Availability 
+
+The Fourier based PINN source code and related data files can be found here. 
+
+# Declaration of generative AI and AI-assisted technologies in the manuscript preparation process 
+
+During the preparation of this manuscript, the authors used ChatGPT and DeepSeek to assist with language editing and clarity improvement. All content was carefully reviewed and revised by the authors, who take full responsibility for the accuracy, originality, and integrity of the published work. 
+
+# References 
+
+[1] Gao, H., Wang, X., Yao, H., Gorb, S., Arzt, E.: Mechanics of hierarchical adhesion structures of geckos. Mechanics of Materials 37 (2-3), 275–285 (2005). https://doi.org/10.1016/j.mechmat.2004.03.008 [2] Zeng, H., Pesika, N., Tian, Y., Zhao, B., Chen, Y., Tirrell, M., Turner, K.L., Israelachvili, J.N.: Frictional adhesion of patterned surfaces and implications for gecko and biomimetic systems. Langmuir 25 (13), 7486– 7495 (2009). https://doi.org/10.1021/la900877h Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 17 [3] Materzok, T., De Boer, D., Gorb, S., M¨ uller-Plathe, F.: Gecko adhesion on flat and rough surfaces: Simulations with a multi-scale molecular model. Small 18 (35) (2022). https://doi.org/10.1002/smll.202201674 [4] Persson, B.N.J., Xu, R., Miyashita, N.: Rubber wear: Experiment and theory. The Journal of Chemical Physics 162 (7) (2025). https://doi.org/ 10.1063/5.0248199 [5] Xu, R., Sheng, W., Zhou, F., Persson, B.N.J.: Rubber wear: History, mechanisms, and perspectives. Tribology Letters 73 (3) (2025). https: //doi.org/10.1007/s11249-025-02025-9 [6] Dapp, W.B., L¨ ucke, A., Persson, B.N.J., M¨ user, M.H.: Self-affine elas-tic contacts: Percolation and leakage. Physical Review Letters 108 (24) (2012). https://doi.org/10.1103/physrevlett.108.244301 [7] M¨ uller, C., M¨ user, M.H., Carbone, G., Menga, N.: Significance of elastic coupling for stresses and leakage in frictional contacts. Physical Review Letters 131 (15) (2023). https://doi.org/10.1103/physrevlett.131.156201 [8] Li, H., Yu, C., Dai, Z.: Regimes in the axisymmetric stiction of thin elastic plates. International Journal of Mechanical Sciences 284 , 109740 (2024). https://doi.org/10.1016/j.ijmecsci.2024.109740 [9] McClelland, G.M., Rettner, C.T., Hart, M.W., Carter, K.R., Sanchez, M.I., Best, M.E., Terris, B.D.: Contact mechanics of a flexible imprinter for photocured nanoimprint lithography. Tribology Letters 19 (1), 59–63 (2005). https://doi.org/10.1007/s11249-005-4265-6 [10] Carlson, A., Wang, S., Elvikis, P., Ferreira, P.M., Huang, Y., Rogers, J.A.: Active, programmable elastomeric surfaces with tunable adhesion for deterministic assembly by transfer printing. Advanced Functional Mate-rials 22 (21), 4476–4484 (2012). https://doi.org/10.1002/adfm.201201023 [11] Hertz, H.: On the contact of elastic solids. In: Journal F¨ ur die Reine und Angewandte Mathematik, vol. 92, pp. 156–171 (1882) [12] Johnson, K.L., Kendall, K., Roberts, A.D.: Surface energy and the con-tact of elastic solids. Proceedings of the Royal Society of London. A. Mathematical and Physical Sciences 324 (1558), 301–313 (1971). https: //doi.org/10.1098/rspa.1971.0141 [13] Derjaguin, B.V., Muller, V.M., Toporov, Y.P.: Effect of contact deforma-tions on the adhesion of particles. Journal of Colloid and Interface Science 
+
+53 (2), 314–326 (1975). https://doi.org/10.1016/0021-9797(75)90018-1 [14] Maugis, D.: Adhesion of spheres: The jkr-dmt transition using a dugdale Springer Nature 2021 L ATEX template 18 Fourier PINN adhesive contact mechanics 
+
+model. Journal of Colloid and Interface Science 150 (1), 243–269 (1992). https://doi.org/10.1016/0021-9797(92)90285-t [15] Ciavarella, M., Xu, Y., Jackson, R.L.: The generalized tabor parameter for adhesive rough contacts near complete contact. Journal of the Mechan-ics and Physics of Solids 122 , 126–140 (2019). https://doi.org/10.1016/j. jmps.2018.08.011 [16] Ciavarella, M., Wang, Q.-A., Li, Q.: Maugis-tabor parameter dependence of pull-off in viscoelastic line hertzian contacts. The Journal of Adhesion 
+
+99 (6), 972–987 (2022). https://doi.org/10.1080/00218464.2022.2066998 [17] Greenwood, J.A., Williamson, J.B.P.: Contact of nominally flat surfaces. Proceedings of the Royal Society of London. Series A. Mathematical and Physical Sciences 295 (1442), 300–319 (1966). https://doi.org/10.1098/ rspa.1966.0242 [18] Persson, B.N.J.: Theory of rubber friction and contact mechanics. The Journal of Chemical Physics 115 (8), 3840–3861 (2001). https://doi.org/ 10.1063/1.1388626 [19] Persson, B.N.J.: Adhesion between an elastic body and a randomly rough hard surface. The European Physical Journal E 8(4), 385–401 (2002). https://doi.org/10.1140/epje/i2002-10025-1 [20] Persson, B.N.J.: Relation between interfacial separation and load: A gen-eral theory of contact mechanics. Physical Review Letters 99 (12) (2007). https://doi.org/10.1103/physrevlett.99.125502 [21] Pastewka, L., Prodanov, N., Lorenz, B., M¨ user, M.H., Robbins, M.O., Persson, B.N.J.: Finite-size scaling in the interfacial stiffness of rough elas-tic contacts. Physical Review E 87 (6) (2013). https://doi.org/10.1103/ physreve.87.062809 [22] Hyun, S., Pei, L., Molinari, J.-F., Robbins, M.O.: Finite-element analysis of contact between elastic self-affine surfaces. Physical Review E 70 (2) (2004). https://doi.org/10.1103/physreve.70.026117 [23] Lorenz, B., Persson, B.N.J.: Interfacial separation between elastic solids with randomly rough surfaces: comparison of experiment with theory. Journal of Physics: Condensed Matter 21 (1), 015003 (2008). https://doi. org/10.1088/0953-8984/21/1/015003 [24] Persson, B.N.J., Albohr, O., Creton, C., Peveri, V.: Contact area between a viscoelastic solid and a hard, randomly rough, substrate. The Journal of Chemical Physics 120 (18), 8779–8793 (2004). https://doi.org/10.1063/1. 1697376 Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 19 [25] Persson, B.N.J.: The dependency of adhesion and friction on electrostatic attraction. The Journal of Chemical Physics 148 (14) (2018). https://doi. org/10.1063/1.5024038 [26] Persson, B.N.J.: General theory of electroadhesion. Journal of Physics: Condensed Matter 33 (43), 435001 (2021). https://doi.org/10.1088/ 1361-648x/abe797 [27] Persson, B.N.J.: Fluid leakage in static rubber seals. Tribology Letters 
+
+70 (2) (2022). https://doi.org/10.1007/s11249-022-01573-8 [28] Xu, R., Gil, L., Singer, J., Gontard, L., Leverd, W., Persson, B.N.J.: Leakage at interfaces: A comprehensive study based on persson contact mechanics theory. Tribology International 214 , 111352 (2026). https:// doi.org/10.1016/j.triboint.2025.111352 [29] M¨ user, M.H.: Rigorous field-theoretical approach to the contact mechanics of rough elastic solids. Physical Review Letters 100 (5) (2008). https:// doi.org/10.1103/physrevlett.100.055504 [30] Zhou, Y., Song, H., Zhang, Z., Xu, Y.: Field-theoretical approach to esti-mate mean gap and gap distribution in randomly rough surface contact mechanics. Tribology International 220 , 111894 (2026). https://doi.org/ 10.1016/j.triboint.2026.111894 [31] Wriggers, P.: Computational contact mechanics. Computational Mechan-ics 32 (1-2), 141–141 (2003). https://doi.org/10.1007/s00466-003-0472-x [32] Putignano, C., Carbone, G.: A review of boundary elements method-ologies for elastic and viscoelastic rough contact mechanics. Phys-ical Mesomechanics 17 (4), 321–333 (2014). https://doi.org/10.1134/ s1029959914040092 [33] Menga, N., Putignano, C., Carbone, G., Demelio, G.P.: The sliding con-tact of a rigid wavy surface with a viscoelastic half-space. Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences 
+
+470 (2169), 20140392 (2014). https://doi.org/10.1098/rspa.2014.0392 [34] Monti, J.M., Pastewka, L., Robbins, M.O.: Green’s function method for dynamic contact calculations. Physical Review E 103 (5) (2021). https: //doi.org/10.1103/physreve.103.053305 [35] Campa˜ n´ a, C., M¨ user, M.H.: Practical green’s function approach to the simulation of elastic semi-infinite solids. Physical Review B 74 (7) (2006). https://doi.org/10.1103/physrevb.74.075420 Springer Nature 2021 L ATEX template 20 Fourier PINN adhesive contact mechanics 
+
+[36] Zhou, Y., Moseler, M., M¨ user, M.H.: Solution of boundary-element prob-lems using the fast-inertial-relaxation-engine method. Physical Review B 
+
+99 (14) (2019). https://doi.org/10.1103/physrevb.99.144103 [37] Kalliorinne, K., Larsson, R., P´ erez-R` afols, F., Liwicki, M., Almqvist, A.: Artificial neural network architecture for prediction of contact mechanical response. Frontiers in Mechanical Engineering 6 (2021). https://doi.org/ 10.3389/fmech.2020.579825 [38] Suman, S., Prajapati, D.K.: Predictive modeling of real contact area on rough surfaces using deep artificial neural network. Journal of Tribology 
+
+147 (11) (2025). https://doi.org/10.1115/1.4068057 [39] Schmidt, M., Lipson, H.: Distilling free-form natural laws from experi-mental data. Science 324 (5923), 81–85 (2009). https://doi.org/10.1126/ science.1165893 [40] Bongard, J., Lipson, H.: Automated reverse engineering of nonlinear dynamical systems. Proceedings of the National Academy of Sciences 
+
+104 (24), 9943–9948 (2007). https://doi.org/10.1073/pnas.0609476104 [41] Brunton, S.L., Proctor, J.L., Kutz, J.N.: Discovering governing equations from data by sparse identification of nonlinear dynamical systems. Pro-ceedings of the National Academy of Sciences 113 (15), 3932–3937 (2016). https://doi.org/10.1073/pnas.1517384113 [42] Raissi, M., Perdikaris, P., Karniadakis, G.E.: Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations. Journal of Computational Physics 378 , 686–707 (2019). https://doi.org/10.1016/j. jcp.2018.10.045 [43] Chen, Z., Liu, Y., Sun, H.: Physics-informed learning of governing equations from scarce data. Nature Communications 12 (1) (2021). https: //doi.org/10.1038/s41467-021-26434-1 [44] Zhou, Y., Song, H.: Physics-informed neural network approach to ran-domly rough surface contact mechanics. Tribology Letters 73 (88) (2025). https://doi.org/10.1007/s11249-025-02022-y [45] Zhou, Y., Song, H.: Data-driven enhanced rough contact mechanics: Pinn estimation of gap distribution across length scales for partial contacts. Tribology International 214 , 111100 (2026). https://doi.org/10.1016/j. triboint.2025.111100 [46] Li, H., Li, M., Bai, J., Sharif Khodaei, Z., Aliabadi, M.H.: An energy-based physics-informed neural network framework for efficient mesh-free Springer Nature 2021 L ATEX template 
+
+Fourier PINN adhesive contact mechanics 21 homogenisation of architected metamaterials. Journal of the Mechanics and Physics of Solids 210 , 106542 (2026). https://doi.org/10.1016/j.jmps. 2026.106542 [47] Bai, J., Lin, Z., Wang, Y., Wen, J., Liu, Y., Rabczuk, T., Gu, Y., Feng, X.-Q.: Energy-based physics-informed neural network for frictionless con-tact problems under large deformation. Computer Methods in Applied Mechanics and Engineering 437 , 117787 (2025). https://doi.org/10.1016/ j.cma.2025.117787 [48] Wang, S., Teng, Y., Perdikaris, P.: Understanding and mitigating gradient flow pathologies in physics-informed neural networks. SIAM Journal on Scientific Computing 43 (5), 3055–3081 (2021). https://doi.org/10.1137/ 20m1318043 [49] He, R.Y., Liang, Y., Zhao, H., Zhong, Y.: From Frequency Bias to Spectral Balance: Operator-Aware Preconditioners for PINNs. arXiv (2026). https://doi.org/10.48550/ARXIV.2603.00904. https://arxiv.org/ abs/2603.00904 [50] Rahaman, N., Baratin, A., Arpit, D., Draxler, F., Lin, M., Hamprecht, F., Bengio, Y., Courville, A.: On the spectral bias of neural networks. In: Chaudhuri, K., Salakhutdinov, R. (eds.) Proceedings of the 36th International Conference on Machine Learning. Proceedings of Machine Learning Research, vol. 97, pp. 5301–5310. PMLR, ??? (2019). https: //proceedings.mlr.press/v97/rahaman19a.html [51] Tancik, M., Srinivasan, P., Mildenhall, B., Fridovich-Keil, S., Ragha-van, N., Singhal, U., Ramamoorthi, R., Barron, J., Ng, R.: Fourier features let networks learn high frequency functions in low dimen-sional domains. In: Larochelle, H., Ranzato, M., Hadsell, R., Bal-can, M.F., Lin, H. (eds.) Advances in Neural Information Pro-cessing Systems, vol. 33, pp. 7537–7547. Curran Associates, Inc., ??? (2020). https://proceedings.neurips.cc/paper files/paper/2020/file/ 55053683268957697aa39fba6f231c68-Paper.pdf [52] Prodanov, N., Dapp, W.B., M¨ user, M.H.: On the contact area and mean gap of rough, elastic contacts: Dimensional analysis, numerical cor-rections, and reference data. Tribology Letters 53 (2), 433–448 (2013). https://doi.org/10.1007/s11249-013-0282-z

@@ -1,0 +1,1326 @@
+Title: On Reconstructing a Convex Polygon from Partial Information
+
+URL Source: https://arxiv.org/pdf/2607.01423v1
+
+Published Time: Fri, 03 Jul 2026 00:10:55 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# On Reconstructing a Convex Polygon from Partial Information ∗
+
+## Alexander Baumann † Therese Biedl ‡ Mahmoud Elashmawi † Simon D. Fink §
+
+## Maria Saumell ¶ Andr´ e Schulz ‖
+
+## July 3, 2026 
+
+Abstract 
+
+The reconstruction problem asks to construct a (convex) polygon that has a specified set of features, such as an ordered set of edge-lengths or an ordered set of polygon-angles. In this paper, we do a systematic exploration of the reconstruction problem in all scenarios where one or two sets of features have been specified. Some of these scenarios were well-studied already, for some we develop testing-algorithms and/or hardness results, and many give rise to interesting open problems for future study. 
+
+# 1 Introduction 
+
+Consider a polygon P with n ≥ 3 corners. This polygon has a number of features , for example the lengths of the n edges, or the n angles at the corners, which can be computed from the coordinates of the corners. In this work, we study the reverse reconstruction question : Given some features of an unknown polygon 
+
+P , is there a realization , i.e., a polygon P that has these features? Can we efficiently test whether there is one? If so, can we construct P efficiently and is it unique (at least up to some obvious transformations)? Questions of this type have been studied previously; we list many results in Appendix A and a few especially relevant ones here. The Minkowski problem asks whether a convex polygon exists that has the origin inside, has a given ordered set of edge lengths ℓ0, . . . , ℓ n−1, and a given ordered set of (unit) edge normals n0, . . . , nn−1, where ni should be the normal of the halfplane supporting the edge of length 
+
+ℓi. See Huang, Yang, and Zhang [ 14 ] for a history and a short proof that this is possible if and only if 
+
+Pn−1 
+
+> i=0
+
+ℓini is the 0-vector. Our research was inspired by the open question asked by J. O’Rourke at CCCG’25 [ 1] (which in turn was inspired by [ 14 ]): Can we reconstruct a polygon if we are given the edge normals and the areas of the 
+
+triangles spanned by the edges , i.e., the triangles formed by two consecutive corners and the origin? This problem was introduced by Stancu, who called it the L0-Minkowski problem [21 ]. Stancu showed that there always is a solution as long as no two edge normals are opposite to each other. Stancu’s proof is not constructive, and implies no algorithm for computing the desired polygon. We were not able to find a practical algorithm for the L0-Minkowski problem, but inspired by these questions, we decided to explore the problem of reconstructing a convex polygon from features more broadly. Specifically, we looked at six features that naturally arise in any convex polygon with the origin inside, and more generally in any polygon P that is star-shaped from the origin , i.e., all segments from the origin to a corner lie strictly inside P . (We simply call this “star-shaped” here.) Say polygon P has corners c0, . . . , c n−1 in counter-clockwise order. For i ∈ { 0, . . . , n − 1}, we define the following, treating all addition among indices modulo n (see also Figure 1): 
+
+> ∗This work was initiated at the European Research Week on Geometric Graphs 2025, held in Chorin (Germany). We thank the organizers for a fruitful atmosphere. We also thank Wolfgang Mulzer for helpful input.
+> †Institut f¨ ur Informatik, Freie Universit¨ at Berlin, Germany.
+> ‡David R. Cheriton School of Computer Science, University of Waterloo, Canada. Research done while visiting Freie Universit¨ at Berlin, Germany. Supported by NSERC.
+> §Algorithms and Complexity Group, TU Wien, Austria.
+> ¶Department of Theoretical Computer Science, Faculty of Information Technology, Czech Technical University in Prague, Czech Republic. Supported by the Czech Science Foundation, grant number 23-04949X.
+> ‖FernUniversit¨ at in Hagen, Germany.
+
+1
+
+> arXiv:2607.01423v1 [cs.CG] 1 Jul 2026
+
+triangle area Ai−1edge dis-tance hi−1corner dis-tance dici+1 edge normal nioci−1cici+1 liedge ei−1corner vector ci−1edge-length ℓiunit circle ray angle 
+
+ρi−1polygon angle θi−1Figure 1: Features of a star-shaped polygon (bold). 
+
+• The edge length ℓi > 0 is the length of the edge ei = cici+1 .
+
+• The (triangle) area Ai is the area of the triangle Ti spanned by ei and the origin. 
+
+• The (unit) edge normal ni is the unit-length vector that is perpendicular to the line li supporting ei,and that has a positive inner product with all points on li.1 Edge normals are closely related to the 
+
+polygon angle θi (the inner angle at corner ci): θi equals 180 ◦ minus the angle between ni−1 and ni.The edge normal also corresponds to the edge ray , which is the ray from origin o along normal ni.
+
+• The edge distance hi > 0 is the distance of the line li supporting ei from the origin. (The name “ h”was chosen since this is the height of Ti if we view ei as the base of this triangle.) 
+
+• The (unit) corner vector ci is the unit-length vector along the corner ray , i.e., from the origin along the ray through corner ci.2 Corner vectors are closely related to the ray angle ρi (the angle between the corner rays): ρi is the angle between ci and ci+1 .
+
+• The corner distance di is || ci|| , i.e., the distance of corner ci from the origin. Each of these features consists of n numbers. A polygon P is defined by 2 n coordinates, and so one would expect that it takes two of these features to specify the polygon. This is the main reason for us to consider the reconstruction question for all possible pairs of features. Surprisingly enough, the back-of-the-envelope computation of the degrees of freedom can be off: sometimes even specifying just one feature can make it impossible to have a convex polygon (see, for example, Section 3.3). For this reason we also study all the situations where only one feature has been specified. Table 1 gives an overview of all the scenarios (combinations of features) that we study, with links to the corresponding sections. 
+
+Our contribution. The main contribution of this work is the list of reconstruction problems, together with a compilation about what is already known. Additionally, we investigate some of the less-studied scenarios. Our results here include the following: 
+
+• In the scenario “only triangle areas”, there always is a convex realization, and it can be found in linear time (Section 3.2). 
+
+• In the scenario “only edge distances”, there is not always a convex realization, but there always is a star-shaped one, and we can test whether there exists a convex one in linear time if edge distances are distinct (Section 3.3). Mostly due to polarity, the same holds for the scenario “only corner distances” (Section 3.4).   
+
+> 1This is of course equivalent to any normal vector if we are in a computer model that can compute √·, but requiring it to be a unit vector will allow us to use a simpler computer model sometimes. We will not study any other normals and hence omit “unit” from now on.
+> 2As with edge normals, requiring unit length is helpful sometimes, but not required if we can compute √·.
+
+2triangle edge edge corner corner edge area length distance vector distance normal 
+
+Ai ℓi hi ci di ni
+
+Ai
+
+3.2 D.4.3 D.4.3 4.4 1 4.3 4.1.2 1
+
+ℓi ·
+
+3.1.3 D.4.3 D.3.3 1 4.1.5 4.1.1 1
+
+hi · ·
+
+3.3 D.4.2 1 D.3.2 4.1.4 1
+
+ci · · ·
+
+3.1.2 1 4.1.3 1 4.2 11
+
+di · · · ·
+
+3.4 D.4.2 1
+
+ni · · · · ·
+
+3.1.1 1
+
+Table 1: Studied combinations of features. 
+
+• In the scenario “areas and corner distances”, we can test in polynomial time whether there exists a convex or star-shaped realization (Section 4.3). 
+
+• In the scenario “areas and corner vectors”. we can test in polynomial time whether there exists a convex or star-shaped realization (Section 4.4). Some of these results are obtained by fixing one additional length and “propagating”, i.e., arguing that with this all other features are fixed. In some other scenarios, we argue that such propagation is difficult because there can be locally a choice of how to choose the next corner. In fact, this can be exploited sometimes for hardness results, at least for some variants of the problem. See Appendix D.3 for details. The remaining scenarios (listed in Appendix D.4) are open. 
+
+# 2 Preliminaries 
+
+We assume familiarity with basic notation around polygon , convex and star-shaped . When reconstructing a polygon, we always demand that the origin is strictly inside, and disallow flat (180 ◦ degree) polygon angles. Sometimes we consider a convex polygon P that additionally has edge rays hitting their edges , i.e., for all i the ray along edge normal ni actually intersects ei. (This is violated in Figure 1 at ni.) We often use the well known side-area-side-formula (or SAS-formula ), which in our notation means that Ai = 12 didi+1 sin ρi for all indices i. Also, Ai = ℓihi/2. The following will be a helpful tool to reduce the number of scenarios. Any convex polygon P with the origin strictly inside defines another convex polygon P ◦ (the polar polygon with respect to the unit circle ) as follows. Map every corner ( cx, c y ) to the half-plane {(x, y ) : cxx + cy y ≤ 1}, and let P ◦ be the 3intersection of these half-planes. From the definition it follows that the corner rays of P equal the edge rays of P ◦, and furthermore the corner distances of P and the edge distances of P ◦ are inverse to each other. The polar of the polar polygon is the original [ 13 ], and as such, the edge distances of P also equal the inverse corner distances of P ◦. The polar polygon is not well-defined if P is not convex, see also Inchbald [15] for related discussions. 
+
+Input and computer model: Whenever we speak of “given input”, we assume that it satisfies some obviously necessary conditions for there to be a star-shaped polygon. In particular, all areas and lengths must be strictly positive, corner vectors must not all lie in one half-space, and likewise for the edge normals. Also, corner vectors (and for convex polygons also the edge normals) must appear in the circular ccw order around the origin. Unless explicitly stated otherwise, we assume that the input is labelled, i.e., we know exactly which specified length/distance/ray/triangle-area corresponds to which edge/corner. As usual, we assume that the input has been specified with numbers that are small enough to fit into a computer word, and we can do basic arithmetic operations on computer words in constant time (the WordRAM model). This does not permit square roots or trigonometric functions to be computed in constant time, so occasionally we need the more powerful RealRAM model (which permits these [ 19 ,Section 2.3]). 
+
+# 3 Settings Defined by One Type of Information 
+
+We begin with the scenarios where only one feature is specified. Many results are known here already, but to our surprise some appear to be unstudied. 
+
+## 3.1 Known results 
+
+1. Consider the scenario “only edge normals”, which is equivalent to being given polygon angles (up to rotation). Reconstructing a polygon from its polygon angles appears to first have been studied by Vijayan [ 22 ], who proved that any sequence of polygon angles can be realized as long as they sum to ( n − 2)180 ◦.See also [7] and [8] for further results. 2. The scenario “only corner vectors” is the same as the previous, since the edge rays of a convex polygon P equal the corner rays of polar polygon P ◦.3. The scenario “only edge lengths” is closely related to linkage reconfiguration problems. Lenhart and Whitesides [ 16 ] showed that edge lengths can be realized by a convex polygon if and only if the longest edge-length is less than the sum of all others. If so, then the edge lengths can even be realized with all vertices on a common circle [18]. 
+
+## 3.2 Triangle Area 
+
+The triangle area is less obvious than other features, and so it is perhaps not surprising that this scenario appears to not have been studied before. We show that there always exists a realization. 
+
+Lemma 1 Let A0, . . . , A n−1 be an arbitrary sequence of positive numbers. Then there exists an n-vertex convex polygon P with the origin inside such that the triangles defined by consecutive corners and the origin have areas A0, . . . , A n−1, in this order. 
+
+Proof. Let Amax be the maximum among the given areas. Choose r such that r2 > 2Amax /sin 90 ◦ 
+
+> n−2
+
+.Then, fix a circle C of radius r, place c1 at ( r, 0), and for i = 2 , . . . , n − 1, place ci on C such that triangle 
+
+Ti has area Ai; see also Figure 2. By the SAS-formula sin ρi = 2 Ai/r 2 ≤ 2Amax /r 2 < sin ( 90 ◦ 
+
+> n−2
+
+), and so ray angle ρi is the solution to arcsin(2 Ai/r 2) with ρi < 90 ◦ 
+
+> n−2
+
+.The convex hull of corners c1, . . . , c n−1 and the origin o forms a fan F , and its angle at o is Pn−2 
+
+> i=1
+
+ρi < 90 ◦
+
+since ρi < 90 ◦ 
+
+> n−2
+
+. It remains to choose a point c0 to add two triangles to F that realize areas A0 and 
+
+An−1. Define line ℓ0 to be parallel to oc 1 and of distance 2 A0/r to it on the side opposite to c2; placing 
+
+c0 anywhere on ℓ0 would give a triangle oc 0c1 of area A0. Similarly define a line ℓn−1 parallel to oc n−1
+
+of distance 2 An−1/r on the side opposite to cn−2. Using the intersection point of these lines as c0 gives convex angles at c0, c 1, c n−1, which gives the desired convex polygon. □
+
+4roℓn−1c1c2ρ1cn−1ℓ0A1c0Figure 2: A convex polygon that realizes given areas. Note that the proof is algorithmic, and one could easily construct the corresponding polygon in linear time in the RealRAM model. 
+
+## 3.3 Edge Distance 
+
+Consider the scenario where we are only given the edge distances h0, . . . , h n−1. The following theorem (which rephrases h0, . . . , h n−1 as radii of concentric circles) shows that there always exists a star-shaped realization. 
+
+Theorem 2 For any given sequence of n concentric circles R0, . . . , R n−1 there exists a star-shaped polygon 
+
+P with edges e0, . . . , e n−1 such that for all i the supporting line of ei is tangent to Ri.
+
+Proof. The proof is by induction on n. We prove the stronger claim that all vertices of P lie strictly outside of all circles. For the base case n = 3, assume that R0 has maximum radius. A vertical line tangent to R0 on the right, a horizontal line tangent to R2 on the bottom and a slanted line tangent to 
+
+R1 clearly suffice to define P as desired if we choose the slope of the slanted line very small or large as needed to get all vertices outside of R0. See Figure 3. Assume now that the theorem holds for n = k − 1. If all radii are the same then we draw the polygon as a regular polygon and scale it such that all edges are tangent to the common circle. Otherwise, we may assume that R1 is one of the circles with minimal radius and that the radii of R0, R1 and R2 are not all the same. We also may assume that the radius R0 is not smaller than the radius of R2, otherwise we reverse the order of circles and mirror the polygon in the end. Consequently, the radius of R0 is strictly larger than the radius of R1. By the induction hypothesis we can realize a star-shaped polygon P ′, whose edges are tangent to R0, R 2, . . . , R k−1. We show how to modify P ′ to get to P . To add an edge e1 for the omitted circle R1, we look at the adjacent edges e0 and e2 in P ′ and their common endpoint p. There are two cases based on whether the corner at p is convex or reflex; see Figure 3. In both cases, we shorten e0
+
+(to a new corner r), lengthen e2 (to a new corner q), and ensure that rq lies on a line l1 tangent to R1
+
+with the origin on the correct side for star-shapedness. More specifically, pick a point r in the interior of 
+
+e0, but close enough to p so that it (like p) is outside all circles. Let l1 be the line tangent to R1 and through r; in the convex case we take the one that has the origin and p on the same side, while in the reflex case we take the one that separates the origin from p. Note that this tangent is different from the supporting line of e0, since R1 has strictly smaller radius than R0. Also, the intersection point q between 
+
+l1 and the supporting line of e2 is arbitrarily close to p if we pick r sufficiently close to p; in particular we can pick r such that q is outside all circles as well. One verifies that in both cases the polygon obtained by re-routing via r and q is star-shaped, see also Figure 3. With this the induction step is proved. □
+
+Convex realizations do not always exist, but we can characterize when they exist, presuming edge distances are distinct. To state the characterization, we first need some definitions. Fix an instance I, i.e., a circular list h0, . . . , h n−1 of distinct edge distances. A local minimum [maximum] is an edge distance that is smaller [larger] than both its predecessor and its successor in this circular list. If there are at least two local minima, then the reduced instance I′ consists of all those edge distances (in the induced order) that are local minima or local maxima of I. If there is only one local minimum, then I′ consists of it, the 5pR0R2R1R2ql0l2l1R1pR0R2ql0l2l1R1rrR0Figure 3: Inductive construction of Theorem 2. Left: Base case. Middle/Right: Schematic inductive step at a convex/reflex corner of P .(unique) local maximum, and one edge distance between the two. Enumerate I′ as h′
+
+> 0
+
+, . . . , h ′
+
+> k−1
+
+, where 
+
+h′ 
+
+> k
+
+is the global minimum of the edge distances. The case |I ′| = 3 is a special case handled separately. For |I ′| ≥ 4, we have k even and the items in I′ alternate between local minimum and local maximum. We now have the following equivalences. 
+
+Theorem 3 The following are equivalent for an instance I = ( h0, . . . , h n−1) of the problem of realizing distinct edge distances: 1. I has a convex realization. 2. The reduced instance I′ has a convex realization. 3. I′ = ( h′
+
+> 0
+
+, . . . , h ′
+
+> k−1
+
+) either has size 3, or satisfies Pk/ 2−1 
+
+> j=0
+
+(ψ+1 2j + ψ−12j ) < 360 ◦ where ψℓ 
+
+> 2j
+
+(for ℓ = ±1)is the solution to arccos( h′ 
+
+> 2j
+
+/h ′
+
+> 2j+ℓ
+
+) in (0 , 90 ◦).4. I′ has a convex realization where edge rays hit the interior of their edges. 
+
+Before proving the theorem, we note that Condition (3) is easily tested in linear time, as long as the computer model supports the computation of arccos . Also, it is easy to construct instances where this condition is violated: Let I be an instance with n ≥ 6 edge distances alternating between more than 1 and less than 12 . Every edge distance is a local minimum or maximum, and ψℓ 
+
+> 2j
+
+> 60 ◦ for all indices 2 j
+
+and ℓ, so the angle-sum in (3) exceeds 360 ◦ by n ≥ 6. 
+
+Proof. (Sketch, see Section C.1) (1) ⇒(2) is straightforward because I′ is a subsequence of I. In a convex realization of I, each edge defines a half-plane containing the origin. Taking only those half-planes corresponding to I′, their intersection defines a convex region that realizes I′. It may not be bounded, but this can be easily corrected by rotating one edge normal. (2) ⇒(3) is (for k > 3) proved in two steps. First argue that the edge ray of a local minimum h2j must hit its edge in any convex realization (Claim 11), so T2j looks as in Figure 4. Then simple geometric considerations show that the angle between the edge-normal n2j and the adjacent corner vector c2j+1 must be at least ψ+1 2j (Corollary 10), and similarly for ψ−12j . Therefore, the ray angle ρ2j is at least ψ−12j + ψ+1 2j .The result follows since ray angles sum to 360 ◦ and ray angles at local maxima are non-zero. (3) ⇒(4) again proceeds in two steps (explained here only for k > 5). First build for every local minimum a triangle T2j with ray angle exceeding ψ−12j + ψ+1 2j and corner distances h′ 
+
+> 2j−1
+
++ ε and h′ 
+
+> 2j+1
+
++ ε
+
+for a suitably chosen ε, see Figure 4. Due to the angle-sum-condition these triangles can be pasted together to realize the instance consisting only of the local minima. Since the corner distances are large enough, we can insert edges for the local maxima by cutting off a tiny amount at each corner, and simultaneously make the resulting edges hit by the edge ray at an interior point. (4) ⇒(1) can be achieved by re-inserting, between every local minimum h′ 
+
+> 2j
+
+and an adjacent local maximum h′
+
+> 2j±1
+
+, edges for all the edge distances that were removed between them. Here we take advantage of the fact that normal-rays hit the interior of their edges, and that all removed edges had distinct edge distances. □
+
+## 3.4 Corner Distance 
+
+For the scenario “only corner distances”, we can test whether there exists a convex realization when all corner distances are distinct due to Theorem 3 and using polarity. There always exists a star-shaped 6oR2j−1R2j+1 h′
+
+> 2jψ−12jψ+1 2j
+
+h′
+
+> 2j+1
+
+h′
+
+> 2j−1
+
+h′
+
+> 2j+1
+
++εe2jFigure 4: Constructing a just-big-enough triangle at a local minimum among the edge distances. realization, since we can simply place corners of the appropriate distance from the origin o, with ray angles 360 ◦/n , and connect them in order. 
+
+# 4 Settings Defined by Two Types of Information 
+
+## 4.1 Existing or Trivial Results 
+
+Quite a few of the scenarios where two types of features are given have either been studied before, or are trivial. 1. Reconstructing a polygon from edge lengths and edge normals is the Minkowski Problem discussed in the introduction. 2. Reconstructing a polygon from triangle areas and edge normals is the L0-Minkowski problem discussed in the introduction. 3. Reconstructing from corner vectors and corner distances is trivial, because the given information specifies the corners uniquely. 4. Reconstructing from edge normals and edge distances is trivial, since these specify the lines supporting the edges, and each intersection of two consecutive of these lines defines the corner. 5. Reconstructing from edge lengths and corner distances is trivial, since all three side-lengths of triangle Ti are given. So Ti is unique for all i, and with this so is the realization up to rotation. 
+
+## 4.2 Edge Normal and Corner Vector 
+
+Assume that we are given the sequences of edge normals n0, . . . , nn−1 and corner vectors c0, . . . , cn−1.Recall that this determines the polygon angle θi, which is 180 ◦ minus the ccw angle αi between ni−1 and 
+
+ni.As such, the reconstruction problem in this scenario is very closely related to the so-called Aleksandrov Problem, which asks to reconstruct a polygon P from its corner vectors and polygon angles. Necessary and sufficient conditions (depending on α0, . . . , α n−1 and c0, . . . , cn−1) are known for realizability, see Huang [ 14 ] and the references therein. However, Alexandrov’s problem is not exactly the same as ours, because the polygon angles determine the edge-normals only up to rotation. So while the conditions for Alexandrov’s problem are certainly necessary, it is not clear whether they are also sufficient, i.e., we can reconstruct a polygon P that additionally has the corners exactly on the corner rays. (We cannot simply rotate P to achieve this since this might not match the edge normals.) We therefore develop our own easy necessary and sufficient conditions for realizability, and they can be tested in the WordRAM model. See Appendix D.1 for details. 
+
+Theorem 4 For any input sequences of edge normals and corner vectors, we can test in O(n log 2 n) time in the WordRAM model whether a realization exists. If so, then it is unique up to scaling. 
+
+## 4.3 Area and Corner Distance 
+
+Theorem 5 For input sequences of areas A0, . . . , A n−1 and corner distances d0, . . . , d n−1, we can test in the RealRAM model in O(n2 log n) time whether it has a star-shaped realization. In O(n3) time we can find all such realizations, and test whether any of them is convex. 
+
+Proof. The input uniquely determines by the SAS-formula sin ρi = 2 Ai/d idi+1 for all i. This gives two possible values for ray angle ρi, say αi is the solution to arcsin (2 Ai/d idi+1 ) in [0 , 90 ◦], and the other possibility is 180 − αi ≥ 90 ◦.7Assume that we were told the indices I where ρi exceeds 90 ◦; we have |I| ≤ 3 since the sum of the ray angles is 360 ◦. We first show that (after some pre-computation) we can then test in constant time whether this choice of I gives a realization, and if so, whether it is convex. Obviously the ray angles must sum to 360 ◦, so we need P 
+
+> i̸∈ I
+
+αi + P 
+
+> i∈I
+
+(180 ◦ − αi) = 360 ◦. If we pre-compute σ := P 
+
+> i
+
+αi, then this means testing whether 360 ◦ − σ equals |I| · 180 ◦ − 2 P 
+
+> i∈I
+
+αi, which by |I| ≤ 3 takes constant time. If this is satisfied, then there is a unique (up to rotation) star-shaped polygon PI that has these the ray angles and the corner distances. To test whether it is convex, observe that the polygon angle at corner ci
+
+is determined by the two ray angles ρi−1 and ρi since we know all corner distances. We assume that we have pre-computed the value of θi when these ray angles are αi−1 and αi, and flagged all polygon angles above 180 ◦. To test whether PI is convex, we hence only have to re-compute the (up to six) polygon angles adjacent to a ray angle with index in I. For PI to be convex, these must be less than 180 ◦, and replace all flagged angles; we can test this in constant time. So to test whether there is a realization, we only have to find one set I that satisfies the conditions. With a brute-force approach this can be done in O(n3) time by checking all possible index sets of size at most 3. The run-time for star-shaped polygons can be reduced to O(n2 log n) as follows. Store 
+
+α0, . . . , α n−1 in an array A sorted by value (not index). Iterate over all subsets I′ of at most two indices, and for each of them, find all indices z such that I′ ∪ { z} satisfies the ray angle condition, i.e., 2αz = 360 ◦ − σ − | I′| · 180 ◦ − P 
+
+> i∈I′
+
+2αi.The right hand side can be computed in constant time for fixed I′. Therefore, to find a suitable index 
+
+z (if any), we do a binary search in A, return the range of indices z where αz has the correct value, and see whether it contains an index not in I′; this takes O(log n) time. 
+
+□
+
+## 4.4 Area and Corner Vector 
+
+We now study the scenario where we are given the areas A0, . . . , A n−1 as well as the corner vectors 
+
+c0, . . . , cn−1. Recall that the ray angle ρi is related to the corner vectors; in particular sin ρi = ⟨ci, c⟲
+
+> i+1
+
+⟩
+
+(where c⟲ 
+
+> i+1
+
+is corner vector ci+1 rotated by 90 ◦ counter-clockwise) can be computed in the WordRAM model. 
+
+Propagation formula: Let us assume that there is a realization, say with corner-distance d0 = x (with 
+
+x a variable). By the SAS-formula, the next corner-distance is d1 = 2A0   
+
+> d0sin ρ0
+
+= 2A0  
+
+> sin ρ0
+
+· 1 
+
+> x
+
+. Iterating, we get                                            
+
+> d2i+1 = sin ρ1sin ρ3· · · sin ρ2i−1
+> 2A1·2A3· · · 2A2i−1
+> 2A0·2A2· · · 2A2i
+> sin ρ0sin ρ2· · · sin ρ2i
+> ·1
+> xd2i+2 =2A1·2A3· · · 2A2i+1
+> sin ρ1sin ρ3· · · sin ρ2i+1
+> sin ρ0sin ρ2· · · sin ρ2i
+> 2A0·2A2· · · 2A2i
+> ·x
+
+and of course dn must equal d0. This constraint is fulfilled for a single positive value of x if n is odd. If n
+
+is even, dn = d0 is true or false independent of x, because x can be cancelled. To evaluate the propagation formula, we have to multiply n integers, each using c words in the WordRAM. We need T (n) = Plog n−1 
+
+> i=0
+
+(n/ 2i+1 )f (c2i) ∈ O(n log 2 n) time using divide and conquer, where 
+
+f (m) = c′(m log m) with c′ being an appropriate constant is a bound on the time required to multiply two integers of m words each in the WordRAM [10]. This leads to the following (details are in Section D.2): 
+
+Theorem 6 For lists of corner vectors and triangle areas, we can test in O(n log 2 n) time in the WordRAM model whether a star-shaped realization exists. 
+
+If we want the realization to be convex, then we additionally need to ensure that the area of the triangle between corners ci−1 and ci+1 is strictly less than Ai + Ai+1 ; this can easily be expressed as conditions for the variable x and so we also have the following. 
+
+Theorem 7 For any input sequences of corner vectors and triangle areas, we can test in O(n2 log n) time in the WordRAM model whether a convex realization exists. 
+
+85 Further Results and Outlook 
+
+We briefly consider all remaining scenarios here. The crucial ingredient in Section 4.4 was to find a propagation formula that describes the entire polygon based on the input and a variable x. For some scenarios it is easy to develop such propagation formulas, sometimes even in the WordRAM model, see Section D.1 for the variant for Alexandrov’s problem, and Section D.4.3 for the L0-Minkowski problem. Unfortunately, such a propagation formula is helpful only if we can resolve the resulting constraints for the variable(s) that we started with, something that eludes us for the L0-Minkowski problem. For some scenarios we have not been able to find a propagation formula, because at many steps of such a propagation there are two possible ways to proceed. Such a ‘choice’ can in some variants be exploited to prove hardness of the reconstruction problem. See Appendix D.3 for results for scenarios “corner distance and edge distance” as well as “edge-length and corner vector”. We suspect similar hardness results for the remaining scenarios, but this is left for future studies. Finally, many other reconstruction problems are of interest, using other features and/or dropping the requirement of containing the origin inside or having the origin see all corners. 
+
+# References 
+
+[1] Hugo Akitaya, Shahin Kamali, Seyed-Mohammad Seyed-Javadi, and Frederick Stock. Open problems from CCCG 2025. In Proceedings of the 37th Annual Canadian Conference on Computational Geometry, CCCG 2025, August 13-15, 2025, York University, Toronto, Canada , 2025. URL: 
+
+https://cccg.ca/proceedings/2025/CCCG2025-Proceedings.pdf .[2] Gill Barequet, Craig Gotsman, and Avishay Sidlesky. Polygon reconstruction from line cross-sections. In Proceedings of the 18th Annual Canadian Conference on Computational Geometry, CCCG 2006, August 14-16, 2006, Queen’s University, Ontario, Canada , 2006. URL: https://cccg. ca/proceedings/2006/cccg21.pdf .[3] Therese Biedl, Stephane Durocher, and Jack Snoeyink. Reconstructing polygons from scanner data. 
+
+Theoretical Computer Science , 412(32):4161–4172, July 2011. doi:10.1016/j.tcs.2010.10.026 .[4] Danny Z. Chen and Haitao Wang. An improved algorithm for reconstructing a simple polygon from its visibility angles. Computational Geometry , 45(5-6):254–257, 2012. doi:10.1016/j.comgeo.2012. 01.005 .[5] Yunhi Cho and Seonhwa Kim. Rigidity of nonconvex polyhedra with respect to edge lengths and dihedral angles. Discrete & Computational Geometry , 74(2):302–336, 2025. doi:10.1007/ S00454-024-00670-W .[6] Collette R. Coullard and Anna Lubiw. Distance visibility graphs. International Journal of Computa-tional Geometry & Applications , 2(4):349–362, 1992. doi:10.1142/S0218195992000202 .[7] Yann Disser, Mat´ uˇ s Mihal´ ak, and Peter Widmayer. A polygon is determined by its angles. Computa-tional Geometry , 44(8):418–426, October 2011. doi:10.1016/j.comgeo.2011.04.003 .[8] Alon Efrat, Radoslav Fulek, Stephen Kobourov, and Csaba T´ oth. Polygons with Prescribed Angles in 2D and 3D. Journal of Graph Algorithms and Applications , 26(3):363–380, June 2022. doi: 10.7155/jgaa.00599 .[9] Jeff Erickson, Ivor van der Hoog, and Tillmann Miltzow. Smoothing the gap between NP and ER. 
+
+SIAM Journal on Computing , 53(6):FOCS20–102–FOCS20–138, 2024. doi:10.1137/20M1385287 .[10] Martin F¨ urer. How fast can we multiply large integers on an actual computer? In LATIN 2014: Theoretical Informatics , pages 660–670, Berlin, Heidelberg, 2014. Springer Berlin Heidelberg. 
+
+doi:10.1007/978-3-642-54423-1_57 .[11] M. R. Garey and D. S. Johnson. Computers and Intractability: A Guide to the Theory of NP-Completeness . Freeman, 1979. [12] Jacob E. Goodman, Joseph O’Rourke, and Csaba D. T´ oth, editors. Handbook of discrete and computational geometry . CRC Press, Boca Raton London New York, third edition, 2018. 9[13] Branko Gr¨ unbaum, Volker Kaibel, Victor Klee, and G¨ unter M. Ziegler. Convex polytopes . Springer, New York, 2003. [14] Yong Huang, Deane Yang, and Gaoyong Zhang. Minkowski problems for geometric measures. Bulletin of the American Mathematical Society , 62(3):359–425, July 2025. doi:10.1090/bull/1858 .[15] Guy Inchbald. Dualising polyhedra, 2024. Web page last accessed April 2026. URL: https: //www.steelpillow.com/polyhedra/duality/duality.html .[16] William J. Lenhart and Sue Whitesides. Reconfigurating closed polygonal chains in Euclidean d-space. 
+
+Discrete & Computational Geometry , 13:123–140, 1995. doi:10.1007/BF02574031 .[17] C. T. Ng, M. S. Barketau, T. C. E. Cheng, and Mikhail Y. Kovalyov. “Product Partition” and related problems of scheduling and systems reliability: Computational complexity and approximation. 
+
+European Journal of Operational Research , 207(2):601–604, December 2010. doi:10.1016/j.ejor. 2010.05.034 .[18] Iosif Pinelis. Cyclic polygons with given edge lengths: Existence and uniqueness. Journal of Geometry ,82:156–171, 2005. doi:10.1007/s00022-005-1752-8 .[19] Michael Ian Shamos. Computational Geometry . PhD thesis, Yale University, 1978. [20] J. Snoeyink. Cross-Ratios and Angles Determine a Polygon. Discrete & Computational Geometry ,22(4):619–631, December 1999. doi:10.1007/PL00009481 .[21] Alina Stancu. The discrete planar L0-Minkowski problem. Advances in Mathematics , 167(1):160–174, 2002. doi:10.1006/aima.2001.2040 .[22] Gopalakrishnan Vijayan. Geometry of planar graphs with angles. In Proceedings of the Second Annual Symposium on Computational Geometry , SCG ’86, page 116–124, New York, NY, USA, 1986. Association for Computing Machinery. doi:10.1145/10515.10528 .10 A Further Related Results 
+
+The literature on reconstruction problems in the plane is quite rich, and there are naturally several results where the input data do not correspond to any of the features (or their combinations) considered in this paper. Snoeyink [ 20 ] studied a reconstruction problem where we are given a polygon P (with a triangulation), the polygon angles, and the so-called cross-ratios (a ratio between edge-lengths at the quadrangles defined by the internal edges). He showed that one can uniquely reconstruct the polygon P , up to scaling and rotation, given this information. Biedl, Durocher and Snoeyink [ 3] focused on a setup where the goal is to reconstruct a simple polygon from different types of data that can be obtained from range scanners, e.g., a set of points on the boundary of the polygon such that each point records the line supporting the edge on which the point lies, or such a set that additionally records a vector perpendicular to the line that points towards the polygon’s interior. Barequet, Gotsman and Sidlesky [ 2 ] considered the problem of reconstructing a planar polygon from its intersections with a collection of arbitrarily-oriented “cutting” lines. Chen and Wang [ 4] considered a polygon reconstruction problem where visibility information is relevant: In this case, the input consists of the sorted vertex sequence along the boundary and, for each vertex, the sequence of angles defined by all other visible vertices. Their reconstruction algorithm is an improvement with respect to the one by Disser, Mihal´ ak and Widmayer [ 7 ]. A famous reconstruction problem involving visibility is that of reconstructing a polygon from its vertex visibility graph. The version closest to our paper is probably the one studied by Coullard and Lubiw [ 6 ]: Given an edge-weighted graph G, is it the visibility graph of a simple polygon with the given weights as Euclidean distances? See also the Computational Geometry Handbook [12, Chapter 34] for other polygon reconstruction problems. Finally we mention that there are many related reconstruction problems in 3D; we refer to a recent paper by Cho and Kim [5] that gives a good overview of the history of 3D problems. 
+
+# B Further Features 
+
+Among the features not listed in the introduction are a few more that are derived (directly or via combinations) from the earlier features. As these will come in handy later, we define them here. For 
+
+i ∈ { 0, . . . , n −1}, we define the following (see also Figure 5): 
+
+• The tangent circle Ri is the circle centered at the origin and with radius hi. Thus, the line li that supports edge ei must be tangent to Ri.
+
+• The tangent point xi is the point where li is tangent to Ri. Equivalently, it is the point where the edge ray of ei hits the line supporting ei; this point may or may not lie on edge ei.
+
+• The (backward) partial triangle T − 
+
+> i
+
+is the triangle spanned by the origin o, the corner ci, and the tangent point xi. Put differently, it is defined by the edge ray, the corner ray, and the line through 
+
+ei. Its angle at o is called the (backward) partial ray angle and denoted ρ− 
+
+> i
+
+. Equivalently, ρ− 
+
+> i
+
+is the angle between ni and ci that lies in the range [0 , 90 ◦). 
+
+• The (forward) partial triangle T + 
+
+> i
+
+and (forward) partial ray angle ρ+ 
+
+> i
+
+are defined symmetrically, except that they use corner ci+1 .Note that if the edge ray does not hit the edge, then one of the two partial triangles is a subset of the other, so the triangle Ti may be their union or their symmetric difference (and similarly the ray angle ρi
+
+is not necessarily ρ− 
+
+> i
+
++ ρ+ 
+
+> i
+
+). For future reference we note few easy observations about these features in a star-shaped polygon. Fix one i ∈ { 0, . . . , n −1}.
+
+Observation 8 Backward ray angle ρ− 
+
+> i
+
+is the solution of arccos (hi/d i) that lies in the range [0 , 90 ◦).Forward ray angle ρ+ 
+
+> i
+
+is the solution of arccos( hi/d i+1 ) that lies in the range [0 , 90 ◦).
+
+Claim 9 We have di+1 ≥ max {hi+1 , h i}.
+
+Proof. The corner ci+1 has distance di+1 from the origin, and lies on two lines tangent to the circles 
+
+Ri+1 and Ri of radius hi+1 and hi. This is possible only if it is not inside these circles. □
+
+11 dioci−1cici+1 ci−1ρ−
+
+> i−1
+
+ρ+
+
+> i−1
+
+di−1T +
+
+> i−1
+
+T −
+
+> i−1
+
+T −
+
+> i
+
+xi−1ni−1xiRiRi−1ciniT +
+
+> i
+
+ρ+
+
+> i
+
+ρ−
+
+> i
+
+ci+1 Figure 5: More features of a star-shaped polygon. 
+
+Corollary 10 The partial ray angle ρ− 
+
+> i
+
+and ρ+ 
+
+> i
+
+lie in [0 , 90 ◦) and respectively satisfy cos ρ− 
+
+> i
+
+≥ hi/h i−1
+
+and cos ρ+ 
+
+> i
+
+≥ hi/h i+1 .
+
+Proof. This is implied by the two previous claims since cos is monotonically decreasing in the range [0 , 90 ◦). □
+
+# C Missing Proofs of Section 3 
+
+## C.1 Convex Realizations of Edge Distances 
+
+In this section we prove the following result: 
+
+Theorem 3 The following are equivalent for an instance I = ( h0, . . . , h n−1) of the problem of realizing distinct edge distances: 1. I has a convex realization. 2. The reduced instance I′ has a convex realization. 3. I′ = ( h′
+
+> 0
+
+, . . . , h ′
+
+> k−1
+
+) either has size 3, or satisfies Pk/ 2−1 
+
+> j=0
+
+(ψ+1 2j + ψ−12j ) < 360 ◦ where ψℓ 
+
+> 2j
+
+(for ℓ = ±1)is the solution to arccos( h′ 
+
+> 2j
+
+/h ′
+
+> 2j+ℓ
+
+) in (0 , 90 ◦).4. I′ has a convex realization where edge rays hit the interior of their edges. 
+
+The rest of this subsection is devoted to the (lengthy) proof of this result, broken down by the implications. 
+
+(1) ⇒(2). This implication at first glance seems trivial, since the edge distances for I′ are a subsequence of the ones for I. Let H0, . . . , H n−1 be the half-planes that define a realization P of I, i.e., Hi = {p :
+
+⟨ni, p ⟩ ≤ hi}. Let P ′ = T 
+
+> i∈I
+
+Hi, where I is the set of indices in I′. Every edge ei with i ∈ I is part of an edge in P ′, and has the same edge distance, so P ′ looks like a realization of I′. The only problem is that 
+
+P ′ may be unbounded, or equivalently, the edge normals of P ′ (enumerate them as n′
+
+> 0
+
+, . . . , n′
+
+> k−1
+
+) all lie in one half-space. See also Figure 6. So assume that (up to renaming) the ccw angle between n′ 
+
+> 0
+
+and n′ 
+
+> 1
+
+is at least 180 ◦. We have k ≥ 3, so 
+
+n′ 
+
+> 2
+
+is different from n′
+
+> 0
+
+. Define nnew 1 := − 12 (n′ 
+
+> 0
+
++ n′
+
+> 2
+
+) and note that this lies between n′ 
+
+> 0
+
+and n′ 
+
+> 2
+
+in ccw order and forms angles less than 180 ◦ with both. If we hence remove from P ′ the half-plane defined by n′
+
+> 1
+
+and add to it the half-plane defined by nnew 1 and the corresponding edge distance, then the intersection of these half-spaces is a realization of I′.For the next implication we need an insight concerning the configuration at a local minimum. 12 e′
+
+> 1
+
+e′
+
+> 0
+
+n′
+
+> 1
+
+e′
+
+> 2o
+
+nnew 1n′
+
+> 0
+
+n′
+
+> 2
+
+enew 1Figure 6: Moving the normal for one half-plane to make their intersection bounded. 
+
+Claim 11 If a sequence of edge distances is realizable by a convex polygon, then for any index i with 
+
+hi ≤ min {hi−1, h i+1 }, the edge ray through ni hits ei.
+
+Proof. Up to rotation we may assume that ni goes vertically upward from o, so the tangent point xi is (0 , h i). See also Figure 7. Assume for contradiction that ei lies strictly left of (0 , h i) (the case of ‘strictly right’ is symmetric). Then ci lies to the left of (0 , h i). It also lies on li−1, which is tangent to circle 
+
+Ri−1, which encloses Ri (or is identical to it) by hi ≤ hi−1. There are two choices for such a tangent-line, defining two possible ways in which ei−1 arrives at ci since the origin must be to the left of ei−1 when walking from ci−1 to ci. One verifies that both of those lead to an angle that is at least 180 ◦ at ci. □ociciniRiliRi−1eiei−1?(0 , h i)ei−1?
+
+Figure 7: At an edge with locally minimal edge distance, the edge ray must hit the edge. 
+
+(2) ⇒(3). Assume that k > 3 (so k is even since we have alternating local minima and maxima), and fix a convex realization of I′. At every local minimum h′ 
+
+> 2j
+
+the edge ray hits edge e2j by Claim 11, and hence the ray angle is ρ2j = ρ+2j + ρ− 
+
+> 2j
+
+. We know that ρ+2j ≥ ψ+1 2j and ρ− 
+
+> 2j
+
+≥ ψ−12j by Corollary 10. Hence, 
+
+ρ2j ≥ ψ+2j + ψ− 
+
+> 2j
+
+and Pk/ 2−1 
+
+> j=0
+
+ρ2j ≥ Pk/ 2−1 
+
+> j=0
+
+(ψ+1 2j + ψ−12j ). On the other hand Pk/ 2−1 
+
+> j=0
+
+ρ2j < 360 ◦ since the sum does not count the ray angles corresponding to local maxima, which are non-zero. Towards the next implication, we first dispatch with some small values of n.
+
+Lemma 12 For n = 3 , 4, any set of edge distances can be realized with a convex polygon where edge rays intersect the interior of their corresponding edges. 
+
+Proof. For n = 3, the base case of Theorem 2 creates a suitable convex polygon. For n = 4, consider the four tangent-circles, and add tangent-lines that are alternatingly horizontal and vertical, and are below/right/above/left of the origin. The intersection of the corresponding halfplanes defines a suitable realization with a rectangle, see Figure 8. □
+
+13 R1R2R3R0Figure 8: Constructing a rectangle for any four given edge distances. 
+
+(3) ⇒(4). The claim is trivial for k = 3 , 4 following Lemma 12, so we may assume that k > 4. Since k is even, we actually have k ≥ 6. For ε > 0, ℓ ∈ { +1 , −1} and j ∈ { 0, . . . , k/ 2 − 1}, define 
+
+ρℓ 
+
+> 2j
+
+(ε) := arccos( h′
+
+> 2j
+
+h′ 
+
+> 2j+ℓ
+
++ ε ),
+
+where we mean the solution in (0 , 90 ◦). In other words, ρℓ 
+
+> 2j
+
+(ε) is the angle of a right triangle T ℓ 
+
+> 2j
+
+where the adjacent side has length h′ 
+
+> 2j
+
+and the hypotenuse has length h′ 
+
+> 2j+ℓ
+
++ ε, see also Figure 9. Angle ρℓ 
+
+> 2j
+
+(ε)increases monotonically with ε, and ρℓ 
+
+> 2j
+
+(0) = ψℓ 
+
+> 2j
+
+while ρℓ 
+
+> 2j
+
+(ε) → 90 ◦ as ε → ∞ . Since Pk/ 2−1 
+
+> j=0
+
+(ψ+1 2j + ψ−12j )is strictly less than 360 ◦, while we have k ≥ 6 such angles in total, there exists an ε > 0 such that 
+
+Pk/ 2−1 
+
+> j=0
+
+(ρ+1 2j (ε) + ρ−12j (ε)) = 360 ◦, and we use this ε for the construction (and drop it from now on). h′
+
+> 2j
+
+ψ−12jh′
+
+> 2j−1
+
+h′ 
+
+> 2j−1
+
++ εo
+
+Figure 9: We can choose ε such that the sum of partial ray angles is exactly 360 ◦.Place triangles T − 
+
+> 0
+
+, T +0 , T − 
+
+> 2
+
+, . . . , T + 
+
+> k−2
+
+so that they share the corner o, and such that T − 
+
+> 2j
+
+and T +2j share the side of length h′ 
+
+> 2j
+
+while T +2j and T − 
+
+> 2j+2
+
+share the side of length h′ 
+
+> 2j+1
+
++ ε. See also Figure 10. By our choice of ε this fills the sector around o exactly, and the opposite sides of T − 
+
+> 2j
+
+and T +2j become the edge 
+
+e2j of a convex polygon P ′′ that realizes h′
+
+> 0
+
+, h ′
+
+> 2
+
+, . . . , h ′
+
+> k−2
+
+. The edge ray of e2j goes along the side shared by T − 
+
+> 2j
+
+and T +2j , and in particular therefore hits e2j .h′
+
+> 2j
+
+h′
+
+> 2j+1
+
++εoh′
+
+> 2j−1
+
++εh′
+
+> 2j+2
+
+h′
+
+> 2j−2
+
+e2j
+
+Figure 10: Combining triangles to get a realization of the local minima. It remains to create edges for the local maxima h′
+
+> 1
+
+, h ′
+
+> 3
+
+, . . . , h ′
+
+> k−1
+
+. See Figure 11. For i = 0 , . . . , k/ 2 − 1, the common end c of edges e2j and e2j+2 has distance h′ 
+
+> 2j+1
+
++ ε from the origin; in particular the corner ray of c intersects first the two tangent-circles R2j and R2j+2 (in some order), then it intersects R2j+1 
+
+(since h′ 
+
+> 2j+1
+
+is a local maximum), and then it intersects c. Let x be the place where this ray intersects 
+
+R2j+1 , and cut off c with a line perpendicular to the ray and through x (hence tangent to R2j+1 ). Since x
+
+is outside R2j , R 2j+2 , the tangent points of e2j and e2j+2 remain part of the polygon. Also, the edge rays of e2j and e2j+2 separate the new edge from all other corners of P ′′ , hence we can repeat the operation at all corners of P ′′ to get the desired convex realization of I′.
+
+(4) ⇒(1). To go from a realization P ′ of I′ back to one of I, we have to re-insert edges whose distances were neither local minima nor local maxima. 14 h′
+
+> 2j
+
+## e2j+2 R2jR2j+2 R2j+1 cxe2jFigure 11: Closeup: insert an edge for a local maximum. Say we have a local minimum h′ 
+
+> 0
+
+and a local maximum h′ 
+
+> 1
+
+and in the original instance had between them ℓ edge distances h′ 
+
+> 0
+
+< h 1 < h 2 < · · · < h ℓ < h ′
+
+> 1
+
+. (Recall that all distances are distinct, which is crucial in this construction.) So we must add a new edge ei (for i = 1 , . . . , ℓ ) between the two edges e′
+
+> 0
+
+and e′ 
+
+> 1
+
+that realized edge distance h′ 
+
+> 0
+
+and h′
+
+> 1
+
+. Consider Figure 12. Let c′ 
+
+> 1
+
+be the corner between e′ 
+
+> 0
+
+and 
+
+e′
+
+> 1
+
+, and x0 and x1 be the tangent points of these edges. Imagine sliding a segment e = ab where initially 
+
+a = x0 and b = c′
+
+> 1
+
+, at the end a = c′ 
+
+> 1
+
+and b = x1, and the points move at uniform speed. h′
+
+> 0
+
+oh′
+
+> 1
+
+x0x1c′
+
+> 1
+
+h1hℓ
+
+Figure 12: Closeup: insert edges between a local minimum and a local maximum. When we begin the slide of e, the supporting line l of e contains e′ 
+
+> 0
+
+and hence has distance h′ 
+
+> 0
+
+< h 1
+
+from the origin. At the end of the slide the supporting line l has distance h′ 
+
+> 1
+
+> h ℓ. Since the movement is continuous, there is a first time when l has distance h1 from o. Cut off corner c′ 
+
+> 1
+
+with a halfplane through the current l to obtain an edge with distance h1. Repeat, i.e., continue the slide of e until l has distance 
+
+h2 from the origin, cut off part of the polygon with the current l to obtain a new edge of distance h2, etc. The last edge is added strictly before the slide ends by hℓ < h ′
+
+> 1
+
+. So in particular both x0 and x1 remain as points on e′ 
+
+> 0
+
+and e′
+
+> 1
+
+. Therefore, the edges that we added here do not interfere with any edges that we might add for some other minimum-maximum pair elsewhere. Hence, repeating this approach at all other such pairs gives (1). We note that this construction crucially needs distinct edge distances; it is not clear how one could insert two equidistant edges if flat angles are not allowed. Also note that in this construction the new edges are not necessarily hit by edge-normals. This in fact cannot be avoided: There are instances that can be realized, but not when all edge rays must hit their edges. To see this, consider I = (1 , 2, 100 , 1.5, 101). If we could realize this with edge rays hitting edges, then the total sum of partial ray angles has to equal 360 ◦,since all of them contribute positively to the ray angles. But due to Corollary 10 any realization would need four partial ray angles ≥ arccos (2 /100) > 88 ◦, and one partial ray angle ≥ arccos (1 /2) = 60 ◦. So no realization with all edge rays hitting edges exists. On the other hand, there exists a convex realization for this (and actually for all sets of n = 5 edge distances), because the reduced instance has size at most 4 and Condition (3) hence always holds. 
+
+# D Missing Proofs of Section 4 
+
+## D.1 Modified Alexandrov’s problem 
+
+As discussed earlier, reconstruction from given edge normals n0, . . . , nn−1 and corner vectors c0, . . . , cn−1
+
+is not quite the same as Alexandrov’s problem, and we hence develop our own algorithm for it. 
+
+Theorem 4 For any input sequences of edge normals and corner vectors, we can test in O(n log 2 n) time in the WordRAM model whether a realization exists. If so, then it is unique up to scaling. 
+
+15 Proof. As a first step, we test that all partial ray angles are well-defined. Recall that for i ∈ { 0, . . . , n − 1}
+
+the backward partial ray angle ρ− 
+
+> i
+
+is the angle between ci and ni in the range [0 , 90 ◦); if the edge normal and corner vector do not form such an angle then clearly no realization can exist. (We can test this by computing cos ρ− 
+
+> i
+
+= ⟨ci, ni⟩, which must be positive.) Similarly we require that ni and ci+1 form an angle in the range [0 , 90 ◦), else the forward partial ray angle ρ+ 
+
+> i
+
+is not well-defined and no realization exists. 
+
+Propagation formula: The idea to construct a polygon is quite similar to the propagation that we used in Section 4.4. Let us assume that there is a convex realization, say with corner-distance d0. The backward partial ray angle satisfies cos ρ− 
+
+> 0
+
+= ⟨n0, c0⟩ = h0/d 0, so we know h0 = d0⟨n0, c0⟩. A similar argument with the forward partial ray angle ρ+0 gives d1 = h0/⟨n0, c1⟩ = d0⟨n0, c0⟩/⟨n0, c1⟩. Iterating, we get 
+
+di+1 = d0
+
+> i
+
+Y
+
+> j=0
+
+⟨nj , cj ⟩⟨nj , cj+1 ⟩ .
+
+Of course dn must equal d0. So no polygon can exist unless 
+
+> n−1
+
+Y
+
+> i=0
+
+⟨ni, ci⟩⟨ni, ci+1 ⟩ = 1 and all the inner products are strictly positive. Note that this product can be evaluated in WordRAM in O(n log 2 n) time, see the description for Theorem 6 in the main part of this work. If equality holds, then fix an arbitrary value of d0. Using the propagation formula, this gives us all corner distances. If we construct a polygon with these corner distances (and the given corner vectors), then this respects the edge normal due to our formula, and so is a star-shaped realization. (It is a convex realization if and only if the polygon angles are less than 180 ◦, which we can actually test beforehand by checking whether inner products of consecutive edge normals are positive.) The only choice we had was d0, but since all other corner distances depend linearly on d0, a different choice of d0 simply scales the polygon, which is hence unique up to scaling. This proves Theorem 4. □
+
+## D.2 Corner Vector and Area 
+
+Recall that when areas and corner vectors are given, we had the following propagation formula:                                            
+
+> d2i+1 = sin ρ1sin ρ3· · · sin ρ2i−1
+> 2A1·2A3· · · 2A2i−1
+> 2A0·2A2· · · 2A2i
+> sin ρ0sin ρ2· · · sin ρ2i
+> ·1
+> xd2i+2 =2A1·2A3· · · 2A2i+1
+> sin ρ1sin ρ3· · · sin ρ2i+1
+> sin ρ0sin ρ2· · · sin ρ2i
+> 2A0·2A2· · · 2A2i
+> ·x
+
+where x was the value that we assigned to d0. We give here the details of how this is used to test realizability with a star-shaped polygon. 
+
+Theorem 6 For lists of corner vectors and triangle areas, we can test in O(n log 2 n) time in the WordRAM model whether a star-shaped realization exists. 
+
+Proof. Consider odd n. From the propagation formula we know that in any realization dn = s 1 
+
+> x
+
+for some constant s > 0 that depends only on the input and that we can compute in O(n log 2 n) time in the WordRAM model (see Theorem 6 in the main text of this work). Since we require dn = d0 = x, the only possible realization has x = √s, and for this choice there always exists a solution. To actually find it, we need to use square-roots, hence the RealRAM model. If n is even, then we have dn = s′x for some constant s′. The restriction d0 = dn = s′d0 can be satisfied only if s′ = 1 which we can test in O(n log 2 n)time. If s′ = 1, then for any choice of initial x we get a star-shaped realization. □
+
+We also give the details for the convex reconstruction problem. 
+
+Theorem 7 For any input sequences of corner vectors and triangle areas, we can test in O(n2 log n) time in the WordRAM model whether a convex realization exists. 
+
+Proof. Assuming star-shaped realizations exist, write di(x), θ i(x) etc. for the polygon features obtained if we start propagating with d0 = x. We must be careful in choosing x such that θi(x) < 180 ◦ for all i.Note that θi(x) will automatically satisfy this if ρi−1 + ρi ≥ 180 ◦, so we must consider only such indices i
+
+16 where ρi−1 + ρi < 180 ◦. Consider the triangle triangle T spanned by the corners ci−1(x), c i+1 (x) and the origin o, see Figure 13. Note that the angle at ci(x) is smaller/greater than 180 ◦ if and only if the area of 
+
+T is smaller/greater than Ai−1 + Ai. By the SAS-formula the area of T is 12 di−1(x)di+1 (x) sin  ρi−1+ρi
+
+.
+
+Note that we can compute sin (ρi−1+ρi) from the inner product of ci−1 and c⟲ 
+
+> i+1
+
+in the WordRAM model. oci−1(x)ci+1 (x)ci(x)AiAi−1ρi−1ρidi−1(x)di+1 (x)ci−1ci+1 
+
+Figure 13: Configuration with flat angle θi(x). If i is odd, then from the propagation formula for ℓ = ±1 we have di+ℓ(x) = si+ℓx for some value si+ℓ
+
+that only depends on the input and can be computed in the WordRAM model. Hence, the flat angle happens if x2 = 2( Ai−1+Ai)/s i+1 si−1, and to have a convex angle x2 needs to be smaller than this. If i is even then similarly di+ℓ(x) = si+ℓ/x for ℓ ∈ {± 1}, the flat angle happens if x2 = si+1 si−1/2( Ai−1 + Ai), and we want x2 to be bigger than this. Over all i this gives us strict upper and lower bounds on x2, and additionally we need x2 = s if n is odd. There exists a convex realization if and only if these leave a feasible value for x2.To calculate the values on a WordRAM we follow a similar approach as we described for Theorem 6 in the main part of this work. First, we calculate s as in Theorem 6 using the divide and conquer approach in O(n log 2 n) time, with two minor alterations: here, the factors must be multiplied in order regarding the si, and we keep the intermediate results. Notice that the intermediate results relate to each other as a binary tree. Furthermore, observe that each si is the product of O( log n) intermediate results of word sizes of at most n 
+
+> 2
+
+, n 
+
+> 4
+
+, n 
+
+> 8
+
+, . . . along a path in that tree. When multiplying these in ascending order, each si
+
+can be calculated in O(n log n) time, with O(n2 log n) time altogether. Afterwards, calculating a product 
+
+si+1 si−1 requires O(n log n) time as well, for O(n2 log n) total time for all pairs. This allows calculating all bounds on x2 in O(n2 log n) time and finally finding the largest lower bound and the smallest upper bound in O(n2) time. □
+
+## D.3 Hardness results 
+
+D.3.1 Corner Vector and Area (unlabelled) 
+
+We already studied the scenario “corner vectors and areas” in Section 4.4, and gave algorithms for the reconstruction problem both for convex and star-shaped polygons. These were under the (standard) assumption that the given areas are labelled in the sense that we know which area is meant for which edge. We now show that in the unlabelled setting, the problem becomes NP-hard even for a very restricted set of corner vectors. 
+
+Theorem 13 Given numbers A0, . . . , A n−1 > 0, it is NP-hard to decide whether there exists a star-shaped polygon where all ray angles are equal, and the triangle areas are A0, . . . , A n−1 (not necessarily in this order). 
+
+Proof. We give a reduction from the problem product partition , where we are given N numbers 
+
+a0, . . . , a N −1, and we would like to find a subset I ⊆ { 0, . . . , N −1} with Q 
+
+> i∈I
+
+ai = Q 
+
+> i̸∈ I
+
+ai. This is known to be NP-hard [17]. Define n = 2 N , and set Ai = ai for i < N and Ai = 1 for i = N, . . . , n −1. Assume that we had a realization with some permutation π of these areas, so Aπ(i) is the area of the triangle of ei. From the formula in Section 4.4 and since n is even we know that                       
+
+> dn=Aπ(1) ·Aπ(3) · · · Aπ(n−1)
+> sin ρ1sin ρ3· · · sin ρn−1
+> sin ρ2sin ρ4· · · sin ρn−2
+> Aπ(0) ·Aπ(2) · · · Aπ(n−2)
+> ·d0.
+
+17 Since all ray angles are equal and dn = d0, we therefore have Aπ(1) . . . A π(n−1) = Aπ(0) . . . A π(n−2) .Define I to be the indices of numbers that were areas of even-indexed edges, i.e., I = {i ∈ { 0, . . . , N −1} :
+
+ai = Aπ(2 j) for some j}. Since AN = · · · = An−1 = 1 do not change the product, we then have Q 
+
+> i∈I
+
+ai = Q 
+
+> i̸∈ I
+
+ai and hence found the desired subset. Vice versa, if there is a solution I to the product partition instance, then for i ∈ I we set π(2 i) = i
+
+(so Aπ(2 i) = ai). For all even indices 2 j with j̸ ∈ I we use Aπ(2 j) = 1, and for the edges with odd index we use the areas Ai with i̸ ∈ I as well as the remaining unit areas. (Note that we had added sufficiently many unit areas for this to be feasible regardless of |I|.) Since n is even, and again using the propagation formula, we see that we get a star-shaped solution when applying the areas in this permutation, and the reduction holds. □
+
+D.3.2 Corner Distance and Edge Distance 
+
+In this section, we study the scenario where we are given sequences of corner distances d0, . . . , d n−1 and edge distances h0, . . . , h n−1. From this information we can compute the partial ray angles ρ+ 
+
+> i
+
+and ρ− 
+
+> i
+
+(at least in RealRAM): cos ρ+ 
+
+> i
+
+= hi/d i+1 and cos ρ− 
+
+> i
+
+= hi/d i, and the angles are the solutions in the range [0 , 90 ◦). Unfortunately, this does not necessarily determine the ray angle (see Figure 14). We could have 
+
+ρi = ρ+ 
+
+> i
+
++ ρ− 
+
+> i
+
+, but if di > d i+1 , then we could also have ρi = ρ− 
+
+> i
+
+− ρ+ 
+
+> i
+
+.lililididi+1 dici+1 ninici+1 ρ−
+
+> i
+
+ρ+
+
+> i
+
+ρ−
+
+> i
+
+ρ+
+
+> i
+
+Figure 14: Two choices for realizing corner distances and edge distances. We exploit this choice (‘is the ray angle the sum or the difference of the partial ray angles’) to argue that testing whether the input has a star-shaped realization is likely difficult. More precisely, we provide a reduction from the NP-hard problem 2-partition [ 11 ], where we are given N positive numbers a0, . . . , a N −1
+
+that sum to 2 B, and we want to know whether there exists a set I of indices such that P 
+
+> i∈I
+
+ai = B. This reduction does not quite prove that the problem is NP-hard because our reduction uses the RealRAM model (see also [9] for related discussions), but it certainly suggests that the problem is not easy. 
+
+Theorem 14 There exists a polynomial-time reduction in the RealRAM model from 2-partition to the problem of reconstructing a star-shaped polygon from sequences of corner distances and edge distances. 
+
+Proof. Let a0, . . . , a N −1, B be a 2-partition instance. By padding it with zeroes, we may assume that N
+
+is even and we want a partition with |I| = N/ 2. By adding some large number m to each ai (and mN to 
+
+B), we may assume that 0 < a i < B/ 2 for all i. Finally after scaling (and permitting rational numbers for the ai’s), we may assume that B = 30. We will construct sequences of n = N + 2 corners and edge distances as follows. Arbitrarily fix d0.Then, for 1 ≤ i < N , define hi = di cos (3 ai), which is positive since ai < 30. In consequence, the backward ray angle ρ− 
+
+> i
+
+is 3 ai in any realization. Next define di+1 = hi/ cos (ai) = di cos (3 ai)/ cos (ai) < d i, so the forward ray angle ρ+ 
+
+> i
+
+is ai. Finally close up the input by setting hN = dN , dN +1 = d0 and 
+
+hN +1 = d0 cos 
+
+
+
+90 ◦ − 12 arccos( dN /d 0)
+
+
+
+.
+
+Figure 15 shows the construction for a small example. Assume that we have a realization of this input. Then, for i < N , the partial ray angles are ρ− 
+
+> i
+
+= 3 ai and 
+
+ρ+ 
+
+> i
+
+= ai. Also, by di+1 < d i, the ray angle ρi is either 4 ai or 2 ai. Let I be the indices of all those ray angles 
+
+ρi that are 2 ai; then the ray angle between c0 and cN is P 
+
+> i∈I
+
+2ai + P  
+
+> i∈{ 0,...,N −1}\ I
+
+4ai = 8 B − P 
+
+> i∈I
+
+2ai.Now look at the last two triangles TN and TN +1 . We set the edge distance hN equal to the corner distance dN , which means that TN must have a right angle at cN . With this there is no choice for its ray 18 12 cNc0-4 36 +12 39 -13 39 21 +7 33 +11 -13 d0d0hN +1 hN =dNFigure 15: Construction of edge distances and corner distances for encoding the 2-partition instance 
+
+{4, 12 , 13 , 13 , 7, 11 }. Each forward ray angle indicates with ± whether it adds or subtracts to the ray angle. angle, which must be ρN = arccos (dN /d 0). Triangle TN +1 is isoceles by construction, which means that there is no choice for its ray angle, which is 
+
+ρN +1 = 2 arccos( hN +1 /d 0) = 180 ◦ − ρN
+
+by our choice of hN +1 . So ρN + ρN +1 = 180 ◦ and the remaining ray angles sum to 180 ◦ = 6 B. Since they also sum to 8 B − P 
+
+> i∈I
+
+2ai we hence have P 
+
+> i∈I
+
+ai = B.So from any realization we can extract a solution to the 2-partition problem. Similarly, one shows how to use a 2-partition solution to construct a star-shaped polygon and the reduction is complete. □
+
+D.3.3 Edge Length and Corner Vector 
+
+Consider the scenario where we are given the edge lengths ℓ1, . . . , ℓ n and the corner vectors c1, . . . , cn.Here a propagation approach is difficult, because even if we knew (or guessed) the location of corner ci,there are normally two possible locations for ci+1 where the circle of radius ℓi centered at ci intersects the corner ray. See Figure 16. ocicici+1 `iei?ei?ci+1 ?ci+1 ?
+
+Figure 16: Two possibilities for the next corner, even if we know the previous one. We have not been able to convert this insight into an NP-hardness in the plane, but if we change the model to consider realizations on the cylinder, then we can argue NP-hardness. Specifically, assume 19 that the origin is at infinity, and the corner rays hence become parallel lines (up to rotation say they are vertical). A star-shaped realization on the cylinder is then the same as a polygonal chain with corners on the corner rays and edge lengths {ℓ1, . . . , ℓ n} such that c0 and cn have the same y-coordinate. The following theorem hence says that testing the existence of a star-shaped realization on the cylinder is NP-hard, at least if we allow flat angles. 
+
+Theorem 15 Given sequences of numbers ℓ1, . . . , ℓ n > 0 and parallel lines c1, . . . , cn on the flat cylinder, it is NP-hard to decide whether there exists a closed polygonal chain on the flat cylinder with edge lengths 
+
+ℓ1, . . . , ℓ n and corners on c1, . . . , cn.
+
+Proof. We reduce again from the 2-partition problem, so assume that we are given positive numbers 
+
+a0, . . . , a n−1, B with Pn−1 
+
+> i=0
+
+ai = 2 B. Define the vertical lines such that the distance from ci to ci+1 is 4 ai
+
+for i = 0 , . . . , n −2, and the flat cylinder has width 8 B (so the distance from cn−1 to c0 is 4 an−1 when “wrapping around”). See also Figure 17. Set ℓi = 5 ai for i ∈ { 0, . . . , n − 1}.cnc0cici+1 4ai3ai5aicn−1
+
+Figure 17: NP-hardness construction. We show the flat cylinder; the standing cylinder is obtained by identifying the curved dotted lines. Assume we had a realization on the cylinder; up to translation we may assume that c0 has y-coordinate 0. Once we know ci, edge ei can have either increasing or decreasing slope; either way it forms a right triangle with the horizontal through ci and the (vertical) corner ray for ci+1 . The distance between the corner rays is 4 ai, and the vertical distance between ci and ci+1 hence pℓ2 
+
+> i
+
+− (4 ai)2 = 3 ai. Thus, ei
+
+either adds or subtracts 3 ai to the y-coordinate of the corner. Define I to be all those indices where ei
+
+adds 3 ai to the y-coordinate. Since cn must have y-coordinate 0 (to match up with c0), we must have P 
+
+> i∈I
+
+ai − P 
+
+> i̸∈ I
+
+ai = 0 or P 
+
+> i∈I
+
+ai = B as desired. So from any realization on the cylinder we can extract a solution to the 2-partition problem. Similarly one shows how to use a 2-partition solution to construct a realization on the cylinder and the reduction is complete. □
+
+## D.4 Odds and Ends 
+
+D.4.1 The L0-Minkowski Problem 
+
+Assume we are given the sequences of edge normals n0, . . . , nn−1 as well as areas A0, . . . , A n−1. We state here a propagation formula that starts with two variables, and can then compute the coordinates of all corners in the WordRAM model: 
+
+• Fix the point of corner c0 (its coordinates ( x, y ) are our two variables). 
+
+• With this we know the edge distance h0 = ⟨c0, n0⟩ since it is the projection of c0 onto the edge ray. 
+
+• With this, we know the edge-length ℓ0 = 2 A0/h 0.
+
+• Since we have the edge-normal, we have all information to compute the next corner: c1 = c0 + ℓ0n⟲ 
+
+> 0
+
+,where n⟲ 
+
+> 0
+
+is edge-normal n0 rotated by 90 ◦.Repeating the process gives us the coordinates of all corners, dependent on the choice ( x, y ) of the coordinates of c0. The formula can all be packed into one as follows: 
+
+ci+1 = ci + 2Ai
+
+⟨ci, ni⟩ n⟲
+
+> i
+
+20 which clearly can be computed in the WordRAM model. Ideally, we would now evaluate the condition that the computed corner cn equals the corner ( x, y ) that we started with, and derive from it which choices of 
+
+x and y (if any) lead to a realization. Unfortunately the dependency of cn on x and y is very complex and we have not been able to turn this idea into an algorithm to test realizability. 
+
+D.4.2 Corner Vector and Edge Distance, or Edge Normal and Corner Distance 
+
+For convex realizations, the scenario “corner vectors and edge distance” is equivalent to “edge normal and corner distance”, due to polarity. We will therefore only study the former one. We have very few results here. Given the edge distances, we want the lines that support edges to be tangent to tangent-circles, but even if we know the location of a corner we have a choice of tangent-line for the next edge. Figure 18 shows an example where this can happen even if we want a convex polygon angle. Specifying the corner vectors does not help with making this choice, but restricts the solution space enough that the general construction of Section 3.3 will usually not work. So we suspect that the reconstruction problem is NP-hard in this scenario, but this remains open. ociciniRiliRi+1 eiei+1 ?ei+1 ?
+
+Figure 18: Two choices to realize edge distances even for convex polygons. 
+
+D.4.3 Two of Area, Edge Length and Edge Distance 
+
+This section covers three scenarios that are all equivalent, since any two of these features can be used to reconstruct the third due to Ai = 12 ℓihi. So we can focus on the scenario “edge distance and area”. Unfortunately for much of the same reason as in the previous subsection we have very few results here. As in Figure 18 respecting the edge distances alone leaves us with a choice between which tangent-line to use, respecting the area does not help in making this choice, but means that the construction of Section 3.3 usually will not work. Again we suspect hardness, but leave this for future study. 21
