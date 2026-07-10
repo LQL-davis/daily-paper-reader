@@ -1,0 +1,3089 @@
+Title: Generalized Hyperbolic Conical Circle Packings associated with Finite Polygonal Decompositions of Surfaces with Boundary
+
+URL Source: https://arxiv.org/pdf/2607.04427v1
+
+Published Time: Tue, 07 Jul 2026 02:31:11 GMT
+
+Number of Pages: 52
+
+Markdown Content:
+# Generalized Hyperbolic Conical Circle Packings associated with Finite Polygonal Decompositions of Surfaces with Boundary 
+
+## Guangming Hu, Jun Hu, Lishan Li and Yi Qi 
+
+Abstract 
+
+Let S be a compact topological surface with finitely many genus and finitely many holes and let D be a polygonal decomposition of S. In this paper, we consider the generalized hyperbolic conical circle packings associated with D. We first show that the boundary value problem has a unique solution k by prescribing total geodesic curvatures of general-ized hyperbolic conical circles centered at interior vertices and geodesic curvatures of generalized hyperbolic conical circles centered at boundary vertices. Then we show that such a solution k can be obtained by taking a limit of the packings inductively modified by Thurston’s algorithm via an arbitrarily chosen initial generalized hyperbolic conical circle packing associated with D and with given boundary values. Thirdly, we develop the so-called discrete Schwarz-Pick lemma for the solution packing k on 
+
+D.
+
+Mathematics Subject Classification (2020): Primary: 52C26 
+
+Keywords and phrases: Generalized hyperbolic circle packing, Discrete Schwarz-Pick lemma, Discrete boundary value theorem, Thurston’s algorithm 
+
+# 1 Introduction 
+
+Discretizing the conformal structures on smooth surfaces has been a robust area of research in differential geometry and hyperbolic geometry, which has applications to the theory of general relativity. Circle packings and their combi-natorial patterns serve as a collection of bricks of different shapes and a system of the combinatorial relationships among the bricks that characterize how the bricks are used to construct or approximate a conformal structure on a surface with or without boundary. In his work on the study of hyperbolic structures on 3-manifolds, Thurston [26] investigated circle packings on triangulated closed surfaces, revealing pro-found connections between circle packings and conformal structures on trian-gulated surfaces. In 1985, he presented a method to approximate a Riemann mapping from a simply connected hyperbolic domain to the open unit disk by discrete conformal mappings constructed through the use of circle packings. 1
+
+> arXiv:2607.04427v1 [math.GT] 5 Jul 2026
+
+Approximating maps utilize regular hexagonal circle packings of the domain and corresponding packings on the unit disk, which are called Thurston finite Riemann mappings. The convergence of Thurston finite Riemann mappings to the Riemann mapping was proved by Rodin and Sullivan two years later in [25]. Since 1985, research has been successful in identifying the types of graph and associated data that ensure the existence and uniqueness of corresponding cir-cle packings or circle patterns in Euclidean, spherical, and hyperbolic geometry. The classical Perron method or Colin de Verdi` ere’s variational principle in [5] plays an important role in establishing the existence and uniqueness of circle patterns in hyperbolic or Euclidean background geometry. Under the geome-try of the spherical metric, the uniqueness may fail if the prescribed data are not imposed on appropriate objects, similar to the McOwen-Troyanov theorem [23, 27] if prescribed data are varied under M¨ obius transformations. Applying Colin de Verdi` ere’s variational method, Nie obtained in [24] the uniqueness of a circle pattern in the spherical background geometry by prescribing the total geodesic curvatures of the circles. A different proof of Nie’s result, using the classical Perron method, is given in [21]. In[16], Guo-Luo investigated generalized circle packings of ten generalized hyperbolic triangles, proving the metric is uniquely determined by discrete cur-vature for six symmetric cases, which extends Thurston, Penner and Bobenko-Springborn’s rigidity results. However, for the generalized circle packing of types (1,1,-1) (triangles with 2 circles and 1 hypercycle) and (1,1,0) (triangles with 2 circles and 1 horocycle), the rigidity theorem fails to hold, leaving these cases unsolved. In [1], Ba-Hu-Sun applied the total geodesic curvature intro-duced by Nie [24] to prove rigidity for all ten triangle types, settling the open problems in [16]. Then the so-called discrete boundary value problem and dis-crete Schwarz-Pick lemma are considered in [17] for such generalized hyperbolic conical circle packings associated with triangulated oriented compact surfaces with boundaries. With respect to finite polygonal decompositions of compact surfaces with boundaries, the existence and uniqueness are obtained in [20] for generalized circle packings by prescribing total geodesic curvatures of circles associated with all vertices. In this paper, we continue to consider generalized hyperbolic conical circle packings associated with polygonal decompositions of compact surfaces with boundaries, but the prescribed data that we use are total geodesic curvatures of the circles associated with interior vertices and geodesic curvatures of the circles associated with boundary vertices. We briefly call such a problem a discrete boundary value problem for generalized hyperbolic conical circle packings .The work in this paper is three-fold: (1) Apply the Perron method to prove the existence and uniqueness of the solution for the discrete boundary value problem for generalized hyperbolic conical circle packings associated with polyg-onal decompositions of compact surfaces with boundaries, which generalizes the same result obtained in [17] for a special case when graphs are induced by triangulations of the surfaces and employs a method different from Colin de Verdi` ere’s variational principle used in [17]. (2) Apply Thurston’s algorithm to approximate the solution of the discrete boundary value problem and show 2the convergence of the approximations to the solution. (3) Establish a discrete Schwarz-Pick lemma for the solution of the discrete boundary value problem. 
+
+## 1.1 Discrete boundary value problem 
+
+In their seminal work in 1991, Beardon and Stephenson [2] investigated the boundary value problem for circle packings associated with triangulations on a disk by prescribing the radii of hyperbolic circles centered at boundary vertices. Techniques involving normal families are used in their approach. Lately, the discrete boundary value problem is resolved in [17] for generalized hyperbolic conical circle packings associated with triangulations of compact surfaces with finitely many boundaries by applying Colin de Verdi` ere’s variational principle. The first result of this paper is to generalize the result of [17] for generalized hyperbolic conical circle packings associated with triangulations of compact sur-faces with boundaries to hyperbolic circle packings associated with polygonal decompositions of compact surfaces. By a generalized hyperbolic circle on the hyperbolic plane H2 we mean a hyperbolic circle, a horocycle or a hypercycle (see Definition 2.1 and Figure 1). Each of them has a constant curvature, which we denote by k. For any hyperbolic circle, k > 1; for any horocycle, k = 1; for any hypercycle, 0 < k < 1. Any segment on a generalized hyperbolic circle is viewed/called a generalized hyperbolic conical circle (see Definition 2.2 and Figure 2). In this paper, we consider generalized hyperbolic conical circle packings, associated with graphs induced by polygonal decompositions of surfaces (with or without boundaries), satisfying that the tangent points among the conical circles centered at the vertices of a face lie on a hyperbolic circle for each face. This condition is automatically satisfied when the polygonal decomposition is a triangulation. Now we are ready to state the first main result. We apply the Perron method, instead of Colin de Verdi` ere’s variational principle, to prove the following theo-rem. 
+
+Theorem 1.1. Let Sg,n be a compact oriented topological surface with finitely many genus g ≥ 0 and finitely many holes n ≥ 1. Let D be a polygonal cellular decomposition of Sg,n with the set of vertex V , a disjoint union of the set of boundary vertices V ∂ and the set of interior vertices V ◦.Given ˆk : V ∂ → R+ and ˆT : V ◦ → R+, the following two statements are equivalent: 1. The discrete boundary value problem has a unique solution in the sense that there exists a unique generalized hyperbolic conical circle packing up to isometry (see Figure 5 for an illustration) associated with the polygonal decomposition D with geodesic curvatures k : V → R+ satisfying: (i) For each vertex w ∈ V ∂ , the geodesic curvature k(w) of the corre-sponding generalized circle is equal to ˆk(w);
+
+3(ii) For each vertex v0 ∈ V ◦, the total geodesic curvature Tk(v0) of the corresponding generalized circle is equal to ˆT(v0).2. ˆT ∈ T with 
+
+T =
+
+
+
+T : V ◦ → R+
+
+P 
+
+> v∈Q
+
+Tv < P  
+
+> f∈FQ
+
+π min {N (f, Q ), N (f ) − 2}
+
+for any nonempty set Q ⊂ V ◦
+
+
+
+,
+
+(1) 
+
+where FQ = {f ∈ F : ∃ v ∈ Q such that v is a vertex of f }, V (f ) is the vertex set of f , N (f ) = ♯V (f ), and N (f, Q ) = ♯(V (f ) ∩ Q).
+
+Remark 1.2. One may apply Colin de Verdi` ere’s variational principle to give an alternative proof of Theorem 1.1 since that method is successfully used in [17] to prove the special case when D is a triangulation of a surface S. Our paper deals with the general case that D is a polygonal decomposition of S and emphasizes an application of the Perron method, which is different from the variational method. 
+
+## 1.2 Thurston’s algorithm 
+
+In one of the appendices of [25], Rodin and Sullivan described Thurston’s algorithm for finding the Andreev circle packing for any triangulation of the extended complex plane. They also pointed out it converges quite rapidly. Sub-sequently, Carter and Rodin [3] developed a computational algorithm based on a modified Perron method to solve the boundary value problem in the Euclidean setting. Lately, the Thurston algorithm is applied in [21] to approximate ideal spherical circle patterns associated with polygonal cellular decompositions of compact oriented surfaces. In this paper, we show that the Thurston algo-rithm continues to be valid in the course of finding the solution of the discrete boundary value problem in the setting of this paper. We continue to use the notation Sg,n , D, V ∂ , and V ◦ introduced in the previous subsection. Let ˆk : V ∂ → R+ and ˆT : V ◦ → R+, ˆT ∈ T . We call the circle packing from Theorem 1.1 the target circle packing and denote it by ˆP.Given any initial vector 
+
+k0 : V −→ R+ : v 7 −→ k0
+
+> v
+
+with k0 
+
+> w
+
+= ˆk(w) for any w ∈ V ∂ , there is a generalized circle packing P0 such that the geodesic curvature of the generalized circle centered at each vertex 
+
+v ∈ V is equal to k0(v) = k0 
+
+> v
+
+.For any vi ∈ V ◦ = {v1, · · · , v N }, we modify k0 
+
+> vi
+
+to k1 
+
+> vi
+
+∈ R+, without changing the value of k0 at any other vertex, so that the total geodesic curvature of the generalized circle centered at vi is equal to the prescribed value ˆT(vi); that is, the curvature value at each boundary point w ∈ V ∂ remains at ˆk(w)and the value of k1 
+
+> vi
+
+is determined by the equation 
+
+T(k0       
+
+> v1,··· ,k 0
+> vi−1,k 1
+> vi,k 0
+> vi+1 ,··· ,k 0
+> vN)
+
+(vi) = ˆT(vi).
+
+4We define a new vector of geodesic curvatures as 
+
+k1 : V −→ R+ : v 7 −→ k1 
+
+> v
+
+,
+
+with k1 
+
+> v
+
+= k0 
+
+> v
+
+= ˆk(v) for any v ∈ V ∂ . Then there is a generalized circle packing 
+
+P1 such that the geodesic curvature of the generalized circle centered at each vertex v ∈ V is equal to k1(v) = k1 
+
+> v
+
+, which we call the 1 st approximation of the target circle packing ˆP.By replacing k0 by k1 and repeating the above process, we obtain k2 and the 2 nd approximation P2 of ˆP. Inductively, given km, define km+1 (vi) to be the unique number km+1  
+
+> vi
+
+such that 
+
+T(kmv1 ,··· ,k mvi−1 ,k m+1     
+
+> vi,k mvi+1 ,··· ,k mvN)
+
+(vi) = ˆT(vi).
+
+All km+1 (vi) are solved independently with the other interior coordinates fixed at their old values km; after all scalar equations have been solved, we set km+1 (vi) = km+1  
+
+> vi
+
+for i = 1 , · · · , N . Therefore, we obtain km+1 and the (m + 1) th approximation Pm+1 of ˆP. We define k∗ : V → R+ as the vector of geodesic curvature of the generalized circles in ˆP.The second part of this paper is to prove the convergence of this algorithm. 
+
+Theorem 1.3. Let ˆk : V ∂ → R+ and let ˆT ∈ T , where T is defined by (1) in Theorem 1.1. Then for any initial generalized circle packing P0, determined by an arbitrary vector 
+
+k0 : V −→ R+ : v 7 −→ k0
+
+> v
+
+with k0(w) = ˆk(w) at each w ∈ V ∂ , the sequence km converges to k∗ where k∗
+
+is the geodesic curvature vector of the unique solution given by Theorem 1.1; equivalently, 
+
+k∗(w) = ˆk(w), w ∈ V ∂ , Tk∗ (v) = ˆT(v), v ∈ V ◦.
+
+Consequently, the associated packings Pm converge, up to isometry, to the target packing ˆP, equivalently in the sense that their geodesic curvature vectors converge to k∗.
+
+Remark 1.4. The other method for the existence of circle packings with pre-scribed pattern/data is to study systems of ordinary differential equations that govern certain types of combinatorial curvature flows and investigate if the asymptotic limits of the solutions as the time parameter going to ∞ realize the desired circle packings. Here are some works in this direction. Parallel to the Ricci flow in differential geometry, Chow and Luo [4] introduced the com-binatorial Ricci flow to determine circle patterns with prescribed curvatures in both Euclidean and hyperbolic geometries. To address constant-curvature prob-lems, Luo [22] developed a combinatorial Yamabe flow on triangulated surfaces. Inspired by the Calabi flow in differential geometry, Ge [8],[9],[10] established combinatorial Calabi flow to construct circle patterns with prescribed curvatures in Euclidean geometry. Then numerical methods to approximate solutions to these systems of differential equations provide different algorithms to find the circle packings with prescribed pattern/data, see [6],[7],[11],[12],[13],[14],[15]. 
+
+51.3 Discrete Schwarz-Pick lemma 
+
+The Schwarz-Pick lemma, a fundamental result in complex analysis, states that any holomorphic map f from the open unit disk D into itself does not increase the hyperbolic distance between points on D.In the context of hyperbolic circle packings, Beardon and Stephenson [2] es-tablished a discrete version of the Schwarz-Pick lemma by comparing lengths of geodesics between vertices and areas of interstices when the boundary values are changed. Lately, this result has been extended in [17] to generalized hyperbolic conical circle packings associated with triangular decompositions of surfaces. In this paper, we continue to extend this result to generalized hyperbolic con-ical circle packings associated with finite polygonal cellular decompositions of surfaces, and furthermore we find two more properties. Consider two generalized hyperbolic conical circle packings on Sg,n under-lying the graph G and having the same total geodesic curvature values at the interior vertices. Assume that the geodesic curvature values at the boundary vertices for one packing uniformly dominate those for the other. Our goal, for a version of the discrete Schwarz-Pick lemma, is to establish comparison rela-tionships in the following four aspects. (1) The geodesic curvatures of all generalized circles; (2) The lengths of geodesics between vertices (circle centers); (3) The areas of the interstices; (4) The lengths of the arcs that bound interstices. More precisely, we show the following theorem. 
+
+Theorem 1.5 (Discrete Schwarz-Pick lemma) . Let Sg,n be a compact oriented topological surface of genus g ≥ 0 with n ≥ 1 boundary components, and let D be a polygonal cellular decomposition of Sg,n . Let ˆki : V ∂ → R+ and ˆTi : V ◦ → R+
+
+, i = 1 , 2, where ˆTi ∈ T and T is defined by (1) in Theorem 1.1. Let Pi be the generalized circle packing on (Sg,n , D) such that ˆki(w) gives the geodesic curvature of the generalized circle centered at each boundary vertex w ∈ V ∂ , and 
+
+ˆTi(v) gives the total geodesic curvature at each interior vertex v ∈ V ◦. Denote by ki : V → R+ the geodesic curvature vector of Pi, where ki(w) = ˆki(w) for all w ∈ V ∂ and Tki (v) = ˆTi(v) for all v ∈ V ◦. Assume that ˆk1(w) ≤ ˆk2(w) for all w ∈ V ∂ , and ˆT1(v) = ˆT2(v) for all v ∈ V ◦. Then the following statements hold: (1) Vertex-wise Comparison (Sub harmonicity) :
+
+k1(v) ≤ k2(v), ∀ v ∈ V .(2) Area Comparison :
+
+Area k1 (Ω f ) ≥ Area k2 (Ω f ), ∀ f ∈ F , where Area ki (Ω f ) denotes the hy-perbolic area of the interstice Ωf (see Figure 8) corresponding to the face 
+
+f on ˜S(ki), i = 1 , 2.
+
+6(3) Arc Length Comparison :
+
+ℓk1 (v, f ) ≥ ℓk2 (v, f ), ∀ f ∈ F , where ℓki (v, f ) denotes the length of the edge (see Figure 19) of the interstice Ωf (corresponding to the face f )) that lies on the generalized circle centered at v, i = 1 , 2.(4) Distance Comparison :
+
+ρk1 (v1, v 2) ≥ ρk2 (v1, v 2), ∀ v1, v 2 ∈ ˜V = {v ∈ V | k1(v) > 1}, where ρki de-notes the distance function on the hyperbolic surface ˜S(ki) (see Definition 2.8), i = 1 , 2.(5) Uniqueness Criteria :
+
+The generalized circle packing P1 and P2 are the same (that is; k1 = k2)provided that the equality holds in any of the following cases: (i) At some interior vertex in (1). (ii) At some some interstice Ωf (which has at least one interior vertex) in (2). (iii) At some edge ℓk1 (v, f ) (with v ∈ V ◦) of the interstice Ωf in (3). (iv) At two vertices u and v (with at least one of them in V ◦) in (4). 
+
+Remark 1.6. For the special case where D is a triangular decomposition of 
+
+Sg,n , properties (1), (2), and (3) of the previous theorem have been obtained in [17]. 
+
+The remainder of the paper is organized as follows. Section 2 provides back-ground information for generalized hyperbolic conical circle packings associated with polygonal decompositions ( Sg,n , D), including generalized circle configura-tions, induced hyperbolic polygons and packing metrics, and generalized stars. Section 3 gives a summary on local variation formulas and monotonic properties of some variables involved in the formulas. In Section 4, we show how geodesic segments on a generalized circle configuration have their lengths varied when the curvatures of the circles are changed. In Section 5, we apply the Perron method, through the construction of generalized subpackings and superpack-ings, to prove the existence and uniqueness result for the discrete boundary value problem (Theorem 1.1). In Section 6, we analyze Thurston’s iterative al-gorithm and prove its convergence to the unique target packing (Theorem 1.3). In Section 7, we establish the discrete Schwarz–Pick lemma (Theorem 1.5) by deriving vertex-wise, area, arc-length, and distance comparison results, and a maximum modulus principle for generalized circle packings in the hyperbolic metric setting (Theorem 7.5). 
+
+# 2 Preliminary 
+
+## 2.1 Generalized hyperbolic conical circle configuration 
+
+Let us first give the definition of generalized hyperbolic circle. 7Figure 1: Generalized hyperbolic circles in H2.
+
+Definition 2.1 (Circle, horocycle and hypercycle in H2). Denote by H2 the two-dimensional hyperbolic plane, modeled by the upper half plane or the open unit disk, and denote by ∂H2 the boundary of H2.(1) A hyperbolic circle C(z0, r ) centered on z0 ∈ H2 and of radius r is defined as the locus 
+
+C(z0, r ) = {z ∈ H2 : d(z, z 0) = r},
+
+where d(z, z 0) denotes the hyperbolic distance between z and z0.(2) By a horocycle we mean a circle on H2 that is tangent to ∂H2, which is viewed as a hyperbolic circle centered at the tangent point and of radius 
+
+∞.(3) Given a geodesic γ on H2 and a non-negative real number r, a hypercycle 
+
+with axis γ and of distance r is defined as a connected component of the set 
+
+C(γ, r ) = {z ∈ H2 : d(z, γ ) = r},
+
+where d(z, γ ) represents the minimal hyperbolic distance from z to γ. We view γ as the “center” of the hypercycle and r as the radius of the hyper-cycle. 
+
+Note that (i) the center of a hyperbolic circle is a point on H2; (ii) the center of a horocycle is an ideal point on the boundary ∂H2; (iii) the center of a hypercycle is defined as the geodesic in H2 connecting the boundary points of the hypercycle. Each of them has a constant geodesic curvature k, and 0 < k < 1for a hypercycle, k = 1 for a horocycle, and k > 1 for a hyperbolic circle. Furthermore, r is expressed as a function of k as follows: 
+
+r(k) = 
+
+
+
+arctanh k if 0 < k < 1+∞ if k = 1 arccoth k if k > 1(2) 8When k ∈ [1 , +∞), denote by α the cone/central angle of an arc l on a circle or horocycle of geodesic curvature k. When k ∈ (0 , 1), given an arc l in a hypercycle C of geodesic curvature k, let γ1 and γ2 be the geodesics that pass through the end points of l and are perpendicular to the axis γ of C, and we define β as the length of the arc on γ between γ1 and γ2. We call α or β the 
+
+inner angle of l, which is illustrated on Figure 2. 
+
+Figure 2: Generalized hyperbolic conical circles. 
+
+Definition 2.2 (Generalized circle) . The black arc l on the left (resp. middle) drawing of Figure 2 is called a conical hyperbolic circle (resp. conical horocycle) by viewing it as the boundary of a cone obtained by gluing the two radial sides of the shaded region, where k ∈ [1 , +∞). The black arc l on the right drawing of Figure 2 is called a hypercircle by viewing it as one of the boundaries of the surface obtained by gluing the two sides perpendicular to the axis γ, where 
+
+k ∈ (0 , 1) . In this paper, we simply call l in any of the three cases a generalized circle .
+
+Given a generalized circle l, Table 2.1 shows the relationships among radius 
+
+r, geodesic curvature k, generalized inner angle α (or β) and arc length ℓ of l.The total geodesic curvature T of l is given by T = kℓ , where k, ℓ ∈ (0 , +∞). Circle Horocycle hypercycle Radius r ∈ (0 , +∞) r = + ∞ r ∈ (0 , +∞)Geodesic curvature k = coth r k=1 k = tanh r
+
+Inner angle α ∈ (0 , +∞) α = 0 β ∈ (0 , +∞)Arc length ℓ = α sinh r ℓ ℓ = β cosh r
+
+Total geodesic curvature T = α cosh r T = ℓ T = β sinh r
+
+Table 1: Relationships among the measures of a generalized hyperbolic conical circle. 
+
+Definition 2.3 (Generalized circle configuration) . Let n ≥ 3 be an integer. A collection P0 = {C01 , C 02 , . . . , C 0
+
+> n
+
+} of n generalized circles on H2 is called a generalized circle configuration if it satisfies the following conditions: 
+
+9Figure 3: Generalized circle configuration and induced hyperbolic polygon. 
+
+(H1) Tangency: For each i ∈ Z/n Z, the circles C0 
+
+> i
+
+and C0 
+
+> i+1
+
+are externally tangent at a point T 0 
+
+> i
+
+, and C0 
+
+> i
+
+∩ C0 
+
+> i+1
+
+= {T 0 
+
+> i
+
+}.(H2) Simplicity: The configuration P0 is simple, i.e., C0 
+
+> i
+
+∩C0 
+
+> j
+
+= ∅ for |i−j| > 1
+
+(modulo n), and no three circles meet at a common point. (H3) Convexity: The configuration P0 bounds a compact convex region P 0 
+
+> f
+
+⊂ H2
+
+with non-empty interior. (H4) There exists a ( regular ) hyperbolic circle CP that contains the tangent points between any two of Ci’s and is perpendicular to all Ci’s. The hy-perbolic circle CP is called the dual circle of {Ci}ni=1 .
+
+We emphasize that CP in the previous definition is a regular hyperbolic cir-cle, for which there is no singularity at the center. Figure 3 shows a generalized circle configuration. 
+
+Definition 2.4 (Induced hyperbolic polygon by a generalized circle configu-ration) . Let {Ci}ni=1 be a generalized circle configuration. The blue region on Figure 3 is a hyperbolic polygon induced by this configuration, which we denote by Pf . More precisely, the vertices and edges of Pf are obtained as follows. (1) Given i ∈ { 1, · · · , n }, if Ci is a conical hyperbolic circle or horocycle, the center of Ci is a vertex of Pf ; if Ci is a hypercycle, both endpoints of the axis of Ci are vertices of Pf and both are viewed as the centers of this hypercycle. (2) The edges of Pf are comprised of the hyperbolic geodesics connecting the centers of any two tangent circles and the hyperbolic geodesics connecting both centers of each hypercycle. 
+
+Lemma 2.5 ([20]) . Given a vector k = ( k1, · · · , k n) ∈ (R+)n, there exists a unique generalized circle configuration (up to isometry under hyperbolic metric) such that the geodesic curvature of Ci is equal to ki for i = 1 , · · · , n .
+
+Therefore, we denote by k = ( k1, · · · , k n) the generalized circle configuration 
+
+{Ci}ni=1 such that the geodesic curvature of Ci is ki for each i = 1 , · · · , n .10 2.2 Generalized circle packing associated with polygonal decomposition of surface 
+
+Let Sg,n be a compact oriented topological surface of genus g having n holes. 
+
+Definition 2.6 (Finite polygonal cellular decomposition) . Let V , E and F
+
+be finite collections of 0-cells, 1-cells and 2-cells on Sg,n respectively. We call 
+
+D = {V, E, F } a finite polygonal cellular decomposition of Sg,n if the following conditions are satisfied: (I) Each 0-cell of V is an endpoint of at least three 1-cells. (II) Any two 1-cells of E do not intersect, except possibly at endpoints. (III) The boundary of each 2-cell of F is composed of at least three 1-cells of 
+
+E; whenever two 2-cells of F intersect, the intersection is a 1-cell in E;the union of all 2-cells is equal to Sg,n .(IV) Every boundary of Sg,n contains at least three 0-cells of V .
+
+Note that Condition (IV) is required for any finite polygonal cellular decom-positions considered in this paper. It is clear that when D = {V, E, F } is a finite polygonal cellular decomposition of Sg,n , the union of all 1-cells of E, called the 1-skeleton of D and denoted by GD , is a simple graph on Sg,n , which means that the graph does not contain a loop or two edges between any two vertices. 
+
+Definition 2.7 (Generalized hyperbolic conical circle packing) . With the same notation as introduced in Definition 2.6, by a generalized hyperbolic conical circle packing associated with D we mean a collection {Cv }v∈V of generalized hyper-bolic conical circles such that the circles centered at the vertices of each face form a generalized circle configuration. 
+
+Given a geodesic curvature vector k = ( k1, k 2, · · · , k |V |) ∈ (R+)|V |, one may construct a generalized circle packing through the following two steps. 1. For each face f ∈ F with m vertices i1, i 2, · · · , i m ∈ V , we apply Lemma 2.5 to obtain a generalized circle configuration with geodesic curvatures of circles equal to ki1 , k i2 , · · · , and kim respectively. We denote the cor-responding hyperbolic polygon by Pf .2. For each vertex v ∈ V , we take the angle at v to be the sum of the measures of the angles of those Pf ’s with v as a vertex. Figure 4 shows a portion of a generalized hyperbolic conical circle packing on a surface with boundary. Pairs of concentric circles (one solid circle and one dotted circle) represent hypercycles. The red points on the figure represent the centers of horocycles and hence the circles with red points inside represent horo-cycles. The blue points represent the centers of hyperbolic circles. By gluing the hyperbolic polygons along their adjacent edges, a hyperbolic structure asso-ciated with the graph GD is introduced on Sg,n , which is uniquely determined by k up to isometry. There are possible singularities at some vertices. 11 Figure 4: A portion of a generalized hyperbolic conical circle packing on a surface with boundary. 
+
+Definition 2.8 (Generalized hyperbolic conical circle packing metric) . Let 
+
+{Cv }v∈V be a generalized hyperbolic conical circle packing associated with D.One can construct a hyperbolic surface ˜S = ˜S(k), with possible singularities at vertices, by gluing the hyperbolic polygons of the generalized circle configurations associated with the faces along their adjacent edges. The corresponding metric is called a generalized hyperbolic conical circle packing metric. 
+
+## 2.3 Generalized star 
+
+Figure 5: The generalized star at a vertex v. Given an interior vertex v, there is an ordered chain of faces {f1, · · · , f n}
+
+surrounding it. Let fn+1 = f1. All faces in the chain have v as a vertex and fi is contiguous to fi+1 for each 1 ≤ i ≤ n. Associated with each chain of faces, there is a corresponding chain of hyperbolic polygons {P1, · · · , P n} for a generalized hyperbolic conical circle packing underlying the graph G. The union of the 12 hyperbolic polygons of the chain around a vertex v is called the generalized star at the vertex v. The vertex v is possibly the center of a hyperbolic circle, horocycle or hypercycle. Keep in mind that in the case of a hypercycle, we view its axis as its center. Three different examples of generalized stars are shown in Figure 5. 
+
+# 3 Local variation formulas and monotonicity 
+
+In this section, we develop several lemmas which are applied to prove our theorems. These lemmas show how the hyperbolic structures are affected when the geodesic curvatures are changed. 
+
+Figure 6: The quadrilateral. 
+
+## 3.1 Dual circle and partial derivatives 
+
+Lemma 3.1. Let k and kP be the geodesic curvatures of two generalized cir-cles C and CP that intersect perpendicularly, k ∈ (0 , +∞) and kP ∈ (1 , +∞).Connecting the centers of the generalized circles with the intersection points by geodesics, we obtain a generalized quadrilateral (as shown in Figure 6). Denote by θ the angle of the intersection part viewed from the center of CP , by α the angle of the intersection part viewed from the center of C when C is a circle or horocycle, and by β the portion on the axis of C as shown in Figure 6 when C
+
+is a hypercycle. Then θ(k, k P ) is a differentiable function of k ∈ (0 , +∞) and kP ∈ (1 , +∞);
+
+α(k, k P ) is a differentiable function of k ∈ (1 , +∞) and kP ∈ (1 , +∞); β(k, k P )
+
+is a differentiable function of k ∈ (0 , 1) and kP ∈ (1 , +∞). Moreover, 
+
+(a) ∂θ ∂k P
+
+= 2kP k
+
+pk2 
+
+> P
+
+− 1 ( k2 + k2 
+
+> P
+
+− 1) > 0,
+
+(b) ∂θ ∂k = − 2pk2 
+
+> P
+
+− 1
+
+k2 + k2 
+
+> P
+
+− 1 < 0,
+
+(c) ∂α ∂k P
+
+= − 2√k2 − 1
+
+k2 
+
+> P
+
++ k2 − 1 < 0 when k ∈ (1 , +∞),
+
+(d) ∂β ∂k P
+
+= − 2√1 − k2
+
+k2 
+
+> P
+
++ k2 − 1 < 0 when k ∈ (0 , 1) .
+
+(3) 13 Proof. This lemma is deduced from the four-part formula on a quadrilateral. The first two expressions are obtained in Lemma 2.1 of [20]. Since the partial differences are continuous, the function θ(k, k P ) is differentiable. Here, we focus on proving the last two expressions. 
+
+Case one: k ∈ (1 , +∞). Then k = coth r.By the law of the hyperbolic triangle, we obtain cot α
+
+2 = coth rP sinh r = kP
+
+√k2 − 1 (4) Therefore, 
+
+α(k, k P ) = 2arccot kP
+
+√k2 − 1 , where k ∈ (1 , +∞).
+
+Differentiating the left and right sides of the equation (4) with respect to kP ,we obtain 
+
+− 12 sin 2 α
+
+> 2
+
+∂α ∂k P
+
+= 1
+
+√k2 − 1 .
+
+Thus, 
+
+∂α ∂k P
+
+= − 2√k2 − 1
+
+k2 
+
+> P
+
++ k2 − 1 < 0, where k ∈ (1 , +∞).
+
+Case two: k ∈ (0 , 1). Then k = tanh r.By the formula of a hyperbolic pentagon, coth β
+
+2 = coth rP · cosh r = kP
+
+√1 − k2 . (5) Therefore, 
+
+β(k, k P ) = 2arccot h kP
+
+√1 − k2 , where k ∈ (0 , 1) .
+
+Differentiating the left and right sides of the equation (5) with respect to kP ,we obtain 
+
+− 12 sinh 2 β
+
+> 2
+
+∂β ∂k P
+
+= 1
+
+√1 − k2 .
+
+Thus, 
+
+∂β ∂k P
+
+= − 2√1 − k2
+
+k2 
+
+> P
+
++ k2 − 1 < 0, where k ∈ (0 , 1) .
+
+## 3.2 Facewise monotonicity of interstice curvature and area 
+
+Lemma 3.2 ([20]) . Let {Ci}ni=1 be a generalized circle configuration and denote by ki the geodesic curvature of Ci, where ki ∈ R+, i = 1 , · · · , n . Denote by kP
+
+(> 1) the geodesic curvature of the circle CP perpendicular to all Ci. Then kP
+
+is a C1 continuous function of (k1, · · · , k n), and kP is strictly increasing on 
+
+ki for each i = 1 , · · · , n .
+
+14 Proof. Denote by CiP the part of CP that lies in the circle Ci and by θi the angle of CiP viewed from the center of CP , i = 1 , 2, · · · , n (see Figure 7). Then 
+
+> n
+
+X
+
+> i=1
+
+θi = 2 π. (6) By Lemma 3.1, θi is a smooth function of ki and kP for each 1 ≤ i ≤ n. Applying the implicit differentiation and Lemma 3.1 (a) and (b), we obtain 
+
+∂k P
+
+∂k i
+
+= −
+
+> ∂θ i
+> ∂k i
+
+Pnj=1 
+
+> ∂θ j
+> ∂k P
+
+=
+
+√k2   
+
+> P−1
+> k2
+> P+k2
+> i−1
+
+Pnj=1  
+
+> kPkj
+
+(k2  
+
+> P+k2
+> j−1
+
+)√k2 
+
+> P−1
+
+> 0. (7) Thus, kP increases strictly on ki for each i = 1 , · · · , n .
+
+Figure 7: Dual circle kP and the angles θi, i = 1 , 2, · · · , n , of the edges of Ω f
+
+viewed from the center of kP .
+
+Remark 3.3. Using the equation (6) and the expression of θi in terms of ki
+
+and kP for each 1 ≤ i ≤ n, one can derive that kP is a positive real root of the following equation:   
+
+> [n−12]
+
+X
+
+> m=0
+
+(−1) mSn−1−2m(k2 
+
+> P
+
+− 1) m = 0 , n ≥ 3, (8) 
+
+where 
+
+S0 = 1 and St = X
+
+> 1≤i1<··· <i t≤n
+
+ki1 · · · kit for t = 1 , · · · , n. 
+
+We show how the equation (8) is obtained in Appendix 8.1. 
+
+Let P be a generalized hyperbolic conical circle packing on the surface S
+
+with boundary. Then P induces a finite polygonal decomposition D on S, which induces a simple graph GD = {VD , E D , F D } on S, where VD , E D , F D represent the vertices, edges and faces of the graph, respectively. 15 Figure 8: The interstice Ω f corresponding to the face f .
+
+Lemma 3.4 (Partial derivatives, [18]) . Let {C1, · · · , C n} be a generalized circle configuration with geodesic curvatures equal to k1, k 2, · · · , k n ∈ R+ respectively, and let Ωf be the interstice bounded by this circle configuration (which is a hyperbolic polygon as shown in Figure 8). Denote by Ti,P the total geodesic curvature of the edge of Ωf lying on Ci, where 1 ≤ i ≤ n. Then 
+
+(a)
+
+∂
+
+Pnj=1 Tj,P 
+
+
+
+∂k i
+
+> 0, 1 ≤ i ≤ n. 
+
+(b) ∂T j,P 
+
+∂k i
+
+< 0, ∀ i̸ = j. 
+
+(c) ∂T i,P 
+
+∂k i
+
+> 0, 1 ≤ i ≤ n. 
+
+(d) ∂ Area (Ω f )
+
+∂k i
+
+< 0, 1 ≤ i ≤ n. 
+
+(9) For a vertex v ∈ V ◦, denote by Pi, i = 1 , · · · , n the induced hyperbolic polygons by the packing P that take v as a vertex, and denote by CPi the corresponding dual circles contained in Pi for i = 1 , · · · , n . All the vertices of all Pi’s except v are called the neighboring vertices of v. Note that in the case of a hypercycle, all vertices of Pi’s on its axis are viewed as the center of that hypercycle or the vertex of the graph corresponding to that hypercycle. Figure 9 shows an example for the neighboring vertices of a vertex and the dual circles surrounding this vertex. From the previous lemma, we obtain the following monotonicity lemma. 
+
+Lemma 3.5. Let v be an interior vertex of a generalized circle packing P with neighboring faces f1, . . . f n. Let k be the geodesic curvature of the generalized circle centered at v and let kj , j = 1 , · · · , q , be the geodesic curvatures of the neighboring vertices vj of v, where by a neighboring vertex of v we mean a vertex, except v, of a face with v as a vertex. Denote by Ωfi the interstice corresponding to the face fi. The total geodesic curvature T of the circle centered at v is a continuous function of (k, k 1 · · · kq ), which we denote by 
+
+T = T (k, k 1 · · · kq ) .
+
+16 Figure 9: Neighboring vertices and surrounding dual circles for a vertex. 
+
+Then (a) T is strictly increasing with k;(b) T is strictly decreasing with each of kj , j = 1 , · · · , q ;(c) Pni=1 Area (Ω fi ) is strictly decreasing with each of k and kj , j = 1 , · · · , q .
+
+## 3.3 Edge-angle monotonicity for generalized convex hy-perbolic polygons 
+
+Lemma 3.6. Let P be a convex hyperbolic polygon on the hyperbolic plane with its edges labeled by e1, e 2, · · · , e n in the counterclockwise order satisfying that any two adjacent edges ei and ei+1 meet at a point vi+1 at angle αi+1 or have a common perpendicular geodesic arc βi+1 between them (called a hyper-edge ), where i = 1 , 2, · · · , n and n + 1 = 1 . We call vi or βi the vertices of P , which we collectively denote by I1, I 2, . . . , I n in the counterclockwise order. We call αi
+
+or βi the generalized interior angles of P , and also let αi (resp. βi) denote its measure. See Figure 24) for an example. Denote the length of ei by ℓi and assume that αi ∈ (0 , π ) and βi > 0, where 
+
+i = 1 , 2, · · · , n . The length ln of the edge en is uniquely determined by the lengths 
+
+l1, . . . , l n−1 of the other edges and the measures of the generalized interior angles 
+
+I2, I 3, . . . , I n−1. Consider the deformations of P that preserve the lengths of the edges e1, e 2, · · · , e n−1 and the nature of the generalized interior angles (that is, each vertex changes to a vertex and each hyper-edge changes a hyper-edge). Then ℓn, regarded as a function of the measures of I2, I 3, . . . , I n−1, is strictly increasing with respect to the measure of each Ii, where i = 2 , . . . , n − 1.Proof. From the viewpoint of geometry, we see that for the deformations of 
+
+P considered in this lemma, ℓn is a function of the measures of the edges 
+
+e1, e 2, · · · , e n−1 and the measures of I2, I 3, . . . , I n−1. The explicit relation-ship under which ℓn is determined by ℓ1, ℓ 2, · · · , ℓ n−1 and the measures of 
+
+I2, I 3, . . . , I n−1 is given in the appendix 8.2. To prove monotonicity, we draw several auxiliary geodesic lines to decompose the polygon P into a union of triangles or quadrilaterals. By analyzing how the 17 Figure 10: Decompositions of a hyperbolic polygon. side lengths of each triangle or quadrilateral vary with Ii’s, we see how the length of ln changes with respect to the measure of each Ii.There are two cases to consider. In one case, we assume that some Ii = αi is increased and the others Ij ’s, 
+
+j̸ = i and 2 ≤ j ≤ n − 1, remain the same. We consider the auxiliary triangle shown on the left figure on Figure 10. By the cosine law for hyperbolic triangles, cosh ln = cosh l1 cosh l2 − sinh l1 sinh l2 cos α, (10) Differentiating with respect to α, we obtain 
+
+∂ℓ n
+
+∂α = sinh l1 sinh l2 sin α
+
+sinh ℓn
+
+> 0. (11) We know that ln increases with α. Since the other Ij ’s, j̸ = i, are unchanged, using Lemma 3.6 in the two polygons on the left and right sides of the auxiliary triangle, the lengths of the edges l1 and l2 remain the same and αi − α remains the same as well. Thus, α increases with αi. Therefore, ln increases with αi.In the other case, we suppose that some Ii = βi is increased and the others 
+
+Ij ’s, j̸ = i and 2 ≤ j ≤ n − 1, are unchanged. We consider the quadrilateral shown on the right figure on Figure 10. Since the other Ij ’s, j̸ = i, are not changed, the lengths of l1 and l2 and the angles α1 and α2 are not changed. By the hyperbolic distance formula (55), we obtain cosh ln = cosh βi cosh l1 cosh l2
+
+− sinh βi
+
+ sinh l1 cosh l2 cos α1 + cosh l1 sinh l2 cos α2
+
++ sinh l1 sinh l2  cosh βi cos α1 cos α2 − sin α1 sin α2 (12) Differentiating equation (12) with respect to βi, we obtain 
+
+∂l n
+
+∂β i
+
+= sinh βi cosh l1 cosh l2 + sinh l1 sinh l2 sinh βi cos α1 cos α2
+
+sinh ln
+
+− cosh βi
+
+ sinh l1 cosh l2 cos α1 + cosh l1 sinh l2 cos α2
+
+sinh ln
+
+.
+
+(13) Set tanh u1 = tanh l1 cos α1, tanh u2 = tanh l2 cos α2. Then 
+
+∂l n
+
+∂β i
+
+= cosh l1 cosh l2
+
+sinh ln cosh u1 cosh u2
+
+sinh  βi − u1 − u2
+
+. (14) 18 Next, we prove that βi − u1 − u2 > 0 using the geometric meaning of uj , j =1, 2. 
+
+Figure 11: The polygon P with transformation. Let A1, A 2 be the endpoints of the hyper-edge βi and g be the complete geodesic containing βi, oriented from A1 to A2. Denote by H1 and H2 the orthogonal projections of v1 and vn onto g, respectively (see Figure 11 (a)). We denote ℓ(Aj , H j ) as the Signed distance from Aj to Hj , j = 1 , 2. In triangles ∆v1A1H1 and ∆ vnA2H2, we have tanh ℓ(A1, H 1) = tanh l1 cos α1, tanh ℓ(A2, H 2) = tanh l2 cos α2.
+
+Therefore, uj = ℓ(Aj , H j ), j = 1 , 2, and βi − u1 − u2 is the signed distance from H1 to H2. By applying a M¨ obius transformation to the polygon P , we map the point A1 to the center of the Poincar´ e disk. Under this mapping, the geodesic g becomes a straight line in the disk, and the geodesic containing the side li−1 likewise becomes a straight line which perpendicular to g. Furthermore, 
+
+v1H1 and v1H2 are also two geodesics perpendicular to g. From the convexity of the polygon P , it follows that the four points appear on g in the order 
+
+A1, H 1, H 2, A 2(see Figure 11 (b)). Therefore, βi − u1 − u2 > 0. Consequently, with l1, l 2, α 1, α 2 fixed, the opposite side length ln is strictly increasing as a function of the hyper-edge length βi, i.e. 
+
+∂l n
+
+∂β i
+
+> 0.
+
+19 4 Length comparison under deformed general-ized circle configurations 
+
+## 4.1 Continuity of segment length under deformation 
+
+Lemma 4.1 (Continuity of geodesic arc length under deformation) . Let P =
+
+{C1, C 2, . . . , C n} be a generalized circle configuration with circles arranged in the counterclockwise order (see Definition 2.3), and let Pf be the induced hyperbolic polygon. Assume that γ is a geodesic on Pf that transversely intersects the boundary of Pf at two points y1 and y2 (see the blue segment on Figure 12 as an example). We assume that yi lies on the edge eji,j i+1 connecting the vertices 
+
+vji and vji+1 and tji is the tangent pint of the circles centered at vji and vji+1 ,and we further assume that yi lies on the geodesic arc between vji and tji , where 
+
+i = 1 , 2. Additionally, yi does not coincide with the center of the horocycle. Let Pm = {Cm 
+
+> 1
+
+, C m 
+
+> 2
+
+, . . . , C mn }, m = 1 , 2, · · · , be a sequence of generalized circle configurations with the curvature kmi of Cmi converging to the curvature ki of Ci
+
+as m goes to ∞ for each i = 1 , 2, · · · , n , let P mf be the induced hyperbolic polygon of Pm and ym 
+
+> 1
+
+and ym 
+
+> 2
+
+be the deformations of y1 and y2 respectively. That is, 
+
+ymi lies on the same side of tmji as yi does with respect to tji , and its distance to tmji equals that from yi to tji , where vmji and tmji are defined analogously to vji
+
+and tji , where i = 1 , 2. Let γm be the geodesic segment connecting ym 
+
+> 1
+
+and ym 
+
+> 2
+
+.Then 
+
+ℓ(γm) = d(ym 
+
+> 1
+
+, y m 
+
+> 2
+
+) → ℓ(γ) = d(y1, y 2) as m → ∞ .
+
+Figure 12: The approximal of horocycle. 20 Proof. Without loss of generality, we assume that yi (resp. ymi ) lies on the geodesic arc between vji and tji (resp. vji and tmji ), where i = 1 , 2 (see Figure 12). For the sake of using uniform notation to define more items, we let P0 = P.For each configuration Pm, we construct a continuous path Γ m connecting 
+
+ym 
+
+> 1
+
+and ym 
+
+> 2
+
+, where m = 0 , 1, 2, · · · .Let ηmi ⊂ emji,j i+1 ⊂ ∂P mf be the boundary segment from ymi to the tangent point tmji , where i = 1 , 2, and let σm be the arc on the dual circle between the two tangent points tmj1 and tmj2 (see Figure 12). Define Γ m = ηm 
+
+> 1
+
+∪ σm ∪ ηm 
+
+> 2
+
+.Upon post-compositions by M¨ obius transformations, we may assume that the dual circles of Pm, m = 0 , 1, 2, · · · , are arranged at the same position on the hyperbolic plane H and the tangent points tmj1 , m = 0 , 1, 2, · · · , are arranged at the same point. Each component of Γ m is a compact subset of H2, where m = 0 , 1, 2, · · · .Since km = ( km 
+
+> 1
+
+, k m 
+
+> 2
+
+, · · · , k mn ) approaches k = ( k1, k 2, · · · , k n) as m → ∞ , from Lemma 3.2 it follows that σm (resp. ηm 
+
+> 1
+
+, ηm 
+
+> 2
+
+) converges to σ0 (resp. η01 , η02 ) in the Hausdorff topology on H2. Thus, Γ m → Γ converges to Γ 0 in the Hausdorff topology on H2 as m → ∞ . Then the endpoints ym 
+
+> 1
+
+and ym 
+
+> 2
+
+of Γ m converge to the endpoints y01 = y1 and y02 = y2 of Γ 0 as m → ∞ . Therefore, the hyperbolic distance between ym 
+
+> 1
+
+and ym 
+
+> 2
+
+converges to the distance between y1 and y2 as 
+
+m → ∞ .
+
+## 4.2 A uniform derivative estimate near horocycles 
+
+Lemma 4.2 (Uniform negative derivative estimate) . Let 
+
+Pκ = {C1, C 2, . . . , C n}, κ ∈ K = [ k1, ek1] ⋐ (0 , +∞),
+
+be a C1-family of generalized circle configurations satisfying (H1) –(H4) in Defi-nition 2.3. We assume that the geodesic curvature of C1 is κ, while the geodesic curvatures of C2, . . . , C n are independent of κ.Let γκ be a geodesic segment that meets the hypotheses of Lemma 4.1. Thus, 
+
+γκ intersects the induced hyperbolic polygon of Pκ transversely at two points, and these intersection points do not coincide with the ideal centers of horocycles. Let 
+
+P ∗ 
+
+> κ
+
+and P∗,κ be the two subpolygons cut out by γκ, where P ∗ 
+
+> κ
+
+contains the vertex corresponding to C1 and P∗,κ does not. After a cyclic relabeling, write the part of ∂P ∗,κ \γκ as lying on the generalized circles 
+
+Cj1+1 , C j1+2 , . . . , C j2 ,
+
+where the indices are understood as modulo n. Let 
+
+Q = {q1, . . . , q s} ⊂ { j1 + 1 , . . . , j 2}
+
+be the set of indices for which Cq is a horocycle, or equivalently kq = 1 .For each m ≥ 1, let 
+
+Pmκ = {Cm 
+
+> 1
+
+, C m 
+
+> 2
+
+, . . . , C mn }
+
+21 be a generalized circle configuration such that 
+
+k1m = κ, kmj = kj for j / ∈ Q, j ̸ = 1 ,
+
+and, for every q ∈ Q,
+
+kmq ∈ (1 , +∞), kmq → 1 as m → ∞ .
+
+In particular, Pm 
+
+> ∗,κ
+
+has no horocycle on ∂P m 
+
+> ∗,κ
+
+\ γmκ , and 
+
+Pm 
+
+> ∗,κ
+
+−→ P κ1
+
+uniformly for k1 ∈ K.Let γmκ be the deformation of γκ in Pmκ in the sense of Lemma 4.1, and set 
+
+ℓm(κ) := ℓ(γmκ ).
+
+Assume that the limiting family is uniformly non-degenerate on K; that is, the endpoints of γmκ remain in a compact subset of H2 after normalization, do not converge to the ideal centers of horocycles, and the auxiliary triangles and quadrilaterals used in the decomposition of P m 
+
+> ∗,κ
+
+have non-degenerate limits. Then there exist constants m0 ∈ N and c > 0, independent of m and κ, such that dℓ m
+
+dκ (κ) ≤ − c < 0, m ≥ m0, κ ∈ K. 
+
+If 1 ∈ K, the derivative at κ = 1 is understood in the corresponding one-sided sense; equivalently, the estimate holds on K ∩ (0 , 1) and on K ∩ (1 , +∞), and extends to κ = 1 by the one-sided limits. Proof. For simplicity, write 
+
+kmP = kmP (κ)for the geodesic curvature of the dual circle of the configuration Pmκ . Let 
+
+J = {j1 + 1 , j 1 + 2 , · · · , j 2}
+
+be the set of indices corresponding to the generalized circles on ∂P m 
+
+> ∗,κ
+
+\ γmκ , with the indices understood modulo n. For j ∈ J , denote by 
+
+Imj = Imj (κ)the corresponding generalized interior angle of P m 
+
+> ∗,k 1
+
+. Thus Imj = αmj if Cmj is a hyperbolic circle, and Imj = βmj if Cmj is a hypercicle. Since the subpolygon 
+
+P m 
+
+> ∗,k 1
+
+does not contain the vertex corresponding to C1, the parameter κ enters the generalized interior angles Imj only through the dual curvature kmP . Hence the chain rule gives 
+
+dℓ m
+
+dκ = X
+
+> j∈J
+
+∂ℓ m
+
+∂I mj
+
+∂I mj
+
+∂k mP
+
+∂k mP
+
+∂κ . (15) 22 By Lemma 3.6, ∂ℓ m
+
+∂I mj
+
+> 0. (16) By Lemma 3.2, ∂k mP
+
+∂κ > 0.
+
+More explicitly, by equation (7), we have 
+
+∂k P
+
+∂κ = (kmP )2 − 1(kmP )2 + κ2 − 1
+
+
+
+> n
+
+X
+
+> j=1
+
+kmP kmj
+
+(kmP )2 + ( kmj )2 − 1
+
+
+
+> −1
+
+. (17) Since κ ∈ K ⋐ (0 , +∞) and the limiting family is non-degenerate, the dual curvatures kP (κ) remain in a compact subinterval of (1 , +∞). Hence, there exists a constant a0 > 0 such that 
+
+∂k mP
+
+∂κ ≥ a0 > 0 (18) for all sufficiently large m and all κ ∈ K.We now analyze the remaining product 
+
+∂ℓ m
+
+∂I mj
+
+∂I mj
+
+∂k mP
+
+.
+
+First let j ∈ J \ Q. Then kmj = kj̸ = 1. If kj > 1, then Imj = αmj , and Lemma 3.1 gives 
+
+∂α mj
+
+∂k mP
+
+= −
+
+2
+
+q
+
+k2 
+
+> j
+
+− 1(kmP )2 + k2 
+
+> j
+
+− 1 < 0. (19) If 0 < k j < 1, then Imj = βmj , and Lemma 3.1 gives 
+
+∂β mj
+
+∂k mP
+
+= −
+
+2
+
+q
+
+1 − k2
+
+> j
+
+(kmP )2 + k2 
+
+> j
+
+− 1 < 0. (20) Since kmP ranges in a compact subinterval of (1 , +∞), and since the family is uniformly non-degenerate, the quantities 
+
+∂ℓ m
+
+∂I mj
+
+∂I mj
+
+∂k mP
+
+are uniformly bounded above by a negative constant for every fixed j ∈ J \ Q.It remains to consider the indices q ∈ Q, for which Cq is a horocycle in the limiting configuration. In the present lemma we approximate these horocycles only by hyperbolic circles. Thus 
+
+kmq > 1, kmq → 1+.
+
+23 The important point is that the angle appearing in the chain rule is the whole angle of the piece of Cmq contained in ∂P m 
+
+> ∗,κ
+
+\ γmκ . We denote this angle by 
+
+Imq = αmq .
+
+Since αmq = Imq is the angle determined by the dual circle, Lemma 3.1 gives cot αmq
+
+2 = kmP
+
+q
+
+(kmq )2 − 1
+
+. (21) Therefore 
+
+∂I mq
+
+∂k mP
+
+= ∂α mq
+
+∂k mP
+
+= −
+
+2
+
+q
+
+(kmq )2 − 1(kmP )2 + ( kmq )2 − 1 = − 2kmP tan( αmq /2) (kmP )2 + ( kmq )2 − 1 . (22) In particular, αmq → 0 uniformly for κ ∈ K.
+
+Figure 13: The auxiliary hyperbolic triangle in Pmκ and Pκ.Next, we estimate ∂ℓ m/∂I mq by considering Imj , j ∈ J , as independent vari-ables of ℓm and temporarily fixing Imj , j ∈ J \ { q}. In the auxiliary triangle at 
+
+Cmq (see Figure 13), we define αm′ 
+
+> q
+
+as the angle opposite to the side ℓm. Let 
+
+αmq, 1 and αmq, 2 be the two remaining angle portions adjacent to the endpoints of 
+
+γmκ on Cmq . Thus, 
+
+Imq = αmq = αm′ 
+
+> q
+
++ αmq, 1 + αmq, 2. (23) Let lmq, 1 and lmq, 2 be the two sides adjacent to αm′ 
+
+> q
+
+, and let θmq, 1 and θmq, 2 be the other two angles. The opposite side of αm′ 
+
+> q
+
+is ℓm.Applying Lemma 3.6 to the remaining two hyperbolic polygons, we know the lengths of lmq, 1 and lmq, 2 and the values of αmq, 1 and αmq, 2 are also temporarily fixed. Thus, ∂α m′ 
+
+> q
+
+/∂I mq = 1. Combined with the hyperbolic cosine law, we obtain ∂ℓ m
+
+∂I mq
+
+= ∂ℓ m
+
+∂α m′
+
+> q
+
+= sinh lmq, 1 sinh lmq, 2 sin αm′
+
+> q
+
+sinh ℓm
+
+. (24) Using the hyperbolic sine law in the same triangle, sinh ℓm
+
+sin αm′
+
+> q
+
+= sinh lmq, 1
+
+sin θmq, 2
+
+= sinh lmq, 2
+
+sin θmq, 1
+
+,
+
+24 we obtain ∂ℓ m
+
+∂I mq
+
+= sin θmq, 1 sin θmq, 2 sinh ℓm
+
+sin αm′
+
+> q
+
+. (25) Combining (22) and (25), we obtain the corrected product formula 
+
+∂ℓ m
+
+∂I mq
+
+∂I mq
+
+∂k mP
+
+= − sin θmq, 1 sin θmq, 2 sinh ℓm
+
+sin αm′
+
+> q
+
+· 2kmP tan( αmq /2) (kmP )2 + ( kmq )2 − 1 . (26) We now show that the right-hand side of (26) is bounded above by a negative constant, uniformly in m and κ. Since the limiting family is uniformly non-degenerate, there exist constants s0, L 0 > 0 such that, for all sufficiently large 
+
+m and all κ ∈ K,sin θmq, 1 ≥ s0, sin θmq, 2 ≥ s0, sinh ℓm ≥ L0. (27) Moreover, the dual curvatures kmP remain in a compact subinterval [ p0, p 1] ⋐
+
+(1 , +∞), and kmq → 1+. Hence, for all sufficiently large m,0 < p 0 ≤ kmP ≤ p1, (kmP )2 + ( kmq )2 − 1 ≤ p21 + 1 . (28) Finally, by (23), 0 < α m′ 
+
+> q
+
+≤ αmq . Since αmq → 0 uniformly, for all sufficiently large m we have 0 < α mq < π/ 2 and 0 < α m′ 
+
+> q
+
+< π/ 2. Therefore, 2 tan( αmq /2) sin αm′
+
+> q
+
+≥ αmq
+
+αm′
+
+> q
+
+≥ 1. (29) Using (27), (28), and (29) in (26), we get 
+
+∂ℓ m
+
+∂I mq
+
+∂I mq
+
+∂k mP
+
+≤ − s20L0p0
+
+p21 + 1 =: −bq < 0 (30) for all sufficiently large m and all κ ∈ K.If Q̸ = ∅, choose one q0 ∈ Q and set b = bq0 . Since all terms in the sum 
+
+X
+
+> j∈J
+
+∂ℓ m
+
+∂I mj
+
+∂I mj
+
+∂k mP
+
+are non-positive, (30) implies 
+
+X
+
+> j∈J
+
+∂ℓ m
+
+∂I mj
+
+∂I mj
+
+∂k mP
+
+≤ − b < 0. (31) If Q = ∅, then the compact-away-from-1 argument above gives the same con-clusion for some index j0 ∈ J .Combining (15), (17), and (31), we obtain 
+
+dℓ m
+
+dκ (κ) ≤ − a0b < 0.
+
+25 Taking c = a0b proves that 
+
+dℓ m
+
+dκ (κ) ≤ − c < 0, m ≥ m0, κ ∈ K, 
+
+for some m0 ∈ N. This completes the proof. 
+
+## 4.3 Monotonicity of geodesic segments under curvature change 
+
+Lemma 4.3 (Monotonicity of geodesic arc length under curvature change) . Let 
+
+P = {C1, . . . , C n} and eP = { eC1, . . . , eCn} be two generalized circle configurations satisfying hypotheses (H1) –(H4) in Definition 2.3. Let ki and ˜ki denote the geodesic curvatures of Ci and eCi, respectively. Assume that ˜ki ≥ ki for all 
+
+i = 1 , . . . , n , and there exists at least one index 1 ≤ j ≤ n such that ˜kj > k j .Let Pf and ePf be the induced hyperbolic polygons. Let γ ⊂ Pf and ˜γ ⊂
+
+ePf be geodesic segments transversely intersecting the respective boundaries at points y1, y 2 and ˜y1, ˜y2. Assume that yi and ˜yi lie on the edges corresponding to the same index, and does not coincide with the center of the horocycle. Let their hyperbolic distances to the adjacent tangent points are preserved; that is, 
+
+d(yi, t ji ) = d(˜ yi, etji ) for i = 1 , 2.Then the length of ˜γ is strictly less than the length of γ; that is, ℓ(˜ γ) < ℓ (γ).Proof. Without loss of generality, we may assume that there are only one pair of circles in the two circle configurations are given different curvatures, say C1
+
+and ˜C1; that is, we may assume that ek1 > k 1 and ˜ki = ki for i = 2 , . . . , n .For the general case where the geodesic curvatures at several vertices vary, the result follows by iterating this argument and invoking the transitivity of the inequality. 
+
+Figure 14: The construction of polygons P ∗ (P∗) and ˜P ∗ ( ˜P∗). 
+
+Step 1: The case where no horocycle appears except possibly C1.
+
+Firstly, we assume that ki = ˜ki ∈ (0 , 1) ∪ (1 , +∞) for i = 2 , · · · , n . The geodesic 
+
+γ (resp. ˜γ) divides Pf (resp. ˜Pf ) into two compact subpolygons with disjoint 26 interiors. Let P ∗ (resp. ˜P ∗) denote the subpolygon whose boundary consists of γ (resp. ˜ γ) together with the portion of the boundary of Pf (resp. ˜Pf ) that joins y1 to y2 (resp. ˜ y1 to ˜ y2) and contains the vertex v1 (resp. ˜ v1). Moreover, let P∗ (resp. ˜P∗) denote another subpolygon whose boundary not containing v1.For example, Figure 14 shows P ∗ and ∂P ∗ = γ ∪ dy1y2∗ in the different cases, where dy1y2∗ represents the part of the boundary of P ∗ connecting y1 to y2 and through the vertices of Pf in the counterclockwise order (which containing v1). Similarly, ∂P ∗ = γ ∪ dy1y2∗, where dy1y2∗ represents the part of the boundary of 
+
+P∗ connecting y1 to y2 and through the vertices of Pf in the counterclockwise order (not containing v1). Pictures hold for show ˜P ∗ and ˜P∗.Consider the dual circle CP (resp. eCP ) associated with the configuration 
+
+P (resp. eP). By Lemma 3.2, the geodesic curvature kP of the dual circle is a strictly increasing function of each ki. Since ek1 > k 1, it follows that 
+
+k ˜P > k P .
+
+Then by Lemma 3.1, if the curvature kP of the dual circle increases, then each generalized interior angle Ii of Pf strictly decreases. Thus, ˜Ii < I i for each 
+
+i = 2 , · · · , n .Since only C1 varies, it follows that each edge of P∗ except γ has length equal to the corresponding edge of ˜P∗. From the above step, we have known that the interior angle between any two edges of ˜P∗ (not including γ) is strictly smaller than the corresponding interior angle of P∗. Using Lemma 3.6, we conclude 
+
+ℓ(˜ γ) < ℓ (γ).
+
+Figure 15: The cases with horocycles. 
+
+Step 2: The case when all the horocycles lie on the same side of γ as 
+
+v1.
+
+We now consider configurations containing horocycles. We define the sub-polygons P∗ and eP∗ as in Step 1. In this case, the subpolygon P∗ does not contain any horocycle center. (see Figure 15 (a)). Since P∗ does not contain v1, it contains no horocycle center, and the mono-tonicity follows by the same argument as in Step 1. By Lemma 3.2, Lemma 3.1 27 and Lemma 3.6, we have 
+
+ℓ(˜ γ) < ℓ (γ).
+
+Step 3: The general case with horocycles on both sides. Assume now that horocycles occur on both sides of γ.We define P∗ and eP∗ as subpolygons not containing the vertex corresponding to the varying generalized circle C1 (see Figure 15 (b)). Denote by K = [ k1, ek1]. Clearly, K ⊂ (0 , +∞). Approximate each horocycle contained in ∂P ∗ by a sequence of hyperbolic circles with curvature kmj that satisfies kmj → 1 as m → ∞ . For each m, let 
+
+P(m) 
+
+> κ
+
+, κ ∈ K, 
+
+be the resulting generalized circle configuration in which the curvature of C1 is 
+
+κ, while all other curvatures are fixed. Denote by γmκ the corresponding geodesic segment and put 
+
+ℓm(k1) := ℓ(γmκ ).
+
+By Lemma 4.2, there exist constants m0 ∈ N and c > 0 such that 
+
+dℓ m
+
+dκ (κ) ≤ − c < 0 for any m ≥ m0, and any κ ∈ K. 
+
+Therefore, for m ≥ m0, the fundamental theorem of calculus gives 
+
+ℓm(ek1) − ℓm(k1) = 
+
+Z ek1
+
+> k1
+
+dℓ m
+
+dκ (κ) dκ ≤ − c(ek1 − k1) < 0.
+
+By Lemma 4.1, the geodesic lengths converge when the approximating general-ized circles tend to the corresponding horocycles. Hence, letting m → ∞ , we obtain the following: 
+
+ℓ(eγ) − ℓ(γ) = lim 
+
+> m→∞
+
+ ℓm(ek1) − ℓm(k1) ≤ − c(ek1 − k1) < 0.
+
+Thus, 
+
+ℓ(eγ) < ℓ (γ),
+
+which means that the strict monotonicity of the geodesic length is preserved in the horocyclic limiting case. 
+
+Step 4: Multiple varying curvatures. 
+
+Recall the hypothesis of this lemma: ˜ki ≥ ki for all i = 1 , . . . , n , and there exists at least one index m ∈ { 1, . . . , n } such that ˜km > k m.To rigorously establish the strict decrease in geodesic length when multiple curvatures vary, we construct a finite sequence of intermediate generalized circle configurations P0, P1, . . . , Pn.Let P0 = P be the initial configuration with the curvature vector k(0) =(k1, k 2, . . . , k n). For each j ∈ { 1, 2, . . . , n }, we define the intermediate configu-ration Pj associated with the curvature vector k(j), where the first j components 28 are updated to the new curvatures, and the remaining components remain at their initial values: 
+
+k(j) = ( ek1, . . . , ekj , k j+1 , . . . , k n).
+
+Let γj denote the corresponding geodesic arc in the induced polygon for the configuration Pj . Note that Pn = ˜P is the final configuration, so γn = ˜ γ and 
+
+γ0 = γ.We analyze the transition from Pj−1 to Pj for each j = 1 , . . . , n . In this step, only the j-th curvature is modified (from kj to ˜kj ), while all other n − 1curvatures remain strictly fixed. 
+
+• If ˜kj = kj , the curvature vector does not change ( k(j) = k(j−1) ). The geometric configuration is identical, thus ℓ(γj ) = ℓ(γj−1). 
+
+• If ˜kj > k j , exactly one curvature strictly increases while all others are fixed. This exactly satisfies the conditions analyzed in Steps 1 through 3. Based on the conclusions established in the preceding steps, this strict increase induces a strict decrease in the geodesic length, resulting in 
+
+ℓ(γj ) < ℓ (γj−1). Since ˜ki ≥ ki for all i, we have a non-increasing sequence of geodesic lengths: 
+
+ℓ(γn) ≤ ℓ(γn−1) ≤ · · · ≤ ℓ(γ1) ≤ ℓ(γ0).
+
+Furthermore, the hypothesis guaranties that there is at least one index m
+
+where the curvature strictly increases ( ˜km > k m). Therefore, at least one of the inequalities in the sequence above is strict (i.e., ℓ(γm) < ℓ (γm−1)). By the transitivity of inequalities, the presence of at least one strict inequal-ity in the non-increasing chain ensures that the final length is strictly less than the initial length; that is, 
+
+ℓ(γn) < ℓ (γ0).
+
+This means 
+
+ℓ(˜ γ) < ℓ (γ).
+
+Remark 4.4. Under the same notation as in Lemma 4.3, suppose that for 
+
+i = 1 or 2, the radius of the generalized circle eCji becomes smaller than the fixed distance from ˜yi to the adjacent tangent point. Then ˜yi lies outside the induced hyperbolic polygon ePf , specifically on the extension of the edge ˜eji beyond 
+
+vji (or vji+1 ). Even in this case, the geodesic ˜γ connecting ˜y1 and ˜y2 satisfies 
+
+ℓ(˜ γ) < ℓ (γ).
+
+29 Figure 16: The case outside the induced hyperbolic polygon. 
+
+# 5 Generalized discrete boundary value theorem based on polyhedral decomposition 
+
+## 5.1 Limit behavior 
+
+In this section, we consider the limit behavior of the total geodesic curvature vector as the geodesic curvatures of some generalized circles go to 0 or ∞, and the size of the set T used in Theorem 1.1. Set c = ( c1, · · · , c n) ∈ [0 , +∞]n as a non-negative vector (possible infinity). For a generalized circle configuration {Ci}ni=1 associated with a topological poly-gon f with a given geodesic curvature vector k, we consider the limiting behavior of the total geodesic curvature of each side of the interstice Ω f bounded by this circle configuration as 
+
+k = ( k1, · · · , k n) → (c1, · · · , c n) = c.
+
+Denote by Tj,P the total geodesic curvature of the side of Ω f on the generalized circle centered at vj . The following two lemmas are proved in [20]. 
+
+Lemma 5.1 ([20] Lemma 3.2) . If cj = 0 for some 1 ≤ j ≤ n, then 
+
+lim  
+
+> k→c
+
+Tj,P (k) = 0 .
+
+Lemma 5.2 ([20] Lemma 3.3) . Let I = {j : cj = ∞} and |I| denote the number of elements of I. Then the following two properties hold. (i) If |I| < n − 2, then lim k→c Tj,P (k) = π for each j ∈ I;(ii) If n − 2 ≤ | I| ≤ n, then lim k→c
+
+Pnj=1 Tj,P (k) = ( n − 2) π.
+
+The following figure illustrates the two conclusions given in the previous lemma 5.2. 
+
+## 5.2 Discrete boundary value theorem 
+
+Theorem 5.3. Let Sg,n be a compact oriented topological surface with finitely many genus g ≥ 0 and finitely many holes n ≥ 1 and let D be a polygonal 
+
+30 Figure 17: From a circle configuration to a similar one in a small scale. 
+
+cellular decomposition of Sg,n . Let G = {V, E, F } be the 1-skeleton of D, where 
+
+V = V ∂ ∪ V ◦. Assume that P is a generalized circle on Sg,n with G as a contact graph. Denote by T(vi) the total geodesic curvature of a conical generalized circle centered at an interior vertex vi ∈ V ◦. Then 
+
+T : V ◦ −→ R+ : vi 7 −→ T(vi)
+
+belongs to T , where T is defined by Condition (1). Proof. For each face f ∈ F , let Ω f be the interstice corresponding to f . For 
+
+v ∈ V (f ), denote by Tv,f the total geodesic curvature of the side of ∂Ωf which lies on the generalized circle centered at v. Then, for every interior vertex 
+
+v ∈ V ◦,
+
+T(v) = X   
+
+> f∈Fv∈V(f)
+
+Tv,f .
+
+We first record a local estimate. For every face f ∈ F and every v ∈ V (f ), 0 < T v,f < π. (32) Indeed, let kv be the geodesic curvature of the generalized circle centered at 
+
+v, and let kPf > 1 be the geodesic curvature of the dual circle associated with the generalized circle configuration over f . By the elementary right-quadrilateral formulas for the three types of generalized circles, we have 
+
+Tv,f =
+
+
+
+2kv
+
+pk2 
+
+> v
+
+− 1 arccot kPf
+
+pk2 
+
+> v
+
+− 1
+
+!
+
+, kv > 1,
+
+2
+
+kPf
+
+, kv = 1 ,
+
+2kv
+
+p1 − k2
+
+> v
+
+arccoth kPf
+
+p1 − k2
+
+> v
+
+!
+
+, 0 < k v < 1.
+
+These quantities are positive. Moreover, since kPf > 1, each of them is strictly less than π. More explicitly, in the circle case, writing kv = coth r, we obtain 
+
+Tv,f < 2 cosh r · arccot(sinh r) < π, 
+
+31 where the last inequality follows from arctan x < πx 
+
+2√1 + x2 , x > 0.
+
+In the hypercycle case, writing kv = tanh r, we obtain 
+
+Tv,f < 2 sinh r arccoth(cosh r) < 2 < π, 
+
+where we use arccoth x < 1
+
+√x2 − 1 , x > 1.
+
+The horocycle case gives Tv,f = 2 /k Pf < 2 < π . Thus (32) holds. Next, let f ∈ F and put nf = N (f ) = # V (f ). Applying the Gauss– Bonnet formula to the interstice Ω f , whose boundary is formed by the arcs of the generalized circles corresponding to the vertices of f , gives 
+
+X  
+
+> v∈V(f)
+
+Tv,f = π(nf − 2) − Area(Ω f ).
+
+Since Area(Ω f ) > 0, we have 
+
+X  
+
+> v∈V(f)
+
+Tv,f < π  N (f ) − 2. (33) Now let Q ⊂ V ◦ be any nonempty subset. We need to prove the defining inequality of T . Using the decomposition of T(v) into face-wise contributions, we have X
+
+> v∈Q
+
+T (v) = X
+
+> v∈Q
+
+X   
+
+> f∈Fv∈V(f)
+
+Tv,f 
+
+= X 
+
+> f∈FQ
+
+X  
+
+> v∈Q∩V(f)
+
+Tv,f .
+
+Fix f ∈ FQ. By (32), 
+
+X  
+
+> v∈Q∩V(f)
+
+Tv,f < π # Q ∩ V (f ) = πN (f, Q ). (34) On the other hand, since all Tv,f are positive, (33) implies 
+
+X  
+
+> v∈Q∩V(f)
+
+Tv,f ≤ X  
+
+> v∈V(f)
+
+Tv,f < π  N (f ) − 2. (35) Combining (34) and (35), we obtain 
+
+X  
+
+> v∈Q∩V(f)
+
+Tv,f < π min {N (f, Q ), N (f ) − 2}.
+
+32 Summing this inequality over all f ∈ FQ, we get 
+
+X
+
+> v∈Q
+
+T (v) = X 
+
+> f∈FQ
+
+X  
+
+> v∈Q∩V(f)
+
+Tv,f 
+
+< X 
+
+> f∈FQ
+
+π min {N (f, Q ), N (f ) − 2}.
+
+This is precisely Condition (1). Therefore T ∈ T .
+
+Theorem 5.4. Let Sg,n and G be defined as above. Given ˆk : V ∂ → R+ and 
+
+ˆT : V ◦ → R+. If ˆT ∈ T , there exists a unique generalized circle packing on 
+
+Sg,n , up to isometry, with geodesic curvature vector k : V → R+ satisfying: (i) For any boundary vertex w ∈ V ∂ , the generalized circle satisfies k(w) = ˆk(w);(ii) For any interior vertex v0 ∈ V ◦, the total geodesic curvature Tk(v0) sat-isfies Tk(v0) = ˆT(v0).Proof. We apply the Perron method to prove this result. This idea comes from [2]. Each geodesic curvature vector k : V → R+ determines a unique general-ized circle packing on Sg,n with the contact graph G, which we briefly call a generalized circle packing k for G. Let 
+
+K1 =
+
+k : V → R+
+
+k is a generalized circle packing for G with 
+
+Tk(v) ≤ ˆT(v) for any v ∈ V ◦ and prescribed boundary values k(w) ≤ ˆk(w) for any w ∈ V ∂
+
+ . (36) 
+
+Step one: We show that K1 is not empty. Let k : V → R+ be a geodesic curvature vector such that on the boundary vertices k takes the same values as ˆk. By Lemma 5.1, we may choose the values of k at the interior vertices small enough so that all total geodesic curvatures of the corresponding hyperbolic arcs are less than or equal to md , where m =min v∈V ◦ ˆT(v) and d is the maximum number of edges with an end point at a vertex v ∈ V ◦. Therefore, k ∈ K 1; that is, the set of K1 is not empty. 
+
+Step two: K1 has the following so-called net property; that is, for k′
+
+> 1
+
+, k′′  
+
+> 1
+
+∈ K 1,the new geodesic curvature vector k1 : V → R+ defined by 
+
+k1(v) = max {k′
+
+> 1
+
+(v), k′′  
+
+> 1
+
+(v)}, v ∈ V, (37) belongs to K1 as well. Let v0 ∈ V ◦. Suppose that k′
+
+> 1
+
+(v0) ≥ k′′  
+
+> 1
+
+(v0). Then k(v0) = k′
+
+> 1
+
+(v0). Denote by V (v0) the collection of the neighboring vertices of v0. Then k(w) ≥ k′
+
+> 1
+
+(w), 
+
+∀ w ∈ V (v0). By the monotonicity property (Lemma 3.5 (b)), the total geodesic curvature decreases as the geodesic curvatures of the neighboring circles in-crease. Therefore, Tk(v0) ≤ Tk′ 
+
+> 1
+
+(v0) ≤ ˆT(v0), ∀ v0 ∈ V ◦. Thus, k1 ∈ K 1.33 Step three: There is an uniform upper bound for all k ∈ K 1.Define τ1 : V → R+ ∪ { +∞} by letting 
+
+τ1(v) = sup 
+
+> k∈K 1
+
+k(v) for any v ∈ V. (38) To prove the non-emptiness of K1, we have chosen k to have the same values as ˆk on the boundary vertices. Thus, τ1 takes the same values of ˆk at the boundary vertices. It suffices to show that the value of τ1 at each interior vertex is finite. Suppose not, assume that there is a nonempty subset ˜V ⊂ V ◦ such that the value of τ1 at each vertex in ˜V is + ∞. Using the net property, one can obtain a sequence {km}∞ 
+
+> m=1
+
+∈ K 1 such that lim m→∞ km = τ1. Since km ∈ K 1,
+
+Tkm (v) ≤ ˆT(v) for all v ∈ V ◦. On the other hand, applying Lemma 5.2 we obtain lim 
+
+> m→∞
+
+X 
+
+> v∈˜V
+
+Tkm (v) = X  
+
+> f∈F˜V
+
+π min {N (f, ˜V ), N (f ) − 2}.
+
+Thus, if m is large enough, then 
+
+X 
+
+> v∈˜V
+
+Tkm (v) > X 
+
+> v∈˜V
+
+ˆT(v),
+
+which is a contradiction to km ∈ K 1. Therefore, the value of τ1 at each interior vertex is finite. In summary, τ1 : V → R+ is a well-defined geodesic vector which takes the same values as ˆk on the boundary vertices. 
+
+Step four: We prove that τ1 is the target generalized circle packing; that is, it is a solution of the discrete boundary value problem given in Theorem 1.1. By the continuity of the total geodesic curvature depending on k, we know 
+
+τ1 ∈ K 1. It remains to show that Tτ1 (v) = ˆT(v) at each v ∈ V ◦. Suppose not, there exists v ∈ V ◦ such that Tτ1 (v) < ˆT(v). By Lemma 3.4 (a) and (b), we increase τ1(v) to a value such that Tτ1 (v) = ˆT(v) and keep the same value of τ1
+
+at other vertices v ∈ V ◦ to obtain a new τ1 ∈ K 1. This produces a contradiction to the definition of τ1(v). Therefore, Tτ1 (v) = ˆT(v) for any v ∈ V ◦.
+
+Step five: We show that τ1 is the unique solution of the discrete boundary value problem. Assume that τ ′ 
+
+> 1
+
+is another solution. Let Ω τ1 and Ω τ ′ 
+
+> 1
+
+be the union of the interstices of the circle packings determined by τ and τ ′ 
+
+> 1
+
+respectively. We show 
+
+τ ′ 
+
+> 1
+
+= τ1 by comparing the areas of Ω τ1 and Ω τ ′ 
+
+> 1
+
+.By the Gauss-Bonnet theorem, 
+
+Area τ1 (Ω τ1 ) = π X 
+
+> f∈F
+
+(N (f ) − 2) − X 
+
+> vi∈V◦
+
+ˆT(vi) − X  
+
+> wj∈V∂
+
+Tτ1 (wj ),
+
+where Tτ1 (wj ) stands for the total geodesic curvature of the part of the circle centered at the boundary vertex wj as an edge of an interstice. similarly, 
+
+Area τ ′ 
+
+> 1
+
+(Ω τ ′ 
+
+> 1
+
+) = π X 
+
+> f∈F
+
+(N (f ) − 2) − X 
+
+> vi∈V◦
+
+ˆT(vi) − X  
+
+> wj∈V∂
+
+Tτ ′ 
+
+> 1
+
+(wj ).
+
+34 Figure 18: The interstice of a generalized circle packing. Clearly, τ ′ 
+
+> 1
+
+∈ K 1. Thus, τ1(v) ≥ τ ′
+
+> 1
+
+(v) for any v ∈ V ◦. By Lemma 3.4 (b), 
+
+Tτ1 (wj ) ≤ Tτ ′ 
+
+> 1
+
+(wj ) for any wj ∈ V ∂ . Therefore, the previous two equations imply that Area τ1 (Ω τ1 ) ≥ Area τ ′ 
+
+> 1
+
+(Ω τ ′ 
+
+> 1
+
+). On the other hand, by the monotonicity of the area (Lemma 3.4 (d)), Area τ1 (Ω) ≤ Area τ ′ 
+
+> 1
+
+(Ω). Thus, Area τ1 (Ω) = 
+
+Area τ ′ 
+
+> 1
+
+(Ω). Furthermore, it follows from τ1(v) ≥ τ ′
+
+> 1
+
+(v) for any v ∈ V and the strict monotonicity of the area (Lemma 3.4 (d)) that τ1 = τ ′
+
+> 1
+
+.
+
+Remark 5.5. To prove Theorem 5.4, one may replace K1 by 
+
+K′ 
+
+> 1
+
+=
+
+k : V → R+
+
+k is a generalized circle packing for G with 
+
+Tk(v) ≤ ˆT(v) for any v ∈ V ◦ and prescribed boundary values k(w) = ˆk(w) for any w ∈ V ∂
+
+ . (39) 
+
+The reason we use K1 instead of K′ 
+
+> 1
+
+in the proof is that we will apply K1 to show the Schwarz-Pick property I (Theorem 7.1). 
+
+Remark 5.6. Let 
+
+K2 =
+
+k : V → R+
+
+k is a generalized circle packing for G with 
+
+T(v) ≥ ˆT(v), ∀ v ∈ V ◦ and prescribed boundary values k(w) ≥ ˆk(w), w ∈ V ∂
+
+ (40) 
+
+and 
+
+K′ 
+
+> 2
+
+=
+
+k : V → R+
+
+k is a generalized circle packing for G with 
+
+T(v) ≥ ˆT(v), ∀ v ∈ V ◦ and prescribed boundary values k(w) = ˆk(w), w ∈ V ∂
+
+ . (41) 
+
+Given k′
+
+> 2
+
+, k′′  
+
+> 2
+
+∈ K 2 (resp. K′
+
+> 2
+
+), define k2 : V → R+ as 
+
+k2(v) = min {k′
+
+> 2
+
+(v), k′′  
+
+> 2
+
+(v)} for any v ∈ V, (42) 35 and τ2 : V → R+ ∪ { +∞} as 
+
+τ2(v) = inf   
+
+> k∈K 2(resp. K′
+> 2)
+
+k(v) for any v ∈ V. (43) 
+
+Then we can utilize K2 (resp. K′
+
+> 2
+
+) and the steps of the previous proof to give an alternative proof of Theorem 5.4. 
+
+# 6 Convergence of Thurston’s algorithm 
+
+Let Sg,n be a compact oriented topological surface with finitely many genus 
+
+g ≥ 0 and finitely many holes n ≥ 1 and let D be a polygonal cellular decompo-sition of Sg,n . Our Theorem 1.1 develop a necessary and sufficient condition for the discrete boundary value problem to have a unique solution. In this subsec-tion, we show the convergence of Thurston’s algorithm to this unique solution; that is, we prove Theorem 1.3. 
+
+Proof of Theorem 1.3. Let V ∂ and V ◦ denote the sets of the boundary vertices and interior vertices of D, respectively. For any initial vector ( k0 
+
+> v
+
+)v∈V ◦ , there is a generalized circle packing P0 such that the geodesic curvature of the generalized circle centered at the boundary vertex w is ˆk(w) for every w ∈ V ∂ and the geodesic curvature of the generalized circle centered at the interior vertex v is 
+
+k0 
+
+> v
+
+for every v ∈ V ◦. Denote by k0 the geodesic curvature vector of P0.Let {km}∞ 
+
+> m=0
+
+be the sequence of geodesic curvature vectors constructed through the Thurston algorithm in Section 1.2 and let Pm be the generalized circle packing determined by km. Since the values of km maintain the same values as k∗ on the boundary vertices, we only need to consider the geodesic curvatures ( k1m, k m 
+
+> 2
+
+, · · · , k m 
+
+> |V◦|
+
+) of the generalized circles centered at the interior vertices. Let 
+
+sm = ⟨sm 
+
+> 1
+
+, s m 
+
+> 2
+
+, · · · , s m 
+
+> |V◦|
+
+⟩ = ⟨ln km 
+
+> 1
+
+, ln km 
+
+> 2
+
+, · · · , ln km 
+
+> |V◦|
+
+⟩.
+
+The process of the Thurston algorithm from an input to an output can be expressed by the following total geodesic curvature adjusting map Ψ: Ψ : R|V ◦| −→ R|V ◦| : s0 7 −→ s1 (44) Then Ψ m(s0) = sm. Let k∗ be a solution of the discrete boundary value problem (Theorem 5.4), and let 
+
+s∗ = ⟨s∗
+
+> 1
+
+, s ∗
+
+> 2
+
+, · · · , s ∗|V ◦|⟩ = ⟨ln k∗ 
+
+> 1
+
+, ln k∗ 
+
+> 2
+
+, · · · , ln k∗|V ◦|⟩.
+
+Clearly, s∗ is a fixed point of the adjusting map. We show that Ψ is a contraction map on any compact box X centered at s∗ in R|V ◦|, which implies that the fixed point of Ψ is unique. Let Tm = ⟨T m 
+
+> 1
+
+, T m 
+
+> 2
+
+, · · · , T m 
+
+> |V◦|
+
+⟩ be the vector of total geodesic curvatures of the generalized circles of Pm centered at the interior vertices. Now we view Tm
+
+as a vector function T of s; that is, 
+
+T : R|V ◦| −→ (R+)|V ◦| : ⟨s1, s 2, · · · , s |V ◦|⟩ 7 −→ ⟨ T1, T2, · · · , T|V ◦|⟩. (45) 36 Given vi ∈ V ◦, denote by j ∼ i if there is an edge between vj and vi.Applying Lemma 3.4, we obtain the following monotone results. 
+
+Proposition 6.1. (1) P|V ◦| 
+
+> j=1
+> ∂Ti
+> ∂s j
+
+= ∂Ti 
+
+> ∂s i
+
++ P 
+
+> j∼i∂Ti
+> ∂s j
+
+> 0,(2) ∂Ti 
+
+> ∂s j
+
+= ∂Tj 
+
+> ∂s i
+
+< 0, j ∼ i,(3) ∂Ti 
+
+> ∂s i
+
+> 0,(4) P     
+
+> vj∈V(f)
+> ∂Area (Ω f)
+> ∂s j
+
+< 0, ∀ f ∈ F .
+
+By the Thurston algorithm, we know that the total geodesic curvature at an interior vertex vi is adjusted to ˆTi, that is, for each 1 ≤ i ≤ | V ◦|,
+
+Ti(s1, · · · , s i−1, Ψi(s), s i+1 · · · , s |V ◦|) = ˆTi.
+
+By the implicit differentiation of Ti, we obtain: 
+
+∂Ψi(s)
+
+∂s j
+
+=
+
+
+
+−
+
+> ∂Ti∂s j∂Ti∂Ψi(s)
+
+, j̸ = i
+
+0, j = i
+
+By Proposition 6.1 (3), we see that 
+
+X 
+
+> j̸=i
+
+∂Ti
+
+∂s j
+
+< ∂Ti
+
+∂Ψi(s) .
+
+Thus,  
+
+> |V◦|
+
+X
+
+> j=1
+
+∂Ψi(s)
+
+∂s j
+
+=
+
+P 
+
+> j̸=i
+> ∂Ti
+> ∂s j
+> ∂Ti
+> ∂Ψi(s)
+
+< 1.
+
+Given s, s′ ∈ R|V ◦|, we apply the mean value theorem for a vector function to obtain Ψi(s) − Ψi (s′) = 
+
+Z 10
+
+∇Ψi (s′ + t (s − s′)) · (s − s′) dt. 
+
+Thus, 
+
+|Ψi(s) − Ψi (s′)| ≤ 
+
+Z 10
+
+|∇ Ψi (s′ + t (s − s′)) ( s − s′)| dt 
+
+≤
+
+Z 10
+
+ 
+
+> |V◦|
+
+X
+
+> j=1
+
+∂Ψi
+
+∂s j
+
+(s′ + t (s − s′)) · sj − s′
+
+> j
+
+ dt 
+
+=
+
+Z 10
+
+X 
+
+> j̸=i
+
+∂Ψi
+
+∂s j
+
+(s′ + t (s − s′)) · sj − s′
+
+> j
+
+ dt. 
+
+37 Let ∥s − s′∥∞ = max j |sj − s′ 
+
+> j
+
+|. Define st = s′ + t (s − s′). Then 
+
+|Ψi(s) − Ψi (s′)| ≤ sup 
+
+> 0≤t≤1
+
+X 
+
+> j̸=i
+
+∂Ψi
+
+∂s j
+
+(st)
+
+ · ∥ s − s′∥∞ .
+
+Therefore, 
+
+∥Ψ( s) − Ψ ( s′)∥∞ ≤ λ(s, s′) · ∥ s − s′∥∞ , s̸ = s′ (46) where 
+
+λ(s, s′) = max  
+
+> i
+
+sup 
+
+> 0≤t≤1
+
+X 
+
+> j̸=i
+
+∂Ψi
+
+∂s j
+
+(st)
+
+ < 1.
+
+Now let B(s∗, ρ ) be the box consisting of the vectors s of R|V ◦| such that 
+
+|| s − s∗|| ∞ ≤ ρ, where ρ > 0. Let 
+
+λ := sup 
+
+> s,s′∈B(s∗,ρ ),s̸=s′
+
+λ(s, s′).
+
+By expression (46), we have 
+
+∥Ψ( s) − s∗∥∞ = ∥Ψ( s) − Ψ( s∗)∥∞ ≤ λ ∥s − s∗∥∞ < ρ. 
+
+Thus, Ψ maps B(s∗, ρ ) into itself. We show that Ψ is a contraction on this box. Taking the partial derivative of the map T (s1, · · · , s i−1, Ψi(s), s i, · · · , s |V ◦|)with respect to Ψ i(s) and applying Proposition 6.1 (2) and (3), we obtain  
+
+> |V◦|
+
+X
+
+> j=1
+
+Tj
+
+∂Ψi(s) = ∂Ti
+
+∂Ψi(s) + X
+
+> j∼i
+
+∂Tj
+
+∂Ψi(s)= ∂Ti
+
+∂Ψi(s) + X
+
+> j∼i
+
+∂Ti
+
+∂Ψi(s) = ∂Ti
+
+∂Ψi(s) + X 
+
+> j̸=i
+
+∂Ti
+
+∂s j
+
+> 0.
+
+Given any s ∈ B(s∗, ρ ), there is a positive real number ϵ such that 
+
+∂Ti
+
+∂Ψi(s) + X 
+
+> j̸=i
+
+∂Ti
+
+∂s j
+
+> ϵ, ∀ vi ∈ V ◦, 1 ≤ i ≤ | V ◦|.
+
+Moreover, there is M > 0, which is determined by B(s∗, ρ ), such that 
+
+∂Ti
+
+∂Ψi(s) < M, ∀ vi ∈ V ◦.
+
+Thus, given any s, s′ ∈ B(s∗, ρ ), s̸ = s′,
+
+λ = sup 
+
+> s,s′∈B(s∗,ρ ),s̸=s′
+
+λ(s, s′) = sup 
+
+> s∈B(s∗,ρ )
+
+max 
+
+> i
+
+X 
+
+> j̸=i
+
+∂Ψi
+
+∂s j
+
+(s)
+
+
+
+38 = sup 
+
+> s∈B(s∗,ρ )
+
+max 
+
+> i
+
+P 
+
+> j̸=i
+> ∂Ti
+> ∂s j
+> ∂Ti
+> ∂Ψi(s)
+
+ ≤ sup 
+
+> s∈B(s∗,ρ )
+
+max  
+
+> i
+> ∂Ti
+> ∂Ψi(s)
+
+− ϵ
+
+> ∂Ti
+> ∂Ψi(s)
+
+ ≤ 1 − ϵM < 1.
+
+Thus, Ψ is a contraction mapping. It follows that the fixed point s∗ is unique and any s0 ∈ (−∞ , +∞)|V ◦|,lim  
+
+> m→+∞
+
+Ψm(s0) = s∗.
+
+Remark 6.2. If the initial vector k0 ∈ K ′ 
+
+> 1
+
+(see Remark 5.5), then the sequence 
+
+{km}∞ 
+
+> m=0
+
+of the Thurston algorithm stays in K′ 
+
+> 1
+
+and increases monotonically to k∗; if k0 ∈ K ′ 
+
+> 2
+
+(see Remark 5.6), then {km}∞ 
+
+> m=0
+
+stays in K′ 
+
+> 2
+
+and decreases monotonically to k∗.
+
+# 7 Discrete Schwarz-Pick Lemma and Maximum Modulus Principle 
+
+In this section, we develop the so-called discrete Schwarz-Pick lemma and maximum modulus principle for generalized circle packings with the contact graph G as the 1-skeleton of a polygonal cellular decomposition D of a compact oriented surface Sg,n of genus g ≥ 0 and with n holes. Let k, k ′ : V → (0 , ∞)|V |
+
+be two such generalized circle packings. Denote by V ◦ and V ∂ the sets of interior and boundary vertices, respectively, where V = V ∂ ∪ V ◦.
+
+Theorem 7.1 (Schwarz-Pick I) . Assume that ˆT ∈ T and two generalized circle packings k and k′ associated with a graph G satisfy (1) k(w) ≤ k′(w) for any w ∈ V∂ and (2) Tk(v) = Tk′ (v) = ˆT(v) for any v ∈ V ◦.Then (a) k ≤ k′, which means k(v) ≤ k′(v) at every vertex v of G, and (b) if the equality holds at some vertex v ∈ V ◦, then k = k′.Proof. Let 
+
+K = {˜k : V → R+| T˜k(v) ≤ ˆT(v), ∀ v ∈ V ◦, and ˜k(w) ≤ k′(w), ∀ w ∈ V ∂ }. (47) In the course of proving the existence of a solution to the discrete boundary value theorem, we have already known 
+
+k′ = sup K, (48) which means that k′(v) = sup ˜k∈K ˜k(v) for any v ∈ V .Clearly, k ∈ K . Thus, k(v) ≤ k′(v) at every vertex v of G.39 To prove (b), we assume that k(v0) = k′(v0) at some v0 ∈ V ◦. By Lemma 3.5 (b), the total geodesic curvature of the generalized circle centered at v0
+
+is strictly decreasing with the geodesic curvatures of the neighboring vertices. Since Tk(v0) = Tk′ (v0) and k(v) ≤ k′(v), ∀ v ∈ V , it follows that k(v′) = k′(v′)at any neighboring vertex v′ of v. Now we apply the same argument to conclude that k(v′′ ) = k′(v′′ ) at any neighboring vertex v′′ of v′. Continuing this process, we know that k(v) = k′(v), ∀ v ∈ V ; that is, k = k′.
+
+Theorem 7.2 (Schwarz-Pick II) . Let k and k′ be the same generalized circle packings considered in Theorem 7.1. Assume that Area k(Ω f ) (resp. Area k′ (Ω f ))stands for the hyperbolic area of the interstice corresponding to a face f on ˜S(k)
+
+(resp. ˜S(k′)). Then (a) Area k(Ω f ) ≥ Area k′ (Ω f ) for any face f of G;(b) if the equality holds at some interstice Ωf , where the face f has at least one interior vertex, then k = k′.Proof. According to Lemma 3.5(c), Area(Ω f ) is strictly decreasing with geodesic curvatures at the vertices of the face f . By Theorem 7.1 (a), k(v) ≤ k′(v), v ∈ V .It follows that Area k(Ω f ) ≥ Area k′ (Ω f ). To prove (b), we assume that Area k(Ω f0 ) = Area k′ (Ω f0 ) for some f0 ∈ F .If there is a vertex v ∈ V (f0) such that k(v) < k′(v), then Area k(Ω f0 ) >
+
+Area k′ (Ω f0 ) by Lemma 3.5(c) again, which is a contradiction. So we obtain 
+
+k(v) = k′(v) at any v ∈ V (f0). Based on the graph G in our consideration, one of the vertex v of the face f0 is an interior vertex. By Theorem 7.1 (b), we conclude that k = k′.
+
+Theorem 7.3 (Schwarz-Pick III) . Let k and k′ be the same generalized cir-cle packings considered in Theorem 7.1. Assume that ℓki (v, f ) (resp. ℓk′ 
+
+> i
+
+(v, f ))stands for the length of the edge (see Figure 19) of the interstice Ωf (corre-sponding to the face f )) that lies on the generalized circle centered at v on ˜S(k)
+
+(resp. ˜S(k′)). Then (a) ℓk(v, f ) ≥ ℓk′ (v, f ) for any face f and any vertex v of f ;(b) if the equality holds for a pair (v, f ), where f is a face and v ∈ V ◦ is a vertex of f , then k = k′.Proof. By the proof of Theorem 1.6 in [17], we can see that 
+
+∂ℓ (v, f )
+
+∂k P
+
+= − 2
+
+k2 + k2 
+
+> P
+
+− 1 < 0and 
+
+∂ℓ (v, f )
+
+∂k =
+
+
+
+− 2k 
+
+> (1 −k2)32
+
+( kP  
+
+> √1−k2
+> k2
+> P+k2−1
+
+− arctanh √1−k2 
+
+> kP
+
+) < 0, 0 < k < 1
+
+− 431  
+
+> kP3
+
+< 0, k = 1 
+
+− 2k 
+
+> (k2−1) 32
+
+( kP  
+
+> √k2−1
+> k2
+> P+k2−1
+
+− arctan √k2−1 
+
+> kP
+
+) < 0, k > 1.
+
+(49) 40 Figure 19: The demonstration of ℓ(v, f ). Furthermore, ∂ℓ (v,f ) 
+
+> ∂k
+
+is a continuous function. Therefore, ℓ(v, f ) decreases as k
+
+or kP increases. By Lemma 3.2, we know that the geodesic curvature of the dual circle kP increases as kj increases, where kj ∈ V (P ). Since k ≤ k′, it follows that ℓk(v, f ) ≥ ℓk′ (v, f ) for any f ∈ F and any v ∈ V (f ). Suppose that there exist f0 ∈ F and v0 ∈ V (f0) such that ℓk(v0, f 0) = 
+
+ℓk′ (v0, f 0). We may assume that v0 is an interior vertex. Because k ≤ k′,
+
+kP0 ≤ k′ 
+
+> P0
+
+. Using the strict decreasing monotonicity of the function ℓk(v0, f 0)on kv0 and kf0 , we know kv0 < k ′ 
+
+> v0
+
+and kP0 ≤ k′ 
+
+> P0
+
+imply ℓk(v0, f 0) > ℓ k′ (v0, f 0). This is a contradiction. Thus, kv0 = k′ 
+
+> v0
+
+. By Theorem 7.1, we conclude that 
+
+k = k′.
+
+Theorem 7.4 (Schwarz-Pick IV) . Let k and k′ be the same generalized circle packings considered in Theorem 7.1. Assume that ρk (resp. ρk′ ) is the distance function on the metric surface ˜S(k) (resp. ˜S(k′)). Then (a) ρk(v1, v 2) ≥ ρk′ (v1, v 2), ∀ v1, v 2 ∈ ˜V , where ˜V = {v ∈ V : k(v) > 1};(b) if the equality holds at two vertices u and v with at least one of them in 
+
+V o, then k = k′.Proof. We first prove (a). By Theorem 7.1, k(v) ≤ k′(v) for any v ∈ V . Using the transitivity of inequalities, it is sufficient to develop the monotonicity of distance for two generalized hyperbolic conic circle packings determined by k
+
+and k′ for which the values of k and k′ differ only at one vertex v ∈ V . So, we assume that k(v) < k′(v) and k(v′) = k′(v′) for any v′ ∈ V \ { v}.Let v1, v 2 ∈ ˜V , where ˜V = {v ∈ V : k(v) > 1}. Let γ be a piecewise geodesic curve on the surface ˜S(k) that connects v1 and v2 and realizes the hyperbolic distance between them. Then γ passes through a chain of polygons 
+
+{P1, P 2, · · · , P s} that correspond to a chain of faces {f1, f 2, · · · , f s} in G. They divide γ into finitely many geodesic segments {γj }mj=1 , where the end points of 
+
+γj lie on the boundary of Pj .The curve γ does not pass through the center of any hypercycle or the center of any horocycle on the circle packing determined by k. Suppose this is not true, We consider two cases. If γ passes through the center of some horocircle, then the length of ℓ(γ) is ∞ and hence the distance between v1 and v2 on ˜S(k) is 41 equal to ∞. If γ intersects with the center of some hypercycle C, there are two situations to consider. One situation is that γ0 is decomposed into a union of three geodesic segments γ01 , γ 02 and γ03 and the other is that γ0 intersects the center of some hypercircle as a point (see Figure 20). By doing a perturbation or replacing some pieces of γ0 intersecting the center of the hypercircle by other geodesic segments to form another piecewise geodesic segment with the same end points as γ0 and a shorter length than γ0. Therefore, γ does not realize the hyperbolic distance between v1 and v2 on the surface ˜S(k). 
+
+Figure 20: Illustrations when γ0 intersects the center of a hypercycle. We divide {γj }mj=1 into two groups. A geodesic segment γj is said to be “bad” if it passes through the star of v while it is said to be “good” if it does not pass through the star. Next, we construct the corresponding geodesic segments γ′
+
+> j
+
+on the generalized hyperbolic conic circle packing determined by k′. Keep the end points of γj still and connect them by the geodesic segment on k′. Then, by joining {γ′ 
+
+> j
+
+}mj=1 in the same order as {γj }mj=1 are joined to form γ, we obtain a piecewise geodesic curve γ′ on k′. Clearly, the distance between v1 and v2 on the surface determined by k′ satisfies ρk′ (v1, v 2) ≤ ℓ′(γ′). It is obvious that the length of each “good” segment satisfies ℓ(γj ) = ℓ′(γ′ 
+
+> j
+
+). Then we only need to consider the “bad” segments. There are three cases to be considered. 
+
+Case one: Suppose that the geodesic curvature of a circle centered at one end point of γ is changing; that is, v1 = v. Assume that γ1 connects v to a point p on the edge of P1 opposite to v, where kv ∈ (1 , ∞). Suppose that the polygon P has n vertices v, u 1, · · · , u n−1, where kui ∈ (0 , +∞), i = 1 , · · · , n −
+
+1. Let rv , r u1 , · · · , r un−1 denote the radii of the generalized circles centered at 
+
+v, u 1, · · · , u n−1 respectively. Let ℓp be the length of γ1. Next, we show that ℓp
+
+is deceasing with kv .The polygon P1 is divided by γ1 into two polygons D1 and D2. Let t
+
+be the distance between p and its neighboring vertex in D1. Since only the geodesic curvature of the circle centered at the vertex v is changing, the length 
+
+ℓ(ui, u i+1 ), i = 1 , · · · , n − 2, and t remain unchanged. Denote by x1 and x2 the tangent points of the circle centered at v with the generalized circles centered at u1 and un−1, respectively. Passing through x1
+
+and x2, there are two geodesics perpendicular to the edges ( v, u 1) and ( v, u n−1), 42 respectively. On the induced hyperbolic polygon of the corresponding circle configuration, these two geodesics intersect at the center of the dual circle CP1 ,intersecting the boundary of P1 at q1 and q2, respectively. 
+
+Figure 21: Illustration of the case one. Define D as follows: 
+
+D =
+
+(
+
+D1 if p is on the left of q1
+
+D2 if p is on the right of q1 or exactly on q1.
+
+Consider the hyperbolic polygon D. Under the assumption that k′(v) > k(v)and k′(v′) = k(v) for all vertices v′ ∈ V \ { v}, we know that r′(v) < r (v)and r′(v′) = r(v′) for all v′ ∈ V \ { v}. Furthermore, the hyperbolic triangle ∆vx 1p (respectively, ∆ vx 2p) is obtuse when D = D1 (respectively, D = D2). Consequently, we obtain the length inequality ℓ′(γ′
+
+> 1
+
+) < ℓ (γ1). 
+
+Case two: Suppose that the geodesic curvature kv ∈ (0 , +∞) of the gen-eralized circle centered at a vertex v ∈ ∪ n−1 
+
+> i=1
+
+V (fi) is changing, where V (fi)denotes the collection of the vertices of the face fi ∈ F . The segment γj lies in the star of the vertex v as follows. Let u1, · · · , u n be the boundary vertices of the generalized star of v. Let 
+
+x and y be the boundary points of γj . If γj passes through the center of a hyperbolic conical circle, then we cut γj into two geodesic arcs γj1 and γj2 . We can handle this situation as the same as we have done in Case one. By the discussions in the third paragraph of this proof (partially illustrated on Figure 20), we know that γj does not pass through the center of any horocycle or the center of any hypercircle. In this case, γj divides the star of the vertex v into two components D1 and D2, and at least one of them is a hyperbolic polygon (see D1 on Figure 22 (b)). We divide γj into geodesic segments on the induced hyperbolic polygons that intersect it. For example, on Figure 22(a) γj is divided into two pieces γj1 and 
+
+γj2. Now we keep the distances from y1 to u4, from y3 to u1, and from y2 to u9
+
+43 the same on ˜S(k) and ˜S(k′). By Lemma 4.3 and Remark 4.4, we obtain 
+
+ℓ′(γ′
+
+> js
+
+) < ℓ (γjs ).
+
+Since γ′ 
+
+> j
+
+constitutes a geodesic connecting y1 and y2 through the generalized star, its length does not exceed the total length of the concatenation of the sub-arcs γjs . Consequently, 
+
+ℓ′(γ′ 
+
+> j
+
+) ≤ X
+
+> s
+
+ℓ′(γ′
+
+> js
+
+) < X
+
+> s
+
+ℓ(γjs ) = ℓ(γj ).
+
+Figure 22: Illustration of the case two. 
+
+Case three: The segment γj does not lie in the polygonal region Ω com-pletely; that is, γj has 2 t (t ≥ 2) intersections with the star of the vertex v. Then we can cut γj into geodesic segments {γj1, · · · , γ jt } based on these intersections. 
+
+Figure 23: IIlustration of the case three. Let X be the set of the geodesic segments that lie in the star of the vertex 
+
+v and Y be the set of the geodesic segments that stay out of the star of the 44 vertex v. Each geodesic segment in Y has the same length on ˜S(k) and ˜S(k′). From the previous discussion, we see that for any γ′ 
+
+> 0
+
+∈ X , there exists a geodesic segment γ′ 
+
+> 0
+
+in k′ such that ℓ′(γ′
+
+> 0
+
+) < ℓ (γ0). Therefore, by the comparisons obtained in the above three cases, we can see that when k(v) < k′(v) and k(v′) = k′(v′) at any other vertex v′, ρk′ (v1, v 2) <ρk(v1, v 2) if the shortest piecewise geodesic segment connecting v1 and v2 on ˜S(k) intersecting the star of the vertex v; otherwise, ρk′ (v1, v 2) = ρk(v1, v 2). Assume that k(w) < k′(w) at some w ∈ V ∂ . By Theorem 7.1, k(v) < k′(v)at any ∈ V ◦. It follows that for any two v1, v 2 ∈ ˜V and v1 ∈ V ◦, the shortest piecewise geodesic segment connecting v1 and v2 much intersect the star of some vertex v at which k(v) < k′(v). Thus, ρk′ (v1, v 2) < ρ k(v1, v 2). Therefore, if 
+
+ρk(v1, v 2) = ρk′ (v1, v 2) for some v1, v 2 ∈ ˜V and v1 ∈ V ◦, then k(w) = k′(w) for any w ∈ V ∂ . By the uniqueness of the solution to our discrete boundary value problem, we know k = k′. This proves (b). 
+
+Theorem 7.5 (Maximum Modulus Principle) . Let k and k′ be the same gen-eralized circle packings considered in Theorem 7.1. Define 
+
+ϕ : V → R+ : v 7 → ϕ(v) = k′
+
+> v
+
+kv
+
+. (50) 
+
+Let M be the maximal value of ϕ. Then (a) M ≥ 1;(b) if M > 1, then it is only attained at some boundary vertex wj ∈ V ∂ ;(c) if M is attained at some interior vertex, then M = 1 and hence k = k′.Proof. By Theorem 7.1, we only need to prove (b). Suppose that M > 1 and there exists a vertex v0 ∈ V ◦ such that ˜kv0
+
+> kv0
+
+= M . Then ˜kv 
+
+> kv
+
+≤ M for any v ∈ V .Denote the neighboring vertices of v0 by w1, · · · , w n and let sv = ln kv . Then ˜sv0 − sv0 = ln M > 0 and ˜ sv0 − sv0 ≥ ˜swj − swj ≥ 0 for each j ∈ { 1, · · · n}.Let s0(t) = (1 − t)sv0 + t˜sv0 and sj (t) = (1 − t)swj + t˜swj each j ∈ { 1, · · · n}.Define 
+
+s(t) = ( s0(t), s 1(t), · · · sn(t)) and T0(t) = T0(s(t)) .
+
+Then T0(0) = T0(1). By Rolle’s theorem, there exists ξ ∈ (0 , 1) such that 
+
+T ′
+
+> 0
+
+(ξ) = 0; that is, 
+
+I =
+
+> n
+
+X
+
+> j=1
+
+∂T 0
+
+∂s j
+
+· ds j
+
+dt t=ξ
+
++ ∂T 0
+
+∂s 0
+
+· ds 0
+
+dt t=ξ
+
+= 0 .
+
+On the other hand, applying Proposition 6.1 we obtain 
+
+I =
+
+> n
+
+X
+
+> j=1
+
+∂T 0
+
+∂s j  
+
+> sj=sj(ξ)
+
+· (˜ swj − swj ) + ∂T 0
+
+∂s 0 s0=s0(ξ)
+
+· (˜ sv0 − sv0 )45 ≥ [
+
+nX
+
+j=0 
+
+∂T 0
+
+∂s j
+
+sj =sj (ξ)
+
+] · (˜ sv0 − sv0 ) > 0.
+
+This is a contradiction. Therefore, if M > 1, then M cannot be reached at any interior vertex. 
+
+# 8 Appendix 
+
+## 8.1 Proof of Formula (8) 
+
+In this subsection, we derive the formula (8). At first, by the proof of Lemma 2.1 in [20], we obtain cot θi
+
+2 =
+
+
+
+tanh ri sinh rP = ki√k2 
+
+> P
+
+−1 , 0 < k i < 1sinh rP = 1√k2 
+
+> P
+
+−1 , ki = 1 coth ri sinh rP = ki√k2 
+
+> P
+
+−1 , ki > 1.
+
+For a generalized circle configuration Ci, i = 1 , 2, · · · , n , with geodesic curva-tures ki (> 0), i = 1 , 2, · · · , n , respectively, 
+
+
+
+cot θ1
+
+2 = k1√k2 
+
+> P
+
+−1
+
+cot θ2
+
+2 = k2√k2 
+
+> P
+
+−1
+
+...cot θn
+
+2 = kn√k2 
+
+> P
+
+−1
+
+θ1 + θ2 + · · · + θn = 2 π. 
+
+Then cot θn
+
+2 = cot( π − θ1
+
+2 − · · · − θn−1
+
+2 )=cos 
+
+
+
+π − θ1
+
+2 − · · · − θn−1
+
+2
+
+
+
+sin 
+
+
+
+π − θ1
+
+2 − · · · − θn−1
+
+2
+
+
+
+= − P
+
+|U | even (−1) |U | 
+
+> 2
+
+(Q
+
+i∈U sin θi
+
+2 )( Q
+
+i / ∈U cos θi
+
+2 )
+
+P
+
+|V | odd (−1) |V |− 12 (Q
+
+i∈V sin θi
+
+2 )( Q
+
+i / ∈V cos θi
+
+2 )= − P
+
+|U | even (−1) |U |
+
+> 2
+
+Q
+
+i / ∈U cot θi
+
+2
+
+P
+
+|V | odd (−1) |V |− 12
+
+Q
+
+i / ∈V cot θi
+
+2
+
+,
+
+where U, V ⊂ { 1, · · · , n − 1}, |U | is even, and |V | is odd. It follows that 
+
+− P[( n−1) /2] 
+
+m=0 (−1) m ·
+
+P 
+
+> 1≤i1<i 2<··· <i n−1−2m≤n−1
+
+ki1 ki2 ·kin−1−2m
+
+(√k2 
+
+> P
+
+−1) n−1−2m
+
+P[( n−2) /2] 
+
+m=0 (−1) m ·
+
+P 
+
+> 1≤i1<i 2<··· <i n−2−2m≤n−1
+
+ki1 ki2 ·kin−2−2m
+
+(√k2 
+
+> P
+
+−1) n−2−2m
+
+= kn
+
+pk2
+
+P − 1 ,
+
+46 which can be rewritten as   
+
+> [n−12]
+
+X
+
+> m=0
+
+(−1) mSn−1−2m(k2 
+
+> P
+
+− 1) m = 0 ,
+
+where 
+
+S0 = 1 and St = X
+
+> 1≤i1<··· <i t≤n
+
+ki1 · · · kit for t = 1 , · · · , n. 
+
+So, when n = 3, the equation is written as S2(k2 
+
+> P
+
+− 1) 0 − S0(k2 
+
+> P
+
+− 1) = 0; that is, 
+
+k2 
+
+> P
+
+= k1k2 + k1k3 + k2k3 + 1 ,
+
+which is obtained in [19]. When n = 4, the equation is written as S3(k2 
+
+> P
+
+− 1) 0 + S1(k2 
+
+> P
+
+− 1) = 0; that is 
+
+k2 
+
+> P
+
+= S3
+
+S1
+
++ 1 = k1k2k3 + k1k2k4 + k1k3k4 + k2k3k4
+
+k1 + k2 + k3 + k4
+
++ 1 .
+
+Let w = k2 
+
+> P
+
+− 1 and 
+
+fn(w) =   
+
+> [n−12]
+
+X
+
+> m=0
+
+(−1) mSn−1−2mwm.
+
+Now we show that for ∀ n ≥ 3 and ∀ k1, k 2, · · · , k n ∈ (0 , +∞), the polyno-mial fn(w) has a real positive root. From the above discussions, this is true for 
+
+n = 3 , 4. It remains to prove that it is true for n ≥ 5. We divide the proof into the following three cases. 
+
+(i) Assume that n = 4 j + 3 and n = 4 j + 4, j ≥ 1. Then 
+
+fn(w) = 
+
+> 2j+1
+
+X
+
+> m=0
+
+(−1) mSn−1−2mwm.
+
+Clearly, fn(0) = Sn−1 > 0. Since the leading coefficient of fn(w) is (−1) 2j+1 Sn−4j−3 =
+
+(
+
+−S0 < 0, n = 4 j + 3 
+
+−S1 < 0, n = 4 j + 4 ,
+
+it follows that lim  
+
+> w→−∞
+
+fn(w) = + ∞.
+
+By the intermediate value theorem, the continuous function fn(w) has a positive real root. 
+
+(ii) Assume that n = 4 j + 1, j ≥ 1. Then 
+
+fn(w) = 
+
+> 2j
+
+X
+
+> m=0
+
+(−1) mS4j−2mwm
+
+=S4j − S4j−2w + S4j−4w2 − S4j−6w3 + · · · 
+
++ S4w2j−2 − S2w2j−1 + S0w2j .
+
+47 Clearly, fn(0) = Sn−1 > 0. We show fn( S2 
+
+> 2S0
+
+) < 0. Clearly, 
+
+fn( S2
+
+2S0
+
+) = S4j − S4j−2S2
+
+2S0
+
++ S4j−4S22
+
+(2 S0)2 − S4j−6S32
+
+(2 S0)3 + · · · 
+
++ S4S2j−22
+
+(2 S0)2j−2 − S2S2j−12
+
+(2 S0)2j−1 + S0S2j
+
+> 2
+
+(2 S0)2j
+
+= − 1(2 S0)2j [(2 S0)2j−1(S4j−2S2 − 2S4j )+ (2 S0)2j−3S22 (S4j−6S2 − 2S4j−4) + · · · 
+
++ (2 S0)2S2j−42 (S6S2 − 2S8)+ (2 S0)S2j−22 (S22 − 4S4)] .
+
+Since 
+
+StS2 − 4St+2 =( X
+
+> 1≤i1<··· <i t≤n
+
+ki1 · · · kit ) · ( X
+
+> 1≤i1≤i2≤n
+
+ki1 ki2 )
+
+− 4 X
+
+> 1≤i1<··· <i t+2 ≤n
+
+ki1 · · · kit+2 
+
+>0 when t ≥ 2,
+
+(51) we obtain fn( S2 
+
+> 2S0
+
+) < 0. By the intermediate value theorem, there exists w0 ∈
+
+(0 , S2 
+
+> 2
+
+) such that fn(w0) = 0. 
+
+(iii) Assume that n = 4 j + 2, j ≥ 1. Then 
+
+fn(w) = 
+
+> 2j
+
+X
+
+> m=0
+
+(−1) mS4j+1 −2mwm
+
+=S4j+1 − S4j−1w + S4j−3w2 − S4j−5w3 + · · · 
+
++ S5w2j−2 − S3w2j−1 + S1w2j .
+
+Clearly, fn(0) = Sn−1 > 0. We show that fn( S3 
+
+> 2S1
+
+) < 0. Clearly, 
+
+fn( S3
+
+2S1
+
+) = S4j+1 − S4j−1S3
+
+2S1
+
++ S4j−3S23
+
+(2 S1)2 − S4j−5S33
+
+(2 S1)3 + · · · 
+
++ S5S2j−23
+
+(2 S1)2j−2 − S3S2j−13
+
+(2 S1)2j−1 + S1S2j
+
+> 3
+
+(2 S1)2j
+
+= − 1(2 S1)2j [(2 S1)2j−1(S4j−1S3 − 2S1S4j+1 )+ (2 S1)2j−3S23 (S4j−5S3 − 2S1S4j−3) + · · · 
+
++ (2 S1)2S2j−43 (S7S3 − 2S1S9)+ (2 S1)S2j−23 (S23 − 4S1S5)] .
+
+Using the inequality (51), we obtain fn( S3 
+
+> 2S1
+
+) < 0. Again, by the intermediate value theorem, there exists w0 ∈ (0 , S2 
+
+> 2
+
+) such that fn(w0) = 0. 48 8.2 The edge-angle relationship for a hyperbolic polygon induced by a generalized circle configuration 
+
+Figure 24: An example of generalized hyperbolic polygon. Let 
+
+Ali = Hli =
+
+
+
+cosh li 0 sinh li
+
+0 1 0sinh li 0 cosh li
+
+ , (52) and 
+
+Aαi = Rπ−αi , Aβj = R π 
+
+> 2
+
+Hβj R π 
+
+> 2
+
+. (53) Here, 
+
+Rπ−α =
+
+ cos( π − α) − sin( π − α) 0sin( π − α) cos( π − α) 00 0 1
+
+ . (54) For the polygon in Figure 24, we put v1 to (0 , 0, 1) at Minkowski model by M¨ obius transformation such that the unit vector at the point v1 tangent to the edge v1v2 is n = (1 , 0, 0). Transformation Al1 means a translation along with the edge v1v2 for length l1. Consequently, it moves the unit vector n at the point v1 to the vector n · A l1 at the point v2. Transformation Aα2 means a counterclockwise rotation centered on v2 for angle π − α2. Consequently, the vector n · A l1 Aα2 is tangent to edge v2v3. And so on, we are back to the starting point v1 when we are done with the last rotation Aα1 , that is, 
+
+n · A l1 Aα2 · · · A ln Aα1 = n. In fact, the composite map of this is an identity. Therefore, we obtain 
+
+Al1 Aα2 Al2 Aα3 · · · A ln−1 Aαn Aln Aα1 = id, (55) 49 that is, 
+
+
+
+cosh l1 0 sinh l1
+
+0 1 0sinh l1 0 cosh l1
+
+
+
+− cos α2 − sin α2 0sin α2 − cos α2 00 0 1
+
+
+
+· · · 
+
+
+
+cosh ln 0 sinh ln
+
+0 1 0sinh ln 0 cosh ln
+
+
+
+− cos α1 − sin α1 0sin α1 − cos α1 00 0 1
+
+ = id. 
+
+This is a system of equations consisting of nine ternary linear equations, from which the three unknown variables ln, α 1 and αn are determined. 
+
+Acknowledgments: Guangming Hu is supported by the NSF of China (Grant No.12101275) and by the Natural Science Research Start-up Founda-tion of Nanjing University of Posts and Telecommunications to Recruit Talents (Grant No. NY224040). Jun Hu is supported by a fellowship leave award from the City University of New York for the academic year 2025-26, and the Research Foundation of CUNY (PSC-CUNY No. 68140-00 56 and No. GR-00017614). Yi Qi is supported by the NSF of China (Grant No. 12271017). 
+
+Data availability statement: Data sharing is not applicable to this work as no new data is created or analyzed in the study. 
+
+# References 
+
+[1] Te Ba, Guangming Hu, and Yu Sun. Circle packings and hyperbolic surfaces of finite type. Calc. Var. Partial Differential Equations , 64:Article No. 262, 18, 2025. [2] Alan F. Beardon and Kenneth Stephenson. The Schwarz-Pick lemma for circle packings. Illinois J. Math. , 35(4):577–606, 1991. [3] Ithiel Carter and Burt Rodin. An inverse problem for circle packing and conformal mapping. Trans. Amer. Math. Soc. , 334(2):861–875, 1992. [4] Bennett Chow and Feng Luo. Combinatorial Ricci flows on surfaces. J. Differential Geom. , 63(1):97–129, 2003. [5] Yves Colin de Verdi` ere. Un principe variationnel pour les empilements de cercles. Invent. Math. , 104(3):655–669, 1991. [6] Ke Feng, Huabin Ge, and Bobo Hua. Combinatorial Ricci flows and the hy-perbolization of a class of compact 3-manifolds. Geom. Topol. , 26(3):1349– 1384, 2022. [7] Ke Feng, Huabin Ge, Bobo Hua, and Xu Xu. Combinatorial Ricci flows with applications to the hyperbolization of cusped 3-manifolds. Int. Math. Res. Not. , (20):15549–15573, 2022. 50 [8] Huabin Ge. Combinatorial methods and geometric equations. phd thesis. 
+
+Peking University, Beijing , 2012. [9] Huabin Ge. Combinatorial Calabi flows on surfaces. Trans. Amer. Math. Soc. , 370(2):1377–1391, 2018. [10] Huabin Ge and Bobo Hua. On combinatorial Calabi flow with hyperbolic circle patterns. Adv. Math. , 333:523–538, 2018. [11] Huabin Ge and Bobo Hua. 3-dimensional combinatorial Yamabe flow in hyperbolic background geometry. Trans. Amer. Math. Soc. , 373(7):5111– 5140, 2020. [12] Huabin Ge and Wenshuai Jiang. On the deformation of discrete conformal factors on surfaces. Calc. Var. Partial Differential Equations , 55(6):Art. 136, 14, 2016. [13] Huabin Ge, Aijin Lin, and Liangming Shen. The K¨ ahler-Ricci flow on pseudoconvex domains. Math. Res. Lett. , 26(6):1603–1627, 2019. [14] Huabin Ge and Xu Xu. Discrete quasi-Einstein metrics and combinatorial curvature flows in 3-dimension. Adv. Math. , 267:470–497, 2014. [15] Huabin Ge, Xu Xu, and Shijin Zhang. Three-dimensional discrete curvature flows and discrete Einstein metrics. Pacific J. Math. , 287(1):49–70, 2017. [16] Ren Guo and Feng Luo. Rigidity of polyhedral surfaces. II. Geom. Topol. ,13(3):1265–1312, 2009. [17] Guangming Hu, Ziping Lei, Yanlin Li, and Hao Yu. Boundary Value Prob-lem and Discrete Schwarz-Pick Lemma for Generalized Hyperbolic Circle Packings. Math. Z. , 311(60):1–25, 2025. [18] Guangming Hu, Ziping Lei, Yi Qi, and Puchun Zhou. Combinatorial p-th Calabi flows for total geodesic curvatures in hyperbolic background geom-etry. J. Geom. Anal. , 35(1):Paper No. 18, 30, 2025. [19] Guangming Hu, Sicheng Lu, Dong Tan, Youliang Zhong, and Puchun Zhou. Convergences of combinatorial Ricci flows to degenerated circle packings in hyperbolic background geometry. J. Funct. Anal. , 289(3):Paper No. 110921, 39, 2025. [20] Guangming Hu, Yi Qi, Yu Sun, and Puchun Zhou. Hyperbolic circle pack-ings and total geodesic curvatures on surfaces with boundary. Nonlinear Anal. , 253:Paper No. 113735, 2025. [21] Lishan Li, Jun Hu, Yi Qi, and Yu Sun. Perron’s method and spherical ideal circle patterns with prescribed total geodesic curvatures, arXiv:2603.27363, 2026. 51 [22] Feng Luo. Combinatorial Yamabe flow on surfaces. Commun. Contemp. Math. , 6(5):765–780, 2004. [23] Robert C. McOwen. Prescribed curvature and singularities of conformal metrics on Riemann surfaces. J. Math. Anal. Appl. , 177(1):287–298, 1993. [24] Xin Nie. On circle patterns and spherical conical metrics. Proc. Amer. Math. Soc. , 152(2):843–853, 2024. [25] Burt Rodin and Dennis Sullivan. The convergence of circle packings to the Riemann mapping. J. Differential Geom. , 26(2):349–360, 1987. [26] William Thurston. The geometry and topology of three-manifolds: With a preface by Steven P. Kerckhoff . Collected Works. American Mathematical Society, 2022. [27] Marc Troyanov. Prescribing curvature on compact surfaces with conical singularities. Trans. Amer. Math. Soc. , 324(2):793–821, 1991. Guangming Hu, Email: 20230210@njupt.edu.cn College of Science, Nanjing University of Posts and Telecommunications, Nan-jing, 210003, P.R. China Jun Hu, Email: junhu@brooklyn.cuny.edu or JHu1@gc.cuny.edu Department of Mathematics, Brooklyn College of CUNY, Brooklyn, NY 11210, USA and Ph.D. Program in Mathematics, Graduate Center of CUNY, 365 Fifth Avenue, New York, NY 10016, USA Lishan Li, Email: lishan-li@buaa.edu.cn School of Mathematical Sciences, Beihang University, Beijing, 102206, P. R. China Yi Qi, Email: yiqi@buaa.edu.cn School of Mathematical Sciences, Beihang University, Beijing, 102206, P.R. China 52

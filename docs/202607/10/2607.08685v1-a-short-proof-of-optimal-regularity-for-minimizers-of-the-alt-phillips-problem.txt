@@ -1,0 +1,1239 @@
+Title: A Short Proof of Optimal Regularity for minimizers of the Alt-Phillips Problem
+
+URL Source: https://arxiv.org/pdf/2607.08685v1
+
+Published Time: Fri, 10 Jul 2026 01:10:20 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+A SHORT PROOF OF OPTIMAL REGULARITY FOR MINIMIZERS OF THE ALT-PHILLIPS PROBLEM      
+
+> KUNYI (MARK) MA
+> Abstract. We give a self-contained short proof of optimal regularity for minimizers of the Alt-Phillips Free Boundary Problem for γ∈(0 ,1) . We adopt a dichotomy argument that originates from [DSS20].
+
+Contents 
+
+1. Introduction 12. Hölder Regularity 13. Optimal C1,β −1 Regularity 5Acknowledgments 9References 91. Introduction 
+
+Throughout the article we let 
+
+γ ∈ (0 , 1) , β = 22 − γ ∈ (1 , 2) .
+
+Let B1 ⊆ Rd denote the unit ball, and let u ∈ H1(B1) be a minimizer of the Alt–Phillips functional 
+
+J γ (u, B 1) := 
+
+ˆ
+
+> B1
+
+(|∇ u|2 + uγ
+
+> +
+
+) dx 
+
+among functions with prescribed non-negative boundary data. It has been known since the work of Phillips [ Phi83 ]that minimizers satisfy the optimal regularity 
+
+u ∈ C1,β −1loc (B1).
+
+For related developments on Alt–Caffarelli–Phillips type free boundary problems, we refer to [ Caf98 ] and [ PSU12 ]for the obstacle problem corresponding to γ = 1 ; for the one-phase Bernoulli problem corresponding to γ = 0 , see [CS05, Vel23]; and for the general Alt–Phillips functional with γ ∈ (0 , 2) , see [AP86]. The purpose of this short article is to give a self-contained and pedagogical proof of the optimal regularity for γ ∈ (0 , 1) . The proof is based on a dichotomy argument inspired by [ DSS20 ], which originally applies to almost-minimizers. See also [ASTU25] for a similar problem. Roughly speaking, the dichotomy says for the L2 average of u large enough, either the β-rescaled average decays by 1/2, or the minimizer is close to a positive constant. Iterating this yields either β-growth from a free-boundary point or, after stopping, a Harnack-type estimate in a ball contained in the positivity set, with radius comparable to the pointwise value of u. The optimal C1,β −1 regularity then follows by combining the β-growth rate from the free boundary, and Harnack inequality in the positive set. 2. Hölder Regularity 
+
+In this section we prove a preliminary Hölder estimate that applies to minimizers of small perturbations of the Dirichlet energy, whose potential has at most quadratic growth. The proof follows Campanato’s approach. 
+
+Proposition 2.1. For any α ∈ (0 , 1) , and K ≥ 1, there exists δ0 ∈ (0 , 1) and C > 0 depending only on d, α, K s.t. for any u ∈ H1(B1), and 
+
+> B1
+
+u2 ≤ 1,    
+
+> Date : July 10, 2026. 2020 Mathematics Subject Classification. Primary 35R35; Secondary 35J60, 49J40.
+> Key words and phrases. Free boundary problem, Alt–Phillips functional, variational methods.
+> 1arXiv:2607.08685v1 [math.AP] 9 Jul 2026 2KUNYI (MARK) MA
+
+that minimizes 
+
+Fδ (v, B 1) = 
+
+ˆ
+
+> B1
+
+|∇ v|2 + δF (x, v ), 0 ≤ F (x, v ) ≤ K(1 + v2), 0 < δ ≤ δ0,
+
+among v ∈ H1(B1) with same trace as u, then one has 
+
+∥u∥C0,α (B1/2) ≤ C. 
+
+First we need the following. 
+
+Lemma 2.2. For any α ∈ (0 , 1) , and Λ ≥ 1, there exists 
+
+ρ = ρ(d, α ) ∈ (0 , 1/2) , M = M (d) ≥ 1, δ1 = δ1(d, α, Λ) ∈ (0 , 1) ,
+
+such that for any w ∈ H1(B1),
+
+> B1
+
+w2 ≤ 1, (2.1) 
+
+that minimizes 
+
+Gδ (v, B 1) = 
+
+ˆ
+
+> B1
+
+|∇ v|2 + δG (x, v ), 0 ≤ G(x, v ) ≤ Λ(1 + v2), 0 < δ ≤ δ1,
+
+among v ∈ H1(B1) with same trace as w, there exists m ∈ R s.t. |m| ≤ M and 
+
+1
+
+ρ2α Bρ
+
+|w − m|2 ≤ 1. (2.2) 
+
+Proof of Lemma 2.2. Constants C = C(d) may change from line to line. Let h be the harmonic replacement of w in 
+
+B1. Now ˆ
+
+> B1
+
+|∇ w|2 + δG (x, w ) dx ≤
+
+ˆ
+
+> B1
+
+|∇ h|2 + δG (x, h ) dx. 
+
+Since h − w ∈ H10 (B1) and h is harmonic, 
+
+ˆ
+
+> B1
+
+|∇ w|2 dx =
+
+ˆ
+
+> B1
+
+|∇ h|2 dx +
+
+ˆ
+
+> B1
+
+|∇ (w − h)|2 dx. 
+
+Therefore, using G ≥ 0,
+
+ˆ
+
+> B1
+
+|∇ (w − h)|2 dx ≤ δ
+
+ˆ
+
+> B1
+
+(G(x, h ) − G(x, w )) dx ≤ Λδ
+
+ˆ
+
+> B1
+
+(1 + h2) dx. 
+
+Also, using (2.1) and Poincaré 
+
+ˆ
+
+> B1
+
+h2 dx ≤ C
+
+ˆ
+
+> B1
+
+w2 dx + C
+
+ˆ
+
+> B1
+
+|w − h|2 dx ≤ C + C
+
+ˆ
+
+> B1
+
+|∇ (w − h)|2 dx. 
+
+Thus ˆ
+
+> B1
+
+|∇ (w − h)|2 dx ≤ CΛδ
+
+(
+
+1 + 
+
+ˆ
+
+> B1
+
+|∇ (w − h)|2 dx 
+
+)
+
+.
+
+Choosing δ1 ≤ c(d)Λ −1, we absorb and obtain 
+
+ˆ
+
+> B1
+
+|∇ (w − h)|2 dx +
+
+ˆ
+
+> B1
+
+|w − h|2 dx ≤ CΛδ. 
+
+Consequently, 
+
+> B1
+
+h2 dx ≤ C. 
+
+Since h is harmonic, h2 is subharmonic, and thus 
+
+|h(0) |2 ≤ C B1
+
+h2 dx ≤ C. 
+
+Set 
+
+m := h(0) .
+
+Thus |m| ≤ M for M = M (d).For 0 < ρ < 1/2, using h is harmonic 
+
+> Bρ
+
+|h − h(0) |2 dx ≤ Cρ 2
+
+(
+
+> B1
+
+h2 dx + |h(0) |2
+
+)
+
+≤ Cρ 2.A SHORT PROOF OF OPTIMAL REGULARITY FOR MINIMIZERS OF THE ALT-PHILLIPS PROBLEM 3
+
+Hence 
+
+> Bρ
+
+|w − m|2 dx ≤ C Bρ
+
+|w − h|2 dx + C Bρ
+
+|h − h(0) |2 dx ≤ Cρ −dΛδ + Cρ 2.
+
+Choose ρ = ρ(d, α ) ∈ (0 , 1/2) so that 
+
+Cρ 2 ≤ 12 ρ2α.
+
+Then choose δ1 = δ1(d, α, Λ) smaller so that 
+
+Cρ −dΛδ1 ≤ 12 ρ2α.
+
+□
+
+Proof of Proposition 2.1. Constants C = C(d, α, K ) may change from line to line. Let ρ and M be as in Lemma 2.2, and set 
+
+R := M
+
+1 − ρα , Λ := K(3 + 2 R2), δ0 := δ1(d, α, Λ) .
+
+We first prove the estimate at the origin. Define 
+
+u0 := u, p0 := 0 , F0 := F. 
+
+Following directly from Lemma 2.2, one obtain m1 ∈ R s.t. 
+
+|m1| ≤ M, Bρ
+
+|u0 − m1|2 dx ≤ ρ2α.
+
+The idea is to construct inductively 
+
+pk =
+
+> k
+
+∑
+
+> j=1
+
+ρ(j−1) αmj ∈ R,uk (x) := ρ−kα (u(ρk x) − pk
+
+),Fk (x, z ) := ρ2k(1 −α)F (ρk x, p k + ρkα z).
+
+Assume the construction is done up to step k, with 
+
+> B1
+
+u2 
+
+> k
+
+dx ≤ 1.
+
+Since |mj | ≤ M ,
+
+|pk | ≤ M
+
+> k
+
+∑
+
+> j=1
+
+ρ(j−1) α ≤ R. 
+
+Hence 
+
+0 ≤ Fk (x, z ) ≤ Kρ 2k(1 −α)
+
+(
+
+1 + ∣∣pk + ρkα z∣∣2)
+
+≤ K(1 + 2 R2 + 2 z2) ≤ Λ(1 + z2).
+
+Moreover, by scaling, uk minimizes ˆ
+
+> B1
+
+|∇ v|2 + δF k (x, v ) dx 
+
+among competitors with the same trace as uk . Thus Lemma 2.2 gives mk+1 ∈ R such that 
+
+|mk+1 | ≤ M, Bρ
+
+|uk − mk+1 |2 dx ≤ ρ2α.
+
+Set 
+
+pk+1 := pk + ρkα mk+1 .
+
+Define 
+
+uk+1 (x) := ρ−α(uk (ρx ) − mk+1 
+
+) = ρ−(k+1) α(u(ρk+1 x) − pk+1 
+
+).
+
+Then 
+
+> B1
+
+u2 
+
+> k+1
+
+dx = ρ−2α
+
+> Bρ
+
+|uk − mk+1 |2 dx ≤ 1.
+
+This closes the induction. From the definition of uk ,
+
+> Bρk
+
+|u − pk |2 dx ≤ ρ2kα .
+
+Since |pℓ − pk | ≤ M ∑ℓj=k+1 ρ(j−1) α, the sequence pk converges. Let 
+
+p∞ := lim  
+
+> k→∞
+
+pk .4 KUNYI (MARK) MA 
+
+Moreover, |p∞ − pk | ≤ Cρ kα . Therefore 
+
+(
+
+> Bρk
+
+|u − p∞|2 dx 
+
+)1/2
+
+≤
+
+(
+
+> Bρk
+
+|u − pk |2 dx 
+
+)1/2
+
++ |pk − p∞| ≤ Cρ kα .
+
+If 0 < r < 1/2, choose k such that ρk+1 < r ≤ ρk . Then 
+
+(
+
+> Br
+
+|u − p∞|2 dx 
+
+)1/2
+
+≤ C
+
+( ρk
+
+r
+
+)d/ 2 (
+
+> Bρk
+
+|u − p∞|2 dx 
+
+)1/2
+
+≤ Cρ kα ≤ Cr α.
+
+Thus the precise representative satisfies 
+
+u(0) := p∞, |u(0) | ≤ R, 
+
+and (
+
+> Br
+
+|u − u(0) |2 dx 
+
+)1/2
+
+≤ Cr α, 0 < r < 1/2. (2.3) For any other point x0 ∈ B1/2, apply (2.3) to 
+
+˜u(y) := 2 −d/ 2u
+
+(
+
+x0 + y
+
+2
+
+)
+
+, y ∈ B1.
+
+Thus by Campanato’s characterization [HL11, Theorem 3.1], 
+
+∥u∥C0,α (B1/2) ≤ C. 
+
+□
+
+As a result, one may apply Proposition 2.1 to minimizers of Alt–Phillips Problem and obtain C0,α regularity. 
+
+Corollary 2.3. Let u ∈ H1(B1) minimize J γ among H1(B1) with same boundary data. Then for any α ∈ (0 , 1) ,
+
+u ∈ C0,α  
+
+> loc
+
+(B1). In particular there exists C > 0 depending on d, α, γ s.t. 
+
+∥u∥C0,α (B1/2) ≤ C (1 + ∥u∥L2(B1)
+
+) .
+
+Proof. Constants C = C(d, α, γ ) may change from line to line. Take A = A(d, α, γ ) ≥ 1 large, and define 
+
+a := A (1 + ∥u∥L2(B1)
+
+) , ˜u := ua ,
+
+so that 
+
+> B1
+
+˜u2 dx ≤ 1.
+
+Dividing the energy by a2, we see that ˜u minimizes 
+
+ˆ
+
+> B1
+
+|∇ v|2 + δF a(v) dx, δ := a−1, Fa(v) := aγ−1vγ
+
+> +
+
+,
+
+among competitors with the same trace as ˜u. Since a ≥ 1 and 0 < γ < 1,
+
+0 ≤ Fa(v) ≤ vγ 
+
+> +
+
+≤ 1 + v2.
+
+Choose A larger if necessary so that 
+
+δ = a−1 ≤ A−1 ≤ δ0,
+
+where δ0 is the constant in Proposition 2.1 with K = 1 . Thus Proposition 2.1 gives 
+
+∥˜u∥C0,α (B1/2) ≤ C. 
+
+Multiplying by a = A (1 + ∥u∥L2(B1)
+
+) yields 
+
+∥u∥C0,α (B1/2) ≤ C (1 + ∥u∥L2(B1)
+
+) .
+
+The same argument on balls Br (x0) ⋐ B1 gives u ∈ C0,α  
+
+> loc
+
+(B1). □A SHORT PROOF OF OPTIMAL REGULARITY FOR MINIMIZERS OF THE ALT-PHILLIPS PROBLEM 5
+
+3. Optimal C1,β −1 Regularity 
+
+We state the main goal of the article. 
+
+Theorem 3.1. Let u ∈ H1(B1), u ≥ 0, minimize J γ among H1(B1) with same boundary data. Then u ∈ C1,β −1 
+
+> loc
+
+(B1).In particular there exists C > 0 depending on d, γ s.t. 
+
+∥u∥C1,β −1(B1/2) ≤ C (1 + ∥u∥L2(B1)
+
+) .
+
+In the following we develop the key Dichotomy Argument. 
+
+Proposition 3.2 (Dichotomy Argument) . For any ε ∈ (0 , 1) , and ξ ∈ (0 , 1/2] , there exists 
+
+η = η(d, γ, ε ) ∈ (0 , 1/2) , a∗ = a∗(d, γ, ε, ξ ) ≥ 1, c0 = c0(d, γ, ξ ) ∈ (0 , 1) , C0 = C0(d, γ ) ≥ 1,
+
+s.t. for any u ∈ H1(B1), u ≥ 0, s.t. (
+
+> B1
+
+u2
+
+) 12
+
+= a ≥ a∗, (3.1) 
+
+that minimizes J γ among H1(B1) with same boundary data, either 
+
+ξ−β
+
+(
+
+> Bξ
+
+u2
+
+) 12
+
+≤ 12 a, (3.2) 
+
+or there exists m ∈ R, m > 0 s.t. 
+
+c0a ≤ m ≤ C0a, (3.3) 
+
+and (
+
+> Bη
+
+|u − m|2 dx 
+
+) 12
+
+≤ εa. (3.4) 
+
+Proof. Constants C = C(d, γ ) may change from line to line. Set 
+
+˜u := ua .
+
+Then 
+
+> B1
+
+˜u2 dx = 1 ,
+
+and ˜u minimizes ˆ
+
+> B1
+
+|∇ v|2 + δF a(v) dx, δ := a−1, Fa(v) := aγ−1vγ
+
+> +
+
+,
+
+among competitors with same trace as ˜u. Since a ≥ 1 and 0 < γ < 1,
+
+0 ≤ Fa(v) ≤ vγ 
+
+> +
+
+≤ 1 + v2.
+
+Let h be the harmonic replacement of ˜u in B1, then h ≥ 0. By minimality and orthogonality, 
+
+ˆ
+
+> B1
+
+|∇ (˜ u − h)|2 dx =
+
+ˆ
+
+> B1
+
+|∇ ˜u|2 − |∇ h|2 ≤ δ
+
+ˆ
+
+> B1
+
+(Fa(h) − Fa(˜ u)) dx ≤ δ
+
+ˆ
+
+> B1
+
+(1 + h2) dx. 
+
+Moreover, using (3.1) and Poincaré 
+
+ˆ
+
+> B1
+
+h2 dx ≤ C
+
+ˆ
+
+> B1
+
+˜u2 dx + C
+
+ˆ
+
+> B1
+
+|˜u − h|2 dx ≤ C + C
+
+ˆ
+
+> B1
+
+|∇ (˜ u − h)|2 dx. 
+
+Taking a∗ large, hence δ = a−1 small, we absorb and get 
+
+ˆ
+
+> B1
+
+|∇ (˜ u − h)|2 dx +
+
+ˆ
+
+> B1
+
+|˜u − h|2 dx ≤ Ca −1. (3.5) In particular, 
+
+> B1
+
+h2 dx ≤ C, 0 ≤ h(0) ≤ C. 
+
+Set 
+
+m := ah (0) .
+
+Then m ≥ 0, and 
+
+m ≤ C0a. 
+
+We distinguish two cases. First assume 
+
+h(0) ≤ c0,6 KUNYI (MARK) MA 
+
+where c0 = c0(d, γ, ξ ) > 0 will be fixed. Since h ≥ 0 is harmonic, interior estimates and Harnack gives 
+
+> Bξ
+
+|h − h(0) |2 dx ≤ ∥∇ h∥2 
+
+> L∞(Bξ)
+
+ξ2 ≤ C∥h∥2 
+
+> L∞(B3ξ/ 2)
+
+≤ Ch (0) 2 ≤ Cc 20.
+
+Together with (3.5), 
+
+> Bξ
+
+˜u2 dx ≤ C Bξ
+
+|˜u − h|2 dx + C Bξ
+
+|h − h(0) |2 dx + C|h(0) |2 ≤ Cξ −da−1 + Cc 20.
+
+Thus 
+
+ξ−2β
+
+> Bξ
+
+u2 dx = a2ξ−2β
+
+> Bξ
+
+˜u2 dx ≤ C(ξ−d−2β a−1 + c20ξ−2β )a2.
+
+Choose c0 = c0(d, γ, ξ ) so that 
+
+Cc 20ξ−2β ≤ 18 ,
+
+and then choose a∗ = a∗(d, γ, ε, ξ ) large so that 
+
+Cξ −d−2β a−1 
+
+> ∗
+
+≤ 18 .
+
+Then 
+
+ξ−β
+
+(
+
+> Bξ
+
+u2 dx 
+
+)1/2
+
+≤ 12 a, 
+
+which is (3.2). Now assume 
+
+h(0) > c 0.
+
+Then 
+
+c0a ≤ m ≤ C0a. 
+
+For 0 < η < 1/2,
+
+> Bη
+
+|h − h(0) |2 dx ≤ Cη 2
+
+> B1
+
+h2 dx ≤ Cη 2.
+
+Using (3.5), 
+
+> Bη
+
+|u − m|2 dx = a2
+
+> Bη
+
+|˜u − h(0) |2 dx ≤ Ca 2
+
+> Bη
+
+|˜u − h|2 dx + Ca 2
+
+> Bη
+
+|h − h(0) |2 dx ≤ C(η−da−1 + η2)a2.
+
+Choose η = η(d, γ, ε ) ∈ (0 , 1/2) so that 
+
+Cη 2 ≤ 12 ε2,
+
+and increase a∗ so that 
+
+Cη −da−1 
+
+> ∗
+
+≤ 12 ε2.
+
+Then (
+
+> Bη
+
+|u − m|2 dx 
+
+)1/2
+
+≤ εa. 
+
+This proves (3.3)–(3.4). □
+
+Under the second alternative (3.4), we conduct α-rescaling to stay a positive distance away from 0.
+
+Lemma 3.3. Let 0 < c 0 ≤ 1 ≤ C0. There exist 
+
+ε∗ = ε∗(d, γ, c 0, C 0) ∈ (0 , 1) , δ∗ = δ∗(d, γ, c 0, C 0) ∈ (0 , 1) ,
+
+such that for any u ∈ H1(B1) that minimizes 
+
+ˆ
+
+> B1
+
+|∇ v|2 + δF (x, v ) dx, 0 < δ ≤ δ∗, 0 ≤ F (x, v ) ≤ C(d, γ )(1 + v2),
+
+among v ∈ H1(B1) with same boundary data, and satisfies for some m0 ∈ R,
+
+(
+
+> B1
+
+|u − m0|2 dx 
+
+)1/2
+
+≤ ε∗, c0 ≤ m0 ≤ C0,
+
+one has 14 c0 ≤ u(x) ≤ 4C0 in B1/2. (3.6) A SHORT PROOF OF OPTIMAL REGULARITY FOR MINIMIZERS OF THE ALT-PHILLIPS PROBLEM 7
+
+Proof. Constants C = C(d, γ, c 0, C 0) may change from line to line. We apply Proposition 2.1 with exponent 1/2.Let 
+
+˜u := u − m0
+
+ε∗
+
+, B1
+
+˜u2 dx ≤ 1.
+
+Moreover ˜u minimizes ˆ
+
+> B1
+
+|∇ v|2 + μ ˜F (x, v ) dx, μ := δε −2 
+
+> ∗
+
+, ˜F (x, v ) := F (x, m 0 + ε∗v),
+
+among competitors with the same trace as ˜u. Since m0 ≤ C0 and ε∗ ≤ 1,
+
+0 ≤ ˜F (x, v ) ≤ C(d, γ ) (1 + |m0 + ε∗v|2) ≤ C(d, γ, C 0)(1 + v2).
+
+Let δ0 and C1 be the constants from Proposition 2.1, with K = C(d, γ, C 0) and Hölder exponent 1/2. Choose 
+
+ε∗ > 0 so small that C1ε∗ ≤ 34 c0, C1ε∗ ≤ 3C0.
+
+Then choose 
+
+δ∗ := δ0ε2
+
+> ∗
+
+.
+
+Thus 
+
+0 < μ = δε −2 
+
+> ∗
+
+≤ δ0,
+
+and one may apply Proposition 2.1, so that 
+
+∥˜u∥C0,1/2(B1/2) ≤ C1.
+
+Hence in particular 
+
+|u − m0| ≤ C1ε∗ in B1/2.
+
+Therefore, in B1/2,
+
+14 c0 ≤ m0 − C1ε∗ ≤ u(x) ≤ m0 + C1ε∗ ≤ 4C0.
+
+□
+
+Now we’re ready to prove the main β-growth rate and Harnack type Inequality. 
+
+Proposition 3.4 (Harnack Inequality and β-growth) . There exists cH ∈ (0 , 1) , CH ≥ 1 and ηH ∈ (0 , 1/2) depending only on d, γ s.t. for any u ∈ H1(B1), u ≥ 0 and 
+
+> B1
+
+u2 ≤ 1,
+
+that minimizes J γ among H1(B1) with same boundary data, either u(0) > 0 and 
+
+cH u(0) ≤ u(x) ≤ CH u(0) , ∀ | x| ≤ ηH u(0) 1 
+
+> β
+
+, (3.7) 
+
+or u(0) = 0 and (
+
+> Br
+
+u2
+
+) 12
+
+≤ CH rβ , ∀ 0 < r < 1/2. (3.8) 
+
+Proof. Constants C = C(d, γ ) may change from line to line. Note d, γ, C 0 are universal. Fix ξ := 12 , thus c0 from Proposition 3.2. Decreasing c0 and increasing C0 if necessary, assume 0 < c 0 ≤ 1 ≤ C0. Thus we fix ε∗, δ ∗ as in Lemma 3.3. Apply Proposition 3.2 with ε = ε∗, ξ = 12 , and thus we fix η = η(ε∗) ∈ (0 , 1/2) , a∗ = a∗(ε∗, ξ ) ≥ 1. Set 
+
+A := max {a∗, δ −1 
+
+> ∗
+
+, 1}.
+
+Therefore all the above are universal, depending only on d, γ .For 0 < r < 1, define 
+
+ur (x) := r−β u(rx ), a(r) := r−β
+
+(
+
+> Br
+
+u2 dx 
+
+)1/2
+
+=
+
+(
+
+> B1
+
+u2 
+
+> r
+
+dx 
+
+)1/2
+
+.
+
+Then ur minimizes J γ in B1 among H1(B1) with same boundary data. We work with sequence Let 
+
+rk := ξk = 2 −k , ak := a(rk ).
+
+Notice there exists universal constant C = C(d, γ ) ≥ 1 s.t. 
+
+ak+1 ≤ Ca k , ∀ k ∈ N. (3.9) Indeed, 
+
+ak+1 = r−βk+1 
+
+(
+
+> Brk+1
+
+u2 dx 
+
+)1/2
+
+≤ ξ−β r−βk ξ−d/ 2
+
+(
+
+> Brk
+
+u2 dx 
+
+)1/2
+
+= Ca k .8 KUNYI (MARK) MA 
+
+Define 
+
+K := {k ≥ 0 : ak ≤ CA + 2 −k } .
+
+Since (ffl  
+
+> B1
+
+u2) 12 = a0 ≤ 1, one has 0 ∈ K .Assume first 
+
+K = {0, 1, 2, . . . }.
+
+Then ak ≤ C for every k. If rk+1 < r ≤ rk , then 
+
+r−β
+
+(
+
+> Br
+
+u2 dx 
+
+)1/2
+
+≤
+
+( rk
+
+r
+
+)β+d/ 2
+
+r−βk
+
+(
+
+> Brk
+
+u2 dx 
+
+)1/2
+
+≤ Ca k ≤ C. 
+
+Thus (3.8) holds. By Lebesgue Differentiation one has u(0) = 0 .Otherwise, let k be the first index such that 
+
+k ∈ K , k + 1 /∈ K .
+
+Then ak > A . Indeed, if ak ≤ A, then by (3.9), 
+
+ak+1 ≤ Ca k ≤ CA ≤ CA + 2 −(k+1) ,
+
+contradicting k + 1 /∈ K . Now apply Proposition 3.2 to urk . Since 
+
+(
+
+> B1
+
+u2 
+
+> rk
+
+dx 
+
+)1/2
+
+= ak > A ≥ a∗,
+
+the dichotomy applies. If the first alternative holds, then 
+
+ak+1 = ξ−β
+
+(
+
+> Bξ
+
+u2 
+
+> rk
+
+dx 
+
+)1/2
+
+≤ 12 ak .
+
+Since k ∈ K ,
+
+ak+1 ≤ 12 (CA + 2 −k ) ≤ CA + 2 −(k+1) ,
+
+again contradicting k + 1 /∈ K . Hence the second alternative holds: there exists m ∈ R such that 
+
+c0ak ≤ m ≤ C0ak ,
+
+(
+
+> Bη
+
+|urk − m|2 dx 
+
+)1/2
+
+≤ ε∗ak .
+
+Set 
+
+˜uk (y) := urk (ηy )
+
+ak
+
+, m0 := mak
+
+.
+
+Then 
+
+c0 ≤ m0 ≤ C0,
+
+(
+
+> B1
+
+|˜uk − m0|2 dy 
+
+)1/2
+
+≤ ε∗.
+
+Moreover ˜uk minimizes ˆ
+
+> B1
+
+|∇ v|2 + δk Fk (v) dy, δk := a−1 
+
+> k
+
+, Fk (v) := η2aγ−1 
+
+> k
+
+vγ
+
+> +
+
+.
+
+Since ak ≥ A ≥ 1,
+
+0 ≤ Fk (v) ≤ vγ 
+
+> +
+
+≤ 1 + v2, 0 < δ k = a−1 
+
+> k
+
+≤ A−1 ≤ δ∗.
+
+Thus Lemma 3.3 gives 14 c0 ≤ ˜uk (y) ≤ 4C0 in B1/2.
+
+Scaling back, 
+
+ca k ≤ urk (x) ≤ Ca k for x ∈ Bη/ 2. (3.10) Note u(0) = 0 is impossible otherwise ak = 0 contradicting k + 1 /∈ K . Thus u(0) > 0, and in particular 
+
+ca k ≤ r−βk u(0) ≤ Ca k . (3.11) Since k ∈ K ,
+
+ak ≤ CA + 2 −k ≤ C. 
+
+Therefore, from (3.11), 
+
+rk ≥ c u (0) 1/β .
+
+Choose ηH ∈ (0 , 1/2) , depending only on d, γ , so small that 
+
+ηH u(0) 1/β ≤ η
+
+2 rk .A SHORT PROOF OF OPTIMAL REGULARITY FOR MINIMIZERS OF THE ALT-PHILLIPS PROBLEM 9
+
+Therefore using (3.10), 
+
+cr βk ak ≤ u(x) ≤ Cr βk ak , |x| ≤ ηH u(0) 1/β .
+
+Using (3.11) once more one obtain 
+
+cH u(0) ≤ u(x) ≤ CH u(0) , |x| ≤ ηH u(0) 1/β .
+
+□
+
+Finally we’re able to conclude the proof of Optimal Regularity. 
+
+Proof of Theorem 3.1. Constants C = C(d, γ ) may change from line to line. Dividing u by a universal multiple of 
+
+1 + ∥u∥L2(B1) so that ffl  
+
+> B1
+
+u2 ≤ 1 and it minimizes energy of the form 
+
+J γλ (v) := 
+
+ˆ
+
+> B1
+
+|∇ v|2 + λv γ
+
+> +
+
+, 0 ≤ λ ≤ 1.
+
+All preceding propositions remain valid for this J γλ with the same constants. For any x ∈ { u > 0} ∩ B1/2, using (3.7) ,we work with Bρ(x) ⋐ {u > 0} where ρ = 12 ηH u(x) 1 
+
+> β
+
+. Recall from [AP86] that u solves 
+
+∆u = γ
+
+2 uγ−1χ{u> 0}.
+
+Then using interior elliptic estimate (see [FRRO22]) in the positive set 
+
+∥∇ u∥C0,β −1(Bρ/ 2(x)) ≤ C 1
+
+ρβ
+
+(∥u∥L∞(Bρ(x)) + ρ2∥uγ−1∥L∞(Bρ(x)) 
+
+) ≤ C (ρ−β u(x) + ρ2−β u(x)γ−1)
+
+≤ C (1 + ρ2−β+β(γ−1) ) = C. 
+
+For points x ∈ ∂{u > 0} ∩ B1/2, one directly apply β-growth rate (3.8) . Combining both, one conclude using Campanato’s Method. □
+
+Acknowledgments 
+
+The author would like to thank Daniela De Silva and Ovidiu Savin for the fruitful discussions. 
+
+References 
+
+[AP86] H.W. Alt and D. Phillips. A free boundary problem for semilinear elliptic equations. Journal für die reine und angewandte Mathematik , 368:63–107, 1986. [ASTU25] Damião J. Araújo, Aelson Sobral, Eduardo V. Teixeira, and José Miguel Urbano. Borderline regularity in singular free boundary problems, 2025. [Caf98] Luis A. Caffarelli. The obstacle problem. Lecture notes, Scuola Normale Superiore, 1998. [CS05] L.A. Caffarelli and S. Salsa. A Geometric Approach to Free Boundary Problems . Graduate studies in mathematics. American Mathematical Society, 2005. [DSS20] Daniela De Silva and Ovidiu Savin. Almost minimizers of the one-phase free boundary problem. Communications in Partial Differential Equations , 45(8):913–930, 2020. [FRRO22] Xavier Fernández-Real and Xavier Ros-Oton. Regularity Theory for Elliptic PDE . EMS Press, December 2022. [HL11] Q. Han and F. Lin. Elliptic Partial Differential Equations . Courant lecture notes in mathematics. Courant Institute of Mathematical Sciences, New York University, 2011. [Phi83] Daniel Phillips. A minimization problem and the regularity of solutions in the presence of a free boundary. Indiana University Mathematics Journal , 32(1):1–17, 1983. [PSU12] Arshak Petrosyan, Henrik Shahgholian, and Nina N. Uraltseva. Regularity of Free Boundaries in Obstacle-Type Problems ,volume 136 of Graduate Studies in Mathematics . American Mathematical Society, Providence, RI, 2012. [Vel23] Bozhidar Velichkov. Regularity of the one-phase free boundaries. Lecture Notes of the Unione Matematica Italiana , 2023. 
+
+Department of Mathematics, Columbia University, New York, NY 10027 
+
+Email address : km4046@columbia.edu

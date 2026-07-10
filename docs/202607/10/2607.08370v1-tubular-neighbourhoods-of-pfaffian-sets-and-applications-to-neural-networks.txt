@@ -1,0 +1,2497 @@
+Title: Tubular Neighbourhoods of Pfaffian Sets and Applications to Neural Networks
+
+URL Source: https://arxiv.org/pdf/2607.08370v1
+
+Published Time: Fri, 10 Jul 2026 00:47:48 GMT
+
+Number of Pages: 32
+
+Markdown Content:
+TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS  
+
+> PAUL LEZEAU AND MARTIN LOTZ ABSTRACT .We derive bounds for the volume of tubular neighbourhoods of smooth Pfaffian hypersurfaces, generalising known results for algebraic varieties. The bounds are given in terms of the Pfaffian format of the defining functions. As an application, we obtain tail bounds on the probability distribution of a condition number measuring the robustness of neural network classifiers with Pfaffian activation functions, in both the uniform and Gaussian settings. In the special case of single-hidden-layer sigmoid networks with rational weights, we derive polynomial-in-width bounds for tubular neighbourhoods of the decision boundary.
+
+1. I NTRODUCTION 
+
+Pfaffian functions are functions that satisfy triangular systems of first-order partial differential equations with polynomial coefficients. The sets they define generalise algebraic and semi-algebraic sets, allowing for transcendental functions such as exp , log , tanh , etc., while retaining sufficient algebraic structure for effective quantitative bounds. Generalising previous work on tubular neighbourhoods of algebraic sets, the paper has three main aims. First, we establish tube-volume bounds for smooth bounded Pfaffian hypersurfaces by bounding the degrees of their Gauss maps using Khovanskii’s theorem. Second, we apply these bounds to robustness estimates for neural-network classifiers in the spirit of the classical theory of conditioning in numerical analysis and optimisation. Third, for one-layer sigmoid networks with rational weights, we replace the exponential (Khovanskii) dependence on the width w by a polynomial bound, with sharp leading order wn.Let V = Z(f ) be a bounded, smooth hypersurface defined by a Pfaffian function f with format 
+
+(α, β, s ), β ≥ 2. If X is uniformly distributed in a ball B(p, ρ ), we show that (Theorem 3.6) 
+
+P{d(X, V ) ≤ ε} ≤ Cα,β,s,n 
+
+ 
+
+1 + ( α + β + 1) ερ
+
+n
+
+−
+
+
+
+1 + ερ
+
+n
+
+,
+
+where Cα,β,s,n is a constant that depends on the format (see Section 2 for the definitions). When specialised to the algebraic case ( s = 0 ), the bound reduces to one of the same form as in [ Lot15 ], with the degrees of the defining polynomial playing the role of β. The key tool is Khovanskii’s theorem [ Kho91 ], Theorem 2.10, which bounds the number of solutions of a system of Pfaffian equations in terms of a triple (α, β, s ).A prominent class of Pfaffian functions arises from neural networks with smooth activation functions. The logistic sigmoid σ(x) = (1 + e −x)−1, tanh , and many other common activations are Pfaffian, and a neural network employing such activations is itself a Pfaffian function whose format can be expressed in terms of the network depth ℓ, number of nodes h, and the format of the activation function. The decision boundaries of neural network classifiers with Pfaffian activations are therefore semi-Pfaffian sets. An important problem in machine learning is the robustness of neural network classifiers to both random and adversarial perturbations. Given a data point x, the problem of whether there exists a data perturbation of size ε that leads to misclassification can be reformulated in geometric terms as the problem of whether x lies in an ε-tubular neighbourhood of the decision boundary. In the spirit of the classical theory of conditioning in numerical analysis and optimisation [ BC13 ], we define the condition number of a classifier as the ratio of the size of the  
+
+> 1arXiv:2607.08370v1 [math.AG] 9 Jul 2026 2PAUL LEZEAU AND MARTIN LOTZ
+
+input to the distance to misclassification. Bounding the volume of the tubular neighbourhood of the decision boundary therefore provides quantitative robustness guarantees and, more precisely, tail bounds on the probability distribution of the condition number. Specifically, for a neural network classifier with ℓ hidden layers, h total hidden units, and Pfaffian activations, applying the Gaussian variant of our tube formula to the pairwise decision boundaries yields (Theorem 5.4) 
+
+P{C x(X) > t } ≤ Cℓ,h,n,m · n(2 ℓ + 2) 
+
+t + O(1 /t 2),
+
+where x ∈ Rn, X ∼ N (x, σ 2Id) and Cx(X) = ∥X − x∥/d (X, Σ) is the local condition number relative to the classifier decision boundary Σ.One major drawback of this off-the-shelf Pfaffian bound is that the constant Cℓ,h,n,m (its explicit form is given in Example 5.12) carries an exponential “Khovanskii factor” 2h(h−1) /2 arising from the standard Pfaffian intersection bound. Our second main contribution is to eliminate this exponential factor for single-hidden-layer sigmoid networks with rational weights (Theorem 4.15, Corollary 5.8), obtaining a tail bound that is polynomial in the width of the network. The core estimate is for a scalar network: let f = c0 + P 
+
+> k
+
+dkσ(a⊺
+
+> k
+
+x + bk) with σ the logistic sigmoid and ak ∈ Qn, with common denominator q, and L = q max k,i |aki |. Let V = Z(f ) and Cx,V (X) = ∥X −x∥/d (X, V )
+
+be the corresponding local condition number relative to this hypersurface. Then 
+
+P{C x,V (X) > t } ≤ Cn,L · w2n
+
+ 
+
+1 + 1
+
+t
+
+n
+
+− 1
+
+
+
+for a constant Cn,L that depends on the ambient dimension and the lattice constant of the weights. Single-hidden-layer networks are the natural setting in which the width becomes the central parameter. Already with a single hidden layer, the universal approximation theorems of Cy-benko [ Cyb89 ] and Hornik, Stinchcombe, and White [ HSW89 ] guarantee that finite sums c0 +P 
+
+> k
+
+dkσ(a⊺
+
+> k
+
+x + bk) of a single sigmoid are dense in the continuous functions on any compact set, and Barron’s effective bound [ Bar93 ] shows that the width w controls the quality of approximation, giving an L2 error of order Cf /√w for target functions with finite first Fourier moment Cf (see also the survey of Pinkus [Pin99]). The tubular neighbourhood bounds rely on degree bounds for the Gauss-map of generic affine sections of the relevant hypersurface. While for polynomial systems these degrees can be bounded using Bézout’s theorem, the canonical tool in the Pfaffian setting is Khovanskii’s bound, which leads to an exponential factor in the Pfaffian chain length. The rationality of the first-layer weight vectors ak with bounded denominator L is exploited to bypass Khovanskii’s theorem and bound the degree of the Gauss map of V using a Bernstein–Kushnirenko–Khovanskii count on a related system of Laurent polynomials. When dealing with generic affine sections of our hypersurface, the difficulty is that the weights become irrational, breaking the integer lattice on which a Bernstein– Kushnirenko–Khovanskii count relies. We bypass this by passing to a multiplicative chart in which the sigmoids become rational functions: the section then becomes a Pfaffian system whose only transcendental part is the handful of logarithms encoding the section, so its Pfaffian chain is independent of the width w, and Khovanskii’s theorem yields a bound polynomial in w with a width-independent exponential constant. The leading order term, which controls the condition number tail, is governed by the number of zeros of the network along a line, for which we derive a bound of order wn. The exponent n is sharp for the degree of the Gauss map itself: an explicit grid construction (Proposition 4.11) produces networks of width w whose zero sets have Gauss-map degree Ω( wn). We conjecture that the bounds extend to multi-layer networks with Pfaffian activations. 1.1. Previous and related work. The problem of bounding the volume of a tubular neighbourhood of a set in terms of its geometric complexity has a long and rich history. In 1840, Steiner [ Ste40 ]observed that the volume of the ε-neighbourhood of a convex body in R3 is a cubic polynomial in ε.TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 3
+
+A celebrated generalisation is due to Weyl [ Wey39 ], who showed that the volume of the ε-tubular neighbourhood ( ε small enough) of a compact Riemannian submanifold of Rn is a polynomial in ε
+
+whose coefficients are intrinsic curvature invariants; see also Hotelling [ Hot39 ] and the monograph by Gray [ Gra04 ]. Tube formulae came into the radar of numerical analysis through the work of Smale, Kostlan, Renegar, and Demmel, among others, who were interested in the probabilistic analysis of condition numbers (see the references in [ BC13 , Lot15 , BL23 ]). The key observation is that if the set of ill-posed inputs of a numerical problem can be described as a subset of an algebraic variety, then a bound on the volume of its tubular neighbourhood directly translates into a bound on the probability distribution of the condition number. Bounds on tubular neighbourhoods have been extended to singular algebraic sets by Basu and Lerario [ BL23 ]. In a complementary direction, Zhang and Kileel [ ZK25 ] bound the covering numbers of real algebraic varieties, images of polynomial maps, and general semialgebraic sets via a slicing argument that counts the connected components of generic affine sections, and deduce volume bounds for tubular neighbourhoods of such sets without any smoothness assumptions. Their bounds capture the correct leading order in 
+
+ε, but are obtained from coverings by balls and therefore carry dimension-exponential constants rather than the degree-graded coefficients of the Weyl-type tube formula used here; the component counts of generic affine sections that control their estimates play a role analogous to the section degrees of the Gauss map that govern our tube formula, and admit Khovanskii-type bounds in the Pfaffian setting (Section 2). Among their applications are generalization bounds for deep networks with rational or ReLU activations, which measure the complexity of a network class in function space and are thereby complementary to our robustness analysis, which concerns the geometry of the decision boundary in input space. Neural networks have been studied in the context of Pfaffian functions since the work of Macintyre and Sontag [ MS93 ], who established finiteness results for sigmoidal networks. Karpinski and Macintyre [ KM97 ] showed that the VC dimension of sigmoidal Pfaffian networks is polyno-mial in the number of parameters; this was recently extended by D’Inverno, Bianchini, and Scarselli [ DBS24 ] to graph neural networks with general Pfaffian activations. Bianchini and Scarselli [ BS14 ] studied the topological complexity (sum of Betti numbers) of the decision re-gions of networks with Pfaffian activation functions, establishing that deep networks can produce exponentially more complex decision boundaries than shallow ones. The robustness of neural network classifiers with respect to adversarial perturbations has been of practical concern in contexts ranging from spam filtering to medical diagnosis, and a systematic investigation was initiated by Szegedy et al. [ SZS +14 ]. Subsequent work developed efficient attacks and robustness surrogates based on first-order or local geometric approximations, including the fast-gradient method of Goodfellow, Shlens, and Szegedy [ GSS15 ], the DeepFool algorithm of Moosavi-Dezfooli, Fawzi, and Frossard [ MDFF16 ], and the analysis of adversarial, random, and semi-random perturbations by Fawzi, Moosavi-Dezfooli, and Frossard [ FMDF16 ]. A comple-mentary theoretical line explains adversarial vulnerability through high-dimensional geometry and concentration of measure; see, for example, Fawzi, Fawzi, and Fawzi [ FFF18 ] and Mahloujifar, Diochnos, and Mahmoody [ MDM19 ]. The robustness of classifiers is an inherently geometric problem. A classifier F : Rn → Rm partitions the input space into decision regions separated by a decision boundary Σ. The distance d(x, Σ) is the minimal perturbation needed to change the classification of an input x, and one can define a condition number C(x) = ∥x∥/d (x, Σ) by analogy with the theory of conditioning in numerical analysis [ BC13 ]. Bounding the volume of the tubular neighbourhood of Σ therefore provides quantitative robustness guarantees and, more precisely, tail bounds on the probability distribution of the condition number. In the case of neural networks with piecewise-linear activations such as ReLU, the decision boundary is itself piecewise-linear, with combinatorial complexity controlled by the linear-region structure induced across the layers. Montúfar, Pascanu, Cho, and Bengio [ MPCB14 ] initiated the systematic counting of linear regions, proving in particular exponential lower bounds for deep 4 PAUL LEZEAU AND MARTIN LOTZ 
+
+networks; upper bounds of order O Q  
+
+> j
+
+nnj
+
+ for an ℓ-layer ReLU network of widths n1, . . . , n ℓ
+
+were obtained by Raghu, Poole, Kleinberg, Ganguli, and Sohl-Dickstein [ RPK +17 ] and Serra, Tjandraatmadja, and Ramalingam [ STR18 ], with refined counts by Hanin and Rolnick [ HR19 ]. A complementary perspective due to Zhang, Naitzat, and Lim [ ZNL18 ] interprets ReLU networks as tropical rational maps whose expressive power is captured by the Newton polytopes of the associated min-plus polynomials; in the tropical language, linear regions correspond to vertices of the Newton polytope of the network function. A recent program of neuroalgebraic geometry [ MSM +25 ] studies the function space of a network, the neuromanifold swept out as the weights vary, as a (semi-)algebraic variety, relating its algebraic invariants such as dimension, degree, and singularities to learning-theoretic properties. This shares our outlook of analysing neural networks through real-geometric invariants, including degree notions, but the object and regime differ: that program concerns the function space of polynomial networks, where algebraic geometry applies directly, whereas we study the decision boundary in input space of networks with transcendental Pfaffian activations such as the sigmoid, for which the relevant tame structure is o-minimal and the natural finiteness tools are Khovanskii’s fewnomial theory and the Bernstein–Kushnirenko–Khovanskii theorem. 1.2. Structure of the paper. Section 2 reviews the necessary background on Pfaffian functions and Pfaffian sets in a self-contained manner. Section 3 derives the tube formula for smooth Pfaffian hypersurfaces and applies it to obtain bounds on the volume of their tubular neighbourhoods. In Section 4, we apply the tube formula to obtain bounds on the volume of tubular neighbourhoods of the decision boundary of neural network classifiers with Pfaffian activations. We also present our second main result, the tube formula for one-layer sigmoid networks that is polynomial in the width of the network. Section 5 applies the tube formula to obtain tail bounds on the probability distribution of the condition number of neural network classifiers with Pfaffian activations. Section 6 outlines some future directions. 1.3. Acknowledgements. The authors are grateful to Abhiram Natarajan for many insightful discussions on Pfaffian geometry and its applications. P.L. was funded by the London Mathematical Society through the Undergraduate Research Bursary URB-2022-69, and by a London School of Geometry and Number Theory–Imperial College London/King’s College London/University College London PhD studentship, which is supported by the Engineering and Physical Sciences Research Council [EP/S021590/1]. M.L. was funded by EPSRC Grant EP/W00383X/1. 1.4. Notation and conventions. We denote by N the set of natural numbers including 0, and by 
+
+N>0 the set of positive natural numbers. For n ∈ N, we use the notation [n] := {k ∈ N>0 : k ≤
+
+n}. For d, n ∈ N, we denote by R[X1, . . . , X n](≤d) the vector subspace of the polynomial ring R[X1, . . . , X n] containing polynomials of degree at most d. We often implicitly identify a polynomial P with the function P : Rn → R given by P (x) = P (x1, . . . , x n) for x ∈ Rn.2. P FAFFIAN FUNCTIONS AND PFAFFIAN SETS 
+
+References for the material in this section are [ Kho91 , Zel03 , GV04 ]. We assume throughout that 
+
+n ∈ N>0. Pfaffian functions are defined relative to an open domain U ⊆ Rn; unless a domain is specified we take U = Rn, which covers the neural network activation functions of interest. 2.1. Pfaffian functions. Pfaffian functions, introduced by Khovanskii [ Kho91 ], are functions that satisfy triangular systems of first-order partial differential equations with polynomial coefficients. The sets defined by Pfaffian functions are tame in the sense of o-minimal geometry [ Wil96 ,Wil99 , Spe99 ], and many of their geometric and topological properties, such as the number of connected components and the sum of Betti numbers, can be bounded effectively in terms of the format [GV04]. TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 5
+
+Definition 2.1 (Pfaffian function) . Let U ⊂ Rn be an open set. A Pfaffian chain of order s ∈ N
+
+and chain-degree α ∈ N>0 over U is a sequence of functions q = ( q1, . . . , q s) with qi ∈ C∞(U)
+
+for i ∈ [s], such that there exist polynomials Pij ∈ R[X1, . . . , X n, Y 1, . . . , Y i]≤α, for i ∈ [s] and 
+
+j ∈ [n], that verify (2.1) ∂q i
+
+∂x j
+
+(x) = Pij (x, q 1(x), . . . , q i(x)) .
+
+A function g(x) = P (x, q 1(x), . . . , q s(x)) , with P ∈ R[X1, . . . , X n, Y 1, . . . , Y s]≤β for β ∈ N, is called a Pfaffian function of chain degree α, degree β, and order s. A function U → Rm is called Pfaffian if all its components are Pfaffian. The triple (α, β, s ) is called a format of g. We denote by Pfaff q,β (U) the set of all Pfaffian functions over U with chain q and degree β, and by Pfaff α,β,s (U) the set of all Pfaffian functions over U
+
+with format (α, β, s ). When we say that a Pfaffian function U → Rm has a particular format, we mean that every component has that same format, and we write Pfaff α,β,s (U; Rm).
+
+Remark 2.2. Note that the Pfaffian chain associated with a Pfaffian function, and hence also a format, is not unique. In particular, Pfaff α,β,s (U) ⊆ Pfaff α′,β ′,s ′ (U) for α′ ≥ α, β′ ≥ β, and 
+
+s′ ≥ s. In the following, we will often leave the chain implicit, and our results will be stated in terms of the format. We call a Pfaffian function g : U → R autonomous with respect to a Pfaffian chain q if (2.2) ∂q i
+
+∂x j
+
+(x) = Pij (q1(x), . . . , q i(x)) 
+
+for some Pij ∈ R[Y1, . . . , Y i], and g(x) = P (q1(x), . . . , q s(x)) for some P ∈ R[Y1, . . . , Y s]. Note that being autonomous is a property of a given Pfaffian representation of a function, not a property of the function itself. Every Pfaffian function can be made autonomous by adjoining the coordinate functions x1, . . . , x n to the Pfaffian chain. In what follows, we often work with a fixed chain that may be implicit, and refer to a Pfaffian function as autonomous if it is autonomous with respect to that chain. 
+
+Example 2.3. The following are simple examples of Pfaffian functions. (1) A polynomial P ∈ R[X1, . . . , X n] gives rise to a Pfaffian function with format (α, deg P, 0) 
+
+for any α > 0 via the evaluation homomorphism; (2) exp : R → R is Pfaffian with format (1 , 1, 1) . A Pfaffian chain is q = (exp) and 
+
+P11 (X, Y 1) = Y1;(3) tanh is Pfaffian with format (2 , 1, 1) . A Pfaffian chain is q = (tanh) and P11 (X, Y 1) = 1 − Y 21 ;(4) The logistic sigmoid σ = (1 + e −x)−1 is Pfaffian with format (2 , 1, 1) . A Pfaffian chain is 
+
+q = ( σ) and P11 (X, Y 1) = Y1(1 − Y1);(5) arctan is Pfaffian with format (3 , 1, 2) . A Pfaffian chain is q = ((1 + x2)−1, arctan( x)) .The polynomials are P11 (X, Y 1) = −2XY 21 and P21 (X, Y 1, Y 2) = Y1.Examples (2-4) are autonomous with respect to the given chains, while (1) and (5) are not. Pfaffian functions enjoy some convenient closure properties under algebraic operations and com-position, as illustrated in the following two results (see also [Zel03, Proposition 1.8]). 
+
+Lemma 2.4. Let g ∈ Pfaff α,β,s (U) and h ∈ Pfaff α′,β ′,s ′ (U). Then: 6 PAUL LEZEAU AND MARTIN LOTZ 
+
+(1) g + h ∈ Pfaff max {α,α ′},max {β,β ′},s +s′ (U);
+
+(2) gh ∈ Pfaff max {α,α ′},β +β′,s +s′ (U);
+
+(3) For each i ∈ [n], ∂g/∂x i ∈ Pfaff α,α +β−1,s (U).Proof. The first two statements are straightforward consequences of the fact that the concat-enation of Pfaffian chains is again a Pfaffian chain. For the third statement, assume g(x) = 
+
+P (x, q 1(x), . . . , q s(x)) for a polynomial P ∈ R[X1, . . . , X n, Y 1, . . . , Y s]≤β . Then 
+
+∂g ∂x i
+
+= ∂P ∂x i
+
++
+
+> s
+
+X
+
+> ℓ=1
+
+∂P ∂y ℓ
+
+∂q ℓ
+
+∂x i
+
+= ∂P ∂x i
+
++
+
+> s
+
+X
+
+> ℓ=1
+
+∂P ∂y ℓ
+
+Pℓi (x, q 1(x), . . . , q ℓ(x)) .
+
+The resulting expression is a polynomial in x and the qj , with degree bounded by α + β − 1. □
+
+Remark 2.5. Note that the bound on the length of g + h and gh is in general not sharp: if g and h
+
+are Pfaffian with respect to the same chain q of length s, then clearly the length of g + h and gh is also s. It also follows from Lemma 2.4 that a linear combination of Pfaffian functions g1, . . . , g m
+
+with formats (αi, β i, s i) is Pfaffian with format (max i{αi}, max i{βi}, P 
+
+> i
+
+si).
+
+Lemma 2.6. Let g ∈ Pfaff α,β,s (U; Rm) and h ∈ Pfaff α′,β ′,s ′ (Rm) be Pfaffian functions, and assume s′ ≥ 1.
+
+(1) h ◦ g ∈ Pfaff (α′+1) β+α−1,ββ ′,ms +s′ (U);
+
+(2) If h is autonomous, then h ◦ g ∈ Pfaff α′+α+β−1,β ′,ms +s′ (U);
+
+(3) If all the functions in g depend on the same Pfaffian chain q of length s, then h ◦ g has Pfaffian order s + s′.Proof. Let g = ( g1, . . . , g m), and for each i ∈ [m], let q(i) = ( q(i)1 , . . . , q (i) 
+
+> s
+
+) be a Pfaffian chain for gi. Let q′ = ( q′
+
+> 1
+
+, . . . , q ′ 
+
+> s′
+
+) be a Pfaffian chain for h. Let P and Pi, i ∈ [m], be the polynomials representing h and the gi, respectively. The composition h ◦ g is then represented as (2.3) (h ◦ g)( x) = P (P1(x, q(1) (x)) , . . . , P m(x, q(m)(x)) , q′(g(x))) ,
+
+which is clearly a polynomial in x = ( x1, . . . , x n) and in the chain (2.4) (q(1) 1 , . . . , q (1)  
+
+> s
+
+, . . . , q (m)1 , . . . , q (m) 
+
+> s
+
+, q ′ 
+
+> 1
+
+◦ g, . . . , q ′ 
+
+> s′
+
+◦ g)
+
+of length ms + s′. It remains to be seen that this is a Pfaffian chain. For the first ms functions in this chain there is nothing to show. It remains to be seen that the derivatives of q′ 
+
+> i
+
+◦ g can be expressed as polynomials in x and in the previous elements of the chain. In fact, for j ∈ [n] we have (2.5) ∂(q′ 
+
+> i
+
+◦ g)
+
+∂x j
+
+=
+
+> m
+
+X
+
+> ℓ=1
+
+∂q ′
+
+> i
+
+∂x ℓ
+
+∂g ℓ
+
+∂x j
+
+=
+
+> m
+
+X
+
+> ℓ=1
+
+P ′
+
+> iℓ
+
+(g(x), q ′ 
+
+> 1
+
+◦ g(x), . . . , q ′ 
+
+> i
+
+◦ g(x)) ∂g ℓ
+
+∂x j
+
+,
+
+where the P ′ 
+
+> iℓ
+
+are the polynomials associated to the chain q′. This shows that the partial derivative is a polynomial in q′
+
+> 1
+
+, . . . , q ′
+
+> i
+
+. Note that gℓ and, by virtue of Lemma 2.4(3), its partial derivatives are polynomials in q(ℓ)1 , . . . , q (ℓ) 
+
+> s
+
+. This establishes that (2.4) is a Pfaffian chain of length ms + s′.To prove the degree bounds in the general case (1), note that the degree of the composition of polynomials is bounded by the product of the degrees. The degree of P ′
+
+> iℓ
+
+(g(x), q ′
+
+> 1
+
+, . . . , q ′
+
+> i
+
+) is bounded by α′β, and Lemma 2.4(3) shows that the degree of ∂g ℓ/∂x i is bounded by α + β − 1,establishing the bound (α′ + 1) β + α − 1 on the degree of the new Pfaffian chain (2.4) . Moreover, the degree of the polynomial (2.3) representing h ◦ g is clearly bounded by ββ ′. For the autonomous case (2), note that the degree of (2.5) is α′ + α + β − 1 if the P ′ 
+
+> ij
+
+only depend on the elements TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 7
+
+q′
+
+> 1
+
+, . . . , q ′ 
+
+> i
+
+and not explicitly on x, since P ′ 
+
+> ij
+
+(q′ 
+
+> 1
+
+◦ g, . . . , q ′ 
+
+> i
+
+◦ g) has degree α′ in the last s′ chain elements while ∂g ℓ/∂x j has degree α+β −1 in the remaining variables. We also observe from (2.3) that in the autonomous case, h ◦ g depends only on the last s′ elements of its Pfaffian chain in the same way that h depends on its Pfaffian chain q′. This implies that the degree is bounded by β′.Case (3) is clear. □
+
+Remark 2.7. The special case where g : Rn → Rm is a linear map shows that the Pfaffian structure is invariant under affine change of coordinates. We are also interested in the geometric objects defined by Pfaffian functions. 
+
+Definition 2.8. A Pfaffian set (or Pfaffian variety) is a set of the form 
+
+V = Z(g1, . . . , g k) = {x ∈ Rn : g1(x) = · · · = gk(x) = 0 },
+
+where the gi : Rn → R are Pfaffian functions. A basic semi-Pfaffian set is a set of the form 
+
+B = {x ∈ Rn : g1(x) = · · · = gk(x) = 0 , h 1(x) > 0, . . . , h ℓ(x) > 0},
+
+where the gi and hj are Pfaffian functions. A semi-Pfaffian set is a finite union of basic semi-Pfaffian sets. Note that semi-Pfaffian sets are precisely the sets that can be written as unions, intersections, and complements of sets defined by expressions of the form gi(x) ⋆ 0, with ⋆ ∈ { =, ≤, ≥} .
+
+Remark 2.9. Since the concatenation of Pfaffian chains is again a Pfaffian chain, we can assume without loss of generality that the functions gi and hj in the definition of a (semi-)Pfaffian set are Pfaffian with respect to the same Pfaffian chain. We conclude this subsection with the following central result on Pfaffian systems. We call a solution 
+
+a ∈ Rn of a system of equations F (x) = 0 regular (or non-degenerate), if the differential dF (a)
+
+has maximal rank. 
+
+Theorem 2.10 (Khovanskii) . Let U ⊆ Rn be an open domain and let F = ( f1, . . . , f n) : U → Rn
+
+be a Pfaffian function over U with chain q = ( q1, . . . , q s) and component-wise formats (α, β i, s ),for which the functions in the Pfaffian chain depend only on {x1, . . . , x k} for some k ≤ n. Then the number of regular real solutions of the system F (x) = 0 in U is bounded by 
+
+2 s(s−1) 2 β1 · · · βn (β1 + · · · + βn − n + min {k, s }α + 1) s .
+
+In [ Kho91 , §3.12, Corollary 5], a version of Theorem 2.10 is derived from more general results. A pedestrian derivation of the finiteness of the set of solutions can be found in [ Mar97 ]; getting the precise bound as in Khovanskii’s theorem from this approach requires a considerable amount of additional work. The standard formulations (e.g., [ GV04 , Theorem 3.1]) use min {n, s } in place of 
+
+min {k, s }. The refined bound follows from the proof in [ Kho91 ], where the Rolle-type induction only involves the k variables on which the chain depends. For a discussion of the sharpness of the bounds, see [BHH +26]. The following result is a variant of [ GV04 , Corollary 3.3] and [ JT12 , Theorem 2.3], using the refined bound of Theorem 2.10; the refinement is advantageous when the Pfaffian chain is short (s < n ) or depends on few of the variables ( k < n ). 
+
+Corollary 2.11. Let F ∈ Pfaff α,β,s (Rn; Rm) be a Pfaffian function with chain q = ( q1, . . . , q s),for which the functions in the Pfaffian chain depend only on k ≤ n of the variables. Then the number of connected components of the zero set Z(F ) is bounded by 
+
+(2.6) 2 s(s−1) 2 +1 (α + 2 β − 1) n−1β (n(α + 2 β − 2) + α(min {k, s } − 1) + 2) s .8 PAUL LEZEAU AND MARTIN LOTZ 
+
+The proof follows along the lines of the proof of Proposition 11.5.2 and 11.5.3 in [BCR13], using Lemma 2.4(3) to bound the degrees of the derivatives and invoking Theorem 2.10 instead of Bézout’s theorem. While the bound (2.6) is not as sharp as possible, it gives a convenient way of counting the number of solutions to a system of Pfaffian equations without reference to the number of equations. 3. T UBULAR NEIGHBOURHOODS OF PFAFFIAN HYPERSURFACES 
+
+Let M be an m-dimensional Riemannian submanifold of Rn with the metric induced from the Euclidean metric, and denote by c = n − m the codimension of M in Rn. The ε-tubular neighbour-hood of M in Rn, T (M, ε ), is the set of points in Rn that can be joined perpendicularly to M by a segment of length ≤ ε. If M is compact, T (M, ε ) is equal to the closed ε-neighbourhood of M . In this section we derive a bound on the probability that a random point lies in T (M, ε ) in the case where M is defined by Pfaffian functions. The bound is derived by combining a variant of Weyl’s tube formula with degree bounds on the generalised Gauss map, following the approach of [ Lot15 ]. 3.1. Generalised Gauss map. For p ∈ M , let NpM = {v ∈ Rn : v ⊥ TpM } denote the normal space to M at p and S(N M ) = {(p, v ) ∈ M × Sn−1 : v ⊥ TpM } the normal sphere bundle of M .The normal sphere bundle S(N M ) is a smooth manifold of dimension n − 1 for any submanifold 
+
+M , and is compact when M is. 
+
+Definition 3.1. The map γ : S(N M ) → Sn−1, (p, v ) 7 → v is called the generalised Gauss map. For a smooth map f between manifolds of the same dimension, the fibre f −1(v) over a regular value v is discrete, and finite if the domain is compact [ MW97 , §1]. We define the maximum degree of f by 
+
+mdeg f = sup  
+
+> v∈reg f
+
+|f −1(v)| ∈ N ∪ {∞} ,
+
+where reg f is the set of regular values of f . For compact M , the degree is finite. From our degree bounds it will follow that for the generalised Gauss maps of (sections of) Pfaffian sets this degree is finite, even without the assumption that the domain is compact. Let Enj be the set of dimension j affine subspaces of Rn. For almost all H ∈ E nc+i, the intersec-tion M ∩ H is either empty or transverse, meaning that codim( TpM ∩ TpH) = codim TpM +codim TpH. If H ∈ E nc+i intersects M transversally, then M ∩ H is an i-dimensional submanifold of H ∼= Rc+i. In this case, we can define the degree of M with respect to H as the maximum degree of the generalised Gauss map of M ∩ H as a submanifold of H ∼= Rc+i:
+
+mdeg( M, H ) := mdeg γM ∩H ,
+
+and the i-th degree of M as 
+
+mdeg i(M ) := sup 
+
+> H∈E nc+i
+
+mdeg( M, H ),
+
+where we use the convention mdeg( M, H ) = 0 for non-transverse intersections. A bound on the volume of T (M, ε ) in terms of the i-th degrees of M was derived in [ Lot15 ,Theorem 4.3], based on a version of Weyl’s tube formula and integral geometry. The key takeaway of this result is that the volume of T (M, ε ) is bounded by a polynomial in ε (the original formula due to Weyl actually yields an equality, albeit with some restrictions on the size of ε and different coefficients). In what follows, B(p, ρ ) denotes a closed ball of radius ρ around p ∈ Rn.
+
+Theorem 3.2. Let M ⊂ B(p, ρ ) be a compact Riemannian submanifold of Rn of dimension m,possibly with boundary, and set c = n − m. Then for any ε > 0 we have 
+
+vol T (M, ε ) ≤ 2ωnρnmX
+
+> i=0
+
+ nc + i
+
+
+
+mdeg i(M )
+
+ ερ
+
+c+i
+
+,TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 9
+
+where ωn = vol B(0 , 1) and, when M has boundary, the degrees mdeg i(M ) are taken on the interior M \ ∂M .
+
+Remark 3.3. The estimate of Theorem 3.2 is a one-sided, integral-geometric bound: it controls 
+
+vol T (M, ε ) by the integrals of absolute curvature over the interior M \ ∂M , which are themselves bounded by the section degrees mdeg i via Crofton’s formula. The upper bound follows from the surjectivity of the normal exponential map S(N M ) × [0 , ε ] → T (M, ε ) together with the area formula, and therefore holds verbatim for a bounded compact manifold with boundary, the curvature integrals and degrees being taken over the interior. The curvature-integral bound is stated and proved in this generality in [ Lot15 , Theorem 3.1], whose statement explicitly allows a boundary. The passage from curvature integrals to section degrees is [ Lot15 , Theorem 4.3]; it is stated there for manifolds without boundary, but extends to the boundary case with the degrees taken over the interior, as indicated in the remark following [ Lot15 , Lemma 4.2] and used in the proof of [ Lot15 ,Theorem 1.1]. 3.2. Bounding the degree of the Gauss map. The key to deriving an effective bound on the volume of T (M, ε ) is to bound the degree of the generalised Gauss map. We are interested in the case where M is a complete intersection of c smooth Pfaffian functions. By this, we mean that M
+
+can be expressed in the form 
+
+M = Z(f1, . . . , f c),
+
+where the fi are Pfaffian functions, and such that the gradients ∇fi are linearly independent at each point. 
+
+Proposition 3.4. Let M = Z(f1, . . . , f c) be a compact Pfaffian complete intersection, where the 
+
+fi are Pfaffian with format (α, β i, s ) with respect to the same Pfaffian chain and βi ≤ β for all i.Then 
+
+mdeg n−c(M ) ≤ 2 s(s−1) 2 (α + β)n ·
+
+> c
+
+Y
+
+> i=1
+
+βi ·
+
+"
+
+(n + min {n, s })α + n(β − 1) + 
+
+> c
+
+X
+
+> i=1
+
+(βi − 1) + 1 
+
+#s
+
+.
+
+Proof. Let v ∈ Sn−1 be a regular value of the generalised Gauss map γ : S(N M ) → Sn−1. At each point x ∈ M , the normal sphere bundle is spanned by the normalized gradients of the fi, and the number of points in the pre-image γ−1(v) is the same as the number of points in the set 
+
+S := 
+
+(
+
+x ∈ M : ∃λ1, . . . , λ c s.t. 
+
+> c
+
+X
+
+> i=1
+
+λi∇fi(x) = v
+
+)
+
+.
+
+Note that since the gradients are linearly independent at each point, for every x ∈ M the coefficients 
+
+λi are uniquely determined. The number of points in S is therefore bounded by the number of solutions of the system of n + c equations in n + c unknowns, 
+
+fi(x) = 0 , i ∈ [c]
+
+v −
+
+> c
+
+X
+
+> i=1
+
+λi∇fi(x) = 0 .
+
+(3.1) All functions involved are Pfaffian and we can apply Theorem 2.10 to get a bound on the number of solutions, using the fact that the c equations fi = 0 have degrees βi and the n gradient equations have degree α + β by Lemma 2.4(3). The chain depends on n of the n + c variables (the x-variables only). By Sard’s theorem, for a generic regular value v of γ, all solutions of (3.1) are non-degenerate. Since |γ−1(v)| is locally constant on regular values, the maximum degree is achieved at such generic values. □10 PAUL LEZEAU AND MARTIN LOTZ 
+
+Remark 3.5. In the proof of Proposition 3.4, one could alternatively eliminate the Lagrange multipliers λi by requiring that the matrix (3.2) J = ∇f1(x) · · · ∇fc(x) v
+
+has rank at most c, i.e., that all (c+1) × (c+1) minors of J vanish. Each such minor has degree at most c(α + β − 1) in the variables x1, . . . , x n, by Lemma 2.4(3). The resulting (overdetermined) system involves only the n variables xi, so one can apply the connected-components bound (2.6) with D = max {β, c (α + β − 1) } playing the role of β. While this reduces the number of variables from n + c to n, the exponential base in (2.6) becomes α + 2 D − 1, which for c = 2 equals 
+
+5α + 4 β − 5. This is significantly larger than α + β, the base appearing in Proposition 3.4. For the parameter ranges typical in neural-network applications ( c = 2 , α, β ≤ 3), this base inflation dominates the savings from reducing the number of variables, and the Lagrange-multiplier approach gives substantially better bounds. For instance, when α = 2 , β = 1 , s = 1 , Proposition 3.4 yields 
+
+mdeg( M ) ≤ 3n(2 n + 3) , whereas the minor-elimination approach gives a bound of order 9n · n.For 0 ≤ i ≤ m, we bound the i-th maximal degree as follows. Fix a section H ∈ E nc+i meeting 
+
+M transversally. Since H is an affine subspace, there is an affine isometry h : Rn → Rn (a rigid motion) carrying H onto the coordinate subspace 
+
+˜H = {x ∈ Rn : xc+i+1 = · · · = xn = 0 } ∼= Rc+i.
+
+The generalised Gauss-map degree is invariant under isometries, so 
+
+mdeg( M, H ) = mdeg( ˜M , ˜H), ˜M := h(M ) = Z( ˜f1, . . . , ˜fc), ˜fj := fj ◦ h−1.
+
+By Remark 2.7, each ˜fj is Pfaffian of the same format (α, β j , s ) as fj , so ˜M is a Pfaffian complete intersection of that format; in particular the resulting bound is independent of H, and it suffices to bound mdeg( ˜M , ˜H). Restricting to ˜H, that is, setting xc+i+1 = · · · = xn = 0 , realises ˜M ∩ ˜H as a Pfaffian complete intersection of c functions in the c + i variables x1, . . . , x c+i. When i = 0 , this is a zero-dimensional transverse complete intersection, and its generalised Gauss-map degree is just the number of points in the section, so the same argument applies. Applying Proposition 3.4 in dimension c + i gives 
+
+mdeg i(M ) ≤2 s(s−1) 2 (α + β)c+icY
+
+> j=1
+
+βj
+
+·
+
+(c + i + min {c + i, s })α + ( c + i)( β − 1) + 
+
+> c
+
+X
+
+> j=1
+
+(βj − 1) + 1 
+
+
+
+> s
+
+.
+
+(3.3) 3.3. A Pfaffian tube formula. We can now state and prove our bound on the volume of a tubular neighbourhood of a Pfaffian hypersurface. For convenience, this has been stated in terms of probability, but the reader should note that one could readily modify the proof to get a similar bound for vol T (V, ε ).
+
+Theorem 3.6. Let V = Z(f ) for Pfaffian function f ∈ Pfaff α,β,s (Rn). Suppose that ∇f is non-vanishing on V and that V is bounded. Moreover, let p ∈ Rn, ε, ρ > 0 and X uniformly distributed over B(p, ρ ). Then 
+
+P{d(X, V ) ≤ ε} ≤ Cα,β,s,n 
+
+ 
+
+1 + ( α + β + 1) ερ
+
+n
+
+−
+
+
+
+1 + ερ
+
+n
+
+,
+
+where β = max {β, 2} and 
+
+Cα,β,s,n = 6 · 2 s(s−1) 2 β  n(2 α + β − 1) + β + 1 s .TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 11 
+
+Remark 3.7. Note that the constant involves both β and β = max {β, 2}: the bare β is the degree of f , while β is forced by the codimension-two boundary V ∩ Sn−1(p, ρ + ε) arising in the proof, whose defining sphere has degree 2.
+
+Proof of Theorem 3.6. The probability that d(X, V ) ≤ ε for X uniformly distributed in B(p, ρ ) is given by 
+
+P{d(X, V ) ≤ ε} = vol( T (V, ε ) ∩ B(p, ρ )) vol B(p, ρ ) .
+
+Fix ε > 0 and assume first that ρ + ε is a regular value of the map x 7 → ∥ x − p∥ on V , which holds for almost all ρ > 0 by Sard’s theorem; the remaining values of ρ are handled by a limiting argument at the end of the proof. Then M = V ∩ B(p, ρ + ε) is a compact manifold with boundary, and we notice that 
+
+T (V, ε ) ∩ B(p, ρ ) ⊂ T (M \ ∂M, ε ) ∪ T (∂M, ε ),
+
+where ∂M = M ∩ Sn−1(p, ε + ρ). It is therefore enough to bound the two tubular neighbourhoods on the right-hand side. Since M \ ∂M ⊂ V and dim( M \ ∂M ) = dim V , we have mdeg i(M \ ∂M ) ≤ mdeg i(V ).Applying Theorem 3.2 to the compact manifold with boundary M ⊂ B(p, ρ + ε) (see Remark 3.3) and using mdeg i(M \ ∂M ) ≤ mdeg i(V ), we obtain 
+
+vol T (M \ ∂M, ε ) ≤ 2ωn(ρ + ε)nn−1X
+
+> i=0
+
+ ni + 1 
+
+
+
+· mdeg i(V ) ·
+
+ ερ + ε
+
+i+1 
+
+.
+
+Since ∂M has codimension 2, we get, in addition, 
+
+vol T (∂M, ε ) ≤ 2ωn(ρ + ε)nn−1X
+
+> i=1
+
+ ni + 1 
+
+
+
+· mdeg i−1(∂M ) ·
+
+ ερ + ε
+
+i+1 
+
+.
+
+Set 
+
+K := 2 s(s−1) 2 βn(2 α + β − 1) + β + 1 s.
+
+Using (3.3), we get 
+
+mdeg i(V ) ≤ 2 s(s−1) 2 (α + β)i+1 β(i + 1)(2 α + β − 1) + βs ≤ K(α + β)i+1 ,
+
+mdeg i−1(∂M ) ≤ 2 s(s−1) 2 +1 (α + β)i+1 β(i + 1)(2 α + β − 1) + β + 1 s ≤ 2K(α + β)i+1 .
+
+Combining these bounds, we get 
+
+vol T (V, ε ) ∩ B(p, ρ ) ≤ vol T (M \ ∂M, ε ) + vol T (∂M, ε )
+
+≤ 6Kω n(ρ + ε)nn−1X
+
+> i=0
+
+ ni + 1 
+
+
+
+(α + β)i+1 
+
+ ερ + ε
+
+i+1 
+
+.
+
+Dividing both sides by vol B(p, ρ ) = ωnρn, substituting j = i + 1 and using the binomial theorem gives the claimed bound for every ρ such that ρ + ε is a regular value of x 7 → ∥ x − p∥
+
+on V , which by Sard’s theorem is a dense set of ρ > 0. It remains to remove this genericity assumption. Both sides of the inequality are continuous in ρ: the right-hand side is a polynomial in 
+
+ε/ρ , while the left-hand side equals vol  T (V, ε ) ∩ B(p, ρ )/(ωnρn), which is continuous because 
+
+ρ 7 → vol  T (V, ε ) ∩ B(p, ρ ) is. Since the bound holds on a dense set of ρ and both sides are continuous, it holds for all ρ, ε > 0, completing the proof. □
+
+Remark 3.8. Discarding the non-positive term −(1 + ε/ρ )n gives the simpler bound 
+
+P{d(X, V ) ≤ ε} ≤ Cα,β,s,n 
+
+
+
+1 + ( α + β + 1) ερ
+
+n
+
+.12 PAUL LEZEAU AND MARTIN LOTZ 
+
+The full bound of Theorem 3.6 is sharper in two ways: it vanishes as ε → 0 (as it must), and for large ρ/ε it decays as Cα,β,s,n · n(α + β)ε/ρ . This O(ε/ρ ) behaviour is essential for deriving the 
+
+O(1 /t ) tail bounds on condition numbers in Section 5. 4. T UBULAR NEIGHBOURHOODS OF NEURAL NETWORKS 
+
+Artificial neural networks, or multilayer perceptrons, with common continuous activation functions are examples of Pfaffian functions [ KM97 , BS14 ]. When used as classifiers, neural networks subdivide the input space into decision regions separated by semi-Pfaffian decision boundaries and the Pfaffian volume bound in Theorem 3.6 can be used to quantify the probability that a randomly chosen input is close to that boundary. The general volume bound for Pfaffian functions is, however, overly pessimistic for neural networks. In this section we derive an improved volume bound for one-layer neural networks with sigmoid activation. 4.1. Neural networks as Pfaffian functions. Let N be a fully connected neural network with ℓ
+
+hidden layers and h hidden units. Such a network is characterised by a function F = F ℓ+1 ◦ · · · ◦ 
+
+F 1 : Rn → Rm, where 
+
+F i(x) = σi(Aix + bi), i ∈ [ℓ],F ℓ+1 (x) = g(x)
+
+for matrices Ai ∈ Rni×ni−1 (for this to work, we need n0 = n and nℓ+1 = m), vectors bi ∈ Rni ,and functions σi : Rni → Rni , where σi = ( σi
+
+> 1
+
+, . . . , σ ini )⊺ consists of activation functions. The function g : Rnℓ → Rm is an output function; examples are a linear map g(x) = Aℓ+1 x or the softmax function (see Example 4.4). The number of hidden units is given as the sum h := Pℓi=1 ni.
+
+F1(x)
+
+F2(x)
+
+x1
+
+x2
+
+FIGURE 1. A fully connected neural network with n = 2 , m = 2 , ℓ = 2 , h = 5 
+
+Suppose that the activation functions σij are autonomous Pfaffian functions with format (α, β, s )
+
+with s ≥ 1. That is, each σij can be written as 
+
+σij (x) = Qij (qij  
+
+> 1
+
+(x), . . . , q ij s (x)) ,
+
+where Qij ∈ R[Y1, . . . , Y s] with deg Qij ≤ β and qij = ( qij  
+
+> 1
+
+, . . . , q ij s ) is the Pfaffian chain corresponding to σij , satisfying 
+
+dqij r
+
+dx = P ij r (qij  
+
+> 1
+
+(x), . . . , q ij r (x)) ,
+
+for polynomials P ij r satisfying deg P ij r ≤ α.If the output function g is also Pfaffian, then Lemma 2.6 implies that each component of F i is a Pfaffian function, with a Pfaffian chain consisting of s functions for every unit in the i-th layer of the network. If we denote the “preactivation” of the j-th node in the i-th layer by zij , i.e., the j-th component of the vector zi := Ai(F i−1 ◦ · · · ◦ F 1(x)) + bi, then this node contributes the functions 
+
+(qij  
+
+> 1
+
+(zij ), . . . , q ij s (zij )) TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 13 
+
+to the Pfaffian chain of the network. We can use Lemma 2.6 (2) to derive the following result on the Pfaffian structure of such a neural network. The proof is a simple induction on the depth of the network. 
+
+Proposition 4.1. Let F : Rn → Rm be a function implemented by a neural network with ℓ hidden layers and ni units in hidden layer i, for i ∈ [ℓ]. Assume that the activation functions at each layer are autonomous Pfaffian functions with format (α, β, s ), s ≥ 1. Then for i ∈ [ℓ], the function 
+
+F i ◦ · · · ◦ F 1 : Rn → Rni is Pfaffian with format 
+
+i(α + β − 1) − β + 1 , β, s 
+
+> i
+
+X
+
+> j=1
+
+nj
+
+ .
+
+In particular, at the last hidden layer ( i = ℓ), the format of F ℓ ◦ · · · ◦ F 1 is 
+
+(ℓ(α + β − 1) − β + 1 , β, sh ) ,
+
+where h = Pℓj=1 nj is the total number of hidden units. Similarly, if the output function is an autonomous Pfaffian function with format (α′, β ′, s ′), then the function F = F ℓ+1 ◦ F ℓ ◦ · · · ◦ F 1
+
+is Pfaffian with format  ℓ(α + β − 1) + α′, β ′, sh + s′m .
+
+Thus, for a fixed set of activation functions (and hence fixed α, β, s), the chain-degree grows linearly in the depth ℓ, the function degree is constant, and the order grows linearly in h.
+
+Remark 4.2. The order sh should not be expected to improve substantially for generic fully connected networks: the intermediate activation values arise independently in the partial derivatives of the network output via the chain rule, so one cannot generally reuse a small fixed set of chain elements across all hidden units. The structural optimisation provided by Lemma 2.6(3), which keeps the order additive across layers rather than multiplicative, is already incorporated into the bound. 
+
+Example 4.3 (Activation functions) . Table 1 lists common activation functions and their Pfaffian formats. Here σ(x) = (1 + e −x)−1 is the logistic sigmoid, φ and Φ denote the standard Gaussian density and cdf, respectively, and sp( x) = ln(1 + e x) is the softplus function [ GBB11 ]. GELUs were introduced in [ HG16 ]. Nonsmooth activation functions such as ReLU do not fall into our framework, nor does the ELU, which is not analytic at the origin. Activation σ(x) Chain q α β s Auton. Exponential ex (e x) 1 1 1 Yes Sigmoid (1 + e −x)−1 (σ) 2 1 1 Yes Tanh tanh( x) (tanh) 2 1 1 Yes Softplus ln(1 + e x) (σ, sp) 2 1 2 Yes SiLU/Swish xσ (x) (σ) 2 2 1 No GELU xΦ( x) (φ, Φ) 2 2 2 No Mish x tanh(sp( x)) (σ, sp , tanh(sp)) 3 2 3 No Gaussian e−x2
+
+(e −x2
+
+) 2 1 1 No Arctan arctan( x) ((1 + x2)−1, arctan) 3 1 2 No TABLE 1. Pfaffian formats of common activation functions. 14 PAUL LEZEAU AND MARTIN LOTZ 
+
+Example 4.4 (Softmax) . A common output function for classification problems is the softmax function. Each component of the softmax function (4.1) g(x) = ex1
+
+P 
+
+> j
+
+exj , . . . , exm
+
+P 
+
+> j
+
+exj
+
+!
+
+.
+
+is Pfaffian with format (3 , 1, m ), but the Pfaffian chains are not identical. For example, if we set 
+
+qij (x) = exj −xi
+
+then we have 
+
+∂g i
+
+∂x j
+
+(x) = 
+
+(
+
+−qij (x)gi(x)2 if i̸ = jgi(x)(1 − gi(x)) if i = j. 
+
+In this case, a Pfaffian chain for gi is given by (qi1, . . . , cqii , . . . , q im , g i). Note that this also gives a Pfaffian chain for any other gj , but yielding a format (3 , 2, m ) as one has to write gj = giqij .When using a neural network as a classifier, we can interpret Fi(x) as representing the likelihood that x belongs to class i (for example, if the output map g is the softmax function). Thus a data point x ∈ Rn is assigned to class j if Fj (x) > F i(x) for all i̸ = j, with an arbitrary tie break if 
+
+Fi(x) = Fj (x). For i̸ = j, define the functions gij := Fj − Fi. The map F induces a subdivision of Rn into m regions 
+
+Cj = {x ∈ Rn : gij (x) ≥ 0 for i̸ = j}, j ∈ [m].
+
+If Cj has non-empty interior, then the interior int( Cj ) is the set of x that are unequivocally assigned to class j. The boundary of Cj and the decision boundary of the classifier are given by 
+
+Σj = [
+
+> i̸=j
+
+(Cj ∩ Ci), j ∈ [m] and Σ = [
+
+> j
+
+Σj ,
+
+respectively. The following result is a straightforward consequence of the algebraic properties of Pfaffian functions and the definition of semi-Pfaffian sets. 
+
+Proposition 4.5. Assume the neural network classifier implemented by F : Rn → Rm is a Pfaffian function. Then the functions gij := Fj − Fi are also Pfaffian, and the decision boundaries Σj and 
+
+Σ are semi-Pfaffian sets. 
+
+Example 4.6. Consider an ℓ-layer neural network for classification in which all the activation functions at hidden nodes are of format (2 , 1, 1) (for example, tanh and the logistic sigmoid σ) and the output function is the softmax function. Then the gij (x) are Pfaffian with format 
+
+(2 ℓ + 3 , 1, h + 2 m),
+
+where h is the total number of hidden nodes. If we consider the same network without the softmax layer, then the corresponding Pfaffian format is (2 ℓ, 1, h ).Simply applying the Pfaffian tube formula to the setting of neural networks gives the following bound. 
+
+Corollary 4.7 (Theorem 3.6 for neural networks) . Let V = Z(gij ) for gij = Fj − Fi, where 
+
+F : Rn → Rm is implemented by a neural network with ℓ hidden layers, h hidden nodes, activation functions with format (2 , 1, 1) and softmax outputs. Then under the assumptions of Theorem 3.6, 
+
+P{d(X, V ) ≤ ε} ≤ Cℓ,h,n,m 
+
+ ερ + O
+
+ ε2
+
+ρ2
+
+ 
+
+for a constant Cℓ,h,n,m .TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 15 
+
+While Corollary 4.7 holds under rather simplified assumptions, the real problem with this bound is that the constant Cℓ,h,n,m is exponential in the number of hidden units h. This is not only practically prohibitive, but presumably also theoretically suboptimal. We will therefore follow a different approach to bound tubular neighbourhoods of neural networks with certain specific activation functions. 4.2. The Gauss map of a neural network. For decision boundaries of single-layer sigmoid classifiers, we show that (under certain assumptions) the bound from Corollary 4.7 can be improved to a polynomial in the number of nodes. Single-layer sigmoid neural networks are universal approximators [ Cyb89 , HSW89 ]: functions of the form c0 + Pwk=1 dkσ(a⊺
+
+> k
+
+x + bk) are dense in the set of continuous functions on any compact set, with the width w quantitatively controlling the approximation error at the dimension-independent rate O(1 /√w) [Bar93]. The strategy is to replace the Khovanskii–Rolle bound with a global argument based on the Bernstein–Kushnirenko–Khovanskii (BKK) theorem [ Ber75 ] (see also [ CLO05 , Chapter 7,§5]). After an exponential substitution, the Gauss-map system becomes a Laurent polynomial system whose n equations share a single Newton polytope, a zonotope conv( A) determined by the (integer-scaled) weight vectors. Bernstein’s theorem then bounds the number of solutions by 
+
+n! Vol(conv( A)) , which is polynomial in the width. For networks with ℓ ≥ 2 hidden layers, the direct BKK approach does not apply due to the transcendentality of sigmoid composition, and we state the corresponding polynomial bound as a conjecture. The Bernstein-type count below requires that every solution of the system of equations derived from a Gauss-map fibre be non-degenerate. Since the argument forces the direction v to be rational ,non-degeneracy cannot be arranged by a Sard-type genericity argument, which only yields full-measure sets of good directions. The following lemma shows that non-degeneracy is automatic at any regular value of the Gauss map; the proof is an application of the implicit function theorem. 
+
+Lemma 4.8. Let f : Rn → R be a smooth function such that ∇f does not vanish on V = Z(f ),so that V is a smooth hypersurface, and let γ : S(N V ) → Sn−1 be the generalised Gauss map of 
+
+V . Let v ∈ Sn−1 be a regular value of γ with vn̸ = 0 , and define Φv : Rn → Rn by 
+
+(4.2) Φv(x) = 
+
+
+
+f (x), v n
+
+∂f ∂x 1
+
+(x) − v1
+
+∂f ∂x n
+
+(x), . . . , v n
+
+∂f ∂x n−1
+
+(x) − vn−1
+
+∂f ∂x n
+
+(x)
+
+
+
+.
+
+Then the solutions of Φv(x) = 0 are exactly the points x ∈ V with (x, v ) ∈ γ−1(v), and the Jacobian of Φv is non-singular at every solution. Proof. Let A : Rn → Rn−1 be the linear map Aw = ( vnw1 − v1wn, . . . , v nwn−1 − vn−1wn), so that Φv = ( f, A ∇f ). Since vn̸ = 0 , the map A is surjective with kernel Rv. If Φv(x) = 0 , then 
+
+x ∈ V and ∇f (x) ∈ ker A = Rv; since ∇f (x)̸ = 0 , the unit vector v is normal to V at x, that is, 
+
+(x, v ) ∈ γ−1(v). Conversely, if (x, v ) ∈ γ−1(v), then ∇f (x) ∈ Rv and Φv(x) = 0 .For the non-degeneracy, we first reduce to the case v = en. Choose an orthogonal matrix Q with 
+
+Qe n = v and set g := f ◦ Q and W := Z(g) = Q−1V , so that ∇g = Q⊺(∇f ◦ Q) does not vanish on W . The map (x, u ) 7 → (Q⊺x, Q ⊺u) is a diffeomorphism S(N V ) → S(N W ) intertwining the Gauss maps, so en = Q⊺v is a regular value of the Gauss map γW of W . Let B : Rn → Rn−1 be given by Bw = (( Q⊺w)1, . . . , (Q⊺w)n−1); then B is surjective with ker B = Q(Ren) = Rv =ker A. Two surjective linear maps with the same kernel differ by an invertible map, so A = T ◦ B
+
+for some T ∈ GL n−1(R). Writing y = Q⊺x and Ψ( y) := ( g(y), ∂ 1g(y), . . . , ∂ n−1g(y)) , we have 
+
+B∇f (x) = ( ∂1g(y), . . . , ∂ n−1g(y)) and hence 
+
+Φv(x) = 
+
+1 00 T
+
+
+
+Ψ( Q⊺x),16 PAUL LEZEAU AND MARTIN LOTZ 
+
+so the solutions of Φv = 0 and Ψ = 0 correspond under x = Qy , and DΦv(x) is non-singular if and only if DΨ( y) is. It therefore suffices to show that DΨ is non-singular at every solution of 
+
+Ψ( y) = 0 .Let y be such a solution. Then ∇g(y) = (0 , . . . , 0, ∂ ng(y)) with ∂ng(y)̸ = 0 . By the implicit function theorem there are an open neighbourhood U ⊂ Rn−1 of u0 := ( y1, . . . , y n−1) and a smooth function h : U → R with h(u0) = yn such that (u, h (u)) parametrises W near y.Differentiating g(u, h (u)) = 0 with respect to ui gives (4.3) ∂g ∂x i
+
++ ∂g ∂x n
+
+∂h ∂u i
+
+= 0 on U, 
+
+so in particular ∇h(u0) = 0 ; differentiating (4.3) with respect to uj and evaluating at u0, where the terms involving ∇h vanish, yields 
+
+∂2g∂x j ∂x i
+
+(y) = − ∂g ∂x n
+
+(y) ∂2h∂u j ∂u i
+
+(u0), 1 ≤ i, j ≤ n − 1.
+
+The Jacobian DΨ( y) has first row ∇g(y) = ∂ng(y) e⊺ 
+
+> n
+
+and remaining rows ∇(∂j g)( y), j ≤ n − 1;expanding the determinant along the first row, 
+
+| det DΨ( y)| = |∂ng(y)| · det 
+
+ ∂2g∂x j ∂x i
+
+(y)
+
+ 
+
+> i,j ≤n−1
+
+= |∂ng(y)| n det Hess h(u0) .
+
+In the chart u 7 → (u, h (u)) , the unit normal to W with positive n-th component is 
+
+ν(u) = (−∇ h(u), 1) 
+
+p1 + ∥∇ h(u)∥2 ,
+
+and u 7 →  (u, h (u)) , ν (u) parametrises the sheet of S(N W ) through (y, e n), on which γW is given by ν. Since ∇h(u0) = 0 , differentiating gives ∂ν j /∂u i(u0) = −∂2h/∂u i∂u j (u0) for i, j ≤
+
+n − 1. Regularity of γW at the preimage (y, e n) ∈ γ−1 
+
+> W
+
+(en) therefore forces det Hess h(u0)̸ = 0 ,and hence det DΨ( y)̸ = 0 . □
+
+Proposition 4.9. Let f : Rn → R be a non-constant function given by 
+
+f (x) = c0 +
+
+> w
+
+X
+
+> k=1
+
+dkσ(a⊺
+
+> k
+
+x + bk),
+
+where σ is the logistic sigmoid, c0, b k, d k ∈ R and the ak ∈ Qn have common denominator 
+
+q ∈ N>0. Set V = Z(f ) and L := q · max k,i |aki |. If V is a smooth compact hypersurface and 
+
+∇f is non-vanishing on V , then the maximum degree satisfies 
+
+(4.4) mdeg( V ) ≤ C(n, L ) · wn,
+
+where C(n, L ) ≤ 2 · n! (2 L)n depends only on n and L.Proof. Let γ : S(N V ) → Sn−1 be the generalised Gauss map. Since S(N V ) is compact, by Sard’s Theorem the set of regular values of γ is open and dense, and the fibre cardinality is locally constant. Choose a connected component of the set of regular values on which the maximal degree 
+
+mdeg( V ) is attained, and choose a rational point v = ( v1, . . . , v n) ∈ Sn−1 ∩ Qn in that component. After permuting the coordinates, which preserves rationality and the lattice constant L, we may assume vn̸ = 0 .For a hypersurface, γ−1(v) is the set of points x ∈ V for which ∇f (x) is parallel to v. Thus 
+
+mdeg( V ) is bounded by the number of solutions of (4.5) f (x) = 0 , vn
+
+∂f ∂x j
+
+(x) − vj
+
+∂f ∂x n
+
+(x) = 0 , j = 1 , . . . , n − 1,TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 17 
+
+where (4.6) f (x) = c0 +
+
+> w
+
+X
+
+> k=1
+
+dk σ(a⊺
+
+> k
+
+x + bk), ∂f ∂x j
+
+(x) = 
+
+> w
+
+X
+
+> k=1
+
+dk akj σ′(a⊺
+
+> k
+
+x + bk).
+
+Set ⃗p k := q a k ∈ Zn, so that ∥⃗p k∥∞ ≤ L, and set yj = e −xj /q . We get 
+
+e−(a⊺   
+
+> kx+bk)
+
+= e −bk
+
+> n
+
+Y
+
+> j=1
+
+e−(qa kj ) xj /q = e −bk y⃗p k =: uk(y),
+
+where we use the notation y⃗p k = yqa k1 
+
+> 1
+
+· · · yqa kn  
+
+> n
+
+. Each sigmoid becomes σk = (1 + uk)−1 and its derivative σ′ 
+
+> k
+
+= uk(1 + uk)−2. Set Φ( y) := Qwk=1 (1 + uk(y)) 2, a strictly positive analytic function on Rn>0. Multiplying (4.5) by the non-vanishing factor Φ( y), the system transforms into the following Laurent polynomial system on (R>0)n:(4.7) F0(y) := c0
+
+> w
+
+Y
+
+> k=1
+
+(1 + uk)2 +
+
+> w
+
+X
+
+> k=1
+
+dk(1 + uk) Y 
+
+> l̸=k
+
+(1 + ul)2 = 0 ,
+
+(4.8) Fj (y) := 
+
+> w
+
+X
+
+> k=1
+
+dk (vnakj − vj akn ) uk
+
+Y 
+
+> l̸=k
+
+(1 + ul)2 = 0 , j = 1 , . . . , n − 1.
+
+Each factor (1 + uk)2 = 1 + 2 uk + u2 
+
+> k
+
+contributes monomials with exponents in {0,⃗ p k, 2⃗p k}, so all monomials appearing in (4.7)–(4.8) have exponent vectors in the Minkowski sum (4.9) A := 
+
+> w
+
+X
+
+> k=1
+
+{0,⃗ p k, 2⃗p k} ⊂ Zn.
+
+Note that both F0 and the Fj have support inside the same set A. The Newton polytopes 
+
+P0, P 1, . . . , P n−1 of the Fi are therefore all contained in conv( A).By Bernstein’s theorem, a system of n Laurent polynomials in n variables with Newton polytopes 
+
+P0, . . . , P n−1 has at most 
+
+n! MV( P0, . . . , P n−1)
+
+isolated solutions in (C∗)n, counted with multiplicity, where MV denotes the Euclidean mixed volume, normalized so that MV( P, . . . , P ) = Vol( P ). Since Pj ⊆ conv( A) for all j and the mixed volume is monotone in each argument, the bound is at most n! Vol(conv( A)) . The diffeomorphism 
+
+Ψ : xj 7 → yj = e −xj /q embeds Rn bijectively onto (R>0)n ⊂ (C∗)n, and multiplication by Φ( y)
+
+is non-vanishing there. Since v is a regular value of the Gauss map with vn̸ = 0 and ∇f does not vanish on V , Lemma 4.8 shows that every solution of (4.5) is non-degenerate, and hence corresponds under Ψ to a non-degenerate solution of (4.7) – (4.8) in (C∗)n. These real solutions are therefore among the isolated torus solutions counted above, so the real count is bounded by 
+
+n! Vol(conv( A)) .The set A lies in the zonotope Z := Pwk=1 [0 , 2⃗p k], so conv( A) ⊆ Z. The zonotope volume formula (see [Zie95, Ch. 7]) gives (4.10) Vol( Z) = 2 n X
+
+> S⊂[w]
+> |S|=n
+
+det( ⃗p k1 , . . . ,⃗ p kn ) ,
+
+where S = {k1, . . . , k n}. Hadamard’s inequality together with ∥⃗p k∥∞ ≤ L gives 
+
+| det( ⃗p k1 , . . . ,⃗ p kn )| ≤ nn/ 2 Ln ≤ n! Ln,
+
+and there are  wn
+
+ ≤ wn/n ! subsets, so 
+
+Vol(conv( A)) ≤ Vol( Z) ≤ 2n · n! Ln · wn
+
+n! = (2 L)n wn.18 PAUL LEZEAU AND MARTIN LOTZ 
+
+The Bernstein bound implies that there are at most n! (2 L)n wn solutions of (4.5) . This is stronger than the stated estimate, and is absorbed into the constant C(n, L ) ≤ 2 · n! (2 L)n in (4.4). □
+
+We next show that the bound is essentially sharp in its dependence on w. The following lemma is a variation of a well-known fact about the Gauss map of a compact hypersurface. 
+
+Lemma 4.10. Let Σ ⊂ Rn be a smooth compact hypersurface that bounds a non-empty bounded open region W . Then for every v ∈ Sn−1 the fibre of the generalised Gauss map γΣ : S(N Σ) →
+
+Sn−1 satisfies |γ−1Σ (v)| ≥ 2. In particular γΣ is surjective and mdeg γΣ ≥ 2.Proof. Fix v ∈ Sn−1 and consider the linear functional ℓ(x) = ⟨x, v ⟩ on the compact set W . It attains its maximum at some p+ and its minimum at some p−. Since ℓ is non-constant and W
+
+is open, p+̸ = p− and p± ∈ ∂W = Σ . At p+ the hyperplane {x : ℓ(x) = ℓ(p+)} supports W
+
+with W on the side {ℓ ≤ ℓ(p+)}. Since Σ is smooth, Tp+ Σ = v⊥, so the two unit normals at 
+
+p+ are ±v and in particular (p+, v ) ∈ S(N Σ) with γΣ(p+, v ) = v. The same argument at p−
+
+(where −v is an outward normal) gives (p−, v ) ∈ S(N Σ) with γΣ(p−, v ) = v, since the normal sphere bundle of a hypersurface contains both signs of the normal over each base point. Thus 
+
+{(p+, v ), (p−, v )} ⊆ γ−1Σ (v) are two distinct points in γ−1Σ (v). □
+
+Proposition 4.11. The exponent n in Proposition 4.9 is sharp at fixed lattice constant. Precisely, for every n ≥ 1 and every even m ≥ 4 there is a single-hidden-layer sigmoid network with 
+
+w = n(m + 2) units and lattice constant L = 1 whose zero set V = Z(f ) is a smooth compact hypersurface, with 0 a regular value of f and 
+
+(4.11) mdeg( V ) ≥ 2
+
+ m−22
+
+n
+
+= Ω( wn) (n fixed ).
+
+Proof. For a scaling parameter λ ≥ 1 to be fixed below, consider the separable function 
+
+fλ(x) = c0 +
+
+> n
+
+X
+
+> j=1
+
+ˆhλ(xj ), ˆhλ(t) := hλ(t) − 2σ λ(t − (m + 1))  − 2σ(−λt ),
+
+where hλ(t) := Pmk=1 (−1) k σ λ(t − k) and c0 = 12 + ε, with ε ∈ (0 , 14 ) a generic small number fixed below. Each coordinate thus contributes m alternating units together with two “capping” units, whose role is to make fλ negative far away from the box [0 , m + 1] n; in total, fλ is a single-hidden-layer sigmoid network with w = n(m + 2) units and axis-aligned weights ±λe j .The steepening parameter λ will be removed at the end of the proof by a homothety, yielding a network with q = 1 and L = 1 .We first argue that V = Z(fλ) is compact for every λ > 0. Pairing consecutive terms and using that σ is strictly increasing, 
+
+hλ(t) = 
+
+> m/ 2
+
+X
+
+> i=1
+
+
+
+σ λ(t − 2i) − σ λ(t − 2i + 1) 
+
+< 0,
+
+so ˆhλ < 0 on all of R. Since m is even, Pmk=1 (−1) k = 0 , so hλ(t) → 0 as t → ±∞ , while the two capping terms tend to −2 as t → +∞ and as t → −∞ , respectively; hence ˆhλ(t) → − 2
+
+as |t| → ∞ . Choose R > 0 with ˆhλ(t) ≤ − 1 for |t| ≥ R. If ∥x∥∞ ≥ R then, bounding the contributions of the remaining coordinates by ˆhλ < 0, we get fλ(x) ≤ c0 − 1 < 0. Thus 
+
+V = Z(fλ) ⊂ [−R, R ]n is compact. As λ → ∞ , ˆhλ converges pointwise, off the thresholds {0, 1, . . . , m + 1 }, to the step function taking the value Si := P
+
+> k≤i
+
+(−1) k on (i, i + 1) for i ∈ { 0, . . . , m }, and the value −2 on (−∞ , 0) 
+
+and on (m + 1 , ∞). Here Si = 0 for i even and Si = −1 for i odd. Consequently, the pointwise TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 19 
+
+limit g of fλ is constant on every cell of the corresponding product decomposition of Rn: on a cell Q 
+
+> j
+
+(ij , i j + 1) with all ij ∈ { 0, . . . , m } it equals 12 + ε − #{j : ij odd }, which is positive if and only if every ij is even, and on every cell with some coordinate in (−∞ , 0) or (m + 1 , ∞) it is at most 12 + ε − 2 < 0. Hence g = 12 + ε on the all-even cells and g ≤ − 12 + ε < 0 on all other cells, including all unbounded ones. Moreover, the all-even cells are pairwise non-adjacent, separated by slabs on which g < 0.Consider the all-even cells with ij ∈ { 2, 4, . . . , m − 2} for every j; there are exactly N :=   m−22
+
+n
+
+of them. Fix one such cell, with closed core K = Q 
+
+> j
+
+[ij + 14 , i j + 34 ] (where the limit g equals  
+
+> 12
+
++ ε). The boundary ∂R of the enlarged box R = Q 
+
+> j
+
+[ij − 12 , i j + 32 ] lies in cells with g ≤ − 12 + ε.By uniform convergence off the thresholds there is λ0 = λ0(n, m ) such that for all λ ≥ λ0 one has 
+
+fλ > 14 on every such K and fλ < − 14 on every ∂R . Consequently, the connected component of 
+
+{fλ > 0} containing K is contained in the interior of R, and the N such regions W1, . . . , W N are pairwise disjoint. Their boundaries Σi = ∂W i are N pairwise disjoint compact subsets of V .
+
+FIGURE 2. Visualization of the lower-bound construction in Proposition 4.11 for 
+
+n = 2 , shown without the capping units: the function plotted is c0 + hλ(x1) + 
+
+hλ(x2). The black lines indicate its zero set and the red regions are the regions where it is positive. The unbounded components visible towards the boundary of the picture are removed by the capping units. Since ∇fλ = ( ˆh′
+
+> λ
+
+(x1), . . . , ˆh′
+
+> λ
+
+(xn)) , the critical set of fλ is the product Q 
+
+> j
+
+{ˆh′ 
+
+> λ
+
+= 0 }. The set 
+
+{ˆh′ 
+
+> λ
+
+= 0 } is finite: multiplying ˆh′ 
+
+> λ
+
+by the product of the squares of the (strictly positive) sigmoid denominators turns it into an exponential polynomial, non-trivial because ˆhλ is non-constant, which has finitely many zeros by Lemma 4.16 below. The image of the critical set under fλ is therefore a finite set of critical values. Choosing ε outside this finite set makes 0 a regular value of fλ, so V
+
+is a smooth hypersurface and each Σi is a smooth compact hypersurface, possibly disconnected, contained in V and bounding Wi.Each Σi = ∂W i satisfies the hypotheses of Lemma 4.10, so for every regular value v of γV we have |γ−1 
+
+> V
+
+(v)| ≥ PNi=1 |γ−1Σi (v)| ≥ 2N , the preimages being disjoint because the hypersurfaces Σi
+
+are pairwise disjoint. Hence mdeg( V ) = mdeg γV ≥ 2N = 2   m−22
+
+n, which with m = w/n − 2
+
+is Ω( wn) for fixed n.Finally, we remove the steepening. The function f (x) := fλ(x/λ ) is implemented by a single-hidden-layer sigmoid network with the same w = n(m + 2) units: explicitly, 
+
+f (x) = c0 +
+
+> n
+
+X
+
+> j=1
+
+ mX
+
+> k=1
+
+(−1) k σ(xj − λk ) − 2σ xj − λ(m + 1)  − 2σ(−xj )
+
+
+
+,20 PAUL LEZEAU AND MARTIN LOTZ 
+
+with weights a ∈ {± e1, . . . , ±en}, so that q = 1 and L = 1 independently of w and λ. Its zero set is Z(f ) = λV , and 0 is a regular value of f because it is one of fλ. The homothety x 7 → λx leaves tangent and normal spaces unchanged, Tλx (λV ) = TxV , so (x, u ) 7 → (λx, u ) identifies S(N V )
+
+with S(N (λV )) and the two generalised Gauss maps have the same fibres. Hence Z(f ) = λV is a smooth compact hypersurface with mdeg( λV ) = mdeg( V ) ≥ 2  m−22
+
+n, proving (4.11). □
+
+Remark 4.12. One might hope to sharpen (4.4) using a real-fewnomial bound in place of BKK, since the system (4.7) –(4.8) has highly structured support. However, fewnomial bounds such as the Bihan–Sottile bound [ BS07 ] are controlled by the number of monomials |A|, not by Vol(conv( A)) .For networks with more than one hidden layer, we expect the single-layer bound of Proposition 4.9 to extend to a fully polynomial bound in each layer width, as recorded in the conjecture below. 
+
+Conjecture 4.13. Let F : Rn → Rm be a fully connected neural network classifier with ℓ hidden layers of widths n1, . . . , n ℓ ≥ n, logistic sigmoid activation at each hidden layer, and a linear output layer. Assume that the weight matrices A(1) , . . . , A (ℓ) are rational with common denominator 
+
+q and in general position, and let L = q max k,i,j |a(j) 
+
+> ki
+
+| be the lattice constant, where the a(j) 
+
+> ki
+
+are the entries of the j-th layer’s weight matrix. Then each pairwise decision boundary Vij = Z(Fi − Fj ),if bounded and smooth, satisfies 
+
+(4.12) mdeg( Vij ) ≤ C(n, L ) ·
+
+> ℓ
+
+Y
+
+> i=1
+
+ni
+
+!n
+
+,
+
+where C(n, L ) depends only on n and L.
+
+The conjecture is supported by two observations. The single-layer case ℓ = 1 is Proposition 4.9, where the exponent n is sharp by Proposition 4.11. For piecewise-linear (ReLU) networks, which lie outside the Pfaffian framework but share the layered composition structure, the number of linear regions (and hence the number of affine pieces making up the decision boundary) is bounded by 
+
+O(Q 
+
+> j
+
+n nj ) [RPK +17, STR18, HR19], matching the form of (4.12). 4.3. Tubular neighbourhood bound for neural networks. Throughout this subsection and Section 5, the radius of an ambient ball is denoted by ρ. The symbol σ is reserved for the logistic sigmoid or, in Gaussian estimates, the standard deviation. The tube formula requires the full family of i-th maximal degrees mdeg i(V ), 0 ≤ i ≤ n − 1, each a supremum of Gauss-map degrees over the (i + 1) -dimensional affine sections V ∩ H, H ∈ E ni+1 . The Bernstein argument of Proposition 4.9 controls only the top degree mdeg n−1(V ) = mdeg( V ): its proof fixes a rational 
+
+regular value and keeps the integer vectors ⃗p k = qa k intact, but a generic section forces a rotation of the weights to U ⊺ak, which is irrational, destroying the lattice underlying the zonotope conv( A).Since mdeg i is a supremum over all sections, H cannot be chosen rationally, and the Bernstein bound does not extend to the lower sections. We instead bound all section degrees uniformly by passing to a multiplicative chart. In that chart the sigmoid terms become rational functions, while the affine section is encoded by logarithms; the resulting Pfaffian chain has length governed by the ambient dimension rather than by the width. 
+
+Proposition 4.14. Let f : Rn → R and V = Z(f ) be as in Proposition 4.9, with lattice constant 
+
+L = q max k,i |aki |. Then there is a constant K(n, L ), depending only on n and L, such that 
+
+(4.13) mdeg i(V ) ≤ K(n, L ) w2n for i ∈ { 0, . . . , n − 1}.
+
+Proof. Fix i with 0 ≤ i ≤ n−1 and an affine subspace H = x0+⃗ H ∈ E ni+1 meeting V transversally, with ⃗ H ∼= Ri+1 linear, so that W := V ∩ H is a smooth hypersurface of H. Let v ∈ Si ⊂⃗ HTUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 21 
+
+be a regular value of the Gauss map of W . Choose an orthonormal basis ω1, . . . , ω n−i−1 of the orthogonal complement ⃗ H⊥, so that 
+
+H = {x ∈ Rn : ⟨x − x0, ω s⟩ = 0 , s ∈ { 1, . . . , n − i − 1}} ,
+
+and let τ1, . . . , τ i be an orthonormal basis of ⃗ H ∩ v⊥. A point x ∈ W lies in the Gauss-map fibre over ±v exactly when the tangential projection of the gradient ∇f (x) is parallel to v, that is, when 
+
+⟨∇ f (x), τ j ⟩ = 0 for all j. Hence mdeg( V, H ) ≤ 2N , where N is the number of x ∈ Rn solving the square system of n equations 
+
+f (x) = 0 ,
+
+⟨∇ f (x), τ j ⟩ = 0 , j ∈ { 1, . . . , i },
+
+⟨x − x0, ω s⟩ = 0 , s ∈ { 1, . . . , n − i − 1}.
+
+(4.14) Consider the diffeomorphism Rn ∼
+
+−→ Rn>0, x 7 → y with yj = e −xj /q . The inverse is given by 
+
+xj = −q log yj . Writing ⃗p k = qa k ∈ Zn, ∥⃗p k∥∞ ≤ L, we have e−(a⊺   
+
+> kx+bk)
+
+= e −bk y⃗p k , so 
+
+σ(a⊺
+
+> k
+
+x + bk) = 11 + e −bk y⃗p k , σ′(a⊺
+
+> k
+
+x + bk) = e−bk y⃗p k
+
+(1 + e −bk y⃗p k )2
+
+are rational functions of y. Clearing denominators in the first i + 1 equations of (4.14) by the positive factors Q
+
+> k
+
+(1 + e −bk y⃗p k ), respectively its square, and by a monomial y(2 Lw,..., 2Lw ) to remove negative exponents, those equations become polynomial equations 
+
+F0(y) = 0 , F 1(y) = 0 , . . . , F i(y) = 0 
+
+in y, of total degree at most 4nLw , with the same solutions in Rn>0. The last n − i − 1 affine constraints in (4.14) become 
+
+Gs(y) := 
+
+> n
+
+X
+
+> j=1
+
+ωsj log yj + 1 
+
+> q
+
+⟨x0, ω s⟩ = 0 , s ∈ { 1, . . . , n − i − 1}.
+
+Thus N equals the number of solutions in Rn>0 of the square system (F0, . . . , F i, G 1, . . . , G n−i−1),which is Pfaffian with chain 
+
+q =
+
+
+
+y−11 , . . . , y −1 
+
+> n
+
+, P 
+
+> j
+
+ω1j log yj , . . . , P 
+
+> j
+
+ωn−i−1,j log yj
+
+
+
+.
+
+Indeed ∂yl (y−1 
+
+> j
+
+) = −δjl (y−1 
+
+> j
+
+)2 and ∂yl
+
+ P  
+
+> j
+
+ωsj log yj
+
+ = ωsl y−1 
+
+> l
+
+are polynomials of degree 
+
+α = 2 in the chain, the chain is triangular, and it depends on all k = n variables. Note that, after the substitution, the w sigmoids have become rational and contribute nothing to the chain: the only transcendental functions are the ≤ n logarithms encoding the affine section H, so the chain length is s = 2 n − i − 1 ≤ 2n, independently of the width w.We can now apply Khovanskii’s bound, Theorem 2.10, to the resulting system of equations. In contrast with Proposition 4.9, here the direction v is not constrained to be rational: by Sard’s theorem, for a generic regular value v of the Gauss map of W all solutions of (4.14) are non-degenerate, and since the fibre cardinality is locally constant on the set of regular values, mdeg γW
+
+is attained at such v. We may therefore assume that all solutions are non-degenerate. The polynomials F0, . . . , F i have degree βF ≤ 4nLw , while G1, . . . , G n−i−1 have degree 1. Their sum of degrees is P 
+
+> r
+
+βr = ( i+1) βF +( n−i−1) , and since min {k, s } = min {n, 2n−i−1} = n
+
+the base term of the Khovanskii bound is P 
+
+> r
+
+βr − n + min {k, s }α + 1 = ( i + 1) βF + 2 n − i.Khovanskii’s theorem 2.10, applied with domain U = Rn>0 (on which the chain q is defined), these component-wise formats, α = 2 , and chain length s = 2 n − i − 1, therefore gives 
+
+N ≤ 2(s
+
+> 2
+
+) β i+1 
+
+> F
+
+ (i + 1) βF + 2 n − is ≤ 2(2n 
+
+> 2
+
+) (4 nLw )i+1  4n(i + 1) Lw + 2 n 2n−i−1.
+
+The exponent of w on the right is (i + 1) + (2 n − i − 1) = 2 n, while the factor 2(2n 
+
+> 2
+
+) is independent of w. Hence N ≤ K(n, L ) w2n for a constant K(n, L ) depending only on n and L. Therefore 22 PAUL LEZEAU AND MARTIN LOTZ 
+
+mdeg( V, H ) ≤ 2N ≤ 2K(n, L )w2n, and taking the supremum over H ∈ E ni+1 yields (4.13) , after absorbing the factor 2 into K(n, L ). □
+
+We now state the main result of this section: the analogue of Theorem 3.6 for the decision boundary of a single-hidden-layer sigmoid network. We restrict to the case V ⊂ B(p, ρ ), which eliminates the sphere-boundary term ∂M from the proof of Theorem 3.6. This assumption is natural in the robustness setting of Section 5, where the data distribution is supported in a bounded region and ρ
+
+exceeds its diameter. The obstruction to dropping this hypothesis is recorded in Remark 4.19 below. 
+
+Theorem 4.15. Let f : Rn → R be as in Proposition 4.9 and set V = Z(f ). Assume that ∇f is non-vanishing on V and that V ⊂ B(p, ρ ). Let X be uniformly distributed on B(p, ρ ), and let 
+
+K(n, L ) be the constant of Proposition 4.14. Then 
+
+(4.15) P{d(X, V ) ≤ ε} ≤ 2 K(n, L ) w2n
+
+ 
+
+1 + ερ
+
+n
+
+− 1
+
+
+
+.
+
+Proof. Since V ⊂ B(p, ρ ) is compact, Theorem 3.2 applies to V as a codimension-1 submanifold inside the ball B(p, ρ ), giving 
+
+vol T (V, ε ) ≤ 2ωnρnn−1X
+
+> i=0
+
+ ni + 1 
+
+
+
+mdeg i(V )
+
+ ερ
+
+i+1 
+
+.
+
+Substituting the uniform bound mdeg i(V ) ≤ K(n, L )w2n from Proposition 4.14 and using the binomial identity Pnj=1 
+
+ nj
+
+tj = (1 + t)n − 1 with t = ε/ρ ,
+
+vol T (V, ε ) ≤ 2ωnρn K(n, L )w2n
+
+ 
+
+1 + ερ
+
+n
+
+− 1
+
+
+
+.
+
+The inclusion T (V, ε ) ∩ B(p, ρ ) ⊆ T (V, ε ) and division by vol B(p, ρ ) = ωnρn give (4.15). □
+
+We now sharpen the leading term in (4.15) . Unlike the higher section degrees, the degree mdeg 0(V )
+
+only involves intersections with affine lines, so it can be bounded by a one-variable zero count. The proof rests on the following classical fact, which is an easy application of Rolle’s theorem. 
+
+Lemma 4.16. A non-trivial exponential polynomial φ(t) = PMi=1 dieνit with M pairwise distinct real frequencies has at most M − 1 real zeros. 
+
+Lemma 4.17. Let a1, . . . , a w ∈ Qn have common denominator q ∈ N>0, and set 
+
+L := q max  
+
+> k,i
+
+|aki |.
+
+For any constants c, b 1, . . . , b w, γ 1, . . . , γ w ∈ R, the function 
+
+h(x) = c +
+
+> w
+
+X
+
+> k=1
+
+γk σ(a⊺
+
+> k
+
+x + bk)
+
+restricted to any affine line ℓ ⊂ Rn has at most (2 Lw + 1) n − 1 isolated real zeros. Proof. Parametrise ℓ(t) = x0 + tv , set λk = a⊺
+
+> k
+
+v and μk = a⊺
+
+> k
+
+x0 + bk, and put uk(t) = e −μk e−λk t,so σ(a⊺
+
+> k
+
+ℓ(t) + bk) = (1 + uk)−1. Multiplying h(ℓ(t)) by the strictly positive factor Q
+
+> k
+
+(1 + uk(t)) 
+
+preserves zeros and gives, after expansion, an exponential polynomial 
+
+G(t) = X
+
+> e∈{ 0,1}w
+
+de e−νet, νe =
+
+> w
+
+X
+
+> k=1
+
+ekλk.TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 23 
+
+If G is identically zero, then h|ℓ is identically zero and has no isolated zeros. Otherwise, combine terms with the same frequency. Writing ⃗p k = qa k ∈ Zn with ∥⃗p k∥∞ ≤ L, we have νe =
+
+> 1
+> q
+
+ P  
+
+> k
+
+ek⃗p k
+
+⊺v, so νe = νe′ whenever P 
+
+> k
+
+ek⃗p k = P 
+
+> k
+
+e′
+
+> k
+
+⃗p k in Zn. The number of distinct frequencies is therefore at most the number of distinct lattice vectors P 
+
+> k
+
+ek⃗p k. Each coordinate lies in [−Lw, Lw ], so there are at most (2 Lw + 1) n of them. Lemma 4.16 bounds the zeros of G,hence of h|ℓ, by (2 Lw + 1) n − 1. □
+
+Under the hypotheses of Theorem 4.15, every transverse affine line section V ∩ ℓ consists of isolated zeros of f |ℓ. Lemma 4.17 therefore gives 
+
+mdeg 0(V ) ≤ (2 Lw + 1) n − 1.
+
+Corollary 4.18. Under the hypotheses of Theorem 4.15, 
+
+P{d(X, V ) ≤ ε} ≤ 2n(2 Lw + 1) n ερ + O w2n
+
+ ερ
+
+2!
+
+,
+
+which is of order O(wn ε/ρ ) in the regime ε/ρ = O(w−n), where the leading term dominates. Proof. By Theorem 3.2 and the inclusion T (V, ε ) ∩ B(p, ρ ) ⊆ T (V, ε ),
+
+P{d(X, V ) ≤ ε} ≤ 2
+
+> n−1
+
+X
+
+> i=0
+
+ ni + 1 
+
+
+
+mdeg i(V )
+
+ ερ
+
+i+1 
+
+.
+
+Bound the i = 0 term by 2n mdeg 0(V )( ε/ρ ) ≤ 2n(2 Lw + 1) n(ε/ρ ), and the terms i ≥ 1 by 
+
+mdeg i(V ) ≤ K(n, L )w2n, so that 
+
+2
+
+> n−1
+
+X
+
+> i=1
+
+ ni + 1 
+
+
+
+K(n, L )w2n
+
+ ερ
+
+i+1 
+
+= 2 K(n, L )w2n
+
+ 
+
+1 + ερ
+
+n
+
+− 1 − n ερ
+
+
+
+by the binomial identity. The claim follows. □
+
+Remark 4.19 (Sphere obstruction) . The hypothesis V ⊂ B(p, ρ ) in Theorem 4.15 eliminates the sphere-boundary contribution ∂M = V ∩ Sn−1(p, ρ + ε) that appears in the proof of Theorem 3.6. Without it, one needs to bound the maximal degrees of ∂M , a codimension-2 intersection of a Pfaffian hypersurface with a polynomial sphere. The complete-intersection bound (3.3) applied to 
+
+∂M yields a correction term of order 2w(w−1) /2 · poly( n, w ), exponential in w and dominating the main term (4.15) . A replacement that is polynomial in w would require either a Pfaffian–algebraic Bézout-type inequality of the form mdeg( V ∩ S) ≤ mdeg( V ) · deg( S) for Pfaffian hypersurfaces 
+
+V and polynomial hypersurfaces S, or a BKK-style global argument that accommodates mixed Laurent-polynomial and transcendental components: under the exponential substitution of Pro-position 4.9, the sphere equation ∥x − p∥2 = r2 becomes P 
+
+> j
+
+(q log yj + pj )2 = r2, which is transcendental in y. This is a weaker form of the layered-Rolle obstruction discussed in Section 6.1 (Conjecture 6.1). 5. R OBUSTNESS 
+
+We now apply the tube bounds from the previous sections to the classification setting introduced in Section 4. Recall that a classifier F : Rn → Rm induces decision regions Cj = {x : gij (x) ≥
+
+0 for all i̸ = j}, where gij = Fj − Fi, and that the decision boundary is 
+
+Σ = [
+
+> i<j
+
+(Ci ∩ Cj ),24 PAUL LEZEAU AND MARTIN LOTZ 
+
+the set of inputs whose top-scoring class is not unique. Writing Vij = Z(gij ) for the pairwise level set, a tie Fi(x) = Fj (x) places x on Σ only when classes i and j are both maximal at x; hence 
+
+Ci ∩ Cj ⊆ Vij and (5.1) Σ ⊆ [
+
+> i<j
+
+Vij .
+
+The union on the right is in general strictly larger, since it also records coincidences Fi = Fj
+
+between non-maximal scores. The bounds below control proximity to this larger union. For 
+
+x ∈ Rn \ Σ, the distance to misclassification is 
+
+∆( x) := dist( x, Σ) = inf {∥ x − y∥ : y ∈ Σ}.
+
+It is natural to measure the distance to misclassification relative to the size of the input. In analogy to the theory of conditioning in numerical analysis and optimisation [ BC13 ], we define the condition of a classifier. 
+
+Definition 5.1. The condition number of the classifier F at x ∈ Rn \ Σ is 
+
+C(x) := ∥x∥
+
+∆( x) .
+
+More generally, the local condition number centred at p ∈ Rn is 
+
+Cp(x) := ∥x − p∥
+
+∆( x) .
+
+The condition number C(x) is the reciprocal of the relative distance to the decision boundary, so that C(x) > t means the classification of x can be changed by a perturbation of relative size less than 1/t . This is analogous to the role of the condition number in numerical analysis, where the “ill-posed problems” correspond to the decision boundary Σ.
+
+Remark 5.2 (Weak condition number) . For absolutely continuous distributions, the probability that a random perturbation of size exactly ∆( x) leads to misclassification is zero. For a random direction v uniformly distributed on Sn−1, define the directional distance ∆( x; v) = inf {η > 
+
+0 : ˆ j(x + ηv )̸ = ˆ j(x)}, where ˆj(x) denotes the class of x. If Cˆj(x) is star-shaped with respect to x,the (1 − δ)-quantile of ∥x∥/∆( x; v) defines a weak condition number 
+
+Cδ(x) := inf 
+
+
+
+η > 0 : P
+
+> v∈Sn−1
+
+ ∥x∥
+
+∆( x; v) > η 
+
+
+
+≤ δ
+
+
+
+,
+
+in analogy with the weak condition numbers introduced in [ LN20 ]. The weak condition number captures the typical-case rather than worst-case sensitivity of a classification to perturbations. 5.1. Tail bounds on the condition number. We are interested in the probability that the condition number C(X) exceeds a threshold t, for X drawn from a probability distribution on the data space. This is an instance of the probabilistic analysis of condition numbers, studied in detail in [ BC13 ]. In what follows, we distinguish two settings: (1) Random data: X is drawn from a distribution on the data space (average-case analysis); (2) Random perturbation: X = x + ξ for a fixed data point x and a random perturbation ξ
+
+(smoothed analysis). The tube bounds of Section 3 apply to both settings. TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 25 
+
+Theorem 5.3 (Uniform tail bound) . Let F : Rn → Rm be a classifier whose pairwise decision boundaries Vij = Z(gij ) are bounded Pfaffian hypersurfaces with format (α, β, s ), and non-vanishing gradient. Let X be uniformly distributed in B(p, ρ ). Then for t > 0,
+
+P{C p(X) > t } ≤ 
+
+m
+
+2
+
+
+
+Cα,β,s,n 
+
+"
+
+1 + α + β + 1 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n#
+
+,
+
+where Cα,β,s,n and β are as in Theorem 3.6. Proof. For X ∈ B(p, ρ ) we have ∥X − p∥ ≤ ρ, so the event Cp(X) > t implies ∆( X) <
+
+∥X − p∥/t ≤ ρ/t . By the inclusion (5.1) , any point within ρ/t of Σ is within ρ/t of some Vij , so 
+
+{∆( X) < ρ/t } ⊆ S 
+
+> i<j
+
+{dist( X, V ij ) < ρ/t }. By a union bound and Theorem 3.6 applied to each 
+
+Vij with ε = ρ/t ,
+
+P{C p(X) > t } ≤ 
+
+m
+
+2
+
+
+
+Cα,β,s,n 
+
+"
+
+1 + α + β + 1 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n#
+
+. □
+
+We now turn to the smoothed analysis setting, where the data point is a Gaussian perturbation of a fixed input x. A Fubini decomposition reduces the Gaussian estimate to the uniform-ball estimate at all radii, yielding the same tail profile for the local condition number. 
+
+Theorem 5.4 (Gaussian tail bound) . Under the hypotheses of Theorem 5.3, let X be normally distributed around x ∈ Rn with covariance σ2Id . Then for t > 0,
+
+P{C x(X) > t } ≤ 
+
+m
+
+2
+
+
+
+Cα,β,s,n 
+
+"
+
+1 + α + β + 1 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n#
+
+.
+
+Remark 5.5. For large t, the uniform and Gaussian local bounds both decay as  m
+
+> 2
+
+ Cα,β,s,n · n(α +
+
+β)/t .The proof of Theorem 5.4 relies on a standard reduction from Gaussian to uniform distributions. 
+
+Lemma 5.6. Let V = Z(f ) be a bounded Pfaffian hypersurface with format (α, β, s ) and non-vanishing gradient. Let X be normally distributed around x ∈ Rn with covariance σ2Id . Then 
+
+P{∥ X − x∥ · dist( X, V )−1 ≥ t} ≤ Cα,β,s,n 
+
+"
+
+1 + α + β + 1 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n#
+
+.
+
+Proof. Set A := {x ∈ Rn | ∥ x − x∥ · dist( x, V )−1 ≥ t}. Let Ur be uniformly distributed on a closed ball B(x, r ) around x of radius r, with density 
+
+1
+
+ωnrn · 1{∥ x − x∥ ≤ r},
+
+where ωn = vol B(0 , 1) . For a Gaussian vector X centred at x with covariance σ2Id , a standard Fubini argument gives (5.2) P{X ∈ A} = ωn
+
+(2 π) n
+
+> 2
+
+Z ∞
+
+> 0
+
+P{Uσr ∈ A} rn+1 e− r22 dr. 
+
+Since Uσr ∈ A implies dist( Uσr , V ) ≤ σr/t , we can apply Theorem 3.6 with ball radius σr and 
+
+ε = σr/t . The ratio ε/ (σr ) = 1 /t is independent of r, so 
+
+P{Uσr ∈ A} ≤ Cα,β,s,n 
+
+"
+
+1 + α + β + 1 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n#
+
+.26 PAUL LEZEAU AND MARTIN LOTZ 
+
+This is independent of r and factors out of the integral (5.2). The remaining integral evaluates to 
+
+ωn
+
+(2 π) n
+
+> 2
+
+Z ∞
+
+> 0
+
+rn+1 e− r22 dr = 1 ,
+
+which follows from ωn = πn/ 2/Γ( n/ 2 + 1) and the substitution u = r2/2 in the Gamma function. □
+
+Proof of Theorem 5.4. The event Cx(X) > t implies dist( X, Σ) < ∥X − x∥/t . By (5.1) , this gives 
+
+dist( X, V ij ) < ∥X − x∥/t 
+
+for some pair i < j . By a union bound and Lemma 5.6 applied to each Vij ,
+
+P{C x(X) > t } ≤ 
+
+m
+
+2
+
+
+
+Cα,β,s,n 
+
+"
+
+1 + α + β + 1 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n#
+
+. □
+
+5.2. Neural network classifiers. We now specialise the tail bounds to neural network classifiers with Pfaffian activation functions. 
+
+Corollary 5.7 (Sigmoid/tanh network) . Let F : Rn → Rm be a fully connected neural network classifier with ℓ hidden layers, h total hidden units, and an activation function with Pfaffian format 
+
+(α, β, s ) that is autonomous with s ≥ 1, and autonomous Pfaffian output function with format 
+
+(α′, β ′, s ′). Assume the pairwise decision boundaries Vij are bounded with non-vanishing gradient. If X is uniformly distributed in B(p, ρ ), then 
+
+P{C p(X) > t } ≤ 
+
+m
+
+2
+
+
+
+CαF ,β F ,s F ,n 
+
+"
+
+1 + αF + βF + 1 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n#
+
+,
+
+where αF = ℓ(α + β − 1) + α′, βF = β′, sF = sh + s′m, and βF = max {βF , 2}.Proof. By Proposition 4.1, the network output has Pfaffian format (αF , β F , s F ). Since gij =
+
+Fj − Fi shares the same Pfaffian chain (Remark 2.5), each Vij is a Pfaffian hypersurface with the same format. The result follows from Theorem 5.3. □
+
+For single-hidden-layer sigmoid networks, the tube bound of Theorem 4.15 yields a sharper tail bound in which the Khovanskii prefactor 2h(h−1) /2 of Corollary 5.7 is replaced by a polynomial in the width. 
+
+Corollary 5.8 (Single-hidden-layer sigmoid) . Let F : Rn → Rm be a classifier implemented by a neural network with a single hidden layer of width w and logistic sigmoid activation, a linear output layer, and first-layer weights ak ∈ Qn with common denominator q. Set L = q max k,i |aki |
+
+and let K(n, L ) be the constant of Proposition 4.14. Assume that for each pair i < j the decision boundary Vij = Z(gij ) is smooth with non-vanishing gradient and is contained in the closed ball 
+
+B(p, ρ ). If X is uniformly distributed on B(p, ρ ), then for every t > 0,
+
+(5.3) P{C p(X) > t } ≤ 
+
+m
+
+2
+
+
+
+· 2 K(n, L ) w2n
+
+ 
+
+1 + 1
+
+t
+
+n
+
+− 1
+
+
+
+.
+
+Proof. As in the proof of Theorem 5.3, the event Cp(X) > t implies ∆( X) < ρ/t , so by a union bound 
+
+P{C p(X) > t } ≤ X
+
+> i<j
+
+P{d(X, V ij ) < ρ/t }.
+
+Each gij = Fj −Fi has the form ˜c0 +P 
+
+> k
+
+dk σ(a⊺
+
+> k
+
+x+bk) with dk the differences of the second-layer output weights of F and the (ak, b k) the first-layer weights and biases (which are shared across TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 27 
+
+all pairs i < j ). Hence each Vij satisfies the hypotheses of Theorem 4.15 with the common lattice constant L. Applying that theorem with ε = ρ/t to each Vij and summing gives (5.3). □
+
+Remark 5.9. The tight form of Corollary 4.18 applied to each Vij sharpens the leading term of (5.3) : the coefficient of 1/t is governed by mdeg 0(Vij ) ≤ (2 Lw + 1) n rather than by w2n. In particular, for t ≥ K(n, L )wn the leading term dominates and 
+
+P{C p(X) > t } ≤ 
+
+m
+
+2
+
+h
+
+2n (2 Lw + 1) n 1 
+
+> t
+
++ O w2n/t 2i
+
+=
+
+m
+
+2
+
+
+
+· O
+
+ wn
+
+t
+
+
+
+,
+
+an explicit O(wn/t ) tail bound, polynomial in the width, valid in the tail regime t ≳ K(n, L )wn.The Gaussian analogue of Corollary 5.8 requires more care. The Fubini reduction of Lemma 5.6 expresses a Gaussian probability as an integral of uniform-ball probabilities at all radii rσ , r ∈
+
+(0 , ∞), but Theorem 4.15 applies only when the ball contains Vij . Splitting the integral at the threshold r∗ = RV /σ determined by an enclosing radius RV of Vij , and using the general Pfaffian bound on the small-r part, gives a hybrid bound in which the Khovanskii contribution is multiplied by a Gaussian concentration factor γn(RV /σ ) that decays in n but is independent of the width; see Remark 5.11 for its effect on the width scaling. In the following result, we use the notation 
+
+γn(u) := ωn
+
+(2 π)n/ 2
+
+Z u
+
+> 0
+
+rn+1 e−r2/2 dr. 
+
+Proposition 5.10. Under the hypotheses of Corollary 5.8, assume further that each pairwise decision boundary Vij is contained in a common ball B(x, R V ) around a fixed centre x ∈ Rn. Let 
+
+X be normally distributed around x with covariance σ2Id . Then for every t > 0,
+
+(5.4) P{C x(X) > t } ≤ 
+
+m
+
+2
+
+h
+
+BBKK (t) + γn(RV /σ ) · BPf (t)
+
+i
+
+,
+
+where 
+
+BBKK (t) := 2 K(n, L ) w2n
+
+ 
+
+1 + 1
+
+t
+
+n
+
+− 1
+
+
+
+,BPf (t) := C2,1,w,n 
+
+ 
+
+1 + 5
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n
+
+,K(n, L ) is the constant from Proposition 4.14 and C2,1,w,n is the Pfaffian constant of Theorem 3.6 applied to the format (α, β, s ) = (2 , 1, w ) of a single-hidden-layer sigmoid network. Proof. Fix a pair i < j and set Aij := {x ∈ Rn : ∥x − x∥ · dist( x, V ij )−1 ≥ t}. By the Fubini identity (5.2) of Lemma 5.6, 
+
+P{X ∈ Aij } = ωn
+
+(2 π)n/ 2
+
+Z ∞
+
+> 0
+
+P{Uσr ∈ Aij } rn+1 e−r2/2 dr, 
+
+with Uσr uniform on B(x, σr ). Split the integral at r∗ := RV /σ .In the region r ≥ r∗, we get Vij ⊂ B(x, R V ) ⊂ B(x, σr ). The event Uσr ∈ Aij implies 
+
+dist( Uσr , V ij ) ≤ σr/t , and Theorem 4.15 applied to Vij with ball radius σr and ε = σr/t 
+
+gives P{Uσr ∈ Aij } ≤ BBKK (t), a bound independent of r since ε/ (σr ) = 1 /t . Using 
+
+> ωn
+> (2 π)n/ 2
+
+R ∞ 
+
+> 0
+
+rn+1 e−r2/2 dr = 1 ,
+
+ωn
+
+(2 π)n/ 2
+
+Z ∞
+
+> r∗
+
+P{Uσr ∈ Aij } rn+1 e−r2/2 dr ≤ BBKK (t).
+
+In the region r < r ∗ we use the unconditional Pfaffian bound: each gij is Pfaffian of format (2 , 1, w )
+
+(Example 4.3), so Theorem 3.6 applied to Vij with ball radius σr and ε = σr/t gives P{Uσr ∈
+
+Aij } ≤ BPf (t), again independent of r. Integrating over [0 , r ∗] contributes γn(RV /σ ) BPf (t).28 PAUL LEZEAU AND MARTIN LOTZ 
+
+Summing the two regions and applying a union bound over the  m
+
+> 2
+
+ pairs i < j yields (5.4). □
+
+Remark 5.11 (Concentration regime and the width dependence) . The factor γn(u) is a chi-type probability, concentrated near u = √n + 1 (the mode of the density rn+1 e−r2/2). Dropping the exponential factor in the integrand yields the elementary upper bound (5.5) γn(u) ≤ un+2 
+
+(n + 2) 2 n/ 2 Γ( n/ 2 + 1) ,
+
+which is superexponentially small in n whenever u ≪ √n; thus for a tight perturbation ( u =
+
+RV /σ ≪ √n) the prefactor γn(RV /σ ) multiplying the Khovanskii term is small. This n-decay must not be confused with the dependence on the width. The two terms in (5.4) scale very differently in w: since K(n, L ) is independent of w, the BKK term satisfies BBKK (t) = Θ( w2n), whereas the Pfaffian term carries the constant of Theorem 3.6, 
+
+C2,1,w,n = 6 · 2w(w−1) /2 (5 n + 2) w,
+
+which is super-exponential in w, and the concentration factor γn(RV /σ ) is independent of w.Consequently, for a fixed architecture in which n and the ratio RV /σ are held fixed while w → ∞ ,the Khovanskii contribution γn(RV /σ )·BPf (t) eventually dominates the polynomial BKK term: the Gaussian bound (5.4) does not inherit the polynomial-in-w rate of the uniform case (Corollary 5.8) at fixed Gaussian scale. The precise criterion under which the Gaussian tail does inherit the BKK rate is the break-even inequality (5.6) γn(RV /σ ) · BPf (t) ≤ BBKK (t),
+
+in which case P{C x(X) > t } ≤ 2 m
+
+> 2
+
+BBKK (t) is polynomial in w. Since the t-dependent brackets in BPf and BBKK have ratio bounded independently of t, condition (5.6) is essentially a joint condition on n, w and RV /σ . Using (5.5) and C2,1,w,n = 6 · 2w(w−1) /2(5 n + 2) w, its dominant part is governed by the Khovanskii factor 2w(w−1) /2: up to the sub-dominant factors w2n and (5 n + 2) w,the inequality (5.6) forces the Gaussian scale to grow with the width as (5.7) RV
+
+σ ≲ 2− w(w−1) /
+
+ 2( n+2) 
+
+
+
+, equivalently σ ≳ RV · 2 w(w−1) /
+
+ 2( n+2) 
+
+
+
+.
+
+Example 5.12 (Sigmoid activation, multi-layer) . For the logistic sigmoid σ(x) = (1 + e −x)−1
+
+with format (2 , 1, 1) and linear output layer, we get αF = 2 ℓ, βF = 1 , sF = h, and βF = 2 , so 
+
+P{C p(X) > t } ≤ 
+
+m
+
+2
+
+
+
+· 6 · 2 h(h−1) 2
+
+ n(4 ℓ + 1) + 2 h
+
+ 
+
+1 + 2ℓ + 3 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n
+
+.
+
+The Gaussian variant (Theorem 5.4) gives, for X ∼ N (x, σ 2Id) ,
+
+P{C x(X) > t } ≤ 
+
+m
+
+2
+
+
+
+· 6 · 2 h(h−1) 2
+
+ n(4 ℓ + 1) + 2 h
+
+ 
+
+1 + 2ℓ + 3 
+
+t
+
+n
+
+−
+
+
+
+1 + 1
+
+t
+
+n
+
+.
+
+For large t, both local bounds decay as  m
+
+> 2
+
+ · 6 · 2h(h−1) /2(n(4 ℓ + 1) + 2) h · n(2 ℓ + 2) /t .
+
+Example 5.13 (Sigmoid activation, single hidden layer) . For ℓ = 1 and h = w, with rational first-layer weights and lattice constant L, Corollary 5.8 gives 
+
+P{C p(X) > t } ≤ 
+
+m
+
+2
+
+
+
+· 2 K(n, L ) w2n
+
+ 
+
+1 + 1
+
+t
+
+n
+
+− 1
+
+
+
+whenever Vij ⊂ B(p, ρ ) for all pairs i < j . For t ≥ K(n, L )wn the leading term governs and this decays as  m
+
+> 2
+
+ · 2n (2 Lw + 1) n/t =  m
+
+> 2
+
+ O(wn/t ) by Remark 5.9. The Khovanskii prefactor 
+
+2w(w−1) /2 · (n · 5 + 2) w of Example 5.12, exponential in the width, is thereby replaced by a quantity polynomial in w (of degree 2n), with sharp tail rate O(wn/t ) in the regime t ≳ K(n, L )wn.TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 29 
+
+6. C ONCLUSIONS 
+
+We have generalised bounds for the volume of tubular neighbourhoods from the algebraic set-ting [ Lot15 ] to the case of smooth Pfaffian hypersurfaces (Theorem 3.6), and applied these to obtain condition number tail bounds for neural network classifiers with Pfaffian activations (Sec-tion 5). While these results are of theoretical interest, they point to two natural directions for further development. 6.1. Improved bounds for neural networks. The constant Cα,β,s,n in Theorem 3.6 contains the factor 2s(s−1) /2, which for a sigmoid network with h hidden units becomes 2h(h−1) /2 (Ex-ample 5.12). The factor arises in the Khovanskii induction (Theorem 2.10), which peels chain elements one at a time, introducing one doubling per element and Ph−1 
+
+> j=1
+
+j = h(h − 1) /2 doublings in total. For a single hidden layer ( ℓ = 1 ) this exponential factor has already been eliminated: Corollary 5.8 replaces it by the polynomial K(n, L ) w2n, with sharp O(wn) leading tail coefficient. The conjecture below therefore concerns the still-open multi-layer case ℓ ≥ 2.The Pfaffian chain of a sigmoid network, however, has layered structure that a generic chain does not: the chain elements decompose as q = ( q(1) , . . . , q(ℓ)), where q(i) = ( σ(z(i)1 ), . . . , σ (z(i) 
+
+> ni
+
+)) are the activations of layer i. This layered chain has two key properties. First, intra-layer independence: 
+
+the chain polynomial of q(i) 
+
+> k
+
+depends on q(i) 
+
+> k
+
+itself and on elements of earlier layers, but not on any other element q(i) 
+
+> k′
+
+in the same layer. Second, layer-dependent degree: the chain polynomial of a layer-i element has degree 2i, not the global maximum 2ℓ.These properties yield at most polynomial improvements. An exponential improvement would require processing entire layers simultaneously in the proof of Khovanskii’s theorem. The key observation is that the layer map q(ℓ−1) 7 → q(ℓ) factors as σ ◦ (affine ), with Jacobian 
+
+diag( σ′(z1), . . . , σ ′(znℓ )) · A(ℓ), where σ′(zk) = q(ℓ) 
+
+> k
+
+(1 − q(ℓ) 
+
+> k
+
+) > 0 for all finite zk. The strict positivity of σ′ and the intra-layer independence of the chain polynomials are structural features that a appear to block an analogue of the Khovanskii–Rolle lemma that one could exploit. 
+
+Conjecture 6.1 (Block Khovanskii bound) . Let f : Rn → R be the output of a fully connected neural network with ℓ hidden layers of widths n1, . . . , n ℓ and a Pfaffian activation function σ
+
+satisfying σ′ > 0. Then the number of regular solutions of a Pfaffian system involving f and its derivatives, of the form (3.1) , is bounded by 
+
+2 ℓ(ℓ−1) 2 +Pℓi=1  
+
+> ni(ni−1) 2
+
+· p(α, β, n, ℓ, n 1, . . . , n ℓ),
+
+where p is a polynomial in the indicated quantities. 
+
+For constant width n1 = · · · = nℓ =: ν, the conjectured exponent is ℓ(ℓ−1) 2 + ℓν (ν−1) 2 , which grows as O(ℓ2 + ℓν 2), compared with the standard ℓν (ℓν −1) 2 , which grows as O(ℓ2ν2).Conjecture 6.1 is related to, but distinct from, Conjecture 4.13 in Section 4. The latter asserts a fully polynomial bound mdeg( Vij ) ≤ C(n, L ) · (Q 
+
+> i
+
+ni)n for sigmoid classifier decision boundaries. Conjecture 6.1 is a more general intermediate statement that applies to arbitrary Pfaffian systems involving a layered sigmoid chain (e.g., general Pfaffian complete intersections in the sense of Proposition 3.4). Both conjectures would follow from a sufficiently strong block-Rolle inequality for layered chains. The main obstacles are twofold. First, the standard Rolle lemma used in the proof of Khovanskii’s theorem is inherently one-dimensional: it uses the intermediate value theorem on arcs of a 1-manifold, and multi-dimensional analogues that give effective, multiplicity-free bounds remain open. Second, even with intra-layer independence, degrees compound across Rolle steps within 30 PAUL LEZEAU AND MARTIN LOTZ 
+
+layersin the standard sequential argument. A proof of Conjecture 6.1 would require either a multi-dimensional Rolle lemma or a refined degree-tracking scheme that separates within-layer and between-layer contributions. 6.2. Non-smooth Pfaffian sets. Theorem 3.6 requires the Pfaffian hypersurface V to be smooth, in the sense that ∇f is non-vanishing on V . This is a genuine restriction: the decision boundaries of neural network classifiers can develop singularities for certain weight configurations, and the volume bounds of Section 3 do not apply at such points. In the algebraic setting, Basu and Lerario [ BL23 ] extended tube volume bounds to singular varieties by approximating a singular algebraic set Z with a family {Zt}t> 0 of smooth complete intersections of the same dimension and double the degree of Z, converging to Z in the Hausdorff metric, and showing that the tube bounds pass to the limit. Their construction uses deformations of the form 
+
+D(Q, G, ζ ) = (1 − ζ)Q − ζG , where Q defines the original variety and G is a nonnegative polyno-mial whose polar varieties, the zero sets of the families Cr k(G) := {G, ∂G/∂X 1, . . . , ∂G/∂X k},are smooth complete intersections. A crucial step is to show that the set of bad parameter values (those for which the deformed variety fails to be a smooth complete intersection) forms a proper Zariski closed subset of C.The fundamental obstacle to extending this strategy to Pfaffian functions is that the construction rests on polar varieties and their properties coming from complex algebraic geometry. Pfaffian functions are real-analytic and have no natural complex extension that preserves their Pfaffian structure; in particular, there is no Pfaffian analogue of polar varieties, nor of the fact that the singular locus of a complex algebraic variety is itself algebraic (see also [BL23, Remark 1.2]). REFERENCES 
+
+[Bar93] Andrew R. Barron. Universal approximation bounds for superpositions of a sigmoidal function. IEEE Transactions on Information Theory , 39(3):930–945, 1993. [BC13] Peter Bürgisser and Felipe Cucker. Condition: The geometry of numerical algorithms , volume 349. Springer Science & Business Media, 2013. [BCR13] Jacek Bochnak, Michel Coste, and Marie-Françoise Roy. Real algebraic geometry , volume 36. Springer Science & Business Media, 2013. [Ber75] David N. Bernstein. The number of roots of a system of equations. Functional Analysis and its Applications ,9(3):183–185, 1975. [BHH +26] Terence Bickerton, Joseph Harrison, Olivia Hornakova, Dominic Le-Mar, Abhiram Natarajan, and Nadia Potter. On the sharpness of Khovanskii’s Bezout-type bound for Pfaffian functions, 2026. [BL23] Saugata Basu and Antonio Lerario. Hausdorff approximations and volume of tubes of singular algebraic sets. Math. Ann. , 387(1-2):79–109, 2023. [BS07] Frédéric Bihan and Frank Sottile. New fewnomial upper bounds from Gale dual polynomial systems. 
+
+Moscow Mathematical Journal , 7(3):387–407, 2007. [BS14] Monica Bianchini and Franco Scarselli. On the complexity of neural network classifiers: A comparison between shallow and deep architectures. IEEE transactions on neural networks and learning systems ,25(8):1553–1565, 2014. [CLO05] David A. Cox, John Little, and Donal O’Shea. Using algebraic geometry , volume 185 of Graduate Texts in Mathematics . Springer Science & Business Media, New York, NY, 2 edition, 2005. [Cyb89] George Cybenko. Approximation by superpositions of a sigmoidal function. Mathematics of Control, Signals and Systems , 2(4):303–314, 1989. [DBS24] Giuseppe Alessio D’Inverno, Monica Bianchini, and Franco Scarselli. VC dimension of graph neural networks with Pfaffian activation functions. Neural Networks , 2024. [FFF18] Alhussein Fawzi, Hamza Fawzi, and Omar Fawzi. Adversarial vulnerability for any classifier. In Advances in Neural Information Processing Systems , volume 31, 2018. [FMDF16] Alhussein Fawzi, Seyed-Mohsen Moosavi-Dezfooli, and Pascal Frossard. Robustness of classifiers: From adversarial to random noise. In Advances in Neural Information Processing Systems , volume 29, 2016. [GBB11] Xavier Glorot, Antoine Bordes, and Yoshua Bengio. Deep sparse rectifier neural networks. In Proceedings of the fourteenth international conference on artificial intelligence and statistics , pages 315–323. JMLR Workshop and Conference Proceedings, 2011. [Gra04] Alfred Gray. Tubes . Birkhäuser, 2nd edition, 2004. TUBULAR NEIGHBOURHOODS OF PFAFFIAN SETS AND APPLICATIONS TO NEURAL NETWORKS 31 
+
+[GSS15] Ian J. Goodfellow, Jonathon Shlens, and Christian Szegedy. Explaining and harnessing adversarial examples. In International Conference on Learning Representations , 2015. [GV04] Andrei Gabrielov and Nicolai Vorobjov. Complexity of computations with Pfaffian and Noetherian functions. 
+
+Normal forms, bifurcations and finiteness problems in differential equations , 137:211–250, 2004. [HG16] Dan Hendrycks and Kevin Gimpel. Gaussian error linear units (GELUs). arXiv preprint arXiv:1606.08415 ,2016. [Hot39] Harold Hotelling. Tubes and spheres in n-spaces, and a class of statistical problems. American Journal of Mathematics , 61(2):440–460, 1939. [HR19] Boris Hanin and David Rolnick. Complexity of linear regions in deep networks. In Proceedings of the 36th International Conference on Machine Learning , 2019. [HSW89] Kurt Hornik, Maxwell Stinchcombe, and Halbert White. Multilayer feedforward networks are universal approximators. Neural Networks , 2(5):359–366, 1989. [JT12] Gareth O. Jones and Margaret E. M. Thomas. The density of algebraic points on certain Pfaffian surfaces. 
+
+Quarterly journal of mathematics , 63(3):637–651, 2012. [Kho91] Askold Georgievich Khovanskii. Fewnomials , volume 88. American Mathematical Soc., 1991. [KM97] Marek Karpinski and Angus Macintyre. Polynomial bounds for VC dimension of sigmoidal and general Pfaffian neural networks. J. Comput. Syst. Sci. , 54(1):169–176, 1997. [LN20] Martin Lotz and Vanni Noferini. Wilkinson’s bus: Weak condition numbers, with an application to singular polynomial eigenproblems. Foundations of Computational Mathematics , 20(6):1439–1473, 2020. [Lot15] Martin Lotz. On the volume of tubular neighborhoods of real algebraic varieties. Proceedings of the American Mathematical Society , 143(5):1875–1889, 2015. [Mar97] David Marker. Khovanskii’s theorem. In Bradd T. Hart, Alistair H. Lachlan, and Matthew A. Valeriote, editors, Algebraic Model Theory , pages 181–193. Springer Netherlands, Dordrecht, 1997. [MDFF16] Seyed-Mohsen Moosavi-Dezfooli, Alhussein Fawzi, and Pascal Frossard. DeepFool: A simple and accurate method to fool deep neural networks. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition , pages 2574–2582, 2016. [MDM19] Saeed Mahloujifar, Dimitrios I. Diochnos, and Mohammad Mahmoody. The curse of concentration in robust learning: Evasion and poisoning attacks from concentration of measure. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 33, pages 4536–4543, 2019. [MPCB14] Guido Montúfar, Razvan Pascanu, Kyunghyun Cho, and Yoshua Bengio. On the number of linear regions of deep neural networks. In Advances in Neural Information Processing Systems , volume 27, 2014. [MS93] Angus Macintyre and Eduardo Daniel Sontag. Finiteness results for sigmoidal “neural” networks. In 
+
+Proceedings of the Twenty-Fifth Annual ACM Symposium on Theory of Computing , STOC ’93, pages 325–334, New York, NY, USA, 1993. Association for Computing Machinery. [MSM +25] Giovanni Luca Marchetti, Vahid Shahverdi, Stefano Mereta, Matthew Trager, and Kathlén Kohn. Algebra unveils deep learning: An invitation to neuroalgebraic geometry. In Proceedings of the 42nd International Conference on Machine Learning , volume 267 of PMLR , 2025. [MW97] John W. Milnor and David W. Weaver. Topology from the Differentiable Viewpoint . Princeton Landmarks in Mathematics and Physics. Princeton University Press, 1997. [Pin99] Allan Pinkus. Approximation theory of the MLP model in neural networks. Acta Numerica , 8:143–195, 1999. [RPK +17] Maithra Raghu, Ben Poole, Jon Kleinberg, Surya Ganguli, and Jascha Sohl-Dickstein. On the expressive power of deep neural networks. In Proceedings of the 34th International Conference on Machine Learning ,pages 2847–2854, 2017. [Spe99] Patrick Speissegger. The Pfaffian closure of an o-minimal structure. J. Reine Angew. Math. , 508:189–211, 1999. [Ste40] Jakob Steiner. Über parallele Flächen. Monatsberichte der Berliner Akademie der Wissenschaften , pages 114–118, 1840. [STR18] Thiago Serra, Christian Tjandraatmadja, and Srikumar Ramalingam. Bounding and counting linear regions of deep neural networks. In Proceedings of the 35th International Conference on Machine Learning , 2018. [SZS +14] Christian Szegedy, Wojciech Zaremba, Ilya Sutskever, Joan Bruna, Dumitru Erhan, Ian J. Goodfellow, and Rob Fergus. Intriguing properties of neural networks. In Yoshua Bengio and Yann LeCun, editors, 2nd International Conference on Learning Representations, ICLR 2014, Banff, AB, Canada, April 14-16, 2014, Conference Track Proceedings , 2014. [Wey39] Hermann Weyl. On the volume of tubes. American Journal of Mathematics , 61(2):461–472, 1939. [Wil96] Alex Wilkie. Model completeness results for expansions of the ordered field of real numbers by restricted Pfaffian functions and the exponential function. Journal of the American Mathematical Society , 9(4):1051– 1094, 1996. [Wil99] Alex J Wilkie. A theorem of the complement and some new o-minimal structures. Selecta Mathematica ,5:397–421, 1999. [Zel03] Thierry Paul Zell. Quantitative study of semi-Pfaffian sets . PhD thesis, Purdue University, 2003. 32 PAUL LEZEAU AND MARTIN LOTZ 
+
+[Zie95] Günter M. Ziegler. Lectures on Polytopes , volume 152 of Graduate Texts in Mathematics . Springer-Verlag, 1995. [ZK25] Yifan Zhang and Joe Kileel. Covering number of real algebraic varieties and beyond: Improved bounds and applications. Foundations of Computational Mathematics , 2025. [ZNL18] Liwen Zhang, Gregory Naitzat, and Lek-Heng Lim. Tropical geometry of deep neural networks. In 
+
+Proceedings of the 35th International Conference on Machine Learning , 2018. (L EZEAU ) L ONDON SCHOOL OF GEOMETRY AND NUMBER THEORY , I MPERIAL COLLEGE LONDON , UK 
+
+Email address : p.lezeau23@imperial.ac.uk 
+
+(L OTZ ) W ARWICK MATHEMATICAL INSTITUTE , U NIVERSITY OF WARWICK , UK 
+
+Email address : martin.lotz@warwick.ac.uk

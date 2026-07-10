@@ -1,0 +1,2174 @@
+Title: Covering Points with Rectangular Boundaries
+
+URL Source: https://arxiv.org/pdf/2607.08183v1
+
+Published Time: Fri, 10 Jul 2026 00:33:30 GMT
+
+Number of Pages: 44
+
+Markdown Content:
+# Covering Points with Rectangular Boundaries 
+
+## Madhumita Kundu #
+
+University of Bergen, Norway 
+
+## Daniel Lokshtanov #
+
+University of California Santa Barbara, USA 
+
+## Soumi Nandi #
+
+The Institute of Mathematical Sciences, India 
+
+## Saket Saurabh #
+
+The Institute of Mathematical Sciences, India University of Bergen, Norway 
+
+## Kushal Singanporia #
+
+The Institute of Mathematical Sciences, India 
+
+Abstract 
+
+Geometric covering problems ask for a small family of geometric objects whose union covers a given point set. We study the more restrictive boundary covering variant, where every point must lie on the boundary of a chosen object. Motivated by the framework of Langerman and Morin [Discret. Comput. Geom., 2005] for hyperspheres, we initiate the study of boundary covering by axis-parallel rectangles. We first consider the discrete setting, where rectangles must be selected from a given family. We define Boundary Covering with Discrete Axis-Parallel Rectangles (BCDAPR ): given a point set P ⊆ R2, a family R of axis-parallel rectangles, and an integer k, decide whether P can be covered by the boundaries of at most k rectangles from R. We prove that BCDAPR is W[1] -hard parameterized by k.We then study the continuous variant, Boundary Covering with Continuous Axis-Parallel Rectangles (BCCAPR ), where rectangles may be placed freely. Given P ⊆ R2 and k, the goal is to decide whether P can be covered by the boundaries of at most k axis-parallel rectangles. In contrast to the discrete case, we show that BCCAPR is fixed-parameter tractable, with running time 2O(k log k) · nO(1) , where n = |P |. Our algorithm relies on a structural analysis of how 
+
+k rectangles interact with the point set, reducing BCCAPR to at most 2O(k log k) instances of 
+
+Distinct Domain Monotone 2-CSP , each solvable in polynomial time. On the hardness side, we prove NP-completeness for boundary covering by axis-aligned L-shapes and use this reduction to establish NP-completeness of BCCAPR .
+
+2012 ACM Subject Classification Theory of computation → Fixed parameter tractability; Theory of computation → Computational geometry; Theory of computation → Problems, reductions and completeness 
+
+Keywords and phrases Geometric Covering, Axis-parallel Rectangles, W[1] and NP Hardness, Fixed Parameter Tractability, CSP 
+
+Digital Object Identifier 10.4230/LIPIcs.CVIT.2016.23  
+
+> ©Jane Open Access and Joan R. Public; licensed under Creative Commons License CC-BY 4.0 42nd Conference on Very Important Topics (CVIT 2016). Editors: John Q. Open and Joan R. Access; Article No. 23; pp. 23:1–23:44 Leibniz International Proceedings in Informatics
+> Schloss Dagstuhl – Leibniz-Zentrum für Informatik, Dagstuhl Publishing, Germany arXiv:2607.08183v1 [cs.CG] 9 Jul 2026
+
+23:2 Covering Points with Rectangular Boundaries 
+
+## Contents 
+
+1 Introduction 3
+
+1.1 Our Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41.2 Related work. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+
+2 Technical Overview of Our Results 5
+
+2.1 Technical overview for W[1]-hardness for BCDAPR . . . . . . . . . . . . . . 52.2 Overview of NP-hardness results . . . . . . . . . . . . . . . . . . . . . . . . . 72.3 Overview of an FPT algorithm for BCCAPR . . . . . . . . . . . . . . . . . . 7
+
+3 Notations and Preliminaries 9
+
+3.1 Definition of 3-Regular 2-CSP . . . . . . . . . . . . . . . . . . . . . . . . . 10 
+
+4 W[1]-hardness for BCDAPR 11 
+
+4.1 Reduction from 3-Regular 2-CSP . . . . . . . . . . . . . . . . . . . . . . . 11 4.2 Correctness of the Reduction . . . . . . . . . . . . . . . . . . . . . . . . . . . 13 
+
+5 NP-hardness for L-Shape Cover and BCCAPR 15 
+
+5.1 Reduction to LSC . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 5.2 Forcing lemmas . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17 5.3 Correctness . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17 5.4 Orientations and restriction to NE -oriented L-shapes . . . . . . . . . . . . . . 18 5.5 Reduction from NE -LSC . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19 
+
+6 An FPT algorithm for BCCAPR 22 
+
+6.1 Discretization of coordinates . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 6.2 Covering by few lines via Vertex Cover . . . . . . . . . . . . . . . . . . . . . . 24 6.3 Exceptional points: definition and basic bounds . . . . . . . . . . . . . . . . . 25 6.4 Skeletons . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26 6.5 Fixing a skeleton and ordering endpoints . . . . . . . . . . . . . . . . . . . . . 28 6.6 Blocks in an endpoint ordering . . . . . . . . . . . . . . . . . . . . . . . . . . 29 6.7 Gaps in an endpoint ordering . . . . . . . . . . . . . . . . . . . . . . . . . . . 30 6.8 Realizable configurations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31 6.9 Exceptional patterns . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32 6.10 Reduction to Distinct Domain Monotone 2-CSP . . . . . . . . . . . . . 34 6.11 The full CSP instance . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40 6.12 Correctness and running time . . . . . . . . . . . . . . . . . . . . . . . . . . . 41 M. Kundu et al. 23:3 
+
+## 1 Introduction 
+
+Geometric covering problems ask for a small collection of geometric objects whose union “covers” a given set of points. Geometric covering and packing problems have been extensively studied from the perspectives of algorithms and complexity. Since many of these geometric set cover problems are NP-hard, they have also been investigated from the viewpoints of approximation algorithms and parameterized complexity [ 11 , 5, 13 , 14 , 6 ]. In this paper we focus on one such geometric set cover problem in the realm of parameterized complexity. A particularly subtle variant is boundary covering , where each input point must lie on the 
+
+boundary of at least one chosen object (rather than anywhere in its interior). A key starting point for our work is a result of Langerman and Morin [ 11 ], which is widely regarded as one of the seminal contributions to parameterized computational geometry. In Section 5.2 of their paper, they study the following boundary-covering problem for spheres: 
+
+Covering Points with Spheres . Given a set S of n points in Rd, does there exist a set 
+
+H of at most k hyperspheres such that each point of S lies on the surface of at least one hypersphere in H?
+
+They show fixed-parameter tractability (parameter k, for fixed d) by casting the problem as an instance of their framework Dim-Set-Cover . The crucial geometric observation enabling this is a dimension-drop property: if one considers the families Ri of all i-spheres (points, pairs of points, circles, etc.), then the intersection of an i-sphere and a j-sphere (assuming neither contains the other) is an ℓ-sphere for some ℓ < min {i, j }. Thus, intersections strictly reduce dimension, which is exactly the structural condition that powers their algorithmic approach. In the planar case ( d = 2 ), this is a problem about covering points by circle boundaries . It is easy to misread this as a tractability statement for covering points by disks, but these problems are fundamentally different: requiring points to lie on the boundary is much more rigid than allowing them to lie anywhere in the interior. In fact, the usual disk-cover variants remain W[1]-hard even under strong restrictions (e.g., unit disks; see, e.g., [ 13 ]). In particular, unless FPT = W[1], there is no algorithm running in time f (k) nO(1) 
+
+that, given n points in the plane and an integer k, decides whether they can be covered by (at most) k unit disks. This distinction motivates us to systematically study boundary-covering questions for other geometric families. Langerman and Morin also point out that their dimension-drop methods do not apply to axis-parallel rectangles, since the intersection of two rectangles may again be a rectangle and therefore need not reduce dimension (see conclusion in [ 11 ]). Motivated by this limitation, we investigate the boundary-covering analogue for axis-parallel rectangles, formalized as follows. 
+
+Boundary Covering with Discrete Axis-Parallel Rectangles (BCDAPR )
+
+Input: A set P of n points, a set R of m axis-parallel rectangles in the plane R2, and an integer k ≥ 0.
+
+Parameter: k.
+
+Question: Does there exist a set of at most k rectangles in R whose boundaries cover all points in P ?
+
+Roadmap. We first study the parameterized complexity of the above discrete rectangle variant and show that it is W[1] -hard with respect to the natural parameter k. This motivates us to consider the continuous setting, where rectangles may be placed freely. For this variant 
+
+C V I T 2 0 1 6 23:4 Covering Points with Rectangular Boundaries 
+
+we establish NP-completeness, and then show that, despite this hardness, the problem admits a fixed-parameter algorithm parameterized by k.
+
+Context and closest tractable analogue. While covering point sets by various geometric objects has been studied extensively, we are not aware of prior work on this boundary-covering variant for axis-parallel rectangles. The closest classical tractable special case is boundary covering by axis-parallel lines : a minimum family of horizontal and vertical lines whose union covers all points can be found in polynomial time via a reduction to Bipartite Vertex Cover (equivalently, by computing a maximum matching and applying Kőnig’s theorem) [ 5, 3]. However, once we impose separate upper bounds on the number of lines parallel to the x-axis and to the y-axis, the problem becomes NP-complete via a simple reduction from Constrained Bipartite Vertex Cover (CBVC) (given a bipartite graph 
+
+G = ( A, B, E ) and integers kA, k B , the question is whether there exists a vertex cover using at most kA vertices from A and at most kB vertices from B) [ 10 ]. Another closely related setting is where we are given a family of segments in the plane and asked to cover all points by this fixed set of segments. This variant was recently studied by Kowalska and Pilipczuk [ 8 ], who obtained a detailed parameterized complexity classification, showing that some versions admit FPT algorithms while others are hard. 
+
+## 1.1 Our Results 
+
+Our first result establishes that Boundary Covering with Discrete Axis-Parallel Rectangles (BCDAPR ) is W[1] -hard when parameterized by k even in 2-dimension. 
+
+▶ Theorem 1. Boundary Covering with Discrete Axis-Parallel Rectangles is 
+
+W[1] -hard when parameterized by k.
+
+Since the discrete rectangle variant is hard, we turn to the continuous setting, where rectangles may be placed freely; in particular, we study the following problem. 
+
+Boundary Covering with Continuous Axis-Parallel Rectangles (BCCAPR )
+
+Input: A finite set P = {p1, . . . , p n} of points in the plane R2, and a nonnegative integer k ∈ N ∪ { 0}.
+
+Parameter: k.
+
+Question: Does there exist a family R = {R1, . . . , R k′ } of axis-parallel rectangles with k′ ≤ k such that every point of P lies on the boundary of at least one rectangle in R?We remark that Langerman and Morin [ 11 ] studied an analogous continuous variant for spheres. Their paper explicitly presents an algorithm for the continuous version. As noted above, boundary covering by axis-parallel lines (when lines may be chosen freely) is solvable in polynomial time, whereas the corresponding discrete version (where one must choose from a given set of axis-parallel lines) is NP-complete. Our next contribution shows that, even in the continuous setting, moving beyond lines to slightly richer axis-parallel shapes already leads to intractability. We first prove NP-completeness for boundary covering by axis-aligned L-shapes, Boundary Covering with Continuous Axis-Parallel L-shapes (BCCAPL ), where an L-shape is the union of one horizontal and one vertical segment sharing an endpoint. We then use this as a starting point to obtain NP-completeness for BCCAPR .
+
+▶ Theorem 2. BCCAPL is NP-complete. M. Kundu et al. 23:5 
+
+▶ Theorem 3. BCCAPR is NP-complete. 
+
+Constrained Bipartite Vertex Cover is our starting point for the reduction to 
+
+BCCAPL [ 10 ]. Theorem 2 provides the core hardness gadget: it captures the essential “turning” behavior that rectangle boundaries must simulate. Building on this gadget, our reduction for Theorem 3 encodes each L-shape choice using a constant number of rectangle-boundary constraints while preserving the parameter k.Having established NP-completeness, we study BCCAPR from the perspective of para-meterized complexity with respect to the solution size k. Our main algorithmic result shows that, despite NP-hardness, the problem is fixed-parameter tractable parameterized by k.
+
+▶ Theorem 4. BCCAPR is fixed-parameter tractable when parameterized by k and admits an algorithm with running time 2O(k log k)nO(1) , where n is the number of input points. 
+
+This result is obtained by carefully analyzing how the k rectangles in a solution can interact with the point set. We first discretize the plane and compute a set of at most 4k
+
+axis-parallel lines that together contain all input points. If size of the set exceeds 4k, we directly return No . We then guess which side of which rectangle aligns with which chosen line, and how the points on each such line are covered by the horizontal sides of the rectangles aligned with it. Points that are not covered by these aligned rectangles are called exceptional points ; we show that their total number is bounded by 2k, and we guess how these exceptional points are covered by sides of rectangles that do not align with the chosen lines. These guesses allow us to encode the problem as an instance of Distinct Domain Monotone 2-CSP , which is known to be solvable in polynomial time [ 1]. In summary, we obtain at most 2O(k log k) instances of Distinct Domain Monotone 2-CSP such that the input instance is a Yes -instance if and only if at least one of these Distinct Domain Monotone 2-CSP instances is satisfiable. This also illustrates the power of Distinct Domain Monotone 2-CSP as a tool for designing FPT algorithms in computational geometry [1]. We give a more detailed technical overview of this result in Section 2. 
+
+## 1.2 Related work. 
+
+Many classical geometric set cover problems remain hard when parameterized by the number 
+
+k of objects: for example, covering points with unit squares is W[1]-hard (as shown by Marx, see also later expositions) [ 13 , 8 ], and related separator-based techniques give nO(√k)-time algorithms for covering with disks/squares rather than FPT running times [ 15 ]. Covering points by lines also has a rich literature (the general Point Line Cover problem is NP-hard and has been studied from a parameterized/kernelization perspective) [5, 11, 9]. 
+
+## 2 Technical Overview of Our Results 
+
+In this section we provide a high-level overview of our main results and the techniques behind them. We begin with the W[1] -hardness proof for the discrete rectangle variant BCDAPR ,then outline the NP-hardness proofs for the continuous setting (via axis-aligned L-shapes and then rectangles), and finally summarize the ideas underlying our fixed-parameter algorithm for BCCAPR .
+
+## 2.1 Technical overview for W[1]-hardness for BCDAPR 
+
+We prove W[1] -hardness of BCDAPR by a parameterized reduction from 3-Regular 2-CSP ,where each constraint involves exactly two variables and each variable appears in exactly 
+
+C V I T 2 0 1 6 23:6 Covering Points with Rectangular Boundaries 
+
+three constraints (see Section 3.1 for formal definition). The input to this problem is a set 
+
+Z = {z1, z2, · · · , zk′ } of variables, a common (finite) domain D ⊆ N for all the variables 
+
+zi ∈ Z, a set C of m′ = 3k′ 
+
+> 2
+
+constraints and for each constraint Cij ∈ C , involving variables 
+
+zi and zj , a set sat ij ⊆ D × D of pairs of assignments to zi and zj that satisfy Cij . The objective is to check if there is an assignment asg : Z → D such that each constraint in C is satisfied. Let I = ( Z, D, C, {sat c}c∈C ) be an 3-Regular 2-CSP instance. We construct a set of points P , a family of axis-parallel rectangles R, and a budget k := 4 k′ + m′ = 11 k′ 
+
+> 2
+
+,such that I is satisfiable if and only if the constructed instance admits a boundary cover by at most k rectangles. 
+
+Variable gadgets. For each variable zi we place a square SQ i of side length t + 2 . Along each side of SQ i we place t variable points , one for each domain value, in cyclic order around the square (plus one dummy point to separate choices). For every aj ∈ D we introduce four 
+
+variable rectangles BL (i) 
+
+> j
+
+, LT (i) 
+
+> j
+
+, T R (i) 
+
+> j
+
+, RB (i) 
+
+> j
+
+, each defined by a pair of diagonally opposite variable points on two consecutive sides of SQ i. These four rectangles are pairwise disjoint and together cover all variable points of SQ i. Crucially, covering all variable points forces choosing exactly one such quadruple: with fewer than four variable rectangles some variable points remain uncovered, and with four rectangles the only way to cover all variable points is to pick one rectangle of each type with a common index j, i.e., {BL (i) 
+
+> j
+
+, LT (i) 
+
+> j
+
+, T R (i) 
+
+> j
+
+, RB (i) 
+
+> j
+
+}.Thus, selecting these four rectangles encodes the assignment zi = aj . See Figure 1 for an illustration. 
+
+Constraint gadgets. Suppose zi appears in the three constraints Cij 1 , C ij 2 , C ij 3 . For each domain value ap ∈ D, we place three constraint points β(ij 1) 
+
+> p
+
+, β (ij 2) 
+
+> p
+
+, β (ij 3) 
+
+> p
+
+on the bottom side of SQ i, between the consecutive variable points corresponding to ap and ap+1 . By design, when the variable gadget selects the quadruple encoding zi = ap, these three constraint points are not covered by the chosen variable rectangles and must be covered by additional rectangles, see Figure 3 for an illustration. For each constraint Cij we introduce a dedicated horizontal line segment hij above the variable gadgets and place on it a guard point αij that cannot be covered vertically (refer to Figure 4). For every satisfying pair (ap, a q ) of Cij ,we add a constraint rectangle whose boundary covers αij horizontally and covers β(ij ) 
+
+> p
+
+and 
+
+β(ji ) 
+
+> q
+
+vertically. Because each αij lies on its own line hij , covering all guard points forces the solution to pick at least one rectangle per constraint. See Figure 5 for illustration. 
+
+Budget forcing and correctness. We set k = 4 k′ + m′. Any feasible solution must cover all variable points, implying at least 4 variable rectangles per gadget and hence at least 
+
+4k′ variable rectangles overall. Likewise, each guard point αij can only be covered by a constraint rectangle associated with Cij , so at least m′ constraint rectangles are necessary. Since the total budget is exactly 4k′ + m′, every size-k solution must be tight : it selects exactly one quadruple of variable rectangles per variable and exactly one constraint rectangle per constraint. This yields a bijection between solutions and assignments: from a satisfying assignment σ we select the corresponding 4k′ variable rectangles and, for each constraint, the unique rectangle corresponding to the satisfying pair (σi, σ j ); conversely, from any size-k solution we read off a unique value π(i) per variable gadget and argue that for every constraint Cij the selected constraint rectangle exists only if (aπ(i), a π(j)) satisfies Cij . Hence the constructed BCDAPR instance is a Yes instance if and only if the original 3-Regular 
+
+2-CSP instance is satisfiable, establishing W[1] -hardness parameterized by k. This result is given in Section 4. M. Kundu et al. 23:7 
+
+## 2.2 Overview of NP-hardness results 
+
+Our NP-hardness proof proceeds in two stages. We begin by formally defining an axis-aligned L-shape. 
+
+▶ Definition 5 (Axis-aligned L-shape) . An axis-aligned L-shape is a set L = V ∪ H, where 
+
+V is a vertical line segment and H is a horizontal line segment, such that V ∩ H = {c} for some point c, and c is an endpoint of both V and H (the corner ). We call H the horizontal arm of L and V the vertical arm of L. A point p ∈ R2 is covered by L if p ∈ L.
+
+We now define the associated covering problem. 
+
+L-Shape Cover (LSC )
+
+Input: A finite set P ⊆ R2 of n points and an integer k ≥ 0.
+
+Parameter: k.
+
+Question: Do there exist at most k axis-aligned L-shapes whose union covers all points of P ?We first show that LSC is NP-complete via a reduction from Constrained Bipartite Vertex Cover . Given a constrained bipartite vertex cover instance (G = ( A, B, E ), k A, k B ),we embed the edges as points on an [m] × [n] grid and add two families of guard points :
+
+kB long vertical columns to the top-left and kA long horizontal rows to the bottom-right. Choosing an L-shape with a vertical arm on a designated column encodes selecting a vertex in B, and choosing an L-shape with a horizontal arm on a designated row encodes selecting a vertex in A. By setting M = k + 1 guard points per designated line, any solution with at most k = kA + kB , L-shapes is forced to dedicate kB distinct shapes to the top-left columns and kA distinct shapes to the bottom-right rows. The remaining arms in the central grid then correspond exactly to a constrained vertex cover of G. For a schematic geometric overview of our reduction see Figure 6. In the second stage, we reduce from NE -L-Shape Cover (NE -LSC ), the restriction of 
+
+LSC to NE -oriented L-shapes, to Boundary Covering with Continuous Axis-Parallel Rectangles . Starting from a point set P0 and parameter k, we place k vertical guard columns strictly to the right and k horizontal guard rows strictly above P0, each populated with M = 2 k + 1 guard points. Any family of at most k rectangles that boundary-covers all guards must place a rectangle side on each guard line (see Figure 8 for an illustration), and a simple geometric argument shows that every such rectangle necessarily uses one vertical guard line as its right side and one horizontal guard line as its top side. Consequently, each rectangle “pays for” exactly two guard sets and its left and bottom sides form an 
+
+NE -oriented L-shape that lies over P0. This yields a one-to-one correspondence between rectangle solutions for P0 and NE -L-shape solutions for P0, completing the NP-completeness proof for BCCAPR . These results are proved in Section 5. 
+
+## 2.3 Overview of an FPT algorithm for BCCAPR 
+
+We give an FPT algorithm for BCCAPR parameterized by k. The algorithm can be viewed as a parameterized reduction to Distinct Domain Monotone 2-CSP : given an input instance (P, k ), we compute, in time f (k) · | P |O(1) , an equivalent instance of Distinct Domain Monotone 2-CSP . Consequently, BCCAPR is fixed-parameter tractable with respect to k. Before proceeding, we first define Distinct Domain Monotone 2-CSP .
+
+C V I T 2 0 1 6 23:8 Covering Points with Rectangular Boundaries 
+
+Distinct Domain Monotone 2-CSP: The input to this problem is a set Z = {z1, z2, · · · ,
+
+zn′ } of variables, a (finite) domain Di ⊆ N for the variable zi, for each i ∈ [n′], and a set 
+
+C of m′ constraints, where each constraint is of the following form: c = [ zi ⋄ f (zj )] , where 
+
+i, j ∈ [n′], f : Dj → N is a monotone function, and ⋄ ∈ {≤ , ≥, =}. The objective is to check if there is an assignment asg : Z → N such that: i) for each i ∈ [n′], asg (zi) ∈ Di, and ii) each constraint in C is satisfied, i.e., for each c = [ zi ⋄ f (zj )] ∈ C, asg (zi) ⋄ f (asg (zj )) is true. In the above problem definition, for simplicity in its usage, we allow domains to be empty sets, in which case we trivially have a no-instance of the problem. The problem 
+
+Monotone 2-CSP is a special case of Distinct Domain Monotone 2-CSP , where the domains of all the variables are the same. A polynomial time algorithm for Monotone 
+
+2-CSP can be obtained via a simple reduction to 2-SAT [ 1]. A very minor modification to this algorithm for Monotone 2-CSP results in a polynomial time algorithm for Distinct Domain Monotone 2-CSP , which is stated in the following proposition. 
+
+▶ Proposition 6 ([ 1]) . Distinct Domain Monotone 2-CSP has a polynomial time algorithm. 
+
+Having defined Distinct Domain Monotone 2-CSP , we are now ready to describe the different steps in our reduction to Distinct Domain Monotone 2-CSP .
+
+Step 1: Discretization and a finite candidate family. We discretize the plane by selecting 2|P | vertical and 2|P | horizontal lines, and show that there exists an optimal solution in which every rectangle side lies on one of these chosen lines. As a consequence, the universe of candidate rectangles is finite; in particular, there is a family of at most 
+
+|P |O(1) rectangles (e.g., O(|P |4)) such that some optimal solution of size at most k can be chosen entirely from this family. 
+
+Step 2: A small set of “important” lines ( ImpLines . Next we show that if (P, k )
+
+is a Yes -instance of BCCAPR , then there exists a set of at most 4k lines (vertical and horizontal) whose union contains all points of P . Moreover, such a set can be found using a known routine via a reduction to Vertex Cover on a bipartite graph. We denote the resulting set of lines by ImpLines .
+
+Step 3: Exceptional points on a line. Fix a line L ∈ ImpLines . Observe that if a solution rectangle has no side aligned with L, then its boundary intersects L in at most two points. Therefore, among k rectangles, at most 2k points of P ∩ L can be covered by rectangles that do not align with L. We call a point of P ∩ L exceptional (with respect to a solution) if it is covered by a rectangle whose relevant side is not aligned with L. Hence, every L ∈ ImpLines has at most 2k exceptional points. In particular, if L contains more than 2k points of P , then some rectangle side in any feasible solution must align with L.
+
+Step 4: Guessing a skeleton. Let R1, . . . , R k′ be a hypothetical solution with k′ ≤ k.We define a skeleton to be a function that maps each side of each Ri to an element of 
+
+ImpLines ∪ {⊥} :mapping a side to L ∈ ImpLines means that we guess this side lies on L;mapping a side to ⊥ means that the side does not align with any line in ImpLines .Intuitively, the skeleton guesses which rectangle sides are “aligned” to important lines and which sides are “free”. 
+
+Step 5: Ordering endpoints on each important line. Fix a horizontal line 
+
+h ∈ ImpLines . From the skeleton we know exactly which rectangle sides (top or bottom sides) lie on h. Suppose there are m such sides. Each contributes two endpoints; denote M. Kundu et al. 23:9 
+
+them by li and ri for i ∈ [m]. We guess the left-to-right order of these 2m endpoints along h, i.e., a permutation of {li, r i : i ∈ [m]}.We declare such an order admissible if, after replacing each li by left and each ri by right ,the resulting string belongs to the Dyck language over Σ = {left , right }.
+
+Step 6: Gaps and counting exceptional points. For each admissible Dyck string, consider its unique decomposition into minimal Dyck blocks, say X = X1X2 · · · Xq , where each Xj is a nonempty Dyck word and no proper prefix of Xj is a Dyck word. This induces q + 1 gaps : before X1, between consecutive blocks, and after Xq . We then guess, for each gap, how many exceptional points of P lie in that gap (but not their identities). Since the number of exceptional points on h is at most 2k, we only need to guess how they are distributed among the q+1 gaps. Formally, we guess an integer k⋆ ≤ 2k and a 
+
+(q+1) -tuple of nonnegative integers 
+
+(w1, . . . , w q+1 ) ∈ Z q+1  
+
+> ≥0
+
+such that 
+
+> q+1
+
+∑
+
+> i=1
+
+wi = k⋆.
+
+The number of such distributions is (k⋆+qq
+
+), and since k⋆ ≤ 2k and q ≤ m ≤ k, this quantity is bounded by 8k. A tighter analysis gives an improved bound of 6.75 k.
+
+Step 7: Assigning exceptional points to vertical sides. Finally, for each exceptional point (abstractly counted in Step 6), we guess which rectangle covers it and whether it is covered by the left or the right vertical side of that rectangle. 
+
+Step 8: Reduction to Distinct Domain Monotone 2-CSP. Once the skeleton, endpoint orders, gap counts, and exceptional-point assignments are fixed, the remaining feasibility constraints can be expressed as an instance of Distinct Domain Monotone 
+
+2-CSP . We solve that Distinct Domain Monotone 2-CSP instance and accept if any branch succeeds. This reduction step is fairly technical, so we omit its details from the overview. The number of branches created by the guesses above is bounded by 2O(k log k) · nO(1) , and each branch can be processed in polynomial time in n (plus the time needed to solve the resulting Distinct Domain Monotone 2-CSP instance). Therefore the overall algorithm runs in 2O(k log k) · nO(1) time. 
+
+## 3 Notations and Preliminaries 
+
+For m ∈ N, we denote {1, . . . , m } by [m] and {0, . . . , m } by [m]0. An axis-parallel rectangle 
+
+R in the plane has the following form 
+
+R = {(x, y ) ∈ R2 | a ≤ x ≤ b, c ≤ y ≤ d},
+
+for some a, b, c, d ∈ R. Throughout the paper, all rectangles are assumed to be axis-parallel, so we simply refer to them as rectangles. The boundary of a rectangle R, denoted by bd (R),is defined as 
+
+bd (R) = {(x, y ) ∈ R | x = a or x = b or y = c or y = d}.
+
+The four lines, namely, x = a, x = b, y = c and y = d are termed as the boundary lines of 
+
+R. Furthermore, we call the sides of a rectangle R as left, right, bottom and top side of R
+
+and the corresponding lines on which they lie, we call them the left, right, bottom and top 
+
+C V I T 2 0 1 6 23:10 Covering Points with Rectangular Boundaries 
+
+boundary line of R respectively. A point p ∈ P is said to be covered by a rectangle R if p lies on the boundary of R.Let π be an ordering of the elements in the set {e1, . . . , e n}. We write x ≺π y to indicate that element x appears to the left of element y in the order induced by π. Accordingly, we represent the ordering π as 
+
+e1 ≺π e2 ≺π · · · ≺ π en.
+
+When the ordering is clear from context, we omit the subscript and simply write ≺.
+
+## 3.1 Definition of 3-Regular 2-CSP 
+
+We now define the source problem for our W[1]-hardness. Toward that we first define constraint satisfaction problems (CSPs) of arity two (also called binary constraints).) We follow the notation and definitions of the seminal paper of Guruswami et al. [ 4]. Formally, a CSP instance G is a quadruple (V (G), E (G), D, {Ce}e∈E(G)), where: 
+
+V (G) is the set of variables. 
+
+E(G) is the set of constraints. Each constraint e = {ue, v e} ∈ E(G) has arity 2 and is related to two distinct variables ue, v e ∈ V (G). The constraint graph is the undirected graph on the vertices V (G) and the edges E(G). Note that we allow multiple constraints between the same pair of variables and thus the constraint graph may have parallel edges. 
+
+D is for the alphabet of each variable in V (G). We use D = [ n].Given a constraint e ∈ E(G), Ce ⊆ D × D = [ n] × [n]. Furthermore, given {Ce}e∈E(G),we can define {Πe}e∈E(G), the set of validity functions of constraints. Given a constraint 
+
+e ∈ E(G), the validity function Πe(·, ·) : D × D → { 0, 1} checks whether the constraint e
+
+between ue and ve is satisfied. That is, Πe(·, ·) assigns 1 if and only of the tuple is in Ce.We use |G| = ( |V (G)| + |E(G)|) · | D| to denote the size of a CSP instance G.
+
+Assignment and Satisfaction Value. An assignment is a function σ : V (G) → D that assigns to each variable a value from the alphabet. The satisfaction value for a mapping σ,denoted as val (G, σ ), represents the proportion of constraints that σ satisfies, i.e., 
+
+val (G, σ ) = 1
+
+|E|
+
+∑
+
+> e∈E
+
+Πe(σ(ue), σ (ve)) .
+
+The satisfaction value for G, denoted by val (G), is the highest satisfaction value across all mappings, i.e., val (G) = max σ : V (G)→Σ val (G, σ ). We define an assignment σ as a solution 
+
+to a CSP instance G if val (G, σ ) = 1 , and say G is satisfiable if and only if G has a solution. When the context is clear, σ is omitted in the constraint description; therefore, Πe(ue, v e)
+
+represents Π( σ(ue), σ (ve)) .We will be working with the 3-Regular 2-CSP problem. An input to this problem consists of a 2CSP G with k variables over size-n alphabets, where the constraint graph G is 
+
+3-regular. The question is whether G is satisfiable. 
+
+▶ Proposition 7 ([ 4, 12 ]) . 3-Regular 2-CSP is W[1] -hard when parameterized by the number of variables. 
+
+In short, we consider 3-Regular 2-CSP , where every variable appears in exactly three constraints and every constraint involves exactly two variables. M. Kundu et al. 23:11 
+
+## 4 W[1]-hardness for BCDAPR 
+
+In this section, we prove that the problem becomes W[1] -hard when the rectangles are part of the input. That is, we show that Boundary Covering with Discrete Axis-Parallel Rectangles (BCDAPR ) is W[1] -hard parameterized by the solution size k. Our proof is via a parameterized reduction from 3-Regular 2-Constraint Satisfaction Problem 
+
+(3-Regular 2-CSP ). 
+
+## 4.1 Reduction from 3-Regular 2-CSP 
+
+The reduction is from 3-Regular 2-CSP instance, where each constraint consists of exactly 
+
+2 variables and each variable appears in exactly 3 constraints. Let I be an instance to 3-regular 2-CSP with the set of variables Z = {z1, . . . , z k′ } where each variable zi takes value from a domain D = {a1, . . . , a t}, a set of constraints C with 
+
+|C| = m′, where each constraint contains 2 variables and each variable appears in exactly 
+
+3 constraints (so m′ = 3k′ 
+
+> 2
+
+) and for each constraint Cij ∈ C involving variables zi and zj aset sat ij ⊆ D × D of pairs of assignments to zi and zj that satisfy Cij .. We construct an instance (P, R, k ) of BCDAPR as follows. 
+
+Variable Gadgets: For each variable zi, we construct the variable gadget as follows. a(iT )1a(iR )1a(iB )1a(iL )1a(iL )
+
+> t+1
+
+a(iT )
+
+> t+1
+
+a(iR )
+
+> t+1
+
+a(iB )    
+
+> t+1
+> Figure 1 Variable gadget SQ icorresponding to the variable zi
+
+The variable gadget corresponding to zi is a square SQ i of side length t + 2 embedded in the plane R2. We denote its four sides by L, R, T , and B, representing the left , right , top ,and bottom sides, respectively. We describe the construction for one side of the square SQ i,say L; the others are defined analogously. Corresponding to the domain D = {a1, . . . , a t},we introduce a set of points 
+
+{
+
+a(iL )1 , . . . , a (iL )
+
+> t
+
+}
+
+, one point for each element of the domain, preserving the natural order of the domain elements. We add one additional dummy point 
+
+a(iL ) 
+
+> t+1
+
+on top of of a(iL ) 
+
+> t
+
+. These points are placed on side L such that any two consecutive points are at unit distance from each other. We repeat this placement for each of the four sides of the square, thereby creating four copies of every domain element, one on each side. For any two consecutive sides of the 
+
+C V I T 2 0 1 6 23:12 Covering Points with Rectangular Boundaries 
+
+square, the placement of these copies follows a cyclic order (see Figure 1). We refer to all these points collectively as the variable points .Corresponding to each domain value aj ∈ D, we create four types of variable rectangles 
+
+denoted by BL (i) 
+
+> j
+
+, LT (i) 
+
+> j
+
+, T R (i) 
+
+> j
+
+, and RB (i) 
+
+> j
+
+. Each rectangle is uniquely determined by a pair of diagonally opposite points lying on two corresponding sides of SQ i.For example, the rectangle BL (i) 
+
+> j
+
+is defined by the two points a(iB ) 
+
+> j+1
+
+and a(iL ) 
+
+> j
+
+lying on the bottom and left sides of SQ i, respectively. These two points uniquely determine the axis-parallel rectangle BL (i) 
+
+> j
+
+. Similarly, we define the other three rectangles as follows: 
+
+LT (i) 
+
+> j
+
+is defined by the two points a(iL ) 
+
+> j+1
+
+and a(iT ) 
+
+> j
+
+;
+
+T R (i) 
+
+> j
+
+is defined by the two points a(iT ) 
+
+> j+1
+
+and a(iR ) 
+
+> j
+
+;
+
+RB (i) 
+
+> j
+
+is defined by the two points a(iR ) 
+
+> j+1
+
+and a(iB ) 
+
+> j
+
+.Observe that for each variable zi and each domain value aj ∈ D, the four rectangles 
+
+{BL (i) 
+
+> j
+
+, LT (i) 
+
+> j
+
+, T R (i) 
+
+> j
+
+, RB (i) 
+
+> j
+
+}
+
+are pairwise disjoint and together cover all variable points placed on the boundary of the square SQ i. Selecting these four rectangles corresponding to a domain value aj represents assigning the variable zi the value aj . For example, in Figure 1, selecting the four red rectangles corresponds to the assignment zi = a(i)2 , while selecting the four dashed blue rectangles corresponds to the assignment zi = a(i)4 .Furthermore, for a fixed variable zi, unless all four rectangles corresponding to some domain value aj ∈ D are selected, all the variable points on the corresponding square 
+
+SQ i are not covered. Hence, covering all variable points of SQ i forces the selection of all four rectangles associated with exactly one domain value. We arrange the variable gadgets, namely the squares SQ 1, . . . , SQ k′ , next to each other so that their bottom sides lie on the same horizontal line; see Figure 2. · · · SQ 1SQ 2SQ 3SQ k′
+
+Figure 2 Arrangement of variable gadgets 
+
+Constraint Gadgets: For each constraint Cij ∈ C containing the two variables zi and 
+
+zj , we add some additional points and rectangles namely, constraint points and constraint rectangles respectively. Consider a variable gadget SQ i corresponding to the variable zi. Suppose zi appears in the constraints Cij 1 , C ij 2 and Cij 3 . Now for each domain value ap ∈ D, on bottom side of SQ i we add 3 corresponding constraint points β(ij 1) 
+
+> p
+
+, β(ij 2) 
+
+> p
+
+, β(ij 3) 
+
+> p
+
+between the variable points a(iB ) 
+
+> p
+
+and a(iB ) 
+
+> p+1
+
+.Observe that, there are exactly 3 constraint points in SQ i between a(iB ) 
+
+> j
+
+and a(iB ) 
+
+> j+1
+
+that are not covered by any of the four variable rectangles corresponding to the assignment 
+
+zi = ap. For reference, see Figure 3. For every constraint Cij ∈ C , we add a unique horizontal line segment hij above the variable gadgets, spanning from SQ i to SQ j . We make sure no constraint rectangles except those corresponding to the constraint Cij will have a horizontal side on this line. We place a constraint guard point αij on hij such that no rectangle covers it vertically, see figure 4. M. Kundu et al. 23:13 a(iB )2a(iB )3β(ij 1)2β(ij 3)2β(ij 2)2
+
+Figure 3 Constraint points corresponding to domain value a2 in the variable gadget SQ iSQ iSQ jαij hij 
+
+Figure 4 Constraint guard point αij corresponding to variables zi, z j
+
+We now construct constraint rectangles to cover the constraint points together with the corresponding guard points. For every pair of assignments (ap, a q ) ∈ D × D that satisfies the constraint Cij , we add a constraint rectangle defined as follows. The rectangle is chosen so that it covers the point αij horizontally, and the two points β(ij ) 
+
+> p
+
+and β(ji )
+
+> q
+
+vertically. In this way, the rectangle simultaneously covers the constraint guard point and the two associated constraint points in the variable gadgets. For example, in Figure 5, if the assignments zi = a1 and zj = a2 satisfy the constraint 
+
+Cij , we add the green (dash-dotted) constraint rectangle that covers the red constraint point β(ij )1 corresponding to Cij in SQ i and the constraint blue point β(ji )2 corresponding to Cij in SQ j vertically, and the point αij horizontally. 
+
+Parameter: The total number of rectangles allowed in the solution is 
+
+k = 4 · (number of variables ) + ( number of constraints )= 4 k′ + m′
+
+= 4 k′ + 3k′ 
+
+> 2
+
+= 11 k′
+
+> 2
+
+▶ Theorem 8. Boundary Covering with Discrete Axis-Parallel Rectangles is 
+
+W[1] -hard parameterized by the number of rectangles. 
+
+## 4.2 Correctness of the Reduction 
+
+▶ Lemma 9. The 3-Regular 2-CSP instance I = ( Z, D, C) is a Yes instance if and only if Boundary Covering with Discrete Axis-Parallel Rectangles (BCDAPR ) is a 
+
+Yes instance. 
+
+C V I T 2 0 1 6 23:14 Covering Points with Rectangular Boundaries αij β(ij )1β(ji )2SQ iSQ j
+
+Figure 5 Constraint rectangle covering constraint points and constraint guard point 
+
+Proof. Completeness: Let a 3-Regular 2-CSP admits a satisfying assignment σ =(σ1, . . . , σ k′ ), where σi ∈ D. For each i ∈ [k′], let σi = api . We select the four variable rectangles BL (i) 
+
+> pi
+
+, LT (i) 
+
+> pi
+
+, T R (i) 
+
+> pi
+
+, and RB (i) 
+
+> pi
+
+corresponding to the value api ∈ D in the variable gadget SQ i.By the placement of the variable points on SQ i, these four rectangles together cover all variable points in SQ i. Moreover, by the placement of the constraint points, there are exactly 
+
+3 constraint points lying between a(iB ) 
+
+> pi
+
+and a(iB ) 
+
+> pi+1
+
+on the bottom side of SQ i, that are not covered by the selected variable rectangles. Now consider any constraint Cij ∈ C involving variables zi and zj . Since σ is a satisfying assignment, the pair (σi, σ j ) = ( api , a pj ) ∈ D × D satisfies Cij . By the construction of the constraint gadget, there exists a constraint rectangle that covers the constraint guard point 
+
+αij horizontally and simultaneously covers the two constraint points β(ij ) 
+
+> pi
+
+and β(ji ) 
+
+> pj
+
+vertically. We select this rectangle in the solution. Thus, for each variable zi we select exactly 4 variable rectangles, and for each constraint we select exactly 1 constraint rectangle. In total, we select 
+
+4k′ + m′ = 11 k′
+
+2 = k
+
+rectangles. Clearly, these rectangles cover all variable points and constraint points on every variable gadget SQ i as well as all constraint guard points, and hence cover all points in the constructed instance. 
+
+Soundness: Let ̂ R1, . . . , ̂ Rk be a solution to BCDAPR instance. We first show that any solution of size k must satisfy certain properties. Consider any variable gadget SQ i. We need to select at least 4 variable rectangles in SQ i
+
+since those rectangles are the only ones that cover the variable points. Moreover, to cover all the variable points in SQ i using 4 variable rectangles one has to choose one rectangle of each type, namely {BL (i) 
+
+> ∗
+
+, LT (i) 
+
+> ∗
+
+, T R (i) 
+
+> ∗
+
+, RB (i) 
+
+> ∗
+
+}, where ∗ ∈ [t]. Furthermore, the value of 
+
+∗ must be same for all 4 selected variable rectangles, that is {BL (i) 
+
+> j
+
+, LT (i) 
+
+> j
+
+, T R (i) 
+
+> j
+
+, RB (i) 
+
+> j
+
+},for same j ∈ [t]. As argued above, covering all variable points in a single gadget requires at least four variable rectangles. Therefore, any k sized solution must select at least 4k′M. Kundu et al. 23:15 
+
+variable rectangles in total. This implies that at m′ = 3 k′/2 constraint rectangles are in the solution. Note that every constraint guard point αij can only be covered by some rectangle whose top horizontal side lies on the unique line hij . Moreover, by construction, since the lines 
+
+hij are different for each of the constrain guard points, this implies that, any solution of size k must pick at least m′ = 3 k′/2 constraint rectangles. Thus covering all constraint guard points requires selecting at least m′ constraint rectangles. Hence any feasible solution must contain at least 4k + m′ rectangles overall. Since the budget of the solution is exactly k = 4 k′ + m′, it follows that any k size solution must contain exactly 4k′ + m′
+
+rectangles. Now let ̂ R1, . . . , ̂ R4k′ denote the collections of variable rectangles selected in the solution, where we can group them to set of 4 rectangles, namely ˜R1, . . . , ˜Rk′ where for each i ∈ [k],
+
+˜R=
+
+> i
+
+{
+
+BL (i) 
+
+> p
+
+, LT (i) 
+
+> p
+
+, T R (i) 
+
+> p
+
+, RB (i)
+
+> p
+
+}
+
+for some p ∈ [t]. In other words, for every variable gadget SQ i, the solution selects exactly four variable rectangles corresponding to a single domain value ap ∈ D. Now we construct an assignment for 3-regular 2-CSP as follows: for every variable zi, let π(i) ∈ [t] be the index of the variable rectangles that the solution picked to cover the variable points in SQ i. We assign 
+
+zi = aπ(i). Now we show that (aπ(1) , . . . , a π(k′)) is a valid assignment, that is, every constraint is satisfied. Consider any constraint Cij involving the two variables zi and zj . By the way of assignment, we know that the variable rectangles 
+
+{
+
+BL (i)
+
+> π(i)
+
+, LT (i)
+
+> π(i)
+
+, T R (i)
+
+> π(i)
+
+, RB (i)
+
+> π(i)
+
+}
+
+and 
+
+{
+
+BL (j)
+
+> π(j)
+
+, LT (j)
+
+> π(j)
+
+, T R (j)
+
+> π(j)
+
+, RB (j)
+
+> π(j)
+
+}
+
+are in the solution. So the uncovered constraint points in SQ i lie in between aiB π(i) and aiB π(i)+1 and those in SQ j lie in between ajB π(j) and ajB π(j)+1 .Each of these points must be covered vertically by constraint rectangles. By construction, there is exactly one constraint rectangle corresponding to Cij that passes through β(ij ) 
+
+> πi
+
+and 
+
+β(ji ) 
+
+> πj
+
+vertically. Thus this constraint rectangle must be picked in the solution to cover these two points. Moreover, this rectangle also covers the constraint guard point αij horizontally. Thus by construction of the constraint rectangles we get that the assignment zi = aπ(i) and 
+
+zj = aπ(j) satisfies the constraint Cij .Since this argument holds for every constraint in C, the assignment (aπ(1) , . . . , a π(k′))satisfies all constraints of the 3-Regular 2-CSP instance. Therefore, the original 3-Regular 2-CSP 
+
+instance is satisfiable. ◀
+
+## 5 NP-hardness for L-Shape Cover and BCCAPR 
+
+In this section we prove that L-Shape Cover (LSC ) and BCCAPR are NP-complete. Our reductions proceed in two steps. First, we establish NP-hardness of LSC via a reduction from Constrained Bipartite Vertex Cover [ 10 ]. Next, we prove NP-completeness of BCCAPR by reducing from a restricted variant of BCCAPR . Recall the definition of axis-aligned L-shape in Definition 5. 
+
+## 5.1 Reduction to LSC 
+
+In this subsection we give reduction from CBVC to LSC .
+
+C V I T 2 0 1 6 23:16 Covering Points with Rectangular Boundaries 
+
+[m] × [n]
+
+Pedge 
+
+PTL 
+
+PBR 
+
+Figure 6 Schematic view of the construction: Pedge encodes edges; PTL forces kB vertical arms on the designated top-left columns; PBR forces kA horizontal arms on the designated bottom-right rows. 
+
+## Construction. Fix an instance (G = ( A, B, E ), k A, k B ) with A = {a1, . . . , a m} and 
+
+B = {b1, . . . , b n}. We construct (P, k ) where k := kA + kB and set M := k + 1 . Here P is the set of points. 
+
+Edge points (central grid). For each edge aibj ∈ E, let the point pij := ( i, j ) ∈ Z2. Let 
+
+Pedge denote the set of all such points. 
+
+Top-left column guards (forcing kB vertical arms). Let XTL := {− 1, −2, . . . , −kB }.
+
+For each x ∈ XTL , let 
+
+Qx := {(x, n + 1) , (x, n + 2) , . . . , (x, n + M )}.
+
+be a set of M points. Define PTL := ⋃ 
+
+> x∈XTL
+
+Qx.
+
+Bottom-right row guards (forcing kA horizontal arms). Let Y BR := {− 1, −2, . . . , −kA}.
+
+For each y ∈ Y BR , let 
+
+Qy := {(m + 1 , y ), (m + 2 , y ), . . . , (m + M, y )}.
+
+be a set of M points. Define PBR := ⋃  
+
+> y∈YBR
+
+Qy .
+
+Final point set. Define P := Pedge ∪ PTL ∪ PBR .
+
+▶ Remark 10 (guards only on designated lines). We place guard points only on the kB
+
+designated columns in XTL and the kA designated rows in Y BR .A schematic geometric overview of our reduction can be found in Figure 6. M. Kundu et al. 23:17 
+
+## 5.2 Forcing lemmas 
+
+▶ Lemma 11 (Top-left forces vertical arms on XTL ). Let L be a family of at most k L-shapes covering P . Then for each x ∈ XTL , there exists an L-shape in L whose vertical arm lies on the line {(x, y ) : y ∈ R}. Moreover, the kB columns in XTL require kB distinct L-shapes. 
+
+Proof. Fix x ∈ XTL . The M guard points on that column have distinct y-coordinates. A horizontal segment lies on a single y and hence can cover at most one of them. If no L-shape uses a vertical arm on x, then these M = k + 1 points require more than k distinct L-shapes, contradicting |L| ≤ k. Thus some L-shape must place its vertical arm on x.Finally, one L-shape has its vertical arm on a single x-coordinate, so it cannot cover all the guard points on two different columns. Hence the kB columns require kB distinct L-shapes. 
+
+◀▶ Lemma 12 (Bottom-right forces horizontal arms on Y BR ). Let L be a family of at most k
+
+L-shapes covering P . Then for each y ∈ Y BR , there exists an L-shape in L whose horizontal arm lies on the line {(x, y ) : x ∈ R}. Moreover, the kA rows in Y BR require kA distinct 
+
+L-shapes. 
+
+Proof. Fix y ∈ Y BR . The M guard points on that row have distinct x-coordinates. Avertical segment lies on a single x and hence can cover at most one of them. If no L-shape uses a horizontal arm on y, then these M = k + 1 points require more than k distinct L-shapes, contradicting |L| ≤ k. Thus some L-shape must place its horizontal arm on y.As one L-shape has its horizontal arm on a single y-coordinate, it cannot cover all the guard points on two different rows. Hence the kA rows require kA distinct L-shapes. ◀▶ Corollary 13 (Counting available central-grid arms) . Let L be a cover of P by at most k
+
+L-shapes. Then: at most k − kB = kA shapes in L can have their vertical arm on a line x = i with i ∈ [m],and at most k − kA = kB shapes in L can have their horizontal arm on a line y = j with 
+
+j ∈ [n].
+
+Proof. By Lemma 11, there are kB distinct shapes whose vertical arms are committed to the guard columns x ∈ XTL ⊆ Z<0. Thus among at most k shapes, at most k − kB = kA
+
+shapes can have vertical arms on any other x-coordinate, in particular on x = i for i ∈ [m].The horizontal statement follows symmetrically from Lemma 12. ◀▶ Remark 14 (overlaps are allowed). An L-shape may simultaneously hit one top-left guard column and one bottom-right guard row; we do not forbid this. 
+
+## 5.3 Correctness 
+
+▶ Lemma 15 (Completeness) . If the CBVC instance is a Yes -instance, then the constructed 
+
+LSC instance (P, k ) is a Yes -instance. 
+
+Proof. Let A′ ⊆ A, B′ ⊆ B with |A′| ≤ kA, |B′| ≤ kB be a constrained vertex cover. We build a family of k = kA + kB L-shapes covering P .
+
+Bottom-right shapes (encode choices in A). For each y ∈ Y BR (there are kA such rows), choose any ai ∈ A′ (with repetition allowed if |A′| < k A), and place an L-shape with corner at 
+
+C V I T 2 0 1 6 23:18 Covering Points with Rectangular Boundaries 
+
+(i, y ) whose horizontal arm extends right to x = m + M (covering (m + 1 , y ), . . . , (m + M, y ))and whose vertical arm extends up through the central grid (lying on x = i). 
+
+Top-left shapes (encode choices in B). For each x ∈ XTL (there are kB such columns), choose any bj ∈ B′ (with repetition allowed if |B′| < k B ), and place an L-shape with corner at (x, j )
+
+whose vertical arm extends up to y = n + M (covering (x, n + 1) , . . . , (x, n + M )) and whose horizontal arm extends right through the central grid (lying on y = j). All guard points are covered by construction. Consider any edge-point (i, j ) ∈ Pedge (i.e., 
+
+aibj ∈ E). Since A′ ∪ B′ is a vertex cover, either ai ∈ A′ or bj ∈ B′. In the first case, some bottom-right L-shape has vertical arm on x = i and covers (i, j ); in the second case, some top-left L-shape has horizontal arm on y = j and covers (i, j ). Hence all points in P are covered using k L-shapes. ◀▶ Lemma 16 (Soundness) . If the constructed LSC instance (P, k ) is a Yes -instance, then the original CBVC instance is a Yes -instance. 
+
+Proof. Let L be a family of at most k L-shapes covering P .Define 
+
+A′ := 
+
+{
+
+ai ∈ A : ∃ L ∈ L whose vertical arm lies on x = i and covers some point of Pedge 
+
+}
+
+,B′ := 
+
+{
+
+bj ∈ B : ∃ L ∈ L whose horizontal arm lies on y = j and covers some point of Pedge 
+
+}
+
+.
+
+Budgets. By Corollary 13, at most kA shapes can have vertical arms on lines x = i with 
+
+i ∈ [m], hence |A′| ≤ kA. Similarly, |B′| ≤ kB .
+
+Edge coverage. Let aibj ∈ E and consider its point (i, j ) ∈ Pedge . This point is covered by some L ∈ L , and hence lies on the vertical arm (implying ai ∈ A′) or on the horizontal arm (implying bj ∈ B′). Thus (A′, B ′) is a valid constrained vertex cover. ◀▶ Theorem 17. LSC is NP-complete. 
+
+Proof. Membership in NP was observed earlier. NP-hardness follows from the polynomial-time reduction in Section 5.1 together with Lemmas 15 and 16. ◀
+
+## 5.4 Orientations and restriction to NE -oriented L-shapes 
+
+For our final reduction, we will use the fact that our construction so far employs only a single orientation of the L-shape. We therefore begin by defining all possible orientations of an axis-aligned L-shape. 
+
+▶ Definition 18 (Oriented L-shapes) . Let c = ( xc, y c) be the corner and let L = V ∪ H be an L-shape with corner c. We say L is 
+
+NE -oriented if the vertical arm has c as its lower endpoint and the horizontal arm has c
+
+as its left endpoint; 
+
+NW -oriented if the vertical arm has c as its lower endpoint and the horizontal arm has 
+
+c as its right endpoint; 
+
+SE -oriented if the vertical arm has c as its upper endpoint and the horizontal arm has c
+
+as its left endpoint; 
+
+SW -oriented if the vertical arm has c as its upper endpoint and the horizontal arm has 
+
+c as its right endpoint. See Figure 7. M. Kundu et al. 23:19  
+
+> c
+> NE
+> c
+> NW
+> c
+> SE
+> c
+> SW
+> Figure 7 The four orientations of axis-aligned L-shapes.
+
+Restriction to NE -oriented L-shapes We define NE -L-Shape Cover (NE -LSC ) as a specialization of LSC in which we are allowed to use only NE -oriented axis-aligned L-shapes. Formally, given a point set P and an integer k, the question is whether there exists k′ ≤ k
+
+such that P can be covered by k′ NE -oriented axis-aligned L-shapes. Our reduction already produces NE -solutions. In the completeness construction (Lemma 15), every L-shape we place is NE -oriented: each top-left shape has a vertical arm extending upward to reach y > n and a horizontal arm extending rightward into the grid, while each bottom-right shape has a horizontal arm extending rightward to reach x > m and a vertical arm extending upward into the grid. Therefore, we obtain the following. 
+
+▶ Theorem 19. NE -LSC is NP-complete. 
+
+## 5.5 Reduction from NE -LSC 
+
+In this section we prove that BCCAPR is NP-complete. We give a reduction from NE -LSC ,which is NP-complete (Section 5.4). Let (P0, k ) be an instance of NE -LSC . By applying an affine scaling and translation, we may assume that P0 ⊆ [m] × [n] for some integers m, n ≥ 1.Set M := 2 k + 1 . We construct a point set 
+
+P := P0 ∪ P Vguard ∪ P Hguard 
+
+and ask whether P can be boundary-covered by at most k axis-parallel rectangles. 
+
+Vertical guard columns (to the right, but below all horizontal guards). For each 
+
+t ∈ [k], define 
+
+Xt := m + M + t and Vt := {(Xt, n + 1) , (Xt, n + 2) , . . . , (Xt, n + M )}.
+
+Put P V 
+
+> guard
+
+:= ⋃kt=1 Vt.
+
+Horizontal guard rows (strictly above the vertical guards, and strictly left of them). For each s ∈ [k], define 
+
+Ys := n + M + s and Hs := {(m + 1 , Y s), (m + 2 , Y s), . . . , (m + M, Y s)}.
+
+Put P H 
+
+> guard
+
+:= ⋃ks=1 Hs.
+
+C V I T 2 0 1 6 23:20 Covering Points with Rectangular Boundaries                                  
+
+> [m]×[n]
+> P0
+> vertical guards Vt
+> horizontal guards Hs
+> x≤m+M < X t
+> y≤n+M < Y s
+> Figure 8 Schematic placement of guards: vertical guard columns lie strictly to the right of
+> x=m+M, while horizontal guard rows lie strictly above y=n+Mand entirely within the strip
+> m+ 1 ≤x≤m+M. Thus the two guard regions are disjoint.
+
+Placement invariant. Every point of each Hs satisfies x ≤ m + M , while each vertical guard column is at x = Xt ≥ m + M + 1 ; hence all horizontal guards lie strictly to the left of all vertical guards. Similarly, every point of each Vt satisfies y ≤ n + M , while each horizontal guard row is at y = Ys ≥ n + M + 1 ; hence all vertical guards lie strictly below all horizontal guards (see Figure 8). We now prove the key structural claim used in the soundness direction: in any solution of size at most k, every rectangle must “pay for” exactly two guard sets (and hence, in particular, it cannot be a rectangle that only serves P0). 
+
+▶ Lemma 20 (Guard-side forcing and counting) . Let M := 2 k + 1 , and let R be a family of at most k axis-parallel rectangles such that P ⊆ ⋃ 
+
+> R∈R
+
+bd (R), where P = P0 ∪ ⋃ 
+
+> t∈[k]
+
+Vt ∪
+
+⋃ 
+
+> s∈[k]
+
+Hs in the instance constructed above. For a rectangle R and t ∈ [k], we say that R serves Vt if x = Xt is a vertical side of R
+
+and bd (R) contains at least three point of Vt. Similarly, R serves Hs if y = Ys is a horizontal side of R and bd (R) contains at least three point of Hs.Then the following statements hold. 
+
+1. Every vertical guard set Vt is served by some rectangle in R, and every horizontal guard set Hs is served by some rectangle in R.
+
+2. Each rectangle in R serves points from at most two guard sets among {V1, . . . , V k, H 1, . . . , Hk}. Moreover, if a rectangle serves two vertical guard sets, then it serves no horizontal guard set; and symmetrically, if it serves two horizontal guard sets, then it serves no vertical guard set. 
+
+3. Consequently, |R| = k, and every rectangle in R serves exactly two guard sets. In particular, no rectangle in R serves fewer than two guard sets. 
+
+Proof. We repeatedly use the following fact. M. Kundu et al. 23:21 
+
+Fact. Fix a vertical line ℓ : x = c. If a rectangle R does not have a vertical side on ℓ, then 
+
+bd (R) ∩ ℓ consists of at most two points (where ℓ meets the top and bottom sides of R). An analogous statement holds for a horizontal line. 
+
+Proof of (1). Fix t ∈ [k]. Suppose no rectangle in R has a vertical side on x = Xt. By the Fact, each rectangle then covers at most 2 points of Vt, so all rectangles together cover at most 2|R| ≤ 2k points of Vt. But |Vt| = M = 2 k + 1 , a contradiction. Hence some rectangle, say R ∈ R , has a vertical side on x = Xt and bd (R) contains at least three point of Vt, that is, serves Vt. The argument for each Hs is symmetric. 
+
+Proof of (2). A rectangle has exactly two vertical sides and two horizontal sides; hence it can serve at most two distinct sets among {V1, . . . , V k} and at most two distinct sets among 
+
+{H1, . . . , H k}.Now assume R serves two vertical guard sets, say Vt1 and Vt2 with t1̸ = t2. Then the two vertical sides of R lie on x = Xt1 and x = Xt2 , and therefore every boundary point of R has 
+
+x ≥ min {Xt1 , X t2 } ≥ m + M + 1 .
+
+However, every point in any horizontal guard set Hs has x ∈ { m + 1 , . . . , m + M }, so 
+
+bd (R) cannot contain any point of any Hs. Thus R serves no horizontal guard set. The horizontal–vertical symmetric statement is analogous. Therefore each rectangle serves points from at most two guard sets in total. 
+
+Proof of (3). By (1), all 2k guard sets must be served by rectangles in R. By (2), each rectangle serves at most two guard sets. Hence at least k rectangles are necessary to serve all 
+
+2k guard sets. Since |R| ≤ k, we conclude |R| = k and that every rectangle serves exactly two guard sets. ◀▶ Lemma 21 (Completeness) . If (P0, k ) is a Yes -instance of NE -LSC , then the constructed instance (P, k ) is a Yes -instance of BCCAPR .
+
+Proof. Let L1, . . . , L k′ be NE -oriented L-shapes covering P0, where k′ ≤ k. Write the corner of Li as ci = ( αi, β i). Since P0 ⊆ [m] × [n] and each Li is NE -oriented, we may assume (by extending arms if needed) that Li covers points of P0 only along the ray on the line x = αi
+
+above y = βi and along the ray on the line y = βi to the right of x = αi.We now build at most k rectangles whose boundaries cover P .
+
+Step 1: assign each L-shape to a guard pair. Choose any injective map π : [ k′] → [k]
+
+and set ti := π(i). Also choose any injective map σ : [ k′] → [k] and set si := σ(i). (If k′ < k ,leave some indices of [k] unused; they will be handled in Step 2.) 
+
+Step 2: create rectangles. For each i ∈ [k′], define a rectangle Ri by: left side x = αi, bottom side y = βi, right side x = Xti , top side y = Ysi .
+
+By construction, bd (Ri) contains the left and bottom sides of Ri, hence contains Li (as a subset), and also contains the full guard lines x = Xti and y = Ysi .If k′ < k , for each remaining index t ∈ [k] \ { ti : i ∈ [k′]} pick an unused s ∈ [k] \ { si : i ∈
+
+[k′]} (there are equally many of each), and create an auxiliary rectangle with, say, left side 
+
+x = 0 , bottom side y = 0 , right side x = Xt, and top side y = Ys. These auxiliary rectangles only help cover the remaining guard sets and are irrelevant to covering P0.
+
+Step 3: coverage. Each rectangle Ri covers all points of Vti on its right side x = Xti , and all points of Hsi on its top side y = Ysi . Thus all guard points are covered. Now consider any point p ∈ P0. Since L1, . . . , L k′ cover P0, the point p lies on Li for some i. As Li ⊆ bd (Ri), we have p ∈ bd (Ri). Hence p is boundary-covered by our rectangles. Therefore (P, k ) is a Yes -instance of BCCAPR . ◀
+
+C V I T 2 0 1 6 23:22 Covering Points with Rectangular Boundaries 
+
+▶ Lemma 22 (Soundness: extracting NE -L-shapes) . Let R be a family of at most k rectangles whose boundaries cover P . Then P0 can be covered by at most k NE -oriented L-shapes. 
+
+Proof. Let 
+
+R0 := { R ∈ R : bd (R) ∩ P0̸ = ∅ } .
+
+Clearly |R 0| ≤ |R| ≤ k.Fix any rectangle R ∈ R 0. By Lemma 20(3), every rectangle in R serves exactly two guard sets. We claim that the two guard sets served by R must be one vertical guard set and one horizontal guard set. Indeed, if R served two vertical guard sets, then by Lemma 20(2) every boundary point of 
+
+R would have x ≥ m + M + 1 , whereas every point of P0 ⊆ [m] × [n] has x ≤ m, contradicting 
+
+bd (R) ∩ P0̸ = ∅. Symmetrically, R cannot serve two horizontal guard sets. Hence there exist indices t(R) ∈ [k] and s(R) ∈ [k] such that R serves Vt(R) and serves Hs(R).We next claim that for such an R, the side on x = Xt(R) is the right side of R and the side on y = Ys(R) is the top side of R. Since R ∈ R 0, there exists a point of P0 on bd (R),hence bd (R) contains a point with x ≤ m and a point with y ≤ n. Thus the left side of 
+
+R has x ≤ m and the bottom side of R has y ≤ n. But Xt(R) ≥ m + M + 1 > m and 
+
+Ys(R) ≥ n + M + 1 > n , so x = Xt(R) cannot be the left side and y = Ys(R) cannot be the bottom side; therefore they are the right and top sides, respectively. For each rectangle R ∈ R 0, define L(R) to be the union of the left and bottom sides of R.Then L(R) is an NE -oriented L-shape. Now fix any point p ∈ P0. Since R boundary-covers P , the point p lies on bd (R) for some R ∈ R , and hence for some R ∈ R 0 by definition of R0. For this rectangle R, we have shown that its right side is at x = Xt(R) > m and its top side is at y = Ys(R) > n . Because p
+
+satisfies x(p) ≤ m and y(p) ≤ n, it cannot lie on the right or top side of R. Therefore p lies on the left side or the bottom side of R, i.e., p ∈ L(R).Hence the family { L(R) : R ∈ R 0 } covers P0 and has size at most |R 0| ≤ k. ◀▶ Theorem 23. BCCAPR is NP-complete. 
+
+Proof. Membership in NP is immediate: a certificate consists of the corner coordinates of at most k rectangles, and one can verify in polynomial time that every input point lies on the boundary of at least one rectangle. For NP-hardness, we use the reduction from NE -LSC described in Section 5.5. Lemma 21 proves completeness of the reduction. For soundness, Lemma 22 shows how to extract from any boundary-cover of P by at most k rectangles a cover of P0 by at most k NE -L-shapes. Thus (P0, k ) is a Yes -instance of NE -LSC if and only if (P, k ) is a Yes -instance of BCCAPR ,and the reduction is polynomial-time. ◀
+
+## 6 An FPT algorithm for BCCAPR 
+
+In this section we present an FPT algorithm for BCCAPR parameterized by k. The algorithm follows the outline from Section 2; each step is implemented and analyzed in its own subsection below. As a result, BCCAPR is fixed-parameter tractable with respect to k.
+
+## 6.1 Discretization of coordinates 
+
+We begin by discretizing the plane using the coordinate values induced by the input point set P = {p1, . . . , p n} ⊆ R2, where pi = ( xi, y i) for each i ∈ [n]. Let X and Y denote the sets M. Kundu et al. 23:23 
+
+of distinct x- and y-coordinates appearing in P , respectively: 
+
+X := { xi | (xi, y i) ∈ P } and Y := { yi | (xi, y i) ∈ P }.
+
+Let Gridpts X = ⟨α1, α 2, . . . , α Nx ⟩ be the increasing ordering of X, and let Gridpts Y =
+
+⟨β1, β 2, . . . , β Ny ⟩ be the increasing ordering of Y , where Nx = |X| ≤ n and Ny = |Y | ≤ n.Thus α1 < α 2 < · · · < α Nx and β1 < β 2 < · · · < β Ny .
+
+Discretization. Given a point set P ⊆ R2, let Gridpts X = ⟨α1, . . . , α Nx ⟩ and Gridpts Y =
+
+⟨β1, . . . , β Ny ⟩ be the increasing orderings of the distinct x- and y-coordinates appearing in 
+
+P . We draw the vertical lines x = αj for all j ∈ [Nx] and the horizontal lines y = βℓ for all 
+
+ℓ ∈ [Ny ]. These lines form an axis-parallel grid whose grid points are the intersection points 
+
+(αj , β ℓ) for all j ∈ [Nx] and ℓ ∈ [Ny ].
+
+By construction, every point of P lies on a grid point of this grid (indeed, on an intersection of one drawn vertical and one drawn horizontal line). We now prove the main lemma of this section, showing that we may assume, without loss of generality, that every rectangle in an optimal solution has all four sides aligned with grid lines. This yields the following lemma. 
+
+▶ Lemma 24 (Grid-aligned solution for rectangles) . Let (P, k ) be an instance of BCCAPR 
+
+and let X = {x(p) : p ∈ P } and Y = {y(p) : p ∈ P }. Let Gridpts X = ⟨α1 < α 2 < · · · < α Nx ⟩
+
+and Gridpts Y = ⟨β1 < β 2 < · · · < β Ny ⟩ be the sorted lists of distinct coordinates in X and 
+
+Y . If (P, k ) is a Yes -instance, then there exists a solution R of size at most k such that for every rectangle R ∈ R , all four sides of R lie on grid lines of the form x = αj and y = βℓ
+
+(equivalently, all four corners of R are grid points (αj , β ℓ)). 
+
+Proof. Let F be the set of all feasible solutions of size at most k, i.e., families R of at most k
+
+rectangles such that P ⊆ ⋃ 
+
+> R∈R
+
+∂R . Fix a solution R ∈ F that lexicographically minimizes the pair 
+
+Φ( R) := 
+
+(
+
+#NG( R), ∑
+
+> R∈R
+
+(|aR| + |bR| + |cR| + |dR|))
+
+,
+
+where # NG (R) denotes the total number of sides of rectangles in R that are not aligned with any grid line, and where each rectangle R is written as R = {(x, y ) ∈ R2 : aR ≤ x ≤
+
+bR, c R ≤ y ≤ dR}.We claim that # NG (R) = 0 , which implies the desired grid-alignment. Assume for contradiction that #NG (R) > 0, and choose a rectangle R = {(x, y ) : a ≤ x ≤ b, c ≤ y ≤
+
+d} ∈ R having a non-grid side. By symmetry, assume that the left side x = a is not a grid line; in particular, a / ∈ X. Let S := {y : ( a, y ) ∈ P } be the set of y-coordinates of points of 
+
+P on this side. Since a / ∈ X, we have S = ∅: no point of P lies on the line x = a.Let αs := max {α ∈ X : α < a } and αs+1 := min {α ∈ X : α > a }. (If one of these does not exist, interpret it as −∞ or +∞; the argument below uses only the fact that there is no x-coordinate of a point of P in the open interval between a and the chosen grid line.) Since a / ∈ X, at least one of αs or αs+1 is strictly closer to a than any other grid line. Pick 
+
+α⋆ ∈ { αs, α s+1 } such that |a − α⋆| is minimized (break ties arbitrarily), and define the modified rectangle 
+
+R⋆ := {(x, y ) ∈ R2 : α⋆ ≤ x ≤ b, c ≤ y ≤ d}.
+
+Let R⋆ := ( R \ { R}) ∪ { R⋆}.
+
+C V I T 2 0 1 6 23:24 Covering Points with Rectangular Boundaries 
+
+Feasibility is preserved. We show that R⋆ still boundary-covers P . Let p ∈ P be any point that is covered by ∂R and consider how it can lie on ∂R . Since a / ∈ X, no point of P lies on the side x = a (by S = ∅), so p must lie on one of the other three sides: x = b, y = c, or 
+
+y = d.If p lies on x = b, then it is still on x = b, hence still on ∂R ⋆. If p lies on y = c (respectively 
+
+y = d), then p = ( x, c ) (resp. (x, d )) with a ≤ x ≤ b. Because there is no x-coordinate of any point of P strictly between a and α⋆, this x also satisfies α⋆ ≤ x ≤ b, and hence p still lies on the bottom (resp. top) side of R⋆. Therefore every point of P that was covered only by 
+
+∂R remains covered by ∂R ⋆, and all other points are unaffected; thus R⋆ ∈ F .
+
+The potential strictly decreases. The rectangle R⋆ has the same three sides x = b, y = c, y = d
+
+as R, but its left side is now x = α⋆, which is a grid line. Hence # NG (R⋆) < # NG (R), so 
+
+Φ( R⋆) < Φ( R) lexicographically, contradicting the choice of R.This contradiction shows that # NG (R) = 0 , i.e., every side of every rectangle in R lies on a grid line. Since grid lines intersect only at grid points, all corners are grid points as claimed. ◀
+
+In what follows we work entirely with such grid-aligned rectangles and squares. 
+
+## 6.2 Covering by few lines via Vertex Cover 
+
+We now prove that if there is a solution with at most k rectangles, then the points in P can be covered by at most 4k grid lines (vertical or horizontal). Consider the grid induced by the coordinate sets X and Y from the discretization step (see Section 6.1). Construct a bipartite graph G = ( Vvert ⊎ Vhor , E ) where 
+
+Vvert has one vertex vj for each distinct vertical line x = λj , i.e., Vvert = {vj | λj ∈ X}.
+
+Vhor has one vertex hℓ for each distinct horizontal line y = γℓ, i.e., Vhor = {hℓ | γℓ ∈ Y }.The edge set E(G) consists of edges ep = ( vj , h ℓ) for each point p = ( λj , γ ℓ) ∈ P .A subset C ⊆ Vvert ⊎ Vhor is a vertex cover of G if every edge ep ∈ E(G) has at least one endpoint in C. In the next lemma, we relate the solution to BCCAPR to a vertex cover of 
+
+G.
+
+▶ Lemma 25 (Few-line cover of points) . Let (P, k ) be an instance of BCCAPR . If (P, k )
+
+has a solution of size at most k , then the bipartite graph G has a vertex cover C of size at most 4k. Moreover, such a minimum vertex cover can be found in polynomial time. 
+
+Proof. Let R = {R1, . . . , R t}, t ≤ k be a solution to BCCAPR . For each rectangle in R,it has has two vertical and two horizontal boundary lines. For G, we construct the set 
+
+C ⊆ V (G) as follows: for each rectangle Ri, i ∈ [t], insert the vertices corresponding to its two vertical and two horizontal boundary lines into C. Clearly |C| ≤ 4t ≤ 4k. Now we show that C is a vertex cover for G.Now fix any point p = ( λj , γ ℓ) ∈ P . Since R is a solution to BCCAPR , the point p lies on the boundary of some rectangle Ri ∈ R . If p happens to be a corner of Ri, we break ties by treating it as lying on the horizontal side of Ri. Now either 
+
+p lies on a vertical side (left or right boundary) of Ri, in which case vj ∈ C, or 
+
+p lies on a horizontal side (top or bottom boundary) of Ri, in which case hℓ ∈ C.Further by the construction, G only has edges corresponding to the points in P . Thus we have that for each edge ep = ( vj , h ℓ) ∈ E(G), at least one endpoint is in C [ 7]. Thus C is a vertex cover. M. Kundu et al. 23:25 
+
+We know that, for bipartite graphs, a minimum vertex cover can be computed in polynomial time using Kőnig’s theorem together with a maximum matching algorithm. Thus, we can compute a minimum vertex cover C⋆ and check whether |C⋆| ≤ 4k.If |C⋆| > 4k, then by the pigeonhole principle, at least one of |C⋆ ∩Vvert | or |C⋆ ∩Vhor | must exceed 2k. Since these vertices correspond to vertical and horizontal lines in R2, covering all points in P would then require at least 2k+ 1 horizontal or vertical sides. However, any solution using at most k rectangles has at most 2k horizontal and at most 2k vertical sides. Therefore, no solution of size at most k can exist in this case. ◀
+
+Solution Supporting Important Lines: Let C be a vertex cover of G obtained via Lemma 25, with |C| ≤ 4k. By the construction of G, the set C corresponds to at most 4k
+
+vertical or horizontal lines that together cover all points in P . We denote this collection of lines by ImpLines . Clearly |ImpLines | ≤ 4k. Since the vertex cover C can be computed algorithmically, the set ImpLines can be computed as well [7]. We remark that this step is not new: it is exactly the classical polynomial-time algorithm for computing a minimum-size set of axis-parallel lines that covers a given point set in the plane (see, e.g., [3, 5]). 
+
+## 6.3 Exceptional points: definition and basic bounds 
+
+Let ImpLines hor and ImpLines vert denote the sets of horizontal and vertical lines in ImpLines ,respectively. Since ImpLines = ImpLines hor ⊎ ImpLines vert and |ImpLines | ≤ 4k, we have 
+
+|ImpLines hor | ≤ 4k and |ImpLines vert | ≤ 4k.We now state a few basic properties of the lines in ImpLines . We present them for horizontal lines; the vertical case is completely analogous. Fix a line L ∈ ImpLines hor , and let PL := P ∩ L = {p1, . . . , p t}, where the points are ordered by increasing x-coordinate. Writing pj = ( xj , y L), we have x1 < x 2 < · · · < x t. A rectangle R can interact with L in only two relevant ways: either one of its horizontal sides lies on L, or L cuts through the interior of R (in which case L meets bd (R) in exactly two points). 
+
+▶ Lemma 26 (Intersection of a horizontal line with a rectangle) . Let L be a horizontal line 
+
+y = yL and let R = [ a, b ] × [c, d ] be an axis-parallel rectangle with a < b and c < d . Then exactly one of the following holds. 
+
+1. bd (R) ∩ L = ∅ (this happens when yL /∈ [c, d ]); 
+
+2. L coincides with a horizontal side of R (i.e., yL ∈ { c, d }), and then bd (R) ∩ L =[a, b ] × { yL};
+
+3. c < y L < d , and then bd (R) ∩ L = {(a, y L), (b, y L)}.In particular, if no horizontal side of R lies on L, then |bd (R) ∩ L| ≤ 2.
+
+Proof. If yL /∈ [c, d ], then L lies strictly above or below R and hence does not meet bd (R).If yL = c or yL = d, then L coincides with the bottom or top side of R, and the intersection is the entire segment [a, b ] × { yL}. Finally, if c < y L < d , then L crosses the interior of R
+
+and meets the boundary exactly at the two vertical sides, namely at (a, y L) and (b, y L). ◀
+
+This yields the promised “two modes” for covering points on L (aligned vs. crossing); see Figure 9. 
+
+1. Aligned coverage: A point p ∈ PL is said to be aligned covered by a rectangle R if the line L coincides with either the top or the bottom side of R, and the point p lies on that side of R.
+
+C V I T 2 0 1 6 23:26 Covering Points with Rectangular Boundaries 
+
+L
+
+p1 p2 p3 p4 p5 p6 p7 p8
+
+R1 R2           
+
+> Crossing Coverage Aligned Coverage
+> Figure 9 {p1, . . . , p 8}are the points along a horizontal line L. Coverage of p1, p 2, p 3by R1is example of aligned coverage where as coverage of p5, p 6by R2is crossing coverage.
+
+2. Crossing coverage: A point p ∈ PL is said to be crossing covered by a rectangle R if p
+
+lies on either the left or the right side of R and R intersects the line L at exactly two points where p is one of them. 
+
+▶ Definition 27 (Exceptional points on a line) . Let R be a family of rectangles. A point p ∈ PL
+
+is exceptional (w.r.t. R) if it is covered by some rectangle R ∈ R that has no horizontal side on L.
+
+▶ Lemma 28 (Few exceptional points per line) . Let R be a family of at most k rectangles. For any horizontal line L, the number of exceptional points of PL (w.r.t. R) is at most 2k.
+
+Proof. By Lemma 26, any rectangle R with no horizontal side on L satisfies |bd (R) ∩ L| ≤ 2.Hence such a rectangle can cover at most two points of PL in the crossing mode. Summing over at most k rectangles gives at most 2k exceptional points on L. ◀
+
+Every other point on L, that is, every point of PL that is not exceptional, must be covered in the aligned mode: namely, it must lie on the top or bottom side of some rectangle whose horizontal side is contained in L. In particular, non-exceptional points may appear in arbitrarily large numbers along L, but they can only be covered by rectangles that have a horizontal side on L. All definitions and lemmas stated above for horizontal lines extend verbatim to vertical lines in ImpLines vert (by swapping the roles of x and y, and “horizontal” with “vertical”). 
+
+## 6.4 Skeletons 
+
+Recall that by Lemma 25 we can compute, in polynomial time, a set of at most 4k grid-aligned lines ImpLines = ImpLines vert ⊎ ImpLines hor such that every point of P lies on at least one line of ImpLines .Intuitively, a solution by at most k rectangles must “use” many of these lines as rectangle sides; otherwise too many points on a line would have to be covered by rectangles that merely cross the line, which is impossible with only k rectangles. We capture this alignment information by the notion of a skeleton .Let R = {R1, . . . , R k} be a family of axis-parallel rectangles, where Ri = [ ℓi, r i] × [bi, t i],and denote its four sides by Ri(L), Ri(R), Ri(B), and Ri(T ) (left, right, bottom, top). 
+
+Supporting line of a side. Since each side S of an axis-parallel rectangle is a (closed) axis-parallel line segment, it lies on a unique axis-parallel line. We call this line the supporting line of S and denote it by line( S). Formally, 
+
+line (Ri(L)) = {(x, y ) ∈ R2 | x = ℓi}, line (Ri(R)) = {(x, y ) ∈ R2 | x = ri},
+
+line (Ri(B)) = {(x, y ) ∈ R2 | y = bi}, line (Ri(T )) = {(x, y ) ∈ R2 | y = ti}.
+
+In particular, line (S) is vertical for S ∈ { Ri(L), R i(R)} and horizontal for S ∈ { Ri(B), R i(T )}.M. Kundu et al. 23:27 
+
+▶ Definition 29 (Skeleton) . A skeleton is a function 
+
+σ : {(i, s) | i ∈ [k], s ∈ { L, R, B, T }} → ImpLines ∪ {⊥} 
+
+such that: 
+
+1. if σ(i, L )̸ = ⊥ then σ(i, L ) ∈ ImpLines vert (and similarly if σ(i, R )̸ = ⊥ then σ(i, R ) ∈
+
+ImpLines vert ); 
+
+2. if σ(i, B )̸ = ⊥ then σ(i, B ) ∈ ImpLines hor (and similarly if σ(i, T )̸ = ⊥ then σ(i, T ) ∈
+
+ImpLines hor ); 
+
+3. (No side-identification) σ(i, L )̸ = σ(i, R ) whenever both are lines in ImpLines vert , and 
+
+σ(i, B )̸ = σ(i, T ) whenever both are lines in ImpLines hor .
+
+4. If σ(i, s) = ⊥, it means that the corresponding side of Ri is not aligned with any line of 
+
+ImpLines .
+
+▶ Definition 30 (Compatibility) . Let R = {R1, . . . , R k} be a family of rectangles. We say that R is compatible with a skeleton σ if for every i ∈ [k] and every s ∈ { L, R, B, T }:if σ(i, s) ∈ ImpLines , then line( Ri(s)) = σ(i, s);if σ(i, s) = ⊥, then line( Ri(s)) /∈ ImpLines .
+
+We next bound the number of skeletons that the algorithm needs to enumerate. 
+
+▶ Lemma 31 (Number of skeletons) . Let |ImpLines | ≤ 4k. The number of skeletons (as in Definition 29) is at most (4 k + 1) 4k = kO(k).
+
+Proof. There are 4k sides in total (four sides for each of k rectangles). For each side, the skeleton chooses either a specific line from ImpLines or the special symbol ⊥. Thus there are at most (|ImpLines | + 1) 4k ≤ (4 k + 1) 4k assignments. The additional consistency conditions in Definition 29 only restrict assignments, so this is an upper bound on the number of valid skeletons. Finally, (4 k + 1) 4k = kO(k). ◀
+
+We now justify that skeleton guessing is without loss of generality: every solution induces a skeleton. 
+
+▶ Lemma 32 (Every solution admits a compatible skeleton) . Let R = {R1, . . . , R k} be any family of axis parallel rectangles. Then there exists a skeleton σ such that R is compatible with σ.
+
+Proof. Define σ side-by-side. Fix i ∈ [k] and s ∈ { L, R, B, T }, and let ℓ = line (Ri(s)) be the supporting line of that side. If ℓ ∈ ImpLines , set σ(i, s) := ℓ; otherwise set σ(i, s) := ⊥. This definition ensures the compatibility conditions of Definition 30 by construction. Moreover, ℓ is vertical for s ∈ { L, R } and horizontal for s ∈ { B, T }, so the type-consistency requirements in Definition 29 are satisfied. Finally, a rectangle cannot have its left and right sides on the same vertical line, and cannot have its bottom and top sides on the same horizontal line; hence the non-identification condition in Definition 29(3) holds whenever both sides are mapped to lines of ImpLines . ◀▶ Lemma 33 (Enumerating all valid skeletons) . There exists an algorithm that, given (P, k )
+
+and the line family ImpLines = ImpLines vert ⊎ ImpLines hor with |ImpLines | ≤ 4k, enumerates the set of all valid skeletons (as in Definition 29) in time 
+
+kO(k) · | P |O(1) .
+
+C V I T 2 0 1 6 23:28 Covering Points with Rectangular Boundaries 
+
+## h
+
+## 1left 2left 1right 3left 2right 3right 
+
+## R1
+
+## R2
+
+## R3     
+
+> 123456
+
+Figure 10 A horizontal line h ∈ ImpLines hor and three rectangles R1, R 2, R 3 whose top or bottom side lies on h under the fixed skeleton σ. Each such rectangle induces a segment on h with endpoint symbols ileft and iright , and π(σ, h ) records the left-to-right order of all endpoint symbols, subject to ileft 
+
+appearing before iright for every i ∈ Ind (σ, h ). For example, here π(σ, h )(1 left ) = 1 < π (σ, h )(2 left ) = 2 < π (σ, h )(1 right ) = 3 and π(σ, h )(3 left ) = 4 < π (σ, h )(2 right ) = 5 < π (σ, h )(3 right ) = 6 .
+
+Moreover, the number of enumerated skeletons is at most (4 k+1) 4k = kO(k), and by Lemma 32, if (P, k ) admits a solution by at most k rectangles, then at least one enumerated skeleton is compatible with some solution. 
+
+Proof. We enumerate all assignments 
+
+σ : {(i, s) | i ∈ [k], s ∈ { L, R, B, T }} → ImpLines ∪ {⊥} 
+
+and keep only those satisfying the validity conditions in Definition 29. There are 4k arguments and each has at most |ImpLines | + 1 ≤ 4k + 1 choices, hence the total number of assignments is at most (4 k + 1) 4k = kO(k) (cf. Lemma 31). Checking whether a candidate σ satisfies the conditions of Definition 29 is polynomial in k (and thus dominated by the enumeration). Since ImpLines itself is computed in polynomial time in |P | (by Lemma 25), the total running time is kO(k) · | P |O(1) .Finally, Lemma 32 implies that every solution R admits a compatible skeleton, and therefore if (P, k ) is a Yes -instance, then at least one enumerated skeleton is compatible with some solution. ◀
+
+## 6.5 Fixing a skeleton and ordering endpoints 
+
+From now on, we fix a valid skeleton σ as in Definition 29. Please refer to Figure 10 for an illustration. We continue to use the notation σ(i, L ), σ(i, R ), σ(i, B ), and σ(i, T ) for the values of the skeleton on the four sides of rectangle Ri (left, right, bottom, top). In particular, 
+
+σ(i, L ), σ (i, R ) ∈ ImpLines vert ∪ {⊥} and σ(i, B ), σ (i, T ) ∈ ImpLines hor ∪ {⊥} .
+
+Fix an arbitrary horizontal line h ∈ ImpLines hor . The skeleton tells us exactly which rectangles have their bottom or top side aligned with h. We collect their indices as 
+
+Ind (σ, h ) := { i ∈ [k] | σ(i, B ) = h or σ(i, T ) = h }, m(σ, h ) := |Ind (σ, h )|.
+
+For every i ∈ Ind (σ, h ), the intersection of h with the corresponding side of Ri is a horizontal segment and hence has a left endpoint and a right endpoint . We represent these endpoints symbolically by introducing two endpoint labels per such i:
+
+Endpts left (σ, h ) := { ileft | i ∈ Ind (σ, h ) },
+
+Endpts right (σ, h ) := { iright | i ∈ Ind (σ, h ) },
+
+Endpts (σ, h ) := Endpts left (σ, h ) ⊎ Endpts right (σ, h ).M. Kundu et al. 23:29 
+
+Clearly, |Endpts left (σ, h )| = |Endpts right (σ, h )| = m(σ, h ) and |Endpts (σ, h )| = 2 m(σ, h ). (We treat the symbols ileft and iright as abstract labels; later we will guess their geometric order along h.) 
+
+▶ Definition 34 (Endpoint ordering on a line) . An endpoint ordering on h (with respect to σ)is a bijection 
+
+π(σ, h ) : Endpts (σ, h ) → [ 2 m(σ, h ) ] ,
+
+which induces the total order 
+
+π(σ, h )−1(1) ≺ π(σ, h )−1(2) ≺ · · · ≺ π(σ, h )−1(2m(σ, h )) (1) 
+
+on the symbols in Endpts (σ, h ).
+
+▶ Definition 35 (Valid endpoint ordering) . An endpoint ordering π(σ, h ) is valid if for every 
+
+i ∈ Ind (σ, h ) we have 
+
+π(σ, h )( ileft ) < π(σ, h )( iright ),
+
+that is, the left-endpoint symbol of i appears before its right-endpoint symbol in the order (1) .
+
+▶ Lemma 36 (Number of valid endpoint orderings) . The number of valid endpoint orderings for h is at most 
+
+(2m(σ, h ))! ≤ (2 k)! .
+
+Proof. There are (2m(σ, h ))! total bijections from Endpts (σ, h ) to [ 2 m(σ, h ) ] , and validity only restricts this set. Hence the number of valid orderings is at most (2m(σ, h ))! ≤ (2 k)! ,since m(σ, h ) ≤ k. ◀
+
+The analogous definitions for a vertical line v ∈ ImpLines vert are obtained by replacing 
+
+(B, T, ImpLines hor , h ) with (L, R, ImpLines vert , v ), and swapping “left/right endpoint” with “bottom/top endpoint”. When the skeleton σ is clear from the context, we will omit it from the notation (e.g., write Ind (h) and Endpts (h) instead of Ind (σ, h ) and Endpts (σ, h )). 
+
+## 6.6 Blocks in an endpoint ordering 
+
+From now on we fix a skeleton σ, and for every line in ImpLines we guess an endpoint ordering. Fix an arbitrary horizontal line h ∈ ImpLines hor and a guess for a valid endpoint ordering of Endpts (σ, h ), induced by the bijection π(σ, h ). Recall that m(σ, h ) = |Ind (σ, h )|
+
+and |Endpts (σ, h )| = 2 m(σ, h ). For readability, in this subsection we write m := m(σ, h ) and 
+
+π := π(σ, h ).
+
+The Dyck word of an ordering (balanced-parentheses condition). As in Section 6.5, the ordering π induces a word W = W (σ, h ) = w1w2 · · · w2m ∈ { left , right }2m by setting 
+
+wj = left if π−1(j) ∈ Endpts left (σ, h ) and wj = right if π−1(j) ∈ Endpts right (σ, h ). Since π
+
+is a valid endpoint ordering, every prefix of W contains at least as many left ’s as right ’s. Moreover, W contains exactly m occurrences of each symbol. Thus W is a Dyck word (see [ 2]for a quick definition) over Σ = {left , right }. We note that the word induced by π need not be injective; that is, two different orderings may lead to the same word. 
+
+▶ Definition 37 (Complete prefixes) . For every j ∈ [2 m], let 
+
+L(j) := #left 
+
+(W [1 ..j ]) and R(j) := #right 
+
+(W [1 ..j ]).
+
+We call the prefix W [1 ..j ] complete if L(j) = R(j).
+
+C V I T 2 0 1 6 23:30 Covering Points with Rectangular Boundaries 
+
+By validity, for all j ∈ [2 m] we have L(j) ≥ R(j), and the full word is complete: 
+
+L(2 m) = R(2 m) = m. Equivalently, W [1 ..j ] is complete iff there is no i ∈ Ind (σ, h ) with 
+
+π(ileft ) ≤ j < π (iright ).
+
+▶ Definition 38 (Minimal complete blocks) . Let 0 = j0 < j 1 < · · · < j q = 2 m be the indices of the complete prefixes of W , defined by letting jr be the smallest index larger than jr−1
+
+with L(jr ) = R(jr ). For each r ∈ [q], define 
+
+block r := W [jr−1 + 1 .. j r ].
+
+We call block 1, . . . , block q the minimal complete blocks (equivalently, minimal Dyck blocks )of the ordering. 
+
+▶ Lemma 39 (Unique decomposition into minimal Dyck blocks) . Let W ∈ { left , right }∗ be a Dyck word, and let block 1, . . . , block q be the blocks from Definition 38. Then: 
+
+1. each block r is a nonempty Dyck word and no proper prefix of block r is a Dyck word (i.e., 
+
+block r is minimal ); 
+
+2. W = block 1block 2 · · · block q ;
+
+3. this decomposition is unique among all decompositions of W into minimal Dyck words. 
+
+Proof. By definition of jr , the prefix W [1 ..j r ] is a Dyck word and jr is the first complete index after jr−1. Hence block r = W [jr−1 + 1 ..j r ] is a nonempty Dyck word. Minimality follows because if block r had a proper Dyck prefix, then W would have a complete prefix strictly between jr−1 and jr , contradicting the choice of jr . The concatenation W = block 1 · · · block q
+
+is immediate from jq = 2 m. For uniqueness, let W = Y1 · · · Yp be any decomposition into minimal Dyck words. Then |Y1| must be the first complete index j1 (otherwise Y1 is not Dyck or not minimal), so Y1 = block 1. Stripping this prefix and iterating yields p = q and 
+
+Yr = block r for all r. ◀
+
+Blocks and endpoint symbols. Each block block r corresponds to a contiguous sub-order of endpoint symbols: it starts at position jr−1 + 1 and ends at position jr in the total order induced by π. Equivalently, the symbols in block block r are exactly 
+
+π−1(jr−1 + 1) ≺ π−1(jr−1 + 2) ≺ · · · ≺ π−1(jr ).
+
+In particular, π−1(1) is the first symbol of block 1, and π−1(2 m) is the last symbol of block q .
+
+## 6.7 Gaps in an endpoint ordering 
+
+Recall that we have fixed a skeleton σ and, for each line in ImpLines , we guess a valid endpoint ordering. Fix a horizontal line h ∈ ImpLines hor , and abbreviate m := m(σ, h ) and 
+
+π := π(σ, h ). Let W = W (σ, h ) ∈ { left , right }2m be the Dyck word induced by π as in the previous subsection, and let W = X1X2 · · · Xq be its (unique) decomposition into minimal Dyck blocks. 
+
+Gaps. We define the gaps of this decomposition to be the q+1 regions: one before X1, one between each consecutive pair Xr , X r+1 , and one after Xq . Accordingly, we set 
+
+GapNum (π) := q + 1 .M. Kundu et al. 23:31 
+
+Guessing the number of exceptional points per gap. Let K be an integer with 
+
+0 ≤ K ≤ 2k (intuitively, K is the total number of exceptional points on h). A gap assignment 
+
+is a function 
+
+GapFn : [GapNum (π)] → { 0, 1, . . . , K } such that 
+
+> GapNum (π)
+
+∑
+
+> j=1
+
+GapFn (j) = K. (2) 
+
+▶ Definition 40 (Gap vector) . A gap vector (for the fixed (σ, h, π )) is a pair (K, GapFn )
+
+where K ∈ Z≥0 and GapFn satisfies (2) .
+
+▶ Lemma 41 (Counting gap assignments for fixed K). Fix K ≥ 0. The number of functions 
+
+GapFn : [ q + 1] → { 0, . . . , K } satisfying ∑q+1  
+
+> j=1
+
+GapFn (j) = K is exactly (K+qq
+
+).
+
+Proof. Such a function GapFn is equivalently a (q+1) -tuple of nonnegative integers (x1, . . . , x q+1 )
+
+with ∑q+1  
+
+> j=1
+
+xj = K. By the standard stars-and-bars argument, the number of such tuples is 
+
+(K+qq
+
+). ◀▶ Lemma 42 (Number of gap vectors) . For a fixed line h, the total number of gap vectors 
+
+(K, GapFn ) over all choices of K ∈ { 0, 1, . . . , 2k} is at most 2O(k).
+
+Proof. We have 0 ≤ K ≤ 2k. For each fixed K, Lemma 41 gives at most (K+qq
+
+) choices. Moreover, q ≤ m ≤ k because each minimal Dyck block contains at least one left symbol. Hence, for every K ≤ 2k,
+
+(K + qq
+
+)
+
+≤
+
+(2k + kk
+
+)
+
+=
+
+(3kk
+
+)
+
+≤ 6.75 k.
+
+Summing over the at most 2k+1 possible values of K preserves the bound 2O(k). ◀
+
+Interpretation. Intuitively, K is the total number of exceptional points on h, and GapFn (j)
+
+specifies how many of these exceptional points are placed in the j-th gap (i.e., between two consecutive minimal Dyck blocks, or outside all blocks). In the next subsection, we guess which rectangle sides (left/right sides of the solution rectangles) cover these exceptional points. 
+
+## 6.8 Realizable configurations 
+
+Fix a skeleton σ and a horizontal line h ∈ ImpLines hor . Let m := m(σ, h ) and π := π(σ, h ) be a fixed valid endpoint ordering on h as in Section 6.5. Let W = W (σ, h ) be the Dyck word induced by π, and let 
+
+W = X1X2 · · · Xq
+
+be its unique decomposition into minimal Dyck blocks (Lemma 39). We denote these blocks by block 1, . . . , block q .
+
+Block endpoints. For each r ∈ [q], let jr be the position of the last symbol of block r in W
+
+(equivalently, the last position of block r in the order induced by π). Define the block-end symbol 
+
+blkend r := π−1(jr ) ∈ Endpts (σ, h ).
+
+Then j1 < · · · < j q = 2 m, and hence 
+
+π(blkend 1) < π(blkend 2) < · · · < π(blkend q ) = 2 m. 
+
+Moreover, the first symbol of block 1 is π−1(1) and the last symbol of block q is π−1(2 m).
+
+C V I T 2 0 1 6 23:32 Covering Points with Rectangular Boundaries 
+
+▶ Definition 43 (Realizable configuration on a line) . Let Ph := {p ∈ P | p ∈ h} be the set of input points on h. Let GapNum (π) := q + 1 , and let GapFn : [ GapNum (π)] → Z≥0 be a gap function. We say that the pair (π, GapFn ) is realizable on h if there exists a function 
+
+realize : Endpts (σ, h ) → Gridpts X
+
+such that the following conditions hold. 
+
+1. Order preservation. For every j ∈ [2 m − 1] ,
+
+realize (π−1(j)) ≤ realize (π−1(j + 1) ).
+
+2. Gap realization. The function realize realizes GapFn as follows. ( Gap 1: before the first block ) The number of points of Ph that lie strictly to the left of realize (π−1(1) ) on h is exactly GapFn (1) .( Gaps between blocks ) For each r ∈ { 2, . . . , q }, let jr−1 := π(blkend r−1). Then the number of points of Ph that lie strictly between the two x-coordinates 
+
+realize (blkend r−1) and realize (π−1(jr−1 + 1) )
+
+(on the line h) is exactly GapFn (r).( Gap q+1: after the last block ) The number of points of Ph that lie strictly to the right of realize (blkend q ) on h is exactly GapFn (q + 1) .
+
+## 6.9 Exceptional patterns 
+
+Fix a skeleton σ and a horizontal line h ∈ ImpLines hor . Fix a valid endpoint ordering 
+
+π = π(σ, h ) of Endpts (σ, h ) and let W = W (σ, h ) be the induced Dyck word, with minimal Dyck-block decomposition W = X1 · · · Xq (cf. Lemma 39). Let GapNum (π) := q + 1 be the number of gaps. 
+
+Exceptional points and the gap vector. Recall that a point of Ph := P ∩ h is exceptional 
+
+(w.r.t. h) if it is covered by a rectangle whose boundary does not have a horizontal side on h (equivalently, the covering occurs via a vertical side crossing h). We fix a gap vector 
+
+(K, GapFn ), where K is our guess for the number of exceptional points on h, and 
+
+GapFn : [ GapNum (π)] → { 0, 1, . . . , K } satisfies 
+
+> GapNum (π)
+
+∑
+
+> r=1
+
+GapFn (r) = K
+
+(cf. Definition 40). 
+
+Rectangles that can create exceptional points on h. Let 
+
+Ind (σ, h ) := { i ∈ [k] | σ(i, B ) = h or σ(i, T ) = h }.
+
+Rectangles indexed by Ind (σ, h ) have a horizontal side on h and thus cover non-exceptional 
+
+points on h horizontally. Only rectangles with no horizontal side on h can create exceptional points. Define 
+
+Ind (σ, h ) := [k] \ Ind (σ, h ).
+
+Among these, some rectangles may cross h (and then their vertical sides intersect h). We guess the subset 
+
+Ind exp (σ, h ) ⊆ Ind (σ, h )
+
+consisting of those indices i for which Ri intersects h (equivalently, bi < h < t i in coordinates). M. Kundu et al. 23:33 
+
+▶ Definition 44 (Exceptional pattern on h). Fix a gap vector (K, GapFn ) and a guess 
+
+Ind exp (σ, h ) ⊆ [k] \ Ind (σ, h ). An exceptional pattern is a function 
+
+ExpPat (σ, h ) : [K] → Ind exp (σ, h ) × { L, R }.
+
+We interpret ExpPat (σ, h )( r) = ( i, L ) (respectively, (i, R )) as the declaration that the r-th exceptional point on h from left to right is covered by the left (respectively, right) vertical 
+
+side of rectangle Ri.
+
+Remark. The exceptional pattern only records, for each exceptional point on h, which 
+
+rectangle side covers it. Any additional consistency requirements (e.g., that the chosen side actually intersects h and can cover the claimed points) will be enforced later by the constraints of the Monotone 2-CSP instance. 
+
+▶ Lemma 45 (Number of exceptional-pattern choices) . For fixed σ, h and π, the total number of choices of 
+
+(K, Ind exp (σ, h ), ExpPat (σ, h )) 
+
+over all K ∈ { 0, 1, . . . , 2k} is at most kO(k).
+
+Proof. First choose K ∈ { 0, 1, . . . , 2k}, giving at most 2k + 1 choices. Then choose 
+
+Ind exp (σ, h ) ⊆ [k] \ Ind (σ, h ), giving at most 2k choices. Finally, for each of the K ex-ceptional points, choose an index in Ind exp (σ, h ) and a side in {L, R }, giving at most 
+
+(2 |Ind exp (σ, h )|)K ≤ (2 k)K ≤ (2 k)2k choices. Thus the total number of possibilities is at most (2 k + 1) · 2k · (2 k)2k = kO(k). This concludes the proof. ◀▶ Lemma 46 (Consistency of gaps and exceptional patterns) . Let (P, k ) be a Yes -instance of 
+
+BCCAPR , and let R = {R1, . . . , R k} be a grid-aligned solution. Fix h ∈ ImpLines hor and let 
+
+σ be the skeleton induced by R. Then there exist: a valid endpoint ordering π = π(σ, h ) of Endpts (σ, h ),a gap vector (K, GapFn ) with K ≤ 2k,a set Ind exp (σ, h ) ⊆ [k] \ Ind (σ, h ), and an exceptional pattern ExpPat (σ, h ),such that: 
+
+1. the pair (π, GapFn ) is realizable on h in the sense of Definition 43, and 
+
+2. ExpPat (σ, h ) assigns each of the K exceptional points on h (from left to right) to an index in Ind exp (σ, h ) and one of the sides in {L, R }.
+
+Proof. For each i ∈ Ind (σ, h ), the rectangle Ri has either its bottom or its top side on h. This induces a (possibly degenerate) horizontal segment on h, whose endpoints have x-coordinates in Gridpts X . We represent these endpoints by the symbols ileft , i right ∈ Endpts (σ, h ). Sorting all these endpoint positions from left to right yields a valid endpoint ordering π of Endpts (σ, h ).Let K be the exact number of exceptional points of Ph with respect to R. By the exceptional-point bound on a line (cf. 28), we have K ≤ 2k. The solution R determines a gap function GapFn by counting, for each of the q + 1 gaps defined by the minimal Dyck blocks of W (σ, h ), how many exceptional points lie in that gap; thus (K, GapFn ) is a gap vector. Define realize : Endpts (σ, h ) → Gridpts X by mapping each endpoint symbol to its true 
+
+x-coordinate in the solution. By construction, realize preserves the total order induced by π,
+
+C V I T 2 0 1 6 23:34 Covering Points with Rectangular Boundaries                 
+
+> v∈ImpLines vert v′∈ImpLines vert
+> h∈ImpLines hor
+> h′∈ImpLines hor
+> ti
+> bi
+> ℓiri
+> Figure 11 Example picture: grid-aligned lines in ImpLines (blue), one rectangle Ri= [ ℓi, r i]×[bi, t i],and points on h. Global view: after discretization, all points lie on a small set of grid-aligned lines
+> ImpLines , and each rectangle is described by four coordinate variables.
+
+and the counts of points of Ph lying in the corresponding gaps agree with GapFn . Therefore 
+
+(π, GapFn ) is realizable on h in the sense of Definition 43. Finally, let Ind exp (σ, h ) ⊆ [k] \ Ind (σ, h ) be the indices of rectangles that cover at least one exceptional point on h via a vertical side. Ordering the exceptional points from left to right and recording, for each such point, a rectangle index i ∈ Ind exp (σ, h ) and whether the point lies on the left or right vertical side of Ri yields an exceptional pattern ExpPat (σ, h ) as in Definition 44. ◀
+
+## 6.10 Reduction to Distinct Domain Monotone 2-CSP 
+
+We now give the full parameterized reduction from BCCAPR to Distinct Domain Mono-tone 2-CSP . Given an instance (P, k ) of BCCAPR , we construct (after a bounded amount of guessing that depends only on k) an equivalent Distinct Domain Monotone 2-CSP 
+
+instance. 
+
+Setup. We assume that we have already carried out the discretization (Lemma 24) and computed, via Lemma 25, a set of grid-aligned lines 
+
+ImpLines = ImpLines vert ⊎ ImpLines hor , |ImpLines | ≤ 4k, 
+
+that covers all points of P . Moreover, we work only with grid-aligned rectangles, so every rectangle is of the form [ℓ, r ] × [b, t ] with ℓ, r ∈ Gridpts X and b, t ∈ Gridpts Y .
+
+Canonical ordering of grid coordinates. After discretization (Lemma 24), every point of P lies on the grid Gridpts X × Gridpts Y . We fix once and for all an order-preserving encoding of these grid coordinates into N as follows. Let Gridpts X = ⟨α1 < · · · < α Nx ⟩ and 
+
+Gridpts Y = ⟨β1 < · · · < β Ny ⟩ be the sorted lists of distinct x- and y-grid values. We identify each αj with the integer j ∈ [Nx] and each βℓ with the integer ℓ ∈ [Ny ]. Equivalently, we map every grid point (αj , β ℓ) to the pair (j, ℓ ) ∈ N2 (lexicographically ordered if needed). This induces a canonical left-to-right order on every horizontal line h: for p, p ′ ∈ P ∩ h
+
+we have p precedes p′ iff x(p) < x (p′), i.e., iff the integer code of x(p) is smaller. Similarly, it induces a canonical bottom-to-top order on every vertical line v: for p, p ′ ∈ P ∩ v we have M. Kundu et al. 23:35 
+
+p precedes p′ iff y(p) < y (p′). All successor/predecessor maps and the monotone counting primitives Aλ, B λ are henceforth taken with respect to these fixed global orders (restricted to the relevant finite sets on each line). See Figure 11. 
+
+## Global guessing pattern 
+
+The reduction proceeds by enumerating the following (all within kO(k) choices overall): 
+
+(G1) a skeleton σ as in Definition 29; 
+
+(G2) for every line λ ∈ ImpLines , an endpoint ordering π(σ, λ ) as in Definition 34; 
+
+(G3) for every line λ ∈ ImpLines , a gap vector (K(σ, λ ), GapFn (σ, λ )) as in Definition 40; 
+
+(G4) for every line λ ∈ ImpLines , a set Ind exp (σ, λ ) ⊆ [k]\Ind (σ, λ ) and an exceptional pattern 
+
+ExpPat (σ, λ ) (without any extra validity condition; the CSP will enforce feasibility). For each line λ ∈ ImpLines , let πλ := π(σ, λ ) be the guessed endpoint ordering, let (Kλ, GapFn λ
+
+) := (K(σ, λ ), GapFn (σ, λ )) be the guessed gap data, and let 
+
+(Ind exp ,λ , ExpPat λ
+
+) := (Ind exp (σ, λ ), ExpPat (σ, λ ))
+
+be the guessed exceptional data. We group these per-line guesses into the global objects 
+
+Π := (πλ
+
+)
+
+> λ∈ImpLines
+
+, Γ := (Kλ, GapFn λ
+
+)
+
+> λ∈ImpLines
+
+, E := (Ind exp ,λ , ExpPat λ
+
+)
+
+> λ∈ImpLines
+
+.
+
+We may assume w.l.o.g. that each guessed gap datum in (G3) is internally consistent ,i.e., for every λ ∈ ImpLines we have 
+
+Kλ = ∑
+
+> g
+
+GapFn λ(g).
+
+(If not, we discard the guess immediately.) For each fixed global guess (σ, Π, Γ, E) we build an Distinct Domain Monotone 2-CSP 
+
+instance I(σ, Π, Γ, E), and accept iff at least one such instance is satisfiable. 
+
+## CSP Variables (global rectangle coordinates) 
+
+We introduce four Distinct Domain Monotone 2-CSP variables ℓi, r i, b i, t i for each rectangle Ri. Their domains are subsets of the discretized grids: 
+
+D(ℓi), D (ri) ⊆ Gridpts X , D(bi), D (ti) ⊆ Gridpts Y .
+
+An assignment to these variables specifies the rectangle Ri = [ ℓi, r i] × [bi, t i].
+
+Skeleton as domains. We enforce the skeleton by restricting domains as follows. Let 
+
+XImpLines := { x(v) | v ∈ ImpLines vert } and YImpLines := { y(h) | h ∈ ImpLines hor }.
+
+Define X⊥ := Gridpts X \ XImpLines and Y⊥ := Gridpts Y \ YImpLines .
+
+C V I T 2 0 1 6 23:36 Covering Points with Rectangular Boundaries 
+
+For each i ∈ [k], set 
+
+D(ℓi) = 
+
+{{x(σ(i, L )) } if σ(i, L ) ∈ ImpLines vert ,X⊥ if σ(i, L ) = ⊥,D(ri) = 
+
+{{x(σ(i, R )) } if σ(i, R ) ∈ ImpLines vert ,X⊥ if σ(i, R ) = ⊥,D(bi) = 
+
+{{y(σ(i, B )) } if σ(i, B ) ∈ ImpLines hor ,Y⊥ if σ(i, B ) = ⊥,D(ti) = 
+
+{{y(σ(i, T )) } if σ(i, T ) ∈ ImpLines hor ,Y⊥ if σ(i, T ) = ⊥.
+
+Here x(v) is the x-coordinate of a vertical line v and y(h) is the y-coordinate of a horizontal line h.
+
+## Proper rectangles. 
+
+We define successor maps on the ordered grids Gridpts X = ⟨α1 < · · · < α Nx ⟩ and Gridpts Y =
+
+⟨β1 < · · · < β Ny ⟩ as follows: succ X maps each x-grid value to the next grid value to its right, and succ Y maps each y-grid value to the next grid value above it. Formally, 
+
+succ X (αj ) := αj+1 (j ∈ [Nx − 1]) , succ Y (βℓ) := βℓ+1 (ℓ ∈ [Ny − 1]) .
+
+We enforce the strict inequalities ℓi < r i and bi < t i using succ X and succ Y . To ensure these functions are always defined, we restricted 
+
+D(ℓi) ⊆ { α1, . . . , α Nx−1} and D(bi) ⊆ { β1, . . . , β Ny −1}.
+
+Then, for each i ∈ [k], we add the monotone constraints 
+
+ri ≥ succ X (ℓi), ti ≥ succ Y (bi).
+
+Since all coordinates take values from the grids, these constraints force ℓi < r i and bi < t i.
+
+## Per-line monotone counting primitives 
+
+We will repeatedly need to express, using monotone functions, statements of the form: “how many points of P on a given line lie before a certain coordinate?” For a horizontal line we count along the x-axis, and for a vertical line we count along the y-axis. 
+
+Horizontal line h ∈ ImpLines hor : Let Ph := P ∩ h and th := |Ph|. For x ∈ Gridpts X , define 
+
+Ah(x) := ∣∣{ p ∈ Ph : x(p) < x }∣∣, Bh(x) := ∣∣{ p ∈ Ph : x(p) ≤ x }∣∣.
+
+Vertical line v ∈ ImpLines vert : Let Pv := P ∩ v and tv := |Pv |. For y ∈ Gridpts Y , define 
+
+Av (y) := ∣∣{ p ∈ Pv : y(p) < y }∣∣, Bv (y) := ∣∣{ p ∈ Pv : y(p) ≤ y }∣∣.
+
+All these functions are monotone non-decreasing on their respective finite domains. M. Kundu et al. 23:37 
+
+h
+
+efirst eend  
+
+> 1
+
+enext  
+
+> 1
+
+elast 
+
+block 1 block 2
+
+gap 1 gap 2 gap 3
+
+Figure 12 Endpoint ordering π(σ, h ), minimal Dyck blocks, and the induced gaps on a horizontal line: Schematic: endpoints along h (from π) decompose into minimal blocks. Gaps are the regions between blocks; GapFn prescribes how many points of Ph lie in each gap. 
+
+## Constraints for one horizontal line h ∈ ImpLines hor :
+
+Fix a horizontal line h ∈ ImpLines hor . Recall 
+
+Ind (σ, h ) = { i ∈ [k] | σ(i, B ) = h or σ(i, T ) = h }, m(σ, h ) = |Ind (σ, h )|.
+
+We also recall the endpoint-symbol set 
+
+Endpts (σ, h ) = { ileft , i right : i ∈ Ind (σ, h ) }
+
+and the guessed endpoint ordering 
+
+π = π(σ, h ) : Endpts (σ, h ) → [ 2 m(σ, h ) ] .
+
+Endpoint symbols as aliases for rectangle variables: Endpoint symbols are combinat-orial labels used only to describe the guessed left-to-right order π(σ, h ). To talk about their 
+
+x-coordinates inside the CSP, we reuse the existing rectangle-boundary variables via the alias map 
+
+coord h : Endpts (σ, h ) → { ℓ1, r 1, . . . , ℓ k, r k}, coord h(ileft ) := ℓi, coord h(iright ) := ri.
+
+For example, if π−1(j) = 2 left and π−1(j+1) = 5 right , then the order constraint coord h(π−1(j)) ≤
+
+coord h(π−1(j + 1)) is simply ℓ2 ≤ r5. See Figure 12. 
+
+(H1) Order constraints induced by π(σ, h ). For each j ∈ [ 2 m(σ, h ) − 1 ] , add 
+
+coord h
+
+(π−1(j)) ≤ coord h
+
+(π−1(j + 1) ).
+
+(H2) Gap constraints via minimal Dyck blocks. Fix the ordering π on Endpts (σ, h ).Let 0 = j0 < j 1 < · · · < j q = 2 m(σ, h ) be the complete-prefix indices that define the q
+
+minimal Dyck blocks (Definition 38 and Lemma 39). These block boundaries carve h into exactly q + 1 gaps : before the first endpoint; between the end of block r and the next endpoint (for each r ∈ [q − 1] ); and after the last endpoint. Our guess GapFn (σ, h ) : [ q + 1] → { 0, 1, . . . }
+
+specifies how many points of Ph lie in each gap. 
+
+Formal constraints. Let 
+
+efirst := π−1(1) , elast := π−1(2m(σ, h )),
+
+and for each r ∈ [q − 1] define 
+
+eend  
+
+> r
+
+:= π−1(jr ), enext  
+
+> r
+
+:= π−1(jr + 1) .
+
+Write GapFn := GapFn (σ, h ). We add: 
+
+Ah
+
+(coord h(efirst )) = GapFn (1) ,Ah
+
+(coord h(enext  
+
+> r
+
+)) = Bh
+
+(coord h(eend  
+
+> r
+
+)) + GapFn (r + 1) for all r ∈ [q − 1] ,Bh
+
+(coord h(elast )) = th − GapFn (q + 1) ,
+
+where th := |Ph|.
+
+C V I T 2 0 1 6 23:38 Covering Points with Rectangular Boundaries gap 1 ph, 1Ri1Ri2Ri3coord h(efirst )coord h(eend     
+
+> 1)Ri5ph, 2Ri6gap 2 Ri4coord h(enext
+> 1)coord h(elast )gap q+ 1 Ri7ph, 3
+
+hminimal block block 1ExpPat (σ, h )(1) = ( i5, L )ExpPat (σ, h )(2) = ( i6, R )ExpPat (σ, h )(3) = ( i7, L )Each exceptional point lies on h and is forced onto a declared vertical side: ph,u = `i or ph,u = ri,additionally bi ≤ y(h) ≤ ti to ensure the side crosses h
+
+Figure 13 Exceptional points on h: each selected point is placed inside the appropriate gap, and then forced to coincide with the declared vertical side crossing h (thick side), as specified by 
+
+ExpPat (σ, h ).
+
+(H3) Exceptional points and the exceptional pattern. We now encode the exceptional 
+
+points on the horizontal line h and how they are covered. Please refer to Figure 13 for an illustration. Recall that Ind (σ, h ) is the set of rectangles whose top or bottom side lies on 
+
+h. Every point of Ph := P ∩ h that is not covered by such a horizontal side must instead be covered by a vertical side (left/right) of some rectangle whose sides are not aligned with 
+
+h. Accordingly, in the global guessing step we guess: (i) a set Ind exp (σ, h ) ⊆ [k] \ Ind (σ, h ) of rectangles that may cover exceptional points on h, and (ii) an exceptional pattern ExpPat (σ, h )
+
+specifying, from left to right, which rectangle and which vertical side covers each exceptional point. 
+
+Idea. Let K := K(σ, h ) be the guessed number of exceptional points on h. We introduce variables ph, 1, . . . , p h,K that pick K distinct points of Ph in left-to-right order. Then we: (a) force ph, 1, . . . , p h,K to fall into the q + 1 gaps induced by (H2), in quantities prescribed by 
+
+GapFn (σ, h ); and (b) enforce the guessed pattern ExpPat (σ, h ) by making each chosen point coincide with the declared vertical side ( ℓi or ri) and ensuring this side intersects h.
+
+Formal constraints. Let Ind exp (σ, h ) ⊆ [k] \ Ind (σ, h ) and ExpPat (σ, h ) be the guessed set and pattern on h.
+
+(H3a) Choosing K distinct points of Ph in left-to-right order. Introduce variables ph, 1, . . . , p h,K 
+
+with domain 
+
+Dh := D(ph,r ) := { x(p) | p ∈ Ph } ⊆ N (for all r ∈ [K]) .
+
+Let 0 and Mh be fixed constants such that 0 < min Dh and Mh > max Dh (e.g. Mh := max( Gridpts X ) + 1 ). Define monotone predecessor/successor maps induced by Dh:
+
+pred h(x) := max ({d ∈ Dh : d < x }∪{ 0}), ≻h (x) := min ({d ∈ Dh : d > x }∪{ Mh}).
+
+Enforce distinctness and left-to-right order by adding, for all r ∈ [K − 1] ,
+
+ph,r +1 ≥ ≻ h (ph,r ).
+
+Thus ph, 1, . . . , p h,K represent K distinct points of Ph in increasing x-order. M. Kundu et al. 23:39 
+
+(H3b) Placing the K points into the q + 1 gaps. Let q be the number of minimal complete blocks of π(σ, h ) as in (H2), and write GapFn := GapFn (σ, h ) : [ q + 1] → { 0, 1, . . . }. Define prefix sums 
+
+sg := 
+
+> g
+
+∑
+
+> u=1
+
+GapFn (u) (g ∈ [q + 1]) , s0 := 0,
+
+so that gap g corresponds to indices r ∈ [sg−1 + 1 .. s g ]. (Here sq+1 = K by our consistency assumption on the guess.) Recall the endpoint symbols from (H2): 
+
+efirst := π−1(1) , elast := π−1(2m(σ, h )), eend  
+
+> r
+
+:= π−1(jr ), enext  
+
+> r
+
+:= π−1(jr +1) ( ∀ r ∈ [q−1]) .
+
+We use the alias map coord h to interpret endpoint symbols by rectangle variables. 
+
+Gap 1 (before the first endpoint). Since s1 is the highest index in Gap 1, add 
+
+ph,s 1 ≤ pred h
+
+(coord h(efirst )).
+
+Intermediate gaps. For each r ∈ [q − 1] , in gap r + 1 , sr + 1 is the lowest index and sr+1 is the highest index. Add 
+
+≻h
+
+(coord h(eend  
+
+> r
+
+)) ≤ ph,s r +1 and ph,s r+1 ≤ pred h
+
+(coord h(enext  
+
+> r
+
+)).
+
+Gap q + 1 (after the last endpoint). Since sq + 1 is the lowest index in the last gap, i.e, in gap q + 1 , add 
+
+ph,s q +1 ≥ ≻ h
+
+(coord h(elast )).
+
+(H3c) Enforcing the guessed exceptional pattern. Finally, enforce that each selected point is covered by the declared vertical side of the declared rectangle. For each u ∈ [K]:if ExpPat (σ, h )( u) = ( i, L ), add 
+
+ph,u = ℓi and bi ≤ y(h) ≤ ti;
+
+if ExpPat (σ, h )( u) = ( i, R ), add 
+
+ph,u = ri and bi ≤ y(h) ≤ ti.
+
+The inequality bi ≤ y(h) ≤ ti guarantees that the chosen vertical side of Ri intersects the horizontal line h. All constraints above are expressible in Distinct Domain Monotone 
+
+2-CSP since y(h) is a constant and pred h, ≻h are monotone. 
+
+Example (informal). Suppose Ph has x-coordinates Dh = {1, 6, 10 }. Assume the endpoint order on h yields three gaps and the guess is GapFn (σ, h ) = (1 , 1, 1) , hence K = 3 . Then (H3a) forces (ph, 1, p h, 2, p h, 3) = (1 , 6, 10) in increasing order. The gap constraints (H3b) place ph, 1 into gap 1, ph, 2 into the middle gap, and ph, 3 into the last gap. Finally, (H3c) uses ExpPat (σ, h ) to decide whether (say) ph, 2 = 6 must equal some ℓi or some ri, and 
+
+bi ≤ y(h) ≤ ti ensures that this vertical side indeed crosses h.
+
+Vertical lines. All constraints for a vertical line v ∈ ImpLines vert are obtained by the same template as for a horizontal line, but with the roles of the two axes swapped. Concretely: we count along the y-axis instead of the x-axis, use Av , B v instead of Ah, B h, and swap (ℓi, r i)
+
+with (bi, t i). See Figure 14 for an illustration. 
+
+C V I T 2 0 1 6 23:40 Covering Points with Rectangular Boundaries 
+
+Endpoint symbols and their coordinates on v. Here the endpoint symbols on v are the bottom/top labels of rectangles whose left or right side lies on v. Formally, 
+
+Ind (σ, v ) = { i ∈ [k] | σ(i, L ) = v or σ(i, R ) = v }, m(σ, v ) = |Ind (σ, v )|,
+
+Endpts (σ, v ) = { ibot , i top : i ∈ Ind (σ, v ) }, π = π(σ, v ) : Endpts (σ, v ) → [ 2 m(σ, v ) ] .
+
+As before, endpoint symbols are only combinatorial labels. We interpret their y-coordinates by aliasing them to rectangle variables via 
+
+coord v : Endpts (σ, v ) → { b1, t 1, . . . , b k, t k}, coord v (ibot ) := bi, coord v (itop ) := ti.
+
+Then (V1) order constraints are: 
+
+coord v
+
+(π−1(j)) ≤ coord v
+
+(π−1(j + 1) ) for all j ∈ [ 2 m(σ, v ) − 1 ] .
+
+Gaps, gap counts, and exceptional points on v. Using the minimal-block indices 
+
+0 = j0 < · · · < j q = 2 m(σ, v ) of π(σ, v ), we obtain q + 1 gaps on v and a guessed GapFn (σ, v ) : [q + 1] → { 0, 1, . . . }. These counts are enforced with Av , B v exactly as in (H2), after replacing 
+
+coord h by coord v and th by tv := |P ∩ v|.We introduce K(σ, v ) variables 
+
+pv, 1, . . . , p v,K (σ,v ) ∈ Dv where Dv := { y(p) | p ∈ P ∩ v },
+
+order them from bottom to top using the successor map on Dv , place them into the q + 1 
+
+gaps using predecessor/successor maps on Dv , and finally enforce the guessed exceptional pattern. Since an exceptional point on a vertical line cannot be covered by rectangles in 
+
+Ind (σ, v ), it must be covered by a horizontal side (bottom/top) of some rectangle not in 
+
+Ind (σ, v ). Accordingly, the guessed pattern is 
+
+ExpPat (σ, v ) : [ K(σ, v )] → Ind exp (σ, v ) × { B, T }.
+
+For each selected exceptional point pv,r :if ExpPat (σ, v )( r) = ( i, B ), add 
+
+pv,r = bi and ℓi ≤ x(v) ≤ ri;
+
+if ExpPat (σ, v )( r) = ( i, T ), add 
+
+pv,r = ti and ℓi ≤ x(v) ≤ ri.
+
+Here x(v) is the constant x-coordinate of the line v. The inequality ℓi ≤ x(v) ≤ ri guarantees that the chosen horizontal side of Ri intersects the vertical line v.
+
+## 6.11 The full CSP instance 
+
+Fix a global guess (σ, Π, Γ, E). We define the Distinct Domain Monotone 2-CSP instance 
+
+I(σ, Π, Γ, E) as the union of the following constraints and domain restrictions: (I1) Global rectangle coordinates. For each i ∈ [k], we include the four coordinate variables ℓi, r i ∈ Gridpts X and bi, t i ∈ Gridpts Y , together with the domain restrictions induced by the skeleton σ (i.e., the constraints D(ℓi), D (ri), D (bi), D (ti)
+
+as defined in the “Skeleton as domains” paragraph), and M. Kundu et al. 23:41                      
+
+> v
+> coord v(efirst )
+> coord v(elast )
+> pv, 1
+> pv, 2
+> Vertical-line analogue: pick pv,r in gaps (along y), then enforce pv,r =bior tiand ℓi≤x(v)≤ri.
+> Figure 14 Schematic for the vertical-line constraints: swap the roles of x/y and of (ℓi, r i)with
+> (bi, t i).
+
+the proper-rectangle constraints enforcing ℓi < r i and bi < t i via the successor maps 
+
+succ X , succ Y .(I2) Constraints for horizontal lines. For every horizontal line h ∈ ImpLines hor we add the constraints (H1)–(H3), namely: the order constraints induced by the guessed ordering π(σ, h ) (H1), the gap-count constraints induced by the minimal-block decomposition and the guessed gap function GapFn (σ, h ) (H2), and the exceptional-point constraints induced by (K(σ, h ), Ind exp (σ, h ), ExpPat (σ, h )) (H3). (I3) Constraints for vertical lines. For every vertical line v ∈ ImpLines vert we add the symmetric analogs of (H1)–(H3) obtained by swapping x ↔ y, (ℓi, r i) ↔ (bi, t i), and replacing Ah, B h with Av , B v .
+
+Validity as an Distinct Domain Monotone 2-CSP instance. Every constraint in 
+
+I(σ, Π, Γ, E) is of the form z ⋄ f (z′) with ⋄ ∈ {≤ , ≥, =} and f monotone over the finite domain of z′: the maps succ X , succ Y and the per-line predecessor/successor maps are monotone, and the prefix-count functions Aλ, B λ are monotone nondecreasing. Moreover, every variable domain is a finite subset of N. Hence I(σ, Π, Γ, E) is a valid instance of Distinct Domain Monotone 2-CSP .
+
+## 6.12 Correctness and running time 
+
+We now argue correctness and analyze the running time of the reduction. 
+
+▶ Lemma 47 (Correctness of the reduction) . Let (P, k ) be an instance of BCCAPR . Then 
+
+(P, k ) is a Yes -instance if and only if there exists a global guess (σ, Π, Γ, E) such that the 
+
+Distinct Domain Monotone 2-CSP instance I(σ, Π, Γ, E) is satisfiable. 
+
+Proof. We prove both directions. 
+
+C V I T 2 0 1 6 23:42 Covering Points with Rectangular Boundaries 
+
+(⇒) Let R = {R1, . . . , R k} be a grid-aligned solution that boundary-covers all points of P
+
+(recall that by discretization it suffices to consider grid-aligned rectangles). By Lemma 32, R
+
+induces a skeleton σ.Fix any line λ ∈ ImpLines . By definition of Ind (σ, λ ), the rectangles indexed by Ind (σ, λ )
+
+are exactly those whose side is aligned with λ (bottom/top for λ ∈ ImpLines hor ; left/right for 
+
+λ ∈ ImpLines vert ). Sorting the corresponding endpoint symbols from left to right (or bottom to top) yields an ordering π(σ, λ ), and therefore a well-defined minimal-block decomposition and the induced gaps. The solution R also determines: (i) the gap counts GapFn (σ, λ ), and (ii) the set of exceptional points on λ together with, for each such point, which (non-aligned) rectangle side covers it; this yields Ind exp (σ, λ ) and ExpPat (σ, λ ).Consider the global guess (σ, Π, Γ, E) that matches these objects. Assign the CSP variables 
+
+(ℓi, r i, b i, t i) to be the true coordinates of Ri. For each line λ, assign the auxiliary variables 
+
+pλ, 1, . . . , p λ,K (σ,λ ) to be the coordinates of the exceptional points on λ in sorted order. We verify that all constraints of I(σ, Π, Γ, E) are satisfied. The domain restrictions encode the skeleton, hence each rectangle boundary variable is consistent with σ.The “proper rectangle” constraints enforce ℓi < r i and bi < t i, which hold for every rectangle. For each λ ∈ ImpLines , (H1)/(V1) holds because π(σ, λ ) is defined by sorting true endpoints. For each λ ∈ ImpLines , (H2)/(V2) holds by definition of GapFn (σ, λ ) and the prefix-count functions. For each λ ∈ ImpLines , (H3)/(V3) holds because the chosen exceptional-point variables are placed at the true exceptional points, which lie in the claimed gaps, and each is covered by the declared side in ExpPat (σ, λ ) (with the side intersection inequality ensuring the side crosses λ). Thus the CSP instance is satisfiable. (⇐) Let (σ, Π, Γ, E) be a global guess such that I(σ, Π, Γ, E) has a satisfying assignment. Interpret the assigned values of (ℓi, r i, b i, t i) as rectangles Ri = [ ℓi, r i] × [bi, t i] for each i ∈ [k];by the proper-rectangle constraints they are well-defined. Fix a horizontal line h ∈ ImpLines hor (the vertical case is analogous). We show that every point of Ph := P ∩ h is boundary-covered by {R1, . . . , R k}.Constraints (H2) certify that the gaps induced by the minimal-block decomposition contain exactly GapFn (σ, h )( g) points each. In particular, the complement of these gaps along h is exactly the union of the endpoint intervals prescribed by the (Dyck-consistent) ordering, hence it is covered by horizontal sides of rectangles from Ind (σ, h ) (those aligned with h). Constraints (H3a)–(H3b) select exactly K(σ, h ) points on h, place them into the gaps in the prescribed quantities, and therefore account for all points in the gaps as exceptional 
+
+points. Constraints (H3c) ensure that each selected exceptional point is covered by the declared vertical side ( ph,u = ℓi or ph,u = ri) and that this side intersects h via bi ≤ y(h) ≤ ti.Hence every point of Ph is boundary-covered. The same argument applies to each vertical line in ImpLines vert .Finally, since ImpLines covers all points of P (Setup), every point of P lies on some 
+
+λ ∈ ImpLines , and is therefore boundary-covered by the constructed rectangles. Thus (P, k )
+
+is a Yes -instance. ◀M. Kundu et al. 23:43 
+
+▶ Lemma 48 (Running time of the reduction) . There is an algorithm that, given (P, k ),enumerates all global guesses (σ, Π, Γ, E) and builds each corresponding Distinct Domain Monotone 2-CSP instance I(σ, Π, Γ, E) in total time 2O(k log k) · nO(1) for some computable function f .
+
+Proof. We bound (i) the number of guesses and (ii) the cost per guess. 
+
+Number of global guesses. By Lemma 31 the number of skeletons σ is kO(k). Fix any skeleton. There are at most |ImpLines | ≤ 4k lines. For each line λ ∈ ImpLines , we enumerate: an endpoint ordering π(σ, λ ) over 2m(σ, λ ) ≤ 2k symbols; a gap vector (K(σ, λ ), GapFn (σ, λ )) ; and a set Ind exp (σ, λ ) ⊆ [k] \ Ind (σ, λ ) and a pattern ExpPat (σ, λ ).By the counting bounds established in the corresponding subsections (endpoint-order counting via Dyck-word structure, and gap/exception-pattern counting), the number of combined choices per line is bounded by kO(k). Since there are at most 4k lines, the total number of global guesses is at most (kO(k))4k = kO(k).
+
+Cost per guess. For each fixed guess we construct I(σ, Π, Γ, E) as follows. For each line 
+
+λ ∈ ImpLines , we process the set P ∩ λ: sort its coordinates along the line, build arrays that evaluate Aλ(·) and Bλ(·) on the relevant grid/domain values, and build the induced predecessor/successor maps on the finite domain {x(p) | p ∈ P ∩ h} or {y(p) | p ∈ P ∩ v}.All of this takes polynomial time in n. The total number of variables and constraints we add is bounded by a function of k times a polynomial in |P | (indeed, we add only O(k) rectangle variables and, per line, at most O(K(σ, λ ) ≤ O (k) auxiliary point variables and constraints). Finally we apply Proposition 6 to solve the problem in polynomial time. Multiplying the number of guesses by the per-guess construction time yields a total running time of kO(k) · nO(1) . ◀
+
+Combining Lemmas 47 and 48 with the polynomial time algorithm for Distinct Domain Monotone 2-CSP (Proposition 6) yields an FPT algorithm for BCCAPR .
+
+Acknowledgements. We thank the anonymous reviewers for their helpful comments and suggestions on an earlier manuscript, which improved the presentation and clarity of the paper. 
+
+References                
+
+> 1Akanksha Agrawal, Kristine V. K. Knudsen, Daniel Lokshtanov, Saket Saurabh, and Meirav Zehavi. The parameterized complexity of guarding almost convex polygons. Discret. Comput. Geom. , 71(2):358–398, 2024. URL: https://doi.org/10.1007/s00454-023-00569-y ,doi: 10.1007/S00454-023-00569-Y .
+> 2John Baez. Dyck words, 2015. URL: https://blogs.ams.org/visualinsight/2015/07/15/ dyck-words/ .
+> 3Daya Ram Gaur and Binay Bhattacharya. Covering points by axis parallel lines. In Proc. 23rd European Workshop on Computational Geometry , pages 42–45, 2007.
+> 4Venkatesan Guruswami, Bingkai Lin, Xuandi Ren, Yican Sun, and Kewen Wu. Parameterized inapproximability hypothesis under exponential time hypothesis. In Bojan Mohar, Igor Shinkar, and Ryan O’Donnell, editors, Proceedings of the 56th Annual ACM Symposium on Theory of Computing, STOC 2024, Vancouver, BC, Canada, June 24-28, 2024 , pages 24–35. ACM, 2024. doi:10.1145/3618260.3649771 .
+> 5Refael Hassin and Nimrod Megiddo. Approximation algorithms for hitting objects with straight lines. Discret. Appl. Math. , 30(1):29–42, 1991. doi:10.1016/0166-218X(91)90011-K .
+
+C V I T 2 0 1 6 23:44 Covering Points with Rectangular Boundaries 
+
+6 Jan Kára and Jan Kratochvíl. Fixed parameter tractability of independent set in segment intersection graphs. In Hans L. Bodlaender and Michael A. Langston, editors, Parameterized and Exact Computation, Second International Workshop, IWPEC 2006, Zürich, Switzerland, September 13-15, 2006, Proceedings , volume 4169 of Lecture Notes in Computer Science , pages 166–174. Springer, 2006. doi:10.1007/11847250\_15 .
+
+7 Bernhard Korte and Jens Vygen. Combinatorial optimization: theory and algorithms . Springer, 2008. 
+
+8 Katarzyna Anna Kowalska and Michal Pilipczuk. Parameterized and approximation algorithms for coverings points with segments in the plane. In Olaf Beyersdorff, Mamadou Moustapha Kanté, Orna Kupferman, and Daniel Lokshtanov, editors, 41st International Symposium on Theoretical Aspects of Computer Science, STACS 2024, Clermont-Ferrand, France, March 12-14, 2024 , volume 289 of LIPIcs , pages 47:1–47:16. Schloss Dagstuhl - Leibniz-Zentrum für Informatik, 2024. URL: https://doi.org/10.4230/LIPIcs.STACS.2024.47 , doi:10.4230/ LIPICS.STACS.2024.47 .
+
+9 Stefan Kratsch, Geevarghese Philip, and Saurabh Ray. Point line cover: The easy kernel is essentially tight. ACM Trans. Algorithms , 12(3):40:1–40:16, 2016. doi:10.1145/2832912 .
+
+10 Sy-Yen Kuo and W Kent Fuchs. Efficient spare allocation for reconfigurable arrays. IEEE Design & Test of Computers , 4(1):24–31, 2007. 
+
+11 Stefan Langerman and Pat Morin. Covering things with things. Discret. Comput. Geom. ,33(4):717–729, 2005. URL: https://doi.org/10.1007/s00454-004-1108-4 , doi:10.1007/ S00454-004-1108-4 .
+
+12 Daniel Lokshtanov, M. S. Ramanujan, Saket Saurabh, and Meirav Zehavi. Parameterized complexity and approximability of directed odd cycle transversal. In Shuchi Chawla, editor, 
+
+Proceedings of the 2020 ACM-SIAM Symposium on Discrete Algorithms, SODA 2020, Salt Lake City, UT, USA, January 5-8, 2020 , pages 2181–2200. SIAM, 2020. doi:10.1137/1. 9781611975994.134 .
+
+13 Dániel Marx. Efficient approximation schemes for geometric problems? In Gerth Stølting Brodal and Stefano Leonardi, editors, Algorithms - ESA 2005, 13th Annual European Sym-posium, Palma de Mallorca, Spain, October 3-6, 2005, Proceedings , volume 3669 of Lecture Notes in Computer Science , pages 448–459. Springer, 2005. doi:10.1007/11561071\_41 .
+
+14 Dániel Marx. Parameterized complexity of independence and domination on geometric graphs. In Hans L. Bodlaender and Michael A. Langston, editors, Parameterized and Exact Computation, Second International Workshop, IWPEC 2006, Zürich, Switzerland, September 13-15, 2006, Proceedings , volume 4169 of Lecture Notes in Computer Science , pages 154–165. Springer, 2006. doi:10.1007/11847250\_14 .
+
+15 Dániel Marx and Michal Pilipczuk. Optimal parameterized algorithms for planar facility location problems using voronoi diagrams. ACM Trans. Algorithms , 18(2):13:1–13:64, 2022. 
+
+doi:10.1145/3483425 .

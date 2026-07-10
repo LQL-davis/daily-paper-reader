@@ -1,0 +1,2426 @@
+Title: Fast, Parallel, Query-Efficient Binary Classification
+
+URL Source: https://arxiv.org/pdf/2607.04062v1
+
+Published Time: Tue, 07 Jul 2026 01:53:51 GMT
+
+Number of Pages: 42
+
+Markdown Content:
+# Fast, Parallel, Query-Efficient Binary Classification 
+
+Ishani Karmarkar ∗ Liam O’Carroll ∗ Aaron Sidford ∗
+
+July 7, 2026 
+
+Abstract 
+
+We study the fundamental classification problem of computing a separating hyperplane for a binary-labeled dataset of size n with normalized d-dimensional features. Letting Φ ∈ Rn×d denote the feature matrix and γ the margin of the maximum-margin separating hyperplane, we present a randomized algorithm that solves this problem in ˜O(γ−2/3 nnz (Φ) + γ−2( ω+1) /3)-sequential running time (work), ˜O(γ−2/3)-parallel (computational) depth, and accesses Φ only through ˜O(γ−2/3)-matrix-vector queries (matvecs). We also present a second, faster randomized algorithm with a ˜O(γ−2/3 nnz (Φ) + γ−2)-sequential running time that uses ˜O(γ−2/3)-matvecs to Φ, but achieves only ˜O(γ−4/3)-parallel depth. Both algorithms match the near-optimal deterministic matvec complexity recently established by [ 42 , 43 ] and achieve improved sequential runtime and parallel depth, albeit at the expense of using randomness. 
+
+# Contents 
+
+1 Introduction 12 Preliminaries 43 Technical overview 44 Reducing ℓ2-ℓ1-games to linear system solving 11 5 Linear system solving 22 6 Main results 33 7 Conclusion 34 A Reduction from separating hyperplane problem to ℓ2-ℓ1 games 40 B Linear algebraic properties 40 
+
+> ∗
+
+Stanford University, {ishanik,ocarroll,sidford}@stanford.edu 
+
+> arXiv:2607.04062v1 [math.OC] 5 Jul 2026
+
+# 1 Introduction 
+
+In this paper, we study the foundational binary data classification problem of finding a linear separator for two sets of points. Concretely, we consider the separating hyperplane , or hard-margin support vector machine (SVM) problem , in which we are given a dataset D = {(ϕi, l i)}i∈[n] where 
+
+ϕi ∈ Bd := {x ∈ Rd : ∥x∥2 ≤ 1} is a normalized feature vector and li ∈ { +1 , −1} is a binary label for each i ∈ [n]. We let γD denote the maximum margin of a separating hyperplane for D, i.e., 
+
+γD := max  
+
+> w∈Bd
+
+min  
+
+> i∈[n]
+
+li⟨w, ϕ i⟩, and hence, ∃w⋆ ∈ Bd such that li⟨w⋆, ϕ i⟩ ≥ γD for all i ∈ [n]. (1) We consider the problem where, given ρ > 0, we must find a hyperplane ˆw ∈ Bd which achieves a margin of γD − ρ.1 We formalize this problem in the following Definition 1.1. 
+
+Definition 1.1 (Maximum Margin Separating Hyperplane Problem) . In the ρ-(maximum mar-gin) separating hyperplane problem , we are given a (binary-labeled) dataset D = {(ϕi ∈ Bd, l i ∈{− 1, +1 })}i∈[n] and ρ > 0, and must output ˆw ∈ Bd such that li⟨ ˆw, ϕ i⟩ ≥ γD − ρ for all i ∈ [n]. We say that such a ˆ w induces a ρ-separating hyperplane for D.This is an incredibly well-studied problem in machine learning, dating back to [ 47 , 59 ], with numerous applications (especially as it can be extended to non-linear settings [ 48 ]). Our focus in this work is to introduce new, faster randomized algorithms for this foundational learning problem. 
+
+Our results. For notational convenience, for a dataset D = {(ϕi ∈ Bd, l i ∈ { +1 , −1})}i∈[n] we use Φ D ∈ Rn×d to denote the covariate matrix whose i-th row is given by liϕ⊤ 
+
+> i
+
+. In addition, for 
+
+A ∈ Rn×d, nnz( A) := |{ (i, j ) : Aij ̸ = 0 }| + n + d denotes an augmented nonzero count. Our main result, given in Theorems 1.2 and 1.3 below, is two parallel, query-efficient algorithms for the maximum-margin separating hyperplane problem (Definition 1.1) which offer different trade-offs between complexity metrics. The complexity metrics we study are depth , work (or sequential runtime), and matvec complexity. 
+
+• Depth and work : Following [ 35 ], we say an algorithm has (computational) depth D if the number of sequential rounds of computation is D. In particular, we assume element-wise vector operations (e.g., adding/scaling vectors) in Rk incur O(1)-depth and O(k)-work and that dot products and matrix-vector multiplications require O(log k) depth. We let ω < 2.3714 denote the fast matrix multiplication (FMM) constant [ 1]; namely, two k × k matrices can be multiplied in O(kω)-work, as well as ˜O(1)-depth [56, 57]. 
+
+• Matvec complexity : Formally, we say that an algorithm can be implemented using T matvecs to a matrix A ∈ Rn×d if it can be implemented using T queries to a matvec oracle for A,which for any query ( x, y ) ∈ Rd × Rn outputs ( A⊤y, Ax ). In the following Theorems 1.2 and 1.3 (and throughout the paper) we use ˜O(·) to suppress polylogarithmic factors in n, d, ρ−1, and ϵ−1 (which appears later). Theorem 1.2 corresponds to our most parallelizable algorithm, notably achieving ˜O(ρ−2/3)-depth.                
+
+> 1For simplicity, as in prior work [ 9,11 ,15 ,41 –43 ], in this paper we focus on the setting of (1) , which assumes linear separability through the origin with maximum margin γD.However, using standard reductions, (1) and correspondingly Definition 1.1 can be relaxed to assume linear separability under arbitrary affine hyperplanes.
+
+1Theorem 1.2 (Fast, parallel binary data classification) . There is a randomized algorithm which, with probability at least 2/3, solves the ρ-separating hyperplane problem and runs in 
+
+˜O(ρ−2/3 nnz(Φ D) + ρ−2( ω+1) /3)-work and ˜O(ρ−2/3)-depth .
+
+Moreover, the algorithm can be implemented with ˜O(ρ−2/3)-matvecs to ΦD.
+
+Interestingly, our next result shows that the poly (ρ−1) dependence in Theorem 1.2 can be further improved (unless ω = 2), albeit at the cost of increased depth. 
+
+Theorem 1.3 (Faster binary data classification) . There is a randomized algorithm which, with probability at least 2/3, solves the ρ-separating hyperplane problem and runs in 
+
+˜O(ρ−2/3 nnz(Φ D) + ρ−2)-work and ˜O(ρ−4/3)-depth .
+
+Moreover, the algorithm can be implemented with ˜O(ρ−2/3)-matvecs to ΦD.
+
+Next, we compare Theorems 1.2 and 1.3 to the prior art with respect to each of the three complexity metrics, work, depth, and matvecs, that we study. 
+
+Total work. Table 1 summarizes our results in this metric compared to the prior art. Recalling nnz (Φ D) = Ω( n+d), we have the following comparisons: The work achieved in Theorem 1.3 improves the ( n + d)ρ−2 complexity of the second row in the moderate-to-high precision or sparse regime 
+
+ρ ≪ ( n+d  
+
+> nnz(Φ D)
+
+)3/4. Theorem 1.3 improves upon the nnz (Φ D) + pnnz(Φ D) · (n + d)ρ−1 work of the third row (and therefore also the first row) in the sparse, moderate precision regime 1
+
+pnnz(Φ D)( n + d) ≪ ρ ≪
+
+ n + d
+
+nnz(Φ D)
+
+3/2
+
+.
+
+Assuming d ≫ 1, Theorem 1.3 improves upon the nd + nd 2/3ρ−2/3 + dρ −2 work of the fourth row in the sufficiently sparse regime nnz (Φ D) ≪ nd 2/3 or the moderate-to-high precision regime 
+
+ρ ≪ ( d  
+
+> nnz(Φ D)
+
+)3/4. Importantly, we improve upon all prior art in the sparse, low-to-moderate precision regime where nnz (Φ D) ≈ n + d, 1 
+
+> n+d
+
+≪ ρ ≪ 1, and d ≫ 1. This regime includes ρ = 1 /√n,which is standard in empirical risk minimization problems where statistical noise limits meaningful precision to 1 /√n.We note that additional total work complexities may be obtained using interior point methods (IPMs), e.g., [ 24 , 64 ], which may improve on Theorems 1.2 and 1.3 in certain high-accuracy regimes (where ρ is very small). However, current IPMs have at least a quadratic dependence on min {n, d },unlike our methods and most of the remaining methods in Table 1 (in sufficiently sparse regimes). As we do not focus on this high-accuracy regime, for simplicity, we do not compare in detail against IPMs and defer the reader to, e.g., [15] for more details. 
+
+Depth. Mirror descent [ 6 , 52 ] achieves ˜O(ρ−2)-depth for this problem, and a variety of deterministic algorithms (accelerated gradient descent, mirror prox, dual extrapolation) achieve an improved ˜O(ρ−1)-depth [ 51 , 53 , 54 ]. We are not aware of any prior deterministic or randomized algorithms which improve upon ˜O(ρ−1)-depth in the nearly dimension-free parallel regime we study. Note that although [ 41 , 42 ] achieve a ˜o(ρ−1)-matvec complexity for the problem, they do not immediately yield improved parallel depths for the problem. The algorithms of [ 41 , 42 ] perform ˜O(ρ−2/3) outer loop iterations ; however, each outer loop iteration in turn requires solving multiple 2Method Total work (Exact) gradient methods [51, 54] nnz(Φ D)ρ−1
+
+Row-col randomized method [20, 33, 55] (n + d)ρ−2
+
+Row-col randomized method with variance-reduction [9, 55] nnz(Φ D) + pnnz(Φ D) · (n + d)ρ−1
+
+Primal ball-accelerated stochastic methods [15] nd + nd 2/3ρ−2/3 + dρ −2
+
+Theorem 1.2 nnz(Φ D)ρ−2/3 + ρ−2( ω+1) /3
+
+Theorem 1.3 nnz(Φ D)ρ−2/3 + ρ−2
+
+Table 1: Comparison to prior work. The table shows the total work complexities of the prior art, up to polylogarithmic factors in n, d and ρ−1. The complexities in the abstract follow from ρ = γD/2. constrained, convex optimization sub-problems to high accuracy. Consequently, the work and depth complexities of their inner loop itself scale polynomially in n, d, ρ −1. Due to the complex nature of these sub-problems, it is perhaps not straightforward to bound this polynomial; [ 41 , 42 ] do not bound the work or depth complexity of their method and leave this as a direction for future work. We also note that interior point methods (IPMs) or other existing parallel algorithms [ 7 , 14 ,29 , 36 , 50 ] have dimension-dependent parallel complexities which may achieve improvements in high-accuracy regimes, which are not the focus of this paper. 
+
+Matvec complexity. Importantly, our algorithms apply even in the setting where Φ D is unknown, but can be accessed with a matvec oracle. Until recently, the state-of-the-art matvec complexity for the separating hyperplane problem—among both deterministic and randomized algorithms—was ˜O(ρ−1) [ 51 , 54 , 58 ]. However, very recently, a line of work [ 41 – 43 ] studied the matvec complexity of a broader class of problems, known as ℓ2-ℓ1 and ℓ1-ℓ1 matrix games , the former of which encompasses the separating hyperplane problem (as we discuss further in Section 3). These works show that ˜Θ( ρ−2/3) matvecs to Φ D is necessary and sufficient for deterministic algorithms. While these works settle the deterministic matvec complexity of the separating hyperplane problem (up to polylogarithmic factors), Karmarkar et al. [41 , 42] do not analyze other notions of computational complexity. In other words, obtaining faster algorithms or algorithms with improved depth were left as directions for future research. Hence, it is perhaps natural to wonder whether these recent information theoretic improvements come at the cost of greater work. Our results indicate that this is not necessarily the case (at least for randomized algorithms). Indeed, Theorems 1.2 and 1.3 demonstrate that, if one is willing to use randomness, then ˜O(ρ−2/3)matvec complexities can be obtained at the cost of only poly (ρ−1)-overhead in work. 
+
+Additional related work on matrix games. As mentioned above, the separating hyperplane problem can be reduced to the problem of computing an ϵ-solution of an ℓ2-ℓ1 matrix game, which we define formally in Section 3. Our work builds upon a rich line of work on matrix games more broadly [ 9, 11 , 15 , 41 –44 ]. As our focus is on the separating hyperplane problem, Table 1 compares against works which make the natural normalizing assumption that each feature vector has Euclidean norm at most 1 (i.e., ∥ΦD∥2→∞ = max i∈[n]∥ϕi∥2 ≤ 1). However, [ 9, 11 ] obtain alternative total work complexities under alternative normalization assumptions on the underlying data matrix Φ D.Additionally, alternative total work complexities can be obtained when the rows and columns of Φ D
+
+are uniformly sparse, and we defer to [11, 20] for further discussion. 3Paper organization. We provide notation in Section 2 and an overview of our approach in Section 3. In Section 4, we leverage ball acceleration techniques [ 10 , 12 , 14 , 15 ] to show that the separating hyperplane problem can be reduced to solving a sequence of regularized linear systems to high accuracy. In Section 5, we discuss how to solve these linear systems efficiently, leveraging subspace embeddings and preconditioned iterative solvers [ 17 , 18 , 21 , 26 , 27 , 49 ]. In Section 6, we show how to leverage the sample reuse framework of [ 38 ] to further improve efficiency. We conclude in Section 7. 
+
+# 2 Preliminaries 
+
+General notation. For x ∈ Rd, ∥x∥p is its ℓp norm and xi or [ x]i its i-th entry (we may use the latter in particular when there are multiple subscripts). We let Bdr ( ¯x) := {x ∈ Rd : ∥x − ¯x∥2 ≤ r}
+
+denote the Euclidean ball of radius r > 0 centered at ¯x ∈ Rd. We may drop r if r = 1 or ¯x if ¯x = 0 for brevity. Given S ⊆ Rd, f : Rd → R, and ϵ > 0, we say that x ∈ S is ϵ-optimal or an ϵ-minimizer of f over S if f (x) − f (x′) ≤ ϵ for all x′ ∈ S. For vectors a, b ∈ Rn and r ≥ 1, we use a ≈r b to denote that r−1[b]i ≤ [a]i ≤ r[b]i for all i ∈ [n]. 
+
+Matrix notation. For A ∈ Rn×d of rank r, we let σ1(A) ≥ σ2(A) ≥ · · · ≥ σr(A) ≥ σr+1 (A) = 
+
+· · · = σd(A) = 0 denote its singular values in descending order. 0 d and 0 m×n denote the d-dimensional vector of zeros and m × n matrix of zeros respectively and Id denotes the d × d identity matrix; we may drop the subscript d when it is clear from context. For v ∈ Rd, diag (v) ∈ Rd×d denotes the diagonal matrix whose ( i, i )-th entry is [ v]i.We use Sd := {A ∈ Rd×d : A = A⊤} to denote the set of d × d symmetric matrices. For A ∈ Sd,we say that A is positive semi-definite (PSD), denoted A ⪰ 0d×d, if for all x ∈ Rd, x⊤Ax ≥ 0; if, moreover, x⊤Ax > 0 for all x ∈ Rd̸
+
+> =0
+
+, we say that A is positive definite (PD), denoted A ≻ 0d×d.Correspondingly, we define Sd 
+
+> +
+
+:= {A ∈ Sd : A ⪰ 0d×d} and Sd 
+
+> ++
+
+:= {A ∈ Sd : A ≻ 0d×d}.For M ∈ Sn 
+
+> ++
+
+and x ∈ Rn, we let ∥x∥M := √x⊤M x denote the M -norm of x. For A, B ∈ Sd,
+
+A ⪰ B (respectively A ≻ B) denotes that A − B ⪰ 0d×d (respectively A − B ≻ 0d) and for c ≥ 1, 
+
+A ≈c B denotes that c−1A ⪯ B ⪯ cA . For any A ∈ Sn
+
+> +
+
+, we use λmin (A) and λmax (A) to denote its smallest and largest eigenvalues, respectively and κ(A) := λmax (A) 
+
+> λmin (A)
+
+to denote its condition number .We use the following standard definition of a linear system solver for a PD matrix. 
+
+Definition 2.1 (Linear system solutions and solvers) . For M ∈ Sd
+
+> ++
+
+, ϵ ≥ 0, ˆx ∈ Rd is an ϵ-approximate solution to the linear system M x = b if ∥ˆx − x∥M ≤ ϵ∥x∥M . Moreover, a (randomized) oracle O is an ( ϵ, δ )-linear system solver for M if for any b ∈ Rd, ˆx ← O (b) is, with probability at least 1 − δ, an ϵ-approximate solution to M x = b.
+
+# 3 Technical overview 
+
+In this section, we describe our approach and motivate our techniques based on prior work. 
+
+3.1 Reduction to ℓ2-ℓ1 matrix games 
+
+The first step to obtain our results is to leverage that the ρ-separating hyperplane problem (Defini-tion 1.1) can be reduced to a class of problems known as ℓ2-ℓ1 matrix games (henceforth referred to simply as games , for brevity) [9, 11, 15, 42, 43]. 4Definition 3.1 (( ℓ2-ℓ1 matrix) game) . In an ϵ-( ℓ2-ℓ1 matrix) game , we are given a matrix A ∈ Rn×d
+
+such that ∥A∥2→∞ := max i∈[n]∥Ai, :∥2 ≤ 1 and ϵ > 0 and must compute ˆ x ∈ Bd such that max  
+
+> y∈∆n
+
+y⊤Aˆx ≤ min  
+
+> x∈Bd
+
+max  
+
+> y∈∆n
+
+y⊤Ax + ϵ. 
+
+We call such an ˆ x a (primal) solution of the ϵ-game of A.2
+
+The following Lemma 3.2 shows that the separating hyperplane problem (Definition 1.1) can be reduced to solving an appropriate ρ-game (Definition 3.1); this result is well-known, however, we include a proof in Appendix A for completeness. 
+
+Lemma 3.2 (Reduction to ℓ2-ℓ1 matrix game) . Let D = {(ϕi ∈ Bd, l i ∈ { +1 , −1})}i∈[n]. Any solution ˆw to the ρ-game (Definition 3.1) of −ΦD induces a ρ-separating hyperplane (Definition 1.1) for D.
+
+The algorithmic techniques we develop in this paper apply to ℓ2-ℓ1 matrix games more broadly. Consequently, in the remainder of the paper we focus on designing efficient algorithms for the more general problem of solving an ϵ-game. In the rest of this section, we fix ϵ > 0, A ∈ Rn×d and discuss our approach for solving the corresponding ϵ-game (Definition 3.1). 
+
+3.2 Motivation 
+
+Our work is motivated in part by recent algorithmic advancements of [ 41 , 42 ], which culminated in a near-optimal [ 43 ] ˜O(ϵ−2/3)-matvec complexity algorithm for solving an ϵ-game (Definition 3.1). At a high level, [ 41 , 42 ] develop a primal-dual analog of accelerated ball-constrained optimization [3, 10 , 14 , 15 ] to reduce solving an ϵ-game to a sequence of ˜O(ϵ−2/3) constrained, regularized sub-problems of the form min  
+
+> x∈Bd
+
+max  
+
+> y∈∆n
+
+y⊤Ax + α(t) X
+
+> x′∈U x
+
+12 ∥x − x′∥22 − α(t) X
+
+> y′∈U y
+
+KL( y|| y′) (2) to high accuracy, for carefully chosen finite (multi)sets of centers Ux ⊂ Bd, Uy ⊂ ∆n. Here, KL( y|| y′) := P
+
+> i∈[n]
+
+[y]i log [y]i 
+
+> [y′]i
+
+denotes the KL divergence. To solve (2) deterministically and query-efficiently (i.e., with few matvecs to A), [ 41 , 42 ] show that each subproblem of the form (2) can be further reduced to ˜O(1) carefully constructed constrained subproblems , each corresponding to a constrained version of (2) . They show that within the constrained region, the primal-dual objective is approximated by a quadratic up to a multiplicative constant. Their algorithm leverages this property to either build a low-rank approximation to A
+
+or make optimization progress on (2) . The former enables the latter to be achieved with fewer matvecs, and ultimately the algorithm of [ 42 ] uses (amortized) ˜O(1) matvecs to A per iteration across ˜O(ϵ−2/3) iterations. More concretely, their methods carefully build and maintain an explicit, deterministic ˜O(ϵ−2/3)-rank model Mc for the matrix Y 1/2 
+
+> c
+
+A, where Yc is a carefully chosen diagonal matrix, so that 
+
+Y 1/2 
+
+> c
+
+A − Mc has a smaller operator norm than Y 1/2 
+
+> c
+
+A, enabling more efficient optimization progress when combined with composite proximal methods. By using matvec queries to A to maintain this       
+
+> 2For simplicity, as our focus is on the separating hyperplane problem (Definition 1.1), which only requires finding a hyperplane ˆw, we focus on finding a near-optimal primal variable ˆxfor the minimax problem min x∈Bdmax y∈∆ny⊤Ax .However, using the techniques of [16], our method could be extended to extract near-optimal dual variables ˆ y.
+
+5model as the center yc changes, their method converges to a high-accuracy solution of (2) using an amortized ˜O(1) matvecs to A per subproblem of the form (2). Importantly, although the model-maintenance procedure in [ 42 ] achieves the optimal matvec complexity in A and avoids the use of randomness, they require additional computation. Hence, while their method enables near-optimal information theoretic complexity, it does not immediately imply improved work or depth. Moreover, the models M maintained in their method may be dense 
+
+even if the original A is sparse, and consequently, even reading the model M may naively require ˜O(( n + d)ϵ−2/3)-work. Thus it is perhaps unclear how to directly implement their method and obtain total work complexities scaling with nnz( A). Our key insight is that if one is willing to use randomness, there is a natural alternative to the [41 , 42 ]’s low-rank model-building procedure described above. Indeed, [ 41 ] allude to a version of this alternative approach in their introduction, albeit in a different context and towards a worse complexity bound. To motivate this idea, recall from above that in the method of [ 41 , 42 ], the objective of each constrained sub-problem behaves essentially like a quadratic function over the constrained region. While [ 41 , 42 ] leverage this property to build a deterministic algorithm, an alternative approach would be to leverage randomized linear-algebraic techniques such as oblivious subspace embeddings [ 19 , 22 , 49 , 60 ] and preconditioned iterative linear system solvers [ 31 , 32 ] to efficiently solve these constrained sub-problems (2) . Moreover, as we discuss in Section 3.5 (and Section 6), this approach is amenable to the sample reuse framework of [ 38 ], which allows us to reuse the same subspace embeddings across all constrained sub-problems. Below, we formalize how this intuition motivates a straightforward primal-only approach to the problem that matches the matvec complexity of [ 41 , 42 ] while improving over the total work complexities of the prior art (recall Table 1), albeit using randomness. In the following sections, we discuss this approach in greater detail, and provide a sketch of the analysis which enables Theorems 1.2 and 1.3. As our method requires several linear-algebraic reductions, to anchor the discussion we include Figure 1 which summarizes the end-to-end implementation of our approach and analysis and the various reductions which enable it. 
+
+3.3 Reducing the ϵ-game to linear-system solving 
+
+Recall from Definition 3.1 that our goal is to compute an ϵ-minimizer of f , defined as f (x) :=max y∈∆n y⊤Ax , over Bd. In Section 4 we show how to reduce this problem to a sequence of approximate linear-system solves, culminating in Lemma 3.3 below. While care is needed to handle approximations and mild extensions not handled in prior work, our overarching approach in this reduction is similar to that in prior works related to ball acceleration, e.g., [10, 12, 34]. To define these systems, for x ∈ Bd and η > 0, we let px,η ∈ ∆n be defined via [px,η ]i := exp([ Ax ]i/η )
+
+P 
+
+> j∈[n]
+
+exp([ Ax ]j /η ) for all i ∈ [n], and further define Px,η := diag( px,η ) . (3) Then informally, Lemma 3.3 says that to achieve the work, depth, and matvec complexities of Theorem 1.2 and Theorem 1.3, it suffices to solve ˜O(ϵ−2/3) linear systems as needed in (4) efficiently in these complexity metrics. We note that Lemma 3.3 exposes the role of the random seed χ in order to enable application of the sample reuse framework of [38], as we discuss further in Section 3.5. 
+
+Lemma 3.3. For ϵ > 0, there is an algorithm that, with probability at least 3/4 over the draw of a random seed χ ∼ P seed , returns ˜x ∈ Bd such that f ( ˜x) − min x∈Bd f (x) ≤ ϵ. The computational cost of the method is dominated by the cost of ˜O(ϵ−2/3)-iterations of performing the following: 
+
+6Figure 1: Overview of approach. Dark-colored boxes highlight the main problems and subproblems in the method. Solid colored arrows indicate reduction steps within a single problem, while solid black arrows denote transitions between nested problems. Dotted arrows represent two alternative algorithmic approaches for solving the resulting linear systems. Here, S ∈ Rs×n and T ⊤ ∈ Rs×d
+
+are oblivious subspace embeddings of size s = ˜O(ϵ−2/3). Using a naive analysis, a fresh S, T would need to be sampled for each ¯x, however, using the sample reuse framework of [ 38 ], we show that the same T can be used across all iterations (Section 3.5). 
+
+• computing x′ ∈ Rd which is a (poly (ϵ−1, n )) −1-approximate solution to 
+
+(H + νI )y = ˆ g, where H = 1
+
+ϵ′ A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A (4) 
+
+for some ¯x ∈ Bd, ν = ˜Ω( ϵ−1/3), and ˆg ∈ Rd (which may vary each time) with ϵ′ := ϵ  
+
+> 2 log n
+
+,
+
+• ˜O(1) -additional matvecs to A,
+
+• ˜O(n + d)-additional work, and ˜O(1) -additional depth. Moreover, Pseed is independent of A, and χ ∼ P seed can be sampled in ˜O(ϵ−2/3)-work and ˜O(1) -depth. 
+
+To illustrate how Lemma 3.3 reduces our problem to approximately solving linear systems, recalling that nnz (A) = Ω( n + d), to prove Theorem 1.2 using Lemma 3.3 it suffices to implement (4) in ˜O( nnz (A) + ϵ−2ω/ 3)-work and ˜O(1)-depth, using ˜O(1) matvecs to A. Likewise, to prove Theorem 1.3 using Lemma 3.3, it suffices to implement (4) in ˜O(nnz (A) + ϵ−4/3)-work, ˜O(ϵ−2/3)-depth, and using ˜O(1) matvecs to A.Let us now discuss how we prove Lemma 3.3 in Section 4. Our first step is to leverage a standard smoothing technique [ 2, 10 , 12 , 53 ] where the nonsmooth objective function f is replaced with a smooth proxy objective. Concretely for α > 0, we define the softmax function smax α : Rn → R via smax α(z) := max  
+
+> y′∈∆n
+
+z⊤y′ − α · e(y′) = α log 
+
+ X
+
+> i∈[n]
+
+exp([ z]i/α )
+
+ , (5) 7where e(y) := P 
+
+> i∈[n]
+
+yi log yi is the negative entropy function. Then, defining fα(x) := smax α(Ax ), it is a standard result (see Lemma 4.14) that fα is an additive α log n approximation of f , i.e., 
+
+f (x) ≤ fα(x) ≤ f (x) + α log n for all x ∈ Rd, and furthermore fα is 1 /α -smooth in ∥·∥ 2. Thus, defining ϵ′ := ϵ/ (2 log (n)), any ϵ/ 2-minimizer of fϵ′ over Bd is an ϵ-minimizer of f over Bd, and therefore we focus on obtaining the former. To (approximately) minimize fϵ′ , we leverage the ball-oracle acceleration framework developed in a series of prior works [ 3, 8, 10 , 12 –15 ]. For r ∈ (0 , 1), this framework reduces minimizing a convex and Lipschitz function h : Rd → R to minimizing a regularized version of h within a ball of radius r at most ˜O(r−2/3) times (see Proposition 4.16 for the formal statement). By choosing 
+
+r ← ˜Θ(ϵ) and using the fact that f ′ 
+
+> ϵ
+
+is 1-Lipschitz, we are able to reduce obtaining an ϵ/ 2-minimizer of f ′ 
+
+> ϵ
+
+to ˜O(ϵ−2/3) computations, for gν, ¯x(x) := fϵ′ (x) + ν 
+
+> 2
+
+∥x − ¯x∥22, of x′ ∈ Bdr (¯ x) ∩ Bd such that 
+
+gν, ¯x(x′) − min   
+
+> x∈Bdr(¯ x)∩Bd
+
+gν, ¯x(x) ≤ O(νϵ 8/3) (6) for some ¯x ∈ Bd and ν = ˜Ω (ϵ−1/3) (which may vary each iteration); see Section 4.3 for details. Furthermore, each of the ˜O(ϵ−2/3) iterations requires no additional access to A, ˜O(d)-additional work, and ˜O(1) additional depth, and therefore to prove Lemma 3.3 it suffices to implement (6) using ˜O(1) linear system solves of the form (4) , ˜O(n + d)-additional work, ˜O(1) additional matvecs to A, and ˜O(1)-additional depth. To achieve this, we leverage that fϵ′ is ˜O(ϵ−1)-quasi-self-concordant [5, 10 , 28 , 40 , 62 ], which implies that it is c-Hessian stable [10 , 40 ] for an absolute constant c > 1 in any ball of radius r,i.e., c−1∇2fϵ′ (y) ⪯ ∇ 2fϵ′ (x) ⪯ c∇2fϵ′ (y) for any x, y ∈ Rd with ∥x − y∥2 ≤ r. As a result, the smoothness and Hessian-stability of fϵ′ imply gν, ¯x is also smooth and Hessian-stable. Combining these properties with the strong convexity of gν, ¯x, we use a ball-constrained Newton algorithm due to [ 10 , Alg. 3] to reduce (6) to solving ˜O(1) ball-constrained quadratic optimization problems, along with an additional ˜O(1)-matvecs to A, ˜O(d)-work, and ˜O(1)-depth. More formally, the ball-constrained quadratics subproblems take the form minimize   
+
+> x∈Br(¯ x)∩Bd
+
+− g⊤x + 12 x⊤(H + νI )x (7) for H = ∇2fϵ′ ( ¯x) as in (4) . If (7) had a single ball constraint x ∈ Br( ¯x), it would be the well-studied 
+
+trust-region problem [25 ]. In particular, [ 10 ] show how to reduce approximately minimizing the version of (7) with a single ball constraint x ∈ Br( ¯x) to exact linear system solves in matrices of the form H + λI for λ ≥ ν by binary searching on the (one-dimensional) Lagrange multiplier associated with the constraint x ∈ Br( ¯x). In Section 4.1, we generalize this approach to (7) by performing a cutting plane method in the two-dimensional dual space of Lagrange multipliers, and carefully show that approximate linear system solves of the form (4) suffice to solve (7) to high accuracy. Note that for any ¯x ∈ Bd, one matvec to H (recall (4) ) can be computed using O(1) matvecs to 
+
+A (recall also (3) ). Thus, it remains to show how to implement an efficient linear system solver for (4) . Next, we discuss how we leverage modern numerical linear algebra techniques to solve such linear systems with low work and depth. 
+
+3.4 Implementing linear system solvers using subspace embeddings 
+
+Here, we focus on solving linear systems of the form (4), by adapting techniques of [26, 27]. 8Rank-one reduction. First, note that H = ∇2fϵ′ ( ¯x) = 1 
+
+> ϵ′
+
+A⊤(P¯x − p¯xp⊤ 
+
+> ¯x
+
+)A is PSD (because fϵ′
+
+is convex) and is simply a rank-one update of B⊤ 
+
+> ¯x
+
+B¯x for B¯x := 1√ϵ′ P 1/2¯x,ϵ ′ A. Consequently, using the Sherman-Morison-Woodbury identity, we show that in order to build a linear-system solver for 
+
+H + νI it suffices to build a linear-system solver for 1
+
+ϵ′ A⊤P¯x,ϵ ′ A + νI d = 1
+
+ϵ′ A⊤P 1/2¯x,ϵ ′ P 1/2¯x,ϵ ′ A + νI d = B⊤ 
+
+> ¯x
+
+B¯x + νI d.
+
+Concretely, we show (Lemma 5.11) that any linear system in H + νI d can be solved by instead solving one linear system in B⊤ 
+
+> ¯x
+
+B¯x + νI d plus O(d)-additional work and using ˜O(1)-additional depth. Consequently, we turn our attention to building a linear-system solver for B⊤ 
+
+> ¯x
+
+B¯x + νI d. Here, as in prior work [8, 10, 15], we observe that 
+
+∥B¯x∥2 
+
+> F
+
+= 1
+
+ϵ′ tr 
+
+
+
+A⊤P¯x,ϵ ′ A
+
+
+
+= 1
+
+ϵ′
+
+X
+
+> i∈[n]
+
+[p¯x,ϵ ′ ]i∥Ai, :∥22 ≤ 1
+
+ϵ′ ∥A∥22→∞ = ˜O  ϵ−1 . (8) As a result, we can leverage a numerical linear algebra tool called oblivious random subspace embeddings to build a good preconditioner for the matrix B⊤ 
+
+> ¯x
+
+B¯x + νI d.
+
+Oblivious random subspace embeddings. There are distributions of matrices S ∈ Rs×n such that for any matrix C ∈ Rn×d and ν > 0, SC ∈ Rs×d can be computed in nearly linear time and low parallel depth and, with high probability, for s ≤ d sufficiently large, C⊤S⊤SC + νI d ≈2 C⊤C + νI d
+
+[ 17 , 18 , 21 , 22 , 49 ]; that is, C⊤S⊤SC +νI d is a low-rank 2-approximation for C⊤C+νI d. In particular, in this paper we use that there is an (oblivious) distribution of sparse matrices S ∈ Rs×n such that 
+
+s = ˜O(∥C∥2 
+
+> F
+
+/ν ) suffices [ 18 , 26 ] (Corollary 5.6). Consequently, in light of (8) , and that ν = ˜Ω (ϵ−1/3)in (4), there is a distribution of matrices S ∈ Rs×n such that B⊤ 
+
+> ¯x
+
+B¯x + νI d ≈2 B⊤ 
+
+> ¯x
+
+S⊤SB ¯x + νI d for 
+
+s = ˜O(ϵ−2/3) and moreover, SB ¯x can be computed with just ˜O(ϵ−2/3)-matvecs to A.
+
+Preconditioned linear system solvers. Next, we use that for any M ∈ Sd
+
+> ++
+
+, in order to build a linear system solver for M , it suffices to build a linear system solver for some N ≈2 M and apply preconditioned methods such as preconditioned Richardson iteration (Theorem 5.8) [ 26 , 31 ]. Preconditioned Richardson iteration runs ˜O(1) iterations, where each iteration makes one call to a linear system solver for N , one matvec to M , and performs ˜O(n + d)-additional work using ˜O(1)-additional depth. Consequently, in order to build a linear-system solver for B⊤ 
+
+> ¯x
+
+B¯x + νI d, it suffices to build a linear-system solver for B⊤ 
+
+> ¯x
+
+S⊤SB ¯x + νI d, where S ∈ Rs×n is sampled from an appropriate distribution of matrices with s = ˜O(ϵ−2/3). Our goal is now to efficiently implement a linear system solver for B⊤ 
+
+> ¯x
+
+S⊤SB ¯x + νI d. Note that this is a d × d linear system, involving the s × d matrix F¯x := SB ¯x ∈ Rs×d (namely, the coefficient matrix is the regularized Gram matrix of F¯x). To get improved complexities, we further reduce to solving a system involving an s × s matrix (as opposed to an s × d matrix). To achieve this, we use a Woodbury matrix identity, preconditioning, and a subspace embedding (similar to [ 26 , 27 ]). We describe this approach in greater detail in the following paragraphs. 
+
+Changing the order of operations and applying a second subspace embedding. Using the Woodbury matrix identity, in order to build a linear system solver for F¯x⊤F¯x + νI d, it suffices to build a linear system solver for F¯xF¯x⊤ + νI s (Lemma 5.12). We then further observe that 
+
+∥F¯x∥2 
+
+> F
+
+≤ ˜O(ϵ−2/3) and consequently, we can once again sample another oblivious random subspace embedding matrix T ⊤ ∈ Rs×d with s = ˜O(ϵ−2/3), so that F¯xT T ⊤F¯x⊤ + νI s ≈2 F¯xF¯x⊤ + νI s. Now, 9once again using preconditioned Richardson iteration, in order to build linear system in F¯xF¯x⊤ + νI s,it suffices to build a linear system solver for F¯xT T ⊤F¯x⊤ + νI s.Note that we can compute F¯xT ∈ Rs×s explicitly with ˜O(ϵ−2/3)-matvecs to A in ˜O(ϵ−2/3nnz (A))-work and ˜O(1)-depth, by leveraging the sparsity of the random matrices S, T .3 Moreover, F¯xT is a ˜O(ϵ−2/3)-dimensional square matrix. Consequently, using FMM (Lemma 5.9) we can implement a ˜O(1)-depth linear system solver for F¯xT T ⊤F¯x⊤ + νI s which does ˜O(ϵ−2ω/ 3)-work. This yields a total work of ˜O(ϵ−2/3) · (s nnz( A) + sω) = ˜O(ϵ−4/3nnz( A) + ϵ−2( ω+1) /3) (9) and a depth of ˜O(ϵ−2/3). Alternatively, at the cost of increased depth, there is an even faster approach for implementing a linear system solver for F¯xT T ⊤F¯x⊤ + νI s using stochastic gradient methods, such as stochastic variance reduced gradient descent (SVRG) [ 30 , 39 , 46 ]. Using SVRG, we can implement a linear system solver for F¯xT T ⊤F¯x⊤ + νI s in ˜O(nnz (B¯x) + s∥B¯x∥2 
+
+> F
+
+/ν ) = ˜O( nnz (A) + s2) work. Hence, recalling (8), we can reduce the work from (9) to ˜O(ϵ−2/3) ·  s nnz( A) + s2 = ˜O(ϵ−4/3nnz( A) + ϵ−2); (10) however, the depth increases to ˜O(ϵ−4/3) as SVRG requires sequential computation. The above bounds in (9) and (10) almost match the total work claimed in Theorem 1.2 and Theorem 1.3, except that the leading term ϵ−4/3nnz (A) is too large by an ϵ−2/3 factor. Likewise, (9) and (10) correspond to a matvec complexity of ˜O(ϵ−4/3), which is an ϵ−2/3 factor worse than prior work [ 42 ]. The bottleneck here is that, naively, for each ball-constrained subproblem, we must construct a new F¯xT = SB ¯xT ∈ Rs×s for freshly sampled oblivious random subspace embeddings 
+
+S, T . Correspondingly, each subproblem naively requires ˜O(s)-matvecs. Fortunately, we show that it is possible to reduce this overhead in the following section. 
+
+3.5 Applying the sample reuse framework 
+
+As mentioned above, naively, for each center ¯ x in the outer ball acceleration loop, computing 
+
+F¯xT = S 1
+
+√ϵ′ P 1/2¯x AT ∈ Rs×s.
+
+requires ˜O(ϵ−2/3)-matvecs to A, and then applying the diagonal rescaling P¯x. Because ¯ x is chosen adaptively by the outer ball-acceleration method, naive analysis suggests that each ¯x (i.e., each linear system in Lemma 3.3) requires sampling a fresh oblivious random subspace embeddings S, T 
+
+and then reconstructing F¯xT .Fortunately, by leveraging recent work on sample reuse [ 38 ], a more careful analysis indicates that this can be improved. As each linear system of the form (4) is solved to high accuracy and 
+
+S, T are sampled obliviously (i.e., from a distribution which is independent of the particular ¯x), it is in fact possible to reuse the same subspace embeddings T for all ball acceleration centers ¯x (i.e., each linear system in Lemma 3.3) at the cost of at most polylogarithmic overheads in work. This allows us to by pre-compute AT using ˜O(ϵ−2/3)-matvecs to A and ˜O(nnz (A)ϵ−2/3)-work and ˜O(1)-depth (Fact 5.15). Then, for each iteration in Lemma 3.3, we can randomly sample a fresh S and build F¯xT in only ˜O( nnz (A))-work and ˜O(1)-depth (Lemma 5.16). This lets us reduce        
+
+> 3If Ais known explicitly, then F¯xTis computable in just ˜O(nnz (A))-time. However, in this paper we often assume
+> Ais accessible only through a matvec oracle, as our results apply to this setting with nearly no loss in complexity.
+
+10 the work in (9) down to the claimed runtime bound in Theorem 1.2. Analogously, using SVRG in place of FMM, we can reduce (10) down to the claimed runtime bound in Theorem 1.3. We note that the recent sample reuse framework of [ 38 ] was provided quite generally and hence we use it blackbox. Consequently, the main novelty in our work is in the sequence of careful reductions which bring the original binary classification problem into a form where the framework of [38] immediately applies and yields our improved work bounds. 
+
+# 4 Reducing ℓ2-ℓ1-games to linear system solving 
+
+In this section, we reduce solving an ϵ-game to approximately solving a sequence of linear systems. In Section 4.1, we show how to reduce solving a quadratic (constrained to two balls) to approximate linear system solves. Then in Section 4.2, we combine the results of Section 4.1 with an accelerated ball-constrained Newton method due to [ 10 ] to reduce optimizing a ball-constrained Hessian-stable function to approximate linear system solves. Finally, in Section 4.3, we reduce solving an ϵ-game to approximately solving a sequence of linear systems via the ball oracle acceleration framework developed in [3, 8, 10, 12–15]. 
+
+Notation for Section 4. For a closed convex set S ⊆ Rd and x ∈ Rd, proj S (x) := argmin y∈S ∥y −
+
+x∥2 denotes the Euclidean projection of x onto S. We define the Euclidean distance between x and 
+
+S via dist( x, S ) := ∥x − proj S (x)∥2.
+
+4.1 Ball-constrained quadratics via linear system solves 
+
+In this section, we give an algorithm for finding a feasible point close in distance to the optimal solution of the optimization problem minimize  
+
+> x∈Rd
+
+− g⊤x + 12 x⊤Hx 
+
+subject to ∥x − u1∥2 ≤ r1 and ∥x − u2∥2 ≤ r2
+
+(11) for g, u 1, u 2 ∈ Rd, r1, r 2 > 0, and H ∈ Sd 
+
+> ++
+
+where μI ⪯ H ⪯ LI for some 0 < μ ≤ L. We let κ := L/μ 
+
+and f (x) := −g⊤x + 12 x⊤Hx denote the objective function and C1 := {x′ ∈ Rd : ∥x′ − u1∥2 ≤ r1}
+
+and C2 := {x′ ∈ Rd : ∥x′ − u2∥2 ≤ r2} denote the constraint balls. Additionally, we assume that 
+
+u2 ∈ C1 (the second center is contained within the first ball). Thus, Slater’s condition is satisfied, strong duality holds, and we let x⋆ denote the unique minimizer of (11) . For λ = ( λ1, λ 2), the Lagrangian (after squaring both sides of the constraints) is given by 
+
+L(x, λ ) = −g⊤x + 12 x⊤Hx + λ1(∥x − u1∥22 − r21) + λ2(∥x − u2∥22 − r22) ,
+
+and we can express the dual optimization problem as maximize  
+
+> λ≥0
+
+{Q(λ) := min  
+
+> x∈Rd
+
+L(x, λ )} . (12) Letting x⋆(λ) := argmin x∈Rd L(x, λ ) denote the best response x for some fixed choice of λ ≥ 0, note 
+
+x⋆(λ) = ( H + 2( λ1 + λ2)I)−1(g + 2 λ1u1 + 2 λ2u2) . (13) Furthermore, the uniqueness of x⋆(λ) implies by the envelope theorem that for λ ≥ 0, 
+
+∇λQ(λ) = ∇λL(x⋆(λ), λ ) = ( ∥x⋆(λ) − u1∥22 − r21, ∥x⋆(λ) − u2∥22 − r22) . (14) 11 In the rest of this section, we provide and analyze an algorithm that uses dual gradients (14) to implement a cutting plane method for the dual objective Q(λ). Indeed, note that a dual gradient (14) can be computed via a linear system solve (13) , and we show that approximate dual gradients can be computed via approximate linear system solves in Lemma 4.4. Once we obtain an (approximately) optimal dual solution via our dual cutting plane method, we perform a final additional (approximate) linear system solve (13) to obtain a point close in distance to x⋆. Finally, to ensure that we return an exactly feasible point for (11) , we project onto the feasible region of (11) and argue that doing so does not increase the distance to x⋆ too much. Our algorithm can be viewed as a natural extension of the method of [ 10 , Appendix D], which handles only a single quadratic constraint and performs exact linear system solves, to handling two quadratic constraints and performing approximate linear system solves. Indeed, our cutting plane method in our problem’s two-dimensional dual space is the natural analog of the binary search they perform in their problem’s single-dimensional dual space. We state our algorithmic guarantee at the end of this section in Proposition 4.8. We build up to this result by first proving a variety of regularity properties which enable our final guarantee. To start, we bound the maximum size of the dual optimal variables in the following lemma. 
+
+Lemma 4.1. Any optimal pair of dual variables λ⋆ ∈ argmax λ≥0 Q(λ) satisfies 
+
+max {λ⋆
+
+> 1
+
+, λ ⋆
+
+> 2
+
+} ≤ L∥x⋆∥2 + ∥g∥2
+
+2 min {r1, r 2} ≤ L(∥u1∥2 + r1) + ∥g∥2
+
+2 min {r1, r 2} =: RQ . (15) 
+
+Proof. First, note that 
+
+∥∇ f (x⋆)∥2 = ∥Hx ⋆ − g∥2 ≤ ∥ H∥2∥x⋆∥2 + ∥g∥2 ≤ L∥x⋆∥2 + ∥g∥2 . (16) Furthermore, the KKT stationary condition for this problem can be expressed as 
+
+−∇ f (x⋆) = 2 λ⋆
+
+> 1
+
+n1 + 2 λ⋆
+
+> 2
+
+n2 (17) for n1 := x⋆ − u1 and n2 := x⋆ − u2. We now consider cases based on which of the two constraints are tight at x⋆. If neither constraint is tight, then λ⋆ 
+
+> 1
+
+= λ⋆ 
+
+> 2
+
+= 0 and we are done. If the first constraint in (11) is tight and the second is loose so that ∥n1∥2 = r1 and λ⋆ 
+
+> 2
+
+= 0, then taking the norm of both sides of (17) yields λ⋆ 
+
+> 1
+
+= ∥∇ f (x⋆)∥2/(2 r1), in which case we conclude by (16) . Similarly, if the first constraint is loose and the second is tight, we have λ⋆ 
+
+> 1
+
+= 0 and λ⋆ 
+
+> 2
+
+= ∥∇ f (x⋆)∥2/(2 r2). Now suppose that both constraints are tight at x⋆, implying ∥n1∥2 = r1 and ∥n2∥2 = r2. Taking the norm of both sides of (17) and squaring, we obtain 
+
+∥∇ f (x⋆)∥22 = (2 λ⋆
+
+> 1
+
+r1)2 + (2 λ⋆
+
+> 2
+
+r2)2 + 8 λ⋆
+
+> 1
+
+λ⋆
+
+> 2
+
+(n⊤ 
+
+> 1
+
+n2) .
+
+Then by (16) , it suffices to show 8 λ⋆
+
+> 1
+
+λ⋆
+
+> 2
+
+(n⊤ 
+
+> 1
+
+n2) ≥ 0 (as that would imply max {(2 λ⋆
+
+> 1
+
+r1)2, (2 λ⋆
+
+> 2
+
+r2)2} ≤ ∥∇ f (x⋆)∥22), in which case it suffices to show n⊤ 
+
+> 1
+
+n2 ≥ 0. Consider the triangle formed by the points 
+
+x⋆, u 1, u 2, and letting θ denote the angle at the vertex x⋆, we have cos θ = n⊤  
+
+> 1n2
+> ∥n1∥∥ n2∥
+
+, so it suffices to show cos θ ≥ 0. By the law of cosines, cos θ = r21 + r22 − ∥ u1 − u2∥22
+
+2r1r2
+
+≥ 0since the fact that u2 is within the first constraint by assumption implies ∥u1 − u2∥22 ≤ r21.Next, we show that the best primal response to any dual variable is bounded. 12 Lemma 4.2. For all λ ≥ 0, we have 
+
+∥x⋆(λ)∥2 ≤ Υ where Υ := max {∥ g∥2/μ, ∥u1∥2, ∥u2∥2} . (18) 
+
+Proof. Letting Λ := λ1 + λ2, note ∥(H + 2Λ I)−1∥2 ≤ 1 
+
+> μ+2Λ
+
+, in which case (13) gives 
+
+∥x⋆(λ)∥2 ≤ ∥ (H + 2Λ I)−1∥2 · ∥ g + 2 λ1u1 + 2 λ2u2∥2 ≤ ∥g∥2 + 2Λ max {∥ u1∥2, ∥u2∥2}
+
+μ + 2Λ ≤ Υ .
+
+The last inequality uses that for any a, b ≥ 0 and c > 0, the function h(t) := a+bt c+2 t is monotonic for 
+
+t ≥ 0, and thus can be bounded by the values it approaches at the extremes ( t = 0 and t → ∞ ). In the following lemma, we show that the dual objective Q is Lipschitz. 
+
+Lemma 4.3. Q is βQ-Lipschitz in ∥·∥ 2 over λ ≥ 0 where, for Υ defined in (18) ,
+
+βQ := √2 max 
+
+> i∈{ 1,2}
+
+{(Υ + ∥ui∥2)2 + r2 
+
+> i
+
+} . (19) 
+
+Proof. It suffices to show ∥∇ Q(λ)∥2 ≤ βQ for all λ ≥ 0. Then recalling in general that ∥v∥2 ≤√ℓ∥v∥∞ for v ∈ Rℓ, it suffices (by applying the inequality with ℓ ← 2) to show |[∇Q(λ)] i| ≤ 
+
+(Υ + ∥ui∥2)2 + r2 
+
+> i
+
+for i ∈ { 1, 2}. This follows by combining (14) , (18) , and a triangle inequality. The next lemma shows that an approximate linear system solve suffices to obtain an approximate dual gradient ˜ q.
+
+Lemma 4.4. For any λ ∈ R2
+
+> ≥0
+
+, let Bλ := H + 2( λ1 + λ2)I. Suppose that x is a γ-approximate solution to the linear system (Definition 2.1) 
+
+(H + 2( λ1 + λ2)I)y = ( g + 2 λ1u1 + 2 λ2u2). (20) 
+
+Then, for Υ as defined in (18) , let ¯x := proj {z:∥z∥2≤Υ}(x). Then, 
+
+˜q :=  ∥¯x − u1∥22 − r21, ∥¯x − u2∥22 − r22
+
+ satisfies ∥˜q − ∇ Q(λ)∥2 ≤ 4γΥ2√2κ. 
+
+Proof. Recall from (13) that x⋆(λ) is the exact solution to (20) . Therefore, since x is a γ-approximate solution to this linear system (Definition 2.1), letting Bλ := ( H + 2( λ1 + λ2)I), we have 
+
+∥x − x⋆(λ)∥Bλ ≤ γ∥x⋆(λ)∥Bλ .
+
+Since Bλ ⪰ λmin (Bλ)I, it follows from Fact B.1 that 
+
+∥x − x⋆(λ)∥2 ≤ γpκ(Bλ)∥x⋆(λ)∥2.
+
+Since 
+
+λmax (Bλ) ≤ L + 2( λ1 + λ2) and λmin (Bλ) ≥ μ + 2( λ1 + λ2),
+
+and μ ≤ L, we have 
+
+λmax (Bλ)
+
+λmin (Bλ) ≤ L + 2( λ1 + λ2)
+
+μ + 2( λ1 + λ2) ≤ Lμ = κ. 
+
+13 Using ∥x⋆(λ)∥2 ≤ Υ from (18), we obtain 
+
+∥x − x⋆(λ)∥2 ≤ γ√κ Υ.
+
+Next, since x⋆(λ) lies in the ℓ2-ball of radius Υ and ¯x is the Euclidean projection of x onto this ball, projection can only decrease the distance to x⋆(λ) in the ℓ2-norm (due to the nonexpansiveness of projections onto nonempty, closed, convex sets). Consequently, 
+
+∥¯x − x⋆(λ)∥2 ≤ ∥ x − x⋆(λ)∥2 ≤ γ√κ ΥRecalling (14), for each i ∈ { 1, 2},[˜ q − ∇ Q(λ)] i =  ∥¯x − ui∥22 − r2
+
+> i
+
+ −  ∥x⋆(λ) − ui∥22 − r2
+
+> i
+
+
+
+= ∥¯x − ui∥22 − ∥ x⋆(λ) − ui∥22
+
+= ⟨¯x − x⋆(λ), ¯x + x⋆(λ) − 2ui⟩ .
+
+By the Cauchy-Schwarz inequality and the triangle inequality, 
+
+|[˜ q − ∇ Q(λ)] i| ≤ ∥ ¯x − x⋆(λ)∥2∥¯x + x⋆(λ) − 2ui∥2
+
+≤ γ√κ Υ ( ∥¯x∥2 + ∥x⋆(λ)∥2 + 2 ∥ui∥2) .
+
+By definition of ¯x, we have ∥¯x∥2 ≤ Υ. Moreover, by the choice of Υ, we have ∥x⋆(λ)∥2 ≤ Υ and 
+
+∥ui∥2 ≤ Υ. Therefore, 
+
+|[˜ q − ∇ Q(λ)] i| ≤ γ
+
+s
+
+Lμ Υ (Υ + Υ + 2Υ) = 4 γ√κ Υ2.
+
+Thus, ∥˜q − ∇ Q(λ)∥∞ ≤ 4γ
+
+q Lμ Υ2. Since ˜ q − ∇ Q(λ) ∈ R2,
+
+∥˜q − ∇ Q(λ)∥2 ≤ √2∥˜q − ∇ Q(λ)∥∞ ≤ 4√2κ γ Υ2.
+
+In the next lemma, we show that if we are able to obtain an approximately optimal dual solution 
+
+λ, then the primal best response x⋆(λ) is close to the true primal optimum x⋆.
+
+Lemma 4.5. For all λ ≥ 0, we have 
+
+∥x⋆(λ) − x⋆∥2 ≤
+
+s
+
+2(max λ′≥0 Q(λ′) − Q(λ)) 
+
+μ
+
+Proof. Note that x 7 → L (x, λ ) is μ-strongly convex and minimized at x⋆(λ), and hence for all x ∈ Rd,
+
+L(x, λ ) ≥ L (x⋆(λ), λ ) + μ
+
+2 ∥x − x⋆(λ)∥22 .
+
+Plugging in x ← x⋆ and L(x⋆(λ), λ ) = Q(λ) and rearranging, we obtain the result via 
+
+μ
+
+2 ∥x⋆ − x⋆(λ)∥22 ≤ L (x⋆, λ ) − Q(λ) ≤ max  
+
+> λ′≥0
+
+L(x⋆, λ ′) − Q(λ) = max  
+
+> λ′≥0
+
+Q(λ′) − Q(λ)by strong duality. 14 Since our goal is to obtain an exactly feasible point which is close in distance to the optimal solution x⋆ of (11) , and we only have access to an approximate linear system solver, it is necessary to show that projecting onto the feasible region does not increase the distance to x⋆ too much. We prove this in the following lemma. 
+
+Lemma 4.6. Let α1, α 2 ≥ 0 and x, y ∈ Rd be such that max i∈{ 1,2} dist (y, C i) ≤ α1 and ∥x−y∥2 ≤ α2.Then defining x′ := proj C1 (x) and x′′ := proj C2 (x′), we have x′′ ∈ C1 ∩ C2 and ∥x′′ − y∥2 ≤ 2α1 + α2.Proof. Note x′′ ∈ C2 by definition, and x′′ ∈ C1 since x′′ is on the line segment connecting x′ ∈ C1
+
+and u2 ∈ C1. We obtain the second result, recalling the non-expansiveness of the projection operator, by combining 
+
+∥x′′ − y∥2 ≤ ∥ x′′ − proj C2 (y)∥2 + ∥proj C2 (y) − y∥2 ≤ ∥ x′ − y∥2 + α1
+
+with 
+
+∥x′ − y∥2 ≤ ∥ x′ − proj C1 (y)∥2 + ∥proj C1 (y) − y∥2 ≤ ∥ x − y∥2 + α1 ≤ α2 + α1 .
+
+In the next lemma, we state a guarantee for a cutting plane method due to [ 61 ] which allows for approximate gradients. 
+
+Proposition 4.7. For R > 0 and S := {x ∈ Rn 
+
+> ≥0
+
+: ∥x∥∞ ≤ R}, let h : S → R be convex, differentiable, and β-Lipschitz in ∥·∥ 2. Suppose we can only access h through an oracle Oh,δ : S → Rn,which, for any query point x ∈ S, satisfies ∥O h,δ (x)−∇ h(x)∥2 ≤ δ. Then there is an algorithm which obtains x ∈ S such that h(x) − min z∈S h(z) ≤ ϵ, and makes ˜O(n) queries to Oh,δ for δ ← ˜Θ( ϵR√n )
+
+with ˜O(poly (n)) additional work, where ˜O(·) hides polylog factors in R, β, n, ϵ −1.Proof. The query bound to Oh,δ follows from [ 61 , Sec. 4], which gives a generic analysis under such an oracle, which they define in [ 61 , Def. 5]. (Namely, their analysis holds for a variety of standard cutting plane algorithms.) Whereas they do not state their guarantees in terms of this oracle directly (they primarily study a stochastic setting where Oh,δ is an intermediate oracle implemented with high probability), it is straightforward to obtain this bound from the proofs of [ 61 , Prop. 1] and [61 , Prop. 2]. As for the additional work, this is achievable by a variety of deterministic cutting plane methods, e.g., [ 4, 63 ]. (Note that the more recent cutting plane methods of [ 37 , 45 ] are randomized.) Finally, we state our main guarantee for this section below. As discussed above, we obtain our guarantee by applying a cutting plane method in the two-dimensional dual space, using an approximate linear system solver to obtain approximate dual gradients, and then obtaining a primal point close to x⋆ via an additional approximate linear system solve. Finally, we project onto the feasible region of (11) and argue that doing so does not increase the distance to x⋆ too much. 
+
+Proposition 4.8. For ∆ > 0, there is an algorithm which obtains ˜x ∈ Rd which is feasible for (11) 
+
+and satisfies ∥˜x − x⋆∥2 ≤ ∆. It requires ˜O(1) computations of x′ ∈ Rd such that, for RQ, Υ defined in (15) and (18) , x′ is a 
+
+˜Θ
+
+
+
+min 
+
+ ∆
+
+√κΥ , μ∆2
+
+RQ
+
+√κΥ2
+
+ 
+
+-approximate solution to (20) 
+
+for some λ ≥ 0 (which may vary each time), ˜O(d) additional work, ˜O(1) additional depth, and no additional matvecs to H, where ˜O(·) hides polylog factors in r1, r 2, μ, L, ∆ and the ℓ2-norms of 
+
+u1, u 2, g .
+
+15 Proof. We first apply the cutting plane method of Proposition 4.7 on the dual optimization problem (12) with h ← − Q (since Q is concave), n ← 2, β ← βQ given by (19) (which is a valid choice by Lemma 4.3), and R ← RQ (guaranteeing an optimal dual solution is within S by Lemma 4.1). With 
+
+δ ← ˜Θ(ϵ/R Q) as in Proposition 4.7 (for ϵ > 0 to be chosen momentarily), a query to O−Q,δ (λ) for 
+
+λ ≥ 0 can be implemented by computing x′ ∈ Rd which is an ˜Θ
+
+ ϵRQ
+
+√κΥ2
+
+
+
+-approximate solution to (20) (21) and O(d) additional work by Lemma 4.4. Thus, since n = 2, the cutting plane method of Proposition 4.7 obtains ˜λ ≥ 0 such that max λ′≥0 Q(λ′) − Q( ˜λ) ≤ ϵ having computed at most ˜O(1) points x′ satisfying (21) with ˜O(d) additional work and no additional matvecs to H.Then, we compute z ∈ Rd such that ∥z − x⋆( ˜λ)∥2 ≤ ∆/4, which can be achieved by computing a 
+
+ ∆4√κΥ
+
+
+
+-approximate solution to (20) (with λ ← ˜λ)via an analogous argument to the beginning of the proof of Lemma 4.4. Choosing ϵ = Θ( μ∆2), we obtain ∥x⋆( ˜λ) − x⋆∥2 ≤ ∆/4 by Lemma 4.5. Since x⋆ ∈ C1 ∩ C2, we have max i∈{ 1,2} dist (x⋆( ˜λ), C i) ≤
+
+∆/4, and thus applying Lemma 4.6 with y ← x⋆( ˜λ) and x ← z gives that z′ := proj C1 (z) and ˜x := proj C2 (z′) satisfy ∥˜x − x⋆( ˜λ)∥2 ≤ 3∆ /4. Furthermore, ˜x is feasible and can be computed in O(d)work given z and with no additional matvecs. Finally, ∥˜x − x⋆∥2 ≤ ∆ by triangle inequality. 
+
+4.2 Ball optimization oracles via linear system solves 
+
+In this section, we combine the results of Section 4.1 with the accelerated ball-constrained Newton method of [ 10 ] to reduce optimizing a ball-constrained Hessian-stable function to approximate linear system solves. To unpack this further, [ 10 ] showed how to implement a ball optimization oracle [ 10 ,Def. 1] for a Hessian-stable function via exact linear system solves. Our goal in this section is to extend their guarantees to approximate linear system solves, culminating in Lemma 4.11 at the end of the section. First, we recall the definition of a ball optimization oracle from [ 10 ]. We note that due to our application where we seek to obtain a minimizer over Bd ([ 10 ] seek to obtain an unconstrained minimizer), it is necessary to add an additional constraint over Bd, which [ 10 , Def. 1] does not require. However, otherwise the definition is the same. 
+
+Definition 4.9 ([ 10 , Def. 1]) . We call Oball a ( ζ, r )-ball optimization oracle for f : Rd → R
+
+if for any ¯x ∈ Bd, it outputs y = Oball ( ¯x) ∈ Bdr ( ¯x) ∩ Bd such that ∥y − x¯x,r ∥2 ≤ ζ for some 
+
+x¯x,r ∈ argmin x∈Bdr (¯ x)∩Bd f (x). Next, we restate, for completeness, the definition of a Hessian-stable function. We state it for general norms as it appears in [ 10 ]; however, in the following we will only instantiate it for the 
+
+ℓ2-norm. 
+
+Definition 4.10 ([ 10 , Def. 7]) . A twice-differentiable function f : Rd → R is ( r, c )-Hessian stable for r, c ≥ 0 with respect to a norm ∥·∥ if for all x, y ∈ Rd with ∥x − y∥ ≤ r we have 
+
+c−1∇2f (y) ⪯ ∇ 2f (x) ⪯ c∇2f (y). We state our main guarantee for this section in the following lemma. This guarantee follows from combining the guarantee of Proposition 4.8 from the previous section with the accelerated 16 ball-constrained Newton method due to [ 10 ]. In particular, this accelerated ball-constrained Newton method reduces implementing a ball optimization oracle to solving quadratics of the form (23) in our specific application, where there are two ball constraints. [ 10 ] show how to implement a quadratic constrained to a single ball (22) via exact linear system solves by binary searching on the one-dimensional dual Lagrange multiplier. The necessity of the previous section comes from the fact that our application results in two ball constraints, and furthermore we must solve the linear systems approximately. We note that the use of an accelerated method here is not strictly necessary for our application since the Hessian-stability parameter c is an absolute constant in our application (see the proof of Lemma 3.3 at the end of Section 4 where we instantiate c = O(1)). This is also the case for the applications of [ 10 ], as noted in Section 1.1 of that paper. Following [ 10 ], we choose to use it for completeness. 
+
+Lemma 4.11. Let f : Rd → R be L-smooth, μ-strongly convex, and (r, c )-Hessian stable, all in 
+
+∥·∥ 2, and let ¯x ∈ Bd be such that ∥∇ f ( ¯x)∥2 ≤ G. Then there is an algorithm which implements a 
+
+(ζ, r )-ball optimization oracle for query point ¯x. Additionally, letting ˜O(·) hide polylog factors in 
+
+L, μ, G, c, r, ζ , the computational cost of the method is dominated by the cost of ˜O(c)-iterations of performing the following: 
+
+• computing x′ ∈ Rd which is a (poly (L, μ −1, G, c, r, ζ −1)) −1-approximate solution to (∇2f ( ¯x) + 
+
+λI )y = ˆ g, for some λ ≥ 0 and ˆg ∈ Rd (which may vary each time), 
+
+• performing ˜O(1) additional matvecs to ∇2f ( ¯x), ˜O(1) additional evaluations of ∇f (·), and not accessing f in any other way, 
+
+• using ˜O(d) additional work (outside of the above), and ˜O(1) additional depth. Proof. Note that by strong convexity, we have ∥¯x − ˆx∥2 ≤ G/μ for the unconstrained minimizer ˆx := argmin x∈Rd f (x). Then, the proof of correctness follows the same steps as the proof of [ 10 ,Theorem 9] with D ← G/μ and M ← I, except replacing the call to [ 10 , Algorithm 7] in Line 9 of [ 10 , Algorithm 3] with a call to the cutting plane method of Proposition 4.8. [ 10 , Algorithm 7] solves the trust-region problem minimize   
+
+> x∈Br(¯ x)
+
+− g⊤x + 12 x⊤Hx (22) for H ∈ Sd 
+
+> ++
+
+with μI ⪯ H ⪯ LI (in particular, H = ∇2f ( ¯x)); specifically by returning ˜x ∈ Br( ¯x)such that ∥˜x − xg,H ∥2 ≤ ∆, where xg,H is the minimizer of (22) . Instead, we replace this subroutine with a call to the algorithm of Proposition 4.8 to obtain an approximate minimizer of minimize   
+
+> x∈Br(¯ x)∩Bd
+
+− g⊤x + 12 x⊤Hx , (23) namely, ˜x′ such that ∥˜x′ − x′ 
+
+> g,H
+
+∥2 ≤ ∆ for x′ 
+
+> g,H
+
+the minimizer of (23) . In particular, we instantiate 
+
+u1 ← 0, r1 ← 1, u2 ← ¯x, and r2 ← r.The proof of correctness of [ 10 , Algorithm 3] treats [ 10 , Algorithm 7] as a black-box; it only requires that the output satisfies ∥˜x − xg,H ∥2 ≤ ∆ by [ 10 , Prop. 8]. It does not exploit the specific geometry of the domain. Thus, substituting [ 10 , Prop. 8] with Proposition 4.8 in the proof of [ 10 , Theorem 9] yields the desired correctness result, up to requiring a polynomial bound on ∥g∥2
+
+whenever (23) is invoked, which we do next. (Note that when instantiating Proposition 4.8, we choose ∆ ← μζ 2 
+
+> 4Lc (5 r+D)
+
+as in Line 5 of [10, Algorithm 3].) 17 To conclude the proof of correctness, we must obtain a polynomial bound on ∥g∥2 each time Line 9 of [ 10 , Algorithm 3] solves an instance of (23) , due to the ∥g∥2-dependence in Proposition 4.8. To obtain this bound, note that it is clear from the pseudocode of [10, Algorithm 3] that g always takes the form ∇f (y) − H(αy + (1 − α)z) for some α ∈ (0 , 1) and y, z ∈ Bd. Thus, we can bound 
+
+∥∇ f (y) − H(αy + (1 − α)z)∥2 ≤ ∥∇ f (y)∥2 + ∥H(αy + (1 − α)z)∥2 ≤ G + 3 L
+
+since ∥∇ f (y)∥2 = ∥∇ f (y) − ∇ f ( ¯x) + ∇f ( ¯x)∥2 ≤ L∥y − ¯x∥2 + ∥∇ f ( ¯x)∥2 ≤ 2L + G, and ∥H(αy +(1 − α)z)∥2 ≤ L since 0 ⪯ H ⪯ LI in particular. Finally, as for the complexity bounds, the number of iterations of [ 10 , Algorithm 3] is ˜O(c) as shown in the proof of [ 10 , Thm. 9]. Each iteration calls the algorithm of Proposition 4.8 (previously [ 10 , Algorithm 7]) a single time and makes a single additional matvec to ∇2f ( ¯x) and query to ∇f (·). Thus, the bound on the number of approximate linear system solves follows from Proposition 4.8. The additional work bound follows since each iteration of [ 10 , Algorithm 3] uses O(d) additional work. 
+
+4.3 ℓ2-ℓ1-games via linear system solves 
+
+In this section, we put everything together to reduce solving an ϵ-game to approximate linear system solves, culminating in the proof of Lemma 3.3. In particular, this is achieved by reducing solving an 
+
+ϵ-game to implementing a series of ball optimization oracles, in which case we may apply Lemma 4.11 from the previous section. This reduction is performed using the ball oracle acceleration framework developed in [3, 8, 10, 12–15]. First, however, we set up notation and give some preliminary technical lemmas. Recall the following definition of a quasi-self-concordant function , for which we use the formulation of [ 10 ], restated for completeness. See also [5, 10, 28, 40, 62] for other work on optimizing such functions. 
+
+Definition 4.12 (Quasi-self-concordance [ 10 , Def. 10]) . We say that a thrice-differentiable h :
+
+Rd → R is M -quasi-self-concordant (QSC) with respect to some norm ∥·∥ , for M ≥ 0, if for all 
+
+u, w, x ∈ Rd,
+
+|∇ 3h(x)[ u, u, w ]| ≤ M ∥w∥∥ u∥2 
+
+> ∇2h(x)
+
+,
+
+i.e., the restriction of the third-derivative tensor of h to any direction is bounded by a multiple of its Hessian norm. Next, For α > 0, we define smax α : Rn → R via smax α(y) := max  
+
+> y′∈∆n
+
+y⊤y′ − α · e(y′) = α log 
+
+ X
+
+> i∈[n]
+
+exp( yi/α )
+
+ (24) where e(y) := P 
+
+> i∈[n]
+
+yi log yi is the negative entropy function. We collect some properties of smax α(y)in the following lemma. For the latter two properties, we cite [10]. 
+
+Lemma 4.13 (Properties of smax α(y)) . For α > 0, letting h(y) := smax α(y), we have that h is 
+
+1-Lipschitz, 1/α -smooth, and 2/α -QSC, all in ∥·∥ ∞.Proof. The latter two properties are given in [10, Lemma 14]. As for Lipschitzness, note 
+
+∂h ∂y k
+
+(y) = exp( yk/α )
+
+P 
+
+> i∈[n]
+
+exp( yi/α ) ,
+
+implying ∥∇ h(y)∥1 ≤ 1 for all y ∈ Rn.18 Next, we collect standard properties of smax α(Ax ), proven here for completeness. 
+
+Lemma 4.14 (Properties of smax α(Ax )) . For α > 0, A ∈ Rn×d with ∥A∥2→∞ = max i∈[n]∥Ai, :∥2 ≤
+
+1, g(x) := smax α(Ax ), and f (x) := max y∈∆n y⊤Ax , we have that f (x) ≤ g(x) ≤ f (x) + α log n for all x ∈ Rd. Furthermore, g is 1-Lipschitz, 1/α -smooth, and 2/α -QSC, all in ∥·∥ 2. Finally, defining 
+
+px ∈ ∆n via [px]i ∝ exp([ Ax ]i/α ) for i ∈ [n], we have 
+
+∇g(x) = A⊤px and ∇2g(x) = 1
+
+α A⊤(diag( px) − pxp⊤ 
+
+> x
+
+)A . 
+
+Proof. The first claim follows from (24) and because the negative entropy function e(y) takes values in [ − log n, 0]. Then, defining h(y) := smax α(y), note ∇g(x) = A⊤∇h(Ax ). Lipschitzness follows since ∥∇ g(x)∥2 ≤ 1 for all x ∈ Rd by triangle inequality along with the fact that max i∈[n]∥Ai, :∥2 ≤ 1by assumption and ∥∇ h(Ax )∥1 ≤ 1 by Lemma 4.13. As for smoothness, recall in general that a twice-differentiable convex function ϕ : Rd → R is 
+
+β-smooth with respect to a norm ∥·∥ if and only if v⊤∇2ϕ(x)v ≤ β∥v∥2 for all x, v ∈ Rd. Then note that for any v ∈ Rd, we have 
+
+v⊤∇2g(x)v = v⊤A⊤∇2h(Ax )Av (i)
+
+≤ 1
+
+α ∥Av ∥2
+
+> ∞
+> (ii )
+
+≤ 1
+
+α ∥v∥22
+
+by ( i) Lemma 4.13 and ( ii ) the fact that sup u̸=0  
+
+> ∥Au ∥∞
+> ∥u∥2
+
+≤ 1 by assumption on A, implying ∥Av ∥∞ ≤∥v∥2 in particular. As for quasi-self concordance, note that for all u, w, x ∈ Rd,
+
+|∇ 3g(x)[ u, u, w ]| = |∇ 3h(Ax )[ Au, Au, Aw ]| (iii )
+
+≤ 2
+
+α ∥Aw ∥∞∥Au ∥2
+
+> ∇2h(Ax )(iv )
+
+≤ 2
+
+α ∥w∥2∥u∥2
+
+> ∇2g(x)
+
+by ( iii ) Lemma 4.13 and ( iv ) ∥Aw ∥∞ ≤ ∥ w∥2 as well as the fact that 
+
+∥Au ∥2 
+
+> ∇2h(Ax )
+
+= u⊤A⊤∇2h(Ax )Au = u⊤∇2g(x)u = ∥u∥2 
+
+> ∇2g(x)
+
+.
+
+The gradient and Hessian follow via straightforward computation. Recall in the previous section we introduced the formulation of a ball optimization oracle from [ 10 ] in Definition 4.9. We used this formulation there as it was directly adapted to their accelerated ball-constrained Newton method, which we used to prove Lemma 4.11. However, the ball oracle acceleration framework guarantee which we cite in Proposition 4.16 below uses a slightly different formulation of a ball optimization oracle, which involves minimizing a regularized function over a ball of radius r. In the following lemma, we show that implementing the former suffices to implement the latter. 
+
+Lemma 4.15. Let h : Rd → R be convex, L-smooth, and β-Lipschitz in ∥·∥ 2. Then for λ > 0 and 
+
+gλ, ¯x(x) := h(x) + λ 
+
+> 2
+
+∥x − ¯x∥22, the output x′ = Oball ( ¯x) of a (ζ, r )-ball optimization oracle Oball (·) for 
+
+gλ, ¯x (Definition 4.9) satisfies 
+
+gλ, ¯x(x′) − min   
+
+> x∈Br(¯ x)∩Bd
+
+gλ, ¯x(x) ≤ (β + λr )ζ + ( L + λ)ζ2/2 .
+
+Proof. Note that gλ, ¯x is ( L + λ)-smooth, in which case, letting x⋆ := argmin x∈Br (¯ x)∩Bd gλ, ¯x(x), 
+
+gλ, ¯x(x′) − gλ, ¯x(x⋆) ≤ ⟨∇ gλ, ¯x(x⋆), x ′ − x⋆⟩ + L + λ
+
+2 ∥x′ − x⋆∥22
+
+19 ≤ ∥∇ gλ, ¯x(x⋆)∥2∥x′ − x⋆∥2 + ( L + λ)ζ2/2
+
+≤ ζ∥∇ h(x⋆) + λ(x⋆ − ¯x)∥2 + ( L + λ)ζ2/2
+
+≤ ζ(∥∇ h(x⋆)∥2 + λ∥x⋆ − ¯x∥2) + ( L + λ)ζ2/2
+
+≤ (β + λr )ζ + ( L + λ)ζ2/2 .
+
+Next we state a ball oracle acceleration guarantee due to [ 14 , Prop. 2], which is itself based on [8, Prop. 1] with minor modifications. In particular, their framework reducing minimizing a convex and Lipschitz function to a sequence of regularized ball-constrained subproblems of the form (25) .Importantly, each regularized subproblem is guaranteed a certain minimal level of regularization, which is critical to obtaining our ultimate guarantees. 
+
+Proposition 4.16 ([ 14 , Prop. 2] and [ 8, Prop. 1]) . Let ϵ > 0, r ∈ (0 , 1) , and h : Rd → R be convex and β-Lipschitz in ∥·∥ 2. Then there is an algorithm that, with probability at least 3/4 over the draw of a random seed χ ∼ P seed , returns ˜x ∈ Bd such that h( ˜x) − min x∈Bd h(x) ≤ ϵ. Additionally, letting 
+
+˜O(·) hide polylog factors in β, ϵ −1, r −1, the computational cost of the method is dominated by the cost of ˜O(r−2/3)-iterations of performing the following: 
+
+• computing x′ ∈ Bdr (¯ x) ∩ Bd such that, for gλ, ¯x(x) := h(x) + λ 
+
+> 2
+
+∥x − ¯x∥22,
+
+gλ, ¯x(x′) − min   
+
+> x∈Bdr(¯ x)∩Bd
+
+gλ, ¯x(x) ≤ O(λr 8/3) (25) 
+
+for some ¯x ∈ Bd and ˜Ω(ϵr −4/3) ≤ λ ≤ O(βϵ −1) (which may vary each time), and does not access h in any other way, 
+
+• ˜O(d) additional work, and ˜O(1) additional depth. Moreover, Pseed is independent of h, and χ ∼ P seed can be sampled in ˜O(r−2/3)-work and ˜O(1) -depth. Proof. This follows from an instantiation of [ 14 , Prop. 2], which is itself based on [ 8, Prop. 1]. The setup of [ 14 , Prop. 2] is not constrained to the unit ball, but [ 8 , Prop. 1] allows for an arbitrary convex constraint set X , which we set to Bd, so that the constraints of (25) match [ 8, Def. 1]. The total work bound is clear from the discussion in [ 14 , Appendix C] as well as Algorithms 1 and 2 in [8]. In particular, there are ˜O(r−2/3) iterations, each with ˜O(d) additional work. In the following lemma, we combine Proposition 4.16 and Lemma 4.11 to reduce optimizing a general convex, smooth, Lipschitz, and Hessian-stable function to approximate linear system solves in the regularized Hessian of the function. We note that to enable more direct application of the sample reuse framework of [ 38 ] in later sections, we “redefine” a single iteration of the algorithm of Lemma 4.17 to correspond to a single linear system solve. 
+
+Lemma 4.17. For ϵ > 0 and r ∈ (0 , 1) , let h : Rd → R be convex, L-smooth, β-Lipschitz, and 
+
+(r, c )-Hessian stable (Definition 4.10), all in ∥·∥ 2. Then there is an algorithm that, with probability at least 3/4 over the draw of a random seed χ ∼ P seed , returns ˜x ∈ Bd such that h( ˜x)−min x∈Bd h(x) ≤ ϵ.Additionally, letting ˜O(·) hide polylog factors in L, β, ϵ −1, r −1, c , the computational cost of the method is dominated by the cost of ˜O(cr −2/3)-iterations of performing the following: 
+
+• computing x′ ∈ Rd which is a (poly (L, β, ϵ −1, r −1, c )) −1-approximate solution to (∇2h( ¯x) + 
+
+λI )y = ˆ g for some ¯x ∈ Bd, λ = ˜Ω( ϵr −4/3), and ˆg ∈ Rd (which may vary each time), 
+
+20 • performing ˜O(1) additional matvecs to ∇2h(·), ˜O(1) additional evaluations of ∇h(·), and not accessing h in any other way, 
+
+• using ˜O(d) additional work (outside of the above), and ˜O(1) additional depth. Moreover, Pseed is independent of h, and χ ∼ P seed can be sampled in ˜O(r−2/3)-work and ˜O(1) -depth. Proof. This follows from instantiating Proposition 4.16 where each implementation of (25) is performed via the algorithm of Lemma 4.11. Indeed, Lemma 4.15 shows that (25) can be implemented via a single call to a ( ζ, r )-ball optimization oracle for gλ, ¯x for an appropriate choice of precision ζ.Furthermore, note 
+
+∇gλ, ¯x(x) = ∇h(x) + λ(x − ¯x) and ∇2gλ, ¯x(x) = ∇2h(x) + λI , 
+
+and therefore a gradient evaluation of ∇gλ, ¯x(·) requires a gradient evaluation of ∇h(·) and O(d)additional work. Also, a matvec to ∇2gλ, ¯x(·) requires a matvec to ∇2h(·) and at most O(d) additional work. Finally, it is straightforward to show that gλ, ¯x is also ( r, c )-Hessian stable. Finally, we prove the main result of Section 4 below in Lemma 3.3, which reduces solving the ϵ-game to approximate linear system solves. The proof is a straightforward application of Lemma 4.17, using the properties of the softmax function derived above. For Lemma 3.3, mirroring the context of its initial statement in Section 3.3, we fix an ϵ-game per Definition 3.1, define 
+
+f (x) := max y∈∆n y⊤Ax , and define P¯x,ϵ ′ , p ¯x,ϵ ′ as in (3). 
+
+Lemma 3.3. For ϵ > 0, there is an algorithm that, with probability at least 3/4 over the draw of a random seed χ ∼ P seed , returns ˜x ∈ Bd such that f ( ˜x) − min x∈Bd f (x) ≤ ϵ. The computational cost of the method is dominated by the cost of ˜O(ϵ−2/3)-iterations of performing the following: 
+
+• computing x′ ∈ Rd which is a (poly (ϵ−1, n )) −1-approximate solution to 
+
+(H + νI )y = ˆ g, where H = 1
+
+ϵ′ A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A (4) 
+
+for some ¯x ∈ Bd, ν = ˜Ω( ϵ−1/3), and ˆg ∈ Rd (which may vary each time) with ϵ′ := ϵ  
+
+> 2 log n
+
+,
+
+• ˜O(1) -additional matvecs to A,
+
+• ˜O(n + d)-additional work, and ˜O(1) -additional depth. Moreover, Pseed is independent of A, and χ ∼ P seed can be sampled in ˜O(ϵ−2/3)-work and ˜O(1) -depth. Proof. We apply Lemma 4.17 with h(x) := smax α(Ax ) for α := ϵ  
+
+> 2 log n
+
+and r ← Θ( ϵ/ log n). 
+
+|f (x) − h(x)| ≤ ϵ/ 2 for all x ∈ Rd by Lemma 4.14 and therefore it suffices to obtain a ϵ 
+
+> 2
+
+-minimizer of h. By Lemma 4.14, we have that h is 1-Lipschitz, 2 log nϵ -smooth, and 4 log nϵ -QSC in ∥·∥ 2. The latter and [ 10 , Lemma 11] (with M ← I) imply h is ( r, O (1))-Hessian stable in ∥·∥ 2. Finally, note that by the gradient and Hessian expressions in Lemma 4.14, a matvec to ∇2h(·) as well as an evaluation of ∇h(·) can both be computed in O(1) matvecs to A and O(n) additional work. 21 5 Linear system solving 
+
+In this section, we show how to implement an efficient ( ϵ, δ )-linear system solver (Definition 2.1) for 1
+
+ϵ′ A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI d (26) for some ¯x ∈ Bd, ϵ, ϵ ′ > 0, ν > λ > 0, δ ∈ (0 , 1), and A ∈ Rn×d with ∥A∥2→∞ = 1. Recall from (3) that for any x ∈ Bd and η > 0, we use the notation px,η to denote the vector in ∆ n defined via [px,η ]i ∝ exp([ Ax ]i/η ) for i ∈ [n] and correspondingly denote Px,η := diag( px,η ). First, in Section 5.1 we discuss several linear algebraic preliminaries which will aid in our analysis. Next in Section 5.2 and 5.3, we discuss the sequence of reductions discussed in Section 3, which enable our method. Finally, in Section 5.4 we combine the results in the preceding section to give our final linear system solver guarantees. Throughout this section, we use ˜O(·) to hide polylogarithmic factors in the following parameters: n, d, ϵ −1, δ −1, λ −1, ν −1.
+
+Randomized algorithms and random seeds. In the remainder of the paper, on occasion, it will be helpful to expose the random seed(s) used to seed the randomness in an ( ϵ, δ )-linear system solver O for M ∈ Sd 
+
+> ++
+
+(Definition 2.1). In this case, we may write Oξ to make explicit that the solver’s randomness is fixed by the seed ξ. That is, Oξ : Rd → Rd is a deterministic mapping corresponding to conditioning on a fixed seed ξ. Moreover, on any input b ∈ Rd one can view 
+
+O(b) ∈ Rd as a random variable whose value is given by Oξ(b) for a random ξ ∼ P seed (where Pseed 
+
+is the distribution of the random seed used by O). Note that because O is an ( ϵ, δ )-linear system solver, for any b ∈ Rd, we have that with probability 1 − δ over the draw of ξ ∼ P seed , Oξ(b) is an 
+
+ϵ-solution of M x = b.
+
+5.1 Linear algebraic preliminaries 
+
+Here, we review several useful properties from numerical linear algebra. As our techniques for linear system solving are in part motivated by those discussed in [ 26 , 27 ], our presentation often follows their notation and definitions. In the paragraphs below, we discuss several matrix identities, formally introduce subspace embeddings, discuss preconditioning for linear system solving, and introduce several standard linear system solvers. 
+
+Matrix identities. A fact we use repeatedly throughout this paper is the Woodbury matrix identity. 
+
+Fact 5.1 (Woodbury matrix identity) . Let A ∈ Rn×n, B ∈ Rn×k, C ∈ Rk×k, D ∈ Rk×n where C, A, 
+
+and C−1 + DA −1B are invertible. Then, 
+
+(A + BCD )−1 = A−1 − A−1B(C−1 + DA −1B)−1DA −1.
+
+The following special case of Fact 5.1, where k = 1, is commonly known as the Sherman-Morrison matrix identity. 
+
+Fact 5.2 (Sherman-Morrison matrix identity) . Let A ∈ Rn×n be invertible and u, v ∈ Rn. Then, 
+
+A + uv ⊤ is invertible if and only if 1 + v⊤A−1u̸ = 0 and moreover, 
+
+(A + uv ⊤)−1 = A−1 − A−1uv ⊤A−1
+
+1 + v⊤A−1u .
+
+22 Subspace embeddings. Here, we formally introduce the notion of a regularized embedding. Intuitively, an ( ϵ, ν )-embedding matrix constructs a low-dimensional (1 + ϵ) spectral approximation of A⊤A + νI , in the following sense. 
+
+Definition 5.3 (Regularized-embedding, Definition 8 of [ 27 ]) . For ϵ, ν > 0, we call S ∈ Rk×n an (ϵ, ν )-(regularized subspace) embedding for A ∈ Rn×d if 
+
+A⊤S⊤SA + νI ≈1+ ϵ A⊤A + νI. 
+
+The property of being an ( ϵ, ν )-embedding is monotonic in ν, as formalized in the following fact. 
+
+Fact 5.4. Suppose that ϵ, ν > 0 and S ∈ Rk×n is a (ϵ, ν )-embedding for A ∈ Rn×d. Then for all 
+
+ν′ ≥ ν, S is a (ϵ, ν ′)-embedding for A.Proof. This follows from ( A⊤S⊤SA + νI ) ≈1+ ϵ (A⊤A + νI ) and that ( ν′ − ν)I ≈1+ ϵ (ν′ − ν)I.More specifically, our results use the following notion of a sparse oblivious subspace embedding. 
+
+Definition 5.5 (Sparse oblivious efficient regularized subspace embedding) . Fix λ > 0, s, b ∈ N,and δ ∈ (0 , 1). A distribution Pembedding over matrices S ∈ Rs×n is called a sparse oblivious 
+
+(s, b, δ, λ )-efficient subspace embedding distribution for a set of matrices M ⊂ Rn×d if the following hold: every matrix in the support of Pembedding has exactly b nonzero entries per column; a sample 
+
+S ∼ P embedding can be generated using O(nb ) work and eO(1) depth; and for every A ∈ M , with probability at least 1 − δ over S ∼ P embedding , the matrix S is a (2 , λ )-embedding for A. When the latter holds, we call S a sparse oblivious (s, b, λ )-embedding for A. When λ and M are clear from context, we may simply say an ( s, b, δ )-embedding distribution . Likewise, when λ and A are clear from context we may simply say an ( s, b )-embedding .While several prior works [ 17 , 18 , 21 , 49 ] study guarantees for sparse oblivious embedding matrices, we use the version stated in [ 26 ], which was originally due to [ 17 ]. In particular, we leverage the following special case of Lemma 12 of [ 26 ], which bounds the sketch size needed to construct a constant approximation for A ∈ Rn×d.
+
+Corollary 5.6. Let A ∈ Rn×d, λ > 0, δ ∈ (0 , 1) . There exists a sparse oblivious (s, b, δ, λ )-subspace embedding distribution Pembedding (Definition 5.5) for {A ∈ Rn×d : ∥A∥2 
+
+> F
+
+≤ λk } with 
+
+s = O(( k + log(1 /(δ)))) and b = O  log 2(k/ (δ)) + log 3(d/ (δ)) .Proof. Take ϵ = 1 /6 in Lemma 12 of [26]. Then, we have 
+
+A⊤S⊤SA + 1
+
+k
+
+X
+
+> i>k
+
+σ2 
+
+> i
+
+(A)Id ≈2 A⊤A + 1
+
+k
+
+X
+
+> i>k
+
+σ2 
+
+> i
+
+(A)Id.
+
+Since 1
+
+> k
+
+P 
+
+> i>k
+
+σ2 
+
+> i
+
+(A) ≤ ∥ A∥2 
+
+> F
+
+/k ≤ λ, from Fact 5.4, we have A⊤S⊤SA + λI d ≈2 A⊤A + λI d.One important property of sparse oblivious subspace embeddings is that they are b-column sparse . The following lemma shows that such matrices preserve sparsity, upon application to A.This is helpful in obtaining our overall work complexity guarantees, as we discuss in greater detail Section 5.4. 
+
+Lemma 5.7 (Sparse embedding matrices preserve sparsity) . Let S ∈ Rs×n be a matrix with at most 
+
+b non-zeros per column and let A ∈ Rn×d. Then, nnz( SA ) ≤ b nnz( A).
+
+23 Proof. Let B = SA ∈ Rs×d. For any r ∈ [s] and j ∈ [d], the ( r, j )-th entry of B is 
+
+Brj =
+
+> n
+
+X
+
+> i=1
+
+Sri Aij .
+
+If Brj ̸ = 0, then there exists an index i ∈ [n] such that Sri ̸ = 0 and Aij ̸ = 0. Fix a nonzero entry 
+
+Aij ̸ = 0. Its contribution to the product SA is confined to entries Brj with Sri ̸ = 0. Since column 
+
+i of S has at most b nonzero entries, the nonzero Aij can contribute to at most b entries of B.Summing over all nonzero entries of A, each of which contributes to at most b entries of SA , we obtain the result. 
+
+Preconditioning. The next theorem gives a standard guarantee on preconditioned Richardson iteration for solving a linear system in M ∈ Sd 
+
+> ++
+
+given a linear system solver (Definition 2.1) for 
+
+N ∈ Sd 
+
+> ++
+
+such that M ≈c N . Such an N is commonly called a preconditioner for M . We note that the following guarantee is well-known (see, e.g. [31], Lemma 2.5 of [23] or the discussion in [26]). 
+
+Theorem 5.8 (Preconditioned Richardson) . There is an algorithm 
+
+PrecondRichardson (M, c, ϵ, δ, b, O)
+
+which takes in M ∈ Sd
+
+> ++
+
+, c ≥ 1, ϵ > 0, δ ∈ (0 , 1) , b ∈ Rd, and an oracle O. Here, O is a (1 /(4 c2), δ/L )-linear system solver for a matrix N ∈ Sd 
+
+> ++
+
+such that N ≈c M . Letting L =
+
+⌈2c2 log (2 c/ϵ )⌉, the algorithm makes L queries to O, L matvecs to M , performs O(dL )-additional work using ˜O(1) -additional depth, and with probability 1 − δ, outputs an ϵ-solution of M x = b.Proof. Fix b ∈ Rd, and let x⋆ = M −1b. We define the solver via the preconditioned Richardson iteration with step size η = 1 /c : initialize x0 = 0, and for t = 0 , 1, . . . , L − 1 perform 
+
+rt = b − M x t, yt = O(rt), xt+1 = xt + ηy t,
+
+and output xL. Note that M ≈c N implies 1
+
+c I ⪯ N −1/2M N −1/2 ⪯ cI. 
+
+In particular, all eigenvalues of N −1M lie in [1 /c, c ]. Consider the update matrix ( I − ηN −1M ). Since η = 1 /c , the eigenvalues of this matrix lie in the range [1 − ηc, 1 − η(1 /c )] = [0 , 1 − 1/c 2]. Therefore, for any v ∈ Rd, the operator norm contracts: 
+
+∥(I − ηN −1M )v∥N ≤
+
+
+
+1 − 1
+
+c2
+
+
+
+∥v∥N . (27) Also note that ∥N −1M v ∥N ≤ c∥v∥N .Let et := xt − x⋆ denote the error at iteration t. We define the oracle error ξt such that 
+
+yt = N −1rt + ξt. The error update becomes: 
+
+et+1 = xt + η(N −1rt + ξt) − x⋆
+
+= et + ηN −1M (x⋆ − xt) + ηξ t
+
+= ( I − ηN −1M )et + ηξ t. (28) 24 The oracle guarantees that ∥yt − N −1rt∥N ≤ 14c2 ∥N −1rt∥N . By a union bound over L steps, with probability 1 − δ, for all t:
+
+∥ξt∥N ≤ 14c2 ∥N −1M e t∥N ≤ 14c2 · c∥et∥N = 14c ∥et∥N .
+
+Plugging this into (28) and using the triangle inequality: 
+
+∥et+1 ∥N ≤
+
+
+
+1 − 1
+
+c2
+
+
+
+∥et∥N + η∥ξt∥N ≤
+
+
+
+1 − 1
+
+c2
+
+
+
+∥et∥N + 1
+
+c
+
+ 14c ∥et∥N
+
+
+
+.
+
+Simplifying the terms, we obtain 
+
+∥et+1 ∥N ≤
+
+
+
+1 − 1
+
+c2 + 14c2
+
+
+
+∥et∥N =
+
+
+
+1 − 34c2
+
+
+
+∥et∥N ≤
+
+
+
+1 − 12c2
+
+
+
+∥et∥N .
+
+Consequently, by induction, 
+
+∥eL∥N ≤
+
+
+
+1 − 12c2
+
+L
+
+∥e0∥N ≤ exp 
+
+
+
+− L
+
+2c2
+
+
+
+∥x⋆∥N .
+
+Taking L = ⌈2c2 log (2 c/ϵ )⌉, this implies ∥xL − x⋆∥N ≤ ϵc ∥x⋆∥N . Using M ≈c cN , we conclude 
+
+∥xL − x⋆∥M ≤ ϵ∥x⋆∥M by Fact B.2. 
+
+Standard solvers. In our algorithms underlying Theorems 1.2 and 1.3, we use preconditioned Richardson iteration (Theorem 5.8) and consider two underlying subroutines for implementing a linear system solver for the preconditioner N . The first, is to simply apply FMM, which eventually corresponds to our final runtime claimed in Theorem 1.2. 
+
+Lemma 5.9 (FMM [ 1]) . Consider C ∈ Rd×d, ν and ϵ > 0. There is a (deterministic) algorithm 
+
+FMM (C, b, ν, ϵ ), which takes in an explicit C ∈ Rd×d, b ∈ Rd, ν, ϵ > 0, does ˜O(dω)-work in ˜O(1) -depth and outputs an ϵ-solution of (C⊤C + νI d)x = b (Definition 2.1). 
+
+The second, is to use stochastic variance-reduced gradient descent (SVRG), which will eventually correspond to our final runtime claimed in Theorem 1.3. 
+
+Lemma 5.10 (SVRG [ 30 , 46 ]) . There is a randomized algorithm SVRG ξ(C, b, ν, ϵ, δ ) that takes in an explicit C ∈ Rd×d, b ∈ Rd, ν, ϵ > 0, δ ∈ (0 , 1) and a random seed ξ ∼ P seed such that, with probability 1 − δ over the draw of ξ ∼ P seed , the algorithm outputs an ϵ-solution of (C⊤C + νI d)x = b
+
+(Definition 2.1). Moreover, the algorithm can be implemented in ˜O( nnz (C) + d∥C∥2 
+
+> F
+
+/ν )-work using 
+
+˜O(∥C∥2 
+
+> F
+
+/ν )-depth, and Pseed is independent of C and b.Proof. Consider 
+
+G =
+
+ C
+
+√νI d
+
+
+
+∈ R2d×d, b′ = 0d 
+
+> 1√ν
+
+b
+
+!
+
+∈ R2d×1
+
+and g(x) := 12 ∥Gx − b′∥22. This is a least squares problem, whose normal equations are 
+
+G⊤Gx = ( C⊤C + νI d)x = G⊤b′ = b. 
+
+25 Consequently, the (unique) minimizer x⋆ ∈ Rd of g(x) satisfies ( C⊤C + νI d)x⋆ = b. Moreover, 
+
+g(x) = X
+
+> i∈[2 d]
+
+gi(x), where gi(x) = 12 (G⊤
+
+> i, :
+
+x − [b′]i)2,
+
+and each gi is convex and has smoothness 
+
+∥Gi, :∥22 =
+
+(
+
+∥Ci, :∥22, i ≤ dν, i > d .
+
+Consequently, standard SVRG guarantees [ 30 , 46 ] imply that SVRG converges to an ϵ-solution of (C⊤C + νI d)x = b using ˜O(1) matvecs to G, ˜O(∥C∥2 
+
+> F
+
+/ν ) queries to a row of G, and ˜O(∥C∥2 
+
+> F
+
+/ν )-depth, which completes the proof. Since a matvec to G can be implemented by a matvec to C, and a row query to G requires ˜O(d)-work, the result follows. 
+
+5.2 Simplifying the target matrix via a rank-one update 
+
+Here, we follow the proof approach in Section 3 to reduce the problem of building a linear system solver for (26) into the problem of building a linear system solver for SBT T ⊤B⊤S where B = 1√ϵ′ P 1/2¯x,ϵ ′ A
+
+and S ∈ Rs×n, T ⊤ ∈ Rs×d are ( s, b )-embeddings (Definition 5.5) of an appropriate sketch size and column sparsity s and b.First, the following lemma states a general result that given a linear system solver (Definition 2.1) for M ∈ Sd 
+
+> ++
+
+and a rank one update uu ⊤ such that M − uu ⊤ ∈ Sd
+
+> ++
+
+, we can implement a linear system solver for M − uu ⊤ with low computational overhead and parallel depth. As alluded in Section 3, this result reduces building a linear system solver for (26) to building a linear system solver for 1
+
+ϵ′ A⊤P¯xA + νI. (29) This is advantageous because B = 1√ϵ′ P 1/2¯x,ϵ ′ A is simply a diagonal rescaling of A, and consequently, it is more straightforward to apply the regularized embedding techniques discussed in Section 5.1 to build an efficient linear system solver for (29) = B⊤B + νI .
+
+Algorithm 5.1: RankOneSolve (M, u, λ, ϵ, δ, b, O)
+
+Input: Matrix-vector access to M ∈ Rd×d, u ∈ Rd, b ∈ Rd, λ > 0, ϵ ∈ (0 , 1/2) , δ ∈ (0 , 1) such that M − uu ⊤ ⪰ λI d.
+
+Input: O is a 
+
+ ϵ
+
+> 9κ2
+> u
+
+, δ
+
+> 2
+
+
+
+-approximate linear system solver for M with κu := 1 + ∥u∥22 
+
+> λ
+
+. 
+
+> 1
+
+ˆy ← O (b);  
+
+> 2
+
+ˆz ← O (u);  
+
+> 3
+
+ˆα ← 1 − u⊤ ˆz; 
+
+> 4
+
+ˆx ← ˆy + u⊤ ˆy 
+
+> ˆα
+
+ˆz; 
+
+> 5
+
+Return ˆx
+
+Lemma 5.11 (Solving with a symmetric rank-one update) . There is an algorithm 
+
+RankOneSolve (M, u, λ, ϵ, δ, b, O)26 (Algorithm 5.1) which takes in M ⪰ λI d and u ∈ Rd such that M −uu ⊤ ⪰ λI d for λ > 0, ϵ ∈ (0 , 1/2) ,
+
+δ ∈ (0 , 1) , b ∈ Rd, and an oracle O. The algorithm makes two queries to O, performs O(d)-additional work using ˜O(1) -additional depth. If O is a 
+
+ ϵ
+
+> 9κ2
+> u
+
+, δ
+
+> 2
+
+
+
+-approximate linear system solver for M with 
+
+κu := 1 + ∥u∥22 
+
+> λ
+
+, then with probability 1 − δ, the algorithm outputs an ϵ-solution to (M − uu ⊤)x = b.Proof. Fix b ∈ Rd. Let ˜M := M − uu ⊤. We wish to approximate x⋆ := ˜M −1b. Define: 
+
+y := M −1b, z := M −1u, and α := 1 − u⊤z. 
+
+First, we establish a lower bound on α. Since M ⪰ ˜M ⪰ λI , we have M −1 ⪯ ˜M −1. By the Sherman-Morrison identity (Fact 5.2), ˜M −1 = M −1 + 1
+
+α zz ⊤.
+
+Since ˜M −1 is PD, α ∈ (0 , 1). Furthermore, M ⪰ λI + uu ⊤ implies M −1 ⪯ (λI + uu ⊤)−1. Thus: 
+
+u⊤M −1u ≤ u⊤(λI + uu ⊤)−1u = ∥u∥22
+
+λ + ∥u∥22
+
+.
+
+Consequently, 
+
+α = 1 − u⊤M −1u ≥ 1 − ∥u∥22
+
+λ + ∥u∥22
+
+= λλ + ∥u∥22
+
+= 1
+
+κu
+
+. (30) The exact solution satisfies x⋆ = y + u⊤yα z. The algorithm computes estimates using the oracle 
+
+O with precision ϵop := ϵ
+
+> 9κ2
+> u
+
+:ˆy ← O (b), ˆz ← O (u), ˆα := 1 − u⊤ ˆz, ˆx := ˆ y + u⊤ ˆy
+
+ˆα ˆz
+
+and outputs ˆ x. With probability 1 − 2( δ/ 2) = 1 − δ, the oracle guarantees: 
+
+∥ˆy − y∥M ≤ ϵop ∥y∥M and ∥ˆz − z∥M ≤ ϵop ∥z∥M . (31) Condition on this event. Note that ∥z∥M = √u⊤M −1M M −1u = √u⊤M −1u = √1 − α.We first bound the error in the scalar ˆ α. By Cauchy-Schwarz and (31): 
+
+|ˆα − α| = |u⊤(ˆ z − z)| ≤ ∥ u∥M −1 ∥ˆz − z∥M ≤ ϵop ∥z∥2 
+
+> M
+
+= ϵop (1 − α).
+
+Recall that ϵop = ϵ
+
+> 9κ2
+> u
+
+. Since α ≥ 1/κ u by (30) , we have ϵop ≤ ϵ 
+
+> 9
+
+α2. Substituting this into the error bound: 
+
+|ˆα − α| ≤ ϵ
+
+9 α2(1 − α) < α
+
+2 ·
+
+ 2ϵα (1 − α)9
+
+
+
+.
+
+Since ϵ < 1/2 and α(1 − α) ≤ 1/4, the term in the parenthesis on the right hand side of the display above, is strictly less than 1. Thus |ˆα − α| ≤ α/ 2, which implies: ˆα ≥ α − α
+
+2 = α
+
+2 , hence 1ˆα ≤ 2
+
+α . (32) Next, we decompose the error in ˆ x:
+
+∥ˆx − x⋆∥M ≤ ∥ ˆy − y∥M + u⊤ ˆy
+
+ˆα ˆz − u⊤yα z M
+
+27 ≤ ∥ ˆy − y∥M + |u⊤ ˆy|
+
+ˆα ∥ˆz − z∥M + u⊤ ˆy
+
+ˆα − u⊤yα ∥z∥M . (33) We now bound the two scalar factors. First, by Cauchy–Schwarz, (32), and (31): 
+
+|u⊤ ˆy|
+
+ˆα ≤ ∥u∥M −1 ∥ˆy∥M
+
+ˆα ≤ 2∥u∥M −1 (∥y∥M + ∥ˆy − y∥M )
+
+α ≤ 4∥u∥M −1 ∥y∥M
+
+α .
+
+Combining this with ∥ˆz − z∥M ≤ ϵop ∥z∥M and ∥z∥M = ∥u∥M −1 , we get the second term bound: 
+
+|u⊤ ˆy|
+
+ˆα ∥ˆz − z∥M ≤ 4ϵop 
+
+α ∥u∥2  
+
+> M−1
+
+∥y∥M = 4ϵop (1 − α)
+
+α ∥y∥M . (34) Next, for the third term, we split the difference: 
+
+u⊤ ˆy
+
+ˆα − u⊤yα ≤ |u⊤(ˆ y − y)|
+
+ˆα + |u⊤y| 1ˆα − 1
+
+α .
+
+For the first part, using 1 /ˆα ≤ 2/α and (31): 
+
+|u⊤(ˆ y − y)|
+
+ˆα ≤ 2ϵop ∥u∥M −1 ∥y∥M
+
+α . (35) For the second part, using |ˆα − α| ≤ ϵop (1 − α) and the bound 1 /ˆα ≤ 2/α from (32), 
+
+1ˆα − 1
+
+α = |ˆα − α|
+
+α ˆα ≤ 2ϵop (1 − α)
+
+α2 .
+
+Multiplying both parts by ∥z∥M = ∥u∥M −1 = √1 − α ≤ 1 yields: 
+
+u⊤ ˆy
+
+ˆα − u⊤yα ∥z∥M ≤
+
+ 2ϵop 
+
+α + 2ϵop 
+
+α2
+
+
+
+∥y∥M . (36) Substituting (31), (34), and (36) into (33), and simplifing using α ≤ 1: 
+
+∥ˆx − x⋆∥M ≤ ϵop ∥y∥M + 4ϵop 
+
+α ∥y∥M +
+
+ 2ϵop 
+
+α + 2ϵop 
+
+α2
+
+
+
+∥y∥M ≤ 9ϵop 
+
+α2 ∥y∥M . (37) We now convert this to the ˜M -norm. Since ˜M ⪯ M , we have ∥v∥ ˜M ≤ ∥ v∥M . Also, ∥x⋆∥2˜M =
+
+b⊤ ˜M −1b = b⊤M −1b + 1 
+
+> α
+
+(b⊤z)2 ≥ ∥ y∥2 
+
+> M
+
+. Thus: 
+
+∥ˆx − x⋆∥ ˜M ≤ ∥ ˆx − x⋆∥M ≤ 9ϵop 
+
+α2 ∥x⋆∥ ˜M .
+
+Substituting ϵop = ϵα 2 
+
+> 9
+
+(which is satisfied since α ≥ 1/κ u) yields ∥ˆx − x⋆∥ ˜M ≤ ϵ∥x⋆∥ ˜M .
+
+5.3 Leveraging subspace embeddings and Woodbury identity 
+
+Next, as discussed in Section 3, using the Woodbury matrix identity (Fact 5.1), we first prove a general result that for any B ∈ Rn×d, in order to solve a linear system in B⊤B + νI d it suffices to solve a linear system in BB ⊤ + νI n plus moderate additional compute. As discussed in Section 3, this is helpful because, as we will see in Lemma 5.13, this enable us to leverage two ( s, b )-embedding matrices S ∈ Rs×n, T ⊤ ∈ Rs×d (Definition 5.5) to reduce building a linear system solver for the d × d matrix B⊤B + νI d to building a linear system solver for an s × s
+
+matrix SBT T ⊤BS + νI s for an appropriate sketch dimension s ≪ d. The following result is similar to Lemma 25 of [26]. 28 Algorithm 5.2: TransposeSolve (B, ν, ϵ, δ, b, O)
+
+Input: Matrix-vector access to B ∈ Rn×d, ν > 0, ϵ > 0, δ ∈ (0 , 1) , b ∈ Rn.
+
+Input: O is an 
+
+ ϵν 
+
+> ∥B∥22
+
+, δ 
+
+
+
+-linear system solver for K := B⊤B + νI d. 
+
+> 1
+
+u ← B⊤b; 
+
+> 2
+
+ˆz ← O (u);  
+
+> 3
+
+ˆy ← 1 
+
+> ν
+
+(b − B ˆz);  
+
+> 4
+
+Return ˆy
+
+Lemma 5.12 (Solving in the Transpose) . There is an algorithm 
+
+TransposeSolve (B, ν, ϵ, δ, b, O)
+
+(Algorithm 5.2) which takes in B ∈ Rn×d, ν > 0, ϵ > 0, δ ∈ (0 , 1) , b ∈ Rn, and an oracle O. If O is an 
+
+ ϵν 
+
+> ∥B∥22
+
+, δ 
+
+
+
+-linear system solver for K := B⊤B + νI d, then the algorithm outputs an ϵ-approximate solution to (BB ⊤ + νI n)y = b with probability 1 − δ. The algorithm makes one query to O, one matvec to B, and performs O(n + d)-additional work using ˜O(1) -depth. Proof. Fix b ∈ Rn and let M := BB ⊤ + νI n. We wish to approximate y⋆ := M −1b. By the Woodbury identity (Fact 5.1), M −1 = 1 
+
+> ν
+
+(In − B(B⊤B + νI d)−1B⊤). Letting K := B⊤B + νI d, we define: 
+
+z⋆ := K−1B⊤b, y⋆ = 1
+
+ν (b − Bz ⋆).
+
+The algorithm computes u ← B⊤b, queries the oracle ˆz ← O (u), and outputs ˆy := 1 
+
+> ν
+
+(b − B ˆz). Condition on the event that O succeeds (which occurs with probability at least 1 − δ), providing a solution ˆ z such that ∥ˆz − z⋆∥K ≤ ϵop ∥z⋆∥K for ϵop := ϵν 
+
+> ∥B∥22
+
+.Let ez := ˆz − z⋆. Then ˆy − y⋆ = − 1 
+
+> ν
+
+Be z . To relate the error in the M -norm to the oracle error in the K-norm, observe that for any v ∈ Rd:
+
+∥Bv ∥2 
+
+> M
+
+= v⊤B⊤M Bv 
+
+= v⊤B⊤(BB ⊤ + νI n)Bv 
+
+= v⊤(B⊤B)( B⊤B + νI d)v
+
+≤ ∥ B⊤B∥2 · (v⊤Kv ) = ∥B∥22∥v∥2 
+
+> K
+
+.
+
+Applying this with v = ez gives: 
+
+∥ˆy − y⋆∥M = 1
+
+ν ∥Be z ∥M ≤ ∥B∥2
+
+ν ∥ez ∥K ≤ ∥B∥2
+
+ν ϵop ∥z⋆∥K . (38) Next, we bound ∥z⋆∥K in terms of ∥y⋆∥M . Note that z⋆ = B⊤y⋆. Using the same logic as above: 
+
+∥z⋆∥2 
+
+> K
+
+= ( y⋆)⊤B(B⊤B + νI d)B⊤y⋆ = ( y⋆)⊤(BB ⊤)( BB ⊤ + νI n)y⋆ ≤ ∥ B∥22∥y⋆∥2 
+
+> M
+
+.
+
+Substituting ∥z⋆∥K ≤ ∥ B∥2∥y⋆∥M into (38): 
+
+∥ˆy − y⋆∥M ≤ ∥B∥22
+
+ν ϵop ∥y⋆∥M .
+
+By our choice of ϵop = ϵν 
+
+> ∥B∥22
+
+, we conclude ∥ˆy − y⋆∥M ≤ ϵ∥y⋆∥M .29 By combining this result with sparse oblivious subspace embeddings (Definition 5.5), we obtain the following guarantee. 
+
+Lemma 5.13. There is a randomized algorithm 
+
+SketchAndSolve ξ1,ξ 2,ξ 3 (B, ν, k, ϵ, δ, b ′, O)
+
+which takes in B ∈ Rn×d, ν ≥ λ > 0, k ∈ N, ϵ, δ ∈ (0 , 1) , b ′ ∈ Rd, and an oracle O. Here, letting, 
+
+s = ˜O(( k + log(1 /δ ))) , b = ˜O(log 2(k/δ ) + log 3(k/δ )) , and L = ⌈log(1 /ϵ )⌉, O is an 
+
+ ϵ
+
+∥B∥22
+
+, δ
+
+3L2
+
+
+
+-linear system solver for B⊤B + νI d.
+
+The algorithm is parameterized by three independent random seeds ξ1 ∼ P 1, ξ 2 ∼ P 2, ξ 3 ∼ P 3 such that ξ1 seeds the randomness used to sample a matrix S ∈ Rs×n from an (s, b, δ/ 3, λ )-efficient subspace embedding distribution for {C ∈ Rn×d : ∥C∥2 
+
+> F
+
+≤ kλ } (i.e., conditioned on ξ1, S is fixed); ξ2,seeds the randomness used to sample T ⊤ ∈ Rs×d from an (s, b, δ/ 3, λ )-efficient subspace embedding distribution for {C ∈ Rs×d : ∥C∥2 
+
+> F
+
+≤ kλ } (i.e., conditioned on ξ2, T is fixed); and ξ3 seeds the randomness of O (i.e., for any b′′ ∈ Rd, O(b′′ ) is a random variable equal to Oξ3 (b′′ ) for ξ3 ∼ P 3), 4
+
+The algorithm makes ˜O(1) queries to Oξ3 , matvec queries to SBB ⊤S⊤ + νI s, matvec queries to B⊤S⊤ and SB , and matvec queries to SBT T ⊤B⊤S⊤ + νI s, and does ˜O(s + d)-additional work using ˜O(1) -additional depth. Moreover, P1, P2 do not depend on B, b and the random seeds ξ1, ξ 2
+
+can be sampled in ˜O(s(n + d)) -additional work using ˜O(1) -additional depth. Proof. By Corollary 5.6, with probability 1 − δ/ 3 over the draw of ξ1 ∼ P 1,
+
+B⊤S⊤SB + νI d ≈2 B⊤B + νI d . (39) Conditioning on this event, by Fact B.2, ∥SB ∥2 
+
+> F
+
+≤ 2∥B∥2 
+
+> F
+
+. Again, by Corollary 5.6, we have that with probability 1 − δ/ 3 over the draw of ξ2 ∼ P 2,
+
+SBT T ⊤B⊤S⊤ + νI s ≈2 SBB ⊤S⊤ + νI s.
+
+Condition on such ξ1, ξ 2 in the remainder of the proof and let ϵop := ϵ
+
+> ∥B∥22
+
+and δop := δ 
+
+> 3L2
+
+. Now, conditioning on ξ3, suppose that the algorithm outputs O3(b), where 
+
+• O1 : b′ ∈ Rs 7 → PrecondRichardson (SBB ⊤S⊤ + νI s, 2, ϵ op , δ op , b ′, Oξ3 ); 
+
+• O2 : b′ ∈ Rd 7 → TransposeSolve (B⊤S⊤SB, ν, ϵ op , δ/ (3 L), b ′, O1); and 
+
+• O3 : b′ ∈ Rd 7 → PrecondRichardson (B⊤B + νI d, 2, ϵ, δ/ 3, b ′, O2)The following statements hold with probability 1 − δ/ 3 over the draw of ξ3.
+
+• Note that by Theorem 5.8, O1 is an ( ϵop , δ/ (3 L))-linear system solver for SBB ⊤S⊤ + νI s.
+
+• Consequently, by Lemma 5.12, O2 is an ( ϵ, Lδ op )-linear system solver for B⊤S⊤SB + νI d.
+
+• Hence, by Theorem 5.8, O3 is an ( ϵ, δ )-linear system solver for B⊤B + νI d.By a union bound over the failure probabilities induced by ξ1, ξ 2, ξ 3, the correctness guarantee follows. Finally, to bound the complexity, we combine the complexity guarantees of Theorem 5.8 and Lemma 5.12 as well as the sparse oblivious embedding guarantee Corollary 5.6.     
+
+> 4If Ois deterministic, ξ3can be omitted.
+
+30 5.4 Solving the embedded linear systems efficiently 
+
+In order to apply Lemma 5.13, we must show how to compute an efficient linear system solver matrix SBT T ⊤B⊤S⊤ arising in Lemma 5.13 as well as support matvecs to SB and SBT efficiently. Here, we discuss this in greater detail. In the remainder of this subsection, we fix ¯x ∈ Rd, a failure probability δ ∈ (0 , 1), A ∈ Rn×d,
+
+λ > 0, ϵ′ > 0, B = 1√ϵ′ P 1/2¯x,ϵ ′ A, and k := ⌈∥ B∥2 
+
+> F
+
+/λ ⌉. Furthermore, we let S ∈ Rs×n, T ⊤ ∈ Rs×d
+
+denote ( s, b )-embeddings (Definition 5.5). We will show that we can efficiently implement matvecs to SB and AT , as well as construct SBT explicitly. First, we argue that we can efficiently support matvecs to SB .
+
+Lemma 5.14 (Supporting matvecs to SB ). Given an explicit realization of S, one matvec to 
+
+SB ∈ Rs×d can be implemented in O(b nnz (A)) -time, using one matvec to A, ˜O(bn )-additional work, and ˜O(1) -additional depth. Proof. To support one matvec to SB ∈ Rs×d, consider a query ( x, y ) ∈ Rd × Rs. To compute SBx ,note that we can first compute u ← Bx = 1√ϵ′ P 1/2¯x,ϵ ′ Ax ∈ Rn in nnz (A)-work and then compute 
+
+SBx = Su in O(bn )-work, leveraging that each column of S has at most b nonzero entries. To compute y⊤SB , note that we can first compute u⊤ ← y⊤S ∈ Rn in O(bn )-work, again leveraging that each column of S has at most b nonzero entries. Then, we can compute u⊤B =
+
+u⊤ 1√ϵ′ P 1/2¯x,ϵ ′ A ∈ Rd in nnz( A)-work. Second, we argue that we can efficiently and explicitly compute AT .
+
+Fact 5.15 (Constructing AT ). Given an explicit realization of T , AT ∈ Rn×s can be computed explicitly in in O(s nnz( A)) -work, using ˜O(1) -depth and ˜O(s)-matvecs to A.Proof. This follows immediately, as T ∈ Rd×s has s columns. Lastly, we argue that we can efficiently and explicitly compute SBT , which is useful for our downstream linear system solving algorithms (recall Theorems 5.9 and 5.10). Note that the fulling guarantee leverages the sparsity of the embeddings to obtain the total work bound. 
+
+Lemma 5.16 (Constructing SBT ). Given an explicit AT ∈ Rn×s, SBT ∈ Rs×s can be computed explicitly in O(b2 nnz( A) + s2)-work and ˜O(1) -depth. Proof. Since AT ∈ Rn×s is given as input and 1√ϵ′ P 1/2¯x,ϵ ′ is diagonal, in O(nnz (AT )) ≤ O(bnnz (A))-time (recall Lemma 5.7) we can compute BT ∈ Rn×s. Next, to compute SBT ∈ Rs×s, we apply the following procedure. For each i ∈ [n], the i-th column of S has at most b nonzeros at rows 
+
+h1(i), . . . , h b(i) ∈ [s] with corresponding values v1(i), . . . , v b(i) ∈ {− 1/√b, 1/√b}. We compute 
+
+C = SBT ∈ Rs×s as follows: Initialize C ← 0 ∈ Rs×s and for each i ∈ [n], for each t ∈ [b] (for which 
+
+Sht(i), i = vt(i)̸ = 0), update 
+
+Cht(i),: ← Cht(i),: + vt(i) ( BT )i, :.
+
+For any r ∈ [s] and j ∈ [s], 
+
+Crj = ( SBT )rj =
+
+> n
+
+X
+
+> i=1
+
+Sri (BT )ij .
+
+The above algorithm adds ( BT )i, : into exactly those rows r for which Sri ̸ = 0, and scales by Sri ,hence the final C equals SBT . For the runtime, each nonzero entry ( BT )ij participates in at most b updates (one per nonzero in column i of S), so the total work is O(b nnz (BT )). Using nnz (BT ) = nnz (AT ) ≤ b nnz (A) (recall Lemma 5.7), this is O(b2 nnz (A))-work. The initialization of the dense output C ∈ Rs×s costs O(s2)-work. Thus the overall work is O(b2 nnz( A) + s2). 31 5.5 Putting it all together 
+
+Here, we combine the previous results to obtain the main results of this section. In the remainder of this section, we use ˜O(·) notation to hide polylogarithmic factors in n, d, 1/ϵ, 1/ϵ ′ and 1 /δ .
+
+Lemma 5.17 (FMM solver with fresh sparse oblivious subspace embeddings) . Let A ∈ Rn×d with 
+
+∥A∥2→∞ ≤ 1, ¯x ∈ Bd, λ ≥ ˜Ω( ϵ′− 1/3), ϵ, ϵ ′ > 0, δ ∈ (0 , 1) . For any b ∈ Rd, ν > λ , let 
+
+O′′ (b) = RankOneSolve 
+
+ 1
+
+ϵ′ P¯x,ϵ ′ B, 1
+
+√ϵ′ Ap ¯x,ϵ ′ , λ, ϵ, δ, b, O′
+
+> ξ1,ξ 2,ξ 3
+
+
+
+,
+
+where 
+
+O′ 
+
+> ξ1,ξ 2,ξ 3
+
+(b′) = SketchAndSolve ξ1,ξ 2,ξ 3
+
+
+
+B, ν, 1
+
+λϵ ′ , ϵ
+
+1 + nϵ′λ
+
+, δ
+
+2 , b ′, O
+
+
+
+.
+
+and O instantiates FMM (Lemma 5.9). Then, O′′ is an (ϵ, δ )-linear system solver for 
+
+1
+
+ϵ′ A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI d,
+
+and each query to O′′ does ˜O(ϵ′− 2/3 nnz (A) + ϵ′− 2ω/ 3)-work using ˜O(1) -depth and ˜O(ϵ′− 2/3)-matvecs to A.Proof. First, let 
+
+B = 1
+
+√ϵ′ P 1/2¯x,ϵ ′ A, 
+
+and note that ∥B∥2 
+
+> F
+
+≤ ϵ′− 1 (by the argument as in (8) ) and consequently let us define k := ∥B∥2 
+
+> F
+
+/λ .Moreover, observe that 
+
+∥B∥22 ≤ 1
+
+ϵ′ ∥A∥22 ≤ ϵ′− 1∥A∥2 
+
+> F
+
+≤ 1
+
+ϵ′
+
+X
+
+> i∈[n]
+
+∥Ai, :∥22 ≤ nϵ′ ∥A∥22→∞ = nϵ′ .
+
+Similarly, 
+
+∥Ap ¯x,ϵ ′ ∥22 ≤ ∥ A∥22∥p¯x,ϵ ′ ∥22 ≤ nϵ′ ,
+
+since ∥p¯x,ϵ ′ ∥2 ≤ ∥ p¯x,ϵ ′ ∥1 = 1. Thus, the correctness follows directly by invoking Lemma 5.13 and Lemma 5.11. Correspondingly, the complexity follows directly from Lemma 5.14, Fact 5.15, Lemma 5.16, and Lemma 5.9. 
+
+Lemma 5.18 (SVRG solver with fresh sparse oblivious subspace embeddings) . Let A ∈ Rn×d with 
+
+∥A∥2→∞ ≤ 1, ¯x ∈ Bd, λ ≥ ˜Ω( ϵ′− 1/3), ϵ, ϵ ′ > 0, δ ∈ (0 , 1) . For any b ∈ Rd, ν > λ , let 
+
+O′′ (b) = RankOneSolve 
+
+ 1
+
+ϵ′ P¯x,ϵ ′ B, 1
+
+√ϵ′ Ap ¯x,ϵ ′ , λ, ϵ, δ, b, O′
+
+> ξ1,ξ 2,ξ 3
+
+
+
+,
+
+where 
+
+O′ 
+
+> ξ1,ξ 2,ξ 3
+
+(b′) = SketchAndSolve ξ1,ξ 2,ξ 3
+
+
+
+B, ν, 1
+
+λϵ ′ , ϵ
+
+1 + nϵ′λ
+
+, δ
+
+2 , b ′, O
+
+
+
+.
+
+32 and O instantiates SVRG (Lemma 5.10). Then, O′′ is an (ϵ, δ )-linear system solver for 
+
+1
+
+ϵ′ A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI d,
+
+and each query to O′′ does ˜O(ϵ′− 2/3 nnz (A) + ϵ′− 4/3)-work using ˜O(ϵ′− 2/3)-depth and ˜O(ϵ′− 2/3)-matvecs to A.Proof. Correctness follows identically as the proof of Lemma 5.17. The complexity follows directly from Lemma 5.14, Fact 5.15, Lemma 5.16, and Lemma 5.10. In order to obtain Theorems 1.2 and Theorems 1.3, in the following section we show that it is actually possible to reuse the same T across every linear system solve in Lemma 3.3. This enables us to pre-compute AT ⊤ once in the very first iteration, using ˜O(s nnz (A))-work, ˜O(s)-matvecs to A
+
+and ˜O(1)-depth and reuse it in all future iterations. Correspondingly, we reduce the auxiliary work and depth in Lemmas 5.18 and 5.17. 
+
+# 6 Main results 
+
+In this section, we discuss how the sample reuse framework of [ 38 ] immediately enables us to reuse the same seed ξ2 across sequential invocations of Lemmas 5.17 and 5.18 when used to instantiate the linear system solver for Lemma 3.3, and we use this to obtain our main results. Throughout this section, we use ˜O(·) to hide polylogarithmic factors in the following parameters: 
+
+n, d, ϵ −1, δ −1, λ −1, ν −1.In order to directly apply the sample reuse framework of [ 38 ], we need to check the three key assumptions that enable their framework. First note that ξ2 ∼ P 2 in Lemmas 5.17 and 5.18 is used to sample an ( s, b )-embedding (Definition 5.5) in Lemma 5.13, meaning that P2 is an oblivious sampling distribution (i.e., P2
+
+depends only on the sketch size s = ˜O(ϵ−2/3) and number of nonzeros b = ˜O(1).) Second, note that the requirements of the outer loop in Lemma 3.3, which orchestrates the sequence of linear system solves, is ℓ∞-robust in the sense of Definition 2.2 of [ 38 ], as illustrated by the following lemma. 
+
+Lemma 6.1 (ℓ∞-robustness) . Suppose that x′ ∈ Rd satisfies 
+
+x′ −
+
+
+
+ϵ′A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI 
+
+−1
+
+ˆg 2
+
+≤ α
+
+for some ϵ′, ν, α > 0, ¯x ∈ Rd, A ∈ Rn×d and suppose that ζ ∈ Rd satisfies ∥ζ∥∞ < τ . Then, 
+
+(x′ + ζ) −
+
+
+
+ϵ′A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI 
+
+−1
+
+ˆg 2
+
+≤ α + τ √d. 
+
+Proof. Note that for any x ∈ Rd, ∥x∥∞ ≤ ∥ x∥2 ≤ √d∥x∥∞. Consequently, we have 
+
+(x′ + ζ) −
+
+
+
+ϵ′A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI 
+
+−1
+
+ˆg 2
+
+≤ x′ −
+
+
+
+ϵ′A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI 
+
+−1
+
+ˆg ∞
+
++ ∥ζ∥2
+
+≤ α + τ √d. 
+
+33 Consequently, the requirements of Lemma 3.3 are robust to any τ -bounded ℓ∞ perturbation, provided that the accuracy requirement of the linear system solves is correspondingly lowered by a factor of τ / √d.Third, note that the complexities of Lemmas 5.17 and 5.18 depend at most polylogarithmically 
+
+on the required solver accuracy ϵ (i.e., in the language of [ 38 ], the linear system solvers can solve to 
+
+high accuracy ). Consequently, lowering the required accuracy of the linear system solves by a factor of τ / √d comes at the cost of at most polylogarithmic overhead in the key problem parameters. Thus, by a straightforward application of Theorem 2.6 of [ 38 ], we see that the same random seed 
+
+ξ2 can be used across all sequential invocations of Lemmas 5.17 and 5.18 when used to instantiate the linear system solver for Lemma 3.3. Finally, we are prepared to prove our main results. First, using an FMM-based linear system solver, we prove the following guarantee. 
+
+Theorem 6.2 (Final FMM-based solver) . There is a randomized algorithm which, with probability 
+
+1 − δ, solves the ϵ-game in A (Definition 3.1) in ˜O(ϵ−2/3nnz (A) + ϵ−2( ω+1) /3)-work, using ˜O(ϵ−2/3)
+
+matvecs to A and ˜O(ϵ−2/3)-depth. Proof. By Lemma 3.3, we see that it suffices to show that for any ¯x ∈ Rd and ϵ, δ > 0 we can implement an ( ϵ, δ )-linear system solver for 1
+
+ϵ′ A⊤(P¯x,ϵ ′ − p¯x,ϵ ′ p⊤ 
+
+> ¯x,ϵ ′
+
+)A + νI 
+
+for ν ≥ λ = ˜Ω (ϵ−1/3), which runs in ˜O( nnz (A) + ϵ−2ω/ 3)-work and ˜O(1)-parallel depth and makes at most ˜O(1)-matvec queries to A.To this end, let k, s, b as in Lemma 5.17 and 5.13 and let T ⊤∗ ∈ Rs×d be an ( s, b )-embedding (Definition 5.5) with s = ˜O(ϵ−2/3) and b = ˜O(1). Note that by Fact 5.15, we can compute 
+
+AT ∗ ∈ Rn×s in ˜O(s nnz( A))-time, ˜O(1)-parallel-depth, and ˜O(s)-matvecs to A.By combining Lemma 6.1 and Theorem 2.2 of [ 38 ], the guarantees of Theorem 5.17 remain unchanged if the random seed ξ2 is fixed across all invocations of ˜O. Consequently, by Lemmas 5.16 and 5.14, the complexity of Lemma 5.17 can be reduced to ˜O(b nnz (A)) = ˜O( nnz (A))-work and only ˜O(1) matvecs to A, by reusing the precomputed AT ∗ in all invocations. Second, using an SVRG-based linear system solver, we prove the following guarantee. 
+
+Theorem 6.3 (Final SVRG-based solver) . There is a randomized algorithm which, with probability 
+
+1 − δ, solves the ϵ-game in A (Definition 3.1) in ˜O(ϵ−2/3nnz (A) + ϵ−2)-work, using ˜O(ϵ−2/3) matvecs to A and ˜O(ϵ−4/3)-depth. Proof. The proof follows identically as that of Theorem 6.2, except that we leverage Lemma 5.18 in place of Lemma 5.17. Theorems 1.2 and 1.3 now follow immediately from Lemma 3.2 and Theorems 6.2 and 6.3, respectively. 
+
+# 7 Conclusion 
+
+In this work, we obtain faster randomized algorithms for approximately computing maximum-margin separating hyperplanes for binary data classification. Our algorithms match the matvec complexity of prior work and offer improved parallel computational depth. A natural question left open by 34 our work is whether it is possible to achieve the depth of Theorem 1.2 while matching the total work of Theorem 1.3, perhaps using very recent work of [ 42 ]. Another natural problem is to try to extend our techniques to obtain improved work complexities or depth for other important classes of matrix games, such as zero-sum games. Lastly, it would be interesting to explore whether the work complexities or depth obtained in Theorems 1.2 or 1.3 can be obtained deterministically. 
+
+# Acknowledgements 
+
+Thank you to anonymous reviewers for their helpful feedback and thank you to LLMs for various writing advice, latex formatting assistance, and help with proof-reading algebraic derivations. Aaron Sidford was supported in part by a Microsoft Research Faculty Fellowship, NSF Grant CCF1955039, and a PayPal research award. Liam was supported by an Amazon AI PhD Fellowship. 
+
+# References 
+
+[1] Josh Alman, Ran Duan, Virginia Vassilevska Williams, Yinzhan Xu, Zixuan Xu, and Renfei Zhou. More asymmetry yields faster matrix multiplication. In Proceedings of the 2025 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) , pages 2005–2039. SIAM, 2025. [2] Hilal Asi, Yair Carmon, Arun Jambulapati, Yujia Jin, and Aaron Sidford. Stochastic bias-reduced gradient methods. Advances in Neural Information Processing Systems , 34:10810–10822, 2021. [3] Hilal Asi, Yair Carmon, Arun Jambulapati, Yujia Jin, and Aaron Sidford. Stochastic bias-reduced gradient methods. In Proceedings of the 35th International Conference on Neural Information Processing Systems , NIPS ’21, Red Hook, NY, USA, 2021. Curran Associates Inc. [4] David S Atkinson and Pravin M Vaidya. A cutting plane algorithm for convex programming that uses analytic centers. Mathematical Programming , 69(1-3):1–43, 1995. [5] Francis Bach. Self-concordant analysis for logistic regression. Electronic Journal of Statistics ,4:384–414, 2010. [6] Amir Beck and Marc Teboulle. Mirror descent and nonlinear projected subgradient methods for convex optimization. Operations Research Letters , 31(3):167–175, 2003. ISSN 0167-6377. [7] S´ ebastien Bubeck, Qijia Jiang, Yin Tat Lee, Yuanzhi Li, and Aaron Sidford. Complexity of highly parallel non-smooth convex optimization . Curran Associates Inc., Red Hook, NY, USA, 2019. [8] Yair Carmon and Danielle Hausler. Distributionally robust optimization via ball oracle acceleration. In arXiv preprint arXiv:2203.13225 , 2022. [9] Yair Carmon, Yujia Jin, Aaron Sidford, and Kevin Tian. Variance reduction for matrix games. In Advances in Neural Information Processing Systems 32 (NeurIPS) , 2019. [10] Yair Carmon, Arun Jambulapati, Qijia Jiang, Yujia Jin, Yin Tat Lee, Aaron Sidford, and Kevin Tian. Acceleration with a ball optimization oracle. In Advances in Neural Information Processing Systems 33 (NeurIPS) , 2020. 35 [11] Yair Carmon, Yujia Jin, Aaron Sidford, and Kevin Tian. Coordinate methods for matrix games. In 61st Annual IEEE Symposium on Foundations of Computer Science (FOCS) , 2020. [12] Yair Carmon, Arun Jambulapati, Yujia Jin, and Aaron Sidford. Thinking inside the ball: Near-optimal minimization of the maximal loss. In 34th Annual Conference on Computational Learning Theory (COLT) , 2021. [13] Yair Carmon, Danielle Hausler, Arun Jambulapati, Yujia Jin, and Aaron Sidford. Optimal and adaptive monteiro-svaiter acceleration. In Proceedings of the 36th International Conference on Neural Information Processing Systems , NIPS ’22, Red Hook, NY, USA, 2022. Curran Associates Inc. [14] Yair Carmon, Arun Jambulapati, Yujia Jin, Yin Tat Lee, Daogao Liu, Aaron Sidford, and Kevin Tian. Resqueing parallel and private stochastic convex optimization. In 64th Annual IEEE Symposium on Foundations of Computer Science (FOCS) , pages 2031–2058. IEEE, 2023. [15] Yair Carmon, Arun Jambulapati, Yujia Jin, and Aaron Sidford. A whole new ball game: A primal accelerated method for matrix games and minimizing the maximum of smooth functions. In 35th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) , 2024. [16] Yair Carmon, Arun Jambulapati, Liam O’Carroll, and Aaron Sidford. Extracting dual solutions via primal optimizers. arXiv preprint arXiv:2412.02949 , 2024. [17] Shabarish Chenakkod, Michal Derezinski, and Xiaoyu Dong. Optimal oblivious subspace embeddings with near-optimal sparsity. arXiv preprint arXiv:2411.08773 , 2024. [18] Shabarish Chenakkod, Michal Derezinski, Xiaoyu Dong, and Mark Rudelson. Optimal em-bedding dimension for sparse subspace embeddings. In Proceedings of the 56th Annual ACM Symposium on Theory of Computing , pages 1106–1117, 2024. [19] Kenneth L Clarkson and David P Woodruff. Low-rank approximation and regression in input sparsity time. Journal of the ACM (JACM) , 63(6):1–45, 2017. [20] Kenneth L Clarkson, Elad Hazan, and David P Woodruff. Sublinear optimization for machine learning. In Journal of the ACM (JACM) , 2012. [21] Michael B Cohen. Nearly tight oblivious subspace embeddings by trace inequalities. In 
+
+Proceedings of the twenty-seventh annual ACM-SIAM symposium on Discrete algorithms , pages 278–287. SIAM, 2016. [22] Michael B Cohen, Jelani Nelson, and David P Woodruff. Optimal approximate matrix product in terms of stable rank. arXiv preprint arXiv:1507.02268 , 2015. [23] Michael B Cohen, Jonathan Kelner, Rasmus Kyng, John Peebles, Richard Peng, Anup B Rao, and Aaron Sidford. Solving directed laplacian systems in nearly-linear time through sparse lu factorizations. In 2018 IEEE 59th annual symposium on foundations of computer science (FOCS) , pages 898–909. IEEE, 2018. [24] Michael B Cohen, Yin Tat Lee, and Zhao Song. Solving linear programs in the current matrix multiplication time. Journal of the ACM (JACM) , 68(1):1–39, 2021. [25] Andrew R. Conn, Nicholas I. M. Gould, and Philippe L. Toint. Trust Region Methods . MOS-SIAM Series on Optimization. SIAM, Philadelphia, PA, 2000. 36 [26] Michal Derezinski and Aaron Sidford. Approaching optimality for solving dense linear systems with low-rank structure. In Proceedings of the 2026 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) , pages 925–938. SIAM, 2026. [27] Michal Derezinski, Christopher Musco, and Jiaming Yang. Faster linear systems and matrix norm approximation via multi-level sketched preconditioning. In Proceedings of the 2025 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) , pages 1972–2004. SIAM, 2025. [28] Nikita Doikov. Minimizing quasi-self-concordant functions by gradient regularization of newton method, 2023. [29] John C Duchi, Peter L Bartlett, and Martin J Wainwright. Randomized smoothing for stochastic optimization. SIAM Journal on Optimization , 22(2):674–701, 2012. [30] Roy Frostig, Rong Ge, Sham Kakade, and Aaron Sidford. Un-regularizing: approximate proximal point and faster stochastic algorithms for empirical risk minimization. In International Conference on Machine Learning , pages 2540–2548. PMLR, 2015. [31] Gene H Golub and Michael L Overton. The convergence of inexact chebyshev and richardson iterative methods for solving linear systems. Numerische Mathematik , 53(5):571–593, 1988. [32] Gene H Golub and Richard S Varga. Chebyshev semi-iterative methods, successive overrelax-ation iterative methods, and second order richardson iterative methods. Milestones in Matrix Computation-Selected Works of Gene H. Golub, with Commentaries , pages 45–67, 2007. [33] Michael D Grigoriadis and Leonid G Khachiyan. A sublinear-time randomized approximation algorithm for matrix games. In Operations Research Letters , 1995. [34] Arun Jambulapati, Yang P. Liu, and Aaron Sidford. Improved iteration complexities for overconstrained p-norm regression. In Proceedings of the 54th Annual ACM SIGACT Symposium on Theory of Computing , STOC 2022, pages 529–542, New York, NY, USA, 2022. Association for Computing Machinery. ISBN 9781450392648. [35] Arun Jambulapati, Aaron Sidford, and Kevin Tian. Closing the computational-query depth gap in parallel stochastic convex optimization. In The Thirty Seventh Annual Conference on Learning Theory , pages 2608–2643. PMLR, 2024. [36] Arun Jambulapati, Aaron Sidford, and Kevin Tian. Closing the computational-query depth gap in parallel stochastic convex optimization. In Annual Conference Computational Learning Theory , 2024. [37] Haotian Jiang, Yin Tat Lee, Zhao Song, and Sam Chiu-wai Wong. An improved cutting plane method for convex optimization, convex-concave games, and its applications. In Proceedings of the 52nd Annual ACM SIGACT Symposium on Theory of Computing , STOC 2020, page 944–953, New York, NY, USA, 2020. Association for Computing Machinery. ISBN 9781450369794. doi: 10.1145/3357713.3384284. [38] Yujia Jin, Ishani Karmarkar, Aaron Sidford, and Jiayi Wang. Reusing samples in variance reduction. In Algorithmic Learning Theory , 2026. [39] Rie Johnson and Tong Zhang. Accelerating stochastic gradient descent using predictive variance reduction. Advances in neural information processing systems , 26, 2013. 37 [40] Sai Praneeth Karimireddy, Sebastian U. Stich, and Martin Jaggi. Global linear conver-gence of newton’s method without strong-convexity or lipschitz gradients. In arXiv preprint arXiv:1806.00413 , 2018. [41] Ishani Karmarkar, Liam O’Carroll, and Aaron Sidford. Solving zero-sum games with fewer matrix-vector products. In 66th Annual IEEE Symposium on Foundations of Computer Science (FOCS) , 2025. [42] Ishani Karmarkar, Liam O’Carroll, and Aaron Sidford. Solving matrix games with near-optimal matvec complexity. 58th Annual ACM Symposium on Theory of Computing (STOC) , pages arXiv–2601, 2026. [43] Guy Kornowski and Ohad Shamir. The oracle complexity of simplex-based matrix games: Linear separability and nash equilibria. In 38th Annual Conference on Computational Learning Theory (COLT) , 2025. [44] Guy Kornowski and Ohad Shamir. The oracle complexity of simplex-based matrix games: Linear separability and nash equilibria. In arXiv preprint 2412.06990 [v3] , 2025. [45] Yin Tat Lee, Aaron Sidford, and Sam Chiu-Wai Wong. A faster cutting plane method and its implications for combinatorial and convex optimization. In 2015 IEEE 56th Annual Symposium on Foundations of Computer Science , pages 1049–1065, 2015. doi: 10.1109/FOCS.2015.68. [46] Hongzhou Lin, Julien Mairal, and Zaid Harchaoui. A universal catalyst for first-order optimiza-tion. Advances in neural information processing systems , 28, 2015. [47] Warren S McCulloch and Walter Pitts. A logical calculus of the ideas immanent in nervous activity. In The bulletin of mathematical biophysics , 1943. [48] MN Murty and Rashmi Raghava. Kernel-based svm. In Support vector machines and perceptrons: Learning, optimization, classification, and application to social networks , pages 57–67. Springer, 2016. [49] Jelani Nelson and Huy L Nguyˆ en. Osnap: Faster numerical linear algebra algorithms via sparser subspace embeddings. In 2013 ieee 54th annual symposium on foundations of computer science , pages 117–126. IEEE, 2013. [50] Arkadi Nemirovski. On parallel complexity of nonsmooth convex optimization. Journal of Complexity , 10(4):451–463, 1994. [51] Arkadi Nemirovski. Prox-method with rate of convergence o(1/t) for variational inequalities with lipschitz continuous monotone operators and smooth convex-concave saddle point problems. 
+
+SIAM Journal on Optimization , 15(1):229–251, 2004. [52] Arkadij Semenoviˇ c Nemirovskij and David Borisovich Yudin. Problem complexity and method efficiency in optimization. In Wiley-Interscience , 1983. [53] Yu Nesterov. Smooth minimization of non-smooth functions. In Mathematical programming ,2005. [54] Yurii Nesterov. Dual extrapolation and its applications to solving variational inequalities and related problems. Mathematical Programming , 109(2):319–344, Mar 2007. 38 [55] Balamurugan Palaniappan and Francis Bach. Stochastic variance reduction methods for saddle-point problems. In Advances in Neural Information Processing Systems 29 (NeurIPS) ,2016. [56] Victor Y. Pan. Complexity of parallel matrix computations. Theoretical Computer Science , 54: 65–85, 1987. [57] Victor Y. Pan and John H. Reif. Efficient parallel solution of linear systems. In Proceedings of the 17th Annual ACM Symposium on Theory of Computing , pages 143–152. ACM, 1985. [58] A. Rakhlin and K. Sridharan. Online learning with predictable sequences. In Proceedings of the 26th Annual Conference on Learning Theory , volume 30 of Proceedings of Machine Learning Research , pages 993–1019. PMLR, 2013. [59] Frank Rosenblatt. The perceptron: a probabilistic model for information storage and organiza-tion in the brain. In Psychological review , 1958. [60] Tamas Sarlos. Improved approximation algorithms for large matrices via random projections. In 2006 47th annual IEEE symposium on foundations of computer science (FOCS’06) , pages 143–152. IEEE, 2006. [61] Aaron Sidford and Chenyi Zhang. Quantum speedups for stochastic optimization. In Proceedings of the 37th International Conference on Neural Information Processing Systems , NIPS ’23, Red Hook, NY, USA, 2023. Curran Associates Inc. [62] Tianxiao Sun and Quoc Tran-Dinh. Generalized self-concordant functions: a recipe for newton-type methods. Mathematical Programming , 178(1-2):145–213, 2019. [63] Pravin M. Vaidya. A new algorithm for minimizing convex functions over convex sets (extended abstract). In FOCS , pages 338–343, 1989. [64] Jan Van Den Brand, Yin Tat Lee, Yang P Liu, Thatchaphol Saranurak, Aaron Sidford, Zhao Song, and Di Wang. Minimum cost flows, mdps, and l1-regression in nearly linear time for dense instances. In Proceedings of the 53rd Annual ACM SIGACT Symposium on Theory of Computing , 2021. 39 A Reduction from separating hyperplane problem to ℓ2-ℓ1 games 
+
+Lemma 3.2 (Reduction to ℓ2-ℓ1 matrix game) . Let D = {(ϕi ∈ Bd, l i ∈ { +1 , −1})}i∈[n]. Any solution ˆw to the ρ-game (Definition 3.1) of −ΦD induces a ρ-separating hyperplane (Definition 1.1) for D.Proof. To reformulate the ρ-separating hyperplane problem as an ℓ2-ℓ1 matrix game, note that (1) is equivalent to max  
+
+> w∈Bd
+
+min  
+
+> i∈[n]
+
+li⟨w, ϕ i⟩ = max  
+
+> w∈Bd
+
+min 
+
+> i∈[n]
+
+[Φ Dw]i = max  
+
+> w∈Bd
+
+min  
+
+> p∈∆n
+
+p⊤ΦDw = − min  
+
+> w∈Bd
+
+max  
+
+> p∈∆n
+
+p⊤(−ΦD)w. 
+
+By (1), there exists w⋆ ∈ Bd such that min  
+
+> p∈∆n
+
+p⊤ΦDw⋆ = min 
+
+> i∈[n]
+
+[Φ Dw⋆]i = min  
+
+> i∈[n]
+
+li⟨w⋆, ϕ i⟩ ≥ γD.
+
+Therefore, max  
+
+> w∈Bd
+
+min  
+
+> p∈∆n
+
+p⊤ΦDw ≥ γD, and consequently min  
+
+> w∈Bd
+
+max  
+
+> p∈∆n
+
+p⊤(−ΦD)w ≤ − γD.
+
+Let ˆ w be a solution to the ρ-game of −ΦD. Then, max  
+
+> p∈∆n
+
+p⊤(−ΦD) ˆ w ≤ min  
+
+> w∈Bd
+
+max  
+
+> p∈∆n
+
+p⊤(−ΦD)w + ρ ≤ − γD + ρ. 
+
+Consequently, we have max i∈[n][( −ΦD) ˆ w]i ≤ − γD + ρ, which implies that 
+
+li⟨ ˆw, ϕ i⟩ = [Φ D ˆw]i ≥ γD − ρ, for all i ∈ [n].
+
+Thus, ˆ w is a solution to the ( D, ρ )-separating hyperplane problem. 
+
+# B Linear algebraic properties 
+
+Fact B.1. Suppose that A ∈ Sn 
+
+> ++
+
+and x′ is an ϵ-approximate solution to the linear system Ax = b
+
+(Definition 2.1). Then, ∥x − x′∥2 ≤ pκ(A)ϵ∥x∥2.Proof. We have ∥x′ − x∥A ≤ ϵ∥x∥A. Since A ⪰ λmin (A)I it follows that 
+
+∥x′ − x∥2 ≤ ∥x′ − x∥A
+
+pλmin (A) ≤ ϵ ∥x∥A
+
+pλmin (A) .
+
+Moreover, ∥x∥A ≤ pλmax (A)∥x∥2. Thus, the lemma holds. 
+
+Fact B.2. Suppose that A, B ∈ Sd 
+
+> ++
+
+with A ≈c B for some c ≥ 1. Then, 
+
+• for any x ∈ Rd, ∥x∥A ≈√c ∥x∥B ,
+
+• ∥A∥F ≈c ∥B∥F ,
+
+• for any b ∈ Rd, ∥B−1b∥B ≈√c ∥A−1b∥A, and 
+
+• for any b ∈ Rd, ∥A−1b − B−1b∥B ≤ (c − 1) ∥B−1b∥B ,
+
+40 Proof. We prove the statements one-by-one. 
+
+• Since c−1A ⪯ B ⪯ cA implies c−1B ⪯ A ⪯ cB , for any x ∈ Rd we have 
+
+c−1x⊤Bx ≤ x⊤Ax ≤ cx ⊤Bx, 
+
+which yields ∥x∥A ≈√c ∥x∥B .
+
+• From c−1A ⪯ B ⪯ cA , the eigenvalues of B are within a factor c of those of A (due to the Courant-Fischer theorem) Since ∥M ∥2 
+
+> F
+
+= P 
+
+> i
+
+λi(M )2 for M ⪰ 0, it follows that ∥A∥F ≈c ∥B∥F .
+
+• Inverting the Loewner order gives c−1A−1 ⪯ B−1 ⪯ cA −1. Therefore, for any b ∈ Rd,
+
+b⊤B−1b ≈c b⊤A−1b, 
+
+which is equivalent to ∥B−1b∥B ≈√c ∥A−1b∥A.
+
+• Writing b = Bx , we have 
+
+A−1b − B−1b = ( A−1B − I)x. 
+
+Since the eigenvalues of B1/2A−1B1/2 lie in [ c−1, c ], we have ∥A−1B − I∥B ≤ c − 1, and 
+
+∥A−1b − B−1b∥B ≤ (c − 1) ∥x∥B = ( c − 1) ∥B−1b∥B .
+
+41

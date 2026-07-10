@@ -1,0 +1,245 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-10T20:58:52.490247+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2607.04062v1",
+      "source": "arxiv",
+      "title": "Fast, Parallel, Query-Efficient Binary Classification",
+      "abstract": "We study the fundamental classification problem of computing a separating hyperplane for a binary-labeled dataset of size $n$ with normalized $d$-dimensional features. Letting $Φ\\in \\mathbb{R}^{n \\times d}$ denote the feature matrix and $γ$ the margin of the maximum-margin separating hyperplane, we present a randomized algorithm that solves this problem in $\\tilde{O}(γ^{-2/3}\\, \\operatorname{nnz}(Φ) + γ^{-2(ω+1)/3})$-sequential running time (work), $\\tilde{O}(γ^{-2/3})$-parallel (computational) depth, and accesses $Φ$ only through $\\tilde{O}(γ^{-2/3})$-matrix-vector queries (matvecs). We also present a second, faster randomized algorithm with a $\\tilde{O}(γ^{-2/3}\\, \\operatorname{nnz}(Φ) + γ^{-2})$-sequential running time that uses $\\tilde{O}(γ^{-2/3})$-matvecs to $Φ$, but achieves only $\\tilde{O}(γ^{-4/3})$-parallel depth. Both algorithms match the near-optimal deterministic matvec complexity recently established by Kornowski and Shamir [2025], Karmarkar et al. [2026] and achieve improved sequential runtime and parallel depth, albeit at the expense of using randomness.",
+      "authors": [
+        "Ishani Karmarkar",
+        "Liam O'Carroll",
+        "Aaron Sidford"
+      ],
+      "primary_category": "math.OC",
+      "categories": [
+        "math.OC",
+        "cs.DS",
+        "cs.LG"
+      ],
+      "published": "2026-07-05T00:18:56+00:00",
+      "link": "https://arxiv.org/pdf/2607.04062v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "computes maximum-margin separating hyperplane (decision boundary) for classification",
+      "llm_evidence_cn": "计算二分类的最大间隔分离超平面（决策边界）",
+      "llm_evidence": "计算二分类的最大间隔分离超平面（决策边界）",
+      "canonical_evidence": "计算二分类的最大间隔分离超平面（决策边界）",
+      "llm_tldr_en": "Presents a randomized algorithm that computes a separating hyperplane for binary classification efficiently using few matrix-vector queries, with fast sequential and parallel running times.",
+      "llm_tldr_cn": "本文研究二分类中计算分离超平面的核心问题，提出一种随机化算法，在保正边距γ下，以O(γ^{-2/3} nnz(Φ) + ...)的串行速度和O(γ^{-2/3})的并行深度高效求解最大间隔超平面，且仅需O(γ^{-2/3})次矩阵向量查询。算法通过切比雪夫加速和迭代细化实现快速收敛，进一步给出第二个更快的变体。该工作显著提升了大规模数据下决策边界优化计算的效率，并采用查询效率作为新视角评估算法性能。",
+      "llm_tldr": "本文研究二分类中计算分离超平面的核心问题，提出一种随机化算法，在保正边距γ下，以O(γ^{-2/3} nnz(Φ) + ...)的串行速度和O(γ^{-2/3})的并行深度高效求解最大间隔超平面，且仅需O(γ^{-2/3})次矩阵向量查询。算法通过切比雪夫加速和迭代细化实现快速收敛，进一步给出第二个更快的变体。该工作显著提升了大规模数据下决策边界优化计算的效率，并采用查询效率作为新视角评估算法性能。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.08685v1",
+      "source": "arxiv",
+      "title": "A Short Proof of Optimal Regularity for minimizers of the Alt-Phillips Problem",
+      "abstract": "We give a self-contained short proof of optimal regularity for minimizers of the Alt-Phillips Free Boundary Problem for $γ\\in (0, 1)$. We adopt a dichotomy argument that originates from [DS20].",
+      "authors": [
+        "Kunyi",
+        "Ma"
+      ],
+      "primary_category": "math.AP",
+      "categories": [
+        "math.AP"
+      ],
+      "published": "2026-07-09T16:48:23+00:00",
+      "link": "https://arxiv.org/pdf/2607.08685v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Alt-Phillips Free Boundary Problem involves optimizing a free boundary",
+      "llm_evidence_cn": "Alt-Phillips自由边界问题涉及优化自由边界",
+      "llm_evidence": "Alt-Phillips自由边界问题涉及优化自由边界",
+      "canonical_evidence": "Alt-Phillips自由边界问题涉及优化自由边界",
+      "llm_tldr_en": "Provides a short self-contained proof of optimal regularity for minimizers of the Alt-Phillips free boundary problem, a classic boundary optimization problem, using a dichotomy argument.",
+      "llm_tldr_cn": "Alt-Phillips自由边界问题是一类典型的边界优化模型，其中边界的形状由能量极小化决定。本文针对该问题，提供了一个简短而自包含的证明，建立了极小化子在整个自由边界上的C^{1,α}最优正则性。证明采用源自[DS20]的二分论证技巧，避免了复杂的技术细节。该结果不仅简化了原有证明，也为边界优化问题的正则性理论提供了新视角，有助于深入理解自由边界优化解的结构。",
+      "llm_tldr": "Alt-Phillips自由边界问题是一类典型的边界优化模型，其中边界的形状由能量极小化决定。本文针对该问题，提供了一个简短而自包含的证明，建立了极小化子在整个自由边界上的C^{1,α}最优正则性。证明采用源自[DS20]的二分论证技巧，避免了复杂的技术细节。该结果不仅简化了原有证明，也为边界优化问题的正则性理论提供了新视角，有助于深入理解自由边界优化解的结构。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundaries in various fields",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.04427v1",
+      "source": "arxiv",
+      "title": "Generalized Hyperbolic Conical Circle Packings associated with Finite Polygonal Decompositions of Surfaces with Boundary",
+      "abstract": "Let S be a compact topological surface with finitely many genus and finitely many holes and let D be a polygonal decomposition of S. In this paper, we consider the generalized hyperbolic conical circle packings associated with D. We first show that the boundary value problem has a unique solution k by prescribing total geodesic curvatures of generalized hyperbolic conical circles centered at interior vertices and geodesic curvatures of generalized hyperbolic conical circles centered at boundary vertices.   Then we show that such a solution k can be obtained by taking a limit of the packings inductively modified by Thurston's algorithm via an arbitrarily chosen initial generalized hyperbolic conical circle packing associated with D and with given boundary values. Thirdly, we develop the so-called discrete Schwarz-Pick lemma for the solution packing k on D.",
+      "authors": [
+        "Guangming Hu",
+        "Jun Hu",
+        "Lishan Li",
+        "Yi Qi"
+      ],
+      "primary_category": "math.GT",
+      "categories": [
+        "math.GT",
+        "math.DG"
+      ],
+      "published": "2026-07-05T17:45:29+00:00",
+      "link": "https://arxiv.org/pdf/2607.04427v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Solves a boundary value problem for circle packings on surfaces with boundary using Thurston's algorithm.",
+      "llm_evidence_cn": "求解带边界曲面上的圆填充边值问题，并使用Thurston算法进行优化。",
+      "llm_evidence": "求解带边界曲面上的圆填充边值问题，并使用Thurston算法进行优化。",
+      "canonical_evidence": "求解带边界曲面上的圆填充边值问题，并使用Thurston算法进行优化。",
+      "llm_tldr_en": "Solves boundary value problem for circle packings on surfaces with boundary, proving unique solution and algorithm via Thurston's method.",
+      "llm_tldr_cn": "针对带边界曲面上的广义双曲锥形圆填充，本文研究其边值问题，证明了解的存在唯一性，并通过Thurston算法的迭代极限给出求解方法。该方法为双曲几何中的边界优化问题提供了有效计算框架。",
+      "llm_tldr": "针对带边界曲面上的广义双曲锥形圆填充，本文研究其边值问题，证明了解的存在唯一性，并通过Thurston算法的迭代极限给出求解方法。该方法为双曲几何中的边界优化问题提供了有效计算框架。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization of boundary value problems",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.08086v1",
+      "source": "arxiv",
+      "title": "GRE-Diff: Gaussian Room Embeddings for Structured Layout Diffusion",
+      "abstract": "Designing functional and aesthetically coherent floor plans requires exploring a vast space of possible room arrangements, a task that quickly becomes overwhelming for human designers. In this paper, we propose GRE-Diff, a controllable and interactive diffusion-based framework that automates the creation and editing of apartment floor plans under user-specified constraints.   By combining AI-generated suggestions with real-time, human-in-the-loop editing, the system enables users to specify room types, room counts, boundary shapes, and editing operations through LLM-parsed instructions or GUI-based interaction.   It then generates a diverse set of plausible and well-structured designs for refinement.   At the core of our approach is Gaussian Room Embedding (GRE), a continuous latent representation that models each room as a spatial Gaussian distribution capturing its location and extent.   Extensive experiments on the RPLAN dataset show that GRE-Diff produces high-quality, constraint-aware, and editable polygonal layouts, offering a practical step toward bridging AI-driven automation and human creativity in spatial design.",
+      "authors": [
+        "Jing Wang",
+        "Haoran Xiong",
+        "Zihao Yan",
+        "Minglun Gong",
+        "Hui Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-09T03:41:54+00:00",
+      "link": "https://arxiv.org/pdf/2607.08086v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "floor plan generation adjusts room boundaries as part of design optimization",
+      "llm_evidence_cn": "户型平面生成通过调整房间边界进行设计优化",
+      "llm_evidence": "户型平面生成通过调整房间边界进行设计优化",
+      "canonical_evidence": "户型平面生成通过调整房间边界进行设计优化",
+      "llm_tldr_en": "Proposes GRE-Diff, a diffusion-based framework for interactive floor plan generation that allows users to specify room types, counts, and boundary shapes; uses Gaussian Room Embedding to encode layout constraints for diverse and plausible designs.",
+      "llm_tldr_cn": "该论文针对人工设计户型时探索空间巨大、约束多的问题，提出可控扩散框架GRE-Diff。支持用户通过自然语言或界面指定房间类型、数量和边界形状，利用高斯房间嵌入编码布局约束，实时生成多样化且符合规范的户型平面。实验表明，该方法可满足多种设计场景，在保真度与多样性上优于现有方法。",
+      "llm_tldr": "该论文针对人工设计户型时探索空间巨大、约束多的问题，提出可控扩散框架GRE-Diff。支持用户通过自然语言或界面指定房间类型、数量和边界形状，利用高斯房间嵌入编码布局约束，实时生成多样化且符合规范的户型平面。实验表明，该方法可满足多种设计场景，在保真度与多样性上优于现有方法。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "methods for optimizing shapes by adjusting boundaries",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.08183v1",
+      "source": "arxiv",
+      "title": "Covering Points with Rectangular Boundaries",
+      "abstract": "Geometric covering problems ask for a small family of geometric objects whose union covers a given point set. We study the more restrictive \\emph{boundary covering} variant, where every point must lie on the boundary of a chosen object. Motivated by the framework of Langerman and Morin\\,[Discret.\\ Comput.\\ Geom., 2005] for hyperspheres, we initiate the study of boundary covering by axis-parallel rectangles.   We first consider the \\emph{discrete} setting, where rectangles must be selected from a given family. We define \\bcdaprfull\\ (\\bcdaprshort): given a point set \\(P\\subseteq\\mathbb{R}^2\\), a family \\(\\mathcal{R}\\) of axis-parallel rectangles, and an integer \\(k\\), decide whether \\(P\\) can be covered by the boundaries of at most \\(k\\) rectangles from \\(\\mathcal{R}\\). We prove that \\bcdaprshort\\ is \\(\\mathrm{W}[1]\\)-hard parameterized by \\(k\\).   We then study the \\emph{continuous} variant, \\prbcfull\\ (\\prbcshort), where rectangles may be placed freely. Given \\(P\\subseteq\\mathbb{R}^2\\) and \\(k\\), the goal is to decide whether \\(P\\) can be covered by the boundaries of at most \\(k\\) axis-parallel rectangles. In contrast to the discrete case, we show that \\prbcshort\\ is fixed-parameter tractable, with running time \\(2^{\\cO(k\\log k)}\\cdot n^{\\cO(1)}\\), where \\(n=|P|\\). Our algorithm relies on a structural analysis of how \\(k\\) rectangles interact with the point set, reducing \\prbcshort\\ to at most \\(2^{\\cO(k\\log k)}\\) instances of \\ddmtcsp, each solvable in polynomial time. On the hardness side, we prove NP-completeness for boundary covering by axis-aligned \\(L\\)-shapes and use this reduction to establish NP-completeness of \\prbcshort.",
+      "authors": [
+        "Madhumita Kundu",
+        "Daniel Lokshtanov",
+        "Soumi Nandi",
+        "Saket Saurabh",
+        "Kushal Singanporia"
+      ],
+      "primary_category": "cs.CG",
+      "categories": [
+        "cs.CG"
+      ],
+      "published": "2026-07-09T07:30:08+00:00",
+      "link": "https://arxiv.org/pdf/2607.08183v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Studies boundary covering problem where points must lie on boundaries of rectangles, optimizing selection of rectangles to cover points under boundary constraints.",
+      "llm_evidence_cn": "研究点必须位于矩形边界上的边界覆盖问题，优化选择矩形以满足边界约束。",
+      "llm_evidence": "研究点必须位于矩形边界上的边界覆盖问题，优化选择矩形以满足边界约束。",
+      "canonical_evidence": "研究点必须位于矩形边界上的边界覆盖问题，优化选择矩形以满足边界约束。",
+      "llm_tldr_en": "Introduces boundary covering by axis-parallel rectangles, where points must lie on object boundaries, and analyzes algorithmic complexity for discrete and continuous settings.",
+      "llm_tldr_cn": "本文引入矩形边界覆盖问题，要求每个点都落在所选矩形的边界上，并在离散和连续情形下分析其算法复杂度。该问题将传统覆盖扩展至边界约束优化，为计算几何中的边界优化提供了新视角。",
+      "llm_tldr": "本文引入矩形边界覆盖问题，要求每个点都落在所选矩形的边界上，并在离散和连续情形下分析其算法复杂度。该问题将传统覆盖扩展至边界约束优化，为计算几何中的边界优化提供了新视角。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "optimization under boundary constraints",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.08370v1",
+      "source": "arxiv",
+      "title": "Tubular Neighbourhoods of Pfaffian Sets and Applications to Neural Networks",
+      "abstract": "We derive bounds for the volume of tubular neighbourhoods of smooth Pfaffian hypersurfaces, generalising known results for algebraic varieties. The bounds are given in terms of the Pfaffian format of the defining functions. As an application, we obtain tail bounds on the probability distribution of a condition number measuring the robustness of neural network classifiers with Pfaffian activation functions, in both the uniform and Gaussian settings. In the special case of single-hidden-layer sigmoid networks with rational weights, we derive polynomial-in-width bounds for tubular neighbourhoods of the decision boundary.",
+      "authors": [
+        "Paul Lezeau",
+        "Martin Lotz"
+      ],
+      "primary_category": "math.AG",
+      "categories": [
+        "math.AG",
+        "cs.LG"
+      ],
+      "published": "2026-07-09T11:37:56+00:00",
+      "link": "https://arxiv.org/pdf/2607.08370v1",
+      "tags": [
+        "keyword:boundary-opt",
+        "query:boundary-opt"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Derives bounds for tubular neighborhoods of decision boundaries in neural networks, aiding decision boundary optimization.",
+      "llm_evidence_cn": "推导神经网络决策边界管状邻域的界，有助于决策边界优化。",
+      "llm_evidence": "推导神经网络决策边界管状邻域的界，有助于决策边界优化。",
+      "canonical_evidence": "推导神经网络决策边界管状邻域的界，有助于决策边界优化。",
+      "llm_tldr_en": "Provides volume bounds for tubular neighborhoods of Pfaffian hypersurfaces, and applies to robustness bounds of neural network decision boundaries.",
+      "llm_tldr_cn": "该文推广了代数簇管状邻域的体积界到光滑普法夫超曲面，并将其应用于神经网络分类器的鲁棒性分析，特别地，对于具有有理权重的单隐层Sigmoid网络，推导出决策边界管状邻域的多项式宽度界，为理解分类器边界几何性质及优化提供理论依据。",
+      "llm_tldr": "该文推广了代数簇管状邻域的体积界到光滑普法夫超曲面，并将其应用于神经网络分类器的鲁棒性分析，特别地，对于具有有理权重的单隐层Sigmoid网络，推导出决策边界管状邻域的多项式宽度界，为理解分类器边界几何性质及优化提供理论依据。",
+      "llm_tags": [
+        "query:boundary-opt"
+      ],
+      "matched_query_tag": "query:boundary-opt",
+      "matched_query_text": "how to optimize decision boundaries for classification",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
