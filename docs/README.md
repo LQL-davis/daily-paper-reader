@@ -6,40 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-10
-- 运行时间：2026-07-10 21:07:15 UTC
+- 最新运行日期：2026-07-11
+- 运行时间：2026-07-11 20:38:43 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：2
-- 速读区：4
+- 本次总论文数：3
+- 精读区：3
+- 速读区：0
 
 ### 今日简报（AI）
-今日精读两篇9分论文：并行查询高效二分类与最优正则性短证明，算法与理论并重。  
-重点推荐《Fast, Parallel, Query-Efficient Binary Classification》，突破性提升二分类查询效率，另一篇给出Alt-Phillips问题最优正则性的简洁证明。  
-若对几何布局或点集覆盖感兴趣，可速览《GRE-Diff》与《Covering Points with Rectangular Boundaries》获取启发。
-- 详情：[/202607/10/README](/202607/10/README)
+- 今日共生成 3 篇推荐（精读 3 篇，速读 0 篇）
+- 精读：《Optimality-Informed Neural Networks for Lunar Landing Trajectory Optimization》（10.0/10）, 《Neural Operator-enabled Topology-informed Evolutionary Strategy for PDE-Constrained Optimization》（9.0/10）
+- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
+- 详情：[/202607/11/README](/202607/11/README)
 
 ### 精读区论文标签
-1. [Fast, Parallel, Query-Efficient Binary Classification](/202607/10/2607.04062v1-fast-parallel-query-efficient-binary-classification)  
+1. [Optimality-Informed Neural Networks for Lunar Landing Trajectory Optimization](/202607/11/2607.02741v1-optimality-informed-neural-networks-for-lunar-landing-trajectory-optimization)  
+   标签：评分：10.0/10、query:boundary-opt
+   evidence：在网络架构中硬编码边界和横截条件
+2. [Neural Operator-enabled Topology-informed Evolutionary Strategy for PDE-Constrained Optimization](/202607/11/2607.07682v1-neural-operator-enabled-topology-informed-evolutionary-strategy-for-pde-constrained-optimization)  
    标签：评分：9.0/10、query:boundary-opt
-   evidence：计算二分类的最大间隔分离超平面（决策边界）
-2. [A Short Proof of Optimal Regularity for minimizers of the Alt-Phillips Problem](/202607/10/2607.08685v1-a-short-proof-of-optimal-regularity-for-minimizers-of-the-alt-phillips-problem)  
+   evidence：基于拓扑信息的进化策略进行物理系统逆设计
+3. [Tracking the boundary between absolute/convective instability using adjoint equations](/202607/11/2607.08305v1-tracking-the-boundary-between-absoluteconvective-instability-using-adjoint-equations)  
    标签：评分：9.0/10、query:boundary-opt
-   evidence：Alt-Phillips自由边界问题涉及优化自由边界
+   evidence：使用伴随延拓追踪不稳定性边界
 
 ### 速读区论文标签
-1. [Generalized Hyperbolic Conical Circle Packings associated with Finite Polygonal Decompositions of Surfaces with Boundary](/202607/10/2607.04427v1-generalized-hyperbolic-conical-circle-packings-associated-with-finite-polygonal-decompositions-of-surfaces-with-boundary)  
-   标签：评分：7.0/10、query:boundary-opt
-   evidence：求解带边界曲面上的圆填充边值问题，并使用Thurston算法进行优化。
-2. [GRE-Diff: Gaussian Room Embeddings for Structured Layout Diffusion](/202607/10/2607.08086v1-gre-diff-gaussian-room-embeddings-for-structured-layout-diffusion)  
-   标签：评分：7.0/10、query:boundary-opt
-   evidence：户型平面生成通过调整房间边界进行设计优化
-3. [Covering Points with Rectangular Boundaries](/202607/10/2607.08183v1-covering-points-with-rectangular-boundaries)  
-   标签：评分：7.0/10、query:boundary-opt
-   evidence：研究点必须位于矩形边界上的边界覆盖问题，优化选择矩形以满足边界约束。
-4. [Tubular Neighbourhoods of Pfaffian Sets and Applications to Neural Networks](/202607/10/2607.08370v1-tubular-neighbourhoods-of-pfaffian-sets-and-applications-to-neural-networks)  
-   标签：评分：7.0/10、query:boundary-opt
-   evidence：推导神经网络决策边界管状邻域的界，有助于决策边界优化。
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">

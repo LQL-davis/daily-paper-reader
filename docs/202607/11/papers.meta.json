@@ -1,0 +1,54 @@
+{
+  "label": "2026-07-11",
+  "date": "2026-07-11",
+  "generated_at": "2026-07-11T20:38:51",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202607/11/2607.02741v1-optimality-informed-neural-networks-for-lunar-landing-trajectory-optimization",
+      "section": "deep",
+      "title_en": "Optimality-Informed Neural Networks for Lunar Landing Trajectory Optimization",
+      "authors": "Zhenbo Wang",
+      "date": "2026-07-02",
+      "pdf": "https://arxiv.org/pdf/2607.02741v1",
+      "score": "10.0",
+      "evidence": "在网络架构中硬编码边界和横截条件",
+      "tldr": "针对月球着陆器能量最优动力下降问题，要求自由终端时间下从任意初始状态着陆至固定点并终端速度为零。本文提出最优性信息神经网络（OINN），依托庞特里亚金最小值原理和HJB方程，将全部边界与横截条件硬编码进网络，直接代入最优推力解析解，仅训练状态、协态与辅助值函数输出，损失函数由最优性必要条件物理残差构成，无需预计算最优轨迹。数值仿真表明，该网络策略在操作包线内与间接法解高度吻合，着陆位置、速度和飞行时间误差均可控且残差小。研究为实时轨迹优化提供了计算成本固定、理论上具备训练稳定性和误差界保障的可行框架。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "This paper develops an Optimality-Informed Neural Network (OINN) approach for the energy-optimal, free-final-time powered descent of a lunar lander from any initial position, velocity, and mass within a bounded operating envelope to a fixed landing site with zero terminal velocity. Building on a recent framework that jointly embeds Pontryagin's minimum principle and the Hamilton-Jacobi-Bellman equation for general nonlinear optimal control, the proposed OINN approach specializes that idea to a lunar landing problem with free time of flight and fixed terminal state. Every boundary and transversality condition is hard-encoded into the network architecture by construction, the closed-form Pontryagin-optimal thrust magnitude and direction law is substituted directly rather than learned, and the remaining state, costate, and an auxiliary value-function output are trained against a physics-residual loss formed entirely from the necessary conditions of optimality, with no precomputed optimal trajectories required. A preliminary theoretical analysis is explored, establishing a stochastic-optimization stationarity guarantee for the offline training procedure, an explicit bound translating the achieved training residual into bounds on touchdown position, touchdown velocity, and flight-time error, and a fixed, input-independent onboard computational and memory cost suitable for real-time deployment. Numerical simulations evaluate the trained policy, with no retraining, against an independently solved indirect-method boundary-value problem at six representative initial states spanning the operating envelope and against eighty additional Monte Carlo simulation runs, demonstrating close agreement with the indirect-method solution and consistently small dynamics and transversality residuals throughout the envelope.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/11/2607.07682v1-neural-operator-enabled-topology-informed-evolutionary-strategy-for-pde-constrained-optimization",
+      "section": "deep",
+      "title_en": "Neural Operator-enabled Topology-informed Evolutionary Strategy for PDE-Constrained Optimization",
+      "authors": "Xiangming Huang, Guannan Zhang, Lu Lu, Raphaël Pestourie",
+      "date": "2026-07-08",
+      "pdf": "https://arxiv.org/pdf/2607.07682v1",
+      "score": "9.0",
+      "evidence": "基于拓扑信息的进化策略进行物理系统逆设计",
+      "tldr": "针对偏微分方程约束的物理系统逆设计，高维非凸空间导致计算昂贵且优化困难。现有生成模型缺乏鲁棒性和可迁移性，进化算法则难以应对高维搜索。NOTES方法创新地耦合DeepONet神经算子与CMA-ES，通过学习拓扑感知的低维表示，引导进化策略在紧凑潜在空间高效全局寻优。在纳米光子偏转器逆设计中，设计维度从256降至25，实现95%以上效率，并具有零样本迁移能力；结构优化中顺应性达246，均显著超越传统方法。该方法解耦拓扑学习与PDE求解，为物理逆设计提供了灵活、可迁移的通用框架。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "The inverse design of physical systems governed by partial differential equations is computationally demanding due to the high dimensionality and non-convexity of design spaces. Generative models for inverse design often lack robustness and transferability, whereas evolutionary strategies are robust but struggle in high-dimensional spaces. This paper introduces a Neural Operator-enabled Topology-informed Evolutionary Strategy (NOTES) that integrates dimensionality reduction, representation learning, and evolutionary optimization for efficient and transferable inverse design. NOTES couples a DeepONet-based neural operator with the Covariance Matrix Adaptation Evolution Strategy (CMA-ES) to perform global optimization in a compact latent space that encodes topology-aware priors while discovering high-performance designs for unseen operating conditions. Applied to nanophotonic beam-deflector inverse design governed by Maxwell's equations, NOTES reduces the design dimensionality from 256 to 25 and consistently achieves over 95 percent efficiency, outperforming CMA-ES, topology optimization, and other baselines. Applied to structural optimization, NOTES discovers designs that achieve compliance down to 246. By decoupling topology learning of a DeepONet from the governing physics in a PDE solver, NOTES provides a flexible and transferable framework for the inverse design of physical systems.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/11/2607.08305v1-tracking-the-boundary-between-absoluteconvective-instability-using-adjoint-equations",
+      "section": "deep",
+      "title_en": "Tracking the boundary between absolute/convective instability using adjoint equations",
+      "authors": "Yue Xiao, Hui Li, Zijing Ding",
+      "date": "2026-07-09",
+      "pdf": "https://arxiv.org/pdf/2607.08305v1",
+      "score": "9.0",
+      "evidence": "使用伴随延拓追踪不稳定性边界",
+      "tldr": "确定绝对/对流不稳定性边界传统上需嵌套鞍点搜索与参数扫描，对大型非正规特征值问题成本高且模态敏感。本文提出基于伴随方程的直接延拓方法，通过伪弧长延拓追踪中立静止鞍点边界，将零群速度条件化为伴随可解性残差，与特征问题联立求解。方法在Ginzburg-Landau和Orr-Sommerfeld问题中验证，计算效率较扫描方法提升14-30倍，并在Oldroyd-B自由表面膜中揭示边界折叠与重入结构，为高效追踪不稳定性边界提供了新途径。",
+      "tags": "query:boundary-opt",
+      "abstract_en": "Determining absolute/convective instability boundaries conventionally requires repeated saddle searches in the complex-wavenumber plane and a subsequent scan of the physical parameter space to locate zero absolute growth. Such nested calculations become costly and sensitive to modal branch association for large non-normal eigenvalue problems. This work develops a direct continuation method for neutral stationary-saddle boundaries of frequency-affine generalised eigenvalue problems. The zero-group-velocity condition is expressed as an adjoint solvability residual and solved together with the direct and adjoint eigenproblems, complex gauge constraints and the neutral-growth condition. The resulting one-dimensional solution manifold in the combined state--parameter space is tracked by scaled pseudo-arclength continuation, allowing parameter folds to be crossed without switching the physical continuation variable. The formulation recovers the analytical Ginzburg--Landau boundary and, for a Gaussian-wake Orr--Sommerfeld problem, agrees with separately formulated finite-difference saddle corrections to approximately $10^{-8}$ in relative critical Reynolds number. Compared with nested complex-wavenumber and parameter-plane saddle scanning, the scanning calculations require $14.0$--$30.6$ times the wall time of the direct adjoint continuation, with the cost increasing as the reconstructed boundary is refined. Application to a coupled Oldroyd--B free-surface film reveals genuine folds of the neutral-saddle manifold and a re-entrant CI--AI--CI boundary geometry for the selected saddle family. The results show that adjoint-augmented pseudo-arclength continuation can replace nested saddle searches and parameter-plane reconstruction by direct and computationally efficient tracking of the neutral boundary itself.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

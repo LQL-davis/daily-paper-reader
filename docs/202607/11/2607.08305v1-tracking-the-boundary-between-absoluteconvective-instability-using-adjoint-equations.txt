@@ -1,0 +1,1334 @@
+Title: Tracking the boundary between absolute/convective instability using adjoint equations
+
+URL Source: https://arxiv.org/pdf/2607.08305v1
+
+Published Time: Fri, 10 Jul 2026 00:43:22 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+TRACKING THE BOUNDARY BETWEEN ABSOLUTE/CONVECTIVE INSTABILITY USING ADJOINT EQUATIONS ∗
+
+YUE XIAO 1 , HUI LI 2,3 , AND ZIJING DING 2,3,* 
+
+Abstract. Determining absolute/convective instability boundaries conventionally requires re-peated saddle searches in the complex-wavenumber plane and a subsequent scan of the physical parameter space to locate zero absolute growth. Such nested calculations become costly and sensi-tive to modal branch association for large non-normal eigenvalue problems. This work develops a direct continuation method for neutral stationary-saddle boundaries of frequency-affine generalised eigenvalue problems. The zero-group-velocity condition is expressed as an adjoint solvability resid-ual and solved together with the direct and adjoint eigenproblems, complex gauge constraints and the neutral-growth condition. The resulting one-dimensional solution manifold in the combined state–parameter space is tracked by scaled pseudo-arclength continuation, allowing parameter folds to be crossed without switching the physical continuation variable. The formulation recovers the analytical Ginzburg–Landau boundary and, for a Gaussian-wake Orr–Sommerfeld problem, agrees with separately formulated finite-difference saddle corrections to approximately 10 −8 in relative crit-ical Reynolds number. Compared with nested complex-wavenumber and parameter-plane saddle scanning, the scanning calculations require 14 .0–30 .6 times the wall time of the direct adjoint contin-uation, with the cost increasing as the reconstructed boundary is refined. Application to a coupled Oldroyd–B free-surface film reveals genuine folds of the neutral-saddle manifold and a re-entrant CI– AI–CI boundary geometry for the selected saddle family. The results show that adjoint-augmented pseudo-arclength continuation can replace nested saddle searches and parameter-plane reconstruction by direct and computationally efficient tracking of the neutral boundary itself. 
+
+Key words. Adjoint method, Pseudo-arclength continuation, Saddle point, Spatio-temporal instability 
+
+1. Introduction. The response of an open flow to a localised disturbance is governed not only by temporal amplification but also by the way disturbances prop-agate through the domain. In spatio-temporal stability theory, the transition from convective to absolute instability is associated with a branch-point singularity of the dispersion relation in the complex wavenumber plane and, for the physical transition, with the pinching of spatial branches of opposite spatial causality [1, 2]. With the normal-mode convention (1.1) q′(x, y, t ) = ˆ q(y) exp[i( kx − ωt )] ,
+
+a neutral absolute/convective instability boundary is characterised algebraically by (1.2) dω
+
+dk = 0 , Im( ω) = 0 ,
+
+provided that the stationary point is the relevant Briggs–Bers pinch. A direct numerical implementation of this definition is often cumbersome. A con-ventional workflow first solves a temporal or spatial eigenvalue problem at many neigh-bouring complex wavenumbers, associates eigenvalues with a selected modal branch, approximates d ω/ dk by finite differences, iterates for a saddle point, and finally em-beds that saddle search in an outer parameter loop to locate zero absolute growth. The procedure becomes particularly delicate when eigenvalue branches approach one another, because small branch-association errors contaminate the numerical deriv-ative. It is also expensive when each eigenvalue solve involves a large multi-field discretisation. Adjoint solvability provides an alternative. For non-self-adjoint eigenvalue prob-lems, direct–adjoint identities can evaluate eigenvalue sensitivities without explicitly differentiating the eigenvector or repeatedly resolving neighbouring eigenvalues; re-lated ideas are widely used in modal sensitivity analysis [5]. In the present work, the adjoint identity is used differently: the zero-group-velocity condition itself is inserted into a coupled nonlinear system and solved simultaneously with the direct and adjoint eigenproblems. The neutral saddle is therefore treated as a solution of an extended algebraic system rather than as the result of a nested eigenvalue-differentiation and 
+
+1arXiv:2607.08305v1 [physics.flu-dyn] 9 Jul 2026 2 Y. XIAO, H. LI, AND Z. DING 
+
+space. This viewpoint is important computationally: rather than evaluating saddle growth rates throughout a two-dimensional parameter plane and reconstructing the neutral contour afterwards, the numerical method advances directly along the bound-ary of interest. It is also important geometrically, because a fold in the projection onto either physical parameter does not terminate the underlying solution manifold. The resulting framework combines four numerical ingredients. First, the station-ary condition is imposed through an adjoint algebraic residual, avoiding repeated finite-difference differentiation of a tracked temporal eigenvalue branch within the boundary equations. Second, two complex gauge conditions and a reduced adjoint equation remove the direct- and adjoint-mode scale and phase freedoms and produce a square fixed-parameter Newton system. Third, after one neutral saddle has been corrected, the fixed-parameter constraint is removed and the resulting underdeter-mined system is followed by scaled two-sided pseudo-arclength continuation. This permits the same formulation to remain regular when a physical continuation param-eter loses local uniqueness. Fourth, the large direct- and adjoint-mode blocks of the Newton Jacobian are assembled from exact first variations, while only the scalar fre-quency, wavenumber and control-parameter columns are evaluated numerically. The method therefore targets the two principal numerical costs of conventional boundary construction: repeated complex-wavenumber saddle searches and repeated sampling of the surrounding physical parameter plane. The formulation is assessed at three levels. The linear Ginzburg–Landau equa-tion provides an exact scalar neutral-saddle manifold and verifies the reduction of the general adjoint system. A planar Gaussian wake then provides a non-normal Orr– Sommerfeld test: local finite-difference corrections cross-validate the continued saddle states, representative spatial-root calculations verify the corresponding pinch topol-ogy, and a nested complex-wavenumber/parameter-plane scanning benchmark quan-tifies the cost of reconstructing the same boundary indirectly. Finally, the framework is applied without a film-specific continuation reformulation to a coupled Oldroyd– B free-surface eigenproblem containing hydrodynamic, constitutive and interfacial unknowns. The film calculation provides a genuine fold test, for which natural con-tinuation in the Reynolds number loses local solvability whereas pseudo-arclength continuation crosses the turning point and reveals the post-fold branch of the selected neutral-saddle family. Section 2 develops the adjoint and continuation formulation. Sections 3 and 4 present the analytical and Gaussian-wake assessments, respectively. Section 5 considers the viscoelastic-film application, and the principal findings and limitations are summarised in Sec. 6. 
+
+2. Adjoint formulation and neutral-saddle continuation. 2.1. Generalised eigenvalue problem and adjoint saddle equation. After spatial discretisation in the transverse direction, the linearised governing equations and homogeneous boundary conditions are assumed to take the frequency-affine form (2.1) L(k, ω ; R)q ≡ [A(k, R) − ωB(k, R)] q = 0,
+
+where q ∈ Cn, k ∈ C, ω ∈ C, and R is a set of real physical parameters. A non-trivial solution exists on the dispersion relation (2.2) D(k, ω ; R) = det L(k, ω ; R) = 0 .
+
+For a simple finite eigenvalue, Eq. (2.2) locally defines an analytic branch ω = ω(k; R). TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 3To express dω 
+
+> dk
+
+in a form suitable for direct computation we introduce the adjoint problem. Taking the standard Hermitian inner product ⟨u, v⟩ = uH v, where ( ·)H
+
+denotes the conjugate transpose. The adjoint eigenvector is defined by (2.3) LH (k, ω ; R)q† = 0.
+
+Differentiating Eq. (2.1) with respect to k and taking the inner product with q†
+
+yields (2.4) 
+
+
+
+q†, ∂L
+
+∂k q
+
+
+
++ dω
+
+dk
+
+
+
+q†, ∂L
+
+∂ω q
+
+
+
+= 0 .
+
+Since ∂L 
+
+> ∂ω
+
+= −B, the frequency derivative becomes (2.5) dω
+
+dk = (q†)H   ∂A 
+
+> ∂k
+
+− ω ∂B
+
+> ∂k
+
+ q
+
+(q†)H Bq .
+
+For a simple finite eigenvalue, ( q†)H Bq ̸ = 0. Defining C(k, ω ; R) = ∂A 
+
+> ∂k
+
+− ω ∂B 
+
+> ∂k
+
+, the stationary-point condition is equivalent to the complex algebraic equation (2.6) S ≡ (q†)H Cq = 0 .
+
+The sign in Eq. (2.5) follows directly from the definition L = A − ωB.
+
+2.2. Gauge-fixed Newton system for a saddle at fixed parameters. At fixed R, the unknown saddle state is ( q, q†, ω, k ). The direct and adjoint eigenvectors possess independent complex scale and phase freedoms. Merely adding the biorthog-onality condition ( q†)H Bq = 1 does not remove the combined transformation (2.7) q 7 → cq, q† 7 → q†
+
+c , c ∈ C \ { 0}.
+
+A regular Newton system therefore requires two independent complex gauge condi-tions. Let qref be a fixed reference vector within one Newton corrector and impose 
+
+qH 
+
+> ref
+
+q = 1 . The adjoint scale is fixed by (2.8) (q†)H Bq = 1 .
+
+Because Lq = 0 implies that the rows of LH are linearly dependent at a converged eigenpair, one complex adjoint equation is redundant. Let Pj ∈ R(n−1) ×n delete the jth adjoint residual component. In the implementation, j = arg max ℓ |qℓ| is used to avoid deleting a row associated with a negligibly small coefficient in the row dependence. The fixed-parameter saddle is obtained from (2.9) Fs =
+
+
+
+Lq Pj LH q†
+
+(q†)H Cq qH 
+
+> ref
+
+q − 1(q†)H Bq − 1
+
+
+
+= 0.4 Y. XIAO, H. LI, AND Z. DING 
+
+Equation (2.9) contains 2 n + 2 complex equations for 2 n + 2 complex unknowns. The corresponding real state is (2.10) U =
+
+
+
+qTr , qTi , (q† 
+
+> r
+
+)T , (q† 
+
+> i
+
+)T , ω r , ω i, k r , k i
+
+T
+
+∈ R4n+4 .
+
+The real and imaginary parts of Eq. (2.9) form a square real system Fs(U) = 0,solved by damped Newton iteration, (2.11) Js(U(r))∆ U(r) = −Fs(U(r)), U(r+1) = U(r) + γr ∆U(r),
+
+where 0 < γ r ≤ 1 is selected by a residual-decrease line search. The wavenumber derivatives of the operators A and B can be evaluated either analytically, by direct differentiation of their closed-form expressions, or numerically by centred finite differences. Each approach has its own merits. An analytical de-rivative, e.g. ∂A 
+
+> ∂k
+
+obtained by differentiating the operator expression with respect to 
+
+k, is exact (up to working precision) and free of discretisation error. However, it requires the operators to be available in a differentiable form, and the algebra may become cumbersome for complicated operators. The numerical alternative is simple to implement and only needs the operator evaluations 
+
+∂A
+
+∂k ≃ A(k + hk) − A(k − hk)2hk
+
+,(2.12) 
+
+∂B
+
+∂k ≃ B(k + hk) − B(k − hk)2hk
+
+,(2.13) with a real increment hk. This centred-difference formula yields an O(h2
+
+> k
+
+) approxi-mation to the complex derivative with respect to k when the discrete operators are analytic in a neighbourhood of the saddle. The step size hk must be chosen to balance truncation error and round-off error, whereas the analytical route avoids this trade-off entirely. An initial state is constructed from an approximate pair ( kg, ω g). At k = kg, the generalised temporal eigenproblem is solved and the finite eigenvalue closest to ωg is selected. Its right eigenvector defines q and the local reference gauge. The initial adjoint vector is the right singular vector corresponding to the smallest singular value of LH and is rescaled to satisfy Eq. (2.8). 
+
+2.3. Neutral-saddle manifold in a two-parameter plane. We now choose two real control parameters R = ( R1, R 2) and hold all other parameters fixed. The AI/CI boundary is represented algebraically by the neutral-saddle equations (2.14) dω
+
+dk = 0 , ωi ≡ Im( ω) = 0 .
+
+Using Eq. (2.6), the gauge-fixed boundary residual is (2.15) Fb(q, q†, ω, k, R 1, R 2) = 
+
+
+
+Lq Pj LH q†
+
+(q†)H Cq qH 
+
+> ref
+
+q − 1(q†)H Bq − 1
+
+ωi
+
+
+
+= 0.TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 5Separating complex equations into real and imaginary parts gives 4 n+5 real equations. The continuation state (2.16) X =
+
+
+
+qTr , qTi , (q† 
+
+> r
+
+)T , (q† 
+
+> i
+
+)T , ω r , ω i, k r , k i, R 1, R 2
+
+T
+
+∈ R4n+6 
+
+therefore satisfies an underdetermined real system (2.17) Fb(X) = 0, Fb : R4n+6 → R4n+5 .
+
+At a regular solution, Eq. (2.17) defines a one-dimensional manifold in state–parameter space. Its projection onto the ( R1, R 2) plane is the algebraic neutral-saddle boundary. 
+
+2.4. Scaled pseudo-arclength predictor–corrector. Natural continuation in R1 or R2 fails when the selected parameter ceases to be a valid local coordinate, for example when d R2/ds = 0 on the solution curve. To avoid manual parameter switching, continuation is performed in scaled coordinates (2.18) X = SxZ,
+
+where Sx is a fixed positive diagonal scaling matrix constructed once from the cor-rected initial state X0. The scaling is assigned blockwise, (2.19) Sx = diag  dq I2n, d q† I2n, d ω I2, d kI2, d R1 , d R2
+
+ ,
+
+so that the real and imaginary parts of each complex quantity share the same scale. The scalar scales are formed from the initial corrected state according to (2.20) 
+
+dω = max(1 , |ω0|), dk = max(1 , |k0|), dRj = max(1 , |Rj, 0|), j = 1 , 2,
+
+while dq and dq† are fixed block scales determined from the magnitudes of the corre-sponding initial direct and adjoint modes, with a positive lower bound used to avoid a vanishing scale. Once constructed, Sx is held fixed throughout both directional continuation traces. The scaled residual and Jacobian are (2.21) bFb(Z) = Fb(SxZ), JZ = JX Sx.
+
+At a regular point Zm, JZ ∈ R(4 n+5) ×(4 n+6) has a one-dimensional right nullspace. The unit tangent in scaled state space is denoted by t(z) 
+
+> m
+
+and satisfies (2.22) JZ (Zm)t(z) 
+
+> m
+
+= 0, t(z) 
+
+> m2
+
+= 1 .
+
+The corresponding tangent in the original state coordinates is (2.23) t(x) 
+
+> m
+
+= Sxt(z) 
+
+> m
+
+.
+
+For geometric diagnostics in the physical ( R1, R 2) parameter plane, we further define the normalised parameter tangent (2.24) t(p) 
+
+> m
+
+=
+
+(t(x) 
+
+> m
+
+)R1
+
+(t(x) 
+
+> m
+
+)R2
+
+!h
+
+(( t(x) 
+
+> m
+
+)R1 )2 + (( t(x) 
+
+> m
+
+)R2 )2
+
+i1/2 = t(p)
+
+> R1
+
+t(p)
+
+> R2
+
+!
+
+.6 Y. XIAO, H. LI, AND Z. DING 
+
+Thus, t(z) is used in the scaled pseudo-arclength predictor–corrector, whereas t(p) is used to identify turning points and describe the geometry of the projected boundary in physical parameter space. The implementation computes the full right-singular-vector matrix of JZ and selects the final right singular vector. An economy-size singular value decomposition must not be used for this wide m × (m + 1) matrix because it omits the additional right-null vector. For m > 0, the orientation is chosen such that (2.25) (t(z) 
+
+> m
+
+)T t(z) 
+
+> m−1
+
+> 0.
+
+An Euler predictor is (2.26) Zpm+1 = Zm + ∆ s t(z) 
+
+> m
+
+.
+
+The corrector solves (2.27) G(Z) = bFb(Z)(t(z) 
+
+> m
+
+)T  Z − Zpm+1 
+
+!
+
+= 0.
+
+At Newton iteration r,(2.28) 
+
+JZ (Z(r))(t(z) 
+
+> m
+
+)T
+
+
+
+∆Z(r) = − bFb(Z(r))(t(z) 
+
+> m
+
+)T  Z(r) − Zpm+1 
+
+!
+
+.
+
+One physical parameter is fixed only during initial neutral-saddle correction. For example, (2.29) 
+
+ Fb(X)
+
+R2 − R2,g
+
+
+
+= 0
+
+is a square system that corrects a nearby saddle to the AI/CI boundary. After this first point converges, the fixed-parameter equation is removed, the scaled nullspace tangent is calculated, and the two orientations ±t(z)0 are traced separately. The arclength step is increased when the corrector converges rapidly and reduced when Newton convergence is slow or a trial step is rejected. 
+
+2.5. Semi-analytical Jacobian and numerical diagnostics. A centred-difference approximation of every Jacobian column is inefficient because 4 n real unknowns are direct- and adjoint-mode components. At fixed ( ω, k, R 1, R 2), the eigenvector blocks can be assembled exactly from 
+
+δ(Lq ) = L δq,(2.30) 
+
+δ(Pj LH q†) = Pj LH δq†,(2.31) 
+
+δS = ( q†)H C δq + ( δq†)H Cq ,(2.32) 
+
+δ(qH 
+
+> ref
+
+q) = qH 
+
+> ref
+
+δq,(2.33) 
+
+δ(q†)H Bq  = ( q†)H B δq + ( δq†)H Bq .(2.34) After conversion to real blocks, Eqs. (2.30)– (2.34) fill the 4 n eigenvector columns analytically. Only the six scalar columns ( ωr , ω i, k r , k i, R 1, R 2) are approximated by centred differences. The same Jacobian assembly is used for the tangent calculation and the pseudo-arclength corrector. TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 7
+
+Algorithm 2.1 Adjoint pseudo-arclength continuation of a neutral-saddle branch Given a nearby saddle estimate, fixed non-continuation parameters, and an initial arclength step ∆ s
+
+Select the temporal eigenvalue closest to the supplied frequency estimate and con-struct the corresponding direct eigenvector q
+
+Construct the adjoint eigenvector q† from the smallest singular vector of LH and impose the biorthogonal gauge Fix one physical parameter and solve the augmented neutral-saddle system Fb(X) = 
+
+0 to obtain the initial boundary point X0
+
+Construct the fixed scaling matrix Sx and set Z0 = S−1 
+
+> x
+
+X0
+
+Compute the scaled tangent t(z)0 from the null space of JZ (Z0) and normalise it 
+
+for each initial orientation t(z)0 and −t(z)0 do while the prescribed parameter window has not been exhausted do 
+
+Predict the next point: Zpm+1 = Zm + ∆ s t(z)
+
+> m
+
+Correct the predictor by solving the pseudo-arclength system G(Z) = 0 with damped Newton iteration 
+
+if the Newton corrector fails then 
+
+Reduce ∆ s and repeat the predictor–corrector step 
+
+end if 
+
+Update the local direct-mode gauge and deleted adjoint residual component Compute and orient the new scaled tangent t(z)
+
+> m+1
+
+Evaluate continuation diagnostics and store the accepted boundary point Adapt ∆ s according to the Newton convergence behaviour 
+
+end while end for 
+
+Merge the two directional traces into a single connected neutral-saddle branch 
+
+return Neutral-saddle boundary branch At each accepted point, the implementation monitors 
+
+rq = ∥Lq ∥2 ,rq† = LH q† 
+
+> 2
+
+,rs = |(q†)H Cq |,rωk = dω
+
+dk ,rn = |ωi|,rb = |(q†)H Bq − 1|,rt = JZ t(z)
+
+> 2
+
+max(1 , ∥JZ ∥F) .
+
+(2.35) The singular values of JZ are additionally recorded as a rank diagnostic near folds and possible mode interactions. Equations (2.6) and (2.14) identify algebraic stationary eigenpairs. They do not by themselves prove that a stationary point is a physical pinch. The initial seed must therefore be checked by spatial branch tracking according to the Briggs–Bers criterion[7]. Representative points are rechecked near parameter folds, rapid changes in the continued eigenmode, or a deterioration of the Jacobian rank indicator. This 8 Y. XIAO, H. LI, AND Z. DING 
+
+separation between algebraic continuation and physical pinch verification is main-tained throughout the paper. 
+
+3. Application to the Ginzburg–Landau equation. The linear Ginzburg– Landau equation provides a scalar problem for which the neutral-saddle boundary, the eigenvalue derivative, and the continued saddle coordinates are available analytically. It therefore tests whether the general direct–adjoint formulation of Sec. 2 reduces cor-rectly in the one-dimensional limit, before the method is applied to matrix eigenvalue problems. Consider the linear advection–diffusion equation (3.1) ∂q ∂t + U ∂q ∂x = μq + D ∂2q∂x 2 , D > 0,
+
+where U is the advection velocity, μ is the temporal amplification parameter, and 
+
+D is the diffusion coefficient. With the normal-mode convention in Eq. (1.1), q =ˆq exp[i( kx − ωt )], Eq. (3.1) gives (3.2) ω(k) = U k + i( μ − Dk 2).
+
+3.1. Scalar direct–adjoint formulation. To apply exactly the same notation as in Sec. 2.1, Eq. (3.2) is written as the scalar frequency-affine eigenproblem (3.3) LGL q ≡ [AGL (k, U, μ ) − ωB GL ] q = 0 ,
+
+with AGL = U k + i( μ − Dk 2) and BGL = 1 . The scalar adjoint problem is (3.4) LH
+
+> GL
+
+q† = 0 .
+
+The wavenumber derivative entering the adjoint saddle equation is (3.5) CGL ≡ ∂A GL 
+
+∂k − ω ∂B GL 
+
+∂k = U − 2i Dk. 
+
+Hence the adjoint sensitivity identity (2.5) becomes (3.6) dω
+
+dk = (q†)H CGL q
+
+(q†)H BGL q = U − 2i Dk, 
+
+which is identical to the analytical derivative of Eq. (3.2). For n = 1, deleting one redundant adjoint equation leaves an empty reduced adjoint block, because Pj ∈ R0×1. The adjoint variable is nevertheless retained in the saddle residual and in the biorthogonal gauge. With qref = 1, the scalar neutral-saddle residual corresponding to Eq. (2.15) is (3.7) FGL =
+
+
+
+LGL q
+
+(q†)H CGL qq − 1(q†)H q − 1
+
+ωi
+
+
+
+= 0.
+
+The first four blocks in Eq. (3.7) are complex and the last equation is real. Thus the residual supplies nine real equations for the ten-dimensional real continuation state (3.8) XGL =
+
+
+
+qr , q i, q † 
+
+> r
+
+, q † 
+
+> i
+
+, ω r , ω i, k r , k i, U, μ 
+
+T
+
+∈ R10 .TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 9The two complex gauge equations in Eq. (3.7) give q = q† = 1. Consequently, the adjoint saddle equation reduces to CGL = U − 2i Dk = 0 , and therefore ks = − iU 
+
+> 2D
+
+.
+
+Substitution into Eq. (3.2) yields ωs = i 
+
+
+
+μ − U 2
+
+> 4D
+
+
+
+. The neutral-saddle condition 
+
+ωi = 0 then gives the analytical boundary (3.9) μc = U 2
+
+4D .
+
+Thus, in the scalar limit, the general adjoint residual does not merely recover the same saddle coordinates as direct differentiation; it reduces identically to the exact group-velocity condition. For completeness, the exact first variations used to assemble the real Newton Jacobian in this verification problem are (3.10) δL GL = k δU + CGL δk + i δμ − δω, δC GL = δU − 2i D δk. 
+
+These expressions are inserted into the variation formulas (2.30)–(2.34), so that an exact real Jacobian is used rather than a finite-difference Jacobian. 0.5 1 1.5 2 2.5 3 3.5 4
+
+U            
+
+> 01234
+> 7c
+> Analytical 7c=U2=(4 D)Adjoint, "s= 0 :05
+> Fig. 1 .Analytical neutral-saddle boundary μc=U2/(4 D)and the boundary obtained from the gauge-fixed direct–adjoint pseudo-arclength formulation for the linear Ginzburg–Landau equation.
+
+3.2. Numerical continuation and error measures. The numerical test fixes 
+
+D = 1 and treats ( U, μ ) as the two continuation parameters. A deliberately perturbed initial estimate at U = 1 is first corrected to a neutral saddle by solving Eq. (3.7) together with the fixed-parameter condition U = 1. The fixed-U equation is then removed and the resulting 9 ×10 real Jacobian is used to compute the one-dimensional right nullspace tangent. The two tangent orientations are followed with the scaled pseudo-arclength predictor–corrector algorithm of Sec. 2.4 over 0 .2 ≤ U ≤ 4. Three fixed arclength steps, ∆ s = 0 .20, 0 .10, and 0 .05, are considered. Two independent checks are performed. First, the adjoint derivative Eq. (3.6) is evaluated at six non-stationary complex wavenumbers and compared with the exact derivative U − 2i Dk . Evaluating the identity away from the saddle avoids the trivial comparison of two quantities that both vanish. Second, the continued neutral-saddle 10 Y. XIAO, H. LI, AND Z. DING 
+
+branch is compared pointwise with Eq. (3.9). The boundary errors are defined as (3.11) E∞ = max  
+
+> m
+
+μm − U 2
+
+> m
+
+4D , ERMS =
+
+ 1
+
+NpNp
+
+X
+
+> m=1
+
+
+
+μm − U 2
+
+> m
+
+4D
+
+2
+
+
+
+> 1/2
+
+.
+
+For the six off-saddle derivative checks, the maximum absolute discrepancy be-tween the adjoint and analytical derivatives is 0, with a maximum scaled relative discrepancy of 0. For the finest continuation step ∆ s = 0 .05, 69 boundary points are accepted. The maximum and RMS errors relative to the analytical boundary are 8.882 × 10 −16 and 2 .610 × 10 −16 , respectively. The maximum saddle, neutral-growth, and tangent-nullspace residuals are 0, 1 .913 × 10 −24 , and 1 .307 × 10 −16 . The three-step comparison in Table 1 confirms that the nonlinear corrector returns predicted states to the analytical neutral-saddle manifold over a range of arclength steps. 
+
+> Table 1
+> Pseudo-arclength verification for the linear Ginzburg–Landau equation.
+
+∆s Np E∞ ERMS max rs max rn
+
+0.2 17 5.502e-13 3.089e-13 0.000e+00 4.946e-22 0.1 34 2.442e-15 1.323e-15 0.000e+00 3.684e-23 0.05 69 8.882e-16 2.610e-16 0.000e+00 1.913e-24 Figure 1 provides a direct scalar verification of the full algorithmic sequence used later for the matrix problems: neutral-saddle correction, nullspace-tangent evalua-tion, two-sided pseudo-arclength continuation, and residual-based acceptance. Be-cause the analytical branch is known exactly, any discrepancy in this test originates from the nonlinear continuation implementation rather than from spatial discretisa-tion or modal branch association. 
+
+4. Application to a planar Gaussian wake. The linear Ginzburg–Landau problem verifies the scalar limit of the direct–adjoint formulation. We next consider a matrix-valued, non-normal eigenvalue problem for which the saddle condition must be evaluated on a selected eigenvalue branch. A planar Gaussian wake is used for this purpose. The same family of velocity profiles has been widely employed in spatio-temporal wake analysis [3]. In the present study, the wake problem is used to assess the mapped spectral discretisation, the pseudo-arclength boundary continuation, an independently formulated finite difference neutral-saddle cross validation, and the identification of the corresponding spatial pinch topology. 
+
+4.1. Orr–Sommerfeld formulation and mapped collocation. The parallel base flow is (4.1) U (y) = 1 − λ exp[ −(ln 2) y2],
+
+where λ denotes the centreline velocity-deficit parameter and the wake half-width is used as the reference length. For a two-dimensional disturbance (4.2) ψ(x, y, t ) = ϕ(y) exp[i( αx − ωt )] ,
+
+the linearised equations reduce to the Orr–Sommerfeld equation (4.3) (U − c)( D2 − α2)ϕ − U ′′ ϕ = − i
+
+αRe (D2 − α2)2ϕ, c = ωα ,TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 11 with far-field conditions (4.4) ϕ(±∞ ) = Dϕ (±∞ ) = 0 .
+
+A direct linear map from the Chebyshev interval to a large truncated physical domain is found to resolve the narrow wake core inefficiently. The production calcu-lations therefore use the sinh map (4.5) y(x) = ymax 
+
+sinh( βx )sinh β , −1 ≤ x ≤ 1,
+
+where β ≥ 0 controls the clustering of physical nodes around y = 0. The limit β → 0recovers the linear map y = ymax x. If Dx denotes the Chebyshev first-derivative matrix on [ −1, 1], the physical first-derivative matrix is constructed as (4.6) Dy = diag 
+
+" dy
+
+dx
+
+−1#
+
+Dx, dy
+
+dx = ymax 
+
+β cosh( βx )sinh β .
+
+The higher-order nodal differentiation matrices are obtained from D(n) = Dny .
+
+The reduced eigenproblem is (4.7) [Aw(α, Re, λ ) − ωBw(α)] qw = 0,
+
+where 
+
+Aw = αUL α − αU′′ + i
+
+Re Mα,
+
+Bw = Lα,
+
+Lα = D(2) − α2I,
+
+Mα = D(4) − 2α2D(2) + α4I.
+
+Here U and U′′ are diagonal matrices containing the base velocity and its second derivative at the retained physical nodes. The analytical wavenumber derivatives required by the adjoint saddle condition are 
+
+∂αLα = −2αI,(4.8) 
+
+∂αMα = −4αD(2) + 4 α3I,(4.9) 
+
+∂αAw = UL α + αU∂αLα − U′′ + i
+
+Re ∂αMα,(4.10) 
+
+∂αBw = −2αI.(4.11) Consequently, (4.12) dω
+
+dα = (q†
+
+> w
+
+)H (∂αAw − ω∂ αBw) qw
+
+(q†
+
+> w
+
+)H Bwqw
+
+.
+
+The continuation parameters are taken as ( R1, R 2) = ( Re, λ ), and the gauge-fixed boundary system in Eq. (2.15) is applied without any wake-specific normalisation. The calculations use N = 100, ymax = 20, and β = 3, for which the nearest non-zero physical node to the wake centre is at ∆ y0 = 0 .1884 and eleven full-grid nodes lie in |y| ≤ 1. Resolution, mapping-parameter, and domain-truncation studies are 12 Y. XIAO, H. LI, AND Z. DING 
+
+reported in A. In particular, relative to the N = 120 calculation, the production-grid critical Reynolds number differs by ∼ 10 −7, while changing the truncated-domain half-width from ymax = 20 to 30 at approximately fixed wake-core spacing changes 
+
+Re c by only ∼ 10 −7 in relative terms. At λ = 0 .95, the gauge-fixed neutral-saddle correction gives Re c = 333 .2348, 
+
+αs = 0 .9342 −0.8624 i, ωs = 0 .5260+1 .32 ×10 −23 i. The direct, full-adjoint, saddle, and biorthogonality residuals at this point are 3 .458 × 10 −12 , 1 .193 × 10 −11 , 1 .152 × 10 −12 ,and 1 .503 × 10 −12 , respectively. This converged state is used as the starting point for the two-sided continuation below. 0.94 0.96 0.98 1 1.02 
+
+6         
+
+> 10 2
+> 10 3
+> Re c
+> Adjoint FD reference
+> 0.96 0.98 1
+> 6
+> 10 !7
+> 10 !6
+> 10 !5
+> j"Re j
+> Fig. 2 .Gaussian-wake neutral-saddle boundary obtained by adjoint continuation. Symbols show 31 finite-difference neutral-saddle corrections used for local cross-validation of the adjoint saddle formulation. Inset shows the absolute Reynolds number difference |∆Re |=|Re adjoint −Re FD |
+> between the adjoint continuation and the finite-difference reference calculations.
+
+4.2. Neutral-saddle boundary and finite-difference cross-validation. Start-ing from the converged point above, the neutral-saddle equations are continued in the (Re, λ ) plane by the scaled pseudo-arclength method of Sec. 2.4. The two orienta-tions of the initial nullspace tangent are followed and merged into a single connected branch. Over the prescribed continuation window, 139 unique boundary points are accepted, spanning 30 .1498 ≤ Re ≤ 1975 .84 and 0 .945992 ≤ λ ≤ 1.011430. The two endpoints correspond to the prescribed parameter window and should not be interpreted as terminal points of the global neutral-saddle branch. The continuation remains numerically regular throughout the computed segment. No pseudo-arclength step is rejected, the mean number of Newton iterations per accepted point is 2.81, and no corrector requires more than three iterations. The TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 13 maximum residuals over the complete computed branch are max ∥Lwqw∥2 = 1 .779 × 10 −11 ,
+
+max ∥LHw q†
+
+> w
+
+∥2 = 9 .617 × 10 −11 ,
+
+max (q†
+
+> w
+
+)H Cwqw = 4 .196 × 10 −12 ,
+
+max |ωi| = 1 .000 × 10 −22 ,
+
+max ∥JZ t(z)∥2
+
+max(1 , ∥JZ ∥F ) = 4 .395 × 10 −17 .
+
+As a local cross-validation of the adjoint saddle formulation, a separately formu-lated finite-difference neutral-saddle calculation is performed at 31 values of λ sampled along the continued branch. At each selected point, the frequency and direct mode are retained as branch-tracking anchors, while the neutral saddle is re-corrected using a residual that does not contain the adjoint eigenvector or the analytical eigenvalue derivative. At fixed λ, the reference unknown is y = ( αr , α i, Re )T , and the nonlinear residual is (4.13) RFD (y) = 
+
+
+
+Re [(d ω/ dα)FD ]Im [(d ω/ dα)FD ]Im( ω)
+
+ = 0.
+
+The finite-difference group velocity is evaluated from branch-tracked temporal eigen-solves using centred differences. Neither an adjoint eigenvector nor the analytical matrices ∂αAw and ∂αBw enter Eq. (4.13). The 3 × 3 Newton Jacobian of the finite-difference residual is also approximated by centred differences. The comparison there-fore tests the adjoint saddle equation against a separately formulated finite-difference residual on the same discrete wake operator. Figure 2 shows the continued branch together with the 31 finite-difference ref-erence points. The agreement extends over nearly two orders of magnitude in Re ,rather than being restricted to a neighbourhood of the initial neutral saddle. For a quantity g ∈ { Re c, α s, ω s}, the pointwise cross-validation is summarised by 
+
+E∞(g) = max  
+
+> ℓ
+
+gadj  
+
+> ℓ
+
+− gFD  
+
+> ℓ
+
+,(4.14) 
+
+ERMS (g) = 
+
+"
+
+1
+
+NλNλX
+
+> ℓ=1
+
+gadj  
+
+> ℓ
+
+− gFD 
+
+> ℓ
+> 2
+
+#1/2
+
+.(4.15) All 31 finite-difference corrections converge. The quantitative comparison is listed in Table 2. The maximum absolute difference in the critical Reynolds number is 2 .004 ×
+
+10 −5, corresponding to a maximum relative difference of 1 .046 × 10 −8. The maximum differences in the complex saddle wavenumber and frequency are 2 .572 × 10 −8 and 4.290 ×10 −10 , respectively. The largest residual of the finite-difference reference solver is 8 .513 × 10 −9. The two formulations therefore give closely consistent neutral-saddle states over the complete set of sampled λ values. Although pseudo-arclength continuation is designed to pass parameter folds, no actual Re - or λ-turning point is crossed on the computed wake segment. The con-sistently oriented physical parameter-plane tangent t(p) preserves the signs of both parameter components throughout the calculation, with no zero crossing of either 
+
+t(p) 
+
+> Re
+
+or t(p) 
+
+> λ
+
+. Toward the high-Re end, t(p) 
+
+> λ
+
+approaches zero while t(p) 
+
+> Re
+
+remains non-zero, showing that the projection of the solution manifold onto the ( Re, λ ) plane 14 Y. XIAO, H. LI, AND Z. DING  
+
+> Table 2
+> Finite-difference cross-validation of the adjoint neutral-saddle boundary at 31 sampled values of λ.
+
+Quantity E∞ ERMS 
+
+Re c 2.004 × 10 −5 8.790 × 10 −6
+
+αs 2.572 × 10 −8 1.075 × 10 −8
+
+ωs 4.290 × 10 −10 2.140 × 10 −10 
+
+becomes nearly vertical. Thus, λ becomes a poorly conditioned natural continuation parameter even though a true fold is not encountered in the present window. The pseudo-arclength parameterisation remains regular and does not require a manual switch of physical continuation parameter. 
+
+4.3. Computational efficiency relative to Briggs nested saddle scan-ning. The finite-difference calculations in the preceding subsection are intended as local cross-validation of selected neutral-saddle states and do not constitute an inde-pendent boundary-construction procedure. To assess the cost of constructing the complete boundary, the direct adjoint trace is compared with a nested complex-wavenumber and parameter-plane saddle-scanning procedure. The two approaches use the same mapped Orr–Sommerfeld discretisation, Eq. (4.7), and target the saddle family identified from the neutral point at λ = 0 .95. No points from the computed adjoint boundary are supplied to the scanning calculation. At each sampled parameter pair ( Re, λ ), a temporal eigenvalue sheet is first followed on a fixed 11 ×11 complex-α grid covering 0 .25 ≤ αr ≤ 1.45 , and −1.55 ≤ αi ≤ − 0.15 . Candidate stationary points are detected from small values of the finite-difference group velocity 
+
+gFD (α) = ω(α+hα)−ω(α−hα)2hα , and are locally refined by solving Re gFD = Im gFD = 0 with a finite-difference Newton iteration in ( αr , α i). Continuity in the saddle coordi-nates, eigenvalue and modal overlap is used to retain the selected saddle family. The absolute growth rate (4.16) γ(Re, λ ) = Im ωs(Re, λ )is then evaluated throughout a two-dimensional parameter grid, and the neutral boundary is reconstructed a posteriori from the zero contour γ = 0. The compar-ison therefore represents a nested scanning-and-reconstruction workflow rather than an optimally warm-started saddle-continuation algorithm. All timing measurements are performed in MATLAB R2020a on a system equipped with an AMD Ryzen 7 PRO 4750U processor and 16 GB of system memory. The adjoint and scanning calculations are executed on the same hardware using the same spatial discretisation. For the adjoint calculation, the timed region begins after the initial fixed-λ neutral-saddle correction and includes the two directional pseudo-arclength traces. For the scanning calculations, the timed region contains the complex-
+
+α searches, local saddle refinements over the parameter grid and reconstruction of the neutral zero contour. Six parameter-plane resolutions are considered, NRe × Nλ = 12 × 7, 16 × 9, 20 ×
+
+11 , 24 ×13 , 28 ×15 , 32 ×17 , where NRe and Nλ denote the numbers of Re and λ nodes, respectively. The Re nodes are logarithmically distributed over 30 ≤ Re ≤ 2000, whereas the λ nodes are uniformly distributed over 0 .93 ≤ λ ≤ 1.03. The complex-α
+
+grid and local saddle-refinement settings are held fixed throughout. Every sampled parameter point converges successfully and each resolution produces one connected TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 15 neutral contour. Figure 3 compares two representative scanning reconstructions with the direct adjoint boundary. The 16 × 9 scan already recovers the global geometry of the neutral boundary, while refinement to 24 × 13 brings the reconstructed contour closer to the direct continuation result. 0.94 0.96 0.98 1 1.02 
+
+6                 
+
+> 10 2
+> 10 3
+> Re c
+> Adjoint Briggs 16 #9Briggs 24 #13
+> Fig. 3 .Gaussian-wake neutral-saddle boundary obtained by direct adjoint continuation and by nested saddle scanning on 16 ×9and 24 ×13 ( Re, λ )grids. Both scanning calculations use the same
+> 11 ×11 complex-αsearch grid. The curves are shown over the common Reynolds-number interval used for the geometric error measures.
+
+The reconstruction error is measured geometrically in the normalised ( λ, log Re )plane, (4.17) ξλ = λ − λmin 
+
+λmax − λmin 
+
+, ξR = log Re − log Re min 
+
+log Re max − log Re min 
+
+,
+
+where the normalisation limits are the fixed parameter-scan bounds. Let BP and BB
+
+denote the adjoint and scanning boundaries, respectively. The symmetric Hausdorff-type distance is (4.18) EH = max 
+
+
+
+sup 
+
+> x∈B P
+
+d(x, BB ), sup 
+
+> y∈B B
+
+d(y, BP )
+
+
+
+,
+
+where d(x, B) is the minimum Euclidean distance from x to the piecewise-linear boundary B. A symmetric geometric RMS distance, E(g)RMS , is evaluated from the two directed point-to-boundary distance sets. The curves are resampled with a max-imum normalised spacing of 10 −4, and the comparison is restricted to the common interval 30 .1498 ≤ Re ≤ 1975 .84 so that the error is not controlled by differences in the discrete termination of the two algorithms. The cost and boundary errors are summarised in Table 3. The complete two-sided adjoint trace requires 28 .33 s for 139 accepted boundary points. In contrast, the coarsest 12 × 7 scan already requires 229 .34 s, or 8 .10 times the adjoint wall time, while giving EH = 4 .073 × 10 −3. Increasing the parameter-grid resolution reduces the geometric error monotonically, but the cost increases rapidly because the complex-wavenumber search and saddle refinement are repeated at every additional parameter 16 Y. XIAO, H. LI, AND Z. DING 
+
+point. On the finest 32 × 17 grid, EH is reduced to 5 .362 × 10 −4, whereas the wall time rises to 1479 .67 s, corresponding to 52 .23 times the adjoint cost.   
+
+> Table 3
+> Cost and geometric error of the nested saddle scans. The adjoint boundary requires 28 .33 s and is used as the geometric reference.
+
+Grid Np T (s) T /T adjoint EH E(g)RMS 
+
+12 × 7 84 229.34 8.10 4.073 × 10 −3 2.193 × 10 −3
+
+16 × 9 144 397.88 14.04 2.332 × 10 −3 1.275 × 10 −3
+
+20 × 11 220 601.93 21.25 1.419 × 10 −3 7.622 × 10 −4
+
+24 × 13 312 866.25 30.58 9.937 × 10 −4 5.122 × 10 −4
+
+28 × 15 420 1144.00 40.38 7.281 × 10 −4 3.833 × 10 −4
+
+32 × 17 544 1479.67 52.23 5.362 × 10 −4 2.830 × 10 −4
+
+Figure 4 shows the resulting cost–accuracy relation. Over the tested parameter-grid range, increasing the scan cost gives an approximately algebraic reduction of the reconstructed boundary error. Fits over the finest four grids give (4.19) EH ∝ T −1.08 , E(g)RMS ∝ T −1.10 ,
+
+while the corresponding eigensolve-count fits are EH ∝ N −1.07 eig and E(g)RMS ∝ N −1.08 eig .Here, Neig denotes the total number of generalised eigenvalue solves performed during the nested complex-wavenumber search and local saddle-refinement procedure. These relations are empirical trends over the resolutions considered here, rather than formal asymptotic convergence orders. The total scanning time is nearly proportional to the number of parameter points; equivalently, the calculations require approximately 288 generalised eigensolves per sampled ( Re, λ ) pair. More specifically, the measured wall time scales with the total number of parameter-plane nodes as (4.20) T ∝ N 0.99 p , Np = NRe Nλ,
+
+showing an approximately linear increase in computational cost with parameter-grid size. For the simultaneous ( Re, λ ) refinement used here, this corresponds over the tested grid range to (4.21) T ∝ h−1.87 eff , heff =
+
+ 1(NRe − 1)( Nλ − 1) 
+
+1/2
+
+.
+
+Thus, improving the scanning resolution requires increasing the number of two-dimensional parameter samples, with the measured cost growing almost directly with the resulting grid size. The comparison highlights the different numerical structures of the two approaches. The nested procedure first determines a saddle at every sampled point in the two-dimensional ( Re, λ ) plane and only then reconstructs the neutral contour from the field Im ωs(Re, λ ). Improving the boundary accuracy therefore requires additional parameter-plane sampling and repeated local spectral calculations away from the boundary itself. By contrast, the adjoint residual embeds the stationary condition directly in the augmented system and adjoint method advances only along the one-dimensional neutral-saddle manifold. The computational advantage of the present formulation therefore arises not merely from a different evaluation of dω 
+
+> dα
+
+, but from re-placing two-dimensional scan-and-reconstruction by direct continuation of the bound-ary itself. TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 17 400 600 800 1000 12001400 
+
+Wall time T (s)            
+
+> 10 !3
+> Boundary error
+> EH
+> E(g)RMS
+> EH9T!1:08
+> E(g)RMS 9T!1:10
+> 46810 12 14
+
+Generalised eigensolves Neig #10 4      
+
+> 10 !3
+> Boundary error
+> EH
+> E(g)RMS
+> EH9N!1:07 eig
+> E(g)RMS 9N!1:08 eig
+
+(a) (b) 
+
+Fig. 4 . (a) Boundary error of the nested Gaussian-wake saddle scans as a function of wall time and (b) the total number of generalised eigensolves. The (Re, λ ) grid is refined while the complex-α
+
+search grid and local saddle-refinement settings are held fixed. Dashed lines show power-law fits over the finest four parameter grids. 0 0.5 1
+
+,r
+
+> -2 -1.5 -1 -0.5 00.5 1
+> ,i
+
+6 = 1 :011   
+
+> branch 1 branch 2 neutral saddle
+> 00.5 1
+
+,r
+
+> -2 -1.5 -1 -0.5 00.5 1
+> ,i
+
+6 = 0 :951   
+
+> 00.5 1
+
+,r
+
+> -2 -1.5 -1 -0.5 00.5 1
+> ,i
+
+6 = 0 :946 
+
+Fig. 5. Tracked spatial-root trajectories for three representative points (Re, λ ) =(30 .15 , 1.011) , (262 .47 , 0.951) , (1975 .84 , 0.946) on the Gaussian-wake neutral-saddle branch. The complex frequency is displaced according to ω = ωs + i γ and the two branches are followed to-ward the neutral saddle as γ → 0+. In each case the branches originate from opposite halves of the complex α plane and coalesce with the square-root scaling expected for a simple double root. 
+
+4.4. Spatial pinch topology. The extended system identifies neutral station-ary points of the temporal dispersion relation, but the AI/CI interpretation addition-ally requires the relevant spatial branches to form a Briggs–Bers pinch point [1, 2]. Representative spatial-root trajectories are therefore examined at the first, middle, and last points of the continued wake segment. For fixed complex ω, the reduced Orr–Sommerfeld operator is a fourth-degree matrix polynomial in α,(4.22) P(α; ω, Re, λ ) = 
+
+4X
+
+j=0 
+
+αj Pj ,18 Y. XIAO, H. LI, AND Z. DING 
+
+with 
+
+P4 = i
+
+Re I, P3 = −U, P2 = − 2i 
+
+Re D(2) + ωI,
+
+P1 = UD (2) − U′′ , P0 = i
+
+Re D(4) − ωD(2) .
+
+A first companion linearisation converts Eq. (4.22) into a generalised eigenvalue problem for the spatial roots α. For each selected neutral saddle, the frequency is displaced to ω = ωs + i γ, 10 −6 ≤ γ ≤ 0.4, and the two roots closest to αs at the smallest γ are tracked continuously as γ increased. The three test points are (Re, λ ) = (30 .15 , 1.011) , (262 .47 , 0.951) , (1975 .84 , 0.946) . As illustrated in Fig. 5, at 
+
+γ = 0 .4, the two tracked roots lie in opposite halves of the complex α plane for all three cases. As γ → 0+, the two branches approach the computed neutral saddle. Near a simple double root, the local expansion (4.23) D(α, ω ) ≃ Dω (ω − ωs) + 12 Dαα (α − αs)2
+
+predicts (4.24) |α1 − α2| ∝ | ω − ωs|1/2.
+
+A log–log fit to the first 15 low-γ points all give exponents 0 .499 for the three cases. The opposite-half-plane origin of the two branches and their square-root coalescence at αs provide independent spatial-root evidence that the representative stationary points are the relevant pinch points rather than unrelated algebraic saddles. In this section, the Gaussian-wake results assess the proposed method in a matrix-valued, non-normal eigenvalue problem. The sinh-mapped collocation exhibits conver-gence with respect to resolution, mapping, and domain truncation, while the complete continued segment agrees with the finite-difference neutral-saddle cross-validation to approximately 10 −8 in relative critical Reynolds number. Finally, representative spatial-root calculations recover the pinch topology required for the physical AI/CI interpretation. The wake problem therefore provides a matrix-level continuation and cross validation test before the method is applied to the coupled viscoelastic-film eigenproblem. 
+
+5. Application to the spatio-temporal instability problem of viscoelas-tic liquid films. The preceding Ginzburg–Landau and Gaussian-wake problems test the adjoint saddle formulation in an analytical scalar limit and in a non-normal matrix eigenvalue problem, respectively. We now apply the same gauge-fixed direct–adjoint continuation system to a coupled viscoelastic free-surface problem. The purpose of this example is twofold. First, it demonstrates the frequency-affine formulation for a multi-field state containing hydrodynamic, constitutive, and interfacial variables. Second, it provides a genuine turning-point test in which the neutral-saddle manifold contains folds of its Reynolds-number projection. 
+
+5.1. Flow model, nondimensionalisation, and base state. We consider a two-dimensional incompressible Oldroyd–B liquid film flowing on the underside of a plane inclined by an angle θ to the horizontal. The dimensional mean film thickness is h0. The streamwise and wall-normal coordinates are x∗ and y∗, respectively, and the deformed interface is y∗ = h∗(x∗, t ∗). TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 19 The dimensional conservation equations are 
+
+∂iu∗ 
+
+> i
+
+= 0 ,(5.1) 
+
+ρ  ∂tu∗ 
+
+> i
+
++ u∗ 
+
+> j
+
+∂j u∗
+
+> i
+
+ = −∂ip∗ + ∂j τ ∗ 
+
+> ij
+
++ ρg i,(5.2) and the Oldroyd–B constitutive equation is (5.3) τ ∗ + λ1
+
+> ∇
+
+τ ∗ = 2 μ
+
+
+
+e∗ + λ2
+
+> ∇
+
+e∗
+
+
+
+,
+
+where e∗ = [ ∇u∗ + ( ∇u∗)T ]/2, λ1 is the relaxation time, λ2 is the retardation time, and μ = μs + μp. The ratio S = λ2 
+
+> λ1
+
+= μs 
+
+> μs+μp
+
+measures the solvent fraction. At y∗ = 0, no slip and no penetration are imposed. At y∗ = h∗(x∗, t ∗), the kinematic condition and the tangential and normal stress balances are 
+
+∂th∗ + u∗∂x∗ h∗ = v∗,(5.4) 
+
+τ ∗ 
+
+> ij
+
+nitj = 0 ,(5.5) 
+
+pa − p∗ + τ ∗ 
+
+> ij
+
+ninj = σ ∂x∗x∗ h∗
+
+[1 + ( ∂x∗ h∗)2]3/2 .(5.6) We use h0 and the Nusselt surface velocity u0 = ρg sin θ h 20 
+
+> 2μ
+
+as length and velocity scales. Pressure is scaled by ρu 20 and extra stress by μu 0 
+
+> h0
+
+. The dimensionless groups are (5.7) Re = ρu 0h0
+
+μ , De = λ1u0
+
+h0
+
+, W e = 2σρgh 20 sin θ .
+
+The dimensionless momentum equations are 
+
+∂xu + ∂y v = 0 ,(5.8) 
+
+Re (∂tu + u∂ xu + v∂ y u) = −Re ∂ xp + ∂xτxx + ∂y τxy + 2 ,(5.9) 
+
+Re (∂tv + u∂ xv + v∂ y v) = −Re ∂ y p + ∂xτxy + ∂y τyy + 2 cot θ. (5.10) For the Oldroyd-B fluid, the dimensionless constitutive equations for the stress com-ponents are 
+
+τxx + De ∂tτxx + ( u∂ x + v∂ y )τxx − 2( τxx ∂xu + τxy ∂y u)
+
+= 2 ∂xu + 2 DeS ∂xt u + u∂ xx u + v∂ xy u
+
+− (∂y u + ∂xv)∂y u − 2( ∂xu)2,
+
+(5.11) 
+
+τxy + De ∂tτxy + ( u∂ x + v∂ y )τxy − τxx ∂xv − τyy ∂y u
+
+= ( ∂y u + ∂xv) + DeS ∂yt u + ∂xt v + u∂ xy u + u∂ xx v
+
++ v∂ yy u + v∂ xy v − 2∂xu∂ xv − 2∂y u∂ y v,
+
+(5.12) 
+
+τyy + De ∂tτyy + ( u∂ x + v∂ y )τyy − 2( τxy ∂xv + τyy ∂y v)
+
+= 2 ∂y v + 2 DeS ∂yt v + u∂ xy v + v∂ yy v
+
+− (∂y u + ∂xv)∂xv − 2( ∂y v)2,
+
+(5.13) 20 Y. XIAO, H. LI, AND Z. DING 
+
+The Nusselt base state is ¯u(y) = −y2 + 2 y, ¯v(y) = 0 ,(5.14) ¯p(y) = 2 cot θRe (y − 1) ,(5.15) ¯τxx (y) = 8 De (1 − S)(1 − y)2, ¯τxy (y) = 2(1 − y), ¯τyy (y) = 0 .(5.16) The velocity profile is independent of elasticity, whereas the base streamwise normal stress varies explicitly with De and S.
+
+5.2. Frequency-affine multi-field eigenproblem. We perform a linear sta-bility analysis by superimposing infinitesimal disturbances onto the base flow. The flow variables are decomposed as 
+
+u = ¯ u(y) + u′(x, y, t ), v = v′(x, y, t ), p = ¯ p(y) + p′(x, y, t ),τij = ¯ τij (y) + τ ′ 
+
+> ij
+
+(x, y, t ), h = 1 + η(x, t ).(5.17) The disturbances are assumed to be wave-like in the streamwise direction, (5.18) (u′, v ′, p ′, τ ′ 
+
+> ij
+
+, η ) =  ˆu(y), ˆv(y), ˆp(y), T ij (y), ˆη ei( kx −ωt ).
+
+For the spatio-temporal problem, both k and ω are complex. The linearised continuity equation i kˆu + Dˆv = 0 (with D ≡ ddy ) allows us to introduce a stream function ϕ(y)such that ˆ u = Dϕ and ˆ v = −ikϕ . Eliminating the pressure from the linearised momentum equations by cross-differentiation yields the Orr–Sommerfeld equation for the viscoelastic film (5.19) iRe (k¯u − ω)( D2 − k2) + 2 k ϕ = i kDT xx + ( D2 + k2)Txy − ikDT yy .
+
+The linearised Oldroyd–B stress equations are 
+
+LDe Txx = 2i kDϕ + De ikϕD ¯τxx + 2i k¯τxx Dϕ + 2¯ τxy D2ϕ + 2 D¯u T xy 
+
+
+
+− 2DeS k(k¯u − ω)Dϕ + 2 D¯uD 2ϕ + k2ϕD ¯u ,(5.20) 
+
+LDe Txy = ( D2 + k2)ϕ [1 + i DeS (k¯u − ω)] + De ikϕD ¯τxy + k2 ¯τxx ϕ + D¯u T yy 
+
+
+
++ 2i kDeS (ϕ + D¯uDϕ ) ,(5.21) 
+
+LDe Tyy = −2i kDϕ + 2 DeS k (k¯u − ω)Dϕ + 2 De (1 − S)k2ϕD ¯u. 
+
+(5.22) where LDe = 1 + i De (k¯u − ω).
+
+The wall conditions are ϕ = Dϕ = 0 at y = 0. The interface amplitude ˆ η is retained as an independent unknown. The linearised free-surface conditions at y = 1 are 
+
+kϕ + ( k − ω)ˆ η = 0 ,(5.23) 
+
+Txy − 2ˆ η = 0 ,(5.24) 
+
+Re k (k − ω)Dϕ − Txx + i
+
+k DT xy + Tyy +  W e k 2 − 2 cot θ ˆη = 0 .(5.25) Eliminating ˆ η with the kinematic condition would introduce ( k − ω)−1 into the re-maining boundary conditions. Retaining ˆ η therefore preserves the frequency-affine form required by the adjoint formulation. TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 21 The interval y ∈ [0 , 1] is discretised with N +1 Chebyshev–Gauss–Lobatto points. The state is ordered as (5.26) qf =  ϕT , TTxx , TTxy , TTyy , ˆηT ∈ Cnf , nf = 4( N + 1) + 1 .
+
+The wall and free-surface conditions replace the corresponding collocation rows. The resulting matrix problem is (5.27) Lf (k, ω ; Re, De, S, W e, θ )qf = 0,
+
+with (5.28) Lf = Af (k; Re, De, S, W e, θ ) − ωBf (k; Re, De, S, W e, θ ).0.62 0.64 0.66 0.68 0.7 0.72 0.74 0.76      
+
+> kr
+> -0.42 -0.4 -0.38 -0.36 -0.34 -0.32 -0.3
+> ki
+> 0246810
+> Newton iteration
+> 10 !10
+> 10 !5
+> 10 0
+> residual norm
+
+(a) (a) 
+
+> saddle point initial guess
+
+(b)               
+
+> Fig. 6 .Representative Briggs-type spatial scan for the Oldroyd–B film at Re = 10 ,θ=π
+> 16 ,
+> De = 0 and W e = 10 .(a) The interacting complex-wavenumber branches approach the direct– adjoint stationary point. (b) The same saddle is recovered from nearby complex-kinitial guesses, demonstrating local robustness of the nonlinear saddle correction.
+
+Before tracing the AI/CI boundaries with the pseudo-arclength algorithm, we first verify the robustness of the spatial saddle point computation using Eqs. (2.9) and (2.11). The algebraic saddle condition must remain associated with the relevant spatial pinch. A representative film saddle ( kr , k i) = (0 .69409 , −0.35801) is indepen-dently examined by a Briggs-type scan [7] in the complex-k plane, see Fig. 6(a). The interacting spatial branches coalesce at the direct–adjoint saddle location, providing an independent check that the selected stationary point is the physical pinch rather than an unrelated algebraic saddle. In addition, the direct saddle solve is restarted from multiple complex-wavenumber initial guesses in a neighbourhood of the saddle. The perturbed calculations converged reproducibly to the same stationary point, typ-ically within five Newton iterations, as shown in Fig. 6(b). The Briggs calculation is used here as a representative topology check, rather than as a pointwise reconstruction of every continued state. 
+
+5.3. Neutral-saddle boundaries in the (Re, De ) plane. For the AI/CI bound-ary, S, W e , and θ are fixed and the continuation parameters are ( R1, R 2) = ( Re, De ).
+
+The boundary residual in Eq. (2.15) and the scaled pseudo-arclength algorithm in Algorithm 2.1 are then applied without a film-specific continuation reformulation. 22 Y. XIAO, H. LI, AND Z. DING 
+
+Based on convergence studies, the resolution of N = 30 and hk 
+
+> 1+ |k|
+
+= 3 .16 × 10 −4 is adopted. At S = 0 .5, W e = 10, θ = π 
+
+> 16
+
+, De = 0, the neutral saddle is Re c = 16 .7469, 
+
+ks = 0 .7222 − 0.4268 i, ωs = 0 .6839 with direct, full-adjoint, saddle, and biorthogonal-ity residuals 2 .38 × 10 −11 , 5 .51 × 10 −11 , 4 .18 × 10 −11 , and 1 .53 × 10 −13 , respectively. 0 5 10 15 20 25 30        
+
+> Re
+> 0510 15 20
+> De
+> 17.5 17.55 17.6 17.65 17.7 17.75 17.8
+> Re
+> 0.4 0.6 0.8 11.2
+> De
+> Pseudo-arclength Natural Re
+> Turning point
+
+(a)   
+
+> 3=:
+> 32
+> :
+> 16
+> :
+> 12
+> :
+> 8
+> AI CI
+
+(b)                   
+
+> Fig. 7 .(a) Neutral-saddle boundary in the (Re, De )plane for four inclination angles at S= 0 .5
+> and W e = 10 . Off-boundary stationary-saddle calculations identify the smaller-Re side of each local boundary crossing as absolutely unstable, ωi>0; the larger-Re side is convectively unstable. (b) Turning point test for the θ=π
+> 16 of Oldroyd–B film. Symbols mark the detected Re -folds.
+
+The neutral-saddle manifold is traced at S = 0 .5, W e = 10, θ = π 
+
+> 32
+
+, π 
+
+> 16
+
+, π 
+
+> 12
+
+, π 
+
+> 8
+
+. For each inclination, the De = 0 neutral saddle is corrected first and the two orientations of the scaled nullspace tangent are then followed and merged. Figure 7(a) shows that all four curves develop a single turning point in their Reynolds-number projection. The consistently oriented parameter tangent satisfies t(p) 
+
+> Re
+
+: + → 0 → − and t(p) 
+
+> De
+
+> 0, so these are Re -folds rather than De -folds. The fold coordinates and associated neutral saddles are summarised in Table 4. The neutral-saddle equations impose ωi = 0 but do not by themselves label the two sides of the boundary. Stationary-saddle calculations are therefore repeated at parameter pairs displaced from the neutral curve. With the normal-mode convention of Eq. (1.1), the smaller-Re side is found to satisfy ωi > 0,
+
+and is therefore absolutely unstable. The opposite side is convectively unstable. This orientation is labeled in Fig. 7(a) by AI and CI, respectively. 
+
+> Table 4
+> Reynolds-number folds of the continued Oldroyd–B neutral-saddle boundaries.
+
+θ Re F De F kr,F ki,F ωr,F π 
+
+> 32
+
+36.515978 0.499012 1.094245 −0.743253 0.818055  
+
+> π
+> 16
+
+17.704969 0.759318 0.710518 −0.426186 0.657451  
+
+> π
+> 12
+
+11.435099 0.897633 0.612160 −0.372661 0.632638  
+
+> π
+> 8
+
+4.949590 1.137316 0.510762 −0.310345 0.635903 The four production calculations contain 528 accepted boundary points in total. The mean number of Newton iterations is 2.25 per point, and no corrector required more than three iterations. Over all four branches, the maximum direct, full-adjoint, TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 23 saddle, neutrality, and biorthogonality residuals are max ∥Lf qf ∥2 = 9 .24 × 10 −11 ,
+
+max ∥LHf q† 
+
+> f
+
+∥2 = 9 .80 × 10 −9,
+
+max (q† 
+
+> f
+
+)H Cf qf = 1 .38 × 10 −10 ,
+
+max |ωi| = 7 .65 × 10 −27 ,
+
+max (q† 
+
+> f
+
+)H Bf qf − 1 = 1 .73 × 10 −12 .
+
+The Gaussian-wake calculation does not cross a true fold (turning point), while the film problem provides the corresponding genuine turning-point test. We use the 
+
+θ = π 
+
+> 16
+
+boundary as the detailed case because it is the baseline inclination used in the resolution study. Since De remains monotone through the fold, the turning point is refined by repeated fixed-De neutral-saddle corrections and a safeguarded root search for t(p) 
+
+> Re
+
+(De ) = 0 . At the best fold-refinement iterate, |t(p) 
+
+> Re
+
+| = 6 .73 × 10 −9, t (p) 
+
+> De
+
+≃ 1.
+
+A local fit to the natural-continuation points nearest the fold gives Re F − Re ∝|De − De F |2.008 , consistent with the quadratic geometry of a simple fold. As shown in Fig. 7(b), the natural continuation in Re is also tested for θ = π 
+
+> 16
+
+. Starting from the pre-fold branch, fixed-Re neutral-saddle corrections are performed with a secant predictor and adaptive ∆ Re . The adaptive Reynolds-number increment decreases from O(10 −2) to the imposed lower limit O(10 −5), and the calculation terminates after repeated failures of targets above Re F . Pseudo-arclength continuation crosses the Reynolds-number fold, whereas natural continuation in Re develops a collapsing fixed-parameter singular value and repeated corrector failures. The film example therefore provides a numerical demonstration of the regularising role of the pseudo-arclength condition when a physical continuation parameter loses local uniqueness. 
+
+5.4. Effect of elasticity and inclination on the AI/CI transition. The identification of the smaller-Re side as absolutely unstable gives the boundary ge-ometry a direct physical interpretation. Starting from De = 0, the critical Reynolds number initially increases with De and reaches Re F at the fold, see Fig. 7(a). The ab-solutely unstable region therefore expands toward larger Reynolds numbers as weak-to-moderate elasticity is introduced. Beyond the fold, Re c decreases with further increase of De , so the trend reverses and the absolutely unstable region contracts. The fold also implies a re-entrant transition at fixed Reynolds number. For a given inclination and Re c(0) < Re < Re F , a vertical line in the ( Re, De ) plane in-tersects the connected neutral-saddle branch twice. Because the smaller-Re side is absolutely unstable, increasing De at fixed Re produces CI–AI–CI transition. Elas-ticity therefore does not act as a uniformly stabilising or destabilising parameter in the spatio-temporal problem. Instead, it first promotes the absolute mode over the pre-fold segment and suppresses it again on the post-fold segment. The present cal-culations establish the resulting shift of the selected neutral saddle and the re-entrant AI/CI geometry. A detailed energetic or stress-budget decomposition of the underly-ing viscoelastic mechanism is outside the scope of the continuation study and would require a separate modal-energy analysis. 
+
+6. Conclusions. A direct adjoint-augmented continuation framework has been developed for tracking neutral stationary-saddle boundaries in frequency-affine gen-eralised eigenvalue problems. The central idea is to embed the zero-group-velocity condition in the nonlinear eigenvalue system through an adjoint solvability resid-24 Y. XIAO, H. LI, AND Z. DING 
+
+ual. The direct and adjoint eigenproblems, the stationarity condition, the eigenvector gauges and the neutral-growth condition are thereby solved as a single augmented system. When two physical parameters are allowed to vary, the neutral saddles are represented directly as a one-dimensional solution manifold and followed by scaled pseudo-arclength continuation. This formulation changes the numerical object being computed. Conventional boundary reconstruction commonly requires a saddle search over the complex wavenum-ber plane at many parameter values, followed by an additional search or contour ex-traction in the physical parameter plane. The present approach instead advances di-rectly along the neutral-saddle manifold. The Gaussian-wake calculations show that the adjoint formulation is consistent with a separately formulated finite-difference saddle residual and recovers the spatial pinch topology of the selected mode. The comparison with nested saddle scanning further demonstrates the computational con-sequence of the manifold formulation: increasing the resolution of a parameter-plane scan improves the reconstructed boundary only by repeating the underlying spectral and saddle calculations at additional parameter points, whereas pseudo-arclength con-tinuation concentrates the computation on the boundary itself. The Oldroyd–B film problem demonstrates that the same framework extends to a coupled multi-field free-surface eigenproblem without a problem-specific continuation reformulation. The continued neutral-saddle manifolds develop genuine folds in their Reynolds-number projections. Near such a fold, natural continuation in the Reynolds number loses local solvability, whereas pseudo-arclength continuation remains regular and resolves the post-fold branch. For the selected saddle family examined here, the resulting ( Re, De ) boundary geometry shows that elasticity does not shift the neu-tral boundary monotonically: the pre- and post-fold branches produce a re-entrant CI–AI–CI sequence over part of the parameter range. The film application therefore illustrates both the numerical role of the pseudo-arclength constraint and the addi-tional boundary structure that may be missed when a single physical parameter is imposed as the continuation coordinate. The present method is a correction and continuation framework for a selected saddle family. It assumes a locally simple finite temporal eigenvalue and a regular one-dimensional augmented solution manifold, and it requires an approximate initial saddle and modal-family identity. Moreover, the algebraic conditions d ω/ dk = 0 and Im ω = 0 identify neutral stationary eigenpairs but do not by themselves establish Briggs–Bers pinching or dominance over competing saddle families. Spatial-branch topology and possible changes in saddle dominance must therefore be examined sep-arately when required by the physical interpretation. Subject to these qualifications, the results establish adjoint-augmented pseudo-arclength continuation as a direct route for computing connected neutral-saddle man-ifolds in multi-parameter spatio-temporal stability problems. Its principal advantage is not merely a different evaluation of the eigenvalue derivative, but the replacement of nested saddle searches and parameter-plane boundary reconstruction by direct con-tinuation of the boundary as a solution manifold. This viewpoint provides a natural framework for extending neutral-saddle calculations to larger coupled eigenvalue sys-tems, parameter folds and more complex multi-parameter stability boundaries. 
+
+Appendix A. Gaussian-wake spatial-discretisation convergence. 
+
+This appendix documents the spatial-discretisation checks used to select the pro-duction grid. These tests are kept separate from the adjoint-method verification in Sec. 4 because they assess the mapped Orr–Sommerfeld discretisation rather than the TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 25 solvability identity, the semi-analytical Jacobian, or the continuation algorithm. 
+
+A.1. Discretisation homotopy and collocation-order convergence. The neutral saddle at λ = 0 .95 is first corrected on a coarse mapped grid with N = 60 and then transferred through the discretisation homotopy (A.1) N = 60 → 70 → 80 → 90 → 100 .
+
+At each step, the direct mode on the old physical grid is reconstructed, interpolated to the new mapped grid, and used together with eigenvalue proximity and modal overlap to identify the corresponding temporal mode. The full direct–adjoint neutral-saddle system is then corrected at the new resolution. The same mode-transfer procedure is used in the convergence sweeps to avoid interpreting convergence to different discrete saddle families as a resolution trend. Table 5 reports the collocation-order study at fixed ymax = 20 and β = 3. The coarse calculations are visibly under-resolved, whereas N ≥ 90 approaches a clear plateau. Relative to the N = 120 result, the production-grid value at N = 100 differs by 1 .263 ×10 −7 in relative Re c. The absolute differences in αs and ωs are 8 .679 ×10 −8
+
+and 1 .672 × 10 −9, respectively.      
+
+> Table 5
+> Collocation-order convergence of the sinh-mapped Gaussian-wake neutral saddle at λ= 0 .95 ,
+> ymax = 20 , and β= 3 .
+
+N ∆y0 Re c αr αi ωr
+
+50 0.3783 323.240030 0.938397 -0.859683 0.525732 60 0.3147 336.162021 0.933571 -0.862114 0.526014 70 0.2695 333.067718 0.934253 -0.862605 0.526000 80 0.2357 333.214491 0.934281 -0.862462 0.525996 90 0.2094 333.237462 0.934266 -0.862469 0.525997 100 0.1884 333.234821 0.934267 -0.862470 0.525997 110 0.1712 333.234858 0.934267 -0.862470 0.525997 120 0.1569 333.234863 0.934267 -0.862470 0.525997 140 0.1345 333.234863 0.934267 -0.862470 0.525997 
+
+A.2. Mapping-parameter convergence. The sinh-mapping parameter is var-ied from β = 2 to 4 at fixed N = 100 and ymax = 20. The values at β = 3 and 3 .5differ by only 1 .257 × 10 −7 in relative Re c and by 8 .672 × 10 −8 in the complex saddle wavenumber. The results at β = 3 .5 and 4 are indistinguishable to the reported digits. Thus, once the wake core is sufficiently resolved, the neutral saddle is not controlled by the arbitrary mapping parameter. 
+
+A.3. Domain-truncation convergence. A separate domain-truncation study varied ymax while choosing an even N for each domain so that the central physical spacing remained approximately equal to that of the production grid. The pairs (A.2) (ymax , N ) = (10 , 50) , (15 , 76) , (20 , 100) , (25 , 124) , (30 , 150) give 0 .186 ≲ ∆y0 ≲ 0.190, with a maximum relative wake-core spacing mismatch of approximately 1 .22%. The resulting critical Reynolds numbers are 333 .229524, 333 .234632, 333 .234821, 333 .234916, and 333 .234912, respectively. The relative dif-ference in Re c between ymax = 20 and 30 is 2 .742 × 10 −7; the corresponding absolute differences in αs and ωs are 5 .198 × 10 −8 and 1 .475 × 10 −10 .26 Y. XIAO, H. LI, AND Z. DING 
+
+Figure 8 summarises the three studies. The collocation-order, mapping-parameter, and domain-truncation results jointly support the parameters of N = 100, ymax = 20, and β = 3. 40 60 80 100 120 140 
+
+N     
+
+> 325 330 335
+> Re c
+> 40 60 80 100 120 140
+
+N    
+
+> -1 -0.5 00.5 1
+> ,s
+> ,r
+> ,i
+> 22.5 33.5 4
+
+-    
+
+> 333 333.2 333.4 333.6 333.8
+> Re c
+> 22.5 33.5 4
+
+-    
+
+> -1 -0.5 00.5 1
+> ,s
+> ,r
+> ,i
+> 10 15 20 25 30
+
+ymax     
+
+> 333.23 333.232 333.234 333.236
+> Re c
+> 10 15 20 25 30
+
+ymax 
+
+> -1 -0.5 00.5 1
+> ,s
+> 00.005 0.01 0.015
+> relative core-spacing mismatch
+> ,r
+> ,i
+> core spacing
+
+Fig. 8 . Convergence of the Gaussian-wake neutral saddle with respect to the collocation order 
+
+N , sinh-mapping parameter β, and truncated-domain half-width ymax . In the ymax sweep, N is adjusted to keep the wake-core spacing approximately fixed. 
+
+Author Contributions. Z. Ding conceived the algorithm and supervised the research. Y. Xiao developed the theoretical derivations, implemented the numerical simulations, performed the data analysis, and prepared the original draft of the man-uscript. H. Li and Z. Ding contributed to the theoretical discussion, interpretation of the results, and revision of the manuscript. All authors reviewed and approved the final version of the manuscript. 
+
+REFERENCES [1] P. Huerre and P. A. Monkewitz , Absolute and convective instabilities in free shear layers , Journal of Fluid Mechanics, 159 (1985), pp. 151–168, https://doi.org/10.1017/ S0022112085003147. [2] P. Huerre and P. A. Monkewitz , Local and global instabilities in spatially developing flows ,Annual Review of Fluid Mechanics, 22 (1990), pp. 473–537, https://doi.org/10.1146/ annurev.fl.22.010190.002353. [3] L. S. Hultgren and A. K. Aggarwal , Absolute instability of the gaussian wake profile , The Physics of Fluids, 30 (1987), pp. 3383–3387, https://doi.org/10.1063/1.866470. [4] H. B. Keller , Numerical solution of bifurcation and nonlinear eigenvalue problems , in Ap-plications of Bifurcation Theory, P. H. Rabinowitz, ed., Academic Press, New York, 1977, pp. 359–384. TRACKING AI/CI BOUNDARY USING ADJOINT EQUATIONS 27 
+
+[5] L. Magri, M. Bauerheim, and M. P. Juniper , Stability analysis of thermo-acoustic nonlinear eigenproblems in annular combustors. part i. sensitivity , Journal of Computational Physics, 325 (2016), pp. 395–410, https://doi.org/10.1016/j.jcp.2016.07.032. [6] H. D. Mittelmann , A pseudo-arclength continuation method for nonlinear eigenvalue problems ,SIAM Journal on Numerical Analysis, 23 (1986), pp. 1007–1016, https://doi.org/10.1137/ 0723068. [7] P. J. Schmid and D. S. Henningson , Stability and Transition in Shear Flows , vol. 142 of Applied Mathematical Sciences, Springer, New York, 2001, https://doi.org/10.1007/ 978-1-4613-0185-1.

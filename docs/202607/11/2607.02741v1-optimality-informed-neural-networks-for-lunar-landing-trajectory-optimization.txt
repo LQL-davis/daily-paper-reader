@@ -1,0 +1,1230 @@
+Title: Optimality-Informed Neural Networks for Lunar Landing Trajectory Optimization
+
+URL Source: https://arxiv.org/pdf/2607.02741v1
+
+Published Time: Tue, 07 Jul 2026 00:11:02 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+# Optimality-Informed Neural Networks for Lunar Landing Trajectory Optimization 
+
+Zhenbo Wang Department of Mechanical and Aerospace Engineering The University of Tennessee 1512 Middle Drive, Knoxville, TN 37996 zwang124@utk.edu 
+
+Abstract— This paper develops an Optimality-Informed Neural Network (OINN) approach for the energy-optimal, free-final-time powered descent of a lunar lander from any initial position, velocity, and mass within a bounded operating envelope to a fixed landing site with zero terminal velocity. Building on a recent framework that jointly embeds Pontryagin’s minimum principle and the Hamilton-Jacobi-Bellman equation for general nonlinear optimal control, the proposed OINN approach specializes that idea to a lunar landing problem with free time of flight and fixed terminal state. Every boundary and transversality condition is hard-encoded into the network architecture by construction, the closed-form Pontryagin-optimal thrust magnitude and direction law is substituted directly rather than learned, and the remaining state, costate, and an auxiliary value-function output are trained against a physics-residual loss formed entirely from the necessary conditions of optimality, with no precomputed optimal trajectories required. A preliminary the-oretical analysis is explored, establishing a stochastic-optimization stationarity guarantee for the offline training procedure, an explicit bound translating the achieved training residual into bounds on touchdown position, touchdown velocity, and flight-time error, and a fixed, input-independent onboard computational and memory cost suitable for real-time deployment. Numerical simulations evaluate the trained policy, with no retraining, against an independently solved indirect-method boundary-value problem at six represen-tative initial states spanning the operating envelope and against eighty additional Monte Carlo simulation runs, demonstrating close agreement with the indirect-method solution and consistently small dynamics and transversality residuals throughout the envelope. 
+
+## TABLE OF CONTENTS 
+
+1. I NTRODUCTION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+
+2. P ROBLEM FORMULATION . . . . . . . . . . . . . . . . . . . . . . . . 2
+
+3. O PTIMALITY CONDITIONS . . . . . . . . . . . . . . . . . . . . . . . 4
+
+4. OPTIMALITY -I NFORMED NEURAL NETWORK 
+
+APPROACH . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+
+5. T HEORETICAL ANALYSIS . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+6. N UMERICAL SIMULATIONS . . . . . . . . . . . . . . . . . . . . . . 10 
+
+7. C ONCLUSIONS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 
+
+ACKNOWLEDGEMENTS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17 
+
+REFERENCES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17 
+
+BIOGRAPHY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 
+
+## 1. I NTRODUCTION 
+
+The Apollo program first demonstrated that a spacecraft can be guided through a propulsive descent from lunar orbit to a safe touchdown using onboard computation, and the past several years have seen a renewed, broadened effort to repeat  
+
+> 979-8-3195-1048-8/27/ $31 .00 ©2027 IEEE
+
+and extend that capability. NASA’s Artemis campaign has carried a crew beyond low Earth orbit for the first time since Apollo and is developing crewed lunar landers, while NASA’s Commercial Lunar Payload Services initiative and international programs such as China’s Chang’e series and India’s Chandrayaan series have flown, or are planning, a steadily increasing cadence of robotic landings [1]. Several recent commercial landers have also tipped over or landed with reduced margin during the final powered-descent phase, underscoring that translating a precomputed reference trajec-tory into a propellant-efficient, accurate, and robust touch-down remains an open engineering challenge rather than a solved problem [2]. Because the powered-descent phase is short, safety-critical, and necessarily executed with no opportunity for ground intervention, the guidance law that generates thrust and pointing commands in real time, from whatever position, velocity, and mass the vehicle actually has at the start of descent rather than from one trajectory planned in advance, is as consequential to mission success as the trajectory-design process that informs it. Trajectory optimization, in the sense of finding a propellant- or time-optimal descent profile subject to the vehicle’s dynamics and constraints, is therefore not merely a planning convenience but a central engineering requirement for any lander that must reach a prescribed site with a prescribed terminal velocity while using as little of its onboard propellant as possible [3]. The theoretical foundation for solving such problems dates to Pontryagin’s minimum principle, which characterizes an op-timal trajectory through a two-point boundary-value problem in the system’s states and costates. Indirect methods solve this boundary-value problem directly, typically by a shooting or collocation procedure, and can in principle recover a globally optimal solution to high numerical precision. In practice, however, they are sensitive to the initial guess supplied for the unknown costates, whose physical units and magnitudes generally differ greatly from those of the states, and conver-gence for a new initial condition is not guaranteed, so each new powered-descent scenario can require a fresh, potentially fragile numerical solve [4]. Direct methods avoid this sen-sitivity by discretizing the trajectory and the control history and transcribing the optimal control problem into a finite-dimensional nonlinear program, solved by general-purpose nonlinear or pseudospectral optimization software [5]. This transcription is more robust to a poor initial guess, but the resulting nonlinear program can still require a variable, a priori unknown number of iterations to converge, and is cor-respondingly difficult to certify for execution within a fixed onboard computation budget. Reformulating the powered-descent problem as a convex program, most notably through the lossless-convexification result that recasts the nonconvex thrust-bound and direction constraints exactly as convex ones for a class of powered-descent problems, removed much of this uncertainty by guaranteeing convergence to the optimum in a bounded number of iterations of an interior-point solver. 1
+
+> arXiv:2607.02741v1 [math.OC] 2 Jul 2026
+
+Convex-optimization-based guidance of this kind has since flown, or been proposed for flight, on several planetary and lunar landing missions [6], [7]. Even so, an exact convex reformulation is only available for problems with a specific, favorable structure. More general nonlinear dynamics, path constraints, or cost functions typically require successive con-vexification or other iterative approximations that reintroduce the variable iteration counts and convergence sensitivity that lossless convexification was designed to avoid [8]. An alternative line of work replaces the online numerical solve entirely with an offline-trained neural network that maps the current state directly to a control command, so that only a single, fast forward pass is required onboard. Supervised, imitation-learning approaches train such a net-work on a large dataset of optimal trajectories precomputed offline by an indirect or direct method, and have demonstrated real-time, closed-loop guidance for planetary landing and other guidance problems [9], [10]. Reinforcement learning instead trains a policy through repeated simulated interaction with the vehicle’s dynamics, optimizing a reward signal rather than imitating precomputed examples, and has been applied directly to fuel-optimal lunar and planetary powered descent [11], [12]. Both families of methods share two limitations that motivate the approach developed in this pa-per. First, both are data- or interaction-hungry. Imitation learning requires a training dataset whose generation cost and coverage scale with the dimension and extent of the operating envelope to be served, while reinforcement learning requires extensive trial-and-error exploration that can itself violate safety-critical state or control constraints before the policy has converged. Second, neither approach enforces the governing dynamics or the necessary conditions of optimality directly. The underlying physical laws of optimal control enter only implicitly, through the training examples or the reward signal, so the deployed network offers no formal guarantee of dynamic feasibility, constraint satisfaction, or proximity to optimality once it is queried at a state not well represented in training. Physics-informed neural networks (PINN), which embed the residual of a governing differential equation directly into the training loss alongside or instead of labeled data, offer a third alternative that trains the network against the physical laws of optimal control themselves rather than against either precomputed examples or a reward signal [13]. Several recent studies have begun applying this idea to aerospace guidance and control by embedding either Pontryagin’s mini-mum principle or the Hamilton-Jacobi-Bellman equation into a physics-informed network [14], [15], [16], with encourag-ing improvements in physical consistency over purely data-driven networks. However, these studies typically embed only one of the two necessary-condition perspectives rather than their full joint structure and are often tailored to a single, fixed initial condition rather than a genuine closed-loop policy valid over a whole family of initial states. Also, because the Hamilton-Jacobi-Bellman equation can admit multiple solutions for a general nonlinear problem, existing research still relies on at least some quantity of precomputed optimal data to anchor the network to the correct one [17]. This paper builds on a recently proposed optimality-principles-informed neural network framework that addresses the above limitations for general nonlinear, infinite-horizon optimal regulation problems by unifying the full set of nec-essary conditions implied jointly by Pontryagin’s minimum principle and the Hamilton-Jacobi-Bellman equation within a single architecture, achieving high sample efficiency, in-cluding training with little or even zero precomputed optimal data [18]. The present paper specializes and extends that framework, here renamed the Optimality-Informed Neural Network (OINN) approach, to the free-final-time, fixed-terminal-boundary structure of energy-optimal lunar powered descent, a structure not covered by the original infinite-horizon regulation formulation. The architecture hard-encodes the lunar lander’s specific boundary and transver-sality conditions, including a free final time bounded only from below, exploits the closed-form constant and affine costate structure that follows from this particular Hamiltonian to remove most of the network’s representational burden, substitutes the resulting Pontryagin-optimal thrust and direc-tion law in closed form rather than learning it, and trains only against the necessary conditions of optimality, with the value function retained solely as an auxiliary Bellman-consistency diagnostic rather than a full Hamilton-Jacobi-Bellman embedding. The resulting policy is trained entirely offline, requires only a fixed, small number of floating-point operations to evaluate online, and is accompanied by an explicit theoretical analysis that translates training conver-gence and the achieved residual magnitude into computable bounds on touchdown error, flight-time error, and onboard computational cost. The remainder of this paper is organized as follows. Section 2 formulates the free-final-time, energy-optimal lunar powered-descent problem over a bounded operating envelope of initial states. Section 3 develops the necessary conditions of op-timality for this problem via Pontryagin’s minimum princi-ple, including the closed-form optimal control law and the transversality conditions for the free terminal mass and free final time. Section 4 presents the OINN architecture and the physics-residual training loss that embeds these conditions. Section 5 establishes the theoretical convergence, accuracy, and onboard computational properties of the trained policy. Section 6 reports numerical simulations of a representative lu-nar landing scenario, comparing the trained policy against an independently solved indirect-method solution and a Monte Carlo evaluation across the operating envelope. Section 7 concludes the paper. 
+
+## 2. P ROBLEM FORMULATION 
+
+This paper considers a lunar lander descending under rocket propulsion from an initial position, velocity, and mass to a prescribed landing site with a prescribed (typically zero) terminal velocity. The lander carries no aerodynamic surfaces and is controlled entirely by a single throttleable, gimbaled main engine, whose thrust magnitude and pointing direction constitute the control input. Motion of the lander is described in a local-vertical, local-horizontal (LVLH) frame with East–North–Up (ENU) coor-dinates, with its origin fixed at the designated landing site. The lunar gravitational acceleration is treated as constant over the relatively short, low-altitude descent and is directed along the negative “Up” axis. Unlike a single offline trajectory com-puted for one fixed starting condition, the descent considered here is intended to start from any initial position, velocity, and mass within a bounded operational range, since the lander’s actual state at the moment powered descent begins is not known precisely in advance. Let r = [ x, y, z ]⊤ ∈ R3 denote the lander position, v =[vx, v y , v z ]⊤ ∈ R3 its velocity, and m ∈ R its instantaneous mass. The control is the thrust magnitude T together with 2a unit vector ˆıθ ∈ R3 providing the thrust direction. The equations of motion are [10] 
+
+˙r = v, (1) 
+
+˙v = Tm ˆıθ + g, (2) 
+
+˙m = − TIsp g0
+
+, (3) where g = [0 , 0, −gmoon ]⊤ is the constant lunar gravita-tional acceleration vector, Isp is the engine specific impulse, and g0 is the standard Earth sea-level gravitational accelera-tion. Equation (3) is the usual rocket-equation mass-depletion law: propellant is consumed at a rate proportional to thrust. Collecting the above into state and control vectors, 
+
+x =
+
+
+
+xyzvx
+
+vy
+
+vz
+
+m
+
+
+
+∈ R7, u =
+
+T
+
+ˆıθ
+
+
+
+∈ R4, (4) the dynamics (1)–(3) can be written compactly as ˙x =
+
+f (x, u). The state–control pair is nonlinear in two distinct ways that matter throughout this paper: the velocity dynamics contain the product of T /m , a ratio of two states/controls, with the direction vector, and the direction vector itself is constrained to the surface of the unit sphere, a nonconvex quadratic equality constraint. Rather than designing the guidance law around a single, pre-cisely known initial condition, this paper targets a feedback policy, where the lander’s actual position, velocity, and mass at the moment powered descent begins are taken to be free to vary, within a bounded region of plausible initial states, rather than fixed to a particular condition. Define the region of free initial states 
+
+Ω = 
+
+n
+
+(r0, v0, m 0) : r0 ∈ rlo 0 , rhi 0
+
+,
+
+v0 ∈ vlo 0 , vhi 0
+
+,m0 ∈ mlo 0 , m hi 0
+
+o
+
+, (5) where rlo 0 , rhi 0 ∈ R3 and vlo 0 , vhi 0 ∈ R3 denote component-wise lower and upper bounds on the initial position and velocity, and mlo 0 , m hi 0 ∈ R denote scalar lower and upper bounds on the initial mass. Section 6 gives the specific bounds used in numerical simulations. 
+
+Remark 2.1: The vehicle dry mass mdry is held fixed across 
+
+Ω rather than scaled with m0. This is a simplifying choice. A more detailed vehicle model might let the dry mass scale with vehicle size. As a consequence, the available propellant frac-tion (m0 − mdry )/m 0 varies somewhat across Ω depending on where m0 falls within its range. The trajectory begins at an initial state (r0, v0, m 0) ∈ Ω at the initial time t0 and must reach a prescribed landing site at the final time tf :
+
+r(t0) = r0, v(t0) = v0, m(t0) = m0, (6) 
+
+r(tf ) = rf , v(tf ) = vf , (7) where rf and vf are fixed and identical for every 
+
+(r0, v0, m 0) ∈ Ω. In this paper, rf = 0 and vf = 0,corresponding to a soft landing exactly at the designated site. The terminal mass m(tf ) is not prescribed; it is free to be determined by the optimization, and less propellant used is preferable. This combination of free initial conditions together with a fixed terminal position and velocity but a free terminal mass is the central structural feature that the OINN architecture in Section 4 is built to satisfy. Beyond the boundary conditions, the trajectory must respect 
+
+0 ≤ T (t) ≤ Tmax , ˆıθ (t) 22 = 1 , (8) 
+
+mdry ≤ m(t) ≤ m0, (9) i.e., the thrust magnitude is bounded by the engine’s max-imum thrust Tmax , the thrust direction is constrained to be a unit vector, and the mass must remain between the dry mass mdry , comprising structure, engine, and payload, and the initial wet mass m0.A further departure from a conventional fixed-horizon formu-lation is that the time of flight is treated as a decision variable here rather than a parameter chosen in advance. The final time is left free, tf > t 0, (10) to be determined by the optimization for each initial state, rather than fixed to a single mission-wide value. Letting the final time be free is appealing at the trajectory-design stage, since it allows the optimization itself to discover the most propellant-efficient flight duration for each initial state, rather than committing to a flight duration chosen by other means. Section 4 introduces a nominal minimum flight time, used purely as a numerical safeguard inside the neural-network architecture rather than as a constraint of the problem itself. An energy-optimal landing is sought, with a cost functional that combines the usual energy-like thrust penalty with a constant time penalty ρ ≥ 0:
+
+J =
+
+Z tf
+
+> t0
+
+
+
+T 2(t) + ρ
+
+
+
+dt. (11) 
+
+Remark 2.2: The time penalty ρ is necessary in (11) to admit a finite minimizer when the final time is free. For fixed boundary conditions, lengthening tf always permits a gentler deceleration profile, so R T 2 dt alone decreases monotoni-cally as tf grows without bound. Without a competing term, the problem will have no finite optimal tf at all. The infimum of R T 2 dt over tf > t0 is approached only in the limit 
+
+tf → ∞ . The penalty ρ, having the same units as T 2, restores a genuine fuel-versus-duration trade-off with a well-defined finite optimum, and is exactly the type of term a real mission planner would weigh: additional flight time is not free even when it reduces propellant consumption. For any single fixed (r0, v0, m 0) ∈ Ω, the complete three-dimensional, energy-optimal lunar landing trajectory opti-mization problem with a free final time is 
+
+min 
+
+> u(·), t f
+
+J =
+
+Z tf
+
+> t0
+
+
+
+T 2(t) + ρ
+
+
+
+dt (12) subject to the dynamics (1)–(3), the boundary conditions (6)– (7), the control and mass constraints (8)–(9), and the free-final-time condition (10). We denote it as Problem 1. 3Strictly speaking, because (r0, v0, m 0) is permitted to be any point of Ω rather than one fixed triple, Problem 1 is a family of optimal control problems, one for every (r0, v0, m 0) ∈ Ω.A classical indirect or direct transcription method must be re-solved from scratch for each member of this family. The goal of this paper is instead a single guidance law, a function of the current time-to-go and the specific initial state being flown, that solves every member of the family at once: 
+
+u∗ t; r0, v0, m 0
+
+, t∗
+
+> f
+
+ r0, v0, m 0
+
+,
+
+∀ (r0, v0, m 0) ∈ Ω. (13) Problem 1 is nonconvex for two reasons: the velocity dynam-ics (2) contain a nonlinear T ˆıθ /m coupling term, and the direction constraint in (8) is a nonconvex quadratic equality, the surface rather than the interior of the unit ball. Section 3 develops the necessary conditions of optimality for Problem 1 via Pontryagin’s minimum principle; Section 4 then develops a neural-network architecture, trained by domain randomiza-tion over Ω, that approximates the feedback law (13) directly. 
+
+## 3. O PTIMALITY CONDITIONS 
+
+This section develops the necessary conditions of optimality for Problem 1 posed in Section 2 via Pontryagin’s minimum principle [19]. These conditions are used twice in the remain-der of this paper: once to obtain a closed-form expression for the optimal control that is substituted directly, rather than learned, inside the neural-network architecture of Section 4, and once to define the costate-related quantities that the same architecture represents. 
+
+Hamiltonian and Costate Dynamics 
+
+Introduce costate vectors λr , λv ∈ R3 and a scalar costate 
+
+λm ∈ R, associated with r, v, and m respectively. The Hamiltonian for Problem 1 is 
+
+H = λ⊤ 
+
+> r
+
+v + λ⊤
+
+> v
+
+ Tm ˆıθ + g
+
+
+
+− λm
+
+TIsp g0
+
++ T 2 + ρ. (14) Applying the costate equations ˙λ = − ∂H/∂ x gives 
+
+˙λr = 0, (15) 
+
+˙λv = − λr , (16) 
+
+˙λm = Tm2 λ⊤ 
+
+> v
+
+ˆıθ . (17) Two structural simplifications follow directly from (15)–(17) and are exploited explicitly in the network architecture of Section 4: the position costate λr is exactly constant along the optimal trajectory, and the velocity costate λv is therefore an exactly affine (linear) function of time. Only the mass-costate equation (17) is genuinely nonlinear, through its coupling to T , m, and ˆıθ .
+
+Optimal Control Law 
+
+Pontryagin’s minimum principle states that the optimal con-trol minimizes the Hamiltonian pointwise over the admissible control set. Minimizing (14) over the unit-vector direction 
+
+ˆıθ , for T ≥ 0, is a linear minimization over the unit sphere, whose solution points the thrust exactly opposite the velocity costate: 
+
+ˆı∗ 
+
+> θ
+
+= − λv
+
+λv 2
+
+. (18) Substituting (18) back into (14) leaves an unconstrained scalar minimization over T of a convex quadratic, clipped to the admissible range [0 , T max ]. The result is 
+
+T ∗ = clip 12
+
+λv 2
+
+m + λm
+
+Isp g0
+
+!
+
+, 0, T max 
+
+!
+
+, (19) where clip( ·, 0, T max ) denotes clamping to the interval 
+
+[0 , T max ]. Substituting the optimal direction (18) into the mass-costate dynamics (17) also gives a convenient closed form for use along the optimal trajectory: 
+
+˙λm = − T ∗ λv 2
+
+m2 . (20) 
+
+Remark 3.1: The time penalty ρ appears additively in the Hamiltonian (14) but does not depend on the control. Conse-quently, ρ has no effect whatsoever on the minimizing control law (18)–(19); it affects only the transversality condition that determines the optimal final time derived below. 
+
+Transversality Condition for the Free Terminal Mass 
+
+Because the terminal mass m(tf ) is free and no terminal cost is associated with it, the standard transversality condition requires the corresponding costate to vanish at the final time: 
+
+λm(tf ) = 0 . (21) No analogous condition is needed for λr or λv : the transver-sality argument runs the opposite way for those, requiring a costate’s terminal value to vanish only when the correspond-ing state’s terminal value is free. Here r(tf ) and v(tf ) are fixed boundary conditions, so λr (tf ) and λv (tf ) are left unconstrained by transversality; instead, the fixed terminal position and velocity become two additional algebraic con-ditions that the solution must satisfy directly on the state trajectory. 
+
+Transversality Condition for the Free Final Time 
+
+When the final time is free, with no explicit terminal cost depending on tf beyond the state constraints already im-posed, the standard transversality condition is H(tf ) = 0 .Because the dynamics (1)–(3) and the integrand of (11) are both autonomous, that is, neither depends explicitly on t,the Hamiltonian is constant along the optimal trajectory, 
+
+dH/dt = 0 , so 
+
+H(t) = 0 , ∀ t ∈ [t0, t f ], (22) not merely at the final time. Substituting the optimal control law (18)–(19) into the Hamiltonian (14) and simplifying, using ˆı∗⊤  
+
+> θ
+
+λv = − λv 2 and T ∗ from (19) in the unsaturated regime, gives the compact closed form 
+
+H∗(t) = λ⊤ 
+
+> r
+
+v + λ⊤ 
+
+> v
+
+g −  T ∗2 + ρ. (23) Condition (22) together with (23) is what determines the final time when it is free: for a given initial state, t∗ 
+
+> f
+
+is the value of the final time for which a solution of the costate dynamics (15)–(17), the optimal control law (18)–(19), and the boundary conditions (6)–(7) also satisfies (22)–(23). 
+
+Remark 3.2: Condition (22) is the only information available about t∗ 
+
+> f
+
+. Nothing in Problem 1 bounds the final time from above, and Remark 2.2 already established that the time 4penalty ρ is what gives this condition a finite root in the first place. The OINN developed in Section 4 predicts a final time for each initial state directly from this condition, subject only to a nominal positivity safeguard, t∗ 
+
+> f
+
+> t min  
+
+> f
+
+for a small fixed 
+
+tmin  
+
+> f
+
+> 0, imposed for numerical reasons inside the network architecture rather than as a feature of Problem 1 itself. 
+
+Two-Point Boundary-Value Problem Summary 
+
+Collecting the results above, the indirect-method solution of Problem 1, for any one fixed (r0, v0, m 0) ∈ Ω, reduces to a two-point boundary-value problem in fourteen scalar states and costates, x, λ ∈ R7 each, together with one unknown scalar parameter tf , with the optimal control (18)–(19) sub-stituted into the dynamics. The associated boundary and transversality conditions are the seven initial conditions (6), the six fixed terminal conditions on r and v from (7), the transversality condition (21) for the free terminal mass, and the transversality condition (22) for the free final time, fifteen scalar conditions in total, matching the fourteen unknown states and costates plus the one unknown parameter tf , as re-quired for a well-posed parametric boundary-value problem. This is the boundary-value problem solved independently as a numerical check on the OINN in Section 6. It is also the structure that the network architecture in Section 4 is built to satisfy through its architecture and training loss, simultane-ously for every (r0, v0, m 0) ∈ Ω, rather than through explicit numerical shooting for one fixed instance. 
+
+## 4. O PTIMALITY -I NFORMED NEURAL 
+
+## NETWORK APPROACH 
+
+Motivated by [18], this section develops the optimality-informed neural network (OINN) approach to approximating the feedback law (13) directly, rather than solving Problem 1 independently for each (r0, v0, m 0) ∈ Ω. The defining feature of the OINN approach is that the optimality condi-tions derived in Section 3, rather than examples of optimal trajectories, supply the training signal. The network is trained to satisfy the Hamiltonian, the costate dynamics, and the transversality conditions everywhere in Ω, with the closed-form control law (18)–(19) substituted directly. 
+
+Network Architecture 
+
+Figure 1 shows the overall architecture. Two sub-networks share the task of representing the policy: a condition encoder 
+
+that sees only the initial state (r0, v0, m 0), never the time variable, and a main trunk that sees the time variable together with the initial state. This split follows directly from the structural simplification identified in Section 3: because λr is exactly constant and λv is therefore an exactly affine function of time for any initial state, only the two constant parameters of that affine function depend on (r0, v0, m 0) while their functional form in t never changes. It is therefore both correct and more efficient to compute those two parameters once per initial state outside of any per-time-step computation, rather than re-deriving them inside a network that also processes t.The condition encoder’s input is the normalized initial state alone. Writing r0,norm , v0,norm , and m0,norm for the com-ponents of (r0, v0, m 0) rescaled by the center and half-width of their respective ranges in Ω, so that the whole region maps to approximately [−1, 1] in every coordinate, the condition encoder computes 
+
+ a0, a1, τ  = NN cond 
+
+ r0,norm , v0,norm , m 0,norm 
+
+, (24) Initial -State Sampling                                                                                          
+
+> (𝑟 !,𝑣 !,𝑚 !)∈Ω
+> Time Sampling
+> 𝑡 ̃=𝑡 −𝑡 !
+> 𝑡 "
+> ∗−𝑡 !
+> ∈0,1
+> (𝑡 "
+> ∗from Condition
+> Encoder)
+> Condition Encoder
+> MLP (𝑟 !,𝑣 !,𝑚 !)
+> (no time dependence)
+> 𝒂 !,𝒂 $∈ℝ%→𝝀 &(𝑡 )affine
+> Raw 𝜏 (softplus )→𝑡 "
+> ∗>𝑡 "
+> '()
+> Main Trunk
+> MLP (𝑡 ̃,𝑟 !,𝑣 !,𝑚 !)
+> 2 hidden layers, tanh
+> State head: 𝑟 𝑡 ,𝑣 𝑡 ,𝑚 (𝑡 )
+> hard two -point BC
+> Costate head: 𝜆 *(𝑡 )
+> hard 𝜆 *𝑡 "
+> ∗=0
+> Value head: 𝑉 (𝑡 )
+> hard 𝑉 𝑡 "
+> ∗=0,softplus →𝑉 ≥0
+> Closed -Form PMP Control Law
+> (substituted, not learned)
+> 𝚤 ̂+
+> ∗=−𝝀 &/𝝀 &,
+> 𝑇 ∗=clip (1/2(𝝀 &,/𝑚 +
+> 𝜆 */(𝐼 -. 𝑔 !)),0,𝑇 '/0 )
+> Lunar lander
+> Physics -Residual Training Loss
+> (offline only, domain -randomized
+> over Ω):state/costate dynamics
+> residuals, Bellman consistency,
+> Hamiltonian transversality
+> 𝝀 !𝑡 ,𝜆 "𝑡 ,𝑚 (𝑡 )
+> all outputs
+> & time
+> derivatives
+> 𝑇 ∗,𝚤 ̂$
+> ∗
+
+Figure 1 . OINN architecture. A condition encoder, seeing only the initial state, produces the affine velocity-costate parameters and the predicted final time; a main trunk, seeing time together with the initial state, produces the state, mass-costate, and value bubble corrections. All boundary and transversality conditions are satisfied exactly by construction for any initial state; the PMP-optimal control law is substituted in closed form rather than learned. where a0, a1 ∈ R3 parameterize the affine velocity costate, defined in (32) below, and τ ∈ R is a single scalar raw output used to construct the predicted final time. The main trunk’s input additionally includes the normalized time ˜t =(t − t0)/(t∗ 
+
+> f
+
+− t0), so that ˜t ∈ [0 , 1] regardless of the value of 
+
+t∗ 
+
+> f
+
+for a given initial state: 
+
+trunk input =  ˜t, r0,norm , v0,norm , m 0,norm 
+
+ ∈ R8. (25) In this paper, both sub-networks consist of two fully con-nected hidden layers with hyperbolic-tangent activations. The condition encoder uses 32 units per hidden layer; the main trunk uses 64 units per hidden layer, wider than the condition encoder since it must represent a whole family of trajectories rather than a single per-initial-state quantity. Hyperbolic-tangent activations are used throughout because they are smooth and infinitely differentiable, which keeps the network outputs, and the dynamics residuals built from them by automatic differentiation, smooth as well. 
+
+Predicted Final Time 
+
+The raw scalar output τ from the condition encoder is mapped to a predicted final time via a softplus function, 
+
+t∗ 
+
+> f
+
+= tmin  
+
+> f
+
++ stf ln  1 + eτ , (26) which guarantees t∗ 
+
+> f
+
+> t min  
+
+> f
+
+for any value of the network weights by construction, where tmin  
+
+> f
+
+> 0 is a small fixed nominal minimum flight time and stf is a fixed scale constant given later in this section. This is the same hard-constraint-by-architecture philosophy used throughout this section for the state, costate, and value outputs, applied here to bound an output from below rather than to pin it to a single value. No analogous upper bound is imposed: t∗ 
+
+> f
+
+is free to take whatever value condition (22)–(23) selects for each initial state. 5Hard-Constraint Construction of State, Costate, and Value Outputs 
+
+Rather than penalizing boundary-condition violations softly in the training loss, which would only encourage but not guarantee their satisfaction, every boundary and transver-sality condition identified in Section 3 is satisfied exactly, for any value of the network weights and for any initial state (r0, v0, m 0) ∈ Ω, by algebraically combining the raw network output with a boundary interpolant and a bubble mul-tiplier that vanishes at the appropriate endpoint or endpoints. For position and velocity, both endpoints are fixed by (6)–(7), so a bubble function vanishing at both ˜t = 0 and ˜t = 1 is used: 
+
+r(t) = r0 + ˜ t  rf − r0
+
+ + ˜ t(1 − ˜t) · NN r (t) · sr , (27) 
+
+v(t) = v0 + ˜ t  vf − v0
+
+ + ˜ t(1 − ˜t) · NN v (t) · sv , (28) where NN r (t) and NN v (t) are the raw outputs of the main trunk’s state head, and sr , s v are fixed scale constants given later in this section. By construction, r(t0) = r0, r(tf ) = 
+
+rf , and likewise for v, exactly, regardless of the network weights and regardless of which r0, v0 value is supplied. This is precisely what makes the construction valid for the whole region Ω rather than a single fixed point. The mass is fixed only at the initial time, since its terminal value is free, so its bubble function vanishes only at ˜t = 0 :
+
+m(t) = m0 +˜ t·NN m(t)·sm, ˜t = ( t−t0)/(t∗ 
+
+> f
+
+−t0). (29) By construction, m(t0) = m0 exactly, for any m0 value supplied. The costate and value constructions follow the same logic, each using whichever bubble function matches its own boundary or transversality condition from Section 3: 
+
+λm(t) = (1 − ˜t) · NN λ(t) · sλ, (30) 
+
+V (t) = (1 − ˜t) · softplus  NN V (t) · sV , (31) 
+
+λv (t) = sλv
+
+ a0 − a1 ˜t. (32) Equation (30) hard-encodes the transversality condition (21), 
+
+λm(tf ) = 0, since its bubble factor (1 − ˜t) vanishes at 
+
+˜t = 1 . Equation (31) hard-encodes both a value terminal condition V (tf ) = 0 , using the same bubble factor, and a value-positivity condition V (t) ≥ 0 simultaneously, because a softplus function is always non-negative and the bubble factor is also always non-negative on [0 , 1] . Their product cannot be negative regardless of the network weights, a strictly stronger guarantee than a soft penalty could offer. The quantity V (t) is interpreted as the optimal cost-to-go, 
+
+V (t) = R tf
+
+> t
+
+ T ∗2(τ ) + ρ dτ , and is used only as an auxiliary consistency check during training, which will be described later in this section. Equation (32) is the affine velocity-costate construction, with a0, a1 supplied by the condition encoder (24) and sλv a fixed scale constant. 
+
+Closed-Form Treatment of the Position Costate 
+
+As anticipated, the construction (32) reflects the fact that λv
+
+requires no per-time-step network evaluation. Only its two affine parameters need to be computed once per initial state by the condition encoder. The position costate λr itself never needs to appear explicitly inside the main trunk, since it does not enter the dynamics (1)–(3) or the control law (18)–(19) directly. It matters only through its role as the negative time derivative of λv . Because the network’s fundamental time variable is the normalized time ˜t rather than physical time 
+
+t, recovering λr requires one application of the chain rule through the predicted final time: 
+
+λr = − dλv
+
+dt = − 1
+
+t∗
+
+> f
+
+dλv
+
+d˜t = sλv a1
+
+t∗
+
+> f
+
+, (33) which matches the costate equation (16), ˙λv = −λr , exactly, for any value of t∗ 
+
+> f
+
+. Equation (33) is the only place in the architecture where λr is explicitly recovered, and it is needed solely for the free-time transversality residual described next. 
+
+Closed-Form Control Substitution 
+
+Because the optimal control law (18)–(19) is substituted directly rather than learned, the network never produces a control output at all. The thrust magnitude and thrust direc-tion are always computed from the instantaneous costates and mass via 
+
+ˆı∗ 
+
+> θ
+
+(t) = − λv (t)
+
+λv (t) 2
+
+, (34) 
+
+T ∗(t) = clip 12
+
+λv (t) 2
+
+m(t) + λm(t)
+
+Isp g0
+
+!
+
+, 0, T max 
+
+!
+
+,
+
+(35) exactly mirroring the necessary conditions (18)–(19) derived in Section 3. This removes the control law entirely from the list of things the network has to learn, leaving only the state trajectory, the mass costate, and the value function to be represented, and guarantees that the thrust commanded by the network is always consistent with the necessary conditions of optimality, regardless of training quality elsewhere. 
+
+Physics-Residual Training Loss 
+
+The training loss aggregates the residuals of every necessary condition from Section 3 that is not already satisfied by construction, including the state canonical equations (1)– (3), the mass-costate canonical equation (17), a Bellman-consistency condition relating V (t) to the running cost, and the free-final-time transversality condition (22)–(23): 
+
+res r = ˙ r − v, (36) 
+
+res v = ˙ v −
+
+ T ∗
+
+m ˆı∗ 
+
+> θ
+
++ g
+
+
+
+, (37) 
+
+res m = ˙ m + T ∗
+
+Isp g0
+
+, (38) 
+
+res λ = ˙λm + T ∗ λv 2
+
+m2 , (39) 
+
+res V = ˙V +  T ∗2 + ρ, (40) 
+
+res H = λ⊤ 
+
+> r
+
+v + λ⊤ 
+
+> v
+
+g −  T ∗2 + ρ, (41) where time derivatives are obtained by central finite differ-ences in the normalized time ˜t and converted to physical-time derivatives via the chain rule d(·)/dt = d(·)/d ˜t/t ∗ 
+
+> f
+
+,holding the initial state fixed across the finite-difference eval-uations for a given training sample. Each residual is non-dimensionalized by a characteristic physical scale (given later in this section) before being combined into the total loss 
+
+L = wr res 2 
+
+> r
+
++ wv res 2 
+
+> v
+
++ wm res 2
+
+> m
+
++ wλ res 2 
+
+> λ
+
++ wV res 2 
+
+> V
+
++ wH res 2 
+
+> H
+
+, (42) 6where the overline denotes the mean of the squared, non-dimensionalized residual over a training batch, and 
+
+wr , w v , w m, w λ, w V , w H are fixed weights. 
+
+Remark 4.1: Residual (41) is the training signal that supplies all information about the correct final time. Nothing else in the loss constrains t∗ 
+
+> f
+
+directly. As discussed in Remark 3.2, this residual targets the transversality condition H(t) = 0 for all t ∈ [t0, t f ], the only necessary condition available since the final time is unconstrained above. 
+
+Adaptive Scale Constants 
+
+The scale constants sr , s v , s m, s λ, s V , s λv , s tf introduced in previous subsections and the non-dimensionalization con-stants used to form (42) exist purely for numerical condition-ing. The raw outputs of a hyperbolic-tangent-based network are naturally of order one, while the underlying physical quantities, a velocity costate or the total energy-like cost, can span many orders of magnitude. Every scale constant is computed once, from a short dimensional-analysis argument evaluated at the center of Ω and at a nominal characteristic flight time stf , rather than hand-tuned: 
+
+sr = 0 .4 max r0,center − rf , (43) 
+
+sv = 2 .0 max v0,center − vf , (44) 
+
+stf = 60 s , (45) 
+
+sm = 0 .5 Tmax 
+
+Isp g0
+
+stf , (46) 
+
+sλv = 0 .5 m0,center Tmax , (47) 
+
+sλ = 0 .5 Tmax Isp g0, (48) 
+
+sV = 0 .3 T 2max stf . (49) As one example of the reasoning behind these formulas, the optimal thrust magnitude is typically a sizable fraction of 
+
+Tmax over some portion of the flight, so a representative operating thrust is taken to be about half of Tmax . Since the stationarity condition (19) states that, away from saturation, 
+
+T ∗ is one-half of  ∥λv ∥/m + λm/(Isp g0), a representative magnitude for ∥λv ∥ is obtained by assuming it alone accounts for that representative thrust, giving ∥λv ∥ ∼ m0,center Tmax ,which is the formula in (47). The constant stf is a nominal characteristic flight time, used only to give sm and sV asensible physical magnitude and to initialize (26) near a reasonable value; it is not a bound on t∗ 
+
+> f
+
+. The remaining formulas follow similar reasoning from the dynamics and the cost functional. 
+
+Training Procedure 
+
+Training proceeds by stochastic collocation combined with domain randomization over Ω. At each training iteration, a batch of normalized collocation times is drawn by jittering a fixed uniform grid in ˜t ∈ [0 , 1] , and an independent batch of initial states is drawn uniformly at random from Ω:
+
+r(i)0 , v(i)0 , m (i)0 ∼ Uniform(Ω) , i = 1 , . . . , N, (50) with N the batch size. The network is evaluated at each sampled ˜t(i) together with ˜t(i) ±h for a small finite-difference step h. All these three evaluations share the same sampled initial state, so that the residuals (36)–(41) can be formed for every sample in the batch. The total loss (42) is then mini-mized by the Adam optimizer [20]. Algorithm 1 summarizes the procedure. Section 6 gives the specific numerical values 
+
+Algorithm 1: OINN training by domain randomization over Ω
+
+Input: Region Ω, minimum flight time tmin  
+
+> f
+
+,characteristic time scale stf , time penalty ρ,batch size N , finite-difference step h, learning rate η, number of iterations K
+
+> 1
+
+Initialize network weights θ for the condition encoder and main trunk; 
+
+> 2
+
+for k = 1 to K do  
+
+> 3
+
+Sample N initial states (r(i)0 , v(i)0 , m (i)0 ) uniformly from Ω; 
+
+> 4
+
+Sample N jittered normalized collocation times 
+
+˜t(i) ∈ [0 , 1] ; 
+
+> 5
+
+for i = 1 to N do  
+
+> 6
+
+Evaluate the network at ˜t(i), ˜t(i) + h, and 
+
+˜t(i) − h, using the same (r(i)0 , v(i)0 , m (i)0 ); 
+
+> 7
+
+Form the residuals res r , res v , res m, res λ, res V ,and res H via (36)–(41);  
+
+> 8
+
+end  
+
+> 9
+
+Form the batch loss L via (42);  
+
+> 10
+
+Update θ using one Adam step with gradient ∇θ L;
+
+> 11
+
+end Output: Trained network weights θ
+
+used for the region Ω, the minimum flight time tmin  
+
+> f
+
+, the time penalty ρ, and the training hyperparameters. 
+
+## 5. T HEORETICAL ANALYSIS 
+
+This section examines the fundamental properties of the OINN approach that determine its suitability for onboard, real-time implementation. These properties include the con-vergence behavior of the offline training procedure of Sec-tion 4, the accuracy with which a trained, frozen network satisfies the necessary conditions of Section 3 once deployed, and the computational and memory cost of evaluating the trained network on a flight computer. Throughout, θ denotes the complete collection of trainable weights and biases of the condition encoder and main trunk introduced in Section 4, and nθ denotes its dimension. 
+
+Training Convergence and Deterministic Onboard Evalua-tion 
+
+Algorithm 1 minimizes, at every iteration k, an empirical estimate of the population physics-residual loss 
+
+L∞(θ) = E(r0,v0,m 0)∼Uniform(Ω) E˜t∼Uniform(0 ,1) 
+
+h
+
+wr res r 
+
+> 22
+
++ wv res v 
+
+> 22
+
++ wm res 2
+
+> m
+
++ wλ res 2 
+
+> λ
+
++ wV res 2 
+
+> V
+
++ wH res 2
+
+> H
+
+i
+
+, (51) formed from the same residuals (36)–(41). The quantity 
+
+L∞(θ) is well defined whenever these residuals are square-integrable under the sampling distribution of (50), which holds automatically here because Ω is bounded, ˜t ranges over the bounded interval [0 , 1] , and every network in Section 4 is a finite composition of affine maps and bounded, smooth activation functions. The empirical loss minimized in Algo-rithm 1 at iteration k is an unbiased, finite-variance Monte Carlo estimate of L∞(θk), since the batch of initial states and collocation times drawn at every iteration is independent and 7identically distributed according to the same fixed sampling distribution used to define (51). 
+
+Assumption 1: The mass constraint (9) holds throughout training and deployment, so that m(t) ≥ mdry > 0 for every 
+
+t and every (r0, v0, m 0) ∈ Ω.
+
+Assumption 2: The stochastic gradient ∇θ L(k) 
+
+> N
+
+(θk) formed from the batch sampled at iteration k satisfies E∇θ L(k) 
+
+> N
+
+(θk) |
+
+θk
+
+ = ∇θ L∞(θk) and its variance Var ∇θ L(k) 
+
+> N
+
+(θk) ≤ σ2
+
+for a finite constant σ2 independent of k.Under Assumption 1, every residual in (36)–(41) is a contin-uously differentiable function of θ for every fixed sampled input, since it is built from finite compositions of the affine and hyperbolic-tangent layers of Section 4, the bounded division by m(t) ≥ mdry , and the clipping operation in (19), all of which are themselves Lipschitz. Consequently L∞
+
+in (51) is continuously differentiable with a gradient that is Lipschitz on any bounded subset of parameter space. Under this smoothness property together with Assumption 2, results of this type, established for adaptive-moment stochastic-gradient methods such as Adam under standard smoothness and bounded-variance assumptions, give the following sta-tionarity guarantee [21]. 
+
+Theorem 5.1: Under Assumptions 1–2 and a learning rate η
+
+satisfying the usual smallness condition relative to the Lips-chitz constant of ∇θ L∞, the iterates θ1, . . . , θ K produced by Algorithm 1 satisfy 
+
+min  
+
+> 1≤k≤K
+
+E
+
+h
+
+∇θ L∞(θk) 22
+
+i
+
+= O
+
+ 1
+
+√K
+
+
+
++ O(η), (52) i.e., the average squared gradient norm of the population residual loss along the training trajectory is driven to a neighborhood of zero whose radius is controlled jointly by the number of iterations K and the learning rate η.Equation (52) is deliberately a stationarity guarantee rather than a global-optimality guarantee: L∞ is nonconvex in θ,and no first-order method of this kind can certify convergence to a global minimizer of a nonconvex objective in general. What Theorem 5.1 certifies is that, given enough iterations and a sufficiently small learning rate, training can be driven arbitrarily close to a stationary point of the population resid-ual loss, at which the residuals (36)–(41) are, on average over 
+
+Ω and over ˜t ∈ [0 , 1] , no longer reducible by an infinitesimal change in θ. Section 6 reports the realized empirical loss tra-jectory and the resulting residual magnitudes for the specific training run used in this paper. 
+
+Remark 5.1: Once training terminates, θ is frozen for the remainder of the mission, and the policy is evaluated on-line purely by the deterministic forward computations of Section 4. The closed-form control substitution (34)–(35) requires no automatic differentiation, root-finding, or iterative refinement at runtime. This is a key difference from the indirect method summarized in Section 3, whose Newton-type collocation solver can fail to converge for a given initial state. Theorem 5.1 is therefore the only convergence question relevant to onboard use: it must hold once offline prior to flight. No analogous online convergence requirement exists for the deployed policy, whose evaluation terminates in the fixed, input-independent number of arithmetic operations quantified later in this section, for every (r0, v0, m 0) ∈ Ω,regardless of how close θ is to a stationary point of L∞.
+
+Accuracy of the Converged Policy 
+
+As discussed above, not every necessary condition of op-timality in Section 3 is left to be learned. Several are satisfied exactly for every value of θ by the hard-constraint constructions of Section 4. 
+
+Lemma 5.2: For every θ ∈ Rnθ and every (r0, v0, m 0) ∈
+
+Ω, the constructions (27)–(32), (26), (33), and (34)–(35) satisfy, exactly rather than approximately, 1) the initial con-ditions (6), 2) the terminal position and velocity conditions of (7), 3) the mass-costate transversality condition (21), 4) the value positivity condition V (t) ≥ 0, 5) the costate relation 
+
+˙λv = −λr of (16), 6) the minimum-flight-time safeguard 
+
+t∗ 
+
+> f
+
+> t min  
+
+> f
+
+, and 7) the control constraints (8), away from the measure-zero event λv (t) = 0.
+
+Proof. Each property follows by direct substitution. The bubble factors ˜t(1 − ˜t), ˜t, and (1 − ˜t) in (27)–(30) vanish at ˜t = 0, ˜t = 1, or both, independently of the raw network outputs they multiply, giving items 1–3. The softplus function in (31) and (26) is non-negative and strictly positive, respectively, for every real argument, giving item 4 and item 6. Differentiating (32) with respect to ˜t and applying the chain rule through t∗ 
+
+> f
+
+reproduces (33) algebraically, giving item 5, for any a0, a1 and any t∗ 
+
+> f
+
+> 0. Finally, (34) is a unit vector by construction whenever λv (t)̸ = 0, and (35) is explicitly clipped to [0 , T max ], giving item 7. ■
+
+Lemma 5.2 accounts for the boundary, transversality, and control-admissibility conditions of Section 3. What remains, and is satisfied only approximately, governed by the size of the training residuals, are the state canonical equations (1)– (3), the mass-costate canonical equation (17), the Bellman-consistency condition (40), and the free-final-time transver-sality condition (22)–(23). The following result quantifies the consequence of a nonzero residual for the trajectory the lander would actually fly. 
+
+Theorem 5.3: Let εx(t) = res r (t); res v (t); res m(t) ∈ R7
+
+denote the state-dynamics residual (36)–(38) evaluated along the trained network’s own output trajectory xNN (t) and its own commanded control history u∗
+
+> NN
+
+(t), the latter obtained by substituting xNN (t)’s internally generated costates and mass into (34)–(35), and let ε∞ 
+
+> x
+
+= sup t∈[t0,t ∗  
+
+> f]
+
+εx(t) 2. Let 
+
+xtrue (t) denote the solution of ˙x = f  x, u∗
+
+> NN
+
+(t), x(t0) = (r0, v0, m 0), i.e., the trajectory the lander would actually fly if commanded with exactly the same open-loop thrust history the network internally computes for this initial state. Under Assumption 1, f (·, u) admits the Lipschitz constant 
+
+Lf = 1 + Tmax 
+
+m2dry 
+
+(53) in x, uniformly over the admissible control range 0 ≤ T ≤
+
+Tmax , ˆıθ 2 = 1 , and for every t ∈ [t0, t ∗ 
+
+> f
+
+],
+
+xNN (t) − xtrue (t) 2 ≤ ε∞
+
+> x
+
+eLf (t−t0) − 1
+
+Lf
+
+. (54) 
+
+Proof. Write z(t) = xNN (t) − xtrue (t). By Lemma 5.2, 
+
+xNN (t0) = ( r0, v0, m 0) = xtrue (t0), so z(t0) = 0. Writing 
+
+x = ( r, v, m ), the only x-dependence of f for a fixed control history u(t) =  T (t), ˆıθ (t) enters through the velocity 8equation (2) via 1/m , so 
+
+f (x, u(t)) − f (x′, u(t)) 2
+
+≤ v − v′ 
+
+> 2
+
++ T (t) 1/m − 1/m ′
+
+≤ v − v′ 
+
+> 2
+
++ Tmax 
+
+m2dry 
+
+|m − m′|≤
+
+
+
+1 + Tmax 
+
+m2dry 
+
+
+
+x − x′ 
+
+> 2
+
+= Lf x − x′
+
+> 2
+
+,
+
+using ˆıθ (t) 2 = 1 , 0 ≤ T (t) ≤ Tmax , m, m ′ ≥ mdry ,the mean-value bound |1/m − 1/m ′| ≤ | m − m′|/m 2dry ,and ∥v − v′∥2, |m − m′| ≤ ∥x − x′∥2. By definition of εx, ˙xNN (t) = f  xNN (t), u∗
+
+> NN
+
+(t) + εx(t), so ˙z(t) = 
+
+f  xNN (t), u∗
+
+> NN
+
+(t) − f  xtrue (t), u∗
+
+> NN
+
+(t) + εx(t), hence 
+
+˙z(t) 2 ≤ Lf z(t) 2 + ε∞ 
+
+> x
+
+. The Gr¨ onwall–Bellman comparison lemma [22] applied to this scalar differential inequality with z(t0) = 0 gives (54). ■
+
+Two consequences of Theorem 5.3 are of direct onboard relevance. First, evaluating (54) at t = t∗ 
+
+> f
+
+and using the exact terminal condition of Lemma 5.2, xNN (t∗ 
+
+> f
+
+) =
+
+ rf , vf , m NN (t∗ 
+
+> f
+
+), bounds the touchdown position and ve-locity error the lander would actually incur, were it com-manded with the network’s own open-loop thrust history, purely in terms of the dynamics residual ε∞ 
+
+> x
+
+and the flight duration, both quantities available from training and evalua-tion diagnostics without requiring any independently solved ground-truth trajectory. Second, because the mass bound 
+
+mdry ≤ m(t) ≤ m0 of (9) is not architecturally hard-coded as in Lemma 5.2, the mass component of the same bound (54) directly bounds any violation of (9) in terms of ε∞ 
+
+> x
+
+as well. 
+
+Assumption 3: For every (r0, v0, m 0) ∈ Ω, the exact ex-tremal’s Hamiltonian, regarded as a function of an assumed flight time through (23), has a simple (transversal) zero crossing at the true optimal flight time ¯tf , i.e., ∂H ∗/∂ ¯tf̸ = 0 
+
+at the root. 
+
+Remark 5.2: Let ε∞ 
+
+> H
+
+= sup t res H (t) denote the free-final-time residual (41) along the trained network’s own trajectory, with t∗ 
+
+> f
+
+already fixed by the condition encoder rather than solved for at runtime. Under Assumption 3, a first-order implicit-function argument gives 
+
+t∗ 
+
+> f
+
+− ¯tf ≲ ε∞
+
+> H
+
+∂H ∗/∂ ¯tf
+
+, (55) to leading order in ε∞ 
+
+> H
+
+, since (22) is (by Section 3) the unique condition determining ¯tf for a fixed initial state, and the residual ε∞ 
+
+> H
+
+measures exactly the extent to which the trained network’s prediction fails to satisfy it. 
+
+Remark 5.3: The control law (34)–(35) does not depend on 
+
+V (t) at all. V (t) enters only the auxiliary residual (40) and is otherwise unused. Consequently, however large that residual remains after training, it has no bearing whatsoever on Theorem 5.3 or on the commanded thrust and direction. The value network exists purely as a Bellman-consistency diagnostic, not as a component of the deployed control law. 
+
+Computational Cost and Memory Requirements for Onboard Deployment 
+
+The input dimensions and hidden-layer widths of the con-dition encoder and main trunk already given in Section 4, together with the output dimensions implicit in (24) and (27)– (32), fix the total number of trainable parameters and the arithmetic cost of one forward pass exactly, independently of 
+
+θ, of Ω, and of the specific initial state being flown. 
+
+Table 1 . Parameter count and multiply-accumulate (MAC) operations per forward pass of the OINN architecture. Sub-network In. / hidden / out. Param. MACs Cond. encoder 7 → 32 → 32 → 7 1,543 1,472 
+
+Main trunk 8 → 64 → 64 → 9 5,321 5,184 
+
+Total — 6,864 6,656 
+
+The main trunk’s output dimension of 9 in Table 1 col-lects the state head producing NN r (t) ∈ R3, NN v (t) ∈
+
+R3, and NN m(t) ∈ R in (27)–(29), together with the scalar costate head NN λ(t) of (30) and the scalar value head NN V (t) of (31). Counting one multiply and one add as two floating-point operations (FLOPs), and tallying the hyperbolic-tangent nonlinearities separately since they are or-dinarily implemented as library or hardware intrinsics rather than elementary arithmetic, one full forward pass through both sub-networks costs 
+
+2 × 6,656 = 13 ,312 FLOPs ,
+
+64 + 128 = 192 tanh evaluations , (56) plus the negligible cost of the closed-form control substitu-tion (34)–(35), including a three-component vector norm, a normalization, and a clip, on the order of ten further FLOPs and a single square root. The corresponding memory footprint is the storage of nθ =6,864 weights and biases: at single-precision floating point, 
+
+6,864 × 4 bytes ≈ 26 .8 KiB; at double precision, as used directly in the training implementation underlying this paper, 
+
+6,864 × 8 bytes ≈ 53 .6 KiB. Either figure is negligible relative to the program memory of essentially any flight computer or guidance microcontroller, and no intermediate activation requires storing more than 64 scalars at a time, since that is the width of the largest hidden layer in either sub-network. 
+
+Remark 5.4: On a flight computer or microcontroller capa-ble of κ scalar floating-point operations per second, eval-uating the policy once, including both sub-networks, costs approximately 13 ,312 /κ seconds, plus the time for 192 
+
+transcendental-function evaluations. For a conservative κ =10 7 FLOPs/s, representative of a low-power embedded pro-cessor without dedicated floating-point hardware, this is on the order of 1–2 ms; for a typical flight computer with 
+
+κ = 10 9 FLOPs/s or more, it is on the order of tens of microseconds. Comparable OINN laws deployed onboard a small quadrotor elsewhere in the literature report total online computation times around 30 ms at a 30 Hz update rate [18], attributable almost entirely to sensor processing, attitude control, and actuator mixing rather than to the policy evaluation itself, which by (56) is several orders of magnitude cheaper than that budget. This fixed, input-independent computational profile is the practical counterpart of Remark 5.1. In contrast to the indirect 9method of Section 3, whose per-instance cost scales with an a priori unknown number of Newton-type collocation iterations, each requiring the assembly and factorization of a Jacobian whose dimension grows with the number of mesh points, the OINN forward pass quantified in (56) is the complete onboard cost of evaluating the guidance law, known exactly in advance and identical for every (r0, v0, m 0) ∈ Ω.Training itself, by contrast, is performed entirely offline, prior to flight, using the batch size N and iteration count K given numerically in Section 6. Its cost plays no role whatsoever in the onboard computational budget analyzed above. Together, Theorem 5.1, Theorem 5.3, and the cost figures of this section give a complete picture of what is required to trust the OINN approach onboard. The offline training procedure need converge, in the stationarity sense of (52), only once before flight. The boundary, transversality, and control-admissibility conditions enumerated in Lemma 5.2 hold ex-actly regardless of how well that training converges. The residual magnitude actually achieved translates, through (54) and (55), into explicit, computable bounds on touchdown error and flight-time error. Also, the per-update onboard computational and memory cost is fixed, small, and known exactly in advance. Section 6 reports the realized values of 
+
+ε∞ 
+
+> x
+
+, ε∞ 
+
+> H
+
+, and the resulting touchdown statistics for the lunar-landing case studies considered in this paper. 
+
+## 6. N UMERICAL SIMULATIONS 
+
+Simulation Scenarios and Parameter Settings 
+
+The numerical simulations consider a representative lunar powered-descent scenario, where the lander begins its final descent at an altitude of several hundred meters and a hori-zontal range of order one hundred meters from the designated landing site, with an initial descent rate of several meters per second and an initial wet mass of order ten metric tons, that must reach the site, rf = 0, with zero terminal velocity, vf =
+
+0, while minimizing the energy-like cost functional (11). The mission assumes a lunar gravitational acceleration gmoon =1.6229 m /s2, an engine specific impulse Isp = 311 .0 s and a maximum thrust Tmax = 44 ,000 N , representative of a single throttleable main engine sized for a vehicle of this mass class, and a fixed dry mass mdry = 1 ,000 kg . Rather than a single fixed starting condition, the trained policy is required to cover the entire operating envelope Ω of (5), a three-dimensional box in initial position, initial velocity, and initial mass, so that a single trained network must serve any powered-descent initiation state within this range without retraining. The key parameters are summarized in Table 2. The OINN framework of Section 4 is implemented in MATLAB using the Deep Learning Toolbox’s automatic-differentiation primitives, dlarray , dlgradient , and 
+
+dlfeval , together with the adamupdate function for the Adam update rule of Algorithm 1. The condition encoder and main trunk of Figure 1 are each implemented as an explicit sequence of affine layers and hyperbolic-tangent activations operating on dlarray objects, so that reverse-mode automatic differentiation through both sub-networks, and through the finite-difference time derivatives used to form the residuals (36)–(41), is handled by the toolbox directly rather than by a hand-coded backward pass. Before train-ing begins, the implementation performs a brief self-check, comparing the closed-form optimal control law (18)–(19) against a brute-force numerical minimization of the Hamil-tonian (14) over a fine grid of candidate thrust magnitudes at a representative state, confirming both the correctness of the 
+
+Table 2 . Key parameter settings used in the lunar-landing numerical simulations. 
+
+Vehicle and mission parameters 
+
+Lunar gravitational accel., gmoon 1.6229 m /s2
+
+Engine specific impulse, Isp 311 .0 s 
+
+Standard gravitational accel., g0 9.81 m /s2
+
+Dry mass, mdry 1,000 .0 kg 
+
+Maximum thrust, Tmax 44 ,000 .0 N 
+
+Terminal position, rf (0 , 0, 0) m 
+
+Terminal velocity, vf (0 , 0, 0) m /s
+
+Operating envelope Ω, component-wise range 
+
+Initial position x0 [50 , 150] m 
+
+Initial position y0 [150 , 250] m 
+
+Initial position z0 [800 , 1200] m 
+
+Initial velocity vx, 0 [5 , 15] m /s
+
+Initial velocity vy, 0 [5 , 15] m /s
+
+Initial velocity vz, 0 [−8, −2] m /s
+
+Initial mass m0 [9 ,000 , 11 ,000] kg 
+
+Free-final-time and cost parameters 
+
+Minimum flight time, tmin  
+
+> f
+
+10 .0 s 
+
+Characteristic flight-time scale, stf 60 .0 s 
+
+Time penalty, ρ 1.0 × 10 8 N2
+
+Network and training hyperparameters 
+
+Condition-encoder hidden width 32 
+
+Main-trunk hidden width 64 
+
+Batch size, N 256 
+
+Training iterations, K 25 ,000 
+
+Adam learning rate, η 2 × 10 −3
+
+Finite-difference step, h 2 × 10 −3
+
+Loss weights wr , w v , w m, w λ 1.0 each Loss weights wV , w H 0.01 each Monte Carlo draws 80 
+
+closed-form substitution and the fact that the time penalty ρ
+
+leaves the minimizing control law unaffected (established in Remark 2.2). Training itself follows Algorithm 1 directly. At each iteration, a batch of N initial states is drawn uniformly from Ω and an independent, jittered batch of normalized collocation times is drawn in [0 , 1] . The network is evaluated at each collocation time together with two finite-difference-shifted neighbors sharing the same sampled initial state. The residuals (36)– (41) are formed and combined into the total loss (42), and one Adam step updates the network weights. On a standard laptop CPU, with no GPU acceleration, training for the K = 25 ,000 
+
+iterations used in this paper completes in a few minutes, an entirely offline cost that, as discussed in Remark 5.1, plays no role in the onboard computational budget of Section 5. After training, the same frozen network is evaluated with no further parameter updates at six selected initial states and at a further eighty randomly drawn initial states for the Monte Carlo study (will be detailed later in this section). As an independent numerical check on these results, the same boundary-value problem summarized in Section 3 is also solved directly, for each of the six selected initial states, by MATLAB’s bvp4c solver [23] applied to the costate-scaled, non-dimensionalized indirect-method formulation, using the trained network’s own predicted trajectory as the initial guess supplied to the solver. This warm start, rather than a generic flat guess, is what makes the indirect-method shooting prob-lem tractable here: the costates λv , λm are of a substantially different order of magnitude than the states themselves, so 10 both the network-supplied warm start and an explicit non-dimensionalization of the costates by the scale constants sλv ,
+
+sλ of Section 4 are needed for bvp4c to converge reliably. Table 2 summarizes the vehicle, mission, operating-envelope, free-final-time, and network and training parameters used throughout this section. 
+
+Comparison with the Indirect Method at Six Representative Initial States 
+
+To assess whether the trained network actually recovers the optimal solution, rather than merely a function that satis-fies the necessary conditions approximately well, the single trained policy is evaluated, with no retraining, at six repre-sentative initial states spanning the operating envelope Ω: a center point (T1), the four corners of Ω formed by combining a light or heavy initial mass with a near, slow approach or a far, fast approach (T2 through T5), and one interior, off-center point (T6). Writing r0,center = (100 , 200 , 1000) m ,
+
+v0,center = (10 , 10 , −5) m /s, and m0,center = 10 ,000 kg for the center of Ω and the corresponding half-widths of Table 2, the six points are  
+
+> •
+
+T1, center (baseline): r0 = (100 , 200 , 1000) m , v0 =(10 , 10 , −5) m /s, m0 = 10 ,000 kg ; 
+
+> •
+
+T2, light and near/slow: r0 = (50 , 150 , 800) m , v0 =(5 , 5, −8) m /s, m0 = 9 ,000 kg ; 
+
+> •
+
+T3, heavy and near/slow: r0 = (50 , 150 , 800) m , v0 =(5 , 5, −8) m /s, m0 = 11 ,000 kg ; 
+
+> •
+
+T4, light and far/fast: r0 = (150 , 250 , 1200) m , v0 =(15 , 15 , −2) m /s, m0 = 9 ,000 kg ; 
+
+> •
+
+T5, heavy and far/fast: r0 = (150 , 250 , 1200) m , v0 =(15 , 15 , −2) m /s, m0 = 11 ,000 kg ; 
+
+> •
+
+T6, an interior off-center point: r0 = (115 , 175 , 1140) m ,
+
+v0 = (8 , 13 , −5.6) m /s, m0 = 10 ,400 kg .For each of these six points, Figures 2–7 compare the trained network’s prediction, evaluated zero-shot at that initial state, against the independent indirect-method solution of the same boundary-value problem obtained from bvp4c . Each fig-ure shows the three position components, the three velocity components, the vehicle mass, and the commanded thrust magnitude over the flight, together with a summary panel reporting the network’s predicted flight time and final mass, the corresponding bvp4c values, their differences ∆tf and 
+
+∆mf , and the mesh size and maximum boundary-condition residual achieved by bvp4c at convergence. Across all six cases, the agreement between the trained net-work and the independently solved boundary-value problem is close. The predicted flight time differs by at most 1.19 s , or 
+
+2.4 % , at T3, and the predicted final mass differs by at most about ten kilograms out of several thousand, under one tenth of one percent, at T5. The bvp4c solver itself converges to a tight numerical tolerance at every point, with a maximum boundary-condition residual no larger than about 5 × 10 −15 ,and at one point as small as 1.4 × 10 −24 , on a mesh of under one hundred points in every case, confirming that the indirect-method solution is itself an accurate solution of the necessary conditions of Section 3 and therefore a meaningful independent check on the network. The differences observed are not one-sided. At some points the network predicts a slightly higher final mass than bvp4c , and at others a slightly lower one, consistent with both being independent, approx-imately converged representations of the same underlying extremal rather than one being a biased approximation of the other. These differences are exactly the empirical residual magnitudes ε∞ 
+
+> x
+
+and ε∞ 
+
+> H
+
+that Theorem 5.3 and Remark 5.2 translate into touchdown-error and flight-time-error bounds. The sub-percent final-mass agreement observed here is the realization, at these six points, of the small touchdown error that a small dynamics residual was shown in Section 5 to guarantee, and the largest flight-time discrepancy, at T3, is consistent with a correspondingly small but nonzero free-final-time transversality residual ε∞ 
+
+> H
+
+at that point. Figures 8–11 summarize the same trained network’s behav-ior across all six points together. Figure 8 overlays the six commanded three-dimensional trajectories, each starting from its own initial position and converging to the common target at the origin. The visibly different path shapes and lengths are produced entirely by the condition encoder’s per-initial-state affine velocity-costate parameters and predicted final time, with no change to the network weights between points. Figure 9 overlays the corresponding thrust-magnitude histories, each ending at its own predicted final time t∗ 
+
+> f
+
+, and Figure 10 overlays the corresponding mass-depletion histo-ries, each starting from its own initial mass m0 and ending at its own predicted final mass. Consistent with the energy-optimal, free-final-time formulation of Section 2, every thrust profile in Figure 9 is lowest in the early-to-middle portion of the flight and rises toward the end as the vehicle decelerates into the fixed terminal velocity, with the heaviest, farthest, fastest case, T5, requiring both the longest flight time and among the largest thrust magnitudes of the six. Figure 11 shows the training-loss history on a logarithmic scale for the single run that produced the network evaluated in Figures 2– 10. The total residual loss falls by several orders of magnitude within the first few thousand iterations and then settles into a noisy plateau for the remainder of the K = 25 ,000 iterations, exactly the behavior anticipated by Theorem 5.1, whose bound (52) guarantees convergence only to a neighborhood of a stationary point of a radius controlled by the learning rate η and the stochastic-gradient variance of Assumption 2, rather than to an ever-decreasing value. The plateau visible in Figure 11 is the expected signature of having reached that neighborhood, rather than indicating a failure to train further. 
+
+Figure 8 . Optimal three-dimensional trajectories (same network, different initial states. 11 Figure 2 . OINN solution vs bvp4c indirect solution for T1 (baseline). 
+
+Figure 9 . Optimal thrust magnitude profiles (same network, different initial states, different t∗ 
+
+> f
+
+). Figure 10 . Optimal mass profiles (same network, different 
+
+m0, different t∗ 
+
+> f
+
+). 12 Figure 3 . OINN solution vs bvp4c indirect solution for T2 (light + near/slow). 
+
+Figure 11 . Training convergence. 
+
+Zero-Shot Generalization via Monte Carlo Evaluation 
+
+The six cases investigated above establish generalization in one sense: a single trained network, evaluated with no re-training, reproduces an independently solved optimal solution at the center, every corner, and one interior point of Ω. Acomplementary, statistically broader sense of generalization is also of interest for onboard use, which is regarding how the same frozen network behaves across a large number of initial states drawn at random from the same operating envelope, rather than at only a handful of named points chosen in ad-vance. To assess this, the trained network is evaluated, again with no retraining, at eighty initial states (r(i)0 , v(i)0 , m (i)0 )
+
+drawn uniformly at random from Ω, using a random-number-generator seed different from the one used during training, so that these eighty draws constitute genuinely out-of-sample evaluation points rather than a re-sampling of the training distribution. For each draw, the same diagnostics computed at the six named points, the predicted flight time, the final mass and propellant fraction used, the peak commanded thrust, the dynamics residuals (36)–(38), and the free-final-time transversality residual (41), are recorded. Figure 12 shows, as box-and-strip plots over the eighty draws, the distribution of the predicted flight time t∗ 
+
+> f
+
+and of the frac-tion of available propellant, (m0 −m(t∗ 
+
+> f
+
+)) /(m0 −mdry ), con-sumed by each trajectory. Both distributions are tightly clus-tered, with the flight times spanning a range consistent with the 47 .7 to 66 .1 s range already observed across the six named points, and with no draw approaching either the minimum-flight-time safeguard tmin  
+
+> f
+
+or an excessively long flight, in-dicating that the predicted final time (26) responds sensibly to whichever initial state is supplied. Figure 13 shows the corresponding distributions of the position-, velocity-, and mass-dynamics residuals, the empirical realizations of the 13 Figure 4 . OINN solution vs bvp4c indirect solution for T3 (heavy + near/slow). components of εx(t) in Theorem 5.3. All three remain small and comparably sized across the full set of draws, with no outlier draw exhibiting a qualitatively larger residual than the rest, supporting the use of a single representative value of ε∞ 
+
+> x
+
+when applying the touchdown-error bound (54) across the whole operating envelope rather than only at the point where it happens to be evaluated. Figure 14 shows the distribution of the peak commanded thrust against the engine ceiling Tmax = 44 ,000 N , drawn as a reference line, together with the distribution of the maximum free-final-time transversality residual ε∞ 
+
+> H
+
+of Remark 5.2. The peak thrust remains comfortably below the ceiling for the large majority of draws, with only a small fraction approaching saturation, and the transversality residual remains small and similarly distributed across draws, consistent with the small flight-time discrepancies already observed at the six named points and with the sensitivity bound (55) translating that small residual into a correspondingly small flight-time error throughout Ω,not merely at the points checked individually against bvp4c .
+
+Figure 12 . Monte Carlo: predicted flight time and propellant usage. 14 Figure 5 . OINN solution vs bvp4c indirect solution for T4 (light + far/fast). 
+
+Figure 13 . Monte Carlo: position-dynamics, velocity-dynamics, and mass-dynamics residuals. 
+
+Figure 14 . Monte Carlo: thrust range and Hamiltonian check. Together, the six-point comparison against the independently solved indirect method and the eighty-point Monte Carlo evaluation give complementary evidence for the theoretical claims in Section 5. The trained network, evaluated zero-shot and without retraining anywhere in Ω, reproduces an independently computed numerical solution of the neces-sary conditions of optimality closely at six representative points, including the hardest corner of the operating envelope, and maintains comparably small dynamics and transversality residuals across eighty additional, randomly drawn points spanning the same envelope. By the bounds of Theorem 5.3 15 Figure 6 . OINN solution vs bvp4c indirect solution for T5 (heavy + far/fast). and Remark 5.2, these small, consistently sized residuals translate directly into small, bounded touchdown-position, touchdown-velocity, and flight-time errors throughout Ω,while the per-update computational and memory cost of evaluating the policy, quantified in Section 5, remains the same small, fixed value at every one of these points. 
+
+## 7. C ONCLUSIONS 
+
+This paper developed an Optimality-Informed Neural Net-work (OINN) approach for the energy-optimal, free-final-time powered descent of a lunar lander from any initial position, velocity, and mass within a bounded operating envelope to a fixed landing site. Specializing a recently proposed optimality-principles-informed learning framework to this free-final-time, fixed-terminal-boundary structure, the approach hard-encodes every boundary and transversality condition identified by Pontryagin’s minimum principle di-rectly into the network architecture, substitutes the closed-form optimal thrust and direction law rather than learning it, and trains the remaining state, costate, and auxiliary value-function outputs against a physics-residual loss built entirely from the necessary conditions of optimality, without requiring any precomputed optimal trajectories. A com-panion theoretical analysis showed that the offline training procedure converges, in a stationarity sense standard for nonconvex stochastic optimization, to a neighborhood of a point satisfying these conditions; that several of the most safety-critical conditions, including the initial and terminal boundary conditions and the control admissibility constraints, hold exactly regardless of training quality; that the achieved training residual translates, through an explicit Gr¨ onwall-type bound, into a computable bound on touchdown position, touchdown velocity, and flight-time error; and that the trained policy requires only a fixed, small number of floating-point operations and a memory footprint of a few tens of kilobytes to evaluate online, independent of the specific initial state being flown. Numerical simulations of a representative lunar landing scenario supported these theoretical properties. The trained policy, evaluated with no retraining, agreed closely with an independently solved indirect-method boundary-value-problem solution at six representative initial states spanning the operating envelope, with flight-time and final-mass differences of at most a few percent and a small fraction of one percent, respectively. An eighty-point Monte Carlo evaluation over the same operating envelope showed compa-rably small dynamics and transversality residuals throughout, with no evidence of thrust saturation or degraded behavior away from the six selected points, supporting the claim that a single offline-trained network, requiring no expert trajectory dataset and no per-instance online numerical optimization, can serve as a physically consistent, real-time-deployable guidance law for the entire family of powered-descent initial conditions considered. 16 Figure 7 . OINN solution vs bvp4c indirect solution for T6 (interior off-center point). 
+
+## ACKNOWLEDGEMENTS 
+
+Generative AI tools were used for language refinement during the preparation of this paper. All technical content and interpretations were developed by the author. 
+
+## REFERENCES 
+
+[1] Z. Wang, “From new commercial moon landers to as-teroid investigations, expect a slate of exciting space missions in 2025,” 2025, https://theconversation.co m/from-new-commercial-moon-landers-to-asteroid-i nvestigations-expect-a-slate-of-exciting-space-mission s-in-2025-243645 [Accessed: 2026-06-25]. [2] ——, “Landing on the moon is an incredibly difficult feat – 2025 has brought successes and shortfalls for companies and space agencies,” 2025, https://thecon versation.com/landing-on-the-moon-is-an-incredibl y-difficult-feat-2025-has-brought-successes-and-s hortfalls-for-companies-and-space-agencies-256046 [Accessed: 2026-06-25]. [3] X. Liu, S. Li, and M. Xin, “Survey of trajectory opti-mization methods for mars entry and powered descent,” 
+
+Journal of Guidance, Control, and Dynamics , vol. 49, no. 1, pp. 216–239, 2026. [4] P. Lu, “Propellant-optimal powered descent guidance,” 
+
+Journal of Guidance, Control, and Dynamics , vol. 41, no. 4, pp. 813–826, 2018. [5] I. M. Ross and M. Karpenko, “A review of pseudospec-tral optimal control: From theory to flight,” Annual Reviews in Control , vol. 36, no. 2, pp. 182–197, 2012. [6] B. Acikmese and S. R. Ploen, “Convex programming approach to powered descent guidance for mars land-ing,” Journal of Guidance, Control, and Dynamics ,vol. 30, no. 5, pp. 1353–1366, 2007. [7] L. Blackmore, B. Ac ¸ikmes ¸e, and D. P. Scharf, “Minimum-landing-error powered-descent guidance for mars landing using convex optimization,” Journal of Guidance, Control, and Dynamics , vol. 33, no. 4, pp. 1161–1171, 2010. [8] Z. Wang, “A survey on convex optimization for guid-ance and control of vehicular systems,” Annual Reviews in Control , vol. 57, p. 100957, 2024. [9] C. S´ anchez-S´ anchez and D. Izzo, “Real-time optimal control via deep neural networks: Study on landing problems,” Journal of Guidance, Control, and Dynam-ics , vol. 41, no. 5, pp. 1122–1135, 2018. [10] L. Cheng, Z. Wang, and F. Jiang, “Real-time control for fuel-optimal moon landing based on an interactive deep reinforcement learning algorithm,” Astrodynamics ,vol. 3, no. 4, pp. 375–386, 2019. [11] A. Scorsoglio, A. D’Ambrosio, L. Ghilardi, B. Gaudet, F. Curti, and R. Furfaro, “Image-based deep reinforce-ment meta-learning for autonomous lunar landing,” 
+
+Journal of Spacecraft and Rockets , vol. 59, no. 1, pp. 17 153–165, 2022. [12] A. Scorsoglio, B. Gaudet, L. Ghilardi, and R. Fur-faro, “Meta-reinforcement learning guidance, naviga-tion, and control for autonomous lunar landing with safe site selection,” Neural Computing and Applications ,vol. 37, no. 22, pp. 17 311–17 340, 2025. [13] M. Raissi, P. Perdikaris, and G. E. Karniadakis, “Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations,” Jour-nal of Computational physics , vol. 378, pp. 686–707, 2019. [14] E. Schiassi, A. D’Ambrosio, K. Drozd, F. Curti, and R. Furfaro, “Physics-informed neural networks for op-timal planar orbit transfers,” Journal of Spacecraft and Rockets , vol. 59, no. 3, pp. 834–849, 2022. [15] A. D’Ambrosio, B. Benedikter, and R. Furfaro, “Physics-informed pontryagin neural networks for path-constrained optimal control problems,” Journal of Guid-ance, Control, and Dynamics , vol. 48, no. 8, pp. 1861– 1877, 2025. [16] K.-M. Na and C.-H. Lee, “Physics-informed deep learn-ing approach to solve optimal control problem,” in AIAA SciTech 2024 Forum , 2024, p. 0945. [17] A. Misztela, “On nonuniqueness of solutions of hamilton–jacobi–bellman equations,” Applied Mathe-matics & Optimization , vol. 77, no. 3, pp. 599–611, 2018. [18] H. Wang, Y. Shi, D. Wu, Z. Wang, T. Zheng, D. Chen, J. Mei, Y. Peng, W. Liu, S. Gong, P. Shi, X. Huang, and L. Cheng, “Unifying optimality principles inspires data-efficient optimal control learning,” under review. [19] D. E. Kirk, Optimal control theory: an introduction .Courier Corporation, 2004. [20] D. P. Kingma and J. Ba, “Adam: A method for stochas-tic optimization,” arXiv preprint arXiv:1412.6980 ,2014. [21] A. D´ efossez, L. Bottou, F. Bach, and N. Usunier, “A simple convergence proof of adam and adagrad,” arXiv preprint arXiv:2003.02395 , 2020. [22] Y. Louartassi, E. H. El Mazoudi, and N. Elalami, “A new generalization of lemma gronwall-bellman,” Ap-plied Mathematical Sciences , vol. 6, no. 13, pp. 621– 628, 2012. [23] L. F. Shampine, J. Kierzenka, M. W. Reichelt et al. ,“Solving boundary value problems for ordinary differ-ential equations in matlab with bvp4c,” Tutorial notes ,vol. 2000, no. 1–27, p. 4, 2000. 
+
+## BIOGRAPHY [
+
+Zhenbo Wang received his B.E. degree in Astronautics from Nanjing Univer-sity of Aeronautics and Astronautics in 2010 and his M.E. degree in Control Engineering from Beihang University in 2013. In 2018, he received his Ph.D. degree in Aeronautics and Astronau-tics from Purdue University and joined the University of Tennessee Knoxville (UTK) as an Assistant Professor. He is now an Associate Professor in the Department of Me-chanical and Aerospace Engineering and the director of the Autonomous Systems Laboratory at UTK. He is a recipient of the 2023 NSF Faculty Early Career Development Program (CAREER) Award, the 2023 Louis and Ann Hoffman En-dowed Excellence in Research Award, and the 2024 Profes-sional Promise in Research Award. His research interests are control, optimization, and machine learning for various en-gineering applications including space systems, air vehicles, connected and automated vehicles, and power and energy systems. He is a Senior Member of the American Institute of Aeronautics and Astronautics (AIAA) and a member of the AIAA Atmospheric Flight Mechanics (AFM) Technical Committee. He is a Senior Editor of IEEE Transactions on Aerospace and Electronic Systems .18
